@@ -1,0 +1,40 @@
+.table-listing-list {
+  display: flex;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.table-listing-title {
+  margin-bottom: 1.5rem;
+}
+
+.table-row_listing {
+  margin-bottom: 1.5rem;
+  display: flex;
+  padding: 10px;
+  border-radius: 5px;
+  -webkit-box-shadow: 4px 2px 5px 0px rgba(0,0,0,0.28);
+  -moz-box-shadow: 4px 2px 5px 0px rgba(0,0,0,0.28);
+  box-shadow: 4px 2px 5px 0px rgba(0,0,0,0.28);
+}
+
+.table-listing-name{
+  margin-top: 2px;
+  word-wrap: break-word;
+}
+
+
+.table-config-listing{
+  border: 1px solid red;
+
+}
+
+.table-listing-img {
+  width: 160px;
+  height:112px;
+  margin-left: 10px;
+}
+
+.table-item-listing{
+  max-width: 340px;
+}

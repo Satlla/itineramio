@@ -1,0 +1,51 @@
+.title-listing{
+  margin-left: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.hero-listing {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 auto;
+  box-sizing: border-box;
+  width: 100%;
+  justify-content: space-around;
+
+}
+
+.card-listing{
+  max-width: 350px;
+  margin-bottom: 20px;
+}
+
+.card-listing img {
+  max-width: 350px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+.category-listing {
+  background-color: #ccc;
+  border-radius: 5px;
+  padding: 3px 5px;
+  text-transform: uppercase;
+  color: white;
+  font-weight: bold;
+  max-width: 100%;
+  font-size: 12px;
+}
+.slogan-listing{
+  margin-left: 5px;
+  margin-top: 5px;
+  font-size: 15px;
+}
+.name-listing {
+  font-weight: 500;
+  font-size: 16px;
+  color: #0d0c22;
+  margin-left: 5px;
+}
+
+.titcat {
+  display: flex;
+  justify-content: space-between;
+}
