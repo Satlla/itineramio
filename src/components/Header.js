@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../css/components/header.css'
-import logo  from '../logo.svg';
+import logo  from '../logo.png';
 
 
 function Header() {
@@ -20,7 +20,7 @@ function Header() {
   <div className="collapse navbar-collapse" id="navbarNav">
     <ul className="navbar-nav">
       <li className="nav-item active">
-      <Link className="nav-link" to="/"> Home </Link>
+      {/* <Link className="nav-link" to="/"> Home </Link> */}
       </li>
 
 
