@@ -8,7 +8,7 @@ function Home() {
     <div className="dashboard">
 
       <FilterSubnav />
-      <Listings />
+      <Listings title=" Recomendados"  />
 
 
 

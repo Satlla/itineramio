@@ -1,6 +1,6 @@
-.title-listing{
-  margin-left: 10px;
-  margin-bottom: 1.5rem;
+.title-listing {
+  margin: 1rem;
+  color: #0d0c22;
 }
 
 .hero-listing {
@@ -10,10 +10,16 @@
   box-sizing: border-box;
   width: 100%;
   justify-content: space-around;
-
+}
+.dates-listing {
+  display: flex;
+  flex-direction: column;
+}
+.schedule {
+  margin-left: 5px;
 }
 
-.card-listing{
+.card-listing {
   max-width: 350px;
   margin-bottom: 20px;
 }
@@ -24,16 +30,18 @@
   margin-bottom: 10px;
 }
 .category-listing {
-  background-color: #ccc;
+  background-color: none;
+  border: 1px solid #0d0c22;
   border-radius: 5px;
   padding: 3px 5px;
   text-transform: uppercase;
-  color: white;
+  color: #0d0c22;
   font-weight: bold;
   max-width: 100%;
   font-size: 12px;
 }
-.slogan-listing{
+
+.slogan-listing {
   margin-left: 5px;
   margin-top: 5px;
   font-size: 15px;
@@ -48,4 +56,10 @@
 .titcat {
   display: flex;
   justify-content: space-between;
+}
+
+.timeicon {
+  margin-right: 5px;
+  object-fit: contain;
+  height: 15px !important;
 }

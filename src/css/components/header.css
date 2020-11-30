@@ -1,3 +1,11 @@
 .logo {
   width: 150px;
 }
+
+.bg-light{
+  font-weight: 400 !important;
+  padding-left: 20px !important;
+  justify-content: end;
+
+}
+

@@ -2,8 +2,7 @@ import React, { useEffect } from "react";
 import { fb } from "../firebase";
 import "../css/components/newlisting.css";
 import ListingsTable from "./ListingsTable";
-import { toast } from 'react-toastify';
-
+import { toast } from "react-toastify";
 
 const db = fb.firestore();
 
@@ -23,19 +22,20 @@ function ListingForm() {
     e.preventDefault();
     const listingname = e.target.listingname.value;
     const listingslogan = e.target.listingslogan.value;
-    if (!listingname || !fileUrl || !listingslogan) {
+    const listingcategory = e.target.listingcategory.value;
+    if (!listingname || !fileUrl || !listingslogan || !listingcategory) {
       return;
     }
     await db.collection("listings").doc(listingname).set({
       name: listingname,
       image: fileUrl,
       slogan: listingslogan,
+      category: listingcategory,
     });
-    toast('Se ha añadido el anuncio correctamente', {
-      type : 'success',
-      autoClose: 2000
-    })
-
+    toast("Se ha añadido el anuncio correctamente", {
+      type: "success",
+      autoClose: 1000,
+    });
   };
 
   useEffect(() => {
@@ -73,6 +73,18 @@ function ListingForm() {
             placeholder="Slogan del listing"
           />
         </div>
+        {/* Agregando categorias */}
+
+        <select className="form-control form-control-md mb-4" name="listingcategory">
+          <option>Desayunar</option>
+          <option>Tapas & Vinos</option>
+          <option>Arrocerías</option>
+          <option>Top</option>
+          <option>Coffee & Relax</option>
+        </select>
+
+        {/* Fin de las Categorias */}
+
         <input type="file" id="subirfoto" onChange={onFileChange} />
         <button className="btn btn-primary btn-block mt-4">
           {" "}
@@ -85,3 +97,5 @@ function ListingForm() {
 }
 
 export default ListingForm;
+
+

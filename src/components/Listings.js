@@ -24,32 +24,26 @@ function Listings({ title }) {
       <h4 className="title-listing"> {title} </h4>
 
       <div className="hero-listing">
-      {listings.map((listings) => {
-        return (
-
-        <div className="card-listing">
-        <a href="#" key={listings.name} alt="image">
-              <img
-                key={listings.id}
-                src={listings.image}
-                alt={listings.image}
-
-              />
-        </a>
+        {listings.map((listings) => {
+          return (
+            <div className="card-listing mb-4">
+              <a href="#" key={listings.name} alt="image">
+                <img
+                  key={listings.id}
+                  src={listings.image}
+                  alt={listings.image}
+                />
+              </a>
               <div className="titcat">
                 <span className="name-listing"> {listings.name} </span>
-                <span className="category-listing"> Romantic</span>
+                <span className="category-listing"> {listings.category}</span>
               </div>
-              <div className="slogan-listing">
-                {listings.slogan}
-              </div>
-              </div>
+              <div className="slogan-listing">{listings.slogan}</div>
+            </div>
           );
         })}
-  </div>
-
-</div>
-
+      </div>
+    </div>
   );
 }
 

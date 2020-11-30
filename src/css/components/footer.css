@@ -1,0 +1,14 @@
+.container-footer {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin-top: 4rem;
+  list-style: none;
+}
+
+.footer-list {
+  color: #6e6d7a;
+  list-style: none;
+  font-weight: bold;
+}
+
