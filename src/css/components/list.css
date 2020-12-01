@@ -6,7 +6,7 @@
 .hero-listing {
   display: flex;
   flex-wrap: wrap;
-  margin: 0 auto;
+
   box-sizing: border-box;
   width: 100%;
   justify-content: space-around;
@@ -20,12 +20,12 @@
 }
 
 .card-listing {
-  max-width: 350px;
+  max-width: 330px;
   margin-bottom: 20px;
 }
 
 .card-listing img {
-  max-width: 350px;
+  max-width: 330px;
   border-radius: 10px;
   margin-bottom: 10px;
 }

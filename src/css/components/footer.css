@@ -1,14 +1,40 @@
 .container-footer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
   width: 100%;
-  margin-top: 4rem;
+  margin-top: 3rem;
   list-style: none;
+  background-color: #fcfcfc;
+  padding: 1rem;
 }
 
 .footer-list {
-  color: #6e6d7a;
   list-style: none;
   font-weight: bold;
 }
 
+.logo-footer {
+  max-width: 150px;
+}
+
+.footer-title {
+  font-weight: 600;
+}
+
+.what-is {
+  max-width: 350px;
+  margin-left: -20px;
+  text-justify: justify;
+}
+
+.itineramio-footer {
+  margin-left: -20px;
+}
+
+@media (max-width: 600px) {
+  .container-footer {
+    display: block;
+    width: 100%;
+  }
+}

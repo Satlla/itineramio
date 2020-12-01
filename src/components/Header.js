@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import '../css/components/header.css'
 import logo  from '../logo.png';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 
 function Header() {
@@ -25,13 +26,16 @@ function Header() {
     <div className="form-inline my-2 my-lg-0">
     <ul className="navbar-nav mr-auto mt-2 mt-lg-0">
       <li className="nav-item active ml-2 ">
-      <a className="nav-link" href="#">¿Cómo funciona? <span class="sr-only">(current)</span></a>
+      <a className="nav-link" href="#"> ¿Cómo funciona?<span><ExpandMoreIcon /></span> <span class="sr-only">(current)</span></a>
       </li>
       <li className="nav-item active ml-2 ">
-      <a class="nav-link" href="#">Iniciar Sesión</a>
+      <a class="nav-link" href="#">Iniciar Sesión<span><ExpandMoreIcon /></span></a>
       </li>
       <li className="nav-item active ml-2 ">
-      <a class="nav-link" href="#">Registrarme</a>
+      <a class="nav-link" href="#">Registrarme<span><ExpandMoreIcon /></span></a>
+      </li>
+      <li className="nav-item active ml-2">
+      <a class="nav-link" href="#">Colabora</a>
       </li>
 
     </ul>

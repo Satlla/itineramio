@@ -12,6 +12,8 @@
   color: #6e6d7a !important;
   margin-left: 6px !important;
   font-weight: 600 !important;
+  color: #333 !important;
+  font-size: 15px;
 }
 
 .nav-link:hover {

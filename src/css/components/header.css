@@ -2,10 +2,33 @@
   width: 150px;
 }
 
-.bg-light{
+.bg-light {
   font-weight: 400 !important;
   padding-left: 20px !important;
   justify-content: end;
-
 }
 
+.btn-itineramio {
+  padding: 10px 16px;
+  cursor: pointer;
+
+  text-decoration: none;
+  border: 2px solid #ff4576;
+  -webkit-transition: all 200ms ease;
+  transition: all 200ms ease;
+  border-radius: 8px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  outline: none;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+
+  color: #ff4576;
+}

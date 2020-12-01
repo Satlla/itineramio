@@ -1,67 +1,78 @@
 import React from "react";
-import '../css/components/footer.css';
+import "../css/components/footer.css";
+import logo from "../logo.png";
+import InstagramIcon from '@material-ui/icons/Instagram';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import FacebookIcon from '@material-ui/icons/Facebook';
+import PinterestIcon from '@material-ui/icons/Pinterest';
 
 function Footer() {
   return (
     <div className="container-footer">
-
-<div className="cont-left">
+      <div className="cont-left">
         <ul className="footer-list">
-            <p ClassName="footer-list-title"> ACERCA DE</p>
-          <li>
+          <li className="itineramio-footer">
             <a class="nav-link" href="#">
-              Iniciar Sesión
+              <img src={logo} alt="" className="logo-footer" />
             </a>
           </li>
           <li>
-            <a class="nav-link" href="#">
-              Iniciar Sesión
-            </a>
-          </li>
-          <li>
-            <a class="nav-link" href="#">
-              Iniciar Sesión
-            </a>
+            <p class="what-is">
+              Itineramio es una comunidad de personas apasionadas por descubrir
+              la infinidad de lugares gastronómicos de imprescindible visita en
+              la ciudad de Alicante
+            </p>
+            <div className="Social-icons mb-4">
+              <span> <InstagramIcon /> </span>
+              <span className="ml-2"> <TwitterIcon /> </span>
+              <span className="ml-2" > <FacebookIcon /> </span>
+              <span className="ml-2"> <PinterestIcon /> </span>
+            </div>
           </li>
         </ul>
       </div>
       <div className="cont-center">
-      <ul className="footer-list" >
-      <p ClassName="footer-list-title"> COMUNIDAD</p>
+        <ul className="footer-list">
+          <p ClassName="footer-list-title"> ACERCA DE</p>
           <li>
             <a class="nav-link" href="#">
-              Iniciar Sesión
+              ¿Cómo funciona Itineramio?
             </a>
           </li>
           <li>
             <a class="nav-link" href="#">
-              Iniciar Sesión
+              News
             </a>
           </li>
           <li>
             <a class="nav-link" href="#">
-              Iniciar Sesión
+              Itineramio Plus
+            </a>
+          </li>
+          <li>
+            <a class="nav-link" href="#">
+              Itineramio Luxe
             </a>
           </li>
         </ul>
       </div>
 
       <div className="cont-right">
-      <ul className="footer-list">
-      <p ClassName="footer-list-title"> ASISTENCIA</p>
+        <ul className="footer-list">
+          <p ClassName="footer-list-title"> LEGAL</p>
           <li>
             <a class="nav-link" href="#">
-              Iniciar Sesión
+              Condiciones de uso
             </a>
           </li>
           <li>
             <a class="nav-link" href="#">
-              Iniciar Sesión
+              Privacidad y cookies
             </a>
           </li>
           <li>
             <a class="nav-link" href="#">
-              Iniciar Sesión
+              Quienes somos
             </a>
           </li>
         </ul>
