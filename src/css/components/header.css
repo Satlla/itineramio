@@ -8,27 +8,40 @@
   justify-content: end;
 }
 
-.btn-itineramio {
-  padding: 10px 16px;
-  cursor: pointer;
+.btn-itineramio{
 
-  text-decoration: none;
-  border: 2px solid #ff4576;
-  -webkit-transition: all 200ms ease;
-  transition: all 200ms ease;
+  color: #fff;
+  padding: 8px 15px;
+  margin-top: 10px !important;
   border-radius: 8px;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  outline: none;
-  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial,
-    sans-serif;
-  font-size: 16px;
+  background-color: #FF2E76;
+  border: none;
   font-weight: 600;
-  line-height: 20px;
+}
 
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
+.btn-itinevip{
+  color: #6e6d7a;
+  padding: 5px 15px;
+  margin-top: 10px !important;
+  border-radius: 8px;
+  background-color: transparent;
+  border: 1px solid #6e6d7a;
+  font-weight: 600;
+}
 
-  color: #ff4576;
+.btn-itinevip:hover{
+  cursor: pointer;
+  border: 1px solid #FF2E76;
+  color: #FF2E76;
+
+}
+
+
+@media (max-width: 600px) {
+  .navbar {
+    display: none;
+
+  }
+  .searcher{display: none;}
+  
 }

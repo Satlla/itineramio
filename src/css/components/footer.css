@@ -3,17 +3,18 @@
   flex-wrap: wrap;
   justify-content: space-around;
   width: 100%;
-  margin-top: 3rem;
+  margin-top: 4rem;
   list-style: none;
   background-color: #fcfcfc;
-  padding: 1rem;
+
+  margin: 0 auto;
 }
 
 .footer-list {
   list-style: none;
   font-weight: bold;
+  margin-left: -30px;
 }
-
 .logo-footer {
   max-width: 150px;
 }
@@ -24,12 +25,11 @@
 
 .what-is {
   max-width: 350px;
-  margin-left: -20px;
+font-size: 15px;
   text-justify: justify;
 }
 
 .itineramio-footer {
-  margin-left: -20px;
 }
 
 @media (max-width: 600px) {

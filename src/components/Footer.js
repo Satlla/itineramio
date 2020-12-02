@@ -8,7 +8,7 @@ import PinterestIcon from '@material-ui/icons/Pinterest';
 
 function Footer() {
   return (
-    <div className="container-footer">
+    <div className="container-footer mt-4 pt-4">
       <div className="cont-left">
         <ul className="footer-list">
           <li className="itineramio-footer">
