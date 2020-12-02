@@ -1,0 +1,45 @@
+.container-bullets {
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.image-bullet {
+  width: 200px;
+  max-height: 150px;
+
+}
+
+.bullet-group {
+  display: flex;
+  justify-content: center;
+  margin: 2rem;
+}
+
+.list-group-bullet {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-left: 2rem;
+  text-align: center;
+  justify-content: center;
+}
+
+.title-container {
+  margin-top: 1rem;
+  text-align: center;
+  color: #0d0c22;
+  margin-bottom: 1rem;
+}
+
+.title-bullet {
+  margin-top: 2rem;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+@media only screen and (max-width: 660px) {
+  .bullet-group {
+    flex-wrap: wrap;
+  }
+}

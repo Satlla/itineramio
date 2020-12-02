@@ -3,6 +3,7 @@ import '../css/dashboard.css';
 import FilterSubnav from './FilterSubnav';
 import Listings from './Listings';
 import MainBanner from '../components/MainBanner';
+import Bullets from '../components/Bullets';
 
 
 
@@ -11,7 +12,8 @@ function Home() {
     <div className="dashboard">
       < MainBanner />
       <FilterSubnav />
-      <Listings title=" Recomendados"  />
+      <Listings />
+      <Bullets />
 
     </div>
 

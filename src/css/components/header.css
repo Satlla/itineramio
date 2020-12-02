@@ -1,6 +1,11 @@
 #navbar {
   padding: 1.1rem;
-  background-color: #fff;
+  background-color: #fff !important;
+  align-items: center;
+  display: flex;
+  -webkit-box-shadow: 0px 4px 5px 0px rgba(0,0,0,0.28);
+-moz-box-shadow: 0px 4px 5px 0px rgba(0,0,0,0.28);
+box-shadow: 0px 4px 5px 0px rgba(0,0,0,0.28);
 }
 
 .logo {
@@ -16,7 +21,6 @@
 .btn-itineramio {
   color: #fff;
   padding: 8px 15px;
-  margin-top: 10px !important;
   border-radius: 8px;
   background-color: #ff2e76;
   border: none;
@@ -26,7 +30,6 @@
 .btn-itinevip {
   color: #6e6d7a;
   padding: 5px 15px;
-  margin-top: 10px !important;
   border-radius: 8px;
   background-color: transparent;
   border: 1px solid #6e6d7a;
@@ -43,13 +46,7 @@
 }
 
 @media (max-width: 600px) {
-  .navbar {
-    display: none;
-  }
   .form-control {
     display: none !important;
   }
-}
-
-@media (min-width: 991px) {
 }
