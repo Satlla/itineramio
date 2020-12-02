@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import "../css/components/header.css";
 import logo from "../logo.png";
 import FaceIcon from "@material-ui/icons/Face";
-import SearchIcon from '@material-ui/icons/Search';
-
+import WorkOutlineIcon from '@material-ui/icons/WorkOutline';
 function Header() {
   return (
     <div>
@@ -26,12 +25,7 @@ function Header() {
 
         <div className="collapse navbar-collapse" id="navbarTogglerDemo02">
           <ul className="navbar-nav mr-auto mt-2 mt-lg-0">
-            <li className="nav-item active ml-2 ">
-              <a className="nav-link" href="#">
-                {" "}
-                ¿Qué es Itineramio?<span class="sr-only">(current)</span>
-              </a>
-            </li>
+
             <li className="nav-item active ml-2 ">
             <button class="btn-itinevip my-2 my-sm-0" href="#">
                   {" "}
@@ -51,6 +45,12 @@ function Header() {
 
                 ></input>
               </li>
+              <li className="nav-item active ml-2 ">
+              <a className="nav-link" href="#">
+                {" "}
+                <WorkOutlineIcon />
+              </a>
+            </li>
               <li className="nav-item active ml-2 ">
                 <a className="nav-link faceicon" href="#">
                   {" "}
