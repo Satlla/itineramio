@@ -46,12 +46,12 @@ function Footer() {
           </li>
           <li>
             <a class="nav-link" href="#">
-              Itineramio Plus
+              Itineramio Pro
             </a>
           </li>
           <li>
             <a class="nav-link" href="#">
-              Itineramio Luxe
+              Estándares de calidad
             </a>
           </li>
         </ul>
