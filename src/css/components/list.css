@@ -22,12 +22,12 @@
 }
 
 .card-listing {
-  max-width: 350px;
+  max-width: 300px;
   margin-bottom: 20px;
 }
 
 .card-listing img {
-  max-width: 350px;
+  max-width: 300px;
   border-radius: 10px;
   margin-bottom: 10px;
 }

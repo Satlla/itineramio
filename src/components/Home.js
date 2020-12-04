@@ -4,6 +4,7 @@ import FilterSubnav from './FilterSubnav';
 import Listings from './Listings';
 import MainBanner from '../components/MainBanner';
 import Bullets from '../components/Bullets';
+import Discover from '../components/Discover';
 
 
 
@@ -14,6 +15,7 @@ function Home() {
       <FilterSubnav />
       <Listings />
       <Bullets />
+      <Discover />
 
     </div>
 

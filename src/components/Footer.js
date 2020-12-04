@@ -36,17 +36,12 @@ function Footer() {
           <p ClassName="footer-list-title"> ACERCA DE</p>
           <li>
             <a class="nav-link" href="#">
-              ¿Cómo funciona Itineramio?
+              ¿Qué es  Itineramio?
             </a>
           </li>
           <li>
             <a class="nav-link" href="#">
-              News
-            </a>
-          </li>
-          <li>
-            <a class="nav-link" href="#">
-              Itineramio Pro
+              GO PRO
             </a>
           </li>
           <li>

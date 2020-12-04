@@ -3,9 +3,10 @@
   background-color: #fff !important;
   align-items: center;
   display: flex;
-  -webkit-box-shadow: 0px 4px 5px 0px rgba(0,0,0,0.28);
--moz-box-shadow: 0px 4px 5px 0px rgba(0,0,0,0.28);
-box-shadow: 0px 4px 5px 0px rgba(0,0,0,0.28);
+  -webkit-box-shadow: 0px 2px 5px 0px rgba(241,241,241,1);
+-moz-box-shadow: 0px 2px 5px 0px rgba(241,241,241,1);
+box-shadow: 0px 2px 5px 0px rgba(241,241,241,1);
+  
 }
 
 .logo {

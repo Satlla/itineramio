@@ -48,9 +48,11 @@
 
 }
 
-@media (min-width: 600px) {
+@media (min-width: 661px) {
   .list-group-bullet {
-    margin-left: 3rem;
+    margin-left: 2rem;
+
+
   }
 }
 
