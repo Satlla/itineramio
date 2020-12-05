@@ -4,6 +4,15 @@ import "../css/components/list.css";
 
 function Listings({ title }) {
   const [listings, setListings] = useState([]);
+  const [ listingCategory, setListingCategory] = useState([]);
+
+  function categoryTerm(listingCategory){
+    return function(x){
+      return x.category.includes(listingCategory) || !listingCategory;
+    };
+  }
+
+  console.log(listingCategory);
 
   const getListings = async () => {
     db.collection("listings").onSnapshot((querySnapshot) => {
@@ -15,7 +24,6 @@ function Listings({ title }) {
     });
   };
 
-
   useEffect(() => {
     getListings();
   }, []);
@@ -24,9 +32,39 @@ function Listings({ title }) {
     <div>
 
       <h4 className="title-listing"> {title} </h4>
+      <div className="subnav">
 
+
+      <div className="dropdown" >
+      <select className="dropdown-filter " name="listingcategory" onChange={e => setListingCategory(e.target.value) }>
+          <option className="option-filter" value="Desayunar">Desayunar</option>
+          <option value="Tapas & Vinos">Tapas & Vinos</option>
+          <option value="Arrocerías">Arrocerías</option>
+          <option value="Top">Top</option>
+          <option value="Coffee & Relax">Coffee & Relax</option>
+        </select>
+
+      </div>
+      <div className="nav-list">
+  <ul className="nav">
+  <li className="nav-item">
+    <a className="nav-link active"  href="#">Planes</a>
+  </li>
+  <li className="nav-item">
+    <a className="nav-link" href="#">Homes</a>
+  </li>
+  <li className="nav-item">
+    <a className="nav-link" href="#">Visitar</a>
+  </li>
+
+</ul>
+  </div>
+
+
+      
+      </div>
       <div className="hero-listing">
-        {listings.map((listings) => {
+        {listings.filter(categoryTerm(listingCategory)).map((listings) => {
           return (
             <div className="card-listing mb-4">
               <a href="#" key={listings.name} alt="image">

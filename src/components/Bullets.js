@@ -28,7 +28,7 @@ function Bullets() {
           <img src={img3} className="image-bullet" alt="razon-de-ser" />
           <p className="title-bullet">Empatía</p>
           <p>
-            Nos ponemos en el lugar del cliente  y buscamos que su experiencia ¡sea perfecto!
+            Nos ponemos en el lugar del cliente  y buscamos que su experiencia ¡sea perfecta!
           </p>
         </div>
 

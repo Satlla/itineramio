@@ -7,7 +7,7 @@ import Listings from "./components/Listings";
 import NewListing from "./components/NewListing";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import TapaForm from './components/TapasForm';
+
 import LinkForm from './components/LinkForm';
 import Footer from './components/Footer'
 
@@ -34,9 +34,7 @@ function App() {
             <NewListing />
           </Route>
 
-          <Route path="/tapas-form">
-            <TapaForm />
-          </Route>
+    
 
           <Route path="/link-form">
             <LinkForm />

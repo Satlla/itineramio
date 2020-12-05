@@ -11,6 +11,7 @@
 }
 .btn-rounded {
   display:none;
+  margin-top:2rem;
 }
 
 .main-cont {
@@ -220,7 +221,7 @@
 
 @media (min-width: 1500px) {
   .item1 {
-    height: 550px;
+    height: 100%;
   }
 
   .main-cont {

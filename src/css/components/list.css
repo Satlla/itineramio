@@ -5,6 +5,23 @@
   margin-bottom: 1rem;
 }
 
+.dropdown-filter {
+  background-color: transparent !important;
+  color: #6e6d7a !important;
+  border-radius: 8px !important ;
+  box-sizing: border-box !important;
+  border: 3px solid #797982 !important;
+  padding: 7px;
+
+}
+.dropdown-filter:hover {
+  
+  border: 3px solid #ff2e76 !important;
+ 
+
+}
+
+
 .hero-listing {
   display: flex;
   flex-wrap: wrap;

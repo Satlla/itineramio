@@ -1,10 +1,11 @@
 import React from 'react';
 import '../css/dashboard.css';
 import FilterSubnav from './FilterSubnav';
-import Listings from './Listings';
+
 import MainBanner from '../components/MainBanner';
 import Bullets from '../components/Bullets';
 import Discover from '../components/Discover';
+import Top from '../components/Top';
 
 
 
@@ -12,8 +13,7 @@ function Home() {
   return (
     <div className="dashboard">
       < MainBanner />
-      <FilterSubnav />
-      <Listings />
+      <Top />
       <Bullets />
       <Discover />
 
