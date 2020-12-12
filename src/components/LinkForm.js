@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import storage from "../firebase";
+import Links from './Links';
 
 // Importando las imagenes
 
 function LinkForm(props) {
   //Función para grabar todo lo que tipeas en el input
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setValues({ ...values, [name]: value });
+    console.log(name, value);
   };
 
   //Creamos una constante con los valores iniciales
@@ -27,6 +30,7 @@ function LinkForm(props) {
     props.addOrEditLink(values);
     setValues({ ...initialStateValues });
   };
+
   return (
     <div>
       <h3> Add a new listing for itineramio </h3>
@@ -70,6 +74,7 @@ function LinkForm(props) {
 
         <button className="btn btn-primary btn-block"> Enviar</button>
       </form>
+        <Links />
     </div>
   );
 }

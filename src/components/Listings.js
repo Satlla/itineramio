@@ -3,7 +3,10 @@ import { db } from "../firebase";
 import "../css/components/list.css";
 
 function Listings({ title }) {
+
   const [listings, setListings] = useState([]);
+
+
 
   const getListings = async () => {
     db.collection("listings").onSnapshot((querySnapshot) => {
@@ -14,6 +17,7 @@ function Listings({ title }) {
       setListings(docs);
     });
   };
+
 
 
   useEffect(() => {
@@ -34,6 +38,7 @@ function Listings({ title }) {
                   key={listings.id}
                   src={listings.image}
                   alt={listings.image}
+
                 />
               </a>
               <div className="titcat">
