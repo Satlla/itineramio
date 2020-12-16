@@ -37,7 +37,7 @@
 
 .card-listing {
   width: 330px;
-  margin-left: 15px;
+  margin-left: 10px;
 
 }
 
@@ -85,16 +85,6 @@
   margin-right: 5px;
   object-fit: contain;
   height: 15px !important;
-}
-
-@media (min-width: 991px) {
-  .hero-listing{
-    padding: 0 100px 0 ;
-
-  }
-  .title-listing {
-    margin-left: 120px;
-  }
 }
 
 

@@ -85,6 +85,7 @@ align-items: middle;
 .peculiarities__resume {
   font-size: 12px;
   margin-left: 2px;
+  color: #717171;
 }
 
 .peculiarities__title {
@@ -97,4 +98,24 @@ align-items: middle;
 
 .description__title{
   font-weight: 600;
+}
+
+.price{
+  font-weight: 800;
+
+}
+
+.notification {
+  margin: 1rem;
+  border: 1px solid #717171;
+  border-radius: 5px;
+  padding: 1rem;
+  text-justify: center;
+  color: #717171;
+
+}
+
+.notification__icon {
+  margin-right: 5px;
+  color: #717171;
 }

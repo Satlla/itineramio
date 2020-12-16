@@ -29,10 +29,12 @@ function Header() {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav mr-auto mt-2 mt-lg-0">
             <li className="nav-item active ml-2 ">
-              <button class="btn-itinevip my-2 my-sm-0" href="#">
+
+              <button  class="btn-itinevip my-2 my-sm-0">
                 {" "}
                 GO PRO
               </button>
+
             </li>
           </ul>
           <div className="form-inline my-2 my-lg-0">
@@ -65,10 +67,12 @@ function Header() {
               </li>
 
               <li className="nav-item active ml-3">
+              <Link to="/new-listing">
                 <button class="btn-itineramio my-2 my-sm-0" href="#">
                   {" "}
                   Colabora
                 </button>
+                </Link>
               </li>
             </ul>
           </div>
