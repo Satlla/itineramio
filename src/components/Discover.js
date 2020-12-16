@@ -1,5 +1,6 @@
 import React from "react";
 import "../css/components/discover.css";
+import { Link } from "react-router-dom";
 import foto1 from "../assets/img/cafe.jpg";
 import foto2 from "../assets/img/cafe2.jpg";
 import foto3 from "../assets/img/restaurant.jpg";
@@ -7,7 +8,7 @@ import foto4 from "../assets/img/restaurant2.jpg";
 
 function Discover() {
   return (
-    <div className="main-cont">
+    <div className="main-cont mb-4">
       <div className="container-hero">
         <div className="container-titles">
 
@@ -22,7 +23,9 @@ function Discover() {
           </p>
         </div>
         <div className="explore-itineramio">
+          <Link to="/explore">
           <button className="btn-rounded"> Explorar Lugares</button>
+          </Link>
         </div>
         </div>
         <div className="grid-container">

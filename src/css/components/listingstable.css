@@ -31,3 +31,20 @@
 .table-item-listing{
   max-width: 340px;
 }
+
+.btn__edit {
+  border: 1px solid #008489;
+  padding: 10px 30px;
+  border-radius: 30px;
+  background-color: transparent;
+  color : #008489;
+
+}
+
+.btn__delete{
+  border: 1px solid #ff2e76;
+  padding: 10px 30px;
+  border-radius: 30px;
+  background-color: transparent;
+  color : #ff2e76;
+}

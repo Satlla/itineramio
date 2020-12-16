@@ -10,7 +10,7 @@ function HeaderTransparent() {
   return (
     <div className="header__transparent">
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-transparent">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
       <a class="navbar-brand" href="#">
 
       <Link className="navbar-brand" to="/">
@@ -24,7 +24,7 @@ function HeaderTransparent() {
 
       <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
         <ul class="navbar-nav mr-auto mt-0 mt-lg-0">
-          <li class="nav-item active">
+          {/* <li class="nav-item active">
             <a class="nav-link" href="#"> <span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
@@ -32,9 +32,18 @@ function HeaderTransparent() {
           </li>
           <li class="nav-item">
             <a class="nav-link disabled" href="#"></a>
-          </li>
+          </li> */}
+          <li className="nav-item active ml-2 ">
+
+          <button  class="btn-itinevip my-2 my-sm-0 mt-2">
+            {" "}
+            GO PRO
+          </button>
+
+        </li>
+
         </ul>
-        <form class="form-inline my-2 my-lg-0">
+        <form class="form-inline my-1 my-lg-0">
         <ul className="navbar-nav mr-auto mt-2 mt-lg-0">
               {/* <li className="searcher" id="searcher">
                 <input

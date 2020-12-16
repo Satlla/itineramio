@@ -85,6 +85,13 @@
     border: 1px solid #fff;
     border-radius: 5px;
     padding: 10px 15px;
+    
+  }
+
+  .btn-rounded:hover {
+    background-color: rgb(255, 255, 255, 0.4);
+    color: #fff;
+    transition: cubic-bezier(0.075, 0.82, 0.165, 1);
   }
 
   .hero-slogan {

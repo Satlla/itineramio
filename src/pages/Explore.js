@@ -1,23 +1,19 @@
 import React from "react";
 import "../css/dashboard.css";
-import FilterSubnav from "./FilterSubnav";
-
-import Bullets from "../components/Bullets";
-import Discover from "../components/Discover";
+import FilterSubnav from "../components/FilterSubnav";
+import Footer from '../components/Footer';
 import Top from "../components/Top";
 import HeaderTransparent from '../components/HeaderTransparent';
 
 
-function Home() {
+function Explore() {
   return (
     <div className="dashboard">
        <HeaderTransparent />
-      <Discover />
-      
       <Top />
-      <Bullets />
+      <Footer />
     </div>
   );
 }
 
-export default Home;
+export default Explore;

@@ -1,17 +1,13 @@
-
-
-.header__transparent {
-  height: 75px;
-  border: 1px solid white;
-  width: 100%;
-  position: absolute;
-  z-index: 100;
-  color: white;
-  align-content: center;
-
+.btn-itinevip{
+  max-width: 100px;
 }
 
 
-ul .navbar-nav {
-  color: #ffffff;
-}
+
+
+@media (max-width: 991px) {
+  .btn-itinevip{
+    margin-left: 10px;
+    margin-top: 10px;
+  }
+  }
