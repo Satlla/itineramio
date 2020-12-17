@@ -1,9 +1,9 @@
 import React from "react";
 import "../css/pages/hiw.css";
 import city from "../assets/backgrounds/como-funciona.jpg";
-import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
 import logo from "../assets/logos/logo-rojo.png";
+import people from '../assets/viñetas/itinepeople.png';
 
 function AboutUs() {
   return (
@@ -16,15 +16,39 @@ function AboutUs() {
 
       <header className="header__about">
         <div className="cta__banner">
-          <h4 className="title__banner"> Conoce Itineramio </h4>
+          <h1 className="title__banner"> Lugares Mágicos </h1>
           <p className="slogan__banner">
             {" "}
-            Te damos la bienvenida los mejores emplazamientos de Alicante
+            Dependiendo de dónde quieras estar, itineramio te dice el lugar
           </p>
+          <Link to="/explore">
+          <button className="btn-rounded"> Explorar Lugares</button>
+          </Link>
         </div>
         <img className="image__banner" alt="whyus" src={city}></img>
       </header>
-      <Footer />
+      <div className="bullets"> 
+        
+      <div className="bullet">
+        <img className="bullets__img"src={people}></img>
+        <h4> Objetividad </h4>
+        <span> La plataforma está pensada 100% para el cliente que visita los lugares y toda la información trata de ser siempre objetiva.</span>
+
+        </div>
+        <div className="bullet">
+        <img className="bullets__img"src={people}></img>
+        <h4> Objetividad </h4>
+        <span> La plataforma está pensada 100% para el cliente que visita los lugares y toda la información trata de ser siempre objetiva.</span>
+
+        </div>
+        <div className="bullet">
+        <img className="bullets__img"src={people}></img>
+        <h4> Objetividad </h4>
+        <span> La plataforma está pensada 100% para el cliente que visita los lugares y toda la información trata de ser siempre objetiva.</span>
+
+        </div>
+      </div>
+     
     </div>
   );
 }

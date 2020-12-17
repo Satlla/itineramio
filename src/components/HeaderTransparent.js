@@ -63,7 +63,7 @@ function HeaderTransparent() {
                 <Link to="/como-funciona"> 
                 <a className="nav-link" href="#" id="hiw">
                   {" "}
-                  <WorkOutlineIcon /> ¿Cómo funciona?
+                  <WorkOutlineIcon /> ¿Qué es itineramio?
                 </a>
                 </Link>
               </li>

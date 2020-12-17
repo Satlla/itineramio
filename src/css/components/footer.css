@@ -6,7 +6,6 @@
   margin-top: 4rem;
   list-style: none;
   background-color: #fcfcfc;
-
   margin: 0 auto;
 }
 
@@ -29,7 +28,8 @@ font-size: 15px;
   text-justify: justify;
 }
 
-.itineramio-footer {
+a .MuiSvgIcon-root {
+  color: #484848;
 }
 
 @media (max-width: 600px) {
