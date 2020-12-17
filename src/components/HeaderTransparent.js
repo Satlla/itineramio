@@ -60,10 +60,12 @@ function HeaderTransparent() {
                    GO PRO
                 </button> */}
               <li className="nav-item active ml-3 ">
+                <Link to="/como-funciona"> 
                 <a className="nav-link" href="#" id="hiw">
                   {" "}
                   <WorkOutlineIcon /> ¿Cómo funciona?
                 </a>
+                </Link>
               </li>
               <li className="nav-item active ml-3 ">
                 <a className="nav-link faceicon" href="#">

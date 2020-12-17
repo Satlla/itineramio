@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { fb } from "../firebase";
-import Header from "../components/Header";
 import "../css/components/newlisting.css";
 import ListingsTable from "./ListingsTable";
 import { toast } from "react-toastify";
+import HeaderTransparent from '../components/HeaderTransparent';
+
 // import HighlightOffIcon from "@material-ui/icons/HighlightOff";
 
 const db = fb.firestore();
@@ -112,7 +113,7 @@ function ListingForm() {
   return (
     <div className="form-container">
       <div className="control-panel">
-        <Header />
+   <HeaderTransparent />
         <div className="form-listing">
           <h3> Añadir listing </h3>
 
@@ -187,7 +188,7 @@ function ListingForm() {
                 />
               </div>
             </div>
-            <div className="row">
+            <div className="row mb-3 ">
               <label className="labels__listing" for="slogan">
                 {" "}
                 Slogan del Listing{" "}
@@ -204,7 +205,7 @@ function ListingForm() {
             </div>
 
             {/* Agregando location */}
-            <div className="row">
+            <div className="row mb-3">
               <label className="labels__listing" for="location">
                 {" "}
                 Dirección{" "}

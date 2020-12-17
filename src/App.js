@@ -6,8 +6,7 @@ import NewListing from "./components/NewListing";
 import ListingDetails from './pages/ListingDetails';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import LinkForm from "./components/LinkForm";
-import AboutUs from './pages/AboutUs';
+import Hiw from './pages/Hiw';
 import Footer from "./components/Footer";
 import Explore from './pages/Explore';
 
@@ -17,19 +16,14 @@ function App() {
   return (
     <div>
       <Router>
-       
 
         <Switch>
           <Route exact path="/">
             <Home />
           </Route>
 
-          <Route exact path="/linkform">
-            <LinkForm />
-          </Route>
-
-          <Route exact path="/about-us">
-            <AboutUs />
+          <Route exact path="/como-funciona">
+            <Hiw />
           </Route>
 
           <Route exact path="/listing/:listingId">
@@ -41,9 +35,6 @@ function App() {
             <NewListing />
           </Route>
 
-          <Route path="/link-form">
-            <LinkForm />
-          </Route>
 
           <Route path="/explore">
             <Explore />

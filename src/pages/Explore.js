@@ -11,7 +11,7 @@ function Explore() {
     <div className="dashboard">
        <HeaderTransparent />
       <Top />
-      <Footer />
+
     </div>
   );
 }

@@ -12,7 +12,7 @@ function Header() {
         id="navbar"
       >
         <Link className="navbar-brand" to="/">
-          <img className="logo" src={logo} alt="" />
+          <img className="logo__isotipo" src={logo} alt="" />
         </Link>
         <button
           class="navbar-toggler"

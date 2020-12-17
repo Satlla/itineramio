@@ -1,0 +1,67 @@
+.header__about{
+  width: 100%;
+
+
+
+}
+
+.slogan__banner{
+  justify-content: center;
+  text-justify: center;
+  font-weight: 600;
+}
+
+.cta__banner{
+  -webkit-box-align: center !important;
+  -ms-flex-align: center !important;
+  -webkit-box-direction: normal !important;
+  -webkit-box-orient: vertical !important;
+  position: absolute !important;
+  top: 0px !important;
+  left: 0px !important;
+  right: 0px !important;
+  display: -webkit-box !important;
+  display: -moz-box !important;
+  display: -ms-flexbox !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-flex-direction: column !important;
+  -ms-flex-direction: column !important;
+  flex-direction: column !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  padding: 0 24px !important;
+  margin-top: 77px !important;
+
+
+}
+
+.image__banner {
+  width: 100% ;
+  object-fit: cover ;
+  max-height: 680px ;
+
+}
+
+.title__banner {
+  font-size: 44px ;
+  font-weight: 600 ;
+  margin-top: 3rem;
+
+
+}
+
+.cab {
+position: absolute;
+  padding: 1rem;
+  width: 100%;
+}
+
+.logo_banner{
+  width: 40px;
+
+
+}
+
+
