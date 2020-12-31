@@ -8,7 +8,7 @@ function Bullets() {
     <div className="container-bullets">
 
        <h3 className="title-container">¿Por qué Itineramio?</h3>
-       
+
     <div className="bullet-group">
         <div className="list-group-bullet">
           <img src={img1} className="image-bullet" alt="razon-de-ser" />

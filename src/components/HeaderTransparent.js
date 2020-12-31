@@ -37,7 +37,7 @@ function HeaderTransparent() {
 
           <button  class="btn-itinevip my-2 my-sm-0 mt-2">
             {" "}
-            GO PRO
+            PLUS
           </button>
 
         </li>

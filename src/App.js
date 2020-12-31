@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Hiw from './pages/Hiw';
 import Footer from "./components/Footer";
 import Explore from './pages/Explore';
+import Plans from './pages/Plans';
 
 
 
@@ -38,6 +39,10 @@ function App() {
 
           <Route path="/explore">
             <Explore />
+          </Route>
+
+          <Route path="/plans">
+            <Plans />
           </Route>
 
         </Switch>{" "}

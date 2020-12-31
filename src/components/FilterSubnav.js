@@ -1,5 +1,6 @@
 import React from 'react'
 import  "../css/components/filters.css"
+import { Link } from "react-router-dom";
 
 
 function FilterSubnav() {
@@ -21,9 +22,11 @@ function FilterSubnav() {
   </div>
   <div className="nav-list">
   <ul className="nav">
+  <Link to="/plans">
   <li className="nav-item">
-    <a className="nav-link active"  href="#">Planes</a>
+    <a className="nav-link active"  href="#">Plans</a>
   </li>
+    </Link>
   <li className="nav-item">
     <a className="nav-link" href="#">Homes</a>
   </li>

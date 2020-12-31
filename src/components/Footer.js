@@ -43,9 +43,10 @@ function Footer() {
             </Link>
           </li>
           <li>
-            <a class="nav-link" href="#">
-              GO PRO
-            </a>
+            <Link to="/plans">
+            <a class="nav-link"> ¿Qué es Plans? </a>
+
+            </Link>
           </li>
           <li>
             <a class="nav-link" href="#">
@@ -66,11 +67,6 @@ function Footer() {
           <li>
             <a class="nav-link" href="#">
               Privacidad y cookies
-            </a>
-          </li>
-          <li>
-            <a class="nav-link" href="#">
-              Quienes somos
             </a>
           </li>
         </ul>
