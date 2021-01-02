@@ -49,7 +49,7 @@ function Listings({ title }) {
   return (
     <div>
     { loading ? "" : <Preloader />}
-    <div className="about__us">
+    {/* <div className="about__us">
       <div classname="about__cont">
 
       <h2 className="about__title"> Descubre itineramio</h2>
@@ -58,7 +58,8 @@ function Listings({ title }) {
       </div>
       </div>
 
-    </div>
+    </div> */}
+    <div className="plans__container">
     <div className="nav__plans">
       <div className="plan">
         <img className="plan__categoryImage" src={romantic} alt=""/>
@@ -110,6 +111,7 @@ function Listings({ title }) {
       </div>
 
     </div>
+     </div>
         {/* DropDown seleccionar categoría  */}
         {/* <div className="dropdown">
           <select

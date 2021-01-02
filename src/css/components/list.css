@@ -166,17 +166,15 @@
 
 }
 
-.title__category {
-  font-weight: 700;
-}
-
-
 .plan__content {
   margin-left: 10px;
   display: flex;
   flex-direction: column;
 
 }
+
+
+
 
 .nav__plans{
   margin-top: 2rem;

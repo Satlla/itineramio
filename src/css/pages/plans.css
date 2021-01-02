@@ -186,6 +186,11 @@ padding: 2rem 2rem 0 2rem;
   margin-bottom: 1rem;
 }
 
+.plans__container{
+  display: flex;
+  justify-content: center;
+}
+
 @media (min-width: 600px) {
   .contact_container{
 display: none;
@@ -214,4 +219,13 @@ display: none;
 
 
 }
+}
+
+@media (min-width: 600px) {
+  .nav__plans > .plan {
+    margin-left: 4rem;
+    margin-right: 4rem;
+    font-weight: 500;
+  
+  }
 }
