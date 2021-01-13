@@ -9,6 +9,7 @@ function Listings({ title }) {
 
 
   const getListings = async () => {
+
     db.collection("listings").onSnapshot((querySnapshot) => {
       const docs = [];
       querySnapshot.forEach((doc) => {
@@ -21,6 +22,7 @@ function Listings({ title }) {
 
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     getListings();
   }, []);
 

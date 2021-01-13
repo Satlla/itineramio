@@ -21,13 +21,23 @@
 
 
 .hero-listing {
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 2rem;
-  box-sizing: border-box;
-  width: 100%;
-  justify-content: center;
+
+    margin: 4rem 0 0 2rem ;
+    display: grid !important;
+    grid-auto-flow: column !important;
+    overflow: auto hidden !important;
+    scroll-snap-type: x mandatory !important;
+    gap: 10px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
 }
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+
 .dates-listing {
   display: flex;
   flex-direction: column;
@@ -37,16 +47,18 @@
 }
 
 .card-listing {
-  width: 330px;
+  width: 243px;
   margin-left: 10px;
+
 
 }
 
 .card-listing img {
-  width: 330px;
+  width:243px;
   border-radius: 10px;
   margin-bottom: 10px;
-  object-fit: contain;
+  object-fit: cover;
+  height: 243px;
 }
 .category-listing {
   background-color: none;
@@ -58,11 +70,13 @@
   font-weight: bold;
   max-width: 100%;
   font-size: 12px;
+  margin-left: 5px;
 }
 
 .slogan-listing {
   margin-left: 5px;
   margin-top: 5px;
+  margin-bottom: 5px;
   font-size: 15px;
   width: 100%;
   display: -webkit-box;

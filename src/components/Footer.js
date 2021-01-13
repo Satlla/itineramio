@@ -9,6 +9,9 @@ import PinterestIcon from '@material-ui/icons/Pinterest';
 
 
 function Footer() {
+  window.scrollTo(0, 0);
+
+
   return (
     <div className="container-footer mt-4 pt-4">
       <div className="cont-left">

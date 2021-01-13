@@ -16,6 +16,7 @@ function ListingDetails() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (listingId) {
       db.collection("listings")
         .doc(listingId)

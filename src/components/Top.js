@@ -173,9 +173,10 @@ function Listings({ title }) {
               </Link>
               <div className="titcat">
                 <span className="name-listing"> {listings.name} </span>
-                <span className="category-listing"> {listings.category}</span>
+                
               </div>
               <div className="slogan-listing">{listings.slogan}</div>
+              <span className="category-listing"> {listings.category}</span>
 
             </div>
           );
