@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import "../css/components/list.css";
+import Preloader from "../components/Preloader";
 
 function Listings({ title }) {
 
   const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(false);
 
 
 
@@ -23,6 +25,7 @@ function Listings({ title }) {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    setLoading(true);
     getListings();
   }, []);
 
@@ -31,6 +34,7 @@ function Listings({ title }) {
 
       <h4 className="title-listing"> {title} </h4>
 
+        {loading ? "" : <Preloader />}
       <div className="hero-listing">
         {listings.map((listings) => {
           return (

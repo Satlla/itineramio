@@ -27,7 +27,6 @@ function Listings({ title }) {
     };
 
   }
-  
 
   const getListings = async () => {
 

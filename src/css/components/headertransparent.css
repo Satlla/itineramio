@@ -30,6 +30,10 @@
     border: 1px solid red;
   }
 
+  .header__transparent{
+    border-bottom: 1px solid #dcdcdc;
+  }
+
   @media (max-width: 600px) {
     .form-control {
       display: none !important;

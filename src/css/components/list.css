@@ -230,5 +230,15 @@
   }
 }
 
+@media (min-width: 768px) {
+
+    .image__listing{
+      width: 300px;
+
+    }
+  }
+  
+
+
 
 

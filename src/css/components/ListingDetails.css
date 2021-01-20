@@ -3,6 +3,24 @@
   height: 300px;
   object-fit: cover;
 
+
+}
+
+.image__container {
+  max-width: 100%;
+
+}
+
+
+.container__title{
+  width: 100%;
+}
+.main__description{
+
+  width: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+
 }
 
 
@@ -28,7 +46,7 @@ display: -webkit-box;
 
 .ratings {
   display: flex;
-  justify-content: space-between;
+ 
   margin: 1rem;
   font-weight: 800;
 }
@@ -36,6 +54,7 @@ display: -webkit-box;
 .number {
   font-weight: 600;
   font-size: 14px;
+  margin-left: 10px;
 }
 
 .address .rating {
@@ -64,7 +83,7 @@ align-items: middle;
 .peculiarities__listing{
   display: flex;
   flex-direction: column;
-  padding: 0 1rem 0 1rem;
+  max-width: 100%;
 }
 
 .peculiarities__icons .MuiSvgIcon-root{
@@ -89,6 +108,21 @@ align-items: middle;
 }
 
 .peculiarities__title {
+  font-weight: 600;
+}
+.peculiarities__title__green{
+  color: #00A699;
+  font-weight: 600;
+  text-decoration: underline;
+
+}
+
+.verified__icon{
+  color: #ff2e76;
+}
+
+.peculiarities__title__primary{
+  color: #ff2e76;
   font-weight: 600;
 }
 
@@ -118,4 +152,98 @@ align-items: middle;
 .notification__icon {
   margin-right: 5px;
   color: #717171;
+}
+
+.container__listing{
+  max-width: 1200px;
+  margin: 0 auto;
+
+}
+.container__file{
+
+margin: 0 auto;
+}
+
+@media (min-width: 600px) {
+
+  .image__listing{
+    height: 100%;
+    max-width: 390px;
+    border-radius: 10px;
+  }
+
+  .image__container {
+    max-width: 100%;
+
+
+  }
+}
+
+@media (min-width: 600px) {
+
+  .image__listing{
+    width: 330px;
+  }
+  .file__listing{
+    display: flex;
+    margin-top: 2rem;
+  }
+
+  .peculiarities__listing{
+    height: 100%;
+    border-radius: 12px;
+  }
+
+  .container__title{
+    height: 100%;
+    max-width: 330px;
+
+  }
+
+  .image__container {
+    display: flex;
+    margin: 0 auto;
+    max-width: 90%;
+    justify-content: space-around;
+    align-items: center;
+    padding: 2rem;
+
+  }
+
+  .title__listing{
+    margin-top: 1rem;
+
+  }
+  .peculiarities__resume{
+    font-size: 10px;
+  }
+
+  .container__description{
+    margin: 0 2rem 0 2rem;
+  }
+
+}
+
+@media (min-width: 990px) {
+  .container__file{
+    width: 90%;
+  }
+}
+
+
+
+@media (max-width: 900px) {
+  .image__container{
+    max-width: 100%;
+  }
+
+}
+
+
+
+@media (max-width: 700px) {
+  .image__listing{
+    max-width: 100%;
+  }
+
 }
