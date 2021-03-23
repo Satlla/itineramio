@@ -89,7 +89,7 @@ function ListingForm() {
       price: listingprice,
       itins: listingitins,
       description: listingdescription,
-      image: listingimage
+
 
     });
     toast("Se ha añadido el anuncio correctamente", {
