@@ -4,9 +4,9 @@ import city from "../assets/backgrounds/como-funciona.jpg";
 import citybig from "../assets/backgrounds/backgroundbig.jpg";
 import { Link } from "react-router-dom";
 import logo from "../assets/logos/logo-rojo.png";
-import people from '../assets/viñetas/itinepeople.png';
-import couple from '../assets/viñetas/restaurant-couple.png';
-import restaurant from '../assets/viñetas/restaurant.png';
+import people from '../assets/viñetas/itinepeople.jpg';
+import couple from '../assets/viñetas/restaurant-couple.jpg';
+import restaurant from '../assets/viñetas/restaurant.jpg';
 import contactus from '../assets/viñetas/contact.png';
 import MailOutlineIcon from '@material-ui/icons/MailOutline';
 

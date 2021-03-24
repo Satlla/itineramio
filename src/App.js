@@ -10,6 +10,7 @@ import Hiw from './pages/Hiw';
 import Footer from "./components/Footer";
 import Explore from './pages/Explore';
 import Plans from './pages/Plans';
+import Colaborate from './pages/Colaborate';
 
 
 
@@ -17,7 +18,6 @@ function App() {
   return (
     <div>
       <Router>
-
         <Switch>
           <Route exact path="/">
             <Home />
@@ -43,6 +43,9 @@ function App() {
 
           <Route path="/plans">
             <Plans />
+          </Route>
+          <Route  exact path="/colaborate">
+             <Colaborate/>
           </Route>
 
         </Switch>{" "}

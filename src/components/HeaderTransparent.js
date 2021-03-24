@@ -35,10 +35,10 @@ function HeaderTransparent() {
           </li> */}
           <li className="nav-item active ml-2 ">
 
-          <button  class="btn-itinevip my-2 my-sm-0 mt-2">
+          {/* <button  class="btn-itinevip my-2 my-sm-0 mt-2">
             {" "}
             PLUS
-          </button>
+          </button> */}
 
         </li>
 
@@ -67,15 +67,15 @@ function HeaderTransparent() {
                 </a>
                 </Link>
               </li>
-              <li className="nav-item active ml-3 ">
+              {/* <li className="nav-item active ml-3 ">
                 <a className="nav-link faceicon" href="#">
                   {" "}
                   <FaceIcon /> Regístrate <span class="sr-only">(current)</span>
                 </a>
-              </li>
+              </li> */}
 
               <li className="nav-item active ml-3">
-              <Link to="/new-listing">
+              <Link to="/colaborate">
                 <button class="btn-itineramio my-2 my-sm-0" href="#">
                   {" "}
                   Colabora

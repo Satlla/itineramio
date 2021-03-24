@@ -1,0 +1,17 @@
+.category{
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  border-top: 1px solid #999;
+  border-bottom: 1px solid #999 ;
+  align-items: center;
+  width: 100%;
+}
+
+
+.title__category {
+  font-weight: 600;
+  font-size: 18px;
+  color: #232323;
+}

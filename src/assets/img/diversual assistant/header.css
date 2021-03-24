@@ -1,0 +1,46 @@
+header {
+  width: 100%;
+}
+
+.header-logo {
+  display: flex;
+  justify-content: space-around;
+  padding: 0.5rem;
+}
+
+.header-icons{
+  display: flex;
+
+  justify-content: space-around;
+}
+
+.logo img{
+  width: 200px;
+  height: 50px;
+}
+
+.buscar {
+  display: flex;
+  align-items: center;
+
+}
+.searchbox {
+  max-width: 200px;
+  min-width: 120px;
+  height: 40px;
+  border-radius: 30px;
+  font-size: 14px;
+  border: none;
+  background-color: rgb(245, 245, 245);
+  outline:none !important;
+  outline-width: 0 !important;
+  box-shadow: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+}
+
+.search__button{
+margin-left: 120px;
+  position: absolute;
+  margin-top: 5px;
+}

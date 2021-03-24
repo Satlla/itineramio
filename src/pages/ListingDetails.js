@@ -70,7 +70,7 @@ function ListingDetails() {
     </div>
   </div>
 
-   <div className="peculiarities">
+   {/* <div className="peculiarities">
     <span className="peculiarities__icons">
       <AccountBalanceIcon />{" "}
     </span>
@@ -81,9 +81,9 @@ function ListingDetails() {
         Establecimiento con terraza habilitada para clientes
       </span>
     </div>
-  </div> 
+  </div>  */}
 
-<div className="peculiarities">
+{/* <div className="peculiarities">
     <span className="peculiarities__icons">
       <AccountBalanceIcon />{" "}
     </span>
@@ -91,7 +91,7 @@ function ListingDetails() {
       <span className="peculiarities__title"> Zona de fumadores</span>
       <span className="peculiarities__resume"> Se puede fumar </span>
     </div>
-  </div>
+  </div> */}
 
   <div className="peculiarities">
     <span className="peculiarities__icons">
