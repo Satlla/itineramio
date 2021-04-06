@@ -10,8 +10,11 @@ import HeaderTransparent from '../components/HeaderTransparent';
 const db = fb.firestore();
 
 function ListingForm() {
-  const [fileUrl, setFileUrl] = React.useState(null);
-  const [listings, setlistings] = React.useState([]);
+  const [images, setImages] = useState(null);
+  const [listings, setlistings] = useState([]);
+  const [progress, setProgress] = useState(0);
+  const [caption, setCaption] = useState('');
+
   // const [tags, setTags] = React.useState(["Romantic", "Couples", "Aniversary"]);
 
   // const addTags = event => {
@@ -26,11 +29,20 @@ function ListingForm() {
 	// };
 
   const onFileChange = async (e) => {
-    const file = e.target.files[0];
-    const storageRef = fb.storage().ref();
-    const fileRef = storageRef.child(file.name);
-    await fileRef.put(file);
-    setFileUrl(await fileRef.getDownloadURL());
+    for (let i = 0; i< e.target.files.length; i++) {
+
+      const files = e.target.files[i];
+      console.log(files.name);
+      let storageRef = fb.storage().ref();
+      const fileRef = storageRef.child(`images/${files.name}`);
+      await fileRef.put(files);
+      setImages(await fileRef.getDownloadURL());
+
+
+    }
+
+
+
   };
 
   const handleInputChange = (e) => {
@@ -48,7 +60,7 @@ function ListingForm() {
     listingprice: "",
     listingitins: "",
     listingdescription: "",
-    listingimage: ""
+    listingimage:[]
 
   };
 
@@ -68,7 +80,7 @@ function ListingForm() {
 
     if (
       !listingname ||
-      !fileUrl ||
+      !images ||
       !listingslogan ||
       !listingcategory ||
       !listinglocation ||
@@ -82,7 +94,7 @@ function ListingForm() {
     }
     await db.collection("listings").doc().set({
       name: listingname,
-      image: fileUrl,
+      image: images,
       slogan: listingslogan,
       category: listingcategory,
       location: listinglocation,
@@ -262,7 +274,7 @@ function ListingForm() {
             <input 
             type="file"
              id="subirfoto"
-            onChange={onFileChange}
+            multiple onChange={onFileChange}
             name="listingimage"
               />
             <button className="btn btn-primary btn-block mt-4">

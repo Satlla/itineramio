@@ -168,7 +168,7 @@ margin: 0 auto;
 
   .image__listing{
     height: 100%;
-    max-width: 390px;
+    max-width: 550px;
     border-radius: 10px;
   }
 
@@ -182,7 +182,8 @@ margin: 0 auto;
 @media (min-width: 600px) {
 
   .image__listing{
-    width: 330px;
+    width: 450px;
+    height: 450px
   }
   .file__listing{
     display: flex;
@@ -191,7 +192,7 @@ margin: 0 auto;
 
   .peculiarities__listing{
     height: 100%;
-    border-radius: 12px;
+    border-radius: 5px;
   }
 
   .container__title{
@@ -203,7 +204,7 @@ margin: 0 auto;
   .image__container {
     display: flex;
     margin: 0 auto;
-    max-width: 90%;
+    max-width: 100%;
     justify-content: space-around;
     align-items: center;
     padding: 2rem;

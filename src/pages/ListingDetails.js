@@ -41,6 +41,7 @@ function ListingDetails() {
 
       <img className="image__listing" src={ListingDetails?.image} alt="listing-itineramio"></img>
 
+
       <div className="container__title">
       
 <h4 className="title__listing"> {ListingDetails?.name}</h4>
@@ -143,7 +144,7 @@ function ListingDetails() {
         </div>
       <div className="notification">
         <span className="notification__icon"> <ErrorOutlineIcon /></span>
-        <span className="notification__text"> Todos los emplazamientos publicados en itineramio, tiene como fundamento, lograr la mejor experiencia del itinerer.</span>
+        <span className="notification__text"> Todos los emplazamientos publicados en itineramio, tiene como finalidad, lograr la mejor experiencia del itinerer.</span>
       </div>
   </div>
 
