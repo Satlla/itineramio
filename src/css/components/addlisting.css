@@ -5,24 +5,39 @@
 
 .form-listing {
   width: 100%;
-  padding-top: 1rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items:center;
 
+
+}
 .control-panel{
   width: 100%;
+  display: flex;
+  justify-content: center;
 
+}
+
+.prices-group{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .labels__listing {
   margin-left: 5px;
 }
 
-.form-container {
-  min-width: 370px;
-
-
+.form-card{
+  min-width: 350px;
+  width: 100%;
+  max-width: 1200px;
+  padding: 1rem ;
+  border: 1px solid #f1f1f1;
+  border-radius: 5px;
+  margin-top: 1rem;
 }
 
 .tags-input {
@@ -85,4 +100,10 @@
 		border-radius: 50%;
 		background: #fff;
 		cursor: pointer;
-	}
+  }
+  
+  @media (max-width: 600px) {
+    .form-control{
+      display: block !important;
+    }
+  }

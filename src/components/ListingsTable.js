@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import "../css/components/listingstable.css";
 import { toast } from "react-toastify";
+import '../css/components/dashboard.css'
+
 
 function ListingsTable({ title }) {
   const [listings, setListings] = useState([]);
@@ -30,8 +32,14 @@ function ListingsTable({ title }) {
   }, []);
 
   return (
-    <div className="table-listing-list ">
-      <h4 className="mt-4 mb-4"> Tus listings</h4>
+
+    <div className="main-container">
+
+      <div className="container-table">
+   
+<h3> Tus Anuncios</h3>
+      <div className="table-listing-list ">
+
       <table class="table ">
         <thead>
           <tr>
@@ -68,6 +76,8 @@ function ListingsTable({ title }) {
           );
         })}
       </table>
+      </div>
+      </div>
     </div>
   );
 }

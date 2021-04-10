@@ -7,6 +7,9 @@
   list-style: none;
   background-color: #fcfcfc;
   margin: 0 auto;
+  position: relative;
+  left: 0;
+  bottom: 0;
 }
 
 .footer-list {

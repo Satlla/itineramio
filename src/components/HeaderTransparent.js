@@ -67,21 +67,23 @@ function HeaderTransparent() {
                 </a>
                 </Link>
               </li>
-              {/* <li className="nav-item active ml-3 ">
+             <li className="nav-item active ml-3 ">
+             <Link to="/colaborate">
                 <a className="nav-link faceicon" href="#">
                   {" "}
-                  <FaceIcon /> Regístrate <span class="sr-only">(current)</span>
+                  <FaceIcon /> Colabora <span class="sr-only">(current)</span>
                 </a>
-              </li> */}
+                </Link>
+              </li> 
 
-              <li className="nav-item active ml-3">
+              {/* <li className="nav-item active ml-3">
               <Link to="/colaborate">
                 <button class="btn-itineramio my-2 my-sm-0" href="#">
                   {" "}
                   Colabora
                 </button>
                 </Link>
-              </li>
+              </li> */}
             </ul>
         </form>
       </div>

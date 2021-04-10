@@ -133,8 +133,12 @@ function ListingDetails() {
 
 
       <div className="description__listing">
-        <h3 className="description__title"> Sobre el Lugar</h3>
+        <h6 className="description__title"> Sobre el Lugar </h6>
         {ListingDetails?.description}
+      </div>
+      <div className="description__listing">
+        <h6 className="description__title"> Lo mejor del lugar</h6>
+        {ListingDetails?.best}
       </div>
       <div className="address mt-2 ml-3">
           <span className="verified__icon">

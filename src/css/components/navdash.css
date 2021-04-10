@@ -1,0 +1,40 @@
+.nav__dashboard{
+  display:flex;
+  justify-content: center;
+}
+
+
+.nav-menu{
+  display: flex;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f1f1f1;
+  width: 100%;
+  max-width: 1200px;
+  list-style: none;
+}
+
+ul li a .dashboard__link {
+  text-decoration: none !important;
+  color: #484848 !important;
+  font-weight: 600;
+
+}
+
+ul li {
+  text-decoration: none;
+
+
+}
+
+
+
+.dashboard__link:hover {
+  cursor: pointer;
+  text-decoration: none;
+
+}
+
+a:link, a:visited, a:active {
+  text-decoration:none !important;
+}
+

@@ -1,24 +1,43 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
+import "../css/components/tags.css";
 
-function AddTags() {
+export default function AddTags() {
+  const [tags, setTags] = useState([]);
+  
+  const addTag = (e) => {
+    if (e.key === "Enter") {
+   
+        setTags([...tags, e.target.value]);
+        e.target.value = "";
+        console.log(tags)
+      
+    }
+  };
+  const removeTags = indexToRemove => {
+    setTags([...tags.filter((_, index) => index !== indexToRemove)]);
+  };
 
   return (
-    <div className="mt-2">
-      <label className="tags_listing" for="tags">
-        {" "}
-        ¿Qué hace especial este emplazamiento?
-      </label>
-      <div className="tags-input mb-4">
-        <ul id="tags">
-          <li className="tag">
-            <span className="tag-title">{}</span>
-            <span className="tag-close-icon">x</span>
-          </li>
-        </ul>
-        <input type="text" placeholder="Press enter to add tags" />
+    <div className="AddTags mt-4">
+
+      <div className="tag-container">
+  
+          <ul>
+
+        {tags.map((tag, index) => (
+
+            <li key={index} className="tag">#
+              {tag} <span onClick={() => removeTags(tag)}>x</span>
+            </li>
+        ))}
+          </ul>
+        <input
+        type="text"
+        name="listingstags"
+        placeholder="Introduce tags"
+         onKeyDown={addTag}
+         />
       </div>
     </div>
   );
 }
-
-export default AddTags;

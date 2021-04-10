@@ -1,0 +1,33 @@
+.orbital__panel_dashboard {
+  width: 100%;
+  display: flex;
+  justify-content: left;
+}
+
+.main__panel {
+  min-width: 330px;
+  width: 100%;
+  margin-top: 3rem;
+
+}
+
+.profile-img{
+  border-radius: 50%;
+  width: 50px;
+}
+
+.profile__card {
+
+    padding: 1rem;
+    max-width: 1200px;
+    color: #484848;
+    margin: 1em auto;
+    display: flex;
+    flex-direction: column;
+    }
+
+    .dear{
+      font-weight: 600;
+      font-size: 26px;
+      color: #484848;
+    }

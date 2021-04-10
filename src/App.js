@@ -2,7 +2,8 @@ import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import "./App.css";
 import Home from "./components/Home";
-import NewListing from "./components/NewListing";
+import Dashboard from "./pages/Dashboard";
+import UserListings from "./components/UserListings";
 import ListingDetails from './pages/ListingDetails';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -32,8 +33,12 @@ function App() {
 
           </Route>
 
-          <Route path="/new-listing">
-            <NewListing />
+          <Route exact path="/dashboard">
+            <Dashboard />
+          </Route>
+
+          <Route exact path="/dashboard/userlistings">
+            <UserListings />
           </Route>
 
 

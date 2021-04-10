@@ -5,6 +5,7 @@ import Bullets from "../components/Bullets";
 import Discover from "../components/Discover";
 import Top from "../components/Top";
 import HeaderTransparent from '../components/HeaderTransparent';
+import Estandares from "./Estandares";
 
 
 function Home() {
@@ -14,6 +15,7 @@ function Home() {
       <Discover />
       <Top />
       <Bullets />
+      < Estandares />
     </div>
   );
 }

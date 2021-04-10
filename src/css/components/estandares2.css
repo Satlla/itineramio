@@ -1,0 +1,149 @@
+.estandares-layout{
+ 
+  justify-content: center;
+  display: flex;
+  padding: 1rem;
+}
+
+.estandares-grid{
+  display: flex;
+  justify-content: center;
+}
+
+.estandares-btn {
+  cursor: pointer !important;
+    display: inline-block !important;
+    margin: 0px !important;
+    position: relative !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    width: auto !important;
+    touch-action: manipulation !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    line-height: 18px !important;
+    letter-spacing: normal !important;
+    font-family: Circular, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif !important;
+    color: rgb(72, 72, 72) !important;
+    padding: 9px 16px !important;
+    border: 0px !important;
+    background: rgb(255, 255, 255) !important;
+    border-radius: 8px !important;
+}
+
+
+.estandares-container {
+  z-index: 0 ;
+  background: rgb(72, 72, 72) ;
+  border: 0px none ;
+  display: flex ;
+  overflow: hidden ;
+  position: relative ;
+  text-align: left ;
+  text-decoration: none ;
+  border-radius: 16px ;
+  justify-content: center;
+}
+
+.estandares-cta {
+  padding: 2rem;
+  max-width: 344px ;
+  color: white;
+  position: absolute;
+  left: 10px;
+
+}
+
+.estandares-title {
+  font-size: 30px ;
+  font-weight: bolder;
+
+}
+
+.estandares-description {
+  font-size: 18px ;
+  max-width: 260px;
+
+}
+
+
+.stand-img2{
+  display:none
+}
+
+.stand-img{
+
+width: 100%;
+min-height:250px;
+}
+
+
+@media (max-width: 662px) {
+  .estandares-container {
+    background-color: #000;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+  }
+
+  .stand-img2{
+    display:block
+  }
+
+  .stand-img{
+    display: none;
+    min-width: 250px;
+
+    }
+
+  .estandares-cta {
+
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    max-width: 470px;
+
+  }
+
+  .estandares-description {
+    font-size: 18px ;
+     max-width: 600px;
+
+  }
+
+}
+
+
+
+@media (max-width: 512px) {
+  .estandares-cta{
+  width: 100%;
+  height: auto;
+  }
+
+  .estandares-container{
+    width: 100%;
+
+  }
+
+  .estandares-layout{
+    width: 100%;
+  }
+
+  .stand-img2{
+    width: 100%;
+
+  }
+
+  .estandares-title {
+    font-size: 25px ;
+  
+  }
+
+  .estandares-description {
+    font-size: 16px ;
+    min-width: 230px;
+  }
+}
