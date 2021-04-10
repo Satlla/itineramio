@@ -12,6 +12,7 @@ import Footer from "./components/Footer";
 import Explore from './pages/Explore';
 import Plans from './pages/Plans';
 import Colaborate from './pages/Colaborate';
+import Estandares from './pages/Estandares';
 
 
 
@@ -51,6 +52,10 @@ function App() {
           </Route>
           <Route  exact path="/colaborate">
              <Colaborate/>
+          </Route>
+
+          <Route  exact path="/estandares">
+             <Estandares/>
           </Route>
 
         </Switch>{" "}

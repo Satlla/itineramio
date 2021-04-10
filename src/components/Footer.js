@@ -45,12 +45,12 @@ function Footer() {
 
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link to="/plans">
             <a class="nav-link"> ¿Qué es Plans? </a>
 
             </Link>
-          </li>
+          </li> */}
           <li>
             <a class="nav-link" href="#">
               Estándares de calidad

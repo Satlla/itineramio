@@ -11,24 +11,24 @@
 }
 
 .estandares-btn {
-  cursor: pointer !important;
-    display: inline-block !important;
-    margin: 0px !important;
-    position: relative !important;
-    text-align: center !important;
-    text-decoration: none !important;
-    width: auto !important;
-    touch-action: manipulation !important;
-    font-weight: 600 !important;
-    font-size: 14px !important;
-    line-height: 18px !important;
-    letter-spacing: normal !important;
-    font-family: Circular, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif !important;
-    color: rgb(72, 72, 72) !important;
-    padding: 9px 16px !important;
-    border: 0px !important;
-    background: rgb(255, 255, 255) !important;
-    border-radius: 8px !important;
+  cursor: pointer ;
+    display: inline-block ;
+    margin: 0px ;
+    position: relative ;
+    text-align: center ;
+    text-decoration: none ;
+    width: auto ;
+    touch-action: manipulation ;
+    font-weight: 600 ;
+    font-size: 14px ;
+    line-height: 18px ;
+    letter-spacing: normal ;
+    font-family: Circular, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif ;
+    color: rgb(72, 72, 72) ;
+    padding: 9px 16px ;
+    border: 0px ;
+    background: rgb(255, 255, 255) ;
+    border-radius: 8px ;
 }
 
 

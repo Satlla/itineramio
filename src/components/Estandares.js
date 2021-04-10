@@ -1,5 +1,6 @@
 import React from "react";
 import "../css/components/estandares2.css";
+import { Link } from "react-router-dom";
 import estandaresimg from "../assets/img/banner1.webp";
 import estandaresimg2 from "../assets/img/bann2.jpg";
 
@@ -34,7 +35,10 @@ function Estandares() {
             Descubre los must que debe tener cualquier establecimiento para
             aparecer en Itineramio
           </p>
+          <Link to="/estandares">
           <button className="estandares-btn"> Mas información</button>
+          </Link>
+
         </div>
         <div className="estandares-img">
           <img  className="stand-img" src={estandaresimg} alt="" />
