@@ -68,9 +68,10 @@ function Footer() {
             </a>
           </li>
           <li>
-            <a class="nav-link" href="#">
-              Privacidad y cookies
-            </a>
+            <Link to="/privacity">
+            <a class="nav-link"> Privacidad y Cookies </a>
+
+            </Link>
           </li>
         </ul>
       </div>

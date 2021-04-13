@@ -13,6 +13,7 @@ import Explore from './pages/Explore';
 import Plans from './pages/Plans';
 import Colaborate from './pages/Colaborate';
 import Estandares from './pages/Estandares';
+import Privacity from './pages/Privacity'
 
 
 
@@ -45,6 +46,10 @@ function App() {
 
           <Route path="/explore">
             <Explore />
+          </Route>
+
+          <Route path="/privacity">
+            <Privacity />
           </Route>
 
           <Route path="/plans">

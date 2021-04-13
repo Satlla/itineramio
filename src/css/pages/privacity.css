@@ -1,0 +1,23 @@
+.privacy{
+
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+ 
+ 
+}
+
+.container-privacity{
+  max-width: 800px;
+  width: 100%;
+
+}
+
+
+.image-container {
+  display :flex;
+  justify-content: center;
+
+
+}
