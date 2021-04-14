@@ -52,9 +52,10 @@ function Footer() {
             </Link>
           </li> */}
           <li>
-            <a class="nav-link" href="#">
-              Estándares de calidad
-            </a>
+            <Link to="/estandares">
+            <a class="nav-link"> Estándares de Calidad </a>
+
+            </Link>
           </li>
         </ul>
       </div>

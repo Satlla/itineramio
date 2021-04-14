@@ -20,7 +20,7 @@ function Dashboard() {
     <div className="profile__card" >
 
       <img src={profile} className="profile-img mb-2" alt="alex"></img>
-        <h4 className="dear"> Buenas tardes, Alejandro</h4>
+        <h4 className="dear"> Buenas noches, Alejandro</h4>
     </div>
       <InformationListing />
       <AddListing />

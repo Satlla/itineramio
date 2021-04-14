@@ -55,9 +55,9 @@ const db = fb.firestore();
 
       });
 
-      toast("¡Gracias!¡Hemos recibido tu sugerencia de comercio!", {
+      toast("¡Gracias!. ¡Hemos recibido tu sugerencia", {
         type: "success",
-        autoClose: 1000,
+        autoClose: 2000,
       });
     };
   

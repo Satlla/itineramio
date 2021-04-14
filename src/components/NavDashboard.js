@@ -13,7 +13,12 @@ function NavDashboard() {
         </li>
         <li className=" ">
           <Link to="/dashboard/userlistings">
-            <a className="dashboard__link ml-4"> Publicados</a>
+            <a className="dashboard__link ml-4 mr-4"> Publicados</a>
+          </Link>
+        </li>
+        <li className=" ">
+          <Link to="/dashboard/suggestions">
+            <a className="dashboard__link ml-4"> Sugerencias</a>
           </Link>
         </li>
       </ul>
