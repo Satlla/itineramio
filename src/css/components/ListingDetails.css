@@ -99,6 +99,7 @@ align-items: middle;
   display: flex;
   flex-direction: column;
   margin-left: 1rem;
+  justify-content: center;
 }
 
 .peculiarities__resume {

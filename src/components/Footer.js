@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import { Link } from "react-router-dom";
 import "../css/components/footer.css";
 import logo from "../logo.png";
@@ -9,6 +9,8 @@ import PinterestIcon from '@material-ui/icons/Pinterest';
 
 
 function Footer() {
+  
+
   window.scrollTo(0, 0);
 
 
@@ -38,7 +40,7 @@ function Footer() {
       </div>
       <div className="cont-center">
         <ul className="footer-list">
-          <p ClassName="footer-list-title"> ACERCA DE</p>
+          <p ClassName="footer-list-title"> ACERCA DE </p>
           <li>
             <Link to="/como-funciona">
             <a class="nav-link"> ¿Qué es  Itineramio? </a>

@@ -15,6 +15,8 @@ import Colaborate from './pages/Colaborate';
 import Estandares from './pages/Estandares';
 import Privacity from './pages/Privacity'
 import Suggestions from './components/UserDashboard/Suggestions';
+import EnriquetaLoft from './components/Apartments/EnriquetaLoft/Enriquetaloft';
+import Checkin from './components/Apartments/EnriquetaLoft/components/Checkin';
 
 
 
@@ -48,6 +50,16 @@ function App() {
             <Suggestions />
           </Route>
 
+          <Route exact path="/apartments/enriquetaloft/faq">
+            <EnriquetaLoft />
+          </Route>
+
+          <Route exact path="/apartments/enriquetaloft/faq/checkin">
+            <Checkin />
+          </Route>
+
+
+
 
           <Route path="/explore">
             <Explore />
@@ -67,6 +79,8 @@ function App() {
           <Route  exact path="/estandares">
              <Estandares/>
           </Route>
+
+
 
         </Switch>{" "}
 

@@ -55,7 +55,7 @@ const db = fb.firestore();
 
       });
 
-      toast("¡Gracias!. ¡Hemos recibido tu sugerencia", {
+      toast("¡Gracias!. ¡Estamos revisando tu sugerencia!", {
         type: "success",
         autoClose: 2000,
       });
