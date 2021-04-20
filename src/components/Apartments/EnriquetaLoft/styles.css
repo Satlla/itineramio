@@ -145,7 +145,7 @@
     
     }
 
-    .cover-container{
+.cover-container{
       width: 100%;
       display: flex;
       justify-content: center;
@@ -154,7 +154,8 @@
 
     .cover__page{
       width: 100%;
-      max-width: 330px;
+      max-width: 450px;
+      max-height: 300px
 
     }
 
