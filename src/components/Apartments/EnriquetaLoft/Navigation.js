@@ -32,7 +32,7 @@ function Navigation() {
         </li>
         <li>
           <Link to="/dashboard">
-            <a className="menu__item "> Aire</a>
+            <a className="menu__item "> Climatización</a>
           </Link>
         </li>
         <li>
@@ -42,33 +42,22 @@ function Navigation() {
         </li>
         <li>
           <Link to="/dashboard">
-            <a className="menu__item "> Wifi & TV</a>
+            <a className="menu__item "> Cuadro de luces</a>
           </Link>
         </li>
         <li>
           <Link to="/dashboard">
-            <a className="menu__item "> Wifi & TV</a>
+            <a className="menu__item "> Zona Común</a>
           </Link>
         </li>
         <li>
           <Link to="/dashboard">
-            <a className="menu__item "> Wifi & TV</a>
+            <a className="menu__item "> Restaurantes Top</a>
           </Link>
         </li>
-        <li>
-          <Link to="/dashboard">
-            <a className="menu__item "> Wifi & TV</a>
-          </Link>
-        </li>
-        <li>
-          <Link to="/dashboard">
-            <a className="menu__item "> Wifi & TV</a>
-          </Link>
-        </li>
-        
 
       </ul>
-    
+
       </div>
 
 
