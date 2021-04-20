@@ -58,7 +58,7 @@ function App() {
             <Checkin />
           </Route>
 
-
+          
 
 
           <Route path="/explore">
