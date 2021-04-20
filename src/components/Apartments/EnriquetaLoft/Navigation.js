@@ -42,17 +42,17 @@ function Navigation() {
         </li>
         <li>
           <Link to="/dashboard">
-            <a className="menu__item "> Cuadro de luces</a>
+            <a className="menu__item "> Luces</a>
           </Link>
         </li>
         <li>
           <Link to="/dashboard">
-            <a className="menu__item "> Zona Común</a>
+            <a className="menu__item "> Normas</a>
           </Link>
         </li>
         <li>
           <Link to="/dashboard">
-            <a className="menu__item "> Restaurantes Top</a>
+            <a className="menu__item "> Restaurantes</a>
           </Link>
         </li>
 
