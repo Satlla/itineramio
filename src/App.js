@@ -17,6 +17,8 @@ import Privacity from './pages/Privacity'
 import Suggestions from './components/UserDashboard/Suggestions';
 import EnriquetaLoft from './components/Apartments/EnriquetaLoft/Enriquetaloft';
 import Checkin from './components/Apartments/EnriquetaLoft/components/Checkin';
+import Vitro from './components/Apartments/EnriquetaLoft/components/Vitro';
+
 
 
 
@@ -58,7 +60,11 @@ function App() {
             <Checkin />
           </Route>
 
-          
+          <Route exact path="/apartments/enriquetaloft/faq/vitro">
+            <Vitro />
+          </Route>
+
+
 
 
           <Route path="/explore">
