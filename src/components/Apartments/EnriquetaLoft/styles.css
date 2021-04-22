@@ -212,3 +212,26 @@
       justify-content: center;
 
     }
+
+    .listy {
+      border: 1px solid #f1f1f1;;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 330px;
+      border-radius: 8px;
+    }
+
+    .listy  li {
+      list-style: none;
+      margin-top: 1em;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .badgge {
+      border: 1px solid #f1f1f1;
+      padding: 1rem;
+      border-radius: 15px;
+    }

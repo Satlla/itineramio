@@ -9,6 +9,8 @@ import Washingmachine from "../../../assets/icons/washingmachine.svg";
 import Climatization from "../../../assets/icons/climatization.svg";
 import Eat from "../../../assets/icons/eat.svg";
 import Phones from "../../../assets/icons/smartphone.svg";
+import Jacuzzi from "../../../assets/icons/jacuzzi.svg";
+
 
 function Navigation() {
   return (
@@ -115,6 +117,18 @@ function Navigation() {
 
                 <div className="mt-2">
                   <a className="menu__item"> Teléfonos</a>
+                </div>
+              </li>
+            </Link>
+
+            <Link to="/apartments/enriquetaloft/faq/jacuzzi">
+              <li className="item__button">
+                <div className="">
+                  <img className="item__icon" src={ Jacuzzi } alt="" />
+                </div>
+
+                <div className="mt-2">
+                  <a className="menu__item"> Jacuzzi</a>
                 </div>
               </li>
             </Link>
