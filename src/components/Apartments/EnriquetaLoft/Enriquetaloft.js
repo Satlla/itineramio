@@ -8,36 +8,44 @@ import Portada from './assets/imgs/faqwall.jpg'
 function EnriquetaLoft() {
 
   const [faqs, setFaqs] = useState([
-    {
-      question: '¿Cómo hago Check in en Enriqueta Loft Jacuzzi?',
-      answer: 'Cuando llegues a Calle Enriqueta numero 26, encontrarás dos puertas blancas, la de la izquierda es la comunitaria del edificio, para acceder a tu apartamento deberás abrir la puerta de la derecha. Verás un candado colgado de la puerta, solicita al Administrador el código para acceder dentro de la vivienda. Recuerda que para tu Check out, deberás depositar de nuevo la llave en el mismo lugar.',
-      open: false
-    },
-    {
-      question: '¿Cómo programo la tele?',
-      answer: ' La tele funciona como una tele normal',
-      open: false
-    },
-    {
-      question: '¿Cómo pongo en funcionamiento el jacuzzi?',
-      answer: ' El jacuzzi deberás llenarlo primero hasta cubrir todos los chorros y después se accionará pulsando el botón',
-      open: false
-    },
-    {
-      question: '¿Cómo hago CheckOut del apartamento?',
-      answer: ' El día de tu CheckOut es muy importante que dejes los grifos y ventanas cerrados, luces y aire acondicionado apagados, televisión apagada, no te preocupes por la limpieza de sábanas, no es necesario que las dobles ni las metas en la lavadora, el servicio de lavandería se encargará de ello!. Deposita las llaves en el candado. Avisa al anfitrion (Alex) que has abandonado el apartamento para que pase parte a limpieza. ¡Esperamos que hayas tenido una estancia agradable!  ',
-      open: false
-    },
+    // {
+    //   question: '¿Cómo hago Check in en Enriqueta Loft Jacuzzi?',
+    //   answer: 'Cuando llegues a Calle Enriqueta numero 26, encontrarás dos puertas blancas, la de la izquierda es la comunitaria del edificio, para acceder a tu apartamento deberás abrir la puerta de la derecha. Verás un candado colgado de la puerta, solicita al Administrador el código para acceder dentro de la vivienda. Recuerda que para tu Check out, deberás depositar de nuevo la llave en el mismo lugar.',
+    //   open: false
+    // },
+    // {
+    //   question: '¿Cómo programo la tele?',
+    //   answer: ' La tele funciona como una tele normal',
+    //   open: false
+    // },
+    // {
+    //   question: '¿Cómo pongo en funcionamiento el jacuzzi?',
+    //   answer: ' El jacuzzi deberás llenarlo primero hasta cubrir todos los chorros y después se accionará pulsando el botón',
+    //   open: false
+    // },
+    // {
+    //   question: '¿Cómo hago CheckOut del apartamento?',
+    //   answer: ' El día de tu CheckOut es muy importante que dejes los grifos y ventanas cerrados, luces y aire acondicionado apagados, televisión apagada, no te preocupes por la limpieza de sábanas, no es necesario que las dobles ni las metas en la lavadora, el servicio de lavandería se encargará de ello!. Deposita las llaves en el candado. Avisa al anfitrion (Alex) que has abandonado el apartamento para que pase parte a limpieza. ¡Esperamos que hayas tenido una estancia agradable!  ',
+    //   open: false
+    // },
     {
       question: '¿Hay algún supermercado cerca?',
       answer: 'Supermercado Dialprix en Calle Pintor Gisbert 9 Abre a las 9:00h, Si necesitas un 24h para compras de emergencia En la Plaza General Mancha Nº 2 "Deshoras"   ',
       open: false
     },
+
     {
-      question: '¿Hay algún lugar para imprimir mis billetes de avión?',
-      answer: ' Papelería "3 Tipos Imprenta" Calle Padre Recaredo de Los Rios, 40, 03005 Alicante ',
+      question: '¿ Hay Alguna tintorería Cerca  ?',
+      answer: ': Tintorería Mati -> Calle Antonio Martín Trenco, 14, local 4, 03005 Alicante". Telf : 965 22 90 46   ',
       open: false
     },
+
+    {
+      question: '¿Dónde puedo imprimir mis billetes de avión?',
+      answer: ' Copistería Rusan Copy Flash Av. Salamanca, 24, 03005 Alicante"   ',
+      open: false
+    },
+ 
     {
       question: '¿Hay alguna Consigna de maletas ?',
       answer: ' Cerca del mercado central podrás dejar las maletas en Luggage Alicante, es una consigna de equipajes cuya reserva solo está permitida a través de su pagina web -> www.luggagealicante.com 24 Hour Luggage Storage (Consigna) Alicante City Center.   ',

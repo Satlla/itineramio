@@ -21,6 +21,9 @@ import Vitro from './components/Apartments/EnriquetaLoft/components/Vitro';
 import Jacuzzi from './components/Apartments/EnriquetaLoft/components/Jacuzzi';
 import Phones from './components/Apartments/EnriquetaLoft/components/Telefonos';
 import Washingmachine from './components/Apartments/EnriquetaLoft/components/Washingmachine';
+import Wifi from './components/Apartments/EnriquetaLoft/components/Wifi';
+import Checkout from "./components/Apartments/EnriquetaLoft/components/Checkout";
+
 
 
 
@@ -73,8 +76,15 @@ function App() {
             <Washingmachine />
           </Route>
           
+          <Route exact path="/apartments/enriquetaloft/faq/wifi">
+            <Wifi />
+          </Route>
           <Route exact path="/apartments/enriquetaloft/faq/jacuzzi">
             <Jacuzzi />
+          </Route>
+
+          <Route exact path="/apartments/enriquetaloft/faq/checkout">
+            <Checkout />
           </Route>
 
 
