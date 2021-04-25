@@ -1,6 +1,5 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -11,16 +10,20 @@ import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 import '../styles.css';
 import { Link } from "react-router-dom";
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-
+import QRCode from "react-qr-code";
 
 
 export default function Checkout() {
+  window.scrollTo(0, 0);
   const [state, setState] = React.useState({
     checkedA: true,
     checkedB: true,
     checkedF: true,
     checkedG: true,
   });
+
+  var URLactual = window.location;
+
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.checked });
@@ -71,9 +74,13 @@ export default function Checkout() {
         control={<Checkbox icon={<FavoriteBorder />} checkedIcon={<Favorite />} name="checkedH" />}
         label="Mensaje al Anfitrión"
       />
-      
 
     </FormGroup>
+      <QRCode
+      value={URLactual}
+      size={100}
+      />
+      
 </div>
 
     </div>

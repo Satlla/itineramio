@@ -23,6 +23,15 @@ import Phones from './components/Apartments/EnriquetaLoft/components/Telefonos';
 import Washingmachine from './components/Apartments/EnriquetaLoft/components/Washingmachine';
 import Wifi from './components/Apartments/EnriquetaLoft/components/Wifi';
 import Checkout from "./components/Apartments/EnriquetaLoft/components/Checkout";
+import Enriqueta4 from "./components/Apartments/Enriqueta4/Enriqueta4";
+import Checkine4 from "./components/Apartments/Enriqueta4/components/Checkine4";
+import Checkoute4 from "./components/Apartments/Enriqueta4/components/Checkoute4";
+import Washingmachinee4 from "./components/Apartments/Enriqueta4/components/Washingmachinee4";
+import Vitroe4 from "./components/Apartments/Enriqueta4/components/Vitroe4";
+import Phonese4 from "./components/Apartments/Enriqueta4/components/Phonese4";
+import Wifie4 from "./components/Apartments/Enriqueta4/components/Wifie4";
+
+
 
 
 
@@ -56,7 +65,7 @@ function App() {
           <Route exact path="/dashboard/suggestions">
             <Suggestions />
           </Route>
-
+        {/*  ENRIQUETA LOFT */}
           <Route exact path="/apartments/enriquetaloft/faq">
             <EnriquetaLoft />
           </Route>
@@ -86,7 +95,32 @@ function App() {
           <Route exact path="/apartments/enriquetaloft/faq/checkout">
             <Checkout />
           </Route>
+        {/*  FIN ENRIQUETA LOFT */}
 
+        {/*  ENRIQUETA 4 */}
+        <Route exact path="/apartments/enriqueta4/faq">
+            <Enriqueta4 />
+          </Route>
+          <Route exact path="/apartments/enriqueta4/faq/checkine4">
+            <Checkine4 />
+          </Route>
+          <Route exact path="/apartments/enriqueta4/faq/vitroe4">
+            <Vitroe4 />
+          </Route>
+          <Route exact path="/apartments/enriqueta4/faq/checkoute4">
+            <Checkoute4 />
+          </Route>
+          <Route exact path="/apartments/enriqueta4/faq/phonese4">
+            <Phonese4 />
+          </Route>
+          <Route exact path="/apartments/enriqueta4/faq/washingmachinee4">
+            <Washingmachinee4 />
+          </Route>
+          <Route exact path="/apartments/enriqueta4/faq/wifie4">
+            <Wifie4 />
+          </Route>
+
+        {/*FIN ENRIQUETA 4 */}
 
 
 

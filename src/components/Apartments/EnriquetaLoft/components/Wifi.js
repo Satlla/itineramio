@@ -1,11 +1,12 @@
 import React, {useRef, useState } from 'react'
 import '../styles.css';
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 
 
 function Wifi() {
-
+  window.scrollTo(0, 0);
+  console.log(useParams())
   const [copySuccess, setCopySuccess] = useState('');
   const textAreaRef = useRef(null);
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import "../css/components/list.css";
 import Preloader from "../components/Preloader";
+import { useParams } from "react-router-dom";
 
 function Listings({ title }) {
 

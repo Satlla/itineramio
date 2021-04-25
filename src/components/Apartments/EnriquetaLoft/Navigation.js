@@ -18,7 +18,7 @@ function Navigation() {
       <div className="title__container">
         <p className="title__navigation">
           {" "}
-          Selecciona cualquiera de las siguientes secciones para ver un video
+          Selecciona cualquiera de las siguientes secciones para ver un vídeo
           explicativo del apartamento
         </p>
       </div>

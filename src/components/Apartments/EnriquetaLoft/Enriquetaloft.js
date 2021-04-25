@@ -23,19 +23,30 @@ function EnriquetaLoft() {
     //   answer: ' El jacuzzi deberás llenarlo primero hasta cubrir todos los chorros y después se accionará pulsando el botón',
     //   open: false
     // },
-    // {
-    //   question: '¿Cómo hago CheckOut del apartamento?',
-    //   answer: ' El día de tu CheckOut es muy importante que dejes los grifos y ventanas cerrados, luces y aire acondicionado apagados, televisión apagada, no te preocupes por la limpieza de sábanas, no es necesario que las dobles ni las metas en la lavadora, el servicio de lavandería se encargará de ello!. Deposita las llaves en el candado. Avisa al anfitrion (Alex) que has abandonado el apartamento para que pase parte a limpieza. ¡Esperamos que hayas tenido una estancia agradable!  ',
-    //   open: false
-    // },
+    {
+      question: '¿Cómo llego al apartamento desde el Aeropuerto ?',
+      answer: ' La mejor manera para llegar es mediante Taxi o Cabify (App como uber), el precio aproximado es de 20€-25€, la ventaja principal es que te deja en la misma puerta del apartamento por lo que no deberás preocuparte por nada. La opción B es mediante el Autobús C-6, cuesta en torno a 3,6€ y lo cogerás en el aeropuerto y tu parada será la de Renfre, a escasos 4 minutos andando del apartamento --> Calle Enriqueta Ortega 26 Bajo ',
+      open: false
+    },
+    {
+      question: '¿Hay alguna consigna de maletas ?',
+      answer: ' Cerca del mercado central podrás dejar las maletas en Luggage Alicante, es una consigna de equipajes cuya reserva solo está permitida a través de su pagina web -> www.luggagealicante.com 24 Hour Luggage Storage (Consigna) Alicante City Center.   ',
+      open: false
+    },
     {
       question: '¿Hay algún supermercado cerca?',
       answer: 'Supermercado Dialprix en Calle Pintor Gisbert 9 Abre a las 9:00h, Si necesitas un 24h para compras de emergencia En la Plaza General Mancha Nº 2 "Deshoras"   ',
       open: false
     },
 
+     {
+      question: '¿Dónde encuentro una farmacia?',
+      answer: ' En horario laboral, justo al lado del alojamiento se encuentra : Lda Ma C. Delgafo Perez en la calle Tato, si tienes una emergencia la farmacia trebol abre 24h, está situada en Calle, Avenida Pintor Xavier Soler, 2, Local 4 - 7, 03015 Alicante 965 91 02 20 ',
+      open: false
+     },
+
     {
-      question: '¿ Hay Alguna tintorería Cerca  ?',
+      question: '¿ Hay alguna tintorería cerca  ?',
       answer: ': Tintorería Mati -> Calle Antonio Martín Trenco, 14, local 4, 03005 Alicante". Telf : 965 22 90 46   ',
       open: false
     },
@@ -45,17 +56,7 @@ function EnriquetaLoft() {
       answer: ' Copistería Rusan Copy Flash Av. Salamanca, 24, 03005 Alicante"   ',
       open: false
     },
- 
-    {
-      question: '¿Hay alguna Consigna de maletas ?',
-      answer: ' Cerca del mercado central podrás dejar las maletas en Luggage Alicante, es una consigna de equipajes cuya reserva solo está permitida a través de su pagina web -> www.luggagealicante.com 24 Hour Luggage Storage (Consigna) Alicante City Center.   ',
-      open: false
-    },
-    {
-      question: '¿Cómo llego al apartamento desde el aeropuerto ?',
-      answer: ' La mejor manera para llegar es mediante Taxi o Cabify (App como uber), el precio aproximado es de 20€-25€, la ventaja principal es que te deja en la misma puerta del apartamento por lo que no deberás preocuparte por nada. La opción B es mediante el Autobús C-6, cuesta en torno a 3,6€ y lo cogerás en el aeropuerto y tu parada será la de Renfre, a escasos 4 minutos andando del apartamento --> Calle Enriqueta Ortega 26 Bajo ',
-      open: false
-    }
+
 
 
   ]);

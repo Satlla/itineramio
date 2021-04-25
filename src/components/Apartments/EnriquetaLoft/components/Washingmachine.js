@@ -6,7 +6,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import '../styles.css';
 
 function Washingmachine() {
-
+  window.scrollTo(0, 0);
   return (
     <div>
          <div className="cabecera">
