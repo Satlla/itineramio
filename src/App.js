@@ -39,6 +39,8 @@ import Washingmachinecasazul from "./components/Apartments/Casazul/components/Wa
 import Wificasazul from "./components/Apartments/Casazul/components/Wificasazul";
 import Rulescasazul from "./components/Apartments/Casazul/components/Rulescasazul";
 import Rules from "./components/Apartments/EnriquetaLoft/components/Rules";
+import Tvcasazul from "./components/Apartments/Casazul/components/Tvcasazul";
+
 
 
 
@@ -93,7 +95,7 @@ function App() {
           <Route exact path="/apartments/enriquetaloft/faq/washingmachine">
             <Washingmachine />
           </Route>
-          
+
           <Route exact path="/apartments/enriquetaloft/faq/wifi">
             <Wifi />
           </Route>
@@ -158,6 +160,9 @@ function App() {
           </Route>
           <Route exact path="/apartments/casazul/faq/rulescasazul">
             <Rulescasazul />
+          </Route>
+          <Route exact path="/apartments/casazul/faq/tvcasazul">
+            <Tvcasazul />
           </Route>
 
         {/*FIN CASA AZUL */}

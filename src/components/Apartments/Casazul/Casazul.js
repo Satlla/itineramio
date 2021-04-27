@@ -8,21 +8,6 @@ import Portada from './assets/imgs/faqwall.jpg'
 function Casazul() {
 
   const [faqs, setFaqs] = useState([
-    // {
-    //   question: '¿Cómo hago Check in en Enriqueta Loft Jacuzzi?',
-    //   answer: 'Cuando llegues a Calle Enriqueta numero 26, encontrarás dos puertas blancas, la de la izquierda es la comunitaria del edificio, para acceder a tu apartamento deberás abrir la puerta de la derecha. Verás un candado colgado de la puerta, solicita al Administrador el código para acceder dentro de la vivienda. Recuerda que para tu Check out, deberás depositar de nuevo la llave en el mismo lugar.',
-    //   open: false
-    // },
-    // {
-    //   question: '¿Cómo programo la tele?',
-    //   answer: ' La tele funciona como una tele normal',
-    //   open: false
-    // },
-    // {
-    //   question: '¿Cómo pongo en funcionamiento el jacuzzi?',
-    //   answer: ' El jacuzzi deberás llenarlo primero hasta cubrir todos los chorros y después se accionará pulsando el botón',
-    //   open: false
-    // },
     {
       question: '¿Cómo llego al apartamento desde el Aeropuerto ?',
       answer: ' La mejor manera para llegar es mediante Taxi o Cabify (App como uber), el precio aproximado es de 20€-25€, la ventaja principal es que te deja en la misma puerta del apartamento por lo que no deberás preocuparte por nada. La opción B es mediante el Autobús C-6, cuesta en torno a 3,6€ y lo cogerás en el aeropuerto y tu parada será la Alfonso X el Sabio 12 ( Bomberos), a escasos 4 minutos andando del apartamento --> Calle Trafalgar 99 bajo ',
@@ -50,12 +35,6 @@ function Casazul() {
       open: false,
       distance: ' 160m - 2min '
      },
-
-    // {
-    //   question: '¿ Hay alguna tintorería cerca  ?',
-    //   answer: ': Tintorería Mati -> Calle Antonio Martín Trenco, 14, local 4, 03005 Alicante". Telf : 965 22 90 46   ',
-    //   open: false
-    // },
 
     {
       question: '¿Dónde puedo imprimir mis billetes de avión?',

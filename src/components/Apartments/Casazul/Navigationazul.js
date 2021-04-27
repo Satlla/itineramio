@@ -11,6 +11,7 @@ import Eat from "../../../assets/icons/eat.svg";
 import Phones from "../../../assets/icons/smartphone.svg";
 import Jacuzzi from "../../../assets/icons/jacuzzi.svg";
 import Rules from "../../../assets/icons/yellow-card.svg";
+import Tv from "../../../assets/icons/tv-screen.svg";
 
 
 function Navigationazul() {
@@ -133,7 +134,19 @@ function Navigationazul() {
               </li>
             </Link>
 
-          
+            <Link to="/apartments/casazul/faq/tvcasazul">
+              <li className="item__button">
+                <div className="">
+                  <img className="item__icon" src={ Tv } alt="" />
+                </div>
+
+                <div className="mt-2">
+                  <a className="menu__item"> TV</a>
+                </div>
+              </li>
+            </Link>
+
+
           </ul>
         </div>
       </div>
