@@ -30,6 +30,15 @@ import Washingmachinee4 from "./components/Apartments/Enriqueta4/components/Wash
 import Vitroe4 from "./components/Apartments/Enriqueta4/components/Vitroe4";
 import Phonese4 from "./components/Apartments/Enriqueta4/components/Phonese4";
 import Wifie4 from "./components/Apartments/Enriqueta4/components/Wifie4";
+import Casazul from "./components/Apartments/Casazul/Casazul";
+import Checkincasazul from "./components/Apartments/Casazul/components/Checkincasazul";
+import Checkoutcasazul from "./components/Apartments/Casazul/components/Checkoutcasazul";
+import Vitrocasazul from "./components/Apartments/Casazul/components/Vitrocasazul";
+import Phonescasazul from "./components/Apartments/Casazul/components/Phonescasazul";
+import Washingmachinecasazul from "./components/Apartments/Casazul/components/Washingmachinecasazul";
+import Wificasazul from "./components/Apartments/Casazul/components/Wificasazul";
+import Rulescasazul from "./components/Apartments/Casazul/components/Rulescasazul";
+import Rules from "./components/Apartments/EnriquetaLoft/components/Rules";
 
 
 
@@ -95,6 +104,9 @@ function App() {
           <Route exact path="/apartments/enriquetaloft/faq/checkout">
             <Checkout />
           </Route>
+          <Route exact path="/apartments/enriquetaloft/faq/rules">
+            <Rules />
+          </Route>
         {/*  FIN ENRIQUETA LOFT */}
 
         {/*  ENRIQUETA 4 */}
@@ -121,6 +133,34 @@ function App() {
           </Route>
 
         {/*FIN ENRIQUETA 4 */}
+
+         {/* CASA AZUL */}
+         <Route exact path="/apartments/casazul/faq">
+            <Casazul />
+          </Route>
+          <Route exact path="/apartments/casazul/faq/checkincasazul">
+            <Checkincasazul />
+          </Route>
+          <Route exact path="/apartments/casazul/faq/vitrocasazul">
+            <Vitrocasazul />
+          </Route>
+          <Route exact path="/apartments/casazul/faq/checkoutcasazul">
+            <Checkoutcasazul />
+          </Route>
+          <Route exact path="/apartments/casazul/faq/phonescasazul">
+            <Phonescasazul />
+          </Route>
+          <Route exact path="/apartments/casazul/faq/washingmachinecasazul">
+            <Washingmachinecasazul />
+          </Route>
+          <Route exact path="/apartments/casazul/faq/wificasazul">
+            <Wificasazul />
+          </Route>
+          <Route exact path="/apartments/casazul/faq/rulescasazul">
+            <Rulescasazul />
+          </Route>
+
+        {/*FIN CASA AZUL */}
 
 
 

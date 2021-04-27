@@ -56,6 +56,11 @@ function EnriquetaLoft() {
       answer: ' Copistería Rusan Copy Flash Av. Salamanca, 24, 03005 Alicante"   ',
       open: false
     },
+    {
+      question: '¿Dónde encuentro un contenedor de basuras?',
+      answer: ' Nada mas salir del apartamento, tienes dos opciones, o subir hacia la derecha hasta el final de la calle, justo a mano derecha encontrarás un contenedor. La otra opción es: nada mas salir del eficio girar hazia la izquierda y al final de la calle, en el cruze, a la derecha encontarás varios contenedores."   ',
+      open: false
+    }
 
 
 

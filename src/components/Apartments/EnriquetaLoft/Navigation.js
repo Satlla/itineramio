@@ -10,6 +10,7 @@ import Climatization from "../../../assets/icons/climatization.svg";
 import Eat from "../../../assets/icons/eat.svg";
 import Phones from "../../../assets/icons/smartphone.svg";
 import Jacuzzi from "../../../assets/icons/jacuzzi.svg";
+import Rules from "../../../assets/icons/yellow-card.svg";
 
 
 function Navigation() {
@@ -129,6 +130,18 @@ function Navigation() {
 
                 <div className="mt-2">
                   <a className="menu__item"> Jacuzzi</a>
+                </div>
+              </li>
+            </Link>
+
+            <Link to="/apartments/enriquetaloft/faq/rules">
+              <li className="item__button">
+                <div className="">
+                  <img className="item__icon" src={ Rules } alt="" />
+                </div>
+
+                <div className="mt-2">
+                  <a className="menu__item"> Normas </a>
                 </div>
               </li>
             </Link>

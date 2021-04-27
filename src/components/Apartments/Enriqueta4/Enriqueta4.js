@@ -25,7 +25,7 @@ function Enriqueta4() {
     // },
     {
       question: '¿Cómo llego al apartamento desde el Aeropuerto ?',
-      answer: ' La mejor manera para llegar es mediante Taxi o Cabify (App como uber), el precio aproximado es de 20€-25€, la ventaja principal es que te deja en la misma puerta del apartamento por lo que no deberás preocuparte por nada. La opción B es mediante el Autobús C-6, cuesta en torno a 3,6€ y lo cogerás en el aeropuerto y tu parada será la de Renfre, a escasos 4 minutos andando del apartamento --> Calle Enriqueta Ortega 26 Bajo ',
+      answer: ' La mejor manera para llegar es mediante Taxi o Cabify (App como uber), el precio aproximado es de 20€-25€, la ventaja principal es que te deja en la misma puerta del apartamento por lo que no deberás preocuparte por nada. La opción B es mediante el Autobús C-6, cuesta en torno a 3,6€ y lo cogerás en el aeropuerto y tu parada será la de Renfe, a escasos 4 minutos andando del apartamento --> Calle Enriqueta Ortega 26 2Planta Apartamento 4 ',
       open: false
     },
     {
@@ -56,6 +56,11 @@ function Enriqueta4() {
       answer: ' Copistería Rusan Copy Flash Av. Salamanca, 24, 03005 Alicante"   ',
       open: false
     },
+      {
+      question: '¿Dónde encuentro un contenedor de basuras?',
+      answer: ' Nada mas salir del edificio, tienes dos opciones, o subir hacia la derecha hasta el final de la calle, justo a mano derecha encontrarás un contenedor. La otra opción es: nada mas salir del eficio girar hazia la izquierda y al final de la calle, en el cruze, a la derecha encontarás varios contenedores."   ',
+      open: false
+    }
 
 
 
