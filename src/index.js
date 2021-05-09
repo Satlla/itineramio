@@ -6,10 +6,15 @@ import reportWebVitals from "./reportWebVitals";
 import "./firebase";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
+import  { LangProvider } from './context/langContext';
 
 ReactDOM.render(
   <React.StrictMode>
+    <LangProvider>
+
     <App />
+
+    </LangProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

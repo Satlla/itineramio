@@ -8,8 +8,10 @@ import HeaderTransparent from '../components/HeaderTransparent';
 import Estandares from "./Estandares";
 
 
+
 function Home() {
   return (
+
     <div className="dashboard">
        <HeaderTransparent />
       <Discover />
@@ -17,6 +19,8 @@ function Home() {
       <Bullets />
       < Estandares />
     </div>
+
+
   );
 }
 

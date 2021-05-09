@@ -5,45 +5,60 @@ import foto1 from "../assets/img/cafe.jpg";
 import foto2 from "../assets/img/cafe2.jpg";
 import foto3 from "../assets/img/restaurant.jpg";
 import foto4 from "../assets/img/restaurant2.jpg";
+import {FormattedMessage } from 'react-intl'
+
 
 function Discover() {
   return (
-    <div className="main-cont mb-4">
-      <div className="container-hero">
-        <div className="container-titles">
 
-        <div className="explorer-hero">
-          <h3 className="hero-subtitle">
-            {" "}
-            Los mejores restaurantes de Alicante te están esperando
-          </h3>
-          <p className="hero-slogan">
-            {" "}
-            Lugares con encanto, sitios increíbles y experiencias únicas.
-          </p>
-        </div>
-        <div className="explore-itineramio">
-          <Link to="/explore">
-          <button className="btn-rounded"> Explorar Lugares</button>
-          </Link>
-        </div>
-        </div>
-        <div className="grid-container">
-          <div className="item1">
-            <img src={foto1} className="hero-img" alt="cafe" />
+      <div className="main-cont mb-4">
+        <div className="container-hero">
+          <div className="container-titles">
+            <div className="explorer-hero">
+              <h3 className="hero-subtitle">
+                {" "}
+                <FormattedMessage
+                  id="app.welcome"
+                  defaultMessage="Los mejores restaurantes de la ciudad, ¡te están esperando!"
+                  />
+
+              </h3>
+              <p className="hero-slogan">
+                {" "}
+                <FormattedMessage
+                id="app.welcome2"
+                defaultMessage="Lugares con encanto, sitios increíbles y experiencias únicas."
+
+                />
+              </p>
+            </div>
+            <div className="explore-itineramio">
+              <Link to="/explore">
+                <button className="btn-rounded">
+                <FormattedMessage
+                id="app.welcome.cta"
+                defaultMessage="Explorar"
+                 />
+                </button>
+              </Link>
+            </div>
           </div>
-          <div className="item2">
-            <img src={foto2} className="hero-img" alt="cafe" />
-          </div>
-          <div className="item3">
-            <img src={foto3} className="hero-img" alt="cafe" />
-          </div>
-          <div className="item4">
-            <img src={foto4} className="hero-img" alt="cafe" />
+          <div className="grid-container">
+            <div className="item1">
+              <img src={foto1} className="hero-img" alt="cafe" />
+            </div>
+            <div className="item2">
+              <img src={foto2} className="hero-img" alt="cafe" />
+            </div>
+            <div className="item3">
+              <img src={foto3} className="hero-img" alt="cafe" />
+            </div>
+            <div className="item4">
+              <img src={foto4} className="hero-img" alt="cafe" />
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 }
 

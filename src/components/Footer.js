@@ -6,6 +6,7 @@ import InstagramIcon from '@material-ui/icons/Instagram';
 import TwitterIcon from '@material-ui/icons/Twitter';
 import FacebookIcon from '@material-ui/icons/Facebook';
 import PinterestIcon from '@material-ui/icons/Pinterest';
+import { FormattedMessage } from 'react-intl'
 
 
 function Footer() {
@@ -25,9 +26,14 @@ function Footer() {
           </li>
           <li>
             <p class="what-is">
-              Itineramio es una comunidad de personas apasionadas por descubrir
+              <FormattedMessage
+              id="footer.slogan"
+              defaultMessage="Itineramio es una comunidad de personas apasionadas por descubrir
               la infinidad de lugares gastronómicos de imprescindible visita en
-              la ciudad de Alicante
+              la ciudad de Alicante"
+
+              />
+
             </p>
             <div className="Social-icons mb-4">
               <a className="link__rss" href ="https://www.instagram.com/itineramio/" > <InstagramIcon /> </a>
@@ -40,10 +46,22 @@ function Footer() {
       </div>
       <div className="cont-center">
         <ul className="footer-list">
-          <p ClassName="footer-list-title"> ACERCA DE </p>
+          <p ClassName="footer-list-title">
+          <FormattedMessage
+              id="footer.about"
+              defaultMessage=" ACERCA DE"
+
+              />
+          </p>
           <li>
             <Link to="/como-funciona">
-            <a class="nav-link"> ¿Qué es  Itineramio? </a>
+            <a class="nav-link">
+            <FormattedMessage
+              id="menu.whatis"
+              defaultMessage="¿Qué es itineramio?"
+
+              />
+            </a>
 
             </Link>
           </li>
@@ -55,7 +73,14 @@ function Footer() {
           </li> */}
           <li>
             <Link to="/estandares">
-            <a class="nav-link"> Estándares de Calidad </a>
+            <a class="nav-link">
+
+            <FormattedMessage
+              id="footer.standard"
+              defaultMessage=" Estándares de Calidad"
+
+              />
+            </a>
 
             </Link>
           </li>
@@ -64,15 +89,31 @@ function Footer() {
 
       <div className="cont-right">
         <ul className="footer-list">
-          <p ClassName="footer-list-title"> LEGAL</p>
+          <p ClassName="footer-list-title"> 
+          <FormattedMessage
+              id="footer.legal"
+              defaultMessage=" LEGAL"
+
+              />
+
+          </p>
           <li>
             <a class="nav-link" href="#">
-              Condiciones de uso
+            <FormattedMessage
+              id="footer.terms"
+              defaultMessage=" Condiciones de uso"
+
+              />
             </a>
           </li>
           <li>
             <Link to="/privacity">
-            <a class="nav-link"> Privacidad y Cookies </a>
+            <a class="nav-link">
+            <FormattedMessage
+              id="footer.privacy"
+              defaultMessage=" Privacidad y Cookies"
+
+              /> </a>
 
             </Link>
           </li>

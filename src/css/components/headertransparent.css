@@ -34,6 +34,24 @@
     border-bottom: 1px solid #dcdcdc;
   }
 
+  #dropdownMenuButton{
+    color: #484848;
+    padding: 4px;
+
+  }
+  #dropdownMenuButton:focus{
+    outline: none !important;
+
+  }
+
+  #dropdownMenuButton:active{
+    outline: none !important;
+
+  }
+
+
+  #dropdownMenuButton
+
   @media (max-width: 600px) {
     .form-control {
       display: none !important;

@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
+import { Link } from "react-router-dom";
+
 import "../css/components/listingstable.css";
 import { toast } from "react-toastify";
 import '../css/components/dashboard.css'
+import Editlisting from './EditListing';
 
 
 function ListingsTable({ title }) {
   const [listings, setListings] = useState([]);
+  const [currentId, SetCurrentId] = useState('');
 
   const onDeleteListing = async (id) => {
     if (window.confirm("Estas seguro de querer eliminar este listing?")) {
@@ -16,6 +20,16 @@ function ListingsTable({ title }) {
       type: "error",
     });
   };
+// useEffect(( ) => {
+//   if (props.currentId === '') {
+//     setValues({...initialStateValues});
+
+//   } else {
+//     console.log('editing')
+//   }
+
+// }, []);
+
 
   const getListings = async () => {
     db.collection("listings").onSnapshot((querySnapshot) => {
@@ -36,6 +50,7 @@ function ListingsTable({ title }) {
     <div className="main-container">
 
       <div className="container-table">
+        <Editlisting />
    
 <h3> Tus Anuncios</h3>
       <div className="table-listing-list ">
@@ -57,10 +72,12 @@ function ListingsTable({ title }) {
           <th scope="row" > {index}</th>
                 <td>{listings.name}</td>
                 <td>
-                  <button className="btn__edit">
+                <Link to={`/dashboard/editlisting/${listings.id}`}>
+                  <button className="btn__edit" onClick={() =>  ('listings.id')}>
                     {" "}
                     Editar
                   </button>
+                  </Link>
                 </td>
                 <td>
                   <button

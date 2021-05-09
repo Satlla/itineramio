@@ -14,11 +14,12 @@ function AddListing() {
   const onFileChange = async (e) => {
     for (let i = 0; i < e.target.files.length; i++) {
       const files = e.target.files[i];
-      console.log(files.name);
+      console.log(files);
       const storageRef = fb.storage().ref();
-      const fileRef = storageRef.child(`images/${files.name}`);
+      const fileRef = storageRef.child(`prueba/${files.name}`);
       await fileRef.put(files);
       setImages(await fileRef.getDownloadURL());
+
     }
   };
 

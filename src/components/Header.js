@@ -4,6 +4,9 @@ import "../css/components/header.css";
 import logo from "../logo.png";
 import FaceIcon from "@material-ui/icons/Face";
 import WorkOutlineIcon from "@material-ui/icons/WorkOutline";
+import {FormattedMessage} from 'react-intl';
+
+
 function Header() {
   return (
     <div>

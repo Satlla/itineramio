@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useContext } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import "./App.css";
 import Home from "./components/Home";
@@ -40,15 +40,17 @@ import Wificasazul from "./components/Apartments/Casazul/components/Wificasazul"
 import Rulescasazul from "./components/Apartments/Casazul/components/Rulescasazul";
 import Rules from "./components/Apartments/EnriquetaLoft/components/Rules";
 import Tvcasazul from "./components/Apartments/Casazul/components/Tvcasazul";
-
-
-
-
+import EditListing from "./components/EditListing";
 
 
 
 function App() {
+
   return (
+
+    
+
+
     <div>
       <Router>
         <Switch>
@@ -187,6 +189,10 @@ function App() {
           <Route  exact path="/estandares">
              <Estandares/>
           </Route>
+          <Route  exact path="/dashboard/editlisting/:listingId">
+             <EditListing/>
+          </Route>
+
 
 
 
@@ -197,6 +203,7 @@ function App() {
       </Router>{" "}
       <ToastContainer />
     </div>
+
   );
 }
 

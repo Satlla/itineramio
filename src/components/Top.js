@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { Link } from "react-router-dom";
 import "../css/components/list.css";
-import { useParams } from "react-router-dom";
 import Preloader from './Preloader';
 import "../css/pages/plans.css";
 import romantic from '../assets/pages/romantic.svg';
@@ -11,6 +10,7 @@ import drinks from '../assets/pages/drinks.svg';
 import traditional from '../assets/pages/traditional.svg';
 import aniversary from '../assets/pages/aniversary.svg';
 import family from '../assets/pages/family.svg';
+import {FormattedMessage} from 'react-intl';
 
 
 function Listings({ title }) {
@@ -18,8 +18,6 @@ function Listings({ title }) {
   const [listings, setListings] = useState([]);
   const [listingCategory, setListingCategory] = useState([]);
   const [loading, setLoading ] = useState(false);
-
-  console.log(useParams());
 
   function categoryTerm(listingCategory) {
     return function (x) {
@@ -63,48 +61,112 @@ function Listings({ title }) {
       <div className="plan">
         <img className="plan__categoryImage" src={romantic} alt=""/>
         <div className="plan__content">
-        <span onClick={() => setListingCategory("Top")}  className="plan__title">Top</span>
-        <span> Lo mejor</span>
+        <span onClick={() => setListingCategory("Top")}  className="plan__title">
+          <FormattedMessage
+          id="category.top"
+          defaultMessage="Top"
+          />
+        </span>
+        <span>
+        <FormattedMessage
+          id="category.top.slogan"
+          defaultMessage="Lo mejor"
+          />
+        </span>
        </div>
 
       </div>
       <div className="plan">
         <img className="plan__categoryImage" src={family} alt=""/>
         <div className="plan__content">
-        <span onClick={() => setListingCategory("Desayunar")}  className="plan__title"> Desayunar</span>
-        <span> Cafés y más</span>
+        <span onClick={() => setListingCategory("Desayunar")}  className="plan__title">
+        <FormattedMessage
+          id="category.breakfast"
+          defaultMessage="Desayunar"
+          />
+           </span>
+        <span>
+        <FormattedMessage
+          id="category.breakfast.slogan"
+          defaultMessage="Lunch, Break..."
+          />
+        </span>
        </div>
 
       </div>
       <div className="plan">
         <img className="plan__categoryImage" src={drinks} alt=""/>
         <div className="plan__content">
-        <span onClick={() => setListingCategory("Tapas & Vinos")}  className="plan__title"> Tapas y Vinos</span>
-        <span> Vinos y Copas</span>
+        <span onClick={() => setListingCategory("Tapas & Vinos")}  className="plan__title">
+        <FormattedMessage
+          id="category.apetizers"
+          defaultMessage="Tapas & Vinos"
+          />
+          </span>
+        <span>
+        <FormattedMessage
+          id="category.apetizers.slogan"
+          defaultMessage="Vinos, Bermouth"
+          />
+           </span>
        </div>
 
       </div>
       <div className="plan">
         <img className="plan__categoryImage" src={museums} alt=""/>
         <div className="plan__content">
-        <span onClick={() => setListingCategory("Arrocerías")}  className="plan__title"> Arrocerías </span>
-        <span> Mejores Arroces</span>
+        <span onClick={() => setListingCategory("Arrocerías")}  className="plan__title">
+        <FormattedMessage
+          id="category.rices"
+          defaultMessage="Arroces"
+          />
+          </span>
+        <span>
+        <FormattedMessage
+          id="category.rices.slogan"
+          defaultMessage="Mejores Arroces"
+          />
+
+        </span>
        </div>
 
       </div>
       <div className="plan">
         <img className="plan__categoryImage" src={traditional} alt=""/>
         <div className="plan__content">
-        <span onClick={() => setListingCategory("Coffee & Relax")}  className="plan__title"> Coffee & Relax</span>
-        <span> Tardes mágicas</span>
+        <span onClick={() => setListingCategory("Coffee & Relax")}  className="plan__title">
+        <FormattedMessage
+          id="category.coffee"
+          defaultMessage="Coffee & Relax"
+          />
+
+          </span>
+        <span>
+        <FormattedMessage
+          id="category.coffee.slogan"
+          defaultMessage="Tardes Mágicas"
+          />
+
+
+        </span>
        </div>
 
       </div>
       <div className="plan">
         <img className="plan__categoryImage" src={aniversary} alt=""/>
         <div className="plan__content">
-        <span onClick={() => setListingCategory("Copas")}  className="plan__title">Copas</span>
-        <span> Drinks & Music</span>
+        <span onClick={() => setListingCategory("Copas")}  className="plan__title">
+        <FormattedMessage
+          id="category.drinks"
+          defaultMessage="Copas"
+          />
+        </span>
+        <span>
+        <FormattedMessage
+          id="category.drinks.slogan"
+          defaultMessage="Cocktails & Combinados"
+          />
+        </span>
        </div>
 
       </div>
