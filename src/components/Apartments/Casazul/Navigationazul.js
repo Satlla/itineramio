@@ -9,7 +9,6 @@ import Washingmachine from "../../../assets/icons/washingmachine.svg";
 import Climatization from "../../../assets/icons/climatization.svg";
 import Eat from "../../../assets/icons/eat.svg";
 import Phones from "../../../assets/icons/smartphone.svg";
-import Jacuzzi from "../../../assets/icons/jacuzzi.svg";
 import Rules from "../../../assets/icons/yellow-card.svg";
 import Tv from "../../../assets/icons/tv-screen.svg";
 

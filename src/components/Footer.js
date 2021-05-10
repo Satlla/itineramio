@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import "../css/components/footer.css";
 import logo from "../logo.png";
@@ -7,10 +7,12 @@ import TwitterIcon from '@material-ui/icons/Twitter';
 import FacebookIcon from '@material-ui/icons/Facebook';
 import PinterestIcon from '@material-ui/icons/Pinterest';
 import { FormattedMessage } from 'react-intl'
-
+import { langContext } from "../context/langContext";
+import LanguageIcon from "@material-ui/icons/Language";
 
 function Footer() {
-  
+
+const language = useContext(langContext);
 
   window.scrollTo(0, 0);
 
@@ -117,6 +119,36 @@ function Footer() {
 
             </Link>
           </li>
+          <div className="dropdown">
+                <button
+                  className="btn btn-lang dropdown-toggle"
+                  type="button"
+                  id="dropdownMenuButton"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <LanguageIcon/>
+                </button>
+                <div
+                  className="dropdown-menu"
+                  aria-labelledby="dropdownMenuButton"
+                >
+                  <button
+                    onClick={() => language.setLanguage('es-ES')}
+                    className="dropdown-item"
+                  >
+                    Español
+                  </button>
+                  <button
+                    onClick={() => language.setLanguage('en-US')}
+                    className="dropdown-item"
+                  >
+                    {" "}
+                    Inglés
+                  </button>
+                </div>
+              </div>
         </ul>
       </div>
     </div>

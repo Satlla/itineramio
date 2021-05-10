@@ -6,10 +6,10 @@ import WorkOutlineIcon from "@material-ui/icons/WorkOutline";
 import "../css/components/headertransparent.css";
 import { FormattedMessage } from "react-intl";
 import LanguageIcon from "@material-ui/icons/Language";
-import { langContext } from "../context/langContext";
+
 
 function HeaderTransparent() {
-  const language = useContext(langContext);
+
   return (
     <div className="header__transparent">
       <nav className="navbar navbar-expand-lg navbar-light bg-white">
@@ -64,7 +64,7 @@ function HeaderTransparent() {
                   {" "}
                    GO PRO
                 </button> */}
-                              <div className="dropdown">
+                {/* <div className="dropdown">
                 <button
                   className="btn btn-lang dropdown-toggle"
                   type="button"
@@ -73,7 +73,7 @@ function HeaderTransparent() {
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
-                  <LanguageIcon />
+                  <LanguageIcon/>
                 </button>
                 <div
                   className="dropdown-menu"
@@ -93,7 +93,7 @@ function HeaderTransparent() {
                     Inglés
                   </button>
                 </div>
-              </div>
+              </div> */}
 
               <li className="nav-item active ml-3 ">
                 <Link to="/como-funciona">
