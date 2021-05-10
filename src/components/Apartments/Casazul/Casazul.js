@@ -2,50 +2,13 @@ import React, { useState } from "react";
 import HeaderTransparent from "../../HeaderTransparent";
 import Navigation from './Navigationazul';
 import "../../../css/components/dashboard.css";
-import Faq from './components/Faqcasazul';
+import Faq from '../Base/Faq';
 import Portada from './assets/imgs/faqwall.jpg'
+import Data from '../Base/DataCasazul.json'
 
 function Casazul() {
 
-  const [faqs, setFaqs] = useState([
-    {
-      question: '¿Cómo llego al apartamento desde el Aeropuerto ?',
-      answer: ' La mejor manera para llegar es mediante Taxi o Cabify (App como uber), el precio aproximado es de 20€-25€, la ventaja principal es que te deja en la misma puerta del apartamento por lo que no deberás preocuparte por nada. La opción B es mediante el Autobús C-6, cuesta en torno a 3,6€ y lo cogerás en el aeropuerto y tu parada será la Alfonso X el Sabio 12 ( Bomberos), a escasos 4 minutos andando del apartamento --> Calle Trafalgar 99 bajo ',
-      open: false,
-      distance: ' 12,2km - 37min - C-6'
-    },
-    {
-      question: '¿Hay alguna consigna de maletas ?',
-      answer: ' Cerca del mercado central podrás dejar las maletas en Luggage Alicante, es una consigna de equipajes cuya reserva solo está permitida a través de su página web -> www.luggagealicante.com 24 Hour Luggage Storage (Consigna) Alicante City Center.   ',
-      open: false,
-      distance: ' 650m - 8min '
-
-    },
-    {
-      question: '¿Hay algún supermercado cerca?',
-      answer: 'Supermercado Mercadona en Calle Juan de Herrera, 10. Abre a las 9:00h y cierra a las 21:30h, Si necesitas un 24h para compras de emergencia: Deshoras Plaça dEspanya, 10, 03004  965 20 99 99  ',
-      open: false,
-      distance: ' 400m - 5min'
-
-    },
-
-     {
-      question: '¿Dónde encuentro una farmacia?',
-      answer: ' En horario laboral, justo al lado del alojamiento se encuentra : Farmacia Van Der C/ València, 1, si tienes una emergencia la farmacia trebol abre 24h, está situada en Calle, Avenida Pintor Xavier Soler, 2, Local 4 - 7, 03015 Alicante 965 91 02 20 ',
-      open: false,
-      distance: ' 160m - 2min '
-     },
-
-    {
-      question: '¿Dónde puedo imprimir mis billetes de avión?',
-      answer: ' Imprenta Sierra, situada en  Plaza San Antonio, 9, 03004 Alicante 965 21 33 26 de 8:00 a 14:00  ',
-      open: false,
-      distance: ' 550metros - 7min '
-    },
-
-
-
-  ]);
+  const [faqs, setFaqs] = useState(Data);
 
   const toggleFAQ = index => {
     setFaqs(faqs.map((faq, i) => {
@@ -58,8 +21,6 @@ function Casazul() {
       return faq;
     }))
   }
-
-
 
   return (
     <div>

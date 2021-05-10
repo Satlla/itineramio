@@ -31,6 +31,19 @@ font-size: 15px;
   text-justify: justify;
 }
 
+.img-lang{
+  width: 2rem;
+}
+
+.lang-container{
+  display:flex;
+  justify-content: center;
+}
+
+.lang-btn:hover{
+cursor: pointer;  
+}
+
 a .MuiSvgIcon-root {
   color: #484848;
 }

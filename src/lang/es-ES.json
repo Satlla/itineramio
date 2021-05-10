@@ -31,7 +31,34 @@
   "footer.standard": " Estándares de Calidad",
   "footer.legal": " LEGAL",
   "footer.terms": " Condiciones de uso",
-  "footer.privacy": " Privacidad y Cookies"
+  "footer.privacy": " Privacidad y Cookies",
+  "collaborate.slogan": "¡Colabora con nosotros!. Cuéntanos al oido... ese lugar tan especial ¡que quieres que visitemos!",
+  "collaborate.title": "¡Envíanos tus lugares Favoritos!",
+  "collaborate.why": " Por qué crees que debe aparecer este establecimiento en itineramio?",
+  "collaborate.name": "Nombre",
+  "collaborate.name.placeholder": "Escribe tu nombre",
+  "collaborate.email": "Email",
+  "collaborate.place": "Nombre del establecimiento",
+  "collaborate.place.placeholder": "Nombre del establecimiento",
+  "collaborate.standard": "Estándares de calidad",
+  "collaborate.recommend": "Quiero recomendar a itineramio el siguiente establecimiento porque...",
+  "collaborate.cta": "Enviar",
+  "hiw.title": "Lugares Mágicos",
+  "hiw.slogan": "Dependiendo de dónde quieras estar, itineramio te dice el lugar",
+  "hiw.cta": "Explorar Lugares",
+  "hiw.title1": "¿Qué es itineramio?",
+  "hiw.description1": "Nuestra mayor obsesión es, hacer que cada usuarix encuentre el lugar que necesita visitar, reduciendo el tiempo de búsqueda y margen de error. Desde una vieja taberna con cocina de estrella, hasta un lugar mágico para tomar el mejor café en pareja.",
+  "hiw.title2": "Impulso Local",
+  "hiw.description2": "Plataforma creada para impulsar la gastronomía local tradicional y los mejores emplazamientos de la ciudad.",
+  "hiw.title3": "Experiencias Top",
+  "hiw.description3": "Solo forman parte los lugares que generan experiencias 100% satisfactorias en el cliente final bajo nuestros estándares.",
+  "hiw.title4": "Objetividad",
+  "hiw.description4": "Nos basamos en opiniones propias visitando el lugar personalmente, pensando siempre en el cliente final.",
+  "hiw.contact": "¡Contáctanos!",
+  "hiw.contact.description": "Si crees que hay algún restaurante en Alicante (provincia) que reúne los requisitos para ser visitado por nosotros y además superar la expectativas de acuerdo con nuestros estándares de calidad por favor contacta con nosotros"
+
+
+
 
 }
 

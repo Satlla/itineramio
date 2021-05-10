@@ -1,0 +1,59 @@
+
+[
+
+  {
+    "question": "¿Cómo llego al apartamento desde el Aeropuerto ?",
+    "answer": "La mejor manera para llegar es mediante Taxi o Cabify (App como uber), el precio aproximado es de 20€-25€, la ventaja principal es que te deja en la misma puerta del apartamento por lo que no deberás preocuparte por nada. La opción B es mediante el Autobús C-6, cuesta en torno a 3,6€ y lo cogerás en el aeropuerto y tu parada será la de Renfe, a escasos 4 minutos andando del apartamento --> Calle Enriqueta Ortega 26 2Planta Apartamento 4",
+    "open": false,
+    "distance": "30min"
+  },
+  {
+    "question": "¿Hay alguna consigna de maletas ?",
+    "answer": "Cerca del mercado central podrás dejar las maletas en Luggage Alicante, es una consigna de equipajes cuya reserva solo está permitida a través de su pagina web -> www.luggagealicante.com 24 Hour Luggage Storage (Consigna) Alicante City Center.",
+    "open": false,
+   "distance": "1km - 11min"
+
+  },
+  {
+    "question": "¿Hay algún supermercado cerca?",
+    "answer": "Supermercado Dialprix en Calle Pintor Gisbert 9 Abre a las 9:00h, Si necesitas un 24h para compras de emergencia En la Plaza General Mancha Nº 2 'Deshoras' ",
+    "open": false,
+    "distance": "300metros - 4min"
+  },
+
+   {
+    "question": "¿Dónde encuentro una farmacia?",
+    "answer": "En horario laboral, justo al lado del alojamiento se encuentra : Lda Ma C. Delgafo Perez en la calle Tato, si tienes una emergencia la farmacia trebol abre 24h, está situada en Calle, Avenida Pintor Xavier Soler, 2, Local 4 - 7, 03015 Alicante 965 91 02 20 ",
+    "open": false,
+    "distance": "100metros - 2min"
+   },
+
+   {
+    "question": "¿Hay alguna tintorería cerca",
+    "answer": " Tintorería Mati -> Calle Antonio Martín Trenco, 14, local 4, 03005 Alicante. Telf : 965 22 90 46 ",
+    "open": false,
+    "distance": "600metros - 7min"
+  },
+
+  {
+    "question": "¿Dónde puedo imprimir mis billetes de avión?",
+    "answer": "Copistería Rusan Copy Flash Av. Salamanca, 24, 03005 Alicante",
+    "open": false,
+    "distance": "350metros - 4min"
+  },
+    {
+    "question": "¿Dónde encuentro un contenedor de basuras?",
+    "answer":  "Nada mas salir del edificio, tienes dos opciones, o subir hacia la derecha hasta el final de la calle, justo a mano derecha encontrarás un contenedor. La otra opción es: nada mas salir del eficio girar hazia la izquierda y al final de la calle, en el cruze, a la derecha encontarás varios contenedores.",
+    "open": false,
+    "distance":  "50metros - 0,2min"
+  },
+  {
+    "question": "¿Cómo consigo la tarjeta para el transporte público?",
+    "answer":   "La tarjeta móbilis puede adquirirse en la oficina del TAM en Alicante situada en Díaz Moreu 6 - La Rambla, en el horario de 9:00 a 19:00 de lunes a viernes, y sábados de 10:00 a 13:00. También puede comprarse en las oficinas de información de Luceros y en los puntos de venta (estancos y kioscos). Si no tienes posibilidad de ir a la oficina Tam. Justo detrás del apartamento hay un estanco dentro de Renfe ADIF Estación central de trenes.",
+    "open": false,
+    "distance":  "450metros - 5min"
+  }
+
+
+]
+

@@ -9,6 +9,9 @@ import PinterestIcon from '@material-ui/icons/Pinterest';
 import { FormattedMessage } from 'react-intl'
 import { langContext } from "../context/langContext";
 import LanguageIcon from "@material-ui/icons/Language";
+import uk from '../assets/icons/uk.svg'
+import es from '../assets/icons/spain.svg'
+
 
 function Footer() {
 
@@ -91,7 +94,7 @@ const language = useContext(langContext);
 
       <div className="cont-right">
         <ul className="footer-list">
-          <p ClassName="footer-list-title"> 
+          <p ClassName="footer-list-title">
           <FormattedMessage
               id="footer.legal"
               defaultMessage=" LEGAL"
@@ -119,36 +122,25 @@ const language = useContext(langContext);
 
             </Link>
           </li>
-          <div className="dropdown">
-                <button
-                  className="btn btn-lang dropdown-toggle"
-                  type="button"
-                  id="dropdownMenuButton"
-                  data-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                >
-                  <LanguageIcon/>
-                </button>
-                <div
-                  className="dropdown-menu"
-                  aria-labelledby="dropdownMenuButton"
-                >
-                  <button
+          <div className="lang-container mt-2">
+
+                  <span className="lang-btn"
                     onClick={() => language.setLanguage('es-ES')}
-                    className="dropdown-item"
+                    
+
                   >
-                    Español
-                  </button>
-                  <button
+                    <img className="img-lang" src={es} alt=""/>
+                  </span>
+                  <span className="lang-btn"
                     onClick={() => language.setLanguage('en-US')}
-                    className="dropdown-item"
+                    
                   >
                     {" "}
-                    Inglés
-                  </button>
-                </div>
-              </div>
+                    <img className="img-lang ml-2" src={uk} alt=""/>
+                  </span>
+          </div>
+
+              
         </ul>
       </div>
     </div>
