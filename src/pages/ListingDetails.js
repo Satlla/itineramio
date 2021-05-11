@@ -10,11 +10,15 @@ import CreditCardIcon from "@material-ui/icons/CreditCard";
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
+import Comment from '../components/Comment'
+
 
 function ListingDetails() {
   const { listingId } = useParams();
   const [ListingDetails, setListingDetails] = useState(null);
+  const [listingComments, setListingComments] = useState([])
   const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -25,7 +29,17 @@ function ListingDetails() {
         .onSnapshot((snapshot) => setListingDetails(snapshot.data()));
     }
 
+    db.collection('listings').doc(listingId)
+    .collection('comments')
+    .orderBy('timestamp', 'asc')
+    .onSnapshot(snapshot =>
+      setListingComments(snapshot.docs.map((doc) => doc.data()))
+    );
+
   }, [listingId]);
+  console.log(listingComments)
+
+
 
   return (
     <div>
@@ -45,7 +59,7 @@ function ListingDetails() {
       <div className="container__title">
       
 <h4 className="title__listing"> {ListingDetails?.name}</h4>
-      <p className="slogan__listing">{ListingDetails?.slogan}</p>
+  <p className="slogan__listing">{ListingDetails?.slogan}</p>
       <span className="ratings">
         <div className="rating">
           <span className="rating__icon">
@@ -130,8 +144,6 @@ function ListingDetails() {
 <div className="main__description">
   <div className="container__description">
 
-
-
       <div className="description__listing">
         <h6 className="description__title"> Sobre el Lugar </h6>
         {ListingDetails?.description}
@@ -154,7 +166,27 @@ function ListingDetails() {
 
 </div>
     </div>
+    <div>
+    <div className="title">
+      <AllInclusiveIcon className="ratin__icon"/>
+      <h4 className=" ml-2">Comentarios</h4>
+      </div>
+      {listingComments.map(({comment, timestamp, username, title, userImage}) => (
 
+        <Comment
+
+        comment={comment}
+        timestamp={timestamp}
+        username={username}
+        title={title}
+        userImage={userImage}
+
+
+        />
+      ))}
+
+
+</div>
     </div>
     </div>
   );

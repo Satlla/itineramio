@@ -118,6 +118,21 @@ align-items: middle;
 
 }
 
+.title{
+  display: flex;
+  align-items: center;
+  margin-left: 1.5rem;
+  max-height: 35px;
+  margin-top: 2rem;
+}
+
+.ratin__icon {
+  width: .7em;
+  padding-bottom: 3px;
+  color: #ff2e76;
+  margin-bottom: 2px;
+}
+
 .verified__icon{
   color: #ff2e76;
 }
