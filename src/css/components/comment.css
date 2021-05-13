@@ -1,3 +1,6 @@
+
+
+
 .userimage{
   max-width: 3rem;
 }
@@ -11,9 +14,12 @@
   padding: 1.5rem;
   border: 1px solid #f1f1f1;
   border-radius: 8px;
+
 }
 
 .comment__container{
 padding: 1rem;
+
+justify-content: center;
 }
 

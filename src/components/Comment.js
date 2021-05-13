@@ -6,9 +6,10 @@ import AllInclusiveIcon from "@material-ui/icons/AllInclusive";
 
 function Comment({ comment, title, username }) {
   return (
+
+
     <div className="comment__container">
-      
-      
+
       <div className="comment__card ">
 
       <div className="comment__profile">
@@ -17,10 +18,11 @@ function Comment({ comment, title, username }) {
       </div>
       <div className="comment">
         <h5>{title}</h5>
-        <p>{comment}</p>
+        <p>{comment?.text}</p>
       </div>
       </div>
     </div>
+   
   );
 }
 
