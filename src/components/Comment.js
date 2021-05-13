@@ -18,11 +18,11 @@ function Comment({ comment, title, username }) {
       </div>
       <div className="comment">
         <h5>{title}</h5>
-        <p>{comment?.text}</p>
+        <p>{comment}</p>
       </div>
       </div>
     </div>
-   
+
   );
 }
 

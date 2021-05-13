@@ -28,11 +28,7 @@ function EditListing() {
 
     <div>
        { loading ? "" : <Preloader />}
-       <div className="cabecera">
-        <Link className="header__whyus" to="/dashboard/userlistings">
-          <ChevronLeftIcon/> volver
-        </Link>
-      </div>
+     
       <h4> Edit listing</h4>
       <textarea name="" id="" cols="30" rows="10">
 

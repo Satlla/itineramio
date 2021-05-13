@@ -41,7 +41,7 @@ function Wifi() {
         <textarea 
           className="textareawifi"
           ref={textAreaRef}
-          value='ENRIQUETA26B'
+          value='ENRIQUETA26'
           />
       </form>
           <hr></hr>
