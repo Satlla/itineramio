@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { render } from 'react-dom';
 import ReactWhatsapp from 'react-whatsapp';
 import { db } from "../firebase";
 import Preloader from "../components/Preloader";
 import "../css/components/ListingDetails.css";
 import HeaderTransparent from "../components/HeaderTransparent";
+import MetaDecorator from '../components/MetaDecorator';
 import AllInclusiveIcon from "@material-ui/icons/AllInclusive";
 import LocationOnIcon from "@material-ui/icons/LocationOn";
 import CreditCardIcon from "@material-ui/icons/CreditCard";
@@ -42,6 +42,12 @@ function ListingDetails() {
 
   return (
     <div>
+      <MetaDecorator
+      description={ListingDetails?.slogan}
+      title={ListingDetails?.name}
+      image={ListingDetails?.image} 
+      />
+
       <HeaderTransparent />
       <div className="container__listing">
         <div className="container__file">
@@ -203,7 +209,7 @@ function ListingDetails() {
                 <span className="notification__text">
                   {" "}
                   Todos los emplazamientos publicados en itineramio, tiene como
-                  finalidad, lograr la mejor experiencia del itinerer.
+                  finalidad, lograr la mejor experiencia del usuarix.
                 </span>
               </div>
               <div className="title">
