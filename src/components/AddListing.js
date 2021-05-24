@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { fb } from "../firebase";
 import "../css/components/addlisting.css";
 import { toast } from "react-toastify";
+import FreeBreakfastIcon from '@material-ui/icons/FreeBreakfast';
 
 
 
@@ -172,7 +173,7 @@ function AddListing() {
                   className="form-control form-control-md "
                   name="listingcategory"
                 >
-                  <option>Desayunar</option>
+                  <option> Desayunar</option>
                   <option>Tapas & Vinos</option>
                   <option>Arrocerías</option>
                   <option>Top</option>

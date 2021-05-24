@@ -180,6 +180,21 @@ align-items: middle;
 margin: 0 auto;
 }
 
+.booking-container {
+  margin: 1rem;
+}
+
+.button-booking{
+  padding: 10px 20px;
+  border: none;
+  background-color: #ff2e76;
+  border-radius: 5px;
+  color: white;
+  font-weight: 800;
+  width: 100%;
+
+}
+
 @media (min-width: 600px) {
 
   .image__listing{

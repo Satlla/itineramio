@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { render } from 'react-dom';
+import ReactWhatsapp from 'react-whatsapp';
 import { db } from "../firebase";
 import Preloader from "../components/Preloader";
 import "../css/components/ListingDetails.css";
@@ -11,6 +13,7 @@ import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
 import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import Comment from "../components/Comment";
+import PhoneIcon from '@material-ui/icons/Phone';
 
 function ListingDetails() {
   const { listingId } = useParams();
@@ -124,6 +127,25 @@ function ListingDetails() {
                         </span>
                       </div>
                     </div>
+
+                    <div className="peculiarities">
+                      <span className="peculiarities__icons">
+                        <PhoneIcon />{" "}
+                      </span>
+                      <div className="pec__explaining">
+                        <span className="peculiarities__title">
+                          +34{" "}
+
+                          <span className="price">
+                          {ListingDetails?.phone}
+                          </span>{" "}
+                        </span>
+                        <span className="peculiarities__resume">
+                          {" "}
+                          o Reserva por itineramio Gratis {" "}
+                        </span>
+                      </div>
+                    </div>
                     <div className="address mt-2">
                       <span className="location__icon">
                         <LocationOnIcon />
@@ -138,6 +160,22 @@ function ListingDetails() {
                   {/* Acaba el recuadro de peculiaridades  */}
                 </div>
               </span>
+
+                    <div className="booking-container">
+
+
+                    <ReactWhatsapp 
+                    className="button-booking"
+                    number="+34652656440" 
+                    message="Me gustaría reservar este restaurante para el dia ** a las ** para ** personas. "
+                    title="Reservar">
+
+                      Reservar
+
+                    </ReactWhatsapp>
+
+
+                    </div>
             </div>
           </div>
 
@@ -189,7 +227,6 @@ function ListingDetails() {
           </div>
         </div>
         <div>
-          
       </div>
     </div>
   );
