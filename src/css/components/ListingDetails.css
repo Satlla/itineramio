@@ -10,7 +10,12 @@
   max-width: 100%;
 
 }
-
+.def__rating{
+  display:flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
 
 .container__title{
   width: 100%;
@@ -44,9 +49,10 @@ display: -webkit-box;
   width: 95%;
 }
 
+
+
 .ratings {
   display: flex;
- 
   margin: 1rem;
   font-weight: 800;
 }
@@ -193,6 +199,23 @@ margin: 0 auto;
   font-weight: 800;
   width: 100%;
 
+}
+
+.comments{
+  color: #00A699;
+  border-bottom: 1px solid #00A699;
+  font-weight: bolder;
+  margin-left: 20px;
+  margin-bottom: 5px;
+}
+
+.comment:hover{
+  cursor: pointer;
+}
+
+.comments-container{
+  display: flex;
+  justify-content: space-around;
 }
 
 @media (min-width: 600px) {

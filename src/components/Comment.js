@@ -2,6 +2,7 @@ import React from "react";
 import "../css/components/comment.css";
 import userImage from "../assets/icons/user.svg";
 
+
 function Comment({ comment, title, username }) {
   return (
 

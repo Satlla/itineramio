@@ -1,9 +1,9 @@
-import React, {useState} from 'react'
+import React, { useEffect, useState } from "react";
 import '../css/components/commentBox.css'
 import { useParams } from "react-router-dom";
-import userImage from "../assets/icons/user.svg";
 import { db } from "../firebase";
 import { toast } from "react-toastify";
+
 
 
 function CommentBox () {
@@ -12,33 +12,10 @@ function CommentBox () {
   const [commentMessage, setCommentMessage]= useState('');
   const [userName, setUserName] = useState('');
   const [title, setTitle] = useState('');
-  
-  
-  // const initialStateValues = {
-  //   comment: "",
-  //   username: "",
-  //   title: "",
-  // };
-
-  // const [ default, setDefault] = useState(initialStateValues);
 
 
 const sendComment = e => {
   e.preventDefault();
-  // setDefault({ ...initialStateValues });
-
-  // const comment = e.target.comment.value;
-  // const title = e.target.comment.value;
-  // const username = e.target.comment.value;
-
-
-  // if (
-  //   !comment ||
-  //   !title ||
-  //   !username ||
-  // ) {
-  //   return;
-  // }
 
   db.collection("listings").doc(listingId).collection
   ('comments').add({
@@ -46,19 +23,14 @@ const sendComment = e => {
     username: userName,
     title: title,
     userImage: '',
+    // timestamp: db.fieldValue.serverTimestamp(),
   });
   toast("Se ha añadido el tu comentario correctamente", {
     type: "success",
     autoClose: 1000,
   });
 
-
-
-
-
-
 };
-
 
   return (
     <div className="commentBox">
@@ -84,7 +56,9 @@ const sendComment = e => {
           onChange={ e => setCommentMessage(e.target.value)}
           className="input__comment"
           type="text"
-          placeholder="Describe tu experiencia en el establecimiento"/>
+          placeholder="Describe tu experiencia en el establecimiento"
+
+          />
 
 
         </div>

@@ -16,10 +16,12 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0",
+    "react-hook-form": "^7.6.7",
     "react-intl": "^5.17.4",
     "react-qr-code": "^1.1.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
+    "react-scroll": "^1.8.2",
     "react-toastify": "^6.1.0",
     "react-whatsapp": "^0.2.1",
     "web-vitals": "^0.2.4"

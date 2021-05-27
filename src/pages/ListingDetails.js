@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import ReactWhatsapp from "react-whatsapp";
 import { db } from "../firebase";
 import Preloader from "../components/Preloader";
+import { Link, animateScroll as scroll } from "react-scroll";
 import "../css/components/ListingDetails.css";
 import HeaderTransparent from "../components/HeaderTransparent";
 import { FormattedMessage } from "react-intl";
@@ -15,7 +16,7 @@ import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import PhoneIcon from "@material-ui/icons/Phone";
 import Comment from "../components/Comment";
-import CommentBox from '../components/CommentBox'
+import CommentBox from "../components/CommentBox";
 
 function ListingDetails() {
   const { listingId } = useParams();
@@ -25,6 +26,7 @@ function ListingDetails() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+
     setLoading(true);
     if (listingId) {
       db.collection("listings")
@@ -40,7 +42,6 @@ function ListingDetails() {
         setListingComments(snapshot.docs.map((doc) => doc.data()))
       );
   }, [listingId]);
-  console.log(listingComments);
 
   return (
     <div>
@@ -66,15 +67,45 @@ function ListingDetails() {
             <div className="container__title">
               <h4 className="title__listing"> {ListingDetails?.name}</h4>
               <p className="slogan__listing">{ListingDetails?.slogan}</p>
+              <div>
+                    <span className="comments">
+                      {" "}
+                      <Link
+                        activeClass="active"
+                        to="commentsec"
+                        spy={true}
+                        smooth={true}
+                        offset={-70}
+                        duration={1000}
+                      >
+                        <strong>
+                          {listingComments.length}{" "}
+                          <FormattedMessage
+                            id="listing.comments"
+                            defaultMessage="Personas han opinado"
+                          />
+                        </strong>
+                      </Link>
+                    </span>
+                  </div>
               <span className="ratings">
                 <div className="rating">
-                  <span className="rating__icon">
-                    <AllInclusiveIcon />
-                  </span>
-                  <span className="number">
-                    {" "}
-                    <strong>{ListingDetails?.itins}</strong>/100 itins
-                  </span>
+
+              
+                  <div className="number__rating">
+                    <span className="rating__icon">
+                      <AllInclusiveIcon />
+                    </span>
+                    <span className="number">
+                      {" "}
+                      <strong>{ListingDetails?.itins}</strong>/100 itins
+                    </span>
+                  </div>
+
+  
+
+          
+
                   {/* Empieza el recuadro de peculiaridades del emplazamiento */}
 
                   <div className="peculiarities__listing">
@@ -233,27 +264,30 @@ function ListingDetails() {
                   />
                 </span>
               </div>
-              <div className="title">
+              <CommentBox />
+              <div className="title" id="commentsec">
                 <AllInclusiveIcon className="ratin__icon" />
                 <h4 className=" ml-2">
-                  <FormattedMessage
-                    id="listing.comments"
-                    defaultMessage="Comentarios"
-                  />
+                {listingComments.length}{" "}
+                          <FormattedMessage
+                            id="listing.comments2"
+                            defaultMessage="Comentarios"
+                          />
                 </h4>
               </div>
-              <CommentBox/>
-              {listingComments.map(
-                ({ comment, username, title, userImage }) => (
-                  <Comment
-                    comment={comment}
-                    // timestamp={timestamp}
-                    username={username}
-                    title={title}
-                    userImage={userImage}
-                  />
-                )
-              )}
+              <div id="commentsec">
+                {listingComments.map(
+                  ({ comment, username, title, userImage }) => (
+                    <Comment
+                      comment={comment}
+                      // timestamp={timestamp}
+                      username={username}
+                      title={title}
+                      userImage={userImage}
+                    />
+                  )
+                )}
+              </div>
             </div>
           </div>
         </div>
