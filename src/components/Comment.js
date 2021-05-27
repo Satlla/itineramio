@@ -1,8 +1,6 @@
 import React from "react";
 import "../css/components/comment.css";
 import userImage from "../assets/icons/user.svg";
-import AllInclusiveIcon from "@material-ui/icons/AllInclusive";
-
 
 function Comment({ comment, title, username }) {
   return (
@@ -15,6 +13,7 @@ function Comment({ comment, title, username }) {
       <div className="comment__profile">
         <img className="userimage mr-2 mb-4" src={userImage} alt="" />
         <h6 className="comment__username">{username}</h6>
+        {/* <p> { new Date(timestamp?.toDate()).toUTCString()}</p> */}
       </div>
       <div className="comment">
         <h5>{title}</h5>

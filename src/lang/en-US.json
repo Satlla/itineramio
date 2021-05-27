@@ -53,7 +53,17 @@
   "hiw.title4": "Objectivity",
   "hiw.description4": "We rely on our own opinions visiting the place personally, always thinking about the end customer.",
   "hiw.contact": "Contact Us!",
-  "hiw.contact.description": "If you think there is a restaurant in Alicante (province) that meets the requirements to be visited by us and also exceed expectations in accordance with our quality standards, please contact us"
+  "hiw.contact.description": "If you think there is a restaurant in Alicante (province) that meets the requirements to be visited by us and also exceed expectations in accordance with our quality standards, please contact us",
+  "listing.price":" Price Aprox",
+  "listing.cost":" Medium Cost per person ",
+  "listing.reservation":" or book by itineramio Free",
+  "listing.book":" Book now",
+  "listing.emblematic":"This place is representative of the area",
+  "listing.best":"Best of the place",
+  "listing.verified":"Place Verified",
+  "listing.notice":"All the locations published in itineramio, has the purpose of achieving the best user experience.",
+  "listing.comments":"Comments"
+
 
 
 }

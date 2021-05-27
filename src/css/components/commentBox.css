@@ -1,0 +1,42 @@
+.commentBox{
+  margin-top: 2rem;
+  width: 100%;
+  max-width:1200px;
+  border: 1px solid #f1f1f1;
+  padding: 2rem;
+  border-radius: 12px;
+
+}
+
+.comment__input{
+  margin: 1rem 0 1rem 0;
+}
+
+.input__comment{
+  background-color: transparent;
+ min-height: 200px;
+ width: 100%;
+  border-radius: 5px;
+  border: 1px solid #f1f1f1;
+  padding: 1rem 0 0 1rem;
+}
+
+.comment__name {
+  background-color: transparent;
+  width: 100%;
+   border-bottom: 1px solid #f1f1f1;
+   padding: 1rem;
+   margin-bottom: 1rem;
+
+}
+
+.btn-comment{
+  border: 2px solid #00A699;
+  padding: 10px;
+  background-color: #00A699;
+  border-radius: 7px;
+  width: 150px;
+  color: white;
+  font-weight: 800;
+  margin-top: 1rem;
+}

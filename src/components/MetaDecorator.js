@@ -18,8 +18,8 @@ function MetaDecorator ({title, description,image}) {
 
 export default MetaDecorator;
 
-MetaDecorator.propTypes = {
-  title: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
-  image: PropTypes.string.isRequired
-}
+// MetaDecorator.propTypes = {
+//   title: PropTypes.string.isRequired,
+//   description: PropTypes.string.isRequired,
+//   image: PropTypes.string.isRequired
+// }

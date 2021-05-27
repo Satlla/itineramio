@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import ReactWhatsapp from 'react-whatsapp';
+import ReactWhatsapp from "react-whatsapp";
 import { db } from "../firebase";
 import Preloader from "../components/Preloader";
 import "../css/components/ListingDetails.css";
 import HeaderTransparent from "../components/HeaderTransparent";
-import MetaDecorator from '../components/MetaDecorator';
+import { FormattedMessage } from "react-intl";
+import MetaDecorator from "../components/MetaDecorator";
 import AllInclusiveIcon from "@material-ui/icons/AllInclusive";
 import LocationOnIcon from "@material-ui/icons/LocationOn";
 import CreditCardIcon from "@material-ui/icons/CreditCard";
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
 import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
+import PhoneIcon from "@material-ui/icons/Phone";
 import Comment from "../components/Comment";
-import PhoneIcon from '@material-ui/icons/Phone';
+import CommentBox from '../components/CommentBox'
 
 function ListingDetails() {
   const { listingId } = useParams();
@@ -33,7 +35,7 @@ function ListingDetails() {
     db.collection("listings")
       .doc(listingId)
       .collection("comments")
-      .orderBy("timestamp", "asc")
+      // .orderBy("timestamp", "asc")
       .onSnapshot((snapshot) =>
         setListingComments(snapshot.docs.map((doc) => doc.data()))
       );
@@ -43,9 +45,9 @@ function ListingDetails() {
   return (
     <div>
       <MetaDecorator
-      description={ListingDetails?.slogan}
-      title={ListingDetails?.name}
-      image={ListingDetails?.image} 
+        description={ListingDetails?.slogan}
+        title={ListingDetails?.name}
+        image={ListingDetails?.image}
       />
 
       <HeaderTransparent />
@@ -122,14 +124,19 @@ function ListingDetails() {
                       <div className="pec__explaining">
                         <span className="peculiarities__title">
                           {" "}
-                          Precio Medio{" "}
+                          <FormattedMessage
+                            id="listing.price"
+                            defaultMessage="Precio Medio"
+                          />{" "}
                           <span className="price">
                             {ListingDetails?.price} €
                           </span>{" "}
                         </span>
                         <span className="peculiarities__resume">
-                          {" "}
-                          Coste por medio por pax{" "}
+                          <FormattedMessage
+                            id="listing.cost"
+                            defaultMessage="Coste medio por persona"
+                          />
                         </span>
                       </div>
                     </div>
@@ -141,14 +148,14 @@ function ListingDetails() {
                       <div className="pec__explaining">
                         <span className="peculiarities__title">
                           +34{" "}
-
-                          <span className="price">
-                          {ListingDetails?.phone}
-                          </span>{" "}
+                          <span className="price">{ListingDetails?.phone}</span>{" "}
                         </span>
                         <span className="peculiarities__resume">
                           {" "}
-                          o Reserva por itineramio Gratis {" "}
+                          <FormattedMessage
+                            id="listing.reservation"
+                            defaultMessage="o reserva con itineramio Gratis"
+                          />
                         </span>
                       </div>
                     </div>
@@ -167,39 +174,52 @@ function ListingDetails() {
                 </div>
               </span>
 
-                    <div className="booking-container">
-
-
-                    <ReactWhatsapp 
-                    className="button-booking"
-                    number="+34652656440" 
-                    message="Me gustaría reservar este restaurante para el dia ** a las ** para ** personas. "
-                    title="Reservar">
-
-                      Reservar
-
-                    </ReactWhatsapp>
-
-
-                    </div>
+              <div className="booking-container">
+                <ReactWhatsapp
+                  className="button-booking"
+                  number="+34652656440"
+                  message="Me gustaría reservar este restaurante para el dia ** a las ** para ** personas. "
+                  title="Reservar"
+                >
+                  <FormattedMessage
+                    id="listing.book"
+                    defaultMessage="Reservar"
+                  />
+                </ReactWhatsapp>
+              </div>
             </div>
           </div>
 
           <div className="main__description">
             <div className="container__description">
               <div className="description__listing">
-                <h6 className="description__title"> Sobre el Lugar </h6>
+                <h6 className="description__title">
+                  <FormattedMessage
+                    id="listing.emblematic"
+                    defaultMessage="Lugar Emblemático"
+                  />
+                </h6>
                 {ListingDetails?.description}
               </div>
               <div className="description__listing">
-                <h6 className="description__title"> Lo mejor del lugar</h6>
+                <h6 className="description__title">
+                  <FormattedMessage
+                    id="listing.best"
+                    defaultMessage="Lo mejor del lugar"
+                  />
+                </h6>
                 {ListingDetails?.best}
               </div>
               <div className="address mt-2 ml-3">
                 <span className="verified__icon">
                   <VerifiedUserIcon />
                 </span>
-                <span className="peculiarities__title"> Local verificado </span>
+                <span className="peculiarities__title">
+                  <FormattedMessage
+                    id="listing.verified"
+                    defaultMessage=" Local Verificado"
+                  />
+                </span>
               </div>
               <div className="notification">
                 <span className="notification__icon">
@@ -207,33 +227,38 @@ function ListingDetails() {
                   <ErrorOutlineIcon />
                 </span>
                 <span className="notification__text">
-                  {" "}
-                  Todos los emplazamientos publicados en itineramio, tiene como
-                  finalidad, lograr la mejor experiencia del usuarix.
+                  <FormattedMessage
+                    id="listing.notice"
+                    defaultMessage="Todos los emplazamientos publicados en itineramio, tiene como finalidad, lograr la mejor experiencia del usuarix."
+                  />
                 </span>
               </div>
               <div className="title">
-            <AllInclusiveIcon className="ratin__icon" />
-            <h4 className=" ml-2">Comentarios</h4>
-          </div>
-          {listingComments.map(
-            ({ comment, timestamp, username, title, userImage }) => (
-              <Comment
-                comment={comment}
-                timestamp={timestamp}
-                username={username}
-                title={title}
-                userImage={userImage}
-              />
-            )
-          )}
-        </div>
-
+                <AllInclusiveIcon className="ratin__icon" />
+                <h4 className=" ml-2">
+                  <FormattedMessage
+                    id="listing.comments"
+                    defaultMessage="Comentarios"
+                  />
+                </h4>
+              </div>
+              <CommentBox/>
+              {listingComments.map(
+                ({ comment, username, title, userImage }) => (
+                  <Comment
+                    comment={comment}
+                    // timestamp={timestamp}
+                    username={username}
+                    title={title}
+                    userImage={userImage}
+                  />
+                )
+              )}
             </div>
           </div>
         </div>
-        <div>
       </div>
+      <div></div>
     </div>
   );
 }

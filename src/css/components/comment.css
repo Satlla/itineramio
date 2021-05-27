@@ -19,7 +19,19 @@
 
 .comment__container{
 padding: 1rem;
-
+align-items: center;
 justify-content: center;
 }
+
+/* .user__date{
+  margin-top: 5px;
+} */
+
+ .comment__username{
+  margin-bottom: 25px;
+} 
+
+/* .date{
+  font-size: 12px;
+} */
 
