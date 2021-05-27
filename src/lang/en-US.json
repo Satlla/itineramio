@@ -58,12 +58,16 @@
   "listing.cost":" Medium Cost per person ",
   "listing.reservation":" or book by itineramio Free",
   "listing.book":" Book now",
-  "listing.emblematic":"This place is representative of the area",
+  "listing.emblematic":"Emblemátic",
+  "listing.emblematicdesc":"This place is representative of the area",
+  "listing.description":" Description",
   "listing.best":"Best of the place",
-  "listing.verified":"Place Verified",
+  "listing.verified":"Verified Place",
   "listing.notice":"All the locations published in itineramio, has the purpose of achieving the best user experience.",
-  "listing.comments":"Users have given their opinions",
-  "listing.comments2":"Comments"
+  "listing.comments":"Users opinions",
+  "listing.comments2":"Comments",
+  "comment.writecomment": "Write your comment",
+  "comment.name": "Your Name"
 
 
 

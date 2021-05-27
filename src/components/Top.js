@@ -2,40 +2,38 @@ import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { Link } from "react-router-dom";
 import "../css/components/list.css";
-import Preloader from './Preloader';
+import Preloader from "./Preloader";
 import "../css/pages/plans.css";
-import romantic from '../assets/pages/romantic.svg';
-import museums from '../assets/pages/museum.svg';
-import drinks from '../assets/pages/drinks.svg';
-import traditional from '../assets/pages/traditional.svg';
-import aniversary from '../assets/pages/aniversary.svg';
-import family from '../assets/pages/family.svg';
-import {FormattedMessage} from 'react-intl';
-
+import romantic from "../assets/pages/romantic.svg";
+import museums from "../assets/pages/museum.svg";
+import drinks from "../assets/pages/drinks.svg";
+import traditional from "../assets/pages/traditional.svg";
+import aniversary from "../assets/pages/aniversary.svg";
+import family from "../assets/pages/family.svg";
+import { FormattedMessage } from "react-intl";
+import AllInclusiveIcon from "@material-ui/icons/AllInclusive";
 
 function Listings({ title }) {
-
   const [listings, setListings] = useState([]);
   const [listingCategory, setListingCategory] = useState([]);
-  const [loading, setLoading ] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   function categoryTerm(listingCategory) {
     return function (x) {
       return x.category.includes(listingCategory) || !listingCategory;
     };
-
   }
 
-  const getListings = async () => {
 
+
+  const getListings = async () => {
     db.collection("listings").onSnapshot((querySnapshot) => {
       const docs = [];
       querySnapshot.forEach((doc) => {
         docs.push({ ...doc.data(), id: doc.id });
       });
-      setLoading(true)
+      setLoading(true);
       setListings(docs);
-
     });
   };
 
@@ -45,8 +43,8 @@ function Listings({ title }) {
 
   return (
     <div>
-    { loading ? "" : <Preloader />}
-    {/* <div className="about__us">
+      {loading ? "" : <Preloader />}
+      {/* <div className="about__us">
       <div classname="about__cont">
 
       <h2 className="about__title"> Descubre itineramio</h2>
@@ -56,125 +54,126 @@ function Listings({ title }) {
       </div>
 
     </div> */}
-    <div className="plans__container">
-    <div className="nav__plans">
-      <div className="plan">
-        <img className="plan__categoryImage" src={romantic} alt=""/>
-        <div className="plan__content">
-        <span onClick={() => setListingCategory("Top")}  className="plan__title">
-          <FormattedMessage
-          id="category.top"
-          defaultMessage="Top"
-          />
-        </span>
-        <span>
-        <FormattedMessage
-          id="category.top.slogan"
-          defaultMessage="Lo mejor"
-          />
-        </span>
-       </div>
-
+      <div className="plans__container">
+        <div className="nav__plans">
+          <div className="plan">
+            <img className="plan__categoryImage" src={romantic} alt="" />
+            <div className="plan__content">
+              <span
+                onClick={() => setListingCategory("Top")}
+                className="plan__title"
+              >
+                <FormattedMessage id="category.top" defaultMessage="Top" />
+              </span>
+              <span>
+                <FormattedMessage
+                  id="category.top.slogan"
+                  defaultMessage="Lo mejor"
+                />
+              </span>
+            </div>
+          </div>
+          <div className="plan">
+            <img className="plan__categoryImage" src={family} alt="" />
+            <div className="plan__content">
+              <span
+                onClick={() => setListingCategory("Desayunar")}
+                className="plan__title"
+              >
+                <FormattedMessage
+                  id="category.breakfast"
+                  defaultMessage="Desayunar"
+                />
+              </span>
+              <span>
+                <FormattedMessage
+                  id="category.breakfast.slogan"
+                  defaultMessage="Lunch, Break..."
+                />
+              </span>
+            </div>
+          </div>
+          <div className="plan">
+            <img className="plan__categoryImage" src={drinks} alt="" />
+            <div className="plan__content">
+              <span
+                onClick={() => setListingCategory("Tapas & Vinos")}
+                className="plan__title"
+              >
+                <FormattedMessage
+                  id="category.apetizers"
+                  defaultMessage="Tapas & Vinos"
+                />
+              </span>
+              <span>
+                <FormattedMessage
+                  id="category.apetizers.slogan"
+                  defaultMessage="Vinos, Bermouth"
+                />
+              </span>
+            </div>
+          </div>
+          <div className="plan">
+            <img className="plan__categoryImage" src={museums} alt="" />
+            <div className="plan__content">
+              <span
+                onClick={() => setListingCategory("Arrocerías")}
+                className="plan__title"
+              >
+                <FormattedMessage
+                  id="category.rices"
+                  defaultMessage="Arroces"
+                />
+              </span>
+              <span>
+                <FormattedMessage
+                  id="category.rices.slogan"
+                  defaultMessage="Mejores Arroces"
+                />
+              </span>
+            </div>
+          </div>
+          <div className="plan">
+            <img className="plan__categoryImage" src={traditional} alt="" />
+            <div className="plan__content">
+              <span
+                onClick={() => setListingCategory("Coffee & Relax")}
+                className="plan__title"
+              >
+                <FormattedMessage
+                  id="category.coffee"
+                  defaultMessage="Coffee & Relax"
+                />
+              </span>
+              <span>
+                <FormattedMessage
+                  id="category.coffee.slogan"
+                  defaultMessage="Tardes Mágicas"
+                />
+              </span>
+            </div>
+          </div>
+          <div className="plan">
+            <img className="plan__categoryImage" src={aniversary} alt="" />
+            <div className="plan__content">
+              <span
+                onClick={() => setListingCategory("Copas")}
+                className="plan__title"
+              >
+                <FormattedMessage id="category.drinks" defaultMessage="Copas" />
+              </span>
+              <span>
+                <FormattedMessage
+                  id="category.drinks.slogan"
+                  defaultMessage="Cocktails & Combinados"
+                />
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="plan">
-        <img className="plan__categoryImage" src={family} alt=""/>
-        <div className="plan__content">
-        <span onClick={() => setListingCategory("Desayunar")}  className="plan__title">
-        <FormattedMessage
-          id="category.breakfast"
-          defaultMessage="Desayunar"
-          />
-           </span>
-        <span>
-        <FormattedMessage
-          id="category.breakfast.slogan"
-          defaultMessage="Lunch, Break..."
-          />
-        </span>
-       </div>
-
-      </div>
-      <div className="plan">
-        <img className="plan__categoryImage" src={drinks} alt=""/>
-        <div className="plan__content">
-        <span onClick={() => setListingCategory("Tapas & Vinos")}  className="plan__title">
-        <FormattedMessage
-          id="category.apetizers"
-          defaultMessage="Tapas & Vinos"
-          />
-          </span>
-        <span>
-        <FormattedMessage
-          id="category.apetizers.slogan"
-          defaultMessage="Vinos, Bermouth"
-          />
-           </span>
-       </div>
-
-      </div>
-      <div className="plan">
-        <img className="plan__categoryImage" src={museums} alt=""/>
-        <div className="plan__content">
-        <span onClick={() => setListingCategory("Arrocerías")}  className="plan__title">
-        <FormattedMessage
-          id="category.rices"
-          defaultMessage="Arroces"
-          />
-          </span>
-        <span>
-        <FormattedMessage
-          id="category.rices.slogan"
-          defaultMessage="Mejores Arroces"
-          />
-
-        </span>
-       </div>
-
-      </div>
-      <div className="plan">
-        <img className="plan__categoryImage" src={traditional} alt=""/>
-        <div className="plan__content">
-        <span onClick={() => setListingCategory("Coffee & Relax")}  className="plan__title">
-        <FormattedMessage
-          id="category.coffee"
-          defaultMessage="Coffee & Relax"
-          />
-
-          </span>
-        <span>
-        <FormattedMessage
-          id="category.coffee.slogan"
-          defaultMessage="Tardes Mágicas"
-          />
-
-
-        </span>
-       </div>
-
-      </div>
-      <div className="plan">
-        <img className="plan__categoryImage" src={aniversary} alt=""/>
-        <div className="plan__content">
-        <span onClick={() => setListingCategory("Copas")}  className="plan__title">
-        <FormattedMessage
-          id="category.drinks"
-          defaultMessage="Copas"
-          />
-        </span>
-        <span>
-        <FormattedMessage
-          id="category.drinks.slogan"
-          defaultMessage="Cocktails & Combinados"
-          />
-        </span>
-       </div>
-
-      </div>
-
-    </div>
-     </div>
-        {/* DropDown seleccionar categoría  */}
-        {/* <div className="dropdown">
+      {/* DropDown seleccionar categoría  */}
+      {/* <div className="dropdown">
           <select
             className="dropdown-filter "
             name="listingcategory"
@@ -190,9 +189,8 @@ function Listings({ title }) {
           </select>
         </div> */}
 
-
-        {/*  Fin Dropdown seleccionar categoria */}
-        {/* <div className="nav__list">
+      {/*  Fin Dropdown seleccionar categoria */}
+      {/* <div className="nav__list">
           <ul className="subnav__items">
             <Link to="/plans">
             <li className="nav__item">
@@ -218,7 +216,6 @@ function Listings({ title }) {
             </li>
           </ul>
         </div> */}
-    
       <div className="hero-listing">
         {listings.filter(categoryTerm(listingCategory)).map((listings) => {
           return (
@@ -234,19 +231,23 @@ function Listings({ title }) {
               </Link>
               <div className="titcat">
                 <span className="name-listing"> {listings.name} </span>
-                
               </div>
               <div className="slogan-listing">{listings.slogan}</div>
               <span className="category-listing"> {listings.category}</span>
+              <span className="number">
+                {" "}
+                <strong>{listings?.itins}</strong>/100{" "}
+                <span className="rating__icon">
+                  <AllInclusiveIcon />
+                </span>
+              </span>
 
             </div>
           );
         })}
-
       </div>
     </div>
   );
-
 }
 
 export default Listings;

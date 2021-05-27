@@ -115,12 +115,16 @@ function ListingDetails() {
                       </span>
                       <div className="pec__explaining">
                         <span className="peculiarities__title">
-                          {" "}
-                          Emblemático
+                        <FormattedMessage
+                            id="listing.emblematic"
+                            defaultMessage="Emblemático"
+                          />{" "}
                         </span>
                         <span className="peculiarities__resume">
-                          {" "}
-                          Este lugar es representativo de la zona
+                        <FormattedMessage
+                            id="listing.emblematicdesc"
+                            defaultMessage="Este lugar es representativo de la zona"
+                          />{" "}
                         </span>
                       </div>
                     </div>
@@ -226,8 +230,8 @@ function ListingDetails() {
               <div className="description__listing">
                 <h6 className="description__title">
                   <FormattedMessage
-                    id="listing.emblematic"
-                    defaultMessage="Lugar Emblemático"
+                    id="listing.description"
+                    defaultMessage="Descripción"
                   />
                 </h6>
                 {ListingDetails?.description}

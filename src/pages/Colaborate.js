@@ -122,7 +122,7 @@ function Addrecommendation() {
                       />
                       <label className="register-form">
                         <FormattedMessage
-                          id="collaborate.name"
+                          id="collaborate.email"
                           defaultMessage=" Email"
                         />
                       </label>

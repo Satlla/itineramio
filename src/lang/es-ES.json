@@ -36,6 +36,7 @@
   "collaborate.title": "¡Envíanos tus lugares Favoritos!",
   "collaborate.why": " Por qué crees que debe aparecer este establecimiento en itineramio?",
   "collaborate.name": "Nombre",
+  "collaborate.email":"Email",
   "collaborate.name.placeholder": "Escribe tu nombre",
   "collaborate.email": "Email",
   "collaborate.place": "Nombre del establecimiento",
@@ -60,13 +61,16 @@
   "listing.cost":" Coste medio por persona",
   "listing.reservation":" o reserva por itineramio Gratis",
   "listing.book":" Reservar",
-  "listing.emblematic":"Representativo de la zona",
+  "listing.emblematic":"Emblemático",
+  "listing.emblematicdesc":"Este lugar es representativo de la zona",
+  "listing.description":" Descripción",
   "listing.best":"Lo mejor del lugar",
   "listing.verified":"Local Verificado",
   "listing.notice":"Todos los emplazamientos publicados en itineramio, tiene como finalidad, lograr la mejor experiencia del usuarix",
   "listing.comments":"Usuarios han opinado",
-  "listing.comments2":"Comentarios"
-
+  "listing.comments2":"Comentarios",
+  "comment.writecomment": "Escribe tu comentario",
+  "comment.name": "Tu nombre"
 
 
 
