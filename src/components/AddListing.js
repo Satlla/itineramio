@@ -17,7 +17,7 @@ function AddListing() {
       const files = e.target.files[i];
       console.log(files);
       const storageRef = fb.storage().ref();
-      const fileRef = storageRef.child(`prueba/${files.name}`);
+      const fileRef = storageRef.child(`images/${files.name}`);
       await fileRef.put(files);
       setImages(await fileRef.getDownloadURL());
 
@@ -29,12 +29,14 @@ function AddListing() {
     setValues({ ...values, [name]: value });
   };
 
-  //Desginamos los valores por defecto para el formulario.
+  //Designamos los valores por defecto para el formulario.
   const initialStateValues = {
     listingname: "",
     listingslogan: "",
     listingcategory: "",
     listinglocation: "",
+    listingstar:"",
+    listingphone: "",
     listingprice: "",
     listingitins: "",
     listingdescription: "",
@@ -50,6 +52,8 @@ function AddListing() {
     const listingname = e.target.listingname.value;
     const listingslogan = e.target.listingslogan.value;
     const listingcategory = e.target.listingcategory.value;
+    const listingstar = e.target.listingstar.value;
+    const listingphone = e.target.listingphone.value;
     const listinglocation = e.target.listinglocation.value;
     const listingprice = e.target.listingprice.value;
     const listingitins = e.target.listingitins.value;
@@ -63,6 +67,8 @@ function AddListing() {
       !listingslogan ||
       !listingcategory ||
       !listinglocation ||
+      !listingstar ||
+      !listingphone ||
       !listingprice ||
       !listingitins ||
       !listingdescription ||
@@ -77,6 +83,8 @@ function AddListing() {
       slogan: listingslogan,
       category: listingcategory,
       location: listinglocation,
+      productstar: listingstar,
+      phone: listingphone,
       price: listingprice,
       itins: listingitins,
       description: listingdescription,
@@ -123,6 +131,37 @@ function AddListing() {
                   placeholder="Nombre del lugar"
                   onChange={handleInputChange}
                   value={values.listingname}
+                />
+              </div>
+
+              <div className="col">
+                <label className="labels__listing" for="name">
+                  {" "}
+                  Producto estrella{" "}
+                </label>
+                <input
+                  type="text "
+                  className="form-control"
+                  name="listingstar"
+                  placeholder="Mejor producto del lugar"
+                  onChange={handleInputChange}
+                  value={values.listingstar}
+                />
+              </div>
+
+
+              <div className="col">
+                <label className="labels__listing" for="name">
+                  {" "}
+                  Telefono{" "}
+                </label>
+                <input
+                  type="tel "
+                  className="form-control"
+                  name="listingphone"
+                  placeholder="Telefono del Establecimiento"
+                  onChange={handleInputChange}
+                  value={values.listingphone}
                 />
               </div>
               {/* Agregando categorias */}
@@ -178,6 +217,7 @@ function AddListing() {
                   <option>Arrocerías</option>
                   <option>Top</option>
                   <option>Coffee & Relax</option>
+                  <option> Copas</option>
                 </select>
               </div>
             </div>

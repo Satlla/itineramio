@@ -1,7 +1,7 @@
 import React from "react";
 import "../css/components/discover.css";
 import { Link } from "react-router-dom";
-import foto1 from "../assets/img/cafe.jpg";
+import foto1 from "../assets/img/fotoportada.jpg";
 import foto2 from "../assets/img/cafe2.jpg";
 import foto3 from "../assets/img/restaurant.jpg";
 import foto4 from "../assets/img/restaurant2.jpg";
@@ -19,7 +19,7 @@ function Discover() {
                 {" "}
                 <FormattedMessage
                   id="app.welcome"
-                  defaultMessage="Los mejores restaurantes de la ciudad, ¡te están esperando!"
+                  defaultMessage="¿No tienes claro donde ir?. ¡Somos tu brújula!"
                   />
 
               </h3>

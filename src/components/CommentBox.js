@@ -51,7 +51,7 @@ function CommentBox() {
             className="comment__name"
             value={title}
             type="text"
-            placeholder=" Escribe un titulo"
+            placeholder=" Escribe un título"
           />
 
           <textarea
@@ -62,8 +62,10 @@ function CommentBox() {
           />
         </div>
         <button onClick={sendComment} type="submit" className="btn-comment">
-          {" "}
-          Enviar
+        <FormattedMessage
+          id="comment.send"
+          defaultMessage="Enviar"
+        />{" "}
         </button>
       </form>
     </div>

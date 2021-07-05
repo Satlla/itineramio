@@ -17,6 +17,10 @@ import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import PhoneIcon from "@material-ui/icons/Phone";
 import Comment from "../components/Comment";
 import CommentBox from "../components/CommentBox";
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+import { Carousel } from "react-responsive-carousel";
+import Listings from "../components/Top";
+import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 
 function ListingDetails() {
   const { listingId } = useParams();
@@ -58,40 +62,48 @@ function ListingDetails() {
           {loading ? "" : <Preloader />}
 
           <div className="image__container">
-            <img
-              className="image__listing"
-              src={ListingDetails?.image}
-              alt="listing-itineramio"
-            ></img>
+            <div className="carousel-layout">
+
+            <div className="carousel-container">
+
+
+          <Carousel
+          
+          width="100%" >
+            {ListingDetails?.images.map((image, i) => (
+              <img src={image} alt={`${i}`} className="image-slider" />
+            ))}
+          </Carousel>
+            </div>
+            </div>
+
 
             <div className="container__title">
               <h4 className="title__listing"> {ListingDetails?.name}</h4>
               <p className="slogan__listing">{ListingDetails?.slogan}</p>
               <div>
-                    <span className="comments">
-                      {" "}
-                      <Link
-                        activeClass="active"
-                        to="commentsec"
-                        spy={true}
-                        smooth={true}
-                        offset={-70}
-                        duration={1000}
-                      >
-                        <strong>
-                          {listingComments.length}{" "}
-                          <FormattedMessage
-                            id="listing.comments"
-                            defaultMessage="Personas han opinado"
-                          />
-                        </strong>
-                      </Link>
-                    </span>
-                  </div>
+                <span className="comments">
+                  {" "}
+                  <Link
+                    activeClass="active"
+                    to="commentsec"
+                    spy={true}
+                    smooth={true}
+                    offset={-70}
+                    duration={1000}
+                  >
+                    <strong>
+                      {listingComments.length}{" "}
+                      <FormattedMessage
+                        id="listing.comments"
+                        defaultMessage="Personas han opinado"
+                      />
+                    </strong>
+                  </Link>
+                </span>
+              </div>
               <span className="ratings">
                 <div className="rating">
-
-              
                   <div className="number__rating">
                     <span className="rating__icon">
                       <AllInclusiveIcon />
@@ -102,10 +114,6 @@ function ListingDetails() {
                     </span>
                   </div>
 
-  
-
-          
-
                   {/* Empieza el recuadro de peculiaridades del emplazamiento */}
 
                   <div className="peculiarities__listing">
@@ -115,15 +123,34 @@ function ListingDetails() {
                       </span>
                       <div className="pec__explaining">
                         <span className="peculiarities__title">
-                        <FormattedMessage
+                          <FormattedMessage
                             id="listing.emblematic"
                             defaultMessage="Emblemático"
                           />{" "}
                         </span>
                         <span className="peculiarities__resume">
-                        <FormattedMessage
+                          <FormattedMessage
                             id="listing.emblematicdesc"
                             defaultMessage="Este lugar es representativo de la zona"
+                          />{" "}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="peculiarities">
+                      <span className="peculiarities__icons">
+                        <FavoriteBorderIcon />{" "}
+                      </span>
+                      <div className="pec__explaining">
+                        <span className="peculiarities__title">
+                          
+                           {ListingDetails?.productstar}
+                          {" "}
+                        </span>
+                        <span className="peculiarities__resume">
+                          <FormattedMessage
+                            id="listing.star"
+                            defaultMessage=" Recomendado en el Lugar "
                           />{" "}
                         </span>
                       </div>
@@ -272,11 +299,11 @@ function ListingDetails() {
               <div className="title" id="commentsec">
                 <AllInclusiveIcon className="ratin__icon" />
                 <h4 className=" ml-2">
-                {listingComments.length}{" "}
-                          <FormattedMessage
-                            id="listing.comments2"
-                            defaultMessage="Comentarios"
-                          />
+                  {listingComments.length}{" "}
+                  <FormattedMessage
+                    id="listing.comments2"
+                    defaultMessage="Comentarios"
+                  />
                 </h4>
               </div>
               <div id="commentsec">

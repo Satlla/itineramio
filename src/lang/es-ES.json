@@ -1,5 +1,5 @@
 {
-  "app.welcome": "Los mejores restaurantes de la ciudad, te están esperando",
+  "app.welcome": "¿No tienes claro dónde ir?¡Te hacemos de brújula!",
   "app.welcome2":" Lugares con encanto, sitios increíbles y experiencias únicas.",
   "menu.whatis": "¿Qué es Itineramio?",
   "app.welcome.cta": "Explorar Lugares",
@@ -62,6 +62,7 @@
   "listing.reservation":" o reserva por itineramio Gratis",
   "listing.book":" Reservar",
   "listing.emblematic":"Emblemático",
+  "listing.star": " Recomendado en este lugar",
   "listing.emblematicdesc":"Este lugar es representativo de la zona",
   "listing.description":" Descripción",
   "listing.best":"Lo mejor del lugar",
@@ -70,7 +71,8 @@
   "listing.comments":"Usuarios han opinado",
   "listing.comments2":"Comentarios",
   "comment.writecomment": "Escribe tu comentario",
-  "comment.name": "Tu nombre"
+  "comment.name": "Tu nombre",
+  "comment.send": "Enviar"
 
 
 

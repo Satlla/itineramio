@@ -17,13 +17,13 @@ function Listings({ title }) {
   const [listings, setListings] = useState([]);
   const [listingCategory, setListingCategory] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [count, setCount] = useState(0)
 
   function categoryTerm(listingCategory) {
     return function (x) {
       return x.category.includes(listingCategory) || !listingCategory;
     };
   }
-
 
 
   const getListings = async () => {
@@ -170,6 +170,7 @@ function Listings({ title }) {
               </span>
             </div>
           </div>
+          
         </div>
       </div>
       {/* DropDown seleccionar categoría  */}
@@ -230,7 +231,7 @@ function Listings({ title }) {
                 </a>
               </Link>
               <div className="titcat">
-                <span className="name-listing"> {listings.name} </span>
+                <span className="name-listing"> {listings.name} {}</span>
               </div>
               <div className="slogan-listing">{listings.slogan}</div>
               <span className="category-listing"> {listings.category}</span>
@@ -241,6 +242,8 @@ function Listings({ title }) {
                   <AllInclusiveIcon />
                 </span>
               </span>
+
+
 
             </div>
           );

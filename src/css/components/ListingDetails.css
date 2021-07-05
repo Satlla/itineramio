@@ -10,11 +10,26 @@
   max-width: 100%;
 
 }
+
+.image-slider{
+  width :200px;
+  border-radius: 8px;
+}
+
 .def__rating{
   display:flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
+}
+.carousel-layout{
+  min-width: 330px;
+  max-width: 500px;
+}
+
+.carousel-container{
+  width: 100%;
+
 }
 
 .container__title{
@@ -31,9 +46,10 @@
 
 .title__listing{
   margin-left: 1rem;
-  margin-top: 2rem;
   font-weight: 600;
 }
+
+
 .slogan__listing{
 margin-left: 1rem;
 margin-right: 1rem;
@@ -132,7 +148,7 @@ align-items: middle;
   margin-top: 2rem;
 }
 
-.ratin__icon {
+.rating__icon {
   width: .7em;
   padding-bottom: 3px;
   color: #ff2e76;
@@ -255,16 +271,6 @@ margin: 0 auto;
 
   }
 
-  .image__container {
-    display: flex;
-    margin: 0 auto;
-    max-width: 100%;
-    justify-content: space-around;
-    align-items: center;
-    padding: 2rem;
-
-  }
-
   .title__listing{
     margin-top: 1rem;
 
@@ -279,18 +285,32 @@ margin: 0 auto;
 
 }
 
+@media (min-width: 700px) {
+  .image__container {
+    display: flex;
+    margin: 0 auto;
+    max-width: 100%;
+    justify-content: space-around;
+    align-items: self-end;
+    padding: 2rem;
+
+  }
+  
+
+}
+
 @media (min-width: 990px) {
   .container__file{
     width: 90%;
   }
 }
 
-
-
 @media (max-width: 900px) {
   .image__container{
     max-width: 100%;
   }
+
+  
 
 }
 
@@ -299,6 +319,11 @@ margin: 0 auto;
 @media (max-width: 700px) {
   .image__listing{
     max-width: 100%;
+  }
+
+  .title__listing{
+    margin-top: 1rem;
+
   }
 
 }

@@ -1,5 +1,5 @@
 {
-  "app.welcome": "Best Restaurants in the city, are waiting for you",
+  "app.welcome": "Not sure where to go? We're your Compass!.",
   "app.welcome2":" Unique experiences, amazing restaurants and charming places",
   "app.welcome.cta": "Explore Places",
   "menu.whatis": "What is Itineramio?",
@@ -58,7 +58,8 @@
   "listing.cost":" Medium Cost per person ",
   "listing.reservation":" or book by itineramio Free",
   "listing.book":" Book now",
-  "listing.emblematic":"Emblemátic",
+  "listing.emblematic":"Emblematic",
+  "listing.star": "Recommended in this place",
   "listing.emblematicdesc":"This place is representative of the area",
   "listing.description":" Description",
   "listing.best":"Best of the place",
@@ -67,7 +68,8 @@
   "listing.comments":"Users opinions",
   "listing.comments2":"Comments",
   "comment.writecomment": "Write your comment",
-  "comment.name": "Your Name"
+  "comment.name": "Your Name",
+  "comment.send": "Send"
 
 
 
