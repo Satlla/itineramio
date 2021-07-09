@@ -217,7 +217,9 @@ function AddListing() {
                   <option>Arrocerías</option>
                   <option>Top</option>
                   <option>Coffee & Relax</option>
-                  <option> Copas</option>
+                  <option>Copas</option>
+                  <option>A la carta</option>
+                  <option>Gastrobar</option>
                 </select>
               </div>
             </div>

@@ -31,7 +31,7 @@
   }
 
   .header__transparent{
-    border-bottom: 1px solid #dcdcdc;
+    box-shadow: rgb(0 0 0 / 8%) 0px 1px 12px !important;
   }
 
   #dropdownMenuButton{

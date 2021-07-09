@@ -19,7 +19,7 @@ function Discover() {
                 {" "}
                 <FormattedMessage
                   id="app.welcome"
-                  defaultMessage="¿No tienes claro donde ir?. ¡Somos tu brújula!"
+                  defaultMessage="¿No tienes claro dónde ir?. ¡Somos tu brújula!"
                   />
 
               </h3>

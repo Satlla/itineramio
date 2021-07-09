@@ -9,6 +9,8 @@ import museums from "../assets/pages/museum.svg";
 import drinks from "../assets/pages/drinks.svg";
 import traditional from "../assets/pages/traditional.svg";
 import aniversary from "../assets/pages/aniversary.svg";
+import gastrobar from "../assets/pages/gastrobar.svg";
+import carta from "../assets/pages/carta.svg";
 import family from "../assets/pages/family.svg";
 import { FormattedMessage } from "react-intl";
 import AllInclusiveIcon from "@material-ui/icons/AllInclusive";
@@ -170,7 +172,43 @@ function Listings({ title }) {
               </span>
             </div>
           </div>
-          
+
+          <div className="plan">
+            <img className="plan__categoryImage" src={gastrobar} alt="" />
+            <div className="plan__content">
+              <span
+                onClick={() => setListingCategory("Gastrobar")}
+                className="plan__title"
+              >
+                <FormattedMessage id="category.gastrobar" defaultMessage="Gastrobar" />
+              </span>
+              <span>
+                <FormattedMessage
+                  id="category.gastrobar.slogan"
+                  defaultMessage="Alta cocina en raciones pequeñas"
+                />
+              </span>
+            </div>
+          </div>
+
+          <div className="plan">
+            <img className="plan__categoryImage" src={carta} alt="" />
+            <div className="plan__content">
+              <span
+                onClick={() => setListingCategory("A la carta")}
+                className="plan__title"
+              >
+                <FormattedMessage id="category.alacarta" defaultMessage="A la Carta" />
+              </span>
+              <span>
+                <FormattedMessage
+                  id="category.alacarta.slogan"
+                  defaultMessage="Restaurante tradicional"
+                />
+              </span>
+            </div>
+          </div>
+
         </div>
       </div>
       {/* DropDown seleccionar categoría  */}
