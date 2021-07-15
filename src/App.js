@@ -1,4 +1,4 @@
-import React, {useContext } from "react";
+import React, {useContext, useEffect } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import "./App.css";
 import Home from "./components/Home";
@@ -41,15 +41,21 @@ import Rulescasazul from "./components/Apartments/Casazul/components/Rulescasazu
 import Rules from "./components/Apartments/EnriquetaLoft/components/Rules";
 import Tvcasazul from "./components/Apartments/Casazul/components/Tvcasazul";
 import EditListing from "./components/EditListing";
+import ReactGA from 'react-ga';
 
 
 
 function App() {
 
+  useEffect(() => {
+
+    ReactGA.initialize('G-2FGCMHDJY0');
+
+    ReactGA.pageview('/')
+  }, [])
+
+
   return (
-
-    
-
 
     <div>
       <Router>

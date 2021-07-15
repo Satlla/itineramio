@@ -108,7 +108,7 @@ function Navigationazul() {
                 </div>
               </li>
             </Link>
-
+*/}
             <Link to="/">
               <li className="item__button">
                 <div className="">
@@ -119,7 +119,7 @@ function Navigationazul() {
                   <a className="menu__item"> Restaurantes</a>
                 </div>
               </li>
-            </Link> */}
+            </Link> 
 
             <Link to="/apartments/casazul/faq/phonescasazul">
               <li className="item__button">

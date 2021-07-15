@@ -56,6 +56,9 @@ function Listings({ title }) {
       </div>
 
     </div> */}
+    <section className="title__top__container">
+       <h2 className="title__top"> Descubre los mejores restaurantes cerca de tí</h2>
+    </section>
       <div className="plans__container">
         <div className="nav__plans">
           <div className="plan">

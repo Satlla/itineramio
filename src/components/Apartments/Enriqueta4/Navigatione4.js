@@ -9,7 +9,6 @@ import Washingmachine from "../../../assets/icons/washingmachine.svg";
 import Climatization from "../../../assets/icons/climatization.svg";
 import Eat from "../../../assets/icons/eat.svg";
 import Phones from "../../../assets/icons/smartphone.svg";
-import Jacuzzi from "../../../assets/icons/jacuzzi.svg";
 
 
 function Navigation() {
@@ -85,7 +84,7 @@ function Navigation() {
               </li>
             </Link>
 
-            {/* <Link to="/apartments/enriqueta4/faq/climatizatione4">
+             <Link to="/apartments/enriqueta4/faq/climatizatione4">
               <li className="item__button">
                 <div className="">
                   <img className="item__icon" src={Climatization} alt="" />
@@ -97,6 +96,7 @@ function Navigation() {
               </li>
             </Link>
 
+
             <Link to="/">
               <li className="item__button">
                 <div className="">
@@ -107,7 +107,7 @@ function Navigation() {
                   <a className="menu__item"> Restaurantes</a>
                 </div>
               </li>
-            </Link> */}
+            </Link> 
 
             <Link to="/apartments/enriqueta4/faq/phonese4">
               <li className="item__button">
