@@ -41,19 +41,13 @@ import Rulescasazul from "./components/Apartments/Casazul/components/Rulescasazu
 import Rules from "./components/Apartments/EnriquetaLoft/components/Rules";
 import Tvcasazul from "./components/Apartments/Casazul/components/Tvcasazul";
 import EditListing from "./components/EditListing";
-import ReactGA from 'react-ga';
+import useGaTracker from './useGaTracker'
 
 
 
 function App() {
 
-  useEffect(() => {
-
-    ReactGA.initialize('G-2FGCMHDJY0');
-
-    ReactGA.pageview('/')
-  }, [])
-
+  useGaTracker();
 
   return (
 
