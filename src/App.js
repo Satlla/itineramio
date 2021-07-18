@@ -41,13 +41,13 @@ import Rulescasazul from "./components/Apartments/Casazul/components/Rulescasazu
 import Rules from "./components/Apartments/EnriquetaLoft/components/Rules";
 import Tvcasazul from "./components/Apartments/Casazul/components/Tvcasazul";
 import EditListing from "./components/EditListing";
-import useGaTracker from './useGaTracker'
+
 
 
 
 function App() {
 
-  useGaTracker();
+
 
   return (
 
