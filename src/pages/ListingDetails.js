@@ -7,7 +7,6 @@ import { Link, animateScroll as scroll } from "react-scroll";
 import "../css/components/ListingDetails.css";
 import HeaderTransparent from "../components/HeaderTransparent";
 import { FormattedMessage } from "react-intl";
-import MetaDecorator from "../components/MetaDecorator";
 import AllInclusiveIcon from "@material-ui/icons/AllInclusive";
 import LocationOnIcon from "@material-ui/icons/LocationOn";
 import CreditCardIcon from "@material-ui/icons/CreditCard";
@@ -19,17 +18,21 @@ import Comment from "../components/Comment";
 import CommentBox from "../components/CommentBox";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { Carousel } from "react-responsive-carousel";
-import Listings from "../components/Top";
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
+import { Helmet } from "react-helmet";
+import Listings from "../components/Top";
+
 
 function ListingDetails() {
-  const { listingId } = useParams();
+  const { listingId, listingName } = useParams();
   const [ListingDetails, setListingDetails] = useState(null);
   const [listingComments, setListingComments] = useState([]);
   const [loading, setLoading] = useState(false);
 
+
   useEffect(() => {
     window.scrollTo(0, 0);
+
 
     setLoading(true);
     if (listingId) {
@@ -48,12 +51,15 @@ function ListingDetails() {
   }, [listingId]);
 
   return (
+
     <div>
-      <MetaDecorator
-        description={ListingDetails?.slogan}
-        title={ListingDetails?.name}
-        image={ListingDetails?.image}
-      />
+
+<Helmet>
+                <meta charSet="utf-8" />
+                <title> Vista detalle del establecimiento </title>
+
+            </Helmet>
+
 
       <HeaderTransparent />
       <div className="container__listing">
@@ -68,7 +74,6 @@ function ListingDetails() {
 
 
           <Carousel
-          
           width="100%" >
             {ListingDetails?.images.map((image, i) => (
               <img src={image} alt={`${i}`} className="image-slider" />
@@ -143,7 +148,7 @@ function ListingDetails() {
                       </span>
                       <div className="pec__explaining">
                         <span className="peculiarities__title">
-                          
+
                            {ListingDetails?.productstar}
                           {" "}
                         </span>
@@ -157,27 +162,27 @@ function ListingDetails() {
                     </div>
 
                     {/* <div className="peculiarities">
-    <span className="peculiarities__icons">
-      <AccountBalanceIcon />{" "}
-    </span>
-    <div className="pec__explaining">
-      <span className="peculiarities__title"> Terraza</span>
-      <span className="peculiarities__resume">
-        {" "}
-        Establecimiento con terraza habilitada para clientes
-      </span>
-    </div>
-  </div>  */}
+                    <span className="peculiarities__icons">
+                      <AccountBalanceIcon />{" "}
+                    </span>
+                    <div className="pec__explaining">
+                      <span className="peculiarities__title"> Terraza</span>
+                      <span className="peculiarities__resume">
+                        {" "}
+                        Establecimiento con terraza habilitada para clientes
+                      </span>
+                    </div>
+                  </div>  */}
 
-                    {/* <div className="peculiarities">
-    <span className="peculiarities__icons">
-      <AccountBalanceIcon />{" "}
-    </span>
-    <div className="pec__explaining">
-      <span className="peculiarities__title"> Zona de fumadores</span>
-      <span className="peculiarities__resume"> Se puede fumar </span>
-    </div>
-  </div> */}
+                      {/* <div className="peculiarities">
+                      <span className="peculiarities__icons">
+                        <AccountBalanceIcon />{" "}
+                      </span>
+                      <div className="pec__explaining">
+                        <span className="peculiarities__title"> Zona de fumadores</span>
+                        <span className="peculiarities__resume"> Se puede fumar </span>
+                      </div>
+                    </div> */}
 
                     <div className="peculiarities">
                       <span className="peculiarities__icons">

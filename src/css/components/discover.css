@@ -207,7 +207,7 @@
     display: grid;
     grid-area: foto4;
     width: 100%;
-    max-height: 300px;
+    max-height: 500px;
   }
 
   .hero-subtitle {

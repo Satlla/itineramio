@@ -19,14 +19,13 @@ function Listings({ title }) {
   const [listings, setListings] = useState([]);
   const [listingCategory, setListingCategory] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [count, setCount] = useState(0)
+  
 
   function categoryTerm(listingCategory) {
     return function (x) {
       return x.category.includes(listingCategory) || !listingCategory;
     };
   }
-
 
   const getListings = async () => {
     db.collection("listings").onSnapshot((querySnapshot) => {
@@ -37,10 +36,12 @@ function Listings({ title }) {
       setLoading(true);
       setListings(docs);
     });
+
   };
 
   useEffect(() => {
     getListings();
+
   }, []);
 
   return (

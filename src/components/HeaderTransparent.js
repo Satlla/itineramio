@@ -8,10 +8,13 @@ import { FormattedMessage } from "react-intl";
 import LanguageIcon from "@material-ui/icons/Language";
 
 
+
 function HeaderTransparent() {
 
   return (
+
     <div className="header__transparent">
+   
       <nav className="navbar navbar-expand-lg navbar-light bg-white">
         <a className="navbar-brand" href="#">
           <Link className="navbar-brand" to="/">

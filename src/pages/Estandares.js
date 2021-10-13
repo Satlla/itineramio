@@ -6,12 +6,22 @@ import gastronomia from '../assets/img/gastronomia.jpg'
 import limpieza from '../assets/img/limpieza.jpg'
 import arroz from '../assets/img/arroz.jpg'
 import detalles from '../assets/img/detalles.jpg'
+import { Helmet } from "react-helmet";
 
 
 function Estandares() {
   window.scrollTo(0, 0);
   return (
     <div>
+      <Helmet>
+        <meta property="og:title" content="Itineramio| Estándares de calidad " />
+        <meta name="description" content=" Normas básicas que deben reunir todos los establecimientos, para poder pertenecer a la comunidad Itineramio" />
+        <link rel="canonical" href=" https://www.itineramio.com/estandares" />
+        <meta property="og:image" content={limpieza} />
+       
+
+      </Helmet>
+
       <div className="cabecera">
         <Link className="header__whyus" to="/">
           <img className="logo_banner" src={logo} alt="logo" />
