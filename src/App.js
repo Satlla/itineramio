@@ -41,6 +41,7 @@ import Rulescasazul from "./components/Apartments/Casazul/components/Rulescasazu
 import Rules from "./components/Apartments/EnriquetaLoft/components/Rules";
 import Tvcasazul from "./components/Apartments/Casazul/components/Tvcasazul";
 import EditListing from "./components/EditListing";
+import { Helmet } from "react-helmet";
 
 
 
@@ -52,6 +53,15 @@ function App() {
   return (
 
     <div>
+
+
+    <Helmet>
+      <meta charSet="utf-8" />
+      <title> Itineramio | Mejores lugares para visitar en Alicante</title>
+      <meta name="keywords" content=" Restaurantes, Alicante, Recomendaciones Locales, " />
+      <meta name="description" content="Mejores restaurantes de Alicante, recomendaciones locales, experiencias únicas, actividades para visitantes , lugares para visitar y mejores emplazamientos. " />
+
+    </Helmet>
       <Router>
         <Switch>
           <Route exact path="/">

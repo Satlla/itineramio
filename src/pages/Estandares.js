@@ -17,7 +17,7 @@ function Estandares() {
         <meta property="og:title" content="Itineramio| Estándares de calidad " />
         <meta name="description" content=" Normas básicas que deben reunir todos los establecimientos, para poder pertenecer a la comunidad Itineramio" />
         <link rel="canonical" href=" https://www.itineramio.com/estandares" />
-        <meta property="og:image" content={limpieza} />
+        <meta property="og:image" content="https://miro.medium.com/max/812/1*1xhuVp8f2WFUGUByHS8VTg.png" />
        
 
       </Helmet>
