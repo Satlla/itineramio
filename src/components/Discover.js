@@ -1,10 +1,7 @@
 import React from "react";
 import "../css/components/discover.css";
 import { Link } from "react-router-dom";
-import foto1 from "../assets/img/fotoportada.jpg";
-import foto2 from "../assets/img/cafe2.jpg";
-import foto3 from "../assets/img/restaurant.jpg";
-import foto4 from "../assets/img/restaurant2.jpg";
+
 import {FormattedMessage } from 'react-intl'
 
 
@@ -13,16 +10,16 @@ function Discover() {
 
       <div className="main-cont mb-4">
         <div className="container-hero">
-          <div className="container-titles">
-            <div className="explorer-hero">
-              <h3 className="hero-subtitle">
+          <div className="container-titles ">
+            <div className="explorer-hero d-flex-column justify-content-center ">
+              <h4 className="hero-subtitle">
                 {" "}
                 <FormattedMessage
                   id="app.welcome"
                   defaultMessage="¿No tienes claro dónde ir?. ¡Somos tu brújula!"
                   />
 
-              </h3>
+              </h4>
               <p className="hero-slogan">
                 {" "}
                 <FormattedMessage
@@ -32,7 +29,7 @@ function Discover() {
                 />
               </p>
             </div>
-            <div className="explore-itineramio">
+            <div className="explore-itineramio d-flex justify-content-center">
               <Link to="/explore">
                 <button className="btn-rounded">
                 <FormattedMessage
@@ -43,20 +40,7 @@ function Discover() {
               </Link>
             </div>
           </div>
-          <div className="grid-container">
-            <div className="item1">
-              <img src={foto1} className="hero-img" alt="cafe" />
-            </div>
-            <div className="item2">
-              <img src={foto2} className="hero-img" alt="cafe" />
-            </div>
-            <div className="item3">
-              <img src={foto3} className="hero-img" alt="cafe" />
-            </div>
-            <div className="item4">
-              <img src={foto4} className="hero-img" alt="cafe" />
-            </div>
-          </div>
+    
         </div>
       </div>
   );

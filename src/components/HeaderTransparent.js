@@ -6,8 +6,7 @@ import WorkOutlineIcon from "@material-ui/icons/WorkOutline";
 import "../css/components/headertransparent.css";
 import { FormattedMessage } from "react-intl";
 import LanguageIcon from "@material-ui/icons/Language";
-
-
+import { UserCircleIcon } from '@heroicons/react/outline'
 
 function HeaderTransparent() {
 
@@ -115,7 +114,9 @@ function HeaderTransparent() {
                 <Link to="/colaborate">
                   <span className="nav-link faceicon" href="#">
                     {" "}
-                    <FaceIcon />
+                    <FaceIcon 
+                
+                    />
                     <FormattedMessage
                       id="menu.collaborate"
                       defaultMessage="Colaborar"
@@ -124,6 +125,8 @@ function HeaderTransparent() {
                   </span>
                 </Link>
               </li>
+
+              
 
 
               {/* <li className="nav-item active ml-3">
