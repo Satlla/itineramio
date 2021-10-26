@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { fb } from "../firebase";
-import "../css/components/addlisting.css";
+import { fb } from "../../firebase";
+import "../../css/components/addlisting.css";
 import { toast } from "react-toastify";
 import FreeBreakfastIcon from '@material-ui/icons/FreeBreakfast';
 
@@ -117,7 +117,7 @@ function AddListing() {
         <div className="form-listing">
 
           <form className=" form-card" onSubmit={onSubmit}>
-      <h3> Subir un itineramio</h3>
+      <h3> Subir una experiencia</h3>
             <div className="row mt-4">
               <div className="col">
                 <label className="labels__listing" for="name">

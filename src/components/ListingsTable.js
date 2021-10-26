@@ -50,8 +50,7 @@ function ListingsTable({ title }) {
     <div className="main-container">
 
       <div className="container-table">
-        <Editlisting />
-   
+
 <h3> Tus Anuncios</h3>
       <div className="table-listing-list ">
 

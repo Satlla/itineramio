@@ -7,8 +7,8 @@
 .main__panel {
   min-width: 330px;
   width: 100%;
-  margin-top: 3rem;
-
+  max-width: 1200px;
+  margin: 1em auto;
 }
 
 .profile-img{
@@ -37,4 +37,66 @@
     font-size: 15px;
     font-weight: 600;
 
-  } 
+  }
+
+
+
+
+.main-panel{
+  display: grid;
+  justify-content: left;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  white-space: nowrap;
+  max-width: 1200px;
+  margin: 0 auto;
+
+}
+ .linkpanel{
+
+    cursor: pointer ;
+    text-align: center ;
+    border: none ;
+   
+    padding: 0px ;
+    margin: 0px ;
+    border-radius: 30px ;
+    font-family: Circular,-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif ;
+    margin-left: 1rem;
+    padding-top: 12px ;
+    padding-bottom: 12px ;
+    padding-left: 20px ;
+    padding-right: 20px ;
+    font-size: 14px ;
+    line-height: 18px ;
+    background-color: #f1f1f1 ;
+    color: #222222 ;
+    font-weight: 800 ;
+}
+
+ .dashboard__link {
+  text-decoration: none ;
+  color: #484848 ;
+  font-weight: 600;
+  border: none;
+  backgroud-color: red ;
+  padding: 10px 20px;
+  border-radius: 20px;
+  margin-top: 1rem;
+
+}
+
+.dashboard__link:hover {
+  cursor: pointer;
+  text-decoration: none;
+
+}
+
+a:link, a:visited, a:active {
+  text-decoration:none ;
+}
+
+
+

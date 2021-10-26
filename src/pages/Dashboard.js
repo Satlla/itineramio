@@ -1,34 +1,91 @@
-import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+
+import { BrowserRouter as Router, Switch, Route, BrowserRouter, Link } from "react-router-dom";
 import AddListing from "../components/AddListing";
 import HeaderTransparent from "../components/HeaderTransparent";
-import InformationListing from "../components/InformationListing";
-import NavDashboard from "../components/NavDashboard";
-import UserListings from "../components/UserListings";
 import '../css/components/dashboard.css'
-import profile from '../assets/profiles/alex.jpg'
+import DearHost from "../components/UserDashboard/DearHost";
+import AddExperience from "../components/UserDashboard/AddExperience"
+import UserListings from "../components/UserDashboard/UserListings"
+import Suggestions from "../components/UserDashboard/Suggestions";
 
 function Dashboard() {
   return (
     <div>
-      <HeaderTransparent />
 
-      <div className="orbital__panel_dashboard">
+<HeaderTransparent/>
+   
+    <BrowserRouter>
+      <div>
+        
+        <DearHost />
+        <section>
 
-        <div className="main__panel">
-      <NavDashboard />
-    <div className="profile__card" >
+<div className="main-panel">
+  <div className="grid-panel">
 
-      <img src={profile} className="profile-img mb-2" alt="alex"></img>
-        <h4 className="dear"> Buenas noches, Alejandro</h4>
+    <button className="linkpanel">
+
+      <Link to="/dashboard">
+      <a href className="dashboard__link  "> Nuevo Listing</a>
+    </Link>
+
+    </button>
+
+    <button className="linkpanel">
+    <Link to="/addexperience">
+      <a href className="dashboard__link  "> Nueva Experiencia</a>
+    </Link>
+
+    </button>
+
+    <button className="linkpanel">
+      <Link to="/userlistings">
+      <a href className="dashboard__link"> Publicados</a>
+    </Link>
+
+    </button>
+
+    <button className="linkpanel">
+
+      <Link to="/suggestions">
+      <a href className="dashboard__link ml-4"> Sugerencias</a>
+    </Link>
+
+    </button>
+
+  </div>
+</div>
+</section>
+
+  {/* Fin del NavDashboard */}
+
     </div>
-      <InformationListing />
-      <AddListing />
-        </div>
 
-      </div>
+  {/* Inicio de las rutas */}
 
-    </div>
+    <Route path="/dashboard">
+      <AddListing/>
+    </Route>
+
+    <Route exact path="/addexperience">
+      <AddExperience/>
+    </Route>
+
+    <Route exact path="/userlistings">
+      <UserListings/>
+    </Route>
+
+    <Route exact path="/suggestions">
+      <Suggestions/>
+    </Route>
+
+  {/* Fin de las Rutas */}
+
+
+  {/* Fin de las Rutas */}
+    </BrowserRouter>
+     </div>
+
   );
 }
 

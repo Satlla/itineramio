@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import "./App.css";
 import Home from "./components/Home";
 import Dashboard from "./pages/Dashboard";
-import UserListings from "./components/UserListings";
 import ListingDetails from './pages/ListingDetails';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -44,8 +43,6 @@ import EditListing from "./components/EditListing";
 import { Helmet } from "react-helmet";
 
 
-
-
 function App() {
 
 
@@ -81,9 +78,6 @@ function App() {
             <Dashboard />
           </Route>
 
-          <Route exact path="/dashboard/userlistings">
-            <UserListings />
-          </Route>
 
           <Route exact path="/dashboard/suggestions">
             <Suggestions />
