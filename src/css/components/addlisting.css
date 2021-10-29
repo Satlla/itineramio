@@ -3,7 +3,7 @@
   max-height: 130px;
 }
 
-.form-listing {
+.form-listing, .form-experience {
   width: 100%;
   padding: 10px;
   display: flex;

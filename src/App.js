@@ -4,6 +4,7 @@ import "./App.css";
 import Home from "./components/Home";
 import Dashboard from "./pages/Dashboard";
 import ListingDetails from './pages/ListingDetails';
+import ExperienceDetails from './pages/ExperienceDetails';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Hiw from './pages/Hiw';
@@ -71,6 +72,11 @@ function App() {
 
           <Route exact path="/listing/:listingId">
             <ListingDetails />
+
+          </Route>
+
+          <Route exact path="/experience/:experienceId">
+            <ExperienceDetails />
 
           </Route>
 

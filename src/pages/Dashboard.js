@@ -1,6 +1,6 @@
 
 import { BrowserRouter as Router, Switch, Route, BrowserRouter, Link } from "react-router-dom";
-import AddListing from "../components/AddListing";
+import AddListing from "../components/UserDashboard/AddListing";
 import HeaderTransparent from "../components/HeaderTransparent";
 import '../css/components/dashboard.css'
 import DearHost from "../components/UserDashboard/DearHost";
@@ -13,10 +13,10 @@ function Dashboard() {
     <div>
 
 <HeaderTransparent/>
-   
+
     <BrowserRouter>
       <div>
-        
+
         <DearHost />
         <section>
 

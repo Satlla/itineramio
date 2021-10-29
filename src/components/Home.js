@@ -6,6 +6,7 @@ import Discover from "../components/Discover";
 import Top from "../components/Top";
 import HeaderTransparent from '../components/HeaderTransparent';
 import Estandares from "./Estandares";
+import ExperiencesCarousel from "../components/Experiences/ExperiencesCarousel"
 
 
 
@@ -16,6 +17,7 @@ function Home() {
        <HeaderTransparent />
       <Discover />
       <Top />
+      <ExperiencesCarousel/>
       <Bullets />
       < Estandares />
     </div>

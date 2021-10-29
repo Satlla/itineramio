@@ -3,7 +3,6 @@ import { db } from "../firebase";
 import { Link } from "react-router-dom";
 import "../css/components/list.css";
 import Preloader from "./Preloader";
-import "../css/pages/plans.css";
 import romantic from "../assets/pages/romantic.svg";
 import museums from "../assets/pages/museum.svg";
 import drinks from "../assets/pages/drinks.svg";
@@ -47,16 +46,7 @@ function Listings({ title }) {
   return (
     <div>
       {loading ? "" : <Preloader />}
-      {/* <div className="about__us">
-      <div classname="about__cont">
 
-      <h2 className="about__title"> Descubre itineramio</h2>
-      <div className="slogan__container">
-      <p className="slogan-bullet"> Lugares para visitar + gastronomía = Itineramios para compartir.</p>
-      </div>
-      </div>
-
-    </div> */}
     <section className="title__top__container">
        <h2 className="title__top"> Descubre los mejores restaurantes cerca de tí</h2>
     </section>
@@ -215,50 +205,7 @@ function Listings({ title }) {
 
         </div>
       </div>
-      {/* DropDown seleccionar categoría  */}
-      {/* <div className="dropdown">
-          <select
-            className="dropdown-filter "
-            name="listingcategory"
-            onChange={(e) => setListingCategory(e.target.value)}
-          >
-            <option className="option-filter" value="Desayunar">
-              Desayunar
-            </option>
-            <option value="Tapas & Vinos">Tapas & Vinos</option>
-            <option value="Arrocerías">Arrocerías</option>
-            <option value="Top">Top</option>
-            <option value="Coffee & Relax">Coffee & Relax</option>
-          </select>
-        </div> */}
-
-      {/*  Fin Dropdown seleccionar categoria */}
-      {/* <div className="nav__list">
-          <ul className="subnav__items">
-            <Link to="/plans">
-            <li className="nav__item">
-              <a className="navigation__link active" href="#">
-                <span className="nav__icon"><CenterFocusStrongIcon /> </span>
-                <span className="title__nav  "> Plans</span>
-              </a>
-            </li>
-            </Link>
-
-            <li className="nav__item">
-              <a className="navigation__link" href="#">
-              <span className="nav__icon"> <HomeIcon /> </span>
-              <span className="title__nav"> Homes </span>
-              </a>
-            </li>
-
-            <li className="nav__item">
-              <a className="navigation__link" href="#">
-              <span className="nav__icon"><ExploreIcon /></span>
-                <span className="title__nav"> Visitar</span>
-              </a>
-            </li>
-          </ul>
-        </div> */}
+      
       <div className="hero-listing">
         {listings.filter(categoryTerm(listingCategory)).map((listings) => {
           return (

@@ -1,12 +1,24 @@
 
-.hero-listing {
-    margin: 4rem 0 0 2rem ;
-    display: flex ;
-    overflow: auto hidden ;
-    scroll-snap-type: x mandatory ;
-    gap: 10px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+
+.title-listing {
+  margin-left: 2.5rem;
+  color: #0d0c22;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dropdown-filter:hover {
+  border: 3px solid #ff2e76 !important; 
+}
+
+.experience-hero {
+  margin: 2rem 0 0 2rem ;
+  display: flex ;
+  overflow: auto hidden ;
+  scroll-snap-type: x mandatory;
+  gap: 15px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 
 }
 
@@ -14,17 +26,26 @@
   display: none;
 }
 
+
+.dates-listing {
+  display: flex;
+  flex-direction: column;
+}
+.schedule {
+  margin-left: 5px;
+}
+
 .card-listing {
   width: 243px;
   margin-left: 10px;
 }
 
-.card-listing img {
-  width:243px;
-  border-radius: 10px;
+.experience-image img {
+  width:300px;
+  border-radius: 5px;
   margin-bottom: 10px;
   object-fit: cover;
-  height: 243px;
+  height: 400px;
 }
 .category-listing {
   background-color: none;
@@ -57,6 +78,15 @@
   margin-left: 5px;
 }
 
+.category-hours{
+  display: flex;
+  justify-content: space-between;
+}
+
+.experience-info{
+  max-width: 300px;
+}
+
 .titcat {
   display: flex;
   justify-content: space-between;
@@ -65,7 +95,7 @@
 .timeicon {
   margin-right: 5px;
   object-fit: contain;
-  height: 15px ;
+  height: 15px !important;
 }
 
 .title__nav{
@@ -88,8 +118,29 @@
   text-decoration: none;
 }
 
+.navigation__link{
+  color: rgb(15, 20, 25);
+  margin-left: 15px;
+  font-weight: 800;
+  text-align: inherit;
+  list-style: none;
+  background-color: transparent;
+  padding: 10px 15px;
+  border-radius: 50px;
+
+}
+
+.navigation__link:hover {
+  background-color: #FBFBFB;
+  border-radius: 50px;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #000;
+
+}
 
 .nav__list{
+
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -107,8 +158,29 @@
 
 }
 
+.plan:hover{
+  cursor: pointer;
+}
+
+.plan__categoryImage{
+  border-radius: 10px;
+  width: 72px;
+}
 
 
+.plan__title {
+  font-size: 1.1em;
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: 0;
+
+}
+
+.plan__content {
+  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+}
 
 
 @media (min-width: 300px) and (max-width: 600px){

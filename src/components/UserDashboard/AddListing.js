@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { fb } from "../firebase";
-import "../css/components/addlisting.css";
+import { fb } from "../../firebase";
+import "../../css/components/addlisting.css";
 import { toast } from "react-toastify";
 import FreeBreakfastIcon from '@material-ui/icons/FreeBreakfast';
 

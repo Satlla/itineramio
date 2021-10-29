@@ -2,15 +2,14 @@ import React, { useEffect, useState } from "react";
 import { fb } from "../../firebase";
 import "../../css/components/addlisting.css";
 import { toast } from "react-toastify";
-import FreeBreakfastIcon from '@material-ui/icons/FreeBreakfast';
 
 
 
 const db = fb.firestore();
 
-function AddListing() {
+function Addexperience() {
   const [images, setImages] = useState([]);
-  const [listings, setlistings] = useState([]);
+  const [experiences, setExperiences] = useState([]);
 
   const onFileChange = async (e) => {
     for (let i = 0; i < e.target.files.length; i++) {
@@ -21,7 +20,7 @@ function AddListing() {
       await fileRef.put(files);
       setImages(await fileRef.getDownloadURL());
 
-    }
+    } 
   };
 
   const handleInputChange = (e) => {
@@ -31,17 +30,17 @@ function AddListing() {
 
   //Designamos los valores por defecto para el formulario.
   const initialStateValues = {
-    listingname: "",
-    listingslogan: "",
-    listingcategory: "",
-    listinglocation: "",
-    listingstar:"",
-    listingphone: "",
-    listingprice: "",
-    listingitins: "",
-    listingdescription: "",
-    listingbest: "",
-    listingimage: [],
+    experiencename: "",
+    experienceslogan: "",
+    experiencecategory: "",
+    experiencelocation: "",
+    experiencestar:"",
+    experiencephone: "",
+    experienceprice: "",
+    experienceduration: "",
+    experiencedescription: "",
+    experiencebest: "",
+    experienceimage: [],
   };
 
   const [values, setValues] = useState(initialStateValues);
@@ -49,64 +48,61 @@ function AddListing() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setValues({ ...initialStateValues });
-    const listingname = e.target.listingname.value;
-    const listingslogan = e.target.listingslogan.value;
-    const listingcategory = e.target.listingcategory.value;
-    const listingstar = e.target.listingstar.value;
-    const listingphone = e.target.listingphone.value;
-    const listinglocation = e.target.listinglocation.value;
-    const listingprice = e.target.listingprice.value;
-    const listingitins = e.target.listingitins.value;
-    const listingdescription = e.target.listingdescription.value;
-    const listingbest = e.target.listingbest.value;
-    const listingimage = e.target.listingimage.value;
+    const experiencename = e.target.experiencename.value;
+    const experienceslogan = e.target.experienceslogan.value;
+    const experiencecategory = e.target.experiencecategory.value;
+    const experiencestar = e.target.experiencestar.value;
+    const experiencelocation = e.target.experiencelocation.value;
+    const experienceprice = e.target.experienceprice.value;
+    const experienceduration = e.target.experienceduration.value;
+    const experiencedescription = e.target.experiencedescription.value;
+    const experiencebest = e.target.experiencebest.value;
+    const experienceimage = e.target.experienceimage.value;
 
     if (
-      !listingname ||
+      !experiencename ||
       !images ||
-      !listingslogan ||
-      !listingcategory ||
-      !listinglocation ||
-      !listingstar ||
-      !listingphone ||
-      !listingprice ||
-      !listingitins ||
-      !listingdescription ||
-      !listingbest ||
-      !listingimage
+      !experienceslogan ||
+      !experiencecategory ||
+      !experiencelocation ||
+      !experiencestar ||
+      !experienceprice ||
+      !experienceduration ||
+      !experiencedescription ||
+      !experiencebest ||
+      !experienceimage
     ) {
       return;
     }
-    await db.collection("listings").doc().set({
-      name: listingname,
+    await db.collection("experiences").doc().set({
+      name: experiencename,
       image: images,
-      slogan: listingslogan,
-      category: listingcategory,
-      location: listinglocation,
-      productstar: listingstar,
-      phone: listingphone,
-      price: listingprice,
-      itins: listingitins,
-      description: listingdescription,
-      best: listingbest,
+      slogan: experienceslogan,
+      category: experiencecategory,
+      location: experiencelocation,
+      productstar: experiencestar,
+      price: experienceprice,
+      duration: experienceduration,
+      description: experiencedescription,
+      best: experiencebest,
     });
-    toast("Se ha añadido el anuncio correctamente", {
+    toast("Se ha añadido tu experiencia correctamente", {
       type: "success",
       autoClose: 1000,
     });
   };
 
   useEffect(() => {
-    const fetchlistings = async () => {
-      const listingsCollection = await db.collection("listings").get();
+    const fetchexperiences = async () => {
+      const experiencesCollection = await db.collection("experiences").get();
 
-      setlistings(
-        listingsCollection.docs.map((doc) => {
+      setExperiences(
+        experiencesCollection.docs.map((doc) => {
           return doc.data();
         })
       );
     };
-    fetchlistings();
+    fetchexperiences();
   }, []);
 
   return (
@@ -114,56 +110,56 @@ function AddListing() {
       <div className="form-container">
 
       <div className="control-panel">
-        <div className="form-listing">
+        <div className="form-experience">
 
           <form className=" form-card" onSubmit={onSubmit}>
       <h3> Subir una experiencia</h3>
             <div className="row mt-4">
               <div className="col">
-                <label className="labels__listing" for="name">
+                <label className="labels__experience" for="name">
                   {" "}
-                  Nombre del Lugar{" "}
+                  Título de la experiencia{" "}
                 </label>
                 <input
                   type="text "
                   className="form-control"
-                  name="listingname"
-                  placeholder="Nombre del lugar"
+                  name="experiencename"
+                  placeholder="Título de la experiencia"
                   onChange={handleInputChange}
-                  value={values.listingname}
+                  value={values.experiencename}
                 />
               </div>
 
               <div className="col">
-                <label className="labels__listing" for="name">
+                <label className="labels__experience" for="name">
                   {" "}
-                  Producto estrella{" "}
+                  Lo mejor de la experiencia{" "}
                 </label>
                 <input
                   type="text "
                   className="form-control"
-                  name="listingstar"
-                  placeholder="Mejor producto del lugar"
+                  name="experiencestar"
+                  placeholder="¿Qué es lo que mas les va a gustar a tus clientes?"
                   onChange={handleInputChange}
-                  value={values.listingstar}
+                  value={values.experiencestar}
                 />
               </div>
 
 
-              <div className="col">
-                <label className="labels__listing" for="name">
+              {/* <div className="col">
+                <label className="labels__experience" for="name">
                   {" "}
                   Telefono{" "}
                 </label>
                 <input
                   type="tel "
                   className="form-control"
-                  name="listingphone"
+                  name="experiencephone"
                   placeholder="Telefono del Establecimiento"
                   onChange={handleInputChange}
-                  value={values.listingphone}
+                  value={values.experiencephone}
                 />
-              </div>
+              </div> */}
               {/* Agregando categorias */}
 
 
@@ -173,49 +169,49 @@ function AddListing() {
             {/* Agregando precio medio */}
             <div className="prices-group">
               <div className=" mt-4">
-                <label className="labels__listing" for="price">
+                <label className="labels__experience" for="price">
                   {" "}
                   Precio Medio por pax{" "}
                 </label>
                 <input
                   type="number "
                   className="form-control"
-                  placeholder="Precio medio"
-                  name="listingprice"
+                  placeholder="Precio por persona"
+                  name="experienceprice"
                   onChange={handleInputChange}
-                  value={values.listingprice}
+                  value={values.experienceprice}
                 />
               </div>
 
-              {/* Agregando Itins */}
+
               <div className=" mt-4">
-                <label className="labels__listing" for="itins">
+                <label className="labels__experience" for="itins">
                   {" "}
-                  Puntuación Lugar{" "}
+                  Duración en horas{" "}
                 </label>
                 <input
                   type="number "
                   className="form-control"
-                  placeholder="Puntuación itins"
-                  name="listingitins"
+                  placeholder=" Duración total en horas "
+                  name="experienceduration"
                   onChange={handleInputChange}
-                  value={values.listingitins}
+                  value={values.experienceduration}
                 />
               </div>
               <div className="mt-4 ">
-                <label for="description" className="labels__listing">
+                <label for="description" className="labels__experience">
                   {" "}
                   Categoría{" "}
                 </label>
 
                 <select
                   className="form-control form-control-md "
-                  name="listingcategory"
+                  name="experiencecategory"
                 >
-                  <option> Desayunar</option>
-                  <option>Tapas & Vinos</option>
-                  <option>Arrocerías</option>
-                  <option>Top</option>
+                  <option> Aventura</option>
+                  <option>Gastronómica</option>
+                  <option>Música</option>
+                  <option>Turística</option>
                   <option>Coffee & Relax</option>
                   <option>Copas</option>
                   <option>A la carta</option>
@@ -226,7 +222,7 @@ function AddListing() {
 
             <div className=" row mt-4">
             <div className=" col">
-              <label className="labels__listing" for="slogan">
+              <label className="labels__experience" for="slogan">
                 {" "}
                 Slogan del Lugar{" "}
               </label>
@@ -234,10 +230,10 @@ function AddListing() {
                 type="text "
                 className="form-control"
                 placeholder="Some Url"
-                name="listingslogan"
-                placeholder="Slogan del listing"
+                name="experienceslogan"
+                placeholder="Slogan del experience"
                 onChange={handleInputChange}
-                value={values.listingslogan}
+                value={values.experienceslogan}
               />
             </div>
             </div>
@@ -245,51 +241,51 @@ function AddListing() {
             {/* Agregando location */}
             <div className="row mt-4">
             <div className="col">
-              <label className="labels__listing" for="location">
+              <label className="labels__experience" for="location">
                 {" "}
                 Dirección{" "}
               </label>
               <input
                 type="text "
                 className="form-control"
-                placeholder="Dirección"
-                name="listinglocation"
+                placeholder="Dirección exacta del punto de partida"
+                name="experiencelocation"
                 onChange={handleInputChange}
-                value={values.listinglocation}
+                value={values.experiencelocation}
               />
               </div>
             </div>
 
             <div className="row mt-4">
             <div className="col">
-              <label className="labels__listing" for="description">
+              <label className="labels__experience" for="description">
                 {" "}
-                Describe el emplazamiento{" "}
+                ¿Qué haréis durante la experiencia? {" "}
               </label>
               <textarea
                 className="form-control"
-                placeholder="Describe el lugar brevemente"
-                name="listingdescription"
+                placeholder="Describe brevemente que haréis"
+                name="experiencedescription"
                 rows="3"
                 onChange={handleInputChange}
-                value={values.listingdescription}
+                value={values.experiencedescription}
               />
             </div>
             </div>
 
             <div className="row mt-4">
             <div className="col">
-              <label className="labels__listing" for="listingbest">
+              <label className="labels__experience" for="experiencebest">
                 {" "}
-                Lo mejor del lugar{" "}
+                Lo mejor de la actividad{" "}
               </label>
               <textarea
                 className="form-control"
-                placeholder="¿Qué es lo mejor del lugar?"
-                name="listingbest"
+                placeholder="¿Qué es lo mejor de la experiencia?"
+                name="experiencebest"
                 rows="3"
                 onChange={handleInputChange}
-                value={values.listingbest}
+                value={values.experiencebest}
               />
             </div>
             </div>
@@ -300,11 +296,11 @@ function AddListing() {
               id="subirfoto"
               multiple
               onChange={onFileChange}
-              name="listingimage"
+              name="experienceimage"
             />
             <button className="btn btn-primary btn-block mt-4">
               {" "}
-              Enviar Listing{" "}
+              Enviar experiencia{" "}
             </button>
           </form>
 
@@ -315,4 +311,4 @@ function AddListing() {
   );
 }
 
-export default AddListing;
+export default Addexperience;
