@@ -14,7 +14,7 @@ import CommentBox from "../components/CommentBox";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import ReactWhatsapp from "react-whatsapp";
 import LocationOnIcon from "@material-ui/icons/LocationOn";
-import CreditCardIcon from "@material-ui/icons/CreditCard";
+import AccessTimeIcon from '@material-ui/icons/AccessTime';
 
 function ExperienceDetails() {
   const { experienceId, experienceName } = useParams();
@@ -144,10 +144,7 @@ function ExperienceDetails() {
 
 
         {/* Contenedor principal Descripciones y pricebox */}
-<div className="layout-description">
-
-
-
+    <div className="layout-description">
         <div className=" container-description ">
 
           {/* Inicio contenedor descripción lo mejor , notificación */}
@@ -158,8 +155,8 @@ function ExperienceDetails() {
                 <div className="description__listing">
                     <h6 className="description__title">
                       <FormattedMessage
-                        id="listing.description"
-                        defaultMessage="Descripción"
+                        id="experience.whatdo"
+                        defaultMessage="Que harás"
                       />
                     </h6>
                     {ExperienceDetails?.description}
@@ -171,7 +168,7 @@ function ExperienceDetails() {
               <div className="description__listing">
                 <h6 className="description__title">
                   <FormattedMessage
-                    id="listing.best"
+                    id="experience.best"
                     defaultMessage="¿Que esperar?"
                   />
                 </h6>
@@ -213,8 +210,42 @@ function ExperienceDetails() {
 
 
               <div className="pricebox ">
-                <span className="ratings">
+                <div className="pec__explaining">
+                <span className="peculiarities__title">
+                  {" "}
+
+                  <FormattedMessage
+                    id="experience.price.since"
+                    defaultMessage=" Desde"
+                     />{" "}
+
+                <span className="experience-price">
+                  {ExperienceDetails?.price}
+
+                    <FormattedMessage
+                    id="experience.price"
+                    defaultMessage="€/persona"
+                     />
+
+                </span>{" "}
+              </span>
+
+              </div>
+
+
+
+                <span className="experience_ratings">
                   <div className="rating">
+                  <div className="peculiarities">
+                    <span className="peculiarities__icons">
+                      <AccessTimeIcon />{" "}
+                    </span>
+                    <div className="pec__explaining">
+                      <span className="experience-duration">
+                        { ExperienceDetails?.duration } horas en total
+                      </span>
+                    </div>
+                  </div>
                     <div className="number__rating">
                       <span className="rating__icon">
                         <AllInclusiveIcon />
@@ -223,32 +254,11 @@ function ExperienceDetails() {
                     {" "}
                     <strong>{ExperienceDetails?.itins}</strong>/100 itins
                   </span>
+
               </div>
           <div className="peculiarities__listing">
-            <div className="peculiarities">
-              <span className="peculiarities__icons">
-                  <CreditCardIcon />{" "}
-              </span>
+           
 
-          <div className="pec__explaining">
-              <span className="peculiarities__title">
-                {" "}
-                <FormattedMessage
-                  id="listing.price"
-                  defaultMessage="Precio Medio"
-                />{" "}
-                <span className="price">
-                  {ExperienceDetails?.price} €
-                </span>{" "}
-              </span>
-              <span className="peculiarities__resume">
-                <FormattedMessage
-                  id="listing.cost"
-                  defaultMessage="Coste por persona"
-                />
-                  </span>
-              </div>
-          </div>
 
         <div className="address mt-2">
             <span className="location__icon">
@@ -259,6 +269,7 @@ function ExperienceDetails() {
               {ExperienceDetails?.location}{" "}
             </span>
         </div>
+
         </div>
         </div>
         </span>
@@ -283,10 +294,12 @@ function ExperienceDetails() {
 
            {/* Fin contenedor descripción lo mejor , notificación */}
         </div>
-       
+
 
         {/* Fin contenedor principal Descripciones y pricebox */}
         </div>
+
+        {/* fin layout */}
 
           <div className="title" id="commentsec">
                 <AllInclusiveIcon className="ratin__icon" />

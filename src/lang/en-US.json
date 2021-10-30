@@ -64,6 +64,7 @@
   "listing.book":" Make a question",
   "listing.emblematic":"Emblematic",
   "listing.star": "Recommended in this place",
+  "listing.discover": "Discover the best restaurants near you",
   "listing.emblematicdesc":"This place is representative of the area",
   "listing.description":" Description",
   "listing.best":"Best of the place",
@@ -73,8 +74,15 @@
   "listing.comments2":"Comments",
   "comment.writecomment": "Write your comment",
   "comment.name": "Your Name",
-  "comment.send": "Send"
-
+  "comment.send": "Send",
+  "experience.comments": "Reviews",
+  "experience.whatdo": "What you'll do",
+  "experience.best": "Expected from",
+  "experience.question": "Make a question",
+  "experience.price": "€ /person",
+  "experience.price.since": "From",
+  "experience.title": "Experiences in Alicante",
+  "experiences.subtitle": "Discover unique experiences, organized by local People"
 
 
 

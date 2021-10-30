@@ -31,8 +31,23 @@ function ExperiencesCarousel({ title }) {
       {loading ? "" : <Preloader />}
 
     <section className="carousel m-3 mt-4">
-       <h2 className="title__top"> Experiencias en Alicante</h2>
-       <p className="ml-3"> Descubre experiencias únicas, organizadas por gente local de la ciudad</p>
+
+       <h2 className="title__top">
+
+       <FormattedMessage
+       id="experience.title"
+       defaultMessage="Experiencias en Alicante"
+      />
+
+          </h2>
+       <p className="ml-3">
+         <FormattedMessage
+         id="experiences.subtitle"
+         defaultMessage="Descubre experiencias únicas, organizadas por gente local de la ciudad"
+
+         />
+
+          </p>
     </section>
 
       <div className="experience-hero">

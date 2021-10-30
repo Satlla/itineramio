@@ -91,9 +91,9 @@ display: -webkit-box;
 
 
 
-.ratings {
+.experience_ratings {
   display: flex;
-  margin: 1rem;
+  margin-left: 1rem;
   font-weight: 800;
 }
 
@@ -207,8 +207,11 @@ border-top: 1px solid #f1f1f1;
   font-weight: 600;
 }
 
-.price{
-  font-weight: 800;
+.experience-price{
+  font-size: 22px ;
+  line-height: 26px ;
+  display: inline-block;
+  font-weight: 500;
 
 }
 

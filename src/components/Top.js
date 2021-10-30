@@ -18,7 +18,6 @@ function Listings({ title }) {
   const [listings, setListings] = useState([]);
   const [listingCategory, setListingCategory] = useState([]);
   const [loading, setLoading] = useState(false);
-  
 
   function categoryTerm(listingCategory) {
     return function (x) {
@@ -48,7 +47,12 @@ function Listings({ title }) {
       {loading ? "" : <Preloader />}
 
     <section className="title__top__container">
-       <h2 className="title__top"> Descubre los mejores restaurantes cerca de tí</h2>
+
+       <h2 className="title__top">
+         <FormattedMessage 
+         id="listing.discover"
+         defaultMessage="Descubre los mejores restaurantes cerca de tí"
+         /> </h2>
     </section>
       <div className="plans__container">
         <div className="nav__plans">
@@ -205,7 +209,7 @@ function Listings({ title }) {
 
         </div>
       </div>
-      
+
       <div className="hero-listing">
         {listings.filter(categoryTerm(listingCategory)).map((listings) => {
           return (
