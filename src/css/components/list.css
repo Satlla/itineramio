@@ -1,9 +1,32 @@
+.title-listing {
+  margin-left: 2.5rem;
+  color: #0d0c22;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dropdown-filter {
+  background-color: transparent !important;
+  color: #6e6d7a !important;
+  border-radius: 8px !important ;
+  box-sizing: border-box !important;
+  border: 3px solid #797982 !important;
+  padding: 7px;
+
+}
+.dropdown-filter:hover {
+  border: 3px solid #ff2e76 !important; 
+
+}
+
 
 .hero-listing {
+
     margin: 4rem 0 0 2rem ;
-    display: flex ;
-    overflow: auto hidden ;
-    scroll-snap-type: x mandatory ;
+    display: grid !important;
+    grid-auto-flow: column !important;
+    overflow: auto hidden !important;
+    scroll-snap-type: x mandatory !important;
     gap: 10px;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -14,9 +37,20 @@
   display: none;
 }
 
+
+.dates-listing {
+  display: flex;
+  flex-direction: column;
+}
+.schedule {
+  margin-left: 5px;
+}
+
 .card-listing {
   width: 243px;
   margin-left: 10px;
+
+
 }
 
 .card-listing img {
@@ -65,7 +99,7 @@
 .timeicon {
   margin-right: 5px;
   object-fit: contain;
-  height: 15px ;
+  height: 15px !important;
 }
 
 .title__nav{
@@ -88,8 +122,29 @@
   text-decoration: none;
 }
 
+.navigation__link{
+  color: rgb(15, 20, 25);
+  margin-left: 15px;
+  font-weight: 800;
+  text-align: inherit;
+  list-style: none;
+  background-color: transparent;
+  padding: 10px 15px;
+  border-radius: 50px;
+
+}
+
+.navigation__link:hover {
+  background-color: #FBFBFB;
+  border-radius: 50px;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #000;
+
+}
 
 .nav__list{
+
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -107,9 +162,48 @@
 
 }
 
+.plan:hover{
+  cursor: pointer;
+}
+
+.plan__categoryImage{
+  border-radius: 10px;
+  width: 72px;
+}
+
+
+.plan__title {
+  font-size: 1.1em;
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: 0;
+
+}
+
+.plan__content {
+  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+
+}
 
 
 
+
+.nav__plans{
+  margin-top: 2rem;
+  overflow-x: auto !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-rows: repeat(2, auto) !important;
+  grid-template-columns: repeat(calc(var(--column-count) - 1), calc(100% - 108px)) 100% !important;
+  grid-auto-flow: column !important;
+  scroll-snap-type: x mandatory !important;
+}
+
+.hero__plan {
+  margin-top: 2rem;
+}
 
 @media (min-width: 300px) and (max-width: 600px){
 
@@ -143,9 +237,3 @@
 
     }
   }
-
-
-
-
-
-

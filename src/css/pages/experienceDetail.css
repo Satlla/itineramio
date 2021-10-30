@@ -432,4 +432,29 @@ border-radius: 0px 7px 7px 0px;
 
   }
 
+  .carousel-container{
+
+    display: flex;
+    display: -webkit-flex;
+    display: flex;
+    overflow-x: scroll;
+    padding: 10px;
+
+  }
+  .grid-middle{
+    display: flex;
+
+    }
+
+    .img-carousel-portada{
+      width: 330px;
+      height: 100%
+    }
+    .img-carousel-portada, .img-carousel-2, .img-carousel-3, .img-carousel-4, .img-carousel-5{
+      width: 330px;
+      height: 100%
+    }
+
+
+
 }
