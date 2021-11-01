@@ -206,7 +206,7 @@ function ExperienceDetails() {
           </div>
 
           {/* Inicio pricebox*/}
-          <div className="container_pricebox">
+          <div className="container_pricebox "data-spy="affix"  >
 
 
               <div className="pricebox ">
@@ -246,7 +246,7 @@ function ExperienceDetails() {
                       </span>
                     </div>
                   </div>
-                    <div className="number__rating">
+                   <div className="number__rating mt-2">
                       <span className="rating__icon">
                         <AllInclusiveIcon />
                       </span>
@@ -256,9 +256,7 @@ function ExperienceDetails() {
                   </span>
 
               </div>
-          <div className="peculiarities__listing">
-           
-
+          <div className="experience-location ">
 
         <div className="address mt-2">
             <span className="location__icon">
