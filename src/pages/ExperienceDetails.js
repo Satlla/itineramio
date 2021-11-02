@@ -11,10 +11,8 @@ import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import Comment from "../components/Comment";
 import CommentBox from "../components/CommentBox";
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
-import ReactWhatsapp from "react-whatsapp";
-import LocationOnIcon from "@material-ui/icons/LocationOn";
-import AccessTimeIcon from '@material-ui/icons/AccessTime';
+import PriceBoxExperience from '../components/Experiences/PriceBoxExperience'
+
 
 function ExperienceDetails() {
   const { experienceId, experienceName } = useParams();
@@ -89,7 +87,7 @@ function ExperienceDetails() {
         <div className="carousel-hero">
 
           <div className="carousel-grid">
-            <div className="carousel-container">
+            <div className="experience-carousel">
                   <div className="grid-portada">
 
                     <img
@@ -142,13 +140,20 @@ function ExperienceDetails() {
         <div className="container__file">
           {loading ? "" : <Preloader />}
 
+{/* Prueba Price*/}
+
+
+
+{/* Fin prueba Price */}
+
+
 
         {/* Contenedor principal Descripciones y pricebox */}
     <div className="layout-description">
         <div className=" container-description ">
 
           {/* Inicio contenedor descripción lo mejor , notificación */}
-            <div className="image__container">
+            <div className="experience__container">
 
               {/* Descripcion del lugar */}
 
@@ -205,90 +210,7 @@ function ExperienceDetails() {
               </div>
           </div>
 
-          {/* Inicio pricebox*/}
-          <div className="container_pricebox "data-spy="affix"  >
-
-
-              <div className="pricebox ">
-                <div className="pec__explaining">
-                <span className="peculiarities__title">
-                  {" "}
-
-                  <FormattedMessage
-                    id="experience.price.since"
-                    defaultMessage=" Desde"
-                     />{" "}
-
-                <span className="experience-price">
-                  {ExperienceDetails?.price}
-
-                    <FormattedMessage
-                    id="experience.price"
-                    defaultMessage="€/persona"
-                     />
-
-                </span>{" "}
-              </span>
-
-              </div>
-
-
-
-                <span className="experience_ratings">
-                  <div className="rating">
-                  <div className="peculiarities">
-                    <span className="peculiarities__icons">
-                      <AccessTimeIcon />{" "}
-                    </span>
-                    <div className="pec__explaining">
-                      <span className="experience-duration">
-                        { ExperienceDetails?.duration } horas en total
-                      </span>
-                    </div>
-                  </div>
-                   <div className="number__rating mt-2">
-                      <span className="rating__icon">
-                        <AllInclusiveIcon />
-                      </span>
-                  <span className="number">
-                    {" "}
-                    <strong>{ExperienceDetails?.itins}</strong>/100 itins
-                  </span>
-
-              </div>
-          <div className="experience-location ">
-
-        <div className="address mt-2">
-            <span className="location__icon">
-              <LocationOnIcon />
-            </span>
-            <span className="peculiarities__title__green">
-              {" "}
-              {ExperienceDetails?.location}{" "}
-            </span>
-        </div>
-
-        </div>
-        </div>
-        </span>
-
-          <div className="booking-container">
-            <ReactWhatsapp
-              className="button-booking"
-              number="+34652656440"
-              message="Me gustaría reservar este restaurante para el dia ** a las ** para ** personas. "
-              title="Hacer pregunta"
-            >
-              <FormattedMessage
-                id="listing.book"
-                defaultMessage="Hacer Pregunta"
-              />
-            </ReactWhatsapp>
-          </div>
-        </div>
-
-          {/* Fin Pricebox */}
-          </div>
+         <PriceBoxExperience/>
 
            {/* Fin contenedor descripción lo mejor , notificación */}
         </div>

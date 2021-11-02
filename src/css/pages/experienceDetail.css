@@ -18,10 +18,7 @@
   object-fit: cover;
 }
 
-.image__container {
-  max-width: 50%;
 
-}
 
 .image-slider{
   width :200px;
@@ -39,7 +36,7 @@
   max-width: 500px;
 }
 
-.carousel-container{
+.experience-carousel{
   width: 100%;
 
 }
@@ -203,10 +200,11 @@
 
 .description__title{
   font-weight: 600;
+  font-size: 24px;
 }
 
 .experience-price{
-  font-size: 22px ;
+  font-size: 24px ;
   line-height: 26px ;
   display: inline-block;
   font-weight: 500;
@@ -249,7 +247,7 @@
   max-width: 1200px;
 }
 
-.carousel-container{
+.experience-carousel{
   display: grid;
   grid-template-columns: 1fr 1.5fr 1fr ;
   grid-gap: 5px;
@@ -337,7 +335,7 @@ border-radius: 0px 7px 7px 0px;
 
 @media (min-width: 600px) {
 
-  .image__container {
+  .experience__container {
     max-width: 50%;
   }
 
@@ -393,7 +391,7 @@ border-radius: 0px 7px 7px 0px;
 
 
 @media (min-width: 700px) {
-  .image__container {
+  .experience__container {
     display: block;
     margin: 0 auto;
     max-width: 66.666%;
@@ -402,6 +400,11 @@ border-radius: 0px 7px 7px 0px;
   }
   .container-description{
     display: flex;
+  }
+
+  .included{
+    display:flex;
+    margin-top: 10px;
   }
 
 
@@ -414,7 +417,7 @@ border-radius: 0px 7px 7px 0px;
 }
 
 @media (max-width: 900px) {
-  .image__container{
+  .experience__container{
     max-width: 100%;
   }
 }
@@ -429,7 +432,7 @@ border-radius: 0px 7px 7px 0px;
 
   }
 
-  .carousel-container{
+  .experience-carousel{
 
     display: flex;
     display: -webkit-flex;
@@ -477,11 +480,10 @@ border-radius: 0px 7px 7px 0px;
     }
 
 
-    .peculiarities, .number__rating, .experience-location {
+    .included, .number__rating, .experience-location {
       display: none;
     }
- 
-  
+
 
 
 

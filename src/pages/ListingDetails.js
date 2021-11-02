@@ -23,6 +23,8 @@ import { Helmet } from "react-helmet";
 import Listings from "../components/Top";
 
 
+
+
 function ListingDetails() {
   const { listingId, listingName } = useParams();
   const [ListingDetails, setListingDetails] = useState(null);
@@ -304,14 +306,17 @@ function ListingDetails() {
               <div className="title" id="commentsec">
                 <AllInclusiveIcon className="ratin__icon" />
                 <h4 className=" ml-2">
+
+
                   {listingComments.length}{" "}
                   <FormattedMessage
                     id="listing.comments2"
                     defaultMessage="Comentarios"
                   />
+
                 </h4>
               </div>
-              <div id="commentsec">
+              <div id="commentsec" className="comment-box">
                 {listingComments.map(
                   ({ comment, username, title, userImage }) => (
                     <Comment
