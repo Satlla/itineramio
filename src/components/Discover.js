@@ -8,7 +8,7 @@ import {FormattedMessage } from 'react-intl'
 function Discover() {
   return (
 
-      <div className="main-cont mb-4">
+      <div className="main-cont">
         <div className="container-hero">
           <div className="container-titles ">
             <div className="explorer-hero d-flex-column justify-content-center ">

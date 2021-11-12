@@ -8,7 +8,13 @@
 
 .title-experience{
   padding: 1rem;
+  font-weight: 600;
 
+}
+
+.title-experience h4{
+  font-weight:600;
+  
 }
 
 
@@ -67,7 +73,7 @@
 
 .title__listing{
   margin-left: 1rem;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 
@@ -153,11 +159,11 @@
 }
 
 .peculiarities__title {
-  font-weight: 600;
+  font-weight: 800;
 }
 .peculiarities__title__green{
   color: #00A699;
-  font-weight: 600;
+  font-weight: 400;
   text-decoration: underline;
 
 }
@@ -195,7 +201,7 @@
 
 .peculiarities__title__primary{
   color: #ff2e76;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 
@@ -205,16 +211,17 @@
 }
 
 .experience-price{
-  font-size: 24px ;
+
+  font-size: 20px ;
   line-height: 26px ;
   display: inline-block;
-  font-weight: 500;
+  font-weight: 700;
 
 }
 
 .map {
+
   display: flex;
-  
   width: 300px;
   height: 200px;
   border-radius: 1rem;
@@ -342,9 +349,14 @@ border-radius: 0px 7px 7px 0px;
 }
 
 
+.experience-titles {
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
 
-@media (min-width: 600px) {
+
+@media (min-width: 800px) {
 
   .experience__container {
     max-width: 50%;
@@ -471,7 +483,7 @@ border-radius: 0px 7px 7px 0px;
       width: 100%;
       background-color: #fff;
       z-index: 10;
-      padding: 12px 9px;
+      padding: 5px;
       margin:0;
       justify-content: space-between;
       position: fixed;
