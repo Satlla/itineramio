@@ -9,8 +9,8 @@ import { FormattedMessage } from "react-intl";
 import AllInclusiveIcon from "@material-ui/icons/AllInclusive";
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
-import Comment from "../components/Comment";
-import CommentBox from "../components/CommentBox";
+import ExperienceComment from "../components/Experiences/ExperienceComment";
+import ExperienceCommentBox from "../components/Experiences/ExperienceCommentBox";
 import PriceBoxExperience from '../components/Experiences/PriceBoxExperience'
 
 
@@ -182,7 +182,7 @@ function ExperienceDetails() {
 
               {/* Lo mejor del lugar */}
 
-              {/* Local verificado */}
+              {/* Experiencia verificada */}
                 <div className="address mt-2 ml-3">
                     <span className="verified__icon">
                       <VerifiedUserIcon />
@@ -190,8 +190,8 @@ function ExperienceDetails() {
 
                     <span className="peculiarities__title">
                       <FormattedMessage
-                        id="listing.verified"
-                        defaultMessage=" Local Verificado"
+                        id="experience.verified"
+                        defaultMessage=" Experiencia Verificada"
                       />
                     </span>
               </div>
@@ -203,7 +203,7 @@ function ExperienceDetails() {
                     </span>
                     <span className="notification__text">
                       <FormattedMessage
-                        id="listing.notice"
+                        id="experience.notice"
                         defaultMessage="Todos los emplazamientos publicados en itineramio, tiene como finalidad, lograr la mejor experiencia del usuarix."
                       />
                     </span>
@@ -231,12 +231,12 @@ function ExperienceDetails() {
                   />
                 </h4>
           </div>
-              <CommentBox />
+              <ExperienceCommentBox />
 
-          <div id="commentsec">
+          <div id="commentsec" className="comment-box">
                 {experienceComments.map(
                   ({ comment, username, title, userImage }) => (
-                    <Comment
+                    <ExperienceComment
                       comment={comment}
                       // timestamp={timestamp}
                       username={username}
@@ -249,7 +249,7 @@ function ExperienceDetails() {
 
 
         </div>
-      </div> 
+      </div>
       <div></div>
     </div>
   );

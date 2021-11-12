@@ -34,7 +34,7 @@ function Discover() {
                 <button className="btn-rounded">
                 <FormattedMessage
                 id="app.welcome.cta"
-                defaultMessage="Explorar"
+                defaultMessage="Explorar Lugares"
                  />
                 </button>
               </Link>

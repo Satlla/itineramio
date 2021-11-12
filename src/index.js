@@ -7,6 +7,11 @@ import "./firebase";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import  { LangProvider } from './context/langContext';
+import './index.css';
+import '../src/fonts/Circular-Black.otf'
+import '../src/fonts/Circular-Bold.otf'
+import '../src/fonts/Circular-Medium.otf'
+import '../src/fonts/Circular-Book.otf'
 
 ReactDOM.render(
   <React.StrictMode>

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import ReactWhatsapp from "react-whatsapp";
 import { db } from "../firebase";
 import Preloader from "../components/Preloader";
+// eslint-disable-next-line
 import { Link, animateScroll as scroll } from "react-scroll";
 import "../css/components/ListingDetails.css";
 import HeaderTransparent from "../components/HeaderTransparent";
@@ -20,21 +21,28 @@ import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a lo
 import { Carousel } from "react-responsive-carousel";
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import { Helmet } from "react-helmet";
+// eslint-disable-next-line
 import Listings from "../components/Top";
+import Map from '../components/Map';
 
 
 
 
 function ListingDetails() {
+  // eslint-disable-next-line
   const { listingId, listingName } = useParams();
   const [ListingDetails, setListingDetails] = useState(null);
   const [listingComments, setListingComments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [viewport, setViewport] = useState({
 
+    latitude: 38.3459894,
+    longitude: -0.490678644126355,
+    zoom: 16,
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
-
 
     setLoading(true);
     if (listingId) {
@@ -43,6 +51,7 @@ function ListingDetails() {
         .onSnapshot((snapshot) => setListingDetails(snapshot.data()));
     }
 
+
     db.collection("listings")
       .doc(listingId)
       .collection("comments")
@@ -50,17 +59,18 @@ function ListingDetails() {
       .onSnapshot((snapshot) =>
         setListingComments(snapshot.docs.map((doc) => doc.data()))
       );
+
   }, [listingId]);
+
 
   return (
 
     <div>
 
 <Helmet>
-                <meta charSet="utf-8" />
-                <title> Vista detalle del establecimiento </title>
-
-            </Helmet>
+     <meta charSet="utf-8" />
+     <title> Vista detalle del establecimiento </title>
+</Helmet>
 
 
       <HeaderTransparent />
@@ -278,6 +288,19 @@ function ListingDetails() {
                   />
                 </h6>
                 {ListingDetails?.best}
+              </div>
+              <div className="description__listing">
+                <h6 className="description__title">
+                  <FormattedMessage
+                    id="listing.location"
+                    defaultMessage="¿Dónde está?"
+                  />
+                </h6>
+                <section className="map-container">
+
+                <Map />
+
+              </section>
               </div>
               <div className="address mt-2 ml-3">
                 <span className="verified__icon">

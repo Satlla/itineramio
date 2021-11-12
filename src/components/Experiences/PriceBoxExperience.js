@@ -70,7 +70,11 @@ function PriceBoxExperience() {
           </span>
           <div className="pec__explaining">
             <span className="experience-duration">
-              { ExperienceDetails?.duration } horas en total
+              { ExperienceDetails?.duration } <FormattedMessage
+          id="experience.duration"
+          defaultMessage=" horas"
+           />
+
             </span>
           </div>
         </div>
@@ -94,6 +98,15 @@ function PriceBoxExperience() {
     {" "}
     {ExperienceDetails?.location}{" "}
   </span>
+{/* <section className="map">
+
+  <Map 
+  width= "100%"
+  height="100%"
+  
+  />
+
+</section> */}
 </div>
 
 </div>

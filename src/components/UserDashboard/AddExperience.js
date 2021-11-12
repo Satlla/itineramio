@@ -34,13 +34,13 @@ function Addexperience() {
     experienceslogan: "",
     experiencecategory: "",
     experiencelocation: "",
-    experiencestar:"",
+    experinceitins: "",
     experiencephone: "",
     experienceprice: "",
     experienceduration: "",
     experiencedescription: "",
     experiencebest: "",
-    experienceimage: [],
+    experienceimage: []
   };
 
   const [values, setValues] = useState(initialStateValues);
@@ -51,13 +51,12 @@ function Addexperience() {
     const experiencename = e.target.experiencename.value;
     const experienceslogan = e.target.experienceslogan.value;
     const experiencecategory = e.target.experiencecategory.value;
-    const experiencestar = e.target.experiencestar.value;
+    const experinceitins = e.target.experinceitins.value;
     const experiencelocation = e.target.experiencelocation.value;
     const experienceprice = e.target.experienceprice.value;
     const experienceduration = e.target.experienceduration.value;
     const experiencedescription = e.target.experiencedescription.value;
     const experiencebest = e.target.experiencebest.value;
-    const experienceimage = e.target.experienceimage.value;
 
     if (
       !experiencename ||
@@ -65,12 +64,12 @@ function Addexperience() {
       !experienceslogan ||
       !experiencecategory ||
       !experiencelocation ||
-      !experiencestar ||
+      !experinceitins ||
       !experienceprice ||
       !experienceduration ||
       !experiencedescription ||
-      !experiencebest ||
-      !experienceimage
+      !experiencebest 
+     
     ) {
       return;
     }
@@ -80,7 +79,7 @@ function Addexperience() {
       slogan: experienceslogan,
       category: experiencecategory,
       location: experiencelocation,
-      productstar: experiencestar,
+      itins: experinceitins,
       price: experienceprice,
       duration: experienceduration,
       description: experiencedescription,
@@ -130,7 +129,7 @@ function Addexperience() {
                 />
               </div>
 
-              <div className="col">
+              {/* <div className="col">
                 <label className="labels__experience" for="name">
                   {" "}
                   Lo mejor de la experiencia{" "}
@@ -143,7 +142,7 @@ function Addexperience() {
                   onChange={handleInputChange}
                   value={values.experiencestar}
                 />
-              </div>
+              </div> */}
 
 
               {/* <div className="col">
@@ -171,7 +170,7 @@ function Addexperience() {
               <div className=" mt-4">
                 <label className="labels__experience" for="price">
                   {" "}
-                  Precio Medio por pax{" "}
+                  Precio por persona{" "}
                 </label>
                 <input
                   type="number "
@@ -187,16 +186,37 @@ function Addexperience() {
               <div className=" mt-4">
                 <label className="labels__experience" for="itins">
                   {" "}
-                  Duración en horas{" "}
+                  Evaluaciones itins{" "}
                 </label>
                 <input
                   type="number "
                   className="form-control"
-                  placeholder=" Duración total en horas "
-                  name="experienceduration"
+                  placeholder=" Puntuación experiencia "
+                  name="experinceitins"
                   onChange={handleInputChange}
-                  value={values.experienceduration}
+                  value={values.experinceitins}
                 />
+              </div>
+                <div className="mt-4 ">
+                <label for="description" className="labels__experience">
+                  {" "}
+                  Duración en horas{" "}
+                </label>
+
+                <select
+                  className="form-control form-control-md "
+                  name="experienceduration"
+                >
+                  <option> 1 </option>
+                  <option>1,5 </option>
+                  <option>2 </option>
+                  <option>2,5 </option>
+                  <option>3 </option>
+                  <option>3,5 </option>
+                  <option> 4 </option>
+                  <option>4,5 </option>
+                  <option>5 </option>
+                </select>
               </div>
               <div className="mt-4 ">
                 <label for="description" className="labels__experience">
@@ -208,14 +228,15 @@ function Addexperience() {
                   className="form-control form-control-md "
                   name="experiencecategory"
                 >
-                  <option> Aventura</option>
-                  <option>Gastronómica</option>
-                  <option>Música</option>
-                  <option>Turística</option>
-                  <option>Coffee & Relax</option>
-                  <option>Copas</option>
-                  <option>A la carta</option>
-                  <option>Gastrobar</option>
+                  <option> Comida</option>
+                  <option>Bebida</option>
+                  <option>Naturaleza</option>
+                  <option>Deportes</option>
+                  <option>Historia</option>
+                  <option>Visita a Lugares</option>
+                  <option>Bienestar</option>
+                  <option>Animales</option>
+                  <option>Arte</option>
                 </select>
               </div>
             </div>
@@ -224,14 +245,14 @@ function Addexperience() {
             <div className=" col">
               <label className="labels__experience" for="slogan">
                 {" "}
-                Slogan del Lugar{" "}
+                Slogan de la experiencia{" "}
               </label>
               <input
                 type="text "
                 className="form-control"
                 placeholder="Some Url"
                 name="experienceslogan"
-                placeholder="Slogan del experience"
+                placeholder="Define en pocas palabras la experiencia."
                 onChange={handleInputChange}
                 value={values.experienceslogan}
               />
@@ -255,7 +276,7 @@ function Addexperience() {
               />
               </div>
             </div>
-
+  {/* Descripción de la experiencia */}
             <div className="row mt-4">
             <div className="col">
               <label className="labels__experience" for="description">
@@ -288,7 +309,23 @@ function Addexperience() {
                 value={values.experiencebest}
               />
             </div>
+
+            {/* <div className="col">
+              <label className="labels__experience" for="experiencehost">
+                {" "}
+                Foto Anfitrión{" "}
+              </label>
+              <input
+                className="mt-4"
+                  type="file"
+                  id="hostprofile"
+                  multiple
+                  onChange={onFileChange}
+                  name="experiencehost"
+            />
+            </div> */}
             </div>
+
 
             <input
             className="mt-4"

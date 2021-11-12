@@ -70,6 +70,7 @@
   "listing.discover" : "Descubre los mejores restaurantes cerca de tí",
   "listing.emblematicdesc":"Este lugar es representativo de la zona",
   "listing.description":" Descripción",
+  "listing.location": "¿Dónde está?",
   "listing.best":"Lo mejor del lugar",
   "listing.verified":"Local Verificado",
   "listing.notice":"Todos los emplazamientos publicados en itineramio, tiene como finalidad, lograr la mejor experiencia del usuarix",
@@ -77,7 +78,20 @@
   "listing.comments2":"Comentarios",
   "comment.writecomment": "Escribe tu comentario",
   "comment.name": "Tu nombre",
-  "comment.send": "Enviar"
+  "comment.send": "Enviar",
+  "experience.comments": "Personas han opinado",
+  "experience.whatdo": "¿Qué Harás?",
+  "experience.best": "¿Qué esperar?",
+  "experience.question": "Hacer Pregunta",
+  "experience.price": "€ /persona",
+  "experience.duration": "horas en total",
+  "experience.price.since": "Desde",
+  "experience.title": "Experiencias en Alicante",
+  "experiences.subtitle": "Descubre experiencias únicas, organizadas por gente local",
+  "experience.verified": "Experiencia Verificada",
+  "experience.noticed": "Esta experiencia, ha sido verificada por itineramio, y cumple con todos los estándares de calidad recomendados"
+
+
 
 
 

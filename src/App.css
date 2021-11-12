@@ -1,5 +1,19 @@
 *{
     font-weight: normal;
+
+}
+
+.font-face-cbl{
+  font-family: "CircularBlack"
+}
+.font-face-cbo{
+  font-family: "CircularBold"
+}
+.font-face-cm{
+  font-family: "CircularMedium"
+}
+.font-face-cb{
+  font-family: "CircularBook"
 }
 
 

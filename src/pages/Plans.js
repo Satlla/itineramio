@@ -14,13 +14,7 @@ import gourmet from '../assets/pages/gourmet.svg';
 import aniversary from '../assets/pages/aniversary.svg';
 import family from '../assets/pages/family.svg';
 import group from '../assets/pages/group.svg';
-import bg from '../assets/backgrounds/background-plans.jpg';
 import plans from '../assets/pages/plans/plans-group.png';
-
-
-
-
-
 
 function Plans() {
   window.scrollTo(0, 0);

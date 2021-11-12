@@ -75,7 +75,7 @@ function ExperiencesCarousel({ title }) {
 
               <span className="number">
                 {" "}
-                <strong>{experiences?.duration}</strong>horas{" "}
+                <strong>{experiences?.duration}</strong>{" "} horas
 
               </span>
               </div>

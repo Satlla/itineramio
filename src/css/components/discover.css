@@ -1,12 +1,12 @@
 *{
-  font-family: 'Google Sans';
+  font-family: 'Open Sans', sans-serif;
 }
 
 .hero-subtitle {
   color: #484848;
   font-weight: 600;
   margin: 4rem 2rem 1rem 2rem;
-  font-family: 'Google Sans';
+  
 
 }
 
@@ -34,7 +34,7 @@
   -webkit-box-shadow: 0px 0px 42px 0px rgba(255,255,255,1);
   -moz-box-shadow: 0px 0px 42px 0px rgba(255,255,255,1);
   box-shadow: 0px 0px 42px 0px rgba(255,255,255,1);
-  font-weight: 800;
+  font-weight: 600;
 
 }
 
@@ -109,7 +109,7 @@
     display: flex;
     justify-content: center;
     color: #484848;
-    font-weight: 800;
+    font-weight: 600;
     max-width: 360px;
 
   }
@@ -144,7 +144,7 @@
     display: flex;
     color: #484848;
     margin-top: 1rem;
-    font-weight: 800;
+    font-weight: 600;
     max-width: 360px;
 
   }

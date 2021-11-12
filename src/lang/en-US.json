@@ -67,6 +67,7 @@
   "listing.discover": "Discover the best restaurants near you",
   "listing.emblematicdesc":"This place is representative of the area",
   "listing.description":" Description",
+  "listing.location": "Location",
   "listing.best":"Best of the place",
   "listing.verified":"Verified Place",
   "listing.notice":"All the locations published in itineramio, has the purpose of achieving the best user experience.",
@@ -80,9 +81,12 @@
   "experience.best": "Expected from",
   "experience.question": "Make a question",
   "experience.price": "€ /person",
+  "experience.duration": "hours total",
   "experience.price.since": "From",
   "experience.title": "Experiences in Alicante",
-  "experiences.subtitle": "Discover unique experiences, organized by local People"
+  "experiences.subtitle": "Discover unique experiences, organized by local People",
+  "experience.verified": "Experience Verified",
+  "experience.noticed": "This experience has been verified by Itineramio, and all quality standards are guaranteed"
 
 
 
