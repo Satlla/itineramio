@@ -22,7 +22,7 @@ function ExperienceCommentBox() {
       userImage: "",
       // timestamp: db.fieldValue.serverTimestamp(),
     });
-    toast("Se ha añadido el tu comentario correctamente", {
+    toast("Se ha añadido tu comentario correctamente", {
       type: "success",
       autoClose: 1000,
     });

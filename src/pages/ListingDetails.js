@@ -329,8 +329,6 @@ function ListingDetails() {
               <div className="title" id="commentsec">
                 <AllInclusiveIcon className="ratin__icon" />
                 <h4 className=" ml-2">
-
-
                   {listingComments.length}{" "}
                   <FormattedMessage
                     id="listing.comments2"

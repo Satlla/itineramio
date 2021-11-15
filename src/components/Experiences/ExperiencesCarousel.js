@@ -4,10 +4,23 @@ import { Link } from "react-router-dom";
 import "../../css/components/experiencesCarousel.css";
 import Preloader from "../Preloader";
 import { FormattedMessage } from "react-intl";
+import { useParams } from "react-router-dom";
+import ExperienceDetails from '../../pages/ExperienceDetails'
 
 function ExperiencesCarousel({ title }) {
+  const { experienceId, experienceName } = useParams();
   const [experiences, setExperiences] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [experienceComments, setExperienceComments] = useState([]);
+
+
+  db.collection("experiences")
+      .doc(experienceId)
+      .collection("comments")
+      // .orderBy("timestamp", "asc")
+      .onSnapshot((snapshot) =>
+        setExperienceComments(snapshot.docs.map((doc) => doc.data()))
+      );
 
   const getExperiences = async () => {
     db.collection("experiences").onSnapshot((querySnapshot) => {
@@ -75,7 +88,7 @@ function ExperiencesCarousel({ title }) {
 
               <span className="number">
                 {" "}
-                <strong>{experiences?.duration}</strong>{" "} horas
+                <strong>{experiences.duration}</strong>{" "} horas
 
               </span>
               </div>

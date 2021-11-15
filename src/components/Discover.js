@@ -8,9 +8,13 @@ import {FormattedMessage } from 'react-intl'
 function Discover() {
   return (
 
+    <div>
+
       <div className="main-cont">
+
         <div className="container-hero">
           <div className="container-titles ">
+            <img src="../assets/backgrounds/landscape.jpg" alt=""/>
             <div className="explorer-hero d-flex-column justify-content-center ">
               <h4 className="hero-subtitle">
                 {" "}
@@ -43,6 +47,8 @@ function Discover() {
     
         </div>
       </div>
+    </div>
+
   );
 }
 

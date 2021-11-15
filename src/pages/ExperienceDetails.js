@@ -51,7 +51,7 @@ function ExperienceDetails() {
 
         <HeaderTransparent />
 
-        <div className="experience-titles">
+        <div className="container-titles">
 
         <div className="title-experience">
         <h4 className=""> {ExperienceDetails?.name}</h4>

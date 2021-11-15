@@ -1,10 +1,12 @@
 *{
   font-family: 'Nunito', sans-serif;
+
 }
 
+
 .hero-subtitle {
-  color: #484848;
-  font-weight: 600;
+  color: #fff;
+  font-weight: 800;
   margin: 4rem 2rem 1rem 2rem;
 
 }
@@ -18,14 +20,13 @@
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
- 
 
 }
 
 
 .hero-slogan {
-  color: #484848;
-  margin: 1rem;
+  color: #fff;
+  margin: 0 2rem  ;
   max-width: 500px;
 
 }
@@ -56,15 +57,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-width: 100%;
-  min-height: 80vh;
-  background: url("../../../src/assets/backgrounds/bg.png") no-repeat center center fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  
-  background-repeat: no-repeat;
+  flex-direction: column;
+  height: 80vh;
+  position: relative;
+  background: url('../../assets/backgrounds/landscape.jpg');
 
 }
 
@@ -115,10 +111,11 @@
 }
 @media (max-width: 600px) {
 
+
   .hero-subtitle {
     display: flex;
     justify-content: center;
-    color: #484848;
+    color: #fff;
     font-weight: 600;
     max-width: 500px;
 
@@ -132,7 +129,7 @@
 
   .hero-slogan {
     display: flex;
-    color: #484848;
+    color: #fff;
 
 
   }
@@ -159,18 +156,14 @@
 @media (min-width: 600px) {
   .hero-subtitle {
     display: flex;
-    color: #484848;
+  
     margin:0 1rem 0 1rem;
     font-weight: 600;
     max-width: 500px;
 
   }
 
-  .hero-slogan {
-    display: flex;
-    color: #484848;
 
-  }
 
   .container-titles {
     display: flex;
@@ -179,9 +172,10 @@
 
   .main-cont {
     width: 100%;
-    background-color: #000;
-    
+
   }
+
+
 
   .grid-container {
     display: grid;
@@ -225,18 +219,13 @@
 
   .hero-subtitle {
     display: flex;
-    color: #484848;
     font-weight: 600;
     max-width: 500px;
     margin:0 1rem 0 1rem;
 
   }
 
-  .hero-slogan {
-    display: flex;
-    color: #484848;
 
-  }
 }
 
 @media (min-width: 900px) {
@@ -275,19 +264,14 @@
   }
 
   .hero-subtitle {
-    display: flex;
-    color: #484848; 
+    display: flex; 
     font-weight: 600;
     max-width: 500px;
     margin:0 1rem 0 1rem;
-    
+
   }
 
-  .hero-slogan {
-    display: flex;
-    color: #484848;
   
-  }
 }
 
 @media (min-width: 1500px) {
@@ -304,18 +288,13 @@
 @media (min-width: 1200px) {
   .hero-subtitle {
     display: flex;
-    color: #484848;
     margin-top: 1rem;
     font-weight: 600;
     max-width: 500px;
-  
+
   }
 
-  .hero-slogan {
-    display: flex;
-    color: #484848;
-  
-  }
+
 }
 
 
