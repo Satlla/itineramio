@@ -38,7 +38,7 @@ export default function LoginPage() {
 
   // Demo credentials for testing
   const demoCredentials = {
-    email: 'demo@manualphi.com',
+    email: 'demo@itineramio.com',
     password: 'Demo1234'
   }
 
@@ -81,7 +81,7 @@ export default function LoginPage() {
     // Login simple - solo verificar credenciales demo
     setTimeout(() => {
       if (
-        formData.email === 'demo@manualphi.com' && 
+        formData.email === 'demo@itineramio.com' && 
         formData.password === 'Demo1234'
       ) {
         // Login exitoso - ir directamente al dashboard
@@ -89,7 +89,7 @@ export default function LoginPage() {
       } else {
         setErrors(prev => ({
           ...prev,
-          general: 'Credenciales incorrectas. Usa demo@manualphi.com / Demo1234'
+          general: 'Credenciales incorrectas. Usa demo@itineramio.com / Demo1234'
         }))
         setLoading(false)
       }
@@ -128,7 +128,7 @@ export default function LoginPage() {
                 <Zap className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                Manualphi
+                Itineramio
               </span>
             </motion.div>
           </Link>
@@ -158,7 +158,7 @@ export default function LoginPage() {
                 Bienvenido de vuelta
               </h1>
               <p className="text-gray-600">
-                Inicia sesión en tu cuenta de Manualphi
+                Inicia sesión en tu cuenta de Itineramio
               </p>
             </div>
 
@@ -173,7 +173,7 @@ export default function LoginPage() {
                     <span className="font-semibold">Demo:</span> Usa estas credenciales para probar
                   </div>
                   <div className="text-xs text-gray-600 space-y-1">
-                    <div>Email: demo@manualphi.com</div>
+                    <div>Email: demo@itineramio.com</div>
                     <div>Contraseña: Demo1234</div>
                   </div>
                   <Button 

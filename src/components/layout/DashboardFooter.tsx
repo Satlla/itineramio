@@ -35,12 +35,12 @@ export function DashboardFooter() {
                 <Zap className="w-4 h-4 text-white" />
               </div>
               <span className="text-sm font-semibold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                ManualPhi
+                Itineramio
               </span>
             </div>
             <span className="text-gray-400 text-sm">•</span>
             <p className="text-sm text-gray-500">
-              © {currentYear} ManualPhi. Todos los derechos reservados.
+              © {currentYear} Itineramio. Todos los derechos reservados.
             </p>
           </motion.div>
 

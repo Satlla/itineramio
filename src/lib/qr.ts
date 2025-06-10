@@ -21,7 +21,7 @@ export async function generateZoneQRCode(
   zoneId: string,
   options: QRCodeOptions = {}
 ): Promise<string> {
-  const url = `${process.env.NEXT_PUBLIC_APP_URL || 'https://manualphi.com'}/guide/${propertyId}/${zoneId}`
+  const url = `${process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'}/guide/${propertyId}/${zoneId}`
   
   const qrOptions = {
     width: options.width || 300,
@@ -52,7 +52,7 @@ export async function generatePropertyQRCode(
   propertyId: string,
   options: QRCodeOptions = {}
 ): Promise<string> {
-  const url = `${process.env.NEXT_PUBLIC_APP_URL || 'https://manualphi.com'}/guide/${propertyId}`
+  const url = `${process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'}/guide/${propertyId}`
   
   const qrOptions = {
     width: options.width || 300,
@@ -126,7 +126,7 @@ export function downloadQRCode(qrCodeDataURL: string, filename: string = 'qr-cod
  * @returns Public URL for the zone/property
  */
 export function getZoneURL(propertyId: string, zoneId?: string): string {
-  const baseURL = process.env.NEXT_PUBLIC_APP_URL || 'https://manualphi.com'
+  const baseURL = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
   
   if (zoneId) {
     return `${baseURL}/guide/${propertyId}/${zoneId}`

@@ -192,12 +192,12 @@ export function SideMenu({ isOpen, onClose, user }: SideMenuProps) {
               <div className="mt-8 pt-6 border-t border-gray-200 text-center">
                 <div className="flex items-center justify-center space-x-2 mb-2">
                   <div className="w-6 h-6 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">M</span>
+                    <span className="text-white text-xs font-bold">I</span>
                   </div>
-                  <span className="text-sm font-medium text-gray-700">ManualPhi</span>
+                  <span className="text-sm font-medium text-gray-700">Itineramio</span>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Versión 2.0 • © 2024 ManualPhi
+                  Versión 2.0 • © 2024 Itineramio
                 </p>
               </div>
             </div>

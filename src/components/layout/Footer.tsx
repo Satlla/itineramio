@@ -6,7 +6,7 @@ import { Mail, Phone, MapPin, Globe, Shield, FileText } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
-import { ManualPhiLogo } from '@/components/ui/ManualPhiLogo'
+import { ItineramioLogo } from '@/components/ui/ItineramioLogo'
 
 export function Footer() {
   const { t } = useTranslation('common')
@@ -53,9 +53,9 @@ export function Footer() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <ManualPhiLogo variant="square" size="lg" />
+              <ItineramioLogo variant="square" size="lg" />
               <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                ManualPhi
+                Itineramio
               </span>
             </motion.div>
             
@@ -77,7 +77,7 @@ export function Footer() {
             >
               <div className="flex items-center space-x-3 text-gray-600">
                 <Mail className="w-5 h-5 text-violet-600" />
-                <span>contacto@manualphi.com</span>
+                <span>contacto@itineramio.com</span>
               </div>
               <div className="flex items-center space-x-3 text-gray-600">
                 <Phone className="w-5 h-5 text-violet-600" />
@@ -154,7 +154,7 @@ export function Footer() {
               Newsletter
             </h3>
             <p className="text-gray-600 mb-4">
-              Recibe las últimas noticias y actualizaciones de ManualPhi directamente en tu bandeja de entrada.
+              Recibe las últimas noticias y actualizaciones de Itineramio directamente en tu bandeja de entrada.
             </p>
             <div className="flex space-x-3">
               <input
@@ -181,7 +181,7 @@ export function Footer() {
               whileInView={{ opacity: 1 }}
               transition={{ duration: 0.6 }}
             >
-              © {currentYear} ManualPhi. Todos los derechos reservados.
+              © {currentYear} Itineramio. Todos los derechos reservados.
             </motion.div>
 
             {/* Legal Links */}

@@ -8,9 +8,9 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">M</span>
+              <span className="text-white font-bold">I</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">ManualPhi</span>
+            <span className="text-xl font-bold text-gray-900">Itineramio</span>
           </div>
           <Link 
             href="/login"
@@ -133,7 +133,7 @@ export default function HomePage() {
             ¿Listo para mejorar la experiencia de tus huéspedes?
           </h2>
           <p className="text-xl text-violet-100 mb-8">
-            Únete a miles de propietarios que ya usan ManualPhi
+            Únete a miles de propietarios que ya usan Itineramio
           </p>
           <Link 
             href="/register"
@@ -151,9 +151,9 @@ export default function HomePage() {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">M</span>
+                  <span className="text-white font-bold">I</span>
                 </div>
-                <span className="text-xl font-bold">ManualPhi</span>
+                <span className="text-xl font-bold">Itineramio</span>
               </div>
               <p className="text-gray-400">
                 Crea manuales digitales interactivos para propiedades de alquiler vacacional.
@@ -180,7 +180,7 @@ export default function HomePage() {
           </div>
           
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 ManualPhi. Todos los derechos reservados.</p>
+            <p>&copy; 2024 Itineramio. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>

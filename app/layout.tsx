@@ -12,29 +12,29 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'ManualPhi - Create Beautiful Property Manuals',
+  title: 'Itineramio - Create Beautiful Property Manuals',
   description: 'The easiest way to create interactive property manuals for your guests. Airbnb-quality experience made simple.',
   keywords: ['property manual', 'airbnb', 'vacation rental', 'guest guide', 'interactive manual'],
-  authors: [{ name: 'ManualPhi Team' }],
-  creator: 'ManualPhi',
-  publisher: 'ManualPhi',
+  authors: [{ name: 'Itineramio Team' }],
+  creator: 'Itineramio',
+  publisher: 'Itineramio',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://manualphi.com'),
+  metadataBase: new URL('https://itineramio.com'),
   openGraph: {
-    title: 'ManualPhi - Create Beautiful Property Manuals',
+    title: 'Itineramio - Create Beautiful Property Manuals',
     description: 'The easiest way to create interactive property manuals for your guests.',
-    url: 'https://manualphi.com',
-    siteName: 'ManualPhi',
+    url: 'https://itineramio.com',
+    siteName: 'Itineramio',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'ManualPhi - Property Manual Creator',
+        alt: 'Itineramio - Property Manual Creator',
       },
     ],
     locale: 'en_US',
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ManualPhi - Create Beautiful Property Manuals',
+    title: 'Itineramio - Create Beautiful Property Manuals',
     description: 'The easiest way to create interactive property manuals for your guests.',
     images: ['/og-image.jpg'],
   },

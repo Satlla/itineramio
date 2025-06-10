@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       const demoUser = {
         id: 'demo-user-id',
         name: 'Demo User',
-        email: 'demo@manualphi.com'
+        email: 'demo@itineramio.com'
       }
       
       // Create a token for the demo user
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       const demoUser = {
         id: 'demo-user-id',
         name: 'Demo User',
-        email: 'demo@manualphi.com'
+        email: 'demo@itineramio.com'
       }
       console.log('Auth successful for demo user')
       return NextResponse.json({ user: demoUser })

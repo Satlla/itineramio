@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/Button'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
-import { ManualPhiLogo } from '@/components/ui/ManualPhiLogo'
+import { ItineramioLogo } from '@/components/ui/ItineramioLogo'
 
 interface NavbarProps {
   transparent?: boolean
@@ -46,9 +46,9 @@ export function Navbar({ transparent = false }: NavbarProps) {
               whileHover={{ scale: 1.05 }}
             >
               <Link href="/" className="flex items-center space-x-2">
-                <ManualPhiLogo variant="icon" size="md" />
+                <ItineramioLogo variant="icon" size="md" />
                 <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                  ManualPhi
+                  Itineramio
                 </span>
               </Link>
             </motion.div>
@@ -134,9 +134,9 @@ export function Navbar({ transparent = false }: NavbarProps) {
             >
               <div className="flex items-center justify-between p-6 border-b">
                 <div className="flex items-center space-x-2">
-                  <ManualPhiLogo variant="icon" size="md" />
+                  <ItineramioLogo variant="icon" size="md" />
                   <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                    ManualPhi
+                    Itineramio
                   </span>
                 </div>
                 <button

@@ -17,7 +17,7 @@ module.exports = {
     },
     extend: {
       colors: {
-        // ManualPhi Brand Colors - Airbnb inspired
+        // Itineramio Brand Colors - Airbnb inspired
         brand: {
           50: '#f0f0ff',
           100: '#e6e6ff',

@@ -152,7 +152,7 @@ export default function RegisterPage() {
                 <Zap className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                Manualphi
+                Itineramio
               </span>
             </motion.div>
           </Link>
@@ -182,7 +182,7 @@ export default function RegisterPage() {
                 Crea tu cuenta
               </h1>
               <p className="text-gray-600">
-                Únete a miles de anfitriones que ya usan Manualphi
+                Únete a miles de anfitriones que ya usan Itineramio
               </p>
             </div>
 

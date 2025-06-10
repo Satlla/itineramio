@@ -79,7 +79,7 @@ export function QRCodeDisplay({
 
   const handleShare = async () => {
     const url = getZoneURL(propertyId, zoneId)
-    const title = zoneId ? `${zoneName || 'Zone'} - ManualPhi` : 'Property Manual - ManualPhi'
+    const title = zoneId ? `${zoneName || 'Zone'} - Itineramio` : 'Property Manual - Itineramio'
     
     if (navigator.share) {
       try {

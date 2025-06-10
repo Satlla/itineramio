@@ -11,7 +11,7 @@ export function WhatsAppButton() {
 
   const phoneNumber = "+34652656440"
   const message = encodeURIComponent(
-    `¡Hola! Me interesa ManualPhi y me gustaría obtener más información. ¿Podrían ayudarme?`
+    `¡Hola! Me interesa Itineramio y me gustaría obtener más información. ¿Podrían ayudarme?`
   )
 
   const handleWhatsAppClick = () => {
@@ -52,7 +52,7 @@ export function WhatsAppButton() {
                       <MessageCircle className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">ManualPhi</h3>
+                      <h3 className="font-semibold text-gray-900">Itineramio</h3>
                       <p className="text-sm text-green-600">En línea</p>
                     </div>
                   </div>
@@ -66,7 +66,7 @@ export function WhatsAppButton() {
                 
                 <div className="bg-gray-50 rounded-lg p-3 mb-4">
                   <p className="text-sm text-gray-700">
-                    👋 ¡Hola! ¿Necesitas ayuda con ManualPhi? 
+                    👋 ¡Hola! ¿Necesitas ayuda con Itineramio? 
                     Estamos aquí para resolver todas tus dudas.
                   </p>
                 </div>

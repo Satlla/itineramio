@@ -5,11 +5,11 @@ const prisma = new PrismaClient()
 async function main() {
   // Create demo user
   const user = await prisma.user.upsert({
-    where: { email: 'alejandro@manualphi.com' },
+    where: { email: 'alejandro@itineramio.com' },
     update: {},
     create: {
       id: 'demo-user-id',
-      email: 'alejandro@manualphi.com',
+      email: 'alejandro@itineramio.com',
       name: 'Alejandro Satlla',
       preferredLanguage: 'es',
       timezone: 'Europe/Madrid',

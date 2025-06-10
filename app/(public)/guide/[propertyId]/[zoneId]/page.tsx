@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
 import { ZoneIconDisplay } from '@/components/ui/IconSelector'
-import { ManualPhiLogo } from '@/components/ui/ManualPhiLogo'
+import { ItineramioLogo } from '@/components/ui/ItineramioLogo'
 import { Badge } from '@/components/ui/Badge'
 
 interface ZoneStep {
@@ -505,7 +505,7 @@ export default async function ZoneGuidePage({
           className="text-center text-gray-500 text-sm mt-8"
         >
           <p>
-            Powered by <ManualPhiLogo size="sm" className="inline-block mx-1" /> ManualPhi
+            Powered by <ItineramioLogo size="sm" className="inline-block mx-1" /> Itineramio
           </p>
         </motion.div>
       </main>

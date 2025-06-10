@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'ManualPhi - Guía Interactiva',
+  title: 'Itineramio - Guía Interactiva',
   description: 'Accede a tu guía interactiva personalizada',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   themeColor: '#6366f1',
