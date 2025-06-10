@@ -113,11 +113,12 @@ const mockSteps: Step[] = [
   }
 ]
 
-export default function ZoneStepsPage({ 
+export default async function ZoneStepsPage({ 
   params 
 }: { 
-  params: { id: string; zoneId: string } 
+  params: Promise<{ id: string; zoneId: string }> 
 }) {
+  const { id, zoneId } = await params
   const router = useRouter()
   const [steps, setSteps] = useState<Step[]>(mockSteps)
   const [showCreateForm, setShowCreateForm] = useState(false)

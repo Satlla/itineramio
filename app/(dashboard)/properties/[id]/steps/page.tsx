@@ -59,7 +59,8 @@ const mockZones: Zone[] = [
   }
 ]
 
-export default function PropertyStepsPage({ params }: { params: { id: string } }) {
+export default async function PropertyStepsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const router = useRouter()
   const [zones] = useState<Zone[]>(mockZones)
 
@@ -228,7 +229,7 @@ export default function PropertyStepsPage({ params }: { params: { id: string } }
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => router.push(`/properties/${params.id}/zones/${zone.id}/steps`)}
+                      onClick={() => router.push(`/properties/${id}/zones/${zone.id}/steps`)}
                       className="flex items-center"
                     >
                       {zone.stepsCount === 0 ? (
@@ -257,7 +258,7 @@ export default function PropertyStepsPage({ params }: { params: { id: string } }
                 Primero debes crear zonas para poder añadir steps
               </div>
               <Button
-                onClick={() => router.push(`/properties/${params.id}/zones`)}
+                onClick={() => router.push(`/properties/${id}/zones`)}
                 className="bg-violet-600 hover:bg-violet-700"
               >
                 <Plus className="w-5 h-5 mr-2" />

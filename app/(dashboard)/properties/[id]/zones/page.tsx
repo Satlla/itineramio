@@ -69,7 +69,8 @@ const mockZones: Zone[] = [
   }
 ]
 
-export default function PropertyZonesPage({ params }: { params: { id: string } }) {
+export default async function PropertyZonesPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const router = useRouter()
   const [zones, setZones] = useState<Zone[]>(mockZones)
   const [propertyName, setPropertyName] = useState<string>('')
@@ -115,7 +116,7 @@ export default function PropertyZonesPage({ params }: { params: { id: string } }
   useEffect(() => {
     const fetchPropertyName = async () => {
       try {
-        const response = await fetch(`/api/properties/${params.id}`)
+        const response = await fetch(`/api/properties/${id}`)
         const result = await response.json()
         if (result.success && result.data) {
           setPropertyName(result.data.name)
@@ -126,7 +127,7 @@ export default function PropertyZonesPage({ params }: { params: { id: string } }
     }
 
     fetchPropertyName()
-  }, [params.id])
+  }, [id])
 
   const handleCreateZone = () => {
     if (!formData.name || !formData.iconId) return
@@ -203,7 +204,7 @@ export default function PropertyZonesPage({ params }: { params: { id: string } }
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          propertyId: params.id
+          propertyId: id
         })
       })
 
@@ -228,7 +229,7 @@ export default function PropertyZonesPage({ params }: { params: { id: string } }
         setShowTemplateSelector(false)
         
         // Navigate to the new zone
-        router.push(`/properties/${params.id}/zones/${result.data.zoneId}/steps`)
+        router.push(`/properties/${id}/zones/${result.data.zoneId}/steps`)
       } else {
         console.error('Error applying template:', result.error)
       }
@@ -300,7 +301,7 @@ export default function PropertyZonesPage({ params }: { params: { id: string } }
   }
 
   const handleCopyURL = async (zone: Zone) => {
-    const url = `${window.location.origin}/guide/${params.id}/${zone.id}`
+    const url = `${window.location.origin}/guide/${id}/${zone.id}`
     try {
       await navigator.clipboard.writeText(url)
       setCopied(true)
@@ -313,7 +314,7 @@ export default function PropertyZonesPage({ params }: { params: { id: string } }
   const handleDeleteProperty = async () => {
     if (confirm('¿Estás seguro de que quieres eliminar esta propiedad? Esta acción no se puede deshacer.')) {
       try {
-        const response = await fetch(`/api/properties/${params.id}`, {
+        const response = await fetch(`/api/properties/${id}`, {
           method: 'DELETE'
         })
         
@@ -484,7 +485,7 @@ export default function PropertyZonesPage({ params }: { params: { id: string } }
                               </DropdownMenu.Item>
                               <DropdownMenu.Item
                                 className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                                onSelect={() => router.push(`/properties/${params.id}/zones/${zone.id}/steps`)}
+                                onSelect={() => router.push(`/properties/${id}/zones/${zone.id}/steps`)}
                               >
                                 <Edit className="h-4 w-4 mr-2" />
                                 Editar Instrucciones
@@ -735,7 +736,7 @@ export default function PropertyZonesPage({ params }: { params: { id: string } }
               
               <div className="p-4">
                 <QRCodeDisplay
-                  propertyId={params.id}
+                  propertyId={id}
                   zoneId={selectedZoneForQR.id}
                   zoneName={selectedZoneForQR.name}
                   size="lg"
@@ -757,7 +758,7 @@ export default function PropertyZonesPage({ params }: { params: { id: string } }
       <AnimatePresence>
         {showTemplateSelector && (
           <ZoneTemplateSelector
-            propertyId={params.id}
+            propertyId={id}
             onSelect={handleApplyTemplate}
             onClose={() => setShowTemplateSelector(false)}
             onCreateFromScratch={() => {

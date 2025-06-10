@@ -3,10 +3,10 @@ import { prisma } from '@/lib/prisma'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const propertyId = params.id
+    const propertyId = (await params).id
 
     // Verificar que la propiedad existe
     const existingProperty = await prisma.property.findUnique({

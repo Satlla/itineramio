@@ -4,10 +4,10 @@ import { prisma } from '@/lib/prisma'
 // GET /api/properties/[id]/zones/[zoneId]/steps - Get all steps for a zone
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string; zoneId: string } }
+  { params }: { params: Promise<{ id: string; zoneId: string }> }
 ) {
   try {
-    const { id: propertyId, zoneId } = params
+    const { id: propertyId, zoneId } = await params
 
     // Verify zone belongs to property
     const zone = await prisma.zone.findFirst({
@@ -55,10 +55,10 @@ export async function GET(
 // POST /api/properties/[id]/zones/[zoneId]/steps - Create a new step
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string; zoneId: string } }
+  { params }: { params: Promise<{ id: string; zoneId: string }> }
 ) {
   try {
-    const { id: propertyId, zoneId } = params
+    const { id: propertyId, zoneId } = await params
     const body = await request.json()
 
     // Validate required fields

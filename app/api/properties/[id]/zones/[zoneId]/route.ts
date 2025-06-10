@@ -4,10 +4,10 @@ import { prisma } from '@/lib/prisma'
 // GET /api/properties/[id]/zones/[zoneId] - Get specific zone
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string; zoneId: string } }
+  { params }: { params: Promise<{ id: string; zoneId: string }> }
 ) {
   try {
-    const { id: propertyId, zoneId } = params
+    const { id: propertyId, zoneId } = await params
 
     const zone = await prisma.zone.findFirst({
       where: {
@@ -57,10 +57,10 @@ export async function GET(
 // PUT /api/properties/[id]/zones/[zoneId] - Update zone
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string; zoneId: string } }
+  { params }: { params: Promise<{ id: string; zoneId: string }> }
 ) {
   try {
-    const { id: propertyId, zoneId } = params
+    const { id: propertyId, zoneId } = await params
     const body = await request.json()
 
     // Check if zone exists and belongs to the property
@@ -124,10 +124,10 @@ export async function PUT(
 // DELETE /api/properties/[id]/zones/[zoneId] - Delete zone
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; zoneId: string } }
+  { params }: { params: Promise<{ id: string; zoneId: string }> }
 ) {
   try {
-    const { id: propertyId, zoneId } = params
+    const { id: propertyId, zoneId } = await params
 
     // Check if zone exists and belongs to the property
     const existingZone = await prisma.zone.findFirst({

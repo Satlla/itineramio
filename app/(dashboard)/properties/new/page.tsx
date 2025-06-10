@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -72,7 +72,7 @@ const propertyTypes = [
   { value: 'VILLA', label: 'Villa', icon: Home }
 ] as const
 
-export default function NewPropertyPage() {
+function NewPropertyPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const editId = searchParams.get('edit')
@@ -888,5 +888,13 @@ export default function NewPropertyPage() {
         />
       </div>
     </div>
+  )
+}
+
+export default function NewPropertyPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewPropertyPageContent />
+    </Suspense>
   )
 }

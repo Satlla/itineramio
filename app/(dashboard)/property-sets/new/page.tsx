@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -77,7 +77,7 @@ interface Property {
   propertySetId?: string | null
 }
 
-export default function NewPropertySetPage() {
+function NewPropertySetPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const editId = searchParams.get('edit')
@@ -789,5 +789,13 @@ export default function NewPropertySetPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function NewPropertySetPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewPropertySetPageContent />
+    </Suspense>
   )
 }

@@ -4,10 +4,10 @@ import { prisma } from '@/lib/prisma'
 // GET /api/properties/[id]/zones - Get all zones for a property
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const propertyId = params.id
+    const propertyId = (await params).id
 
     const zones = await prisma.zone.findMany({
       where: {
@@ -44,10 +44,10 @@ export async function GET(
 // POST /api/properties/[id]/zones - Create a new zone
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const propertyId = params.id
+    const propertyId = (await params).id
     const body = await request.json()
 
     // Validate required fields

@@ -4,10 +4,10 @@ import { prisma } from '@/lib/prisma'
 // GET /api/properties/[id]/zones/[zoneId]/steps/[stepId] - Get specific step
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string; zoneId: string; stepId: string } }
+  { params }: { params: Promise<{ id: string; zoneId: string; stepId: string }> }
 ) {
   try {
-    const { id: propertyId, zoneId, stepId } = params
+    const { id: propertyId, zoneId, stepId } = await params
 
     // Verify the step belongs to the zone and property
     const step = await prisma.step.findFirst({
@@ -61,10 +61,10 @@ export async function GET(
 // PUT /api/properties/[id]/zones/[zoneId]/steps/[stepId] - Update step
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string; zoneId: string; stepId: string } }
+  { params }: { params: Promise<{ id: string; zoneId: string; stepId: string }> }
 ) {
   try {
-    const { id: propertyId, zoneId, stepId } = params
+    const { id: propertyId, zoneId, stepId } = await params
     const body = await request.json()
 
     // Check if step exists and belongs to the zone and property
@@ -152,10 +152,10 @@ export async function PUT(
 // DELETE /api/properties/[id]/zones/[zoneId]/steps/[stepId] - Delete step
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; zoneId: string; stepId: string } }
+  { params }: { params: Promise<{ id: string; zoneId: string; stepId: string }> }
 ) {
   try {
-    const { id: propertyId, zoneId, stepId } = params
+    const { id: propertyId, zoneId, stepId } = await params
 
     // Check if step exists and belongs to the zone and property
     const existingStep = await prisma.step.findFirst({

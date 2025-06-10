@@ -42,11 +42,12 @@ interface Property {
   hostContactPhoto?: string
 }
 
-export default function ZoneGuidePage({ 
+export default async function ZoneGuidePage({ 
   params 
 }: { 
-  params: { propertyId: string; zoneId: string } 
+  params: Promise<{ propertyId: string; zoneId: string }> 
 }) {
+  const { propertyId, zoneId } = await params
   const [zone, setZone] = useState<Zone | null>(null)
   const [property, setProperty] = useState<Property | null>(null)
   const [loading, setLoading] = useState(true)
@@ -55,7 +56,7 @@ export default function ZoneGuidePage({
 
   useEffect(() => {
     fetchZoneData()
-  }, [params.propertyId, params.zoneId])
+  }, [propertyId, zoneId])
 
   const fetchZoneData = async () => {
     try {
@@ -63,8 +64,8 @@ export default function ZoneGuidePage({
       
       // Fetch both zone and property data
       const [zoneResponse, propertyResponse] = await Promise.all([
-        fetch(`/api/properties/${params.propertyId}/zones/${params.zoneId}`),
-        fetch(`/api/properties/${params.propertyId}`)
+        fetch(`/api/properties/${propertyId}/zones/${zoneId}`),
+        fetch(`/api/properties/${propertyId}`)
       ])
       
       const [zoneResult, propertyResult] = await Promise.all([
@@ -154,7 +155,7 @@ export default function ZoneGuidePage({
           </div>
           <h1 className="text-xl font-semibold text-gray-900 mb-2">Zona no encontrada</h1>
           <p className="text-gray-600 mb-4">La zona que buscas no existe o no está disponible.</p>
-          <Link href={`/guide/${params.propertyId}`}>
+          <Link href={`/guide/${propertyId}`}>
             <Button variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver a la propiedad
@@ -171,7 +172,7 @@ export default function ZoneGuidePage({
       <div className="min-h-screen bg-gray-50">
         <header className="bg-white border-b border-gray-200">
           <div className="max-w-4xl mx-auto px-4 py-4">
-            <Link href={`/guide/${params.propertyId}`}>
+            <Link href={`/guide/${propertyId}`}>
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver
