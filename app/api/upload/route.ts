@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
+import { put } from '@vercel/blob'
 import { v4 as uuidv4 } from 'uuid'
 
 export async function POST(request: NextRequest) {
@@ -12,31 +11,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
-    // For development, we'll store images in the public directory
-    // In production, you should use a cloud storage service
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-
     // Generate unique filename
     const uniqueFilename = `${uuidv4()}-${file.name}`
-    const uploadDir = join(process.cwd(), 'public', 'uploads')
-    
-    // Create uploads directory if it doesn't exist
-    try {
-      await mkdir(uploadDir, { recursive: true })
-    } catch (error) {
-      // Directory might already exist
+
+    // For local development, use filesystem
+    if (process.env.NODE_ENV === 'development') {
+      const { writeFile, mkdir } = await import('fs/promises')
+      const { join } = await import('path')
+      
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+      const uploadDir = join(process.cwd(), 'public', 'uploads')
+      
+      try {
+        await mkdir(uploadDir, { recursive: true })
+      } catch (error) {
+        // Directory might already exist
+      }
+
+      const path = join(uploadDir, uniqueFilename)
+      await writeFile(path, buffer)
+      
+      return NextResponse.json({ 
+        success: true,
+        url: `/uploads/${uniqueFilename}`,
+        filename: uniqueFilename
+      })
     }
 
-    const path = join(uploadDir, uniqueFilename)
-    await writeFile(path, buffer)
-
-    // Return the public URL
-    const url = `/uploads/${uniqueFilename}`
+    // For production, use Vercel Blob
+    const blob = await put(uniqueFilename, file, {
+      access: 'public',
+    })
 
     return NextResponse.json({ 
       success: true,
-      url,
+      url: blob.url,
       filename: uniqueFilename
     })
   } catch (error) {
