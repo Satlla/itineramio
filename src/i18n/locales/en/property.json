@@ -1,0 +1,97 @@
+{
+  "create": {
+    "title": "Create new property",
+    "subtitle": "Set up the basic details of your property",
+    "basicInfo": "Basic information",
+    "location": "Location",
+    "amenities": "Amenities",
+    "media": "Media"
+  },
+  "form": {
+    "propertyName": "Property name",
+    "propertyType": "Property type",
+    "description": "Description",
+    "address": "Address",
+    "city": "City",
+    "country": "Country",
+    "postalCode": "Postal code",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "maxGuests": "Max guests",
+    "checkInTime": "Check-in time",
+    "checkOutTime": "Check-out time"
+  },
+  "types": {
+    "apartment": "Apartment",
+    "house": "House",
+    "villa": "Villa",
+    "hotel": "Hotel",
+    "hostel": "Hostel",
+    "camping": "Camping",
+    "cabin": "Cabin",
+    "studio": "Studio"
+  },
+  "amenities": {
+    "wifi": "WiFi",
+    "parking": "Parking",
+    "kitchen": "Kitchen",
+    "washingMachine": "Washing machine",
+    "airConditioning": "Air conditioning",
+    "heating": "Heating",
+    "pool": "Pool",
+    "garden": "Garden",
+    "balcony": "Balcony",
+    "terrace": "Terrace",
+    "gym": "Gym",
+    "spa": "Spa",
+    "elevator": "Elevator",
+    "petFriendly": "Pet friendly",
+    "smokingAllowed": "Smoking allowed",
+    "fireplace": "Fireplace",
+    "jacuzzi": "Jacuzzi",
+    "sauna": "Sauna",
+    "beachAccess": "Beach access",
+    "skiAccess": "Ski access"
+  },
+  "manual": {
+    "title": "Property manual",
+    "zones": "Zones",
+    "addZone": "Add zone",
+    "welcome": "Welcome",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "emergencies": "Emergencies",
+    "local": "Local information"
+  },
+  "zones": {
+    "livingRoom": "Living room",
+    "kitchen": "Kitchen",
+    "bedroom": "Bedroom",
+    "bathroom": "Bathroom",
+    "balcony": "Balcony",
+    "garden": "Garden",
+    "garage": "Garage",
+    "laundryRoom": "Laundry room",
+    "office": "Office",
+    "diningRoom": "Dining room",
+    "entrance": "Entrance",
+    "pool": "Pool",
+    "gym": "Gym",
+    "roof": "Roof",
+    "basement": "Basement"
+  },
+  "actions": {
+    "save": "Save property",
+    "publish": "Publish manual",
+    "preview": "Preview",
+    "share": "Share",
+    "duplicate": "Duplicate",
+    "archive": "Archive",
+    "delete": "Delete"
+  },
+  "status": {
+    "draft": "Draft",
+    "published": "Published",
+    "archived": "Archived"
+  }
+}

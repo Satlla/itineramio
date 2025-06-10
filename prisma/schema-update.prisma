@@ -1,0 +1,240 @@
+// This file shows the new schema structure for Zone -> Elements -> Steps
+
+// Existing Zone model stays mostly the same
+model Zone {
+  id                    String        @id @default(cuid())
+  propertyId            String
+  
+  // Información básica
+  name                  String
+  description           String
+  
+  // Visualización
+  icon                  String        // Emoji o icono
+  color                 String?       // Clase CSS para color de fondo
+  order                 Int           @default(0)
+  
+  // QR y acceso
+  qrCode                String?       @unique
+  accessCode            String?       @unique // 6 dígitos
+  
+  // Configuración de comunicación
+  whatsappEnabled       Boolean       @default(true)
+  errorReportsEnabled   Boolean       @default(true)
+  commentsEnabled       Boolean       @default(true)
+  ratingsEnabled        Boolean       @default(true)
+  
+  // Estado
+  status                ZoneStatus    @default(DRAFT)
+  isPublished           Boolean       @default(false)
+  isActive              Boolean       @default(true) // NEW: Para activar/desactivar
+  
+  // Analytics básicos
+  viewCount             Int           @default(0)
+  lastViewedAt          DateTime?
+  avgRating             Float         @default(0)
+  
+  // Metadatos
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  publishedAt           DateTime?
+  
+  // Relaciones
+  property              Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  elements              Element[]     // NEW: Elementos dentro de la zona
+  comments              ZoneComment[]
+  errorReports          ErrorReport[]
+  ratings               ZoneRating[]
+  
+  @@index([propertyId, status])
+  @@map("zones")
+}
+
+// NEW: Element model (e.g., Washing Machine, Dishwasher, Pool, etc.)
+model Element {
+  id              String    @id @default(cuid())
+  zoneId          String
+  
+  // Información básica
+  name            String    // e.g., "Lavadora", "Vitrocerámica"
+  description     String?
+  type            String    // e.g., "appliance", "facility", "amenity"
+  
+  // Visualización
+  icon            String    // Emoji o icono
+  image           String?   // Imagen del elemento
+  
+  // Configuración
+  order           Int       @default(0)
+  isActive        Boolean   @default(true)
+  
+  // Metadatos
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relaciones
+  zone            Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  steps           Step[]    // Steps ahora pertenecen a elementos
+  
+  @@index([zoneId, order])
+  @@map("elements")
+}
+
+// Updated Step model
+model Step {
+  id              String    @id @default(cuid())
+  elementId       String    // CHANGED: ahora pertenece a un elemento, no a una zona
+  
+  // Información básica
+  title           String
+  description     String?
+  
+  // Tipo y contenido
+  type            StepType
+  content         String?   // Contenido de texto o descripción
+  mediaUrl        String?   // URL de imagen o video
+  videoUrl        String?   // NEW: Para videos subidos
+  linkUrl         String?   // URL de enlace externo
+  
+  // Configuración
+  estimatedTime   Int?      // Tiempo estimado en minutos
+  order           Int       @default(0)
+  
+  // Estado
+  status          ZoneStatus @default(ACTIVE)
+  isPublished     Boolean   @default(false)
+  
+  // Metadatos
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relación
+  element         Element   @relation(fields: [elementId], references: [id], onDelete: Cascade)
+  
+  @@index([elementId, order])
+  @@map("steps")
+}
+
+// NEW: Zone Template model for sharing templates
+model ZoneTemplate {
+  id                String                  @id @default(cuid())
+  userId            String?                 // Creator user ID (null for system templates)
+  
+  // Información básica
+  name              String
+  description       String
+  category          String                  // e.g., "kitchen", "bathroom", "pool", "living_room"
+  
+  // Visualización
+  icon              String
+  coverImage        String?
+  
+  // Configuración
+  isPublic          Boolean                 @default(false) // Si otros usuarios pueden usarla
+  isOfficial        Boolean                 @default(false) // Si es una plantilla oficial del sistema
+  allowSharing      Boolean                 @default(false) // Si permite que otros la compartan
+  
+  // Analytics
+  usageCount        Int                     @default(0)
+  avgRating         Float                   @default(0)
+  totalRatings      Int                     @default(0)
+  
+  // Metadatos
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  
+  // Relaciones
+  creator           User?                   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  templateElements  ZoneTemplateElement[]
+  ratings           ZoneTemplateRating[]
+  
+  @@index([category, isPublic])
+  @@map("zone_templates")
+}
+
+// NEW: Template Elements
+model ZoneTemplateElement {
+  id              String                    @id @default(cuid())
+  templateId      String
+  
+  // Element data
+  name            String
+  description     String?
+  type            String
+  icon            String
+  order           Int                       @default(0)
+  
+  // Relaciones
+  template        ZoneTemplate              @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  templateSteps   ZoneTemplateStep[]
+  
+  @@map("zone_template_elements")
+}
+
+// NEW: Template Steps
+model ZoneTemplateStep {
+  id              String                    @id @default(cuid())
+  elementId       String
+  
+  // Step data
+  title           String
+  description     String?
+  type            StepType
+  content         String?
+  mediaUrl        String?
+  linkUrl         String?
+  estimatedTime   Int?
+  order           Int                       @default(0)
+  
+  // Relación
+  element         ZoneTemplateElement       @relation(fields: [elementId], references: [id], onDelete: Cascade)
+  
+  @@map("zone_template_steps")
+}
+
+// NEW: Template Ratings
+model ZoneTemplateRating {
+  id              String        @id @default(cuid())
+  templateId      String
+  userId          String
+  
+  rating          Int           // 1-5 stars
+  comment         String?
+  
+  createdAt       DateTime      @default(now())
+  
+  // Relaciones
+  template        ZoneTemplate  @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([templateId, userId])
+  @@map("zone_template_ratings")
+}
+
+// NEW: Video uploads
+model Video {
+  id              String        @id @default(cuid())
+  
+  // File info
+  filename        String
+  originalName    String
+  size            Int           // in bytes
+  duration        Int           // in seconds
+  mimeType        String
+  
+  // URLs
+  originalUrl     String        // Original uploaded video
+  optimizedUrl    String?       // Optimized/compressed version
+  thumbnailUrl    String?       // Video thumbnail
+  
+  // Processing
+  status          String        @default("processing") // processing, ready, failed
+  processingError String?
+  
+  // Metadata
+  uploadedBy      String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@map("videos")
+}

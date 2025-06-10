@@ -1,0 +1,589 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { 
+  Plus, 
+  Home, 
+  Eye, 
+  Calendar,
+  TrendingUp,
+  Users,
+  PlayCircle,
+  MapPin,
+  Star,
+  ArrowRight,
+  MoreHorizontal,
+  Edit,
+  Share2,
+  Trash2,
+  Copy,
+  ExternalLink
+} from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { Avatar } from '@/components/ui/Avatar'
+import { DashboardNavbar } from '@/components/layout/DashboardNavbar'
+import { DashboardFooter } from '@/components/layout/DashboardFooter'
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+
+interface Property {
+  id: string
+  name: string
+  description?: string
+  type: string
+  city: string
+  state: string
+  bedrooms: number
+  bathrooms: number
+  maxGuests: number
+  zonesCount: number
+  totalViews?: number
+  avgRating?: number
+  status: string
+  profileImage?: string
+  createdAt: string
+  updatedAt: string
+}
+
+const recentActivity = [
+  { 
+    id: '1', 
+    type: 'view', 
+    message: 'Un huésped vio "Manual de Cocina" en Villa Sunset', 
+    time: 'hace 5 minutos',
+    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face'
+  },
+  { 
+    id: '2', 
+    type: 'update', 
+    message: 'Actualizaste "Instrucciones del Baño" en Loft Moderno', 
+    time: 'hace 2 horas',
+    avatar: null
+  },
+  { 
+    id: '3', 
+    type: 'create', 
+    message: 'Nueva propiedad "Apartamento Frente al Mar" creada', 
+    time: 'hace 1 día',
+    avatar: null
+  },
+  { 
+    id: '4', 
+    type: 'view', 
+    message: 'Un huésped vio "Configuración WiFi" en Villa Sunset', 
+    time: 'hace 2 días',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face'
+  },
+]
+
+export default function DashboardPage() {
+  const [selectedTimeframe, setSelectedTimeframe] = useState('30d')
+  const [properties, setProperties] = useState<Property[]>([])
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    totalProperties: 0,
+    totalViews: 0,
+    activeManuals: 0,
+    avgRating: 0
+  })
+  const router = useRouter()
+
+  // Mock user data
+  const user = {
+    name: 'Alejandro Satlla',
+    email: 'alejandro@manualphi.com',
+    avatar: undefined
+  }
+
+  // Fetch properties data
+  useEffect(() => {
+    fetchPropertiesData()
+  }, [])
+
+  const fetchPropertiesData = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/properties')
+      const result = await response.json()
+      
+      if (response.ok && result.data) {
+        setProperties(result.data)
+        
+        // Calculate stats from real data
+        const totalProps = result.data.length
+        const totalViews = result.data.reduce((sum: number, p: Property) => sum + (p.totalViews || 0), 0)
+        const activeManuals = result.data.reduce((sum: number, p: Property) => sum + (p.zonesCount || 0), 0)
+        const ratings = result.data.filter((p: Property) => p.avgRating).map((p: Property) => p.avgRating || 0)
+        const avgRating = ratings.length > 0 ? (ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length).toFixed(1) : '0'
+        
+        setStats({
+          totalProperties: totalProps,
+          totalViews: totalViews,
+          activeManuals: activeManuals,
+          avgRating: parseFloat(avgRating)
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching properties:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatTimeAgo = (date: string) => {
+    const now = new Date()
+    const then = new Date(date)
+    const diffInMs = now.getTime() - then.getTime()
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+    
+    if (diffInHours < 1) return 'hace unos minutos'
+    if (diffInHours < 24) return `hace ${diffInHours} hora${diffInHours > 1 ? 's' : ''}`
+    if (diffInDays < 30) return `hace ${diffInDays} día${diffInDays > 1 ? 's' : ''}`
+    return `hace ${Math.floor(diffInDays / 30)} mes${Math.floor(diffInDays / 30) > 1 ? 'es' : ''}`
+  }
+
+  const handlePropertyAction = (action: string, propertyId: string) => {
+    switch (action) {
+      case 'edit':
+        router.push(`/properties/${propertyId}`)
+        break
+      case 'share':
+        // Copy to clipboard
+        const shareUrl = `${window.location.origin}/guide/${propertyId}`
+        navigator.clipboard.writeText(shareUrl)
+        console.log('Share link copied to clipboard!')
+        break
+      case 'delete':
+        if (confirm('¿Estás seguro de que quieres eliminar esta propiedad?')) {
+          deleteProperty(propertyId)
+        }
+        break
+      case 'duplicate':
+        console.log('Duplicating property...')
+        break
+      case 'public':
+        window.open(`/guide/${propertyId}`, '_blank')
+        break
+      default:
+        break
+    }
+  }
+
+  const handlePropertyClick = (propertyId: string) => {
+    window.open(`/guide/${propertyId}`, '_blank')
+  }
+
+  const deleteProperty = async (propertyId: string) => {
+    try {
+      const response = await fetch(`/api/properties/${propertyId}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        // Remove from local state
+        setProperties(prev => prev.filter(p => p.id !== propertyId))
+        // Recalculate stats
+        fetchPropertiesData()
+      } else {
+        alert('Error al eliminar la propiedad')
+      }
+    } catch (error) {
+      console.error('Error deleting property:', error)
+      alert('Error al eliminar la propiedad')
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <DashboardNavbar user={user} />
+      
+      <main className="flex-1 pt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">¡Bienvenido de nuevo, Alex!</h1>
+            <p className="text-gray-600 mt-1">Esto es lo que está pasando con tus propiedades hoy.</p>
+          </div>
+          
+          <Button asChild className="bg-gradient-to-r from-violet-500 to-purple-600 hover:opacity-90">
+            <Link href="/properties/new">
+              <Plus className="h-4 w-4 mr-2" />
+              Crear Propiedad
+            </Link>
+          </Button>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Stats Grid */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="hover:shadow-card-hover transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total de Propiedades</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{loading ? '...' : stats.totalProperties}</p>
+                  <p className="text-xs text-gray-500 mt-1">En tu cuenta</p>
+                </div>
+                <div className="p-3 rounded-xl bg-gray-50 text-violet-600">
+                  <Home className="h-6 w-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <Card className="hover:shadow-card-hover transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total de Visualizaciones</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{loading ? '...' : stats.totalViews.toLocaleString('es-ES')}</p>
+                  <p className="text-xs text-gray-500 mt-1">Todas las propiedades</p>
+                </div>
+                <div className="p-3 rounded-xl bg-gray-50 text-green-600">
+                  <Eye className="h-6 w-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="hover:shadow-card-hover transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Manuales Activos</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{loading ? '...' : stats.activeManuals}</p>
+                  <p className="text-xs text-gray-500 mt-1">Total de zonas</p>
+                </div>
+                <div className="p-3 rounded-xl bg-gray-50 text-blue-600">
+                  <PlayCircle className="h-6 w-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+        >
+          <Card className="hover:shadow-card-hover transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Valoración Huéspedes</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{loading ? '...' : stats.avgRating > 0 ? stats.avgRating.toFixed(1) : 'N/A'}</p>
+                  <p className="text-xs text-gray-500 mt-1">{stats.avgRating >= 4.5 ? 'Excelente' : stats.avgRating >= 4 ? 'Muy bueno' : stats.avgRating > 0 ? 'Bueno' : 'Sin valoraciones'}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-gray-50 text-yellow-500">
+                  <Star className="h-6 w-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Recent Properties */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="lg:col-span-2"
+        >
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold">Mis Propiedades</CardTitle>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/properties">
+                    Ver todas
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              {loading ? (
+                <div className="flex items-center justify-center p-12">
+                  <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
+                </div>
+              ) : properties.length === 0 ? (
+                <div className="text-center p-12">
+                  <Home className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-4">No tienes propiedades aún</p>
+                  <Button asChild size="sm">
+                    <Link href="/properties/new">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Crear Primera Propiedad
+                    </Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-0">
+                  {properties.slice(0, 5).map((property, index) => (
+                  <motion.div
+                    key={property.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + index * 0.1 }}
+                    className="flex items-center justify-between p-6 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 cursor-pointer"
+                    onClick={() => handlePropertyClick(property.id)}
+                  >
+                    <div className="flex items-center space-x-4 flex-1">
+                      <div className="relative">
+                        {property.profileImage ? (
+                          <img 
+                            src={property.profileImage} 
+                            alt={property.name}
+                            className="w-16 h-16 rounded-xl object-cover"
+                            style={{ borderRadius: '12px' }}
+                          />
+                        ) : (
+                          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
+                            <Home className="w-8 h-8 text-white" />
+                          </div>
+                        )}
+                        <span className={`absolute -top-2 -right-2 px-2 py-1 text-xs rounded-full ${
+                          property.status === 'ACTIVE' 
+                            ? 'bg-green-100 text-green-800' 
+                            : property.status === 'DRAFT'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {property.status === 'ACTIVE' ? 'Activo' : property.status === 'DRAFT' ? 'Borrador' : 'Archivado'}
+                        </span>
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 truncate">{property.name}</h3>
+                        <div className="flex items-center space-x-4 mt-1">
+                          <span className="flex items-center text-sm text-gray-500">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {property.city}, {property.state}
+                          </span>
+                          <span className="flex items-center text-sm text-gray-500">
+                            <Home className="h-3 w-3 mr-1" />
+                            {property.zonesCount || 0} zonas
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-4 mt-2">
+                          <span className="flex items-center text-sm text-gray-600">
+                            <Eye className="h-3 w-3 mr-1" />
+                            {property.totalViews || 0} vistas
+                          </span>
+                          <span className="flex items-center text-sm text-gray-600">
+                            <Star className="h-3 w-3 mr-1 text-yellow-500" />
+                            {property.avgRating || 'N/A'}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            Actualizado {formatTimeAgo(property.updatedAt)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <DropdownMenu.Root>
+                      <DropdownMenu.Trigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenu.Trigger>
+                      <DropdownMenu.Portal>
+                        <DropdownMenu.Content className="bg-white rounded-lg border border-gray-200 shadow-lg p-1 w-48" sideOffset={5}>
+                          <DropdownMenu.Item asChild>
+                            <button
+                              className="flex items-center space-x-2 px-3 py-2 text-sm rounded-md hover:bg-gray-100 w-full text-left"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handlePropertyAction('edit', property.id)
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                              <span>Editar</span>
+                            </button>
+                          </DropdownMenu.Item>
+                          <DropdownMenu.Item asChild>
+                            <button
+                              className="flex items-center space-x-2 px-3 py-2 text-sm rounded-md hover:bg-gray-100 w-full text-left"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handlePropertyAction('share', property.id)
+                              }}
+                            >
+                              <Share2 className="h-4 w-4" />
+                              <span>Compartir</span>
+                            </button>
+                          </DropdownMenu.Item>
+                          <DropdownMenu.Item asChild>
+                            <button
+                              className="flex items-center space-x-2 px-3 py-2 text-sm rounded-md hover:bg-gray-100 w-full text-left"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handlePropertyAction('duplicate', property.id)
+                              }}
+                            >
+                              <Copy className="h-4 w-4" />
+                              <span>Duplicar</span>
+                            </button>
+                          </DropdownMenu.Item>
+                          <DropdownMenu.Item asChild>
+                            <button
+                              className="flex items-center space-x-2 px-3 py-2 text-sm rounded-md hover:bg-gray-100 w-full text-left"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handlePropertyAction('public', property.id)
+                              }}
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                              <span>Vista pública</span>
+                            </button>
+                          </DropdownMenu.Item>
+                          <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
+                          <DropdownMenu.Item asChild>
+                            <button
+                              className="flex items-center space-x-2 px-3 py-2 text-sm rounded-md hover:bg-red-50 text-red-600 w-full text-left"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handlePropertyAction('delete', property.id)
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span>Eliminar</span>
+                            </button>
+                          </DropdownMenu.Item>
+                        </DropdownMenu.Content>
+                      </DropdownMenu.Portal>
+                    </DropdownMenu.Root>
+                  </motion.div>
+                ))}
+              </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Recent Activity */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold">Actividad Reciente</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="space-y-0">
+                {recentActivity.map((activity, index) => (
+                  <motion.div
+                    key={activity.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + index * 0.1 }}
+                    className="flex items-start space-x-3 p-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
+                  >
+                    <div className="flex-shrink-0">
+                      {activity.avatar ? (
+                        <Avatar 
+                          src={activity.avatar}
+                          alt="User"
+                          size="sm"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 bg-violet-100 rounded-full flex items-center justify-center">
+                          <div className="w-3 h-3 bg-violet-500 rounded-full"></div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gray-900 leading-relaxed">
+                        {activity.message}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {activity.time}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-6"
+          >
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold">Acciones Rápidas</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button asChild variant="outline" className="w-full justify-start h-12">
+                  <Link href="/properties/new">
+                    <Plus className="h-4 w-4 mr-3" />
+                    Crear Nueva Propiedad
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="w-full justify-start h-12">
+                  <Link href="/analytics">
+                    <TrendingUp className="h-4 w-4 mr-3" />
+                    Ver Analíticas
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
+      </div>
+        </div>
+      </main>
+      
+      <DashboardFooter />
+    </div>
+  )
+}

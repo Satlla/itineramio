@@ -1,0 +1,97 @@
+{
+  "create": {
+    "title": "Créer une nouvelle propriété",
+    "subtitle": "Configurez les détails de base de votre propriété",
+    "basicInfo": "Informations de base",
+    "location": "Emplacement",
+    "amenities": "Équipements",
+    "media": "Médias"
+  },
+  "form": {
+    "propertyName": "Nom de la propriété",
+    "propertyType": "Type de propriété",
+    "description": "Description",
+    "address": "Adresse",
+    "city": "Ville",
+    "country": "Pays",
+    "postalCode": "Code postal",
+    "bedrooms": "Chambres",
+    "bathrooms": "Salles de bains",
+    "maxGuests": "Invités maximum",
+    "checkInTime": "Heure d'arrivée",
+    "checkOutTime": "Heure de départ"
+  },
+  "types": {
+    "apartment": "Appartement",
+    "house": "Maison",
+    "villa": "Villa",
+    "hotel": "Hôtel",
+    "hostel": "Auberge",
+    "camping": "Camping",
+    "cabin": "Cabane",
+    "studio": "Studio"
+  },
+  "amenities": {
+    "wifi": "WiFi",
+    "parking": "Parking",
+    "kitchen": "Cuisine",
+    "washingMachine": "Lave-linge",
+    "airConditioning": "Climatisation",
+    "heating": "Chauffage",
+    "pool": "Piscine",
+    "garden": "Jardin",
+    "balcony": "Balcon",
+    "terrace": "Terrasse",
+    "gym": "Salle de sport",
+    "spa": "Spa",
+    "elevator": "Ascenseur",
+    "petFriendly": "Animaux acceptés",
+    "smokingAllowed": "Fumeur autorisé",
+    "fireplace": "Cheminée",
+    "jacuzzi": "Jacuzzi",
+    "sauna": "Sauna",
+    "beachAccess": "Accès plage",
+    "skiAccess": "Accès ski"
+  },
+  "manual": {
+    "title": "Manuel de la propriété",
+    "zones": "Zones",
+    "addZone": "Ajouter une zone",
+    "welcome": "Bienvenue",
+    "checkIn": "Arrivée",
+    "checkOut": "Départ",
+    "emergencies": "Urgences",
+    "local": "Informations locales"
+  },
+  "zones": {
+    "livingRoom": "Salon",
+    "kitchen": "Cuisine",
+    "bedroom": "Chambre",
+    "bathroom": "Salle de bains",
+    "balcony": "Balcon",
+    "garden": "Jardin",
+    "garage": "Garage",
+    "laundryRoom": "Buanderie",
+    "office": "Bureau",
+    "diningRoom": "Salle à manger",
+    "entrance": "Entrée",
+    "pool": "Piscine",
+    "gym": "Salle de sport",
+    "roof": "Toit",
+    "basement": "Sous-sol"
+  },
+  "actions": {
+    "save": "Enregistrer la propriété",
+    "publish": "Publier le manuel",
+    "preview": "Aperçu",
+    "share": "Partager",
+    "duplicate": "Dupliquer",
+    "archive": "Archiver",
+    "delete": "Supprimer"
+  },
+  "status": {
+    "draft": "Brouillon",
+    "published": "Publié",
+    "archived": "Archivé"
+  }
+}

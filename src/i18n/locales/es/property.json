@@ -1,0 +1,97 @@
+{
+  "create": {
+    "title": "Crear nueva propiedad",
+    "subtitle": "Configura los detalles básicos de tu propiedad",
+    "basicInfo": "Información básica",
+    "location": "Ubicación",
+    "amenities": "Servicios",
+    "media": "Multimedia"
+  },
+  "form": {
+    "propertyName": "Nombre de la propiedad",
+    "propertyType": "Tipo de propiedad",
+    "description": "Descripción",
+    "address": "Dirección",
+    "city": "Ciudad",
+    "country": "País",
+    "postalCode": "Código postal",
+    "bedrooms": "Habitaciones",
+    "bathrooms": "Baños",
+    "maxGuests": "Huéspedes máximos",
+    "checkInTime": "Hora de entrada",
+    "checkOutTime": "Hora de salida"
+  },
+  "types": {
+    "apartment": "Apartamento",
+    "house": "Casa",
+    "villa": "Villa",
+    "hotel": "Hotel",
+    "hostel": "Hostal",
+    "camping": "Camping",
+    "cabin": "Cabaña",
+    "studio": "Estudio"
+  },
+  "amenities": {
+    "wifi": "WiFi",
+    "parking": "Aparcamiento",
+    "kitchen": "Cocina",
+    "washingMachine": "Lavadora",
+    "airConditioning": "Aire acondicionado",
+    "heating": "Calefacción",
+    "pool": "Piscina",
+    "garden": "Jardín",
+    "balcony": "Balcón",
+    "terrace": "Terraza",
+    "gym": "Gimnasio",
+    "spa": "Spa",
+    "elevator": "Ascensor",
+    "petFriendly": "Admite mascotas",
+    "smokingAllowed": "Se permite fumar",
+    "fireplace": "Chimenea",
+    "jacuzzi": "Jacuzzi",
+    "sauna": "Sauna",
+    "beachAccess": "Acceso a playa",
+    "skiAccess": "Acceso a pistas de esquí"
+  },
+  "manual": {
+    "title": "Manual de la propiedad",
+    "zones": "Zonas",
+    "addZone": "Añadir zona",
+    "welcome": "Bienvenida",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "emergencies": "Emergencias",
+    "local": "Información local"
+  },
+  "zones": {
+    "livingRoom": "Sala de estar",
+    "kitchen": "Cocina",
+    "bedroom": "Dormitorio",
+    "bathroom": "Baño",
+    "balcony": "Balcón",
+    "garden": "Jardín",
+    "garage": "Garaje",
+    "laundryRoom": "Lavadero",
+    "office": "Oficina",
+    "diningRoom": "Comedor",
+    "entrance": "Entrada",
+    "pool": "Piscina",
+    "gym": "Gimnasio",
+    "roof": "Azotea",
+    "basement": "Sótano"
+  },
+  "actions": {
+    "save": "Guardar propiedad",
+    "publish": "Publicar manual",
+    "preview": "Vista previa",
+    "share": "Compartir",
+    "duplicate": "Duplicar",
+    "archive": "Archivar",
+    "delete": "Eliminar"
+  },
+  "status": {
+    "draft": "Borrador",
+    "published": "Publicado",
+    "archived": "Archivado"
+  }
+}

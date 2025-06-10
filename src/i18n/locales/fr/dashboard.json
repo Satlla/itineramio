@@ -1,0 +1,48 @@
+{
+  "welcome": {
+    "title": "Bonjour, {{name}} !",
+    "subtitle": "Gérez vos propriétés et manuels depuis ici",
+    "getStarted": "Commencer"
+  },
+  "stats": {
+    "totalProperties": "Propriétés totales",
+    "activeManuals": "Manuels actifs",
+    "totalViews": "Vues totales",
+    "thisMonth": "Ce mois-ci"
+  },
+  "quickActions": {
+    "title": "Actions rapides",
+    "createProperty": "Créer une propriété",
+    "createManual": "Créer un manuel",
+    "uploadMedia": "Télécharger des médias",
+    "viewAnalytics": "Voir les statistiques"
+  },
+  "recentActivity": {
+    "title": "Activité récente",
+    "noActivity": "Aucune activité récente",
+    "propertyCreated": "Propriété créée",
+    "manualPublished": "Manuel publié",
+    "mediaUploaded": "Médias téléchargés",
+    "guestViewed": "L'invité a consulté le manuel"
+  },
+  "properties": {
+    "title": "Mes propriétés",
+    "viewAll": "Voir tout",
+    "noProperties": "Vous n'avez encore aucune propriété",
+    "createFirst": "Créez votre première propriété",
+    "edit": "Modifier",
+    "view": "Voir",
+    "duplicate": "Dupliquer",
+    "archive": "Archiver",
+    "delete": "Supprimer"
+  },
+  "navigation": {
+    "overview": "Aperçu",
+    "properties": "Propriétés",
+    "analytics": "Statistiques",
+    "media": "Médias",
+    "settings": "Paramètres",
+    "billing": "Facturation",
+    "support": "Support"
+  }
+}

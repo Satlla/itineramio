@@ -1,0 +1,323 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id                   String                 @id @default(cuid())
+  email                String                 @unique
+  name                 String
+  phone                String?
+  password             String?
+  emailVerified        DateTime?
+  phoneVerified        DateTime?
+  preferredLanguage    String                 @default("es")
+  timezone             String                 @default("Europe/Madrid")
+  role                 String                 @default("HOST")
+  status               String                 @default("PENDING")
+  subscription         String                 @default("FREE")
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  lastLoginAt          DateTime?
+  assignedErrorReports ErrorReport[]          @relation("ErrorReportAssignee")
+  organization_members organization_members[]
+  properties           Property[]
+  propertySets         PropertySet[]
+  moderatedComments    ZoneComment[]          @relation("CommentModerator")
+
+  @@map("users")
+}
+
+model PropertySet {
+  id                  String    @id @default(cuid())
+  hostId              String
+  name                String
+  description         String
+  street              String
+  city                String
+  state               String
+  country             String
+  postalCode          String
+  latitude            Float?
+  longitude           Float?
+  type                String    // HOTEL, BUILDING, COMPLEX, RESORT, etc.
+  profileImage        String?
+  hostContactName     String
+  hostContactPhone    String
+  hostContactEmail    String
+  hostContactLanguage String    @default("es")
+  hostContactPhoto    String?
+  status              String    @default("DRAFT")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  host                User      @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  properties          Property[]
+
+  @@map("property_sets")
+}
+
+model Property {
+  id                  String             @id @default(cuid())
+  hostId              String
+  organizationId      String?
+  buildingId          String?
+  propertySetId       String?
+  name                String
+  description         String
+  street              String
+  city                String
+  state               String
+  country             String
+  postalCode          String
+  latitude            Float?
+  longitude           Float?
+  type                String
+  bedrooms            Int
+  bathrooms           Int
+  maxGuests           Int
+  squareMeters        Int?
+  defaultLanguages    Json               @default("[\"es\", \"en\"]")
+  isPublished         Boolean            @default(false)
+  profileImage        String?
+  hostContactName     String
+  hostContactPhone    String
+  hostContactEmail    String
+  hostContactLanguage String             @default("es")
+  hostContactPhoto    String?
+  status              String             @default("DRAFT")
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  publishedAt         DateTime?
+  buildings           buildings?         @relation(fields: [buildingId], references: [id])
+  organizations       organizations?     @relation(fields: [organizationId], references: [id])
+  propertySet         PropertySet?       @relation(fields: [propertySetId], references: [id])
+  host                User               @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  analytics           PropertyAnalytics?
+  zones               Zone[]
+
+  @@map("properties")
+}
+
+model Zone {
+  id                  String         @id @default(cuid())
+  propertyId          String?
+  organizationId      String?
+  buildingId          String?
+  name                Json
+  description         Json?
+  icon                String
+  color               String?
+  order               Int            @default(0)
+  qrCode              String         @unique
+  accessCode          String         @unique
+  whatsappEnabled     Boolean        @default(true)
+  errorReportsEnabled Boolean        @default(true)
+  commentsEnabled     Boolean        @default(true)
+  ratingsEnabled      Boolean        @default(true)
+  status              String         @default("DRAFT")
+  isPublished         Boolean        @default(false)
+  viewCount           Int            @default(0)
+  lastViewedAt        DateTime?
+  avgRating           Float          @default(0)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  publishedAt         DateTime?
+  errorReports        ErrorReport[]
+  steps               Step[]
+  comments            ZoneComment[]
+  ratings             ZoneRating[]
+  buildings           buildings?     @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  organizations       organizations? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  property            Property?      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, status])
+  @@index([qrCode])
+  @@map("zones")
+}
+
+model Step {
+  id          String   @id @default(cuid())
+  zoneId      String
+  type        String
+  title       Json
+  content     Json
+  order       Int      @default(0)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  zones       Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([zoneId, order])
+  @@map("steps")
+}
+
+model ZoneComment {
+  id               String    @id @default(cuid())
+  zoneId           String
+  text             String
+  rating           Int
+  language         String
+  guestName        String?
+  guestCountry     String?
+  guestLanguage    String
+  status           String    @default("PENDING")
+  moderatedAt      DateTime?
+  moderatedBy      String?
+  moderationReason String?
+  helpfulVotes     Int       @default(0)
+  reportedCount    Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  ipAddress        String?
+  userAgent        String?
+  moderator        User?     @relation("CommentModerator", fields: [moderatedBy], references: [id])
+  zone             Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([zoneId, status])
+  @@map("zone_comments")
+}
+
+model ErrorReport {
+  id               String    @id @default(cuid())
+  zoneId           String
+  title            String
+  description      String
+  category         String
+  severity         String
+  affectedStep     String?
+  userAgent        String?
+  browserInfo      String?
+  deviceType       String
+  language         String
+  reporterEmail    String?
+  reporterLanguage String
+  status           String    @default("PENDING")
+  priority         String    @default("MEDIUM")
+  assignedTo       String?
+  hostResponse     String?
+  resolutionNotes  String?
+  resolvedAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  assignee         User?     @relation("ErrorReportAssignee", fields: [assignedTo], references: [id])
+  zone             Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@map("error_reports")
+}
+
+model ZoneRating {
+  id                     String   @id @default(cuid())
+  zoneId                 String
+  overallRating          Int
+  clarity                Int
+  completeness           Int
+  helpfulness            Int
+  upToDate               Int
+  feedback               String?
+  improvementSuggestions String?
+  language               String
+  guestAgeRange          String?
+  guestCountry           String?
+  guestTravelType        String?
+  createdAt              DateTime @default(now())
+  ipAddress              String?
+  visibleToHost          Boolean  @default(true)
+  visibleToGuests        Boolean  @default(false)
+  zone                   Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([zoneId, createdAt])
+  @@map("zone_ratings")
+}
+
+model PropertyAnalytics {
+  id                 String   @id @default(cuid())
+  propertyId         String   @unique
+  totalViews         Int      @default(0)
+  uniqueVisitors     Int      @default(0)
+  avgSessionDuration Int      @default(0)
+  overallRating      Float    @default(0)
+  totalRatings       Int      @default(0)
+  improvementScore   Int      @default(0)
+  whatsappClicks     Int      @default(0)
+  errorReportsCount  Int      @default(0)
+  commentsCount      Int      @default(0)
+  lastCalculatedAt   DateTime @default(now())
+  property           Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_analytics")
+}
+
+model DailyStats {
+  id                 String   @id @default(cuid())
+  propertyId         String
+  date               DateTime
+  views              Int      @default(0)
+  uniqueVisitors     Int      @default(0)
+  avgSessionDuration Int      @default(0)
+  whatsappClicks     Int      @default(0)
+  errorReports       Int      @default(0)
+  newComments        Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([propertyId, date])
+  @@index([propertyId, date])
+  @@map("daily_stats")
+}
+
+model buildings {
+  id             String        @id
+  organizationId String
+  name           String
+  street         String
+  city           String
+  state          String
+  country        String
+  postalCode     String
+  latitude       Float?
+  longitude      Float?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime
+  organizations  organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  properties     Property[]
+  zones          Zone[]
+}
+
+model organization_members {
+  id             String        @id
+  organizationId String
+  userId         String
+  role           String
+  permissions    Json          @default("[]")
+  joinedAt       DateTime      @default(now())
+  users          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizations  organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+}
+
+model organizations {
+  id                   String                 @id
+  name                 String
+  type                 String
+  description          String?
+  website              String?
+  logo                 String?
+  brandColorPrimary    String?
+  brandColorSecondary  String?
+  customDomain         String?                @unique
+  defaultLanguages     Json                   @default("[\"es\", \"en\"]")
+  timezone             String                 @default("Europe/Madrid")
+  status               String                 @default("ACTIVE")
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime
+  buildings            buildings[]
+  organization_members organization_members[]
+  properties           Property[]
+  zones                Zone[]
+}

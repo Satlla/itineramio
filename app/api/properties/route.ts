@@ -1,0 +1,242 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { prisma } from '@/lib/prisma'
+
+// Validation schema for property creation
+// Popular zones that are automatically created for new properties
+const POPULAR_ZONES = [
+  { name: 'WiFi', iconId: 'wifi', description: 'Contraseña y conexión a internet', order: 1 },
+  { name: 'Check-in', iconId: 'door', description: 'Proceso de entrada y llaves', order: 2 },
+  { name: 'Check-out', iconId: 'exit', description: 'Proceso de salida', order: 3 },
+  { name: 'Cocina', iconId: 'kitchen-main', description: 'Electrodomésticos y utensilios', order: 4 },
+  { name: 'Baño', iconId: 'bath', description: 'Uso de la ducha y amenities', order: 5 },
+  { name: 'Información General', iconId: 'info', description: 'Normas y datos importantes', order: 6 },
+  { name: 'Parking', iconId: 'car', description: 'Dónde aparcar y cómo acceder', order: 7 },
+  { name: 'Teléfonos de interés', iconId: 'phone', description: 'Emergencias y contactos útiles', order: 8 }
+]
+
+const createPropertySchema = z.object({
+  name: z.string().min(3).max(100),
+  description: z.string().min(10).max(1000),
+  type: z.enum(['APARTMENT', 'HOUSE', 'ROOM', 'VILLA']),
+  
+  // Address
+  street: z.string().min(5),
+  city: z.string().min(2),
+  state: z.string().min(2),
+  country: z.string().default('España'),
+  postalCode: z.string().regex(/^[0-9]{5}$/),
+  
+  // Characteristics
+  bedrooms: z.number().min(0).max(20),
+  bathrooms: z.number().min(0).max(10),
+  maxGuests: z.number().min(1).max(50),
+  squareMeters: z.number().min(10).max(1000).optional(),
+  
+  // Property image
+  profileImage: z.string().optional(),
+  
+  // Host contact
+  hostContactName: z.string().min(2).max(100),
+  hostContactPhone: z.string().regex(/^[+]?[(]?[0-9\s\-()]{9,}$/),
+  hostContactEmail: z.string().email(),
+  hostContactLanguage: z.string().default('es'),
+  hostContactPhoto: z.string().optional()
+})
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    
+    // Validate request data
+    const validatedData = createPropertySchema.parse(body)
+    
+    // TODO: Get user ID from authentication session  
+    // For now, find the demo user
+    const demoUser = await prisma.user.findUnique({
+      where: { email: 'demo@manualphi.com' }
+    })
+    
+    if (!demoUser) {
+      return NextResponse.json({
+        success: false,
+        error: 'Usuario demo no encontrado'
+      }, { status: 404 })
+    }
+    
+    const userId = demoUser.id
+    
+    // Create property in database
+    const property = await prisma.property.create({
+      data: {
+        // Basic info
+        name: validatedData.name,
+        description: validatedData.description,
+        type: validatedData.type,
+        
+        // Address
+        street: validatedData.street,
+        city: validatedData.city,
+        state: validatedData.state,
+        country: validatedData.country,
+        postalCode: validatedData.postalCode,
+        
+        // Characteristics
+        bedrooms: validatedData.bedrooms,
+        bathrooms: validatedData.bathrooms,
+        maxGuests: validatedData.maxGuests,
+        squareMeters: validatedData.squareMeters,
+        
+        // Property image
+        profileImage: validatedData.profileImage,
+        
+        // Host contact
+        hostContactName: validatedData.hostContactName,
+        hostContactPhone: validatedData.hostContactPhone,
+        hostContactEmail: validatedData.hostContactEmail,
+        hostContactLanguage: validatedData.hostContactLanguage,
+        hostContactPhoto: validatedData.hostContactPhoto,
+        
+        // Default values
+        status: 'DRAFT',
+        isPublished: false,
+        
+        // Associate with demo user
+        hostId: userId,
+        
+        // Create analytics record
+        analytics: {
+          create: {}
+        },
+        
+        // Timestamps are handled automatically by Prisma
+      },
+      include: {
+        analytics: true
+      }
+    })
+    
+    return NextResponse.json({
+      success: true,
+      data: property
+    }, { status: 201 })
+    
+  } catch (error) {
+    console.error('Error creating property:', error)
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({
+        success: false,
+        error: 'Datos de entrada inválidos',
+        details: error.errors
+      }, { status: 400 })
+    }
+    
+    return NextResponse.json({
+      success: false,
+      error: 'Error interno del servidor'
+    }, { status: 500 })
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '10')
+    const status = searchParams.get('status')
+    const type = searchParams.get('type')
+    
+    // For demo, find the demo user by email
+    const demoUser = await prisma.user.findUnique({
+      where: { email: 'demo@manualphi.com' }
+    })
+    
+    if (!demoUser) {
+      return NextResponse.json({
+        success: false,
+        error: 'Usuario demo no encontrado'
+      }, { status: 404 })
+    }
+    
+    // Build where clause
+    const where: any = {
+      hostId: demoUser.id
+    }
+    
+    if (status) {
+      where.status = status
+    }
+    
+    if (type) {
+      where.type = type
+    }
+    
+    // Get properties
+    const properties = await prisma.property.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: {
+        createdAt: 'desc'
+      },
+      include: {
+        analytics: true
+      }
+    })
+    
+    const total = await prisma.property.count({ where })
+    
+    // Get zones count separately to avoid schema issues
+    const propertiesWithZones = await Promise.all(
+      properties.map(async (property) => {
+        const zonesCount = await prisma.zone.count({
+          where: { propertyId: property.id }
+        })
+        
+        return {
+          id: property.id,
+          name: property.name,
+          description: property.description,
+          type: property.type,
+          city: property.city,
+          state: property.state,
+          bedrooms: property.bedrooms,
+          bathrooms: property.bathrooms,
+          maxGuests: property.maxGuests,
+          zonesCount,
+          totalViews: property.analytics?.totalViews || 0,
+          avgRating: property.analytics?.overallRating || 0,
+          status: property.status,
+          createdAt: property.createdAt,
+          updatedAt: property.updatedAt,
+          isPublished: property.isPublished,
+          profileImage: property.profileImage,
+          propertySetId: property.propertySetId,
+          hostContactName: property.hostContactName,
+          hostContactPhoto: property.hostContactPhoto
+        }
+      })
+    )
+    
+    return NextResponse.json({
+      success: true,
+      data: propertiesWithZones,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    })
+    
+  } catch (error) {
+    console.error('Error fetching properties:', error)
+    
+    return NextResponse.json({
+      success: false,
+      error: 'Error interno del servidor',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
+  }
+}
