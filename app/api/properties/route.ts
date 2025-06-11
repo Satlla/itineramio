@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     // TODO: Get user ID from authentication session  
     // For now, find the demo user
     const demoUser = await prisma.user.findUnique({
-      where: { email: 'demo@manualphi.com' }
+      where: { email: 'demo@itineramio.com' }
     })
     
     if (!demoUser) {
@@ -149,7 +149,7 @@ export async function GET(request: NextRequest) {
     
     // For demo, find the demo user by email
     const demoUser = await prisma.user.findUnique({
-      where: { email: 'demo@manualphi.com' }
+      where: { email: 'demo@itineramio.com' }
     })
     
     if (!demoUser) {
