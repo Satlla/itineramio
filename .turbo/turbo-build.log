@@ -1,70 +1,36 @@
 
 
-> @manualphi/web@2.0.0 build /Users/alejandrosatlla/Documents/manualphi/apps/web
-> next build
+> @itineramio/web@2.0.0 build /Users/alejandrosatlla/Documents/manualphi/apps/web
+> rm -rf node_modules/.prisma && prisma generate && next build
 
-  [1m[38;2;173;127;168m ▲ Next.js 14.0.3[39m[22m
+[2mEnvironment variables loaded from .env[22m
+[2mPrisma schema loaded from prisma/schema.prisma[22m
+
+
+✔ Generated [1mPrisma Client[22m (v6.9.0)[2m to ./../../node_modules/@prisma/client[22m in 64ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+
+   [1m[38;2;173;127;168m▲ Next.js 15.3.3[39m[22m
    - Environments: .env.local, .env
 
-[?25l [37m[1m [22m[39m Creating an optimized production build  [36m.[39m[2K[1G [37m[1m [22m[39m Creating an optimized production build  [36m..[39m[2K[1G [37m[1m [22m[39m Creating an optimized production build  [36m...[39m[2K[1G [37m[1m [22m[39m Creating an optimized production build  [36m.[39m[2K[1G [37m[1m [22m[39m Creating an optimized production build  [36m..[39m[2K[1G [37m[1m [22m[39m Creating an optimized production build  [36m...[39m[2K[1G [37m[1m [22m[39m Creating an optimized production build  [36m.[39m[2K[1G [37m[1m [22m[39m Creating an optimized production build  [36m..[39m[2K[1G [37m[1m [22m[39m Creating an optimized production build  [36m...[39m[2K[1G [37m[1m [22m[39m Creating an optimized production build  [36m.[39m[2K[1G [37m[1m [22m[39m Creating an optimized production build  [36m..[39m[2K[1G[?25h [37m[1m [22m[39m Creating an optimized production build     [32m[1m✓[22m[39m Creating an optimized production build 
- [32m[1m✓[22m[39m Compiled successfully
-[?25l [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G[?25h [37m[1m [22m[39m Linting and checking validity of types     [32m[1m✓[22m[39m Linting and checking validity of types 
-[?25l [37m[1m [22m[39m Collecting page data  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m..[39m[2K[1G[?25h [37m[1m [22m[39m Collecting page data     [32m[1m✓[22m[39m Collecting page data 
-[?25l [37m[1m [22m[39m Generating static pages (0/21)  [36m[    ][39mAuth check - token exists: false
-Auto-login for development - created demo user session
-[2K[1G [37m[1m [22m[39m Generating static pages (0/21)  [36m[=   ][39m  [37m[1m [22m[39m Generating static pages (11/21) 
- ⚠ Entire page /properties/new deopted into client-side rendering. https://nextjs.org/docs/messages/deopted-into-client-rendering /properties/new
- ⚠ Entire page /property-sets/new deopted into client-side rendering. https://nextjs.org/docs/messages/deopted-into-client-rendering /property-sets/new
-[2K[1G[1A[2K[1G[?25h [32m[1m✓[22m[39m Generating static pages (21/21) 
-[?25l [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[?25l [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G[?25h [37m[1m [22m[39m Collecting build traces     [32m[1m✓[22m[39m Collecting build traces 
-[2K[1G[?25h [37m[1m [22m[39m Finalizing page optimization     [32m[1m✓[22m[39m Finalizing page optimization 
-
-[4mRoute (app)[24m                                             [4mSize[24m     [4mFirst Load JS[24m
-┌ ○ /                                                   174 B          [32m90.8 kB[39m
-├ ○ /_not-found                                         874 B          [32m84.8 kB[39m
-├ λ /api/auth/login                                     0 B                [32m0 B[39m
-├ λ /api/auth/logout                                    0 B                [32m0 B[39m
-├ ○ /api/auth/me                                        0 B                [32m0 B[39m
-├ λ /api/cleanup-blob-urls                              0 B                [32m0 B[39m
-├ λ /api/properties                                     0 B                [32m0 B[39m
-├ λ /api/properties/[id]                                0 B                [32m0 B[39m
-├ λ /api/properties/[id]/toggle                         0 B                [32m0 B[39m
-├ λ /api/properties/[id]/zones                          0 B                [32m0 B[39m
-├ λ /api/properties/[id]/zones/[zoneId]                 0 B                [32m0 B[39m
-├ λ /api/properties/[id]/zones/[zoneId]/steps           0 B                [32m0 B[39m
-├ λ /api/properties/[id]/zones/[zoneId]/steps/[stepId]  0 B                [32m0 B[39m
-├ λ /api/property-sets                                  0 B                [32m0 B[39m
-├ λ /api/property-sets/[id]                             0 B                [32m0 B[39m
-├ λ /api/upload                                         0 B                [32m0 B[39m
-├ ○ /cookies                                            2.48 kB         [33m135 kB[39m
-├ ○ /forgot-password                                    2.48 kB         [33m135 kB[39m
-├ λ /guide/[propertyId]                                 4.38 kB         [33m130 kB[39m
-├ λ /guide/[propertyId]/[zoneId]                        7.79 kB         [33m141 kB[39m
-├ ○ /login                                              4.59 kB         [33m137 kB[39m
-├ ○ /main                                               7.13 kB         [31m[1m186 kB[22m[39m
-├ ○ /privacy                                            2.73 kB         [33m135 kB[39m
-├ ○ /properties                                         6.24 kB         [33m163 kB[39m
-├ λ /properties/[id]                                    5.22 kB         [33m138 kB[39m
-├ λ /properties/[id]/steps                              2.16 kB         [33m144 kB[39m
-├ λ /properties/[id]/zones                              20.2 kB         [31m[1m186 kB[22m[39m
-├ λ /properties/[id]/zones/[zoneId]                     4.71 kB         [33m137 kB[39m
-├ λ /properties/[id]/zones/[zoneId]/steps               5.86 kB         [33m148 kB[39m
-├ λ /properties/[id]/zones/[zoneId]/steps/new           6.6 kB          [32m128 kB[39m
-├ λ /properties/[id]/zones/new                          4.88 kB         [32m127 kB[39m
-├ ○ /properties/new                                     12.6 kB         [33m168 kB[39m
-├ ○ /property-sets/new                                  8.09 kB         [33m164 kB[39m
-├ ○ /register                                           4.71 kB         [33m140 kB[39m
-└ ○ /terms                                              3.07 kB         [33m136 kB[39m
-+ First Load JS shared by all                           [32m83.9 kB[39m
-  ├ chunks/1dd3208c-c85b1d08c8d0dfd5.js                 53.3 kB
-  ├ chunks/53-37495f81a61386b5.js                       28.7 kB
-  ├ chunks/main-app-5ee484c3578e614d.js                 218 B
-  └ chunks/webpack-42ff598ae4e7b14a.js                  1.68 kB
-
-
-ƒ Middleware                                            [32m60.9 kB[39m
-
-○  (Static)   prerendered as static content
-λ  (Dynamic)  server-rendered on demand using Node.js
-
-[?25h
+ [37m[1m [22m[39m Creating an optimized production build ...
+ [32m[1m✓[22m[39m Compiled successfully in 3.0s
+[?25l [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G[?25h [37m[1m [22m[39m Linting and checking validity of types     [32m[1m✓[22m[39m Linting and checking validity of types 
+[?25l [37m[1m [22m[39m Collecting page data  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m.[39m[2K[1G[?25h [37m[1m [22m[39m Collecting page data     [32m[1m✓[22m[39m Collecting page data 
+[?25l [37m[1m [22m[39m Generating static pages (0/22)  [36m[    ][39m[2K[1G [37m[1m [22m[39m Generating static pages (0/22)  [36m[=   ][39m[2K[1G[?25hError occurred prerendering page "/api/auth/logout". Read more: https://nextjs.org/docs/messages/prerender-error
+PageNotFoundError: Cannot find module for page: /api/auth/logout/route
+    at getPagePath (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/server/require.js:88:15)
+    at requirePage (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/server/require.js:93:22)
+    at loadComponentsImpl (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/server/load-components.js:132:57)
+    at async exportPageImpl (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/export/worker.js:163:24)
+    at async Span.traceAsyncFn (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/trace/trace.js:157:20)
+    at async exportPage (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/export/worker.js:357:18)
+    at async exportPageWithRetry (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/export/worker.js:247:26)
+    at async Promise.all (index 3)
+    at async Object.exportPages (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/export/worker.js:334:31)
+Export encountered an error on /api/auth/logout/route: /api/auth/logout, exiting the build.
+ [31m[1m⨯[22m[39m Next.js build worker exited with code: 1 and signal: null
+[?25h[41m[30m ELIFECYCLE [39m[49m [31mCommand failed with exit code 1.[39m

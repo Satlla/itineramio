@@ -8,10 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { IconSelector, ZoneIconDisplay, useZoneIcon } from '@/components/ui/IconSelector'
 import { Input } from '@/components/ui/Input'
 import { QRCodeDisplay } from '@/components/ui/QRCodeDisplay'
-import { ZoneTemplateSelector } from '@/components/ui/ZoneTemplateSelector'
+import { ZoneTemplateSelector } from '@/components/ui/ZoneTemplateSelectorNew'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
-import { ZONE_CATEGORIES, ZoneTemplate } from '../../../../../lib/zoneCategories'
+import { zoneTemplates, zoneCategories, ZoneTemplate } from '@/data/zoneTemplates'
+import { ZoneIcon } from '@/data/zoneIconsNew'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 
 interface Zone {
@@ -82,8 +83,6 @@ export default async function PropertyZonesPage({ params }: { params: Promise<{ 
   const [showTemplateSelector, setShowTemplateSelector] = useState(false)
   const [showInspirationModal, setShowInspirationModal] = useState(false)
   const [selectedInspirationZone, setSelectedInspirationZone] = useState<ZoneTemplate | null>(null)
-  const [showMultiSelectModal, setShowMultiSelectModal] = useState(false)
-  const [selectedZones, setSelectedZones] = useState<string[]>([])
   const [copied, setCopied] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
@@ -91,25 +90,16 @@ export default async function PropertyZonesPage({ params }: { params: Promise<{ 
     iconId: ''
   })
 
-  // Essential and recommended zones
-  const essentialZones = ['wifi', 'checkin', 'checkout', 'parking']
-  const recommendedZones = ['kitchen', 'bathroom', 'bedroom', 'ac']
-  
   // Get zones that the user doesn't have
   const getMissingZones = () => {
     const existingZoneNames = zones.map(z => z.name.toLowerCase())
-    const allRecommendedZones = [...essentialZones, ...recommendedZones]
     
-    return allRecommendedZones
-      .map(zoneId => {
-        for (const category of ZONE_CATEGORIES) {
-          const zone = category.zones.find(z => z.id === zoneId)
-          if (zone) return zone
-        }
-        return null
-      })
-      .filter(zone => zone && !existingZoneNames.includes(zone.name.toLowerCase()))
-      .filter(Boolean) as ZoneTemplate[]
+    // Get top zones by popularity from essential category
+    return zoneTemplates
+      .filter(template => template.category === 'essential' || template.category === 'amenities')
+      .filter(template => !existingZoneNames.includes(template.name.toLowerCase()))
+      .sort((a, b) => b.popularity - a.popularity)
+      .slice(0, 8)
   }
 
   // Fetch property name
@@ -248,11 +238,11 @@ export default async function PropertyZonesPage({ params }: { params: Promise<{ 
     const newZone: Zone = {
       id: Date.now().toString(),
       name: zoneTemplate.name,
-      description: zoneTemplate.description,
-      iconId: zoneTemplate.iconId,
+      description: zoneTemplate.description || '',
+      iconId: zoneTemplate.icon,
       order: zones.length + 1,
-      stepsCount: zoneTemplate.elements?.reduce((acc, el) => acc + el.steps.length, 0) || 3,
-      qrUrl: `https://manualphi.com/z/${Math.random().toString(36).substr(2, 6)}`,
+      stepsCount: 0,
+      qrUrl: `https://itineramio.com/z/${Math.random().toString(36).substr(2, 6)}`,
       lastUpdated: new Date().toISOString().split('T')[0]
     }
 
@@ -262,42 +252,29 @@ export default async function PropertyZonesPage({ params }: { params: Promise<{ 
   }
 
   const handleOpenMultiSelect = () => {
-    setShowMultiSelectModal(true)
-    setSelectedZones([])
+    setShowTemplateSelector(true)
   }
 
-  const toggleZoneSelection = (zoneId: string) => {
-    setSelectedZones(prev => 
-      prev.includes(zoneId) 
-        ? prev.filter(id => id !== zoneId)
-        : [...prev, zoneId]
-    )
-  }
 
-  const handleCreateMultipleZones = () => {
-    const newZones = selectedZones.map(zoneId => {
-      const zoneTemplate = ZONE_CATEGORIES
-        .flatMap(cat => cat.zones)
-        .find(z => z.id === zoneId)
+  const handleSelectMultipleZones = async (zoneIds: string[]) => {
+    // Create zones from templates
+    const newZones = zoneIds.map((templateId, index) => {
+      const template = zoneTemplates.find(t => t.id === templateId)
+      if (!template) return null
       
-      if (zoneTemplate) {
-        return {
-          id: `${Date.now()}-${zoneId}`,
-          name: zoneTemplate.name,
-          description: zoneTemplate.description,
-          iconId: zoneTemplate.iconId,
-          order: zones.length + selectedZones.indexOf(zoneId) + 1,
-          stepsCount: zoneTemplate.elements?.reduce((acc, el) => acc + el.steps.length, 0) || 3,
-          qrUrl: `https://manualphi.com/z/${Math.random().toString(36).substr(2, 6)}`,
-          lastUpdated: new Date().toISOString().split('T')[0]
-        }
+      return {
+        id: `zone-${Date.now()}-${index}`,
+        name: template.name,
+        description: template.description,
+        iconId: template.icon,
+        order: zones.length + index + 1,
+        stepsCount: 0,
+        qrUrl: `https://itineramio.com/z/${Math.random().toString(36).substr(2, 9)}`,
+        lastUpdated: new Date().toISOString().split('T')[0]
       }
-      return null
     }).filter(Boolean) as Zone[]
 
     setZones([...zones, ...newZones])
-    setShowMultiSelectModal(false)
-    setSelectedZones([])
   }
 
   const handleCopyURL = async (zone: Zone) => {
@@ -546,13 +523,13 @@ export default async function PropertyZonesPage({ params }: { params: Promise<{ 
                     className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
                   >
                     <div className="flex items-center space-x-3 flex-1">
-                      <ZoneIconDisplay iconId={zone.iconId} size="sm" />
+                      <ZoneIcon iconId={zone.icon} className="w-5 h-5 text-gray-600" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">
                           {zone.name}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {essentialZones.includes(zone.id) ? 'Imprescindible' : 'Recomendada'}
+                          {zone.category === 'essential' ? 'Imprescindible' : 'Recomendada'}
                         </p>
                       </div>
                     </div>
@@ -758,13 +735,9 @@ export default async function PropertyZonesPage({ params }: { params: Promise<{ 
       <AnimatePresence>
         {showTemplateSelector && (
           <ZoneTemplateSelector
-            propertyId={id}
-            onSelect={handleApplyTemplate}
             onClose={() => setShowTemplateSelector(false)}
-            onCreateFromScratch={() => {
-              setShowTemplateSelector(false)
-              setShowCreateForm(true)
-            }}
+            onSelectZones={handleSelectMultipleZones}
+            existingZoneIds={zones.map(z => z.name.toLowerCase().replace(/\s+/g, '-'))}
           />
         )}
       </AnimatePresence>
@@ -787,7 +760,7 @@ export default async function PropertyZonesPage({ params }: { params: Promise<{ 
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <ZoneIconDisplay iconId={selectedInspirationZone.iconId} size="md" />
+                    <ZoneIcon iconId={selectedInspirationZone.icon} className="w-8 h-8 text-gray-600" />
                     <div>
                       <h3 className="text-xl font-semibold">{selectedInspirationZone.name}</h3>
                       <p className="text-gray-600">{selectedInspirationZone.description}</p>
@@ -815,28 +788,18 @@ export default async function PropertyZonesPage({ params }: { params: Promise<{ 
                     </p>
                   </div>
                   
-                  {selectedInspirationZone.elements?.slice(0, 2).map((element, index) => (
-                    <div key={element.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center space-x-2 mb-3">
-                        <ZoneIconDisplay iconId={element.iconId} size="sm" />
-                        <h5 className="font-medium">{element.name}</h5>
-                      </div>
-                      <div className="space-y-2">
-                        {element.steps.slice(0, 3).map((step, stepIndex) => (
-                          <div key={stepIndex} className="text-sm">
-                            <span className="font-medium text-gray-900">{stepIndex + 1}. {step.title}</span>
-                            {step.description && (
-                              <p className="text-gray-600 ml-4">{step.description}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                  <div className="text-center py-8 text-gray-500">
+                    <p className="mb-4">Esta zona es {selectedInspirationZone.popularity}% popular entre los hosts</p>
+                    <div className="text-left bg-gray-50 rounded-lg p-4">
+                      <h5 className="font-medium mb-2">Ejemplo de contenido:</h5>
+                      <ul className="space-y-1 text-sm text-gray-600">
+                        <li>• Instrucciones paso a paso con imágenes</li>
+                        <li>• Enlaces a manuales o videos</li>
+                        <li>• Consejos y recomendaciones útiles</li>
+                        <li>• Información de contacto relevante</li>
+                      </ul>
                     </div>
-                  )) || (
-                    <div className="text-center py-8 text-gray-500">
-                      <p>Plantilla básica disponible para esta zona</p>
-                    </div>
-                  )}
+                  </div>
                 </div>
               </div>
               
@@ -865,134 +828,6 @@ export default async function PropertyZonesPage({ params }: { params: Promise<{ 
         )}
       </AnimatePresence>
 
-      {/* Multi-Select Modal */}
-      <AnimatePresence>
-        {showMultiSelectModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-lg w-full max-w-3xl max-h-[80vh] overflow-hidden"
-            >
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-xl font-semibold">Añadir Zonas Múltiples</h3>
-                    <p className="text-gray-600">Selecciona las zonas que quieres añadir a tu propiedad</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowMultiSelectModal(false)}
-                  >
-                    <X className="w-5 h-5" />
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="p-6 overflow-y-auto max-h-96">
-                <div className="space-y-6">
-                  {/* Essential Zones */}
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3 flex items-center">
-                      <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                      Imprescindibles
-                    </h4>
-                    <div className="grid grid-cols-2 gap-3">
-                      {getMissingZones().filter(zone => essentialZones.includes(zone.id)).map((zone) => (
-                        <div
-                          key={zone.id}
-                          className={cn(
-                            "flex items-center space-x-3 p-3 border-2 rounded-lg cursor-pointer transition-colors",
-                            selectedZones.includes(zone.id)
-                              ? "border-violet-500 bg-violet-50"
-                              : "border-gray-200 hover:border-gray-300"
-                          )}
-                          onClick={() => toggleZoneSelection(zone.id)}
-                        >
-                          <div className="flex items-center space-x-2 flex-1">
-                            <ZoneIconDisplay iconId={zone.iconId} size="sm" />
-                            <div>
-                              <p className="font-medium text-sm">{zone.name}</p>
-                              <p className="text-xs text-gray-600">{zone.description}</p>
-                            </div>
-                          </div>
-                          {selectedZones.includes(zone.id) && (
-                            <CheckCircle className="w-5 h-5 text-violet-600" />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Recommended Zones */}
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3 flex items-center">
-                      <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
-                      Recomendadas
-                    </h4>
-                    <div className="grid grid-cols-2 gap-3">
-                      {getMissingZones().filter(zone => recommendedZones.includes(zone.id)).map((zone) => (
-                        <div
-                          key={zone.id}
-                          className={cn(
-                            "flex items-center space-x-3 p-3 border-2 rounded-lg cursor-pointer transition-colors",
-                            selectedZones.includes(zone.id)
-                              ? "border-violet-500 bg-violet-50"
-                              : "border-gray-200 hover:border-gray-300"
-                          )}
-                          onClick={() => toggleZoneSelection(zone.id)}
-                        >
-                          <div className="flex items-center space-x-2 flex-1">
-                            <ZoneIconDisplay iconId={zone.iconId} size="sm" />
-                            <div>
-                              <p className="font-medium text-sm">{zone.name}</p>
-                              <p className="text-xs text-gray-600">{zone.description}</p>
-                            </div>
-                          </div>
-                          {selectedZones.includes(zone.id) && (
-                            <CheckCircle className="w-5 h-5 text-violet-600" />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="p-6 bg-gray-50 border-t border-gray-200">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm text-gray-600">
-                    {selectedZones.length} zona{selectedZones.length !== 1 ? 's' : ''} seleccionada{selectedZones.length !== 1 ? 's' : ''}
-                  </p>
-                  <div className="flex space-x-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowMultiSelectModal(false)}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button
-                      onClick={handleCreateMultipleZones}
-                      disabled={selectedZones.length === 0}
-                      className="bg-violet-600 hover:bg-violet-700"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Añadir {selectedZones.length} Zona{selectedZones.length !== 1 ? 's' : ''}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   )
 }
