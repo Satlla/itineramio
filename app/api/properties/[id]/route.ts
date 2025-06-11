@@ -11,7 +11,7 @@ export async function GET(
     // TODO: Get user ID from authentication session  
     // For now, find the demo user
     const demoUser = await prisma.user.findUnique({
-      where: { email: 'demo@manualphi.com' }
+      where: { email: 'demo@itineramio.com' }
     })
     
     if (!demoUser) {
@@ -87,7 +87,7 @@ export async function PUT(
     // TODO: Get user ID from authentication session  
     // For now, find the demo user
     const demoUser = await prisma.user.findUnique({
-      where: { email: 'demo@manualphi.com' }
+      where: { email: 'demo@itineramio.com' }
     })
     
     if (!demoUser) {
@@ -148,7 +148,7 @@ export async function DELETE(
     // TODO: Get user ID from authentication session  
     // For now, find the demo user
     const demoUser = await prisma.user.findUnique({
-      where: { email: 'demo@manualphi.com' }
+      where: { email: 'demo@itineramio.com' }
     })
     
     if (!demoUser) {

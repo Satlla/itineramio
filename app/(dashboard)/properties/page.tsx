@@ -227,26 +227,6 @@ export default function PropertiesPage() {
     setCopied(false)
   }
 
-  const cleanupBlobUrls = async () => {
-    try {
-      const response = await fetch('/api/cleanup-blob-urls', {
-        method: 'POST'
-      })
-      const result = await response.json()
-      
-      if (response.ok) {
-        alert(`URLs blob limpiadas: ${result.propertiesUpdated} propiedades y ${result.propertySetsUpdated} conjuntos actualizados`)
-        // Refresh data
-        fetchProperties()
-        fetchPropertySets()
-      } else {
-        alert('Error al limpiar URLs blob')
-      }
-    } catch (error) {
-      console.error('Error cleaning blob URLs:', error)
-      alert('Error al limpiar URLs blob')
-    }
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -262,14 +242,6 @@ export default function PropertiesPage() {
             </div>
             
             <div className="flex items-center space-x-3">
-              <Button 
-                onClick={cleanupBlobUrls}
-                variant="outline" 
-                className="border-red-600 text-red-600 hover:bg-red-50"
-                size="sm"
-              >
-                🧹 Limpiar URLs
-              </Button>
               <Link href="/properties/new">
                 <Button className="bg-violet-600 hover:bg-violet-700">
                   <Plus className="w-4 h-4 mr-2" />

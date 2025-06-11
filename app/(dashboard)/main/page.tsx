@@ -70,7 +70,7 @@ export default function DashboardPage() {
   // Mock user data simple
   const user = {
     name: 'Demo User',
-    email: 'demo@manualphi.com',
+    email: 'demo@itineramio.com',
     avatar: undefined
   }
 
