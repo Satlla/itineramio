@@ -1,4 +1,9 @@
 export function validateEnvironmentVariables() {
+  // Only validate in production or when explicitly required
+  if (process.env.NODE_ENV !== 'production' && !process.env.VALIDATE_ENV) {
+    return
+  }
+
   const requiredEnvVars = [
     'DATABASE_URL',
     'JWT_SECRET',

@@ -1,8 +1,8 @@
 # Build stage
 FROM node:18-alpine AS builder
 
-# Install dependencies needed for building
-RUN apk add --no-cache libc6-compat python3 make g++
+# Install dependencies needed for building - simplified
+RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
