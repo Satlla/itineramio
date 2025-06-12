@@ -2,19 +2,24 @@
 FROM node:18-alpine AS builder
 
 # Install dependencies needed for building
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat python3 make g++
 
 WORKDIR /app
 
-# Copy package files
+# Copy root package files first (for monorepo)
 COPY package*.json ./
-COPY prisma ./prisma/
+COPY pnpm-workspace.yaml* ./
+COPY turbo.json* ./
 
-# Install dependencies with clean cache
-RUN npm ci --prefer-offline --no-audit --no-fund --loglevel=error
+# Copy app-specific package files
+COPY apps/web/package*.json ./apps/web/
+COPY apps/web/prisma ./apps/web/prisma/
+
+# Install dependencies - using install instead of ci for better compatibility
+RUN cd apps/web && npm install --legacy-peer-deps --no-audit --no-fund
 
 # Copy application code
-COPY . .
+COPY apps/web ./apps/web
 
 # Set build-time environment variables
 ARG DATABASE_URL
@@ -26,6 +31,9 @@ ENV DATABASE_URL=$DATABASE_URL
 ENV JWT_SECRET=$JWT_SECRET
 ENV RESEND_API_KEY=$RESEND_API_KEY
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+
+# Move to web directory and build
+WORKDIR /app/apps/web
 
 # Generate Prisma client
 RUN npx prisma generate
@@ -42,11 +50,11 @@ WORKDIR /app
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
 
-# Copy built application
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+# Copy built application from the correct path
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/prisma ./prisma
 
 # Switch to non-root user
 USER nextjs
