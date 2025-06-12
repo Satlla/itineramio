@@ -59,6 +59,8 @@ Thumbs.db
 .parcel-cache/
 .npm/
 .yarn/
+*.cache
+.turbo/
 
 # Temporary files
 tmp/
