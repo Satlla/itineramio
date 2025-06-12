@@ -7,10 +7,9 @@ if (!JWT_SECRET) {
 }
 
 const protectedRoutes: string[] = [
-  // Deshabilitado por ahora para simplificar
-  // '/main',
-  // '/properties', 
-  // '/analytics'
+  '/main',
+  '/properties', 
+  '/property-sets'
 ]
 
 const authRoutes = [

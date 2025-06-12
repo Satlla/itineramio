@@ -21,7 +21,15 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() }
+      where: { email: email.toLowerCase() },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        password: true,
+        emailVerified: true,
+        status: true
+      }
     })
 
     if (!user) {
@@ -38,6 +46,16 @@ export async function POST(request: NextRequest) {
         success: false,
         error: 'Credenciales inválidas'
       }, { status: 401 })
+    }
+
+    // Check if email is verified
+    if (!user.emailVerified) {
+      return NextResponse.json({
+        success: false,
+        error: 'EMAIL_NOT_VERIFIED',
+        message: 'Tu email no ha sido verificado. Revisa tu bandeja de entrada.',
+        email: user.email
+      }, { status: 403 })
     }
 
     const token = jwt.sign(

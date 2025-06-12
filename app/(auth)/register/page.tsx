@@ -152,8 +152,8 @@ export default function RegisterPage() {
         return
       }
       
-      // Success - redirect to login with verification message
-      router.push('/login?message=Cuenta creada. Revisa tu email para verificar tu cuenta.')
+      // Success - redirect to verification required page
+      router.push('/verify-required')
       
     } catch (error) {
       console.error('Registration error:', error)

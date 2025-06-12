@@ -110,22 +110,43 @@ function LoginContent() {
     setLoading(true)
     setErrors(prev => ({ ...prev, general: '' }))
     
-    // Login simple - solo verificar credenciales demo
-    setTimeout(() => {
-      if (
-        formData.email === 'demo@itineramio.com' && 
-        formData.password === 'Demo1234'
-      ) {
-        // Login exitoso - ir directamente al dashboard
-        router.push('/main')
-      } else {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        if (data.error === 'EMAIL_NOT_VERIFIED') {
+          // Redirect to verification page with email
+          router.push(`/verify-required?email=${encodeURIComponent(data.email)}`)
+          return
+        }
+        
         setErrors(prev => ({
           ...prev,
-          general: 'Credenciales incorrectas. Usa demo@itineramio.com / Demo1234'
+          general: data.error || 'Error en el login'
         }))
-        setLoading(false)
+        return
       }
-    }, 1000)
+      
+      // Success - redirect to dashboard
+      router.push('/main')
+      
+    } catch (error) {
+      console.error('Login error:', error)
+      setErrors(prev => ({ 
+        ...prev, 
+        general: 'Error de conexión. Inténtalo de nuevo.' 
+      }))
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
