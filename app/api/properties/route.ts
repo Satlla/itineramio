@@ -205,7 +205,7 @@ export async function GET(request: NextRequest) {
       where.type = type
     }
     
-    // Get properties
+    // Get properties with zones count in a single query
     const properties = await prisma.property.findMany({
       where,
       skip: (page - 1) * limit,
@@ -214,43 +214,40 @@ export async function GET(request: NextRequest) {
         createdAt: 'desc'
       },
       include: {
-        analytics: true
+        analytics: true,
+        _count: {
+          select: {
+            zones: true
+          }
+        }
       }
     })
     
     const total = await prisma.property.count({ where })
     
-    // Get zones count separately to avoid schema issues
-    const propertiesWithZones = await Promise.all(
-      properties.map(async (property) => {
-        const zonesCount = await prisma.zone.count({
-          where: { propertyId: property.id }
-        })
-        
-        return {
-          id: property.id,
-          name: property.name,
-          description: property.description,
-          type: property.type,
-          city: property.city,
-          state: property.state,
-          bedrooms: property.bedrooms,
-          bathrooms: property.bathrooms,
-          maxGuests: property.maxGuests,
-          zonesCount,
-          totalViews: property.analytics?.totalViews || 0,
-          avgRating: property.analytics?.overallRating || 0,
-          status: property.status,
-          createdAt: property.createdAt,
-          updatedAt: property.updatedAt,
-          isPublished: property.isPublished,
-          profileImage: property.profileImage,
-          propertySetId: property.propertySetId,
-          hostContactName: property.hostContactName,
-          hostContactPhoto: property.hostContactPhoto
-        }
-      })
-    )
+    // Transform properties data without additional queries
+    const propertiesWithZones = properties.map((property) => ({
+      id: property.id,
+      name: property.name,
+      description: property.description,
+      type: property.type,
+      city: property.city,
+      state: property.state,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      maxGuests: property.maxGuests,
+      zonesCount: property._count.zones,
+      totalViews: property.analytics?.totalViews || 0,
+      avgRating: property.analytics?.overallRating || 0,
+      status: property.status,
+      createdAt: property.createdAt,
+      updatedAt: property.updatedAt,
+      isPublished: property.isPublished,
+      profileImage: property.profileImage,
+      propertySetId: property.propertySetId,
+      hostContactName: property.hostContactName,
+      hostContactPhoto: property.hostContactPhoto
+    }))
     
     return NextResponse.json({
       success: true,

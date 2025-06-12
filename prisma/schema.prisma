@@ -33,7 +33,7 @@ model User {
 }
 
 model PropertySet {
-  id                  String    @id @default(cuid())
+  id                  String     @id @default(cuid())
   hostId              String
   name                String
   description         String
@@ -44,18 +44,18 @@ model PropertySet {
   postalCode          String
   latitude            Float?
   longitude           Float?
-  type                String    // HOTEL, BUILDING, COMPLEX, RESORT, etc.
+  type                String
   profileImage        String?
   hostContactName     String
   hostContactPhone    String
   hostContactEmail    String
-  hostContactLanguage String    @default("es")
+  hostContactLanguage String     @default("es")
   hostContactPhoto    String?
-  status              String    @default("DRAFT")
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-  host                User      @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  status              String     @default("DRAFT")
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
   properties          Property[]
+  host                User       @relation(fields: [hostId], references: [id], onDelete: Cascade)
 
   @@map("property_sets")
 }
@@ -93,9 +93,9 @@ model Property {
   updatedAt           DateTime           @updatedAt
   publishedAt         DateTime?
   buildings           buildings?         @relation(fields: [buildingId], references: [id])
+  host                User               @relation(fields: [hostId], references: [id], onDelete: Cascade)
   organizations       organizations?     @relation(fields: [organizationId], references: [id])
   propertySet         PropertySet?       @relation(fields: [propertySetId], references: [id])
-  host                User               @relation(fields: [hostId], references: [id], onDelete: Cascade)
   analytics           PropertyAnalytics?
   zones               Zone[]
 
@@ -295,8 +295,8 @@ model organization_members {
   role           String
   permissions    Json          @default("[]")
   joinedAt       DateTime      @default(now())
-  users          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   organizations  organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  users          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, userId])
 }
