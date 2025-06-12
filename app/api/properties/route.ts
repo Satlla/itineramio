@@ -28,10 +28,10 @@ const createPropertySchema = z.object({
   postalCode: z.string().regex(/^[0-9]{5}$/),
   
   // Characteristics
-  bedrooms: z.number().min(0).max(20),
-  bathrooms: z.number().min(0).max(10),
-  maxGuests: z.number().min(1).max(50),
-  squareMeters: z.number().min(10).max(1000).optional(),
+  bedrooms: z.coerce.number().min(0).max(20),
+  bathrooms: z.coerce.number().min(0).max(10),
+  maxGuests: z.coerce.number().min(1).max(50),
+  squareMeters: z.coerce.number().min(10).max(1000).optional(),
   
   // Property image
   profileImage: z.string().optional(),
@@ -47,6 +47,8 @@ const createPropertySchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    
+    console.log('Creating property with data:', body)
     
     // Validate request data
     const validatedData = createPropertySchema.parse(body)
@@ -65,6 +67,9 @@ export async function POST(request: NextRequest) {
     }
     
     const userId = demoUser.id
+    
+    console.log('Validated data:', validatedData)
+    console.log('User ID:', userId)
     
     // Create property in database
     const property = await prisma.property.create({
@@ -116,6 +121,33 @@ export async function POST(request: NextRequest) {
       }
     })
     
+    // Create popular zones for the property
+    try {
+      console.log('Creating popular zones for property:', property.id)
+      
+      const zonePromises = POPULAR_ZONES.map(zone => 
+        prisma.zone.create({
+          data: {
+            propertyId: property.id,
+            name: { es: zone.name },
+            description: { es: zone.description },
+            icon: zone.iconId,
+            color: 'bg-gray-100',
+            order: zone.order,
+            status: 'ACTIVE',
+            qrCode: `qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            accessCode: `ac_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+          }
+        })
+      )
+      
+      await Promise.all(zonePromises)
+      console.log('Popular zones created successfully')
+    } catch (zoneError) {
+      console.error('Error creating popular zones:', zoneError)
+      // Don't fail the property creation if zones fail
+    }
+    
     return NextResponse.json({
       success: true,
       data: property
@@ -134,7 +166,8 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: false,
-      error: 'Error interno del servidor'
+      error: 'Error interno del servidor',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
 }

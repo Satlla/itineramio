@@ -1,16 +1,16 @@
-import { PrismaClient } from '@prisma/client'
+const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
 
 async function main() {
   // Create demo user
   const user = await prisma.user.upsert({
-    where: { email: 'alejandro@itineramio.com' },
+    where: { email: 'demo@itineramio.com' },
     update: {},
     create: {
       id: 'demo-user-id',
-      email: 'alejandro@itineramio.com',
-      name: 'Alejandro Satlla',
+      email: 'demo@itineramio.com',
+      name: 'Demo User',
       preferredLanguage: 'es',
       timezone: 'Europe/Madrid',
       status: 'ACTIVE',

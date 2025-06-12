@@ -265,14 +265,6 @@ export default function DashboardPage() {
                   Aquí tienes un resumen de tus propiedades y manuales
                 </p>
               </div>
-              <div className="flex items-center space-x-3">
-                <Button asChild className="bg-violet-600 hover:bg-violet-700">
-                  <Link href="/properties/new">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Nueva Propiedad
-                  </Link>
-                </Button>
-              </div>
             </div>
           </motion.div>
 

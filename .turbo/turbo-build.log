@@ -17,20 +17,59 @@ Tip: Interested in query caching in just a few lines of code? Try Accelerate tod
    - Environments: .env.local, .env
 
  [37m[1m [22m[39m Creating an optimized production build ...
- [32m[1m✓[22m[39m Compiled successfully in 3.0s
+ [32m[1m✓[22m[39m Compiled successfully in 2000ms
 [?25l [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G[?25h [37m[1m [22m[39m Linting and checking validity of types     [32m[1m✓[22m[39m Linting and checking validity of types 
-[?25l [37m[1m [22m[39m Collecting page data  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m.[39m[2K[1G[?25h [37m[1m [22m[39m Collecting page data     [32m[1m✓[22m[39m Collecting page data 
-[?25l [37m[1m [22m[39m Generating static pages (0/22)  [36m[    ][39m[2K[1G [37m[1m [22m[39m Generating static pages (0/22)  [36m[=   ][39m[2K[1G[?25hError occurred prerendering page "/api/auth/logout". Read more: https://nextjs.org/docs/messages/prerender-error
-PageNotFoundError: Cannot find module for page: /api/auth/logout/route
-    at getPagePath (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/server/require.js:88:15)
-    at requirePage (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/server/require.js:93:22)
-    at loadComponentsImpl (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/server/load-components.js:132:57)
-    at async exportPageImpl (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/export/worker.js:163:24)
-    at async Span.traceAsyncFn (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/trace/trace.js:157:20)
-    at async exportPage (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/export/worker.js:357:18)
-    at async exportPageWithRetry (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/export/worker.js:247:26)
-    at async Promise.all (index 3)
-    at async Object.exportPages (/Users/alejandrosatlla/Documents/manualphi/node_modules/next/dist/export/worker.js:334:31)
-Export encountered an error on /api/auth/logout/route: /api/auth/logout, exiting the build.
- [31m[1m⨯[22m[39m Next.js build worker exited with code: 1 and signal: null
-[?25h[41m[30m ELIFECYCLE [39m[49m [31mCommand failed with exit code 1.[39m
+[?25l [37m[1m [22m[39m Collecting page data  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m...[39m[2K[1G[?25h [37m[1m [22m[39m Collecting page data     [32m[1m✓[22m[39m Collecting page data 
+[?25l [37m[1m [22m[39m Generating static pages (0/22)  [36m[    ][39m[2K[1G [37m[1m [22m[39m Generating static pages (0/22)  [36m[=   ][39m[2K[1G [37m[1m [22m[39m Generating static pages (10/22)  [36m[==  ][39m[2K[1G[?25h [32m[1m✓[22m[39m Generating static pages (22/22)
+[?25l [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[?25l [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G[?25h [37m[1m [22m[39m Collecting build traces     [32m[1m✓[22m[39m Collecting build traces 
+[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[?25h [37m[1m [22m[39m Finalizing page optimization     [32m[1m✓[22m[39m Finalizing page optimization 
+
+[4mRoute (app)[24m                                                [4mSize[24m  [4mFirst Load JS[24m  [4m[24m  [4m[24m
+┌ ○ /                                                     178 B         [37m[1m105 kB[22m[39m
+├ ○ /_not-found                                           985 B         [37m[1m103 kB[22m[39m
+├ ƒ /api/auth/login                                       187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/auth/logout                                      187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/auth/me                                          187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/cleanup-blob-urls                                187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/properties                                       187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/properties/[id]                                  187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/properties/[id]/toggle                           187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/properties/[id]/zones                            187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/properties/[id]/zones/[zoneId]                   187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/properties/[id]/zones/[zoneId]/steps             187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/properties/[id]/zones/[zoneId]/steps/[stepId]    187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/property-sets                                    187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/property-sets/[id]                               187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/test-db                                          187 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/upload                                           187 B         [37m[1m102 kB[22m[39m
+├ ○ /cookies                                            2.38 kB         [37m[1m149 kB[22m[39m
+├ ○ /forgot-password                                    2.39 kB         [37m[1m149 kB[22m[39m
+├ ƒ /guide/[propertyId]                                 4.35 kB         [37m[1m148 kB[22m[39m
+├ ƒ /guide/[propertyId]/[zoneId]                        7.69 kB         [37m[1m154 kB[22m[39m
+├ ○ /login                                              4.58 kB         [37m[1m151 kB[22m[39m
+├ ○ /main                                               7.15 kB         [37m[1m200 kB[22m[39m
+├ ○ /privacy                                            2.63 kB         [37m[1m149 kB[22m[39m
+├ ○ /properties                                         5.83 kB         [37m[1m177 kB[22m[39m
+├ ƒ /properties/[id]                                    5.18 kB         [37m[1m152 kB[22m[39m
+├ ƒ /properties/[id]/steps                              2.43 kB         [37m[1m157 kB[22m[39m
+├ ƒ /properties/[id]/zones                              21.6 kB         [37m[1m201 kB[22m[39m
+├ ƒ /properties/[id]/zones/[zoneId]                     4.63 kB         [37m[1m151 kB[22m[39m
+├ ƒ /properties/[id]/zones/[zoneId]/steps               6.14 kB         [37m[1m161 kB[22m[39m
+├ ƒ /properties/[id]/zones/[zoneId]/steps/new           6.23 kB         [37m[1m142 kB[22m[39m
+├ ƒ /properties/[id]/zones/new                          4.49 kB         [37m[1m140 kB[22m[39m
+├ ○ /properties/new                                     12.6 kB         [37m[1m182 kB[22m[39m
+├ ○ /property-sets/new                                  8.04 kB         [37m[1m177 kB[22m[39m
+├ ○ /register                                           4.71 kB         [37m[1m154 kB[22m[39m
+└ ○ /terms                                              2.98 kB         [37m[1m150 kB[22m[39m
++ First Load JS shared by all                            [37m[1m102 kB[22m[39m
+  ├ chunks/8315-9806614f0a2159b1.js                     46.5 kB
+  ├ chunks/87c73c54-f4538fcb48338e29.js                 53.2 kB
+  └ other shared chunks (total)                         1.93 kB
+
+
+ƒ Middleware                                            [37m[1m50.3 kB[22m[39m
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+[?25h
