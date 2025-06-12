@@ -15,14 +15,20 @@ export interface EmailOptions {
   from?: string
 }
 
-export async function sendEmail({ to, subject, html, from = 'onboarding@resend.dev' }: EmailOptions) {
+// Use a fallback email that works with Resend for development
+const DEFAULT_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
+
+export async function sendEmail({ to, subject, html, from = DEFAULT_FROM_EMAIL }: EmailOptions) {
   // Skip email sending if no API key is configured
   if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 'test_key') {
     console.warn('Email sending skipped - no valid RESEND_API_KEY configured')
+    console.log('Would have sent email:', { to, subject, from })
     return { id: 'test-email-id', skipped: true }
   }
 
   try {
+    console.log('Attempting to send email:', { to, from, subject })
+    
     const { data, error } = await resend.emails.send({
       from,
       to,
@@ -31,7 +37,13 @@ export async function sendEmail({ to, subject, html, from = 'onboarding@resend.d
     })
 
     if (error) {
-      console.error('Error sending email:', error)
+      console.error('Resend API error:', error)
+      
+      // Provide more specific error messages
+      if (error.name === 'validation_error' && error.message.includes('domain is not verified')) {
+        throw new Error(`Email domain not verified: ${from}. Please verify the domain in Resend dashboard or use a different from address.`)
+      }
+      
       throw new Error(`Failed to send email: ${error.message}`)
     }
 
@@ -39,6 +51,13 @@ export async function sendEmail({ to, subject, html, from = 'onboarding@resend.d
     return data
   } catch (error) {
     console.error('Email service error:', error)
+    
+    // In development, don't fail the entire operation if email fails
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Email failed in development, continuing anyway')
+      return { id: 'dev-email-failed', error: error.message }
+    }
+    
     throw error
   }
 }
@@ -120,7 +139,7 @@ export const emailTemplates = {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://itineramio.com/main" 
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/main" 
              style="background: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
             Ir a mi dashboard
           </a>
