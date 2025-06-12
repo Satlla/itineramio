@@ -6,10 +6,19 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'vercel.app',
       },
     ],
     formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60,
   },
 }
 

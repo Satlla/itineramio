@@ -9,8 +9,8 @@ export async function POST(request: NextRequest) {
 
     response.cookies.set('auth-token', '', {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
       expires: new Date(0),
       path: '/'
     })

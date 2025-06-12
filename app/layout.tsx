@@ -4,6 +4,12 @@ import './globals.css'
 import { Providers } from './providers'
 import { I18nProvider } from '@/providers/I18nProvider'
 import { Toaster } from 'react-hot-toast'
+import { validateEnvironmentVariables } from '@/lib/env-validation'
+
+// Validate environment variables on startup
+if (typeof window === 'undefined') {
+  validateEnvironmentVariables()
+}
 
 const inter = Inter({ 
   subsets: ['latin'],

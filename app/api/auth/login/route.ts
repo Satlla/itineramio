@@ -3,7 +3,10 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma } from '@/lib/prisma'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+const JWT_SECRET = process.env.JWT_SECRET
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required')
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,11 +57,11 @@ export async function POST(request: NextRequest) {
       user: userResponse
     })
 
-    console.log('Setting cookie with token:', token.substring(0, 20) + '...')
+    // Token set successfully
     response.cookies.set('auth-token', token, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
       maxAge: 24 * 60 * 60,
       path: '/'
     })
