@@ -1,0 +1,109 @@
+import { prisma } from './prisma'
+import { sendEmail, emailTemplates } from './email'
+import { randomBytes } from 'crypto'
+
+export class EmailVerificationService {
+  // Generate verification token
+  static async createVerificationToken(email: string): Promise<string> {
+    const token = randomBytes(32).toString('hex')
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+
+    // Delete any existing tokens for this email
+    await prisma.emailVerificationToken.deleteMany({
+      where: { email }
+    })
+
+    // Create new token
+    await prisma.emailVerificationToken.create({
+      data: {
+        email,
+        token,
+        expires
+      }
+    })
+
+    return token
+  }
+
+  // Send verification email
+  static async sendVerificationEmail(email: string, userName: string): Promise<void> {
+    const token = await this.createVerificationToken(email)
+    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/verify-email?token=${token}`
+
+    await sendEmail({
+      to: email,
+      subject: 'Confirma tu cuenta - Itineramio',
+      html: emailTemplates.emailVerification(verificationUrl, userName)
+    })
+  }
+
+  // Verify email token
+  static async verifyEmailToken(token: string): Promise<{ success: boolean; email?: string; error?: string }> {
+    try {
+      const verificationToken = await prisma.emailVerificationToken.findUnique({
+        where: { token }
+      })
+
+      if (!verificationToken) {
+        return { success: false, error: 'Token inválido' }
+      }
+
+      if (verificationToken.expires < new Date()) {
+        // Delete expired token
+        await prisma.emailVerificationToken.delete({
+          where: { token }
+        })
+        return { success: false, error: 'Token expirado' }
+      }
+
+      // Mark user as verified
+      await prisma.user.update({
+        where: { email: verificationToken.email },
+        data: { 
+          emailVerified: new Date(),
+          status: 'ACTIVE' // Update status from PENDING to ACTIVE
+        }
+      })
+
+      // Delete used token
+      await prisma.emailVerificationToken.delete({
+        where: { token }
+      })
+
+      return { success: true, email: verificationToken.email }
+    } catch (error) {
+      console.error('Error verifying email token:', error)
+      return { success: false, error: 'Error al verificar el token' }
+    }
+  }
+
+  // Send welcome email
+  static async sendWelcomeEmail(email: string, userName: string): Promise<void> {
+    await sendEmail({
+      to: email,
+      subject: '¡Bienvenido a Itineramio!',
+      html: emailTemplates.welcomeEmail(userName)
+    })
+  }
+
+  // Cleanup expired tokens (can be called periodically)
+  static async cleanupExpiredTokens(): Promise<number> {
+    const result = await prisma.emailVerificationToken.deleteMany({
+      where: {
+        expires: {
+          lt: new Date()
+        }
+      }
+    })
+    return result.count
+  }
+}
+
+// Helper function to check if email is verified
+export async function isEmailVerified(email: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { emailVerified: true }
+  })
+  return !!user?.emailVerified
+}

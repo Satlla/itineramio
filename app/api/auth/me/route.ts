@@ -24,14 +24,14 @@ export async function GET(request: NextRequest) {
         // Create a token for the demo user
         const demoToken = jwt.sign(
           { userId: 'demo-user-id' },
-          JWT_SECRET,
+          JWT_SECRET as string,
           { expiresIn: '24h' }
         )
         
         const response = NextResponse.json({ user: demoUser })
         response.cookies.set('auth-token', demoToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
+          secure: process.env.NODE_ENV !== 'development',
           sameSite: 'strict',
           maxAge: 24 * 60 * 60,
           path: '/'
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify JWT token
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string }
     
     // For demo user, return without DB lookup
     if (decoded.userId === 'demo-user-id') {

@@ -4,7 +4,6 @@ const nextConfig = {
   output: 'standalone',
   
   // Optimización de build
-  swcMinify: true,
   generateBuildId: async () => {
     // Use commit hash as build id for better caching
     return process.env.VERCEL_GIT_COMMIT_SHA || 'development'
@@ -70,7 +69,6 @@ const nextConfig = {
   
   // Configuración experimental para mejorar builds
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['lucide-react', '@radix-ui/react-dropdown-menu'],
   },
 }

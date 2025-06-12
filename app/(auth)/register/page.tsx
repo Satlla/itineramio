@@ -117,16 +117,53 @@ export default function RegisterPage() {
 
     setLoading(true)
     
-    // Simular registro
-    setTimeout(() => {
-      console.log('Registrando usuario:', {
-        ...formData,
-        registrationLanguage: navigator.language // Guardar idioma de registro
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          acceptTerms,
+          registrationLanguage: navigator.language || 'es'
+        }),
       })
       
-      // Redirigir al dashboard después del registro
-      router.push('/dashboard')
-    }, 2000)
+      const data = await response.json()
+      
+      if (!response.ok) {
+        // Handle validation errors
+        if (data.details) {
+          const newErrors = { ...errors }
+          data.details.forEach((detail: { field: string; message: string }) => {
+            if (detail.field in newErrors) {
+              newErrors[detail.field as keyof typeof newErrors] = detail.message
+            }
+          })
+          setErrors(newErrors)
+        } else {
+          // Show general error
+          setErrors(prev => ({ 
+            ...prev, 
+            email: data.error || 'Error en el registro' 
+          }))
+        }
+        return
+      }
+      
+      // Success - redirect to login with verification message
+      router.push('/login?message=Cuenta creada. Revisa tu email para verificar tu cuenta.')
+      
+    } catch (error) {
+      console.error('Registration error:', error)
+      setErrors(prev => ({ 
+        ...prev, 
+        email: 'Error de conexión. Inténtalo de nuevo.' 
+      }))
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

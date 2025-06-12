@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Zap, 
@@ -15,15 +15,17 @@ import {
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '../../../src/providers/AuthProvider'
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [resendingEmail, setResendingEmail] = useState(false)
   
   const [formData, setFormData] = useState({
     email: '',
@@ -35,6 +37,36 @@ export default function LoginPage() {
     password: '',
     general: ''
   })
+
+  const [messages, setMessages] = useState({
+    success: '',
+    info: '',
+    warning: ''
+  })
+
+  // Handle URL parameters for messages
+  useEffect(() => {
+    const verified = searchParams.get('verified')
+    const error = searchParams.get('error')
+    const message = searchParams.get('message')
+
+    if (verified === 'true') {
+      setMessages(prev => ({
+        ...prev,
+        success: '¡Email verificado exitosamente! Ya puedes iniciar sesión.'
+      }))
+    } else if (error) {
+      setErrors(prev => ({
+        ...prev,
+        general: decodeURIComponent(error)
+      }))
+    } else if (message) {
+      setMessages(prev => ({
+        ...prev,
+        info: decodeURIComponent(message)
+      }))
+    }
+  }, [searchParams])
 
   // Demo credentials for testing
   const demoCredentials = {
@@ -114,6 +146,51 @@ export default function LoginPage() {
     setErrors({ email: '', password: '', general: '' })
   }
 
+  const resendVerificationEmail = async () => {
+    if (!formData.email) {
+      setErrors(prev => ({
+        ...prev,
+        email: 'Ingresa tu email para reenviar la verificación'
+      }))
+      return
+    }
+
+    setResendingEmail(true)
+    setMessages({ success: '', info: '', warning: '' })
+    setErrors(prev => ({ ...prev, general: '' }))
+
+    try {
+      const response = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: formData.email }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setMessages(prev => ({
+          ...prev,
+          success: 'Email de verificación enviado. Revisa tu bandeja de entrada.'
+        }))
+      } else {
+        setErrors(prev => ({
+          ...prev,
+          general: data.error || 'Error al enviar email de verificación'
+        }))
+      }
+    } catch (error) {
+      setErrors(prev => ({
+        ...prev,
+        general: 'Error de conexión. Inténtalo de nuevo.'
+      }))
+    } finally {
+      setResendingEmail(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex flex-col">
       {/* Header */}
@@ -187,6 +264,41 @@ export default function LoginPage() {
                 </div>
               </div>
             </div>
+
+            {/* Success Message */}
+            {messages.success && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="text-sm text-green-700">{messages.success}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Info Message */}
+            {messages.info && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <AlertCircle className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm text-blue-700">{messages.info}</span>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={resendVerificationEmail}
+                    disabled={resendingEmail}
+                    className="h-8 px-3 text-xs text-blue-600 hover:text-blue-700"
+                  >
+                    {resendingEmail ? 'Enviando...' : 'Reenviar email'}
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* General Error */}
             {errors.general && (
@@ -331,5 +443,13 @@ export default function LoginPage() {
         </motion.div>
       </main>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center"><div className="text-center"><div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div><p className="text-gray-600">Cargando...</p></div></div>}>
+      <LoginContent />
+    </Suspense>
   )
 }

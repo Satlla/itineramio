@@ -38,7 +38,7 @@ export function middleware(request: NextRequest) {
     }
 
     try {
-      jwt.verify(token, JWT_SECRET)
+      jwt.verify(token, JWT_SECRET as string)
     } catch (error) {
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('from', pathname)
@@ -58,7 +58,7 @@ export function middleware(request: NextRequest) {
 
   if (isAuthRoute && token) {
     try {
-      jwt.verify(token, JWT_SECRET)
+      jwt.verify(token, JWT_SECRET as string)
       return NextResponse.redirect(new URL('/main', request.url))
     } catch (error) {
       const response = NextResponse.next()

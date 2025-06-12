@@ -2,7 +2,8 @@ export function validateEnvironmentVariables() {
   const requiredEnvVars = [
     'DATABASE_URL',
     'JWT_SECRET',
-    'NEXT_PUBLIC_APP_URL'
+    'NEXT_PUBLIC_APP_URL',
+    'RESEND_API_KEY'
   ]
 
   const missingVars = requiredEnvVars.filter(envVar => !process.env[envVar])
