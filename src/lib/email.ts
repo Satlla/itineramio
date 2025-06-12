@@ -1,10 +1,12 @@
 import { Resend } from 'resend'
 
+const RESEND_API_KEY = process.env.RESEND_API_KEY || 'test_key'
+
 if (!process.env.RESEND_API_KEY && process.env.NODE_ENV === 'production') {
   console.warn('RESEND_API_KEY environment variable is not set')
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(RESEND_API_KEY)
 
 export interface EmailOptions {
   to: string | string[]
@@ -14,6 +16,12 @@ export interface EmailOptions {
 }
 
 export async function sendEmail({ to, subject, html, from = 'hola@itineramio.com' }: EmailOptions) {
+  // Skip email sending if no API key is configured
+  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 'test_key') {
+    console.warn('Email sending skipped - no valid RESEND_API_KEY configured')
+    return { id: 'test-email-id', skipped: true }
+  }
+
   try {
     const { data, error } = await resend.emails.send({
       from,
