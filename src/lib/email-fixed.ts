@@ -55,7 +55,7 @@ export async function sendEmail({ to, subject, html, from = DEFAULT_FROM_EMAIL }
     // In development, don't fail the entire operation if email fails
     if (process.env.NODE_ENV === 'development') {
       console.warn('Email failed in development, continuing anyway')
-      return { id: 'dev-email-failed', error: error.message }
+      return { id: 'dev-email-failed', error: error instanceof Error ? error.message : 'Unknown error' }
     }
     
     throw error
