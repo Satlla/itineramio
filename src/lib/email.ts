@@ -15,7 +15,7 @@ export interface EmailOptions {
   from?: string
 }
 
-export async function sendEmail({ to, subject, html, from = 'onboarding@resend.dev' }: EmailOptions) {
+export async function sendEmail({ to, subject, html, from = 'hola@itineramio.com' }: EmailOptions) {
   console.log('🔍 EMAIL DEBUG - Starting email send...')
   console.log('📧 To:', to)
   console.log('📝 Subject:', subject)
