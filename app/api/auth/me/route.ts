@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
 import { prisma } from '@/lib/prisma'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'development-secret-key'
-if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
-  throw new Error('JWT_SECRET environment variable is required in production')
-}
+const JWT_SECRET = 'itineramio-secret-key-2024'
 
 export async function GET(request: NextRequest) {
   try {
