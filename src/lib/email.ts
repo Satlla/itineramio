@@ -15,7 +15,7 @@ export interface EmailOptions {
   from?: string
 }
 
-export async function sendEmail({ to, subject, html, from = 'hola@itineramio.com' }: EmailOptions) {
+export async function sendEmail({ to, subject, html, from = 'onboarding@resend.dev' }: EmailOptions) {
   // Ensure email is properly formatted
   const formattedTo = Array.isArray(to) ? to : [to]
   const cleanEmails = formattedTo.map(email => {
