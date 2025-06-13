@@ -25,7 +25,7 @@ export default function CookiesPage() {
             Política de Cookies
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Información sobre el uso de cookies en ManualPhi
+            Información sobre el uso de cookies en Itineramio
           </p>
         </motion.div>
 
@@ -92,7 +92,7 @@ export default function CookiesPage() {
               Si tienes preguntas sobre nuestra política de cookies, puedes contactarnos en:
             </p>
             <ul>
-              <li>Email: privacy@manualphi.com</li>
+              <li>Email: privacy@itineramio.com</li>
               <li>Teléfono: +34 900 000 000</li>
             </ul>
           </div>

@@ -39,7 +39,7 @@ export default function PrivacyPage() {
           <div className="prose prose-violet max-w-none">
             <h2>Información que recopilamos</h2>
             <p>
-              En ManualPhi recopilamos únicamente la información necesaria para 
+              En Itineramio recopilamos únicamente la información necesaria para 
               proporcionar nuestros servicios de manera efectiva:
             </p>
             <ul>
@@ -108,7 +108,7 @@ export default function PrivacyPage() {
               Para ejercer tus derechos o resolver dudas sobre privacidad, contacta con nosotros:
             </p>
             <ul>
-              <li>Email: privacy@manualphi.com</li>
+              <li>Email: privacy@itineramio.com</li>
               <li>Teléfono: +34 900 000 000</li>
               <li>Dirección: Calle de la Innovación, 123, 28001 Madrid</li>
             </ul>

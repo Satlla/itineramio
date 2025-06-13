@@ -113,7 +113,7 @@ function NewPropertySetPageContent() {
 
   // Setup form persistence
   const { clearSavedData, hasSavedData, getSavedDataInfo, lastSaved } = useFormPersistence({
-    storageKey: 'manualphi-property-set-draft',
+    storageKey: 'itineramio-property-set-draft',
     watch,
     setValue,
     reset,

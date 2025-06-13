@@ -12,7 +12,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
   useEffect(() => {
     // Cargar idioma guardado (solo en el cliente)
     if (typeof window !== 'undefined') {
-      const savedLanguage = localStorage.getItem('manualphi-language')
+      const savedLanguage = localStorage.getItem('itineramio-language')
       if (savedLanguage && savedLanguage !== i18n.language) {
         i18n.changeLanguage(savedLanguage)
       }

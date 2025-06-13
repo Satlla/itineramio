@@ -60,7 +60,7 @@ const resources = {
     auth: {
       login: {
         title: "Iniciar sesión",
-        subtitle: "Accede a tu cuenta de ManualPhi",
+        subtitle: "Accede a tu cuenta de Itineramio",
         email: "Correo electrónico",
         password: "Contraseña",
         loginButton: "Iniciar sesión"
@@ -124,7 +124,7 @@ const resources = {
     auth: {
       login: {
         title: "Sign in",
-        subtitle: "Access your ManualPhi account",
+        subtitle: "Access your Itineramio account",
         email: "Email address", 
         password: "Password",
         loginButton: "Sign in"
@@ -188,7 +188,7 @@ const resources = {
     auth: {
       login: {
         title: "Se connecter",
-        subtitle: "Accédez à votre compte ManualPhi",
+        subtitle: "Accédez à votre compte Itineramio",
         email: "Adresse email",
         password: "Mot de passe", 
         loginButton: "Se connecter"

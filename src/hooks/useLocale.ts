@@ -29,7 +29,7 @@ export const useLocale = () => {
   }
   
   const changeLanguage = async (newLanguage: string) => {
-    localStorage.setItem('manualphi-language', newLanguage)
+    localStorage.setItem('itineramio-language', newLanguage)
     await i18n.changeLanguage(newLanguage)
   }
   

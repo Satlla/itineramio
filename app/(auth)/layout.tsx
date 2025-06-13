@@ -18,10 +18,10 @@ export default function AuthLayout({
             whileHover={{ scale: 1.1, rotate: 5 }}
             transition={{ type: 'spring', stiffness: 400, damping: 10 }}
           >
-            <span className="text-white font-bold text-sm">M</span>
+            <span className="text-white font-bold text-sm">I</span>
           </motion.div>
           <span className="text-xl font-bold text-neutral-900 group-hover:text-brand-600 transition-colors">
-            ManualPhi
+            Itineramio
           </span>
         </Link>
       </nav>

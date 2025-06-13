@@ -25,7 +25,7 @@ export default function TermsPage() {
             Términos y Condiciones
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Condiciones de uso de la plataforma ManualPhi
+            Condiciones de uso de la plataforma Itineramio
           </p>
         </motion.div>
 
@@ -39,14 +39,14 @@ export default function TermsPage() {
           <div className="prose prose-violet max-w-none">
             <h2>1. Aceptación de los términos</h2>
             <p>
-              Al acceder y utilizar ManualPhi, aceptas estar sujeto a estos términos 
+              Al acceder y utilizar Itineramio, aceptas estar sujeto a estos términos 
               y condiciones y a nuestra política de privacidad. Si no estás de acuerdo 
               con alguna parte de estos términos, no debes utilizar nuestro servicio.
             </p>
 
             <h2>2. Descripción del servicio</h2>
             <p>
-              ManualPhi es una plataforma que permite a los propietarios de alojamientos 
+              Itineramio es una plataforma que permite a los propietarios de alojamientos 
               crear manuales digitales interactivos para sus huéspedes, facilitando:
             </p>
             <ul>
@@ -66,7 +66,7 @@ export default function TermsPage() {
             </ul>
 
             <h2>4. Uso aceptable</h2>
-            <p>Te comprometes a utilizar ManualPhi únicamente para:</p>
+            <p>Te comprometes a utilizar Itineramio únicamente para:</p>
             <ul>
               <li>Gestionar propiedades de alojamiento legítimas</li>
               <li>Proporcionar información veraz a los huéspedes</li>
@@ -75,7 +75,7 @@ export default function TermsPage() {
             </ul>
 
             <h2>5. Contenido del usuario</h2>
-            <p>Respecto al contenido que creas en ManualPhi:</p>
+            <p>Respecto al contenido que creas en Itineramio:</p>
             <ul>
               <li>Mantienes la propiedad de tu contenido</li>
               <li>Nos otorgas licencia para almacenar y mostrar tu contenido</li>
@@ -94,7 +94,7 @@ export default function TermsPage() {
 
             <h2>7. Limitación de responsabilidad</h2>
             <p>
-              ManualPhi se proporciona "tal como está". No garantizamos que el servicio 
+              Itineramio se proporciona "tal como está". No garantizamos que el servicio 
               esté libre de errores o interrupciones. Nuestra responsabilidad se limita 
               al máximo permitido por la ley.
             </p>
@@ -122,7 +122,7 @@ export default function TermsPage() {
               Para preguntas sobre estos términos, contacta con nosotros:
             </p>
             <ul>
-              <li>Email: legal@manualphi.com</li>
+              <li>Email: legal@itineramio.com</li>
               <li>Teléfono: +34 900 000 000</li>
               <li>Dirección: Calle de la Innovación, 123, 28001 Madrid</li>
             </ul>
