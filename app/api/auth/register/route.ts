@@ -23,10 +23,13 @@ const registerSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🚀 REGISTER ENDPOINT - Starting registration')
     const body = await request.json()
+    console.log('📝 Registration data received:', { email: body.email, name: body.name })
     
     // Validate input
     const validatedData = registerSchema.parse(body)
+    console.log('✅ Data validated successfully')
     
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -86,9 +89,12 @@ export async function POST(request: NextRequest) {
     }, { status: 201 })
     
   } catch (error) {
-    console.error('Registration error:', error)
+    console.error('🚨 Registration error:', error)
+    console.error('🔍 Error type:', error?.constructor?.name)
+    console.error('📊 Error details:', JSON.stringify(error, null, 2))
     
     if (error instanceof z.ZodError) {
+      console.log('❌ Validation error:', error.errors)
       return NextResponse.json(
         { 
           error: 'Datos inválidos',
@@ -101,8 +107,15 @@ export async function POST(request: NextRequest) {
       )
     }
     
+    // More specific error messages
+    const errorMessage = error instanceof Error ? error.message : 'Error interno del servidor'
+    
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { 
+        error: errorMessage,
+        type: error?.constructor?.name,
+        details: process.env.NODE_ENV === 'development' ? error : undefined
+      },
       { status: 500 }
     )
   }
