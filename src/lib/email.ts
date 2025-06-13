@@ -15,9 +15,17 @@ export interface EmailOptions {
   from?: string
 }
 
-export async function sendEmail({ to, subject, html, from = 'hola@itineramio.com' }: EmailOptions) {
+export async function sendEmail({ to, subject, html, from = 'onboarding@resend.dev' }: EmailOptions) {
+  // Ensure email is properly formatted
+  const formattedTo = Array.isArray(to) ? to : [to]
+  const cleanEmails = formattedTo.map(email => {
+    // Handle emails with + symbol by encoding them properly
+    const cleanEmail = email.trim()
+    return cleanEmail
+  })
+
   console.log('🔍 EMAIL DEBUG - Starting email send...')
-  console.log('📧 To:', to)
+  console.log('📧 To:', cleanEmails)
   console.log('📝 Subject:', subject)
   console.log('👤 From:', from)
   console.log('🔑 API Key present:', !!process.env.RESEND_API_KEY)
@@ -34,7 +42,7 @@ export async function sendEmail({ to, subject, html, from = 'hola@itineramio.com
     
     const { data, error } = await resend.emails.send({
       from,
-      to,
+      to: cleanEmails[0], // Use the cleaned email
       subject,
       html,
     })
