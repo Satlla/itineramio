@@ -16,13 +16,22 @@ export interface EmailOptions {
 }
 
 export async function sendEmail({ to, subject, html, from = 'onboarding@resend.dev' }: EmailOptions) {
+  console.log('🔍 EMAIL DEBUG - Starting email send...')
+  console.log('📧 To:', to)
+  console.log('📝 Subject:', subject)
+  console.log('👤 From:', from)
+  console.log('🔑 API Key present:', !!process.env.RESEND_API_KEY)
+  console.log('🔑 API Key starts with:', process.env.RESEND_API_KEY?.substring(0, 10))
+
   // Skip email sending if no API key is configured
   if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 'test_key') {
-    console.warn('Email sending skipped - no valid RESEND_API_KEY configured')
+    console.warn('❌ Email sending skipped - no valid RESEND_API_KEY configured')
     return { id: 'test-email-id', skipped: true }
   }
 
   try {
+    console.log('🚀 Attempting to send email via Resend...')
+    
     const { data, error } = await resend.emails.send({
       from,
       to,
@@ -30,15 +39,18 @@ export async function sendEmail({ to, subject, html, from = 'onboarding@resend.d
       html,
     })
 
+    console.log('📬 Resend response data:', JSON.stringify(data, null, 2))
+    console.log('❗ Resend response error:', JSON.stringify(error, null, 2))
+
     if (error) {
-      console.error('Error sending email:', error)
-      throw new Error(`Failed to send email: ${error.message}`)
+      console.error('💥 Error sending email:', error)
+      throw new Error(`Failed to send email: ${JSON.stringify(error)}`)
     }
 
-    console.log('Email sent successfully:', data?.id)
+    console.log('✅ Email sent successfully with ID:', data?.id)
     return data
   } catch (error) {
-    console.error('Email service error:', error)
+    console.error('🚨 Email service error:', error)
     throw error
   }
 }
