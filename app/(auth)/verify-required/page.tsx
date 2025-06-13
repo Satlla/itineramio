@@ -34,7 +34,7 @@ function VerifyRequiredContent() {
     setResendSuccess(false)
 
     try {
-      const response = await fetch('/api/auth/verify-email', {
+      const response = await fetch('/api/auth/resend-verification', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

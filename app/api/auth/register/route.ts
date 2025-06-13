@@ -37,10 +37,28 @@ export async function POST(request: NextRequest) {
     })
     
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'Ya existe una cuenta con este email' },
-        { status: 400 }
-      )
+      // If user exists but is not verified and account is pending, delete it to allow re-registration
+      if (!existingUser.emailVerified && existingUser.status === 'PENDING') {
+        console.log('🔄 Deleting unverified pending user to allow re-registration:', existingUser.email)
+        
+        // Delete any existing verification tokens
+        await prisma.emailVerificationToken.deleteMany({
+          where: { email: existingUser.email }
+        })
+        
+        // Delete the unverified user
+        await prisma.user.delete({
+          where: { id: existingUser.id }
+        })
+        
+        console.log('✅ Unverified user deleted, proceeding with new registration')
+      } else {
+        // User is verified or active, don't allow re-registration
+        return NextResponse.json(
+          { error: 'Ya existe una cuenta con este email' },
+          { status: 400 }
+        )
+      }
     }
     
     // Hash password
