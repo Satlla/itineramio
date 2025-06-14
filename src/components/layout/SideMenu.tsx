@@ -180,6 +180,18 @@ export function SideMenu({ isOpen, onClose, user }: SideMenuProps) {
                   className="flex items-center space-x-3 w-full p-4 rounded-xl hover:bg-red-50 transition-colors group"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/auth/logout', {
+                        method: 'POST'
+                      })
+                      if (response.ok) {
+                        window.location.href = '/login'
+                      }
+                    } catch (error) {
+                      console.error('Error logging out:', error)
+                    }
+                  }}
                 >
                   <LogOut className="w-5 h-5 text-gray-500 group-hover:text-red-600 transition-colors" />
                   <span className="font-medium text-gray-900 group-hover:text-red-600 transition-colors">
