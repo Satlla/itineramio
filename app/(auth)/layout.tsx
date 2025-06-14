@@ -20,9 +20,6 @@ export default function AuthLayout({
           >
             <span className="text-white font-bold text-sm">I</span>
           </motion.div>
-          <span className="text-xl font-bold text-neutral-900 group-hover:text-brand-600 transition-colors">
-            Itineramio
-          </span>
         </Link>
       </nav>
 

@@ -310,7 +310,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           iconId: 'template',
           order: zones.length + 1,
           stepsCount: 5, // This would come from the API
-          qrUrl: `https://manualphi.com/z/${Math.random().toString(36).substr(2, 6)}`,
+          qrUrl: `https://itineramio.com/z/${Math.random().toString(36).substr(2, 6)}`,
           lastUpdated: new Date().toISOString().split('T')[0]
         }
         

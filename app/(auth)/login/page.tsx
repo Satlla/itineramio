@@ -120,6 +120,7 @@ function LoginContent() {
       })
       
       const data = await response.json()
+      console.log('Login response:', data)
       
       if (!response.ok) {
         if (data.error === 'EMAIL_NOT_VERIFIED') {
@@ -135,8 +136,16 @@ function LoginContent() {
         return
       }
       
-      // Success - redirect to dashboard
-      router.push('/main')
+      if (data.success) {
+        // Success - redirect to dashboard
+        console.log('Login successful, redirecting to dashboard')
+        router.push('/main')
+      } else {
+        setErrors(prev => ({
+          ...prev,
+          general: 'Error en el login'
+        }))
+      }
       
     } catch (error) {
       console.error('Login error:', error)
