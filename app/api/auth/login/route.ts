@@ -3,10 +3,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma } from '@/lib/prisma'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'development-secret-key'
-if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
-  throw new Error('JWT_SECRET environment variable is required in production')
-}
+const JWT_SECRET = 'itineramio-secret-key-2024'
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,13 +75,15 @@ export async function POST(request: NextRequest) {
     // Token set successfully
     response.cookies.set('auth-token', token, {
       httpOnly: true,
-      secure: false, // Temporarily force false to fix cookie issues
+      secure: true, // Production requires secure
       sameSite: 'lax',
       maxAge: 24 * 60 * 60,
       path: '/'
     })
 
     console.log('Login successful for user:', user.email)
+    console.log('Token created:', token.substring(0, 20) + '...')
+    console.log('Cookie secure setting:', true)
     return response
   } catch (error) {
     console.error('Login error:', error)

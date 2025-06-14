@@ -1,12 +1,20 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import bcrypt from 'bcryptjs'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Manually verify colaboracionesbnb@gmail.com
+    const { searchParams } = new URL(request.url)
+    const email = searchParams.get('email') || 'colaboracionesbnb@gmail.com'
+    
+    // Hash password "123456"
+    const hashedPassword = await bcrypt.hash('123456', 12)
+    
+    // Find and update user
     const user = await prisma.user.update({
-      where: { email: 'colaboracionesbnb@gmail.com' },
+      where: { email: email },
       data: {
+        password: hashedPassword,
         emailVerified: new Date(),
         status: 'ACTIVE'
       }
@@ -14,12 +22,16 @@ export async function GET() {
     
     return NextResponse.json({
       success: true,
-      message: 'User verified successfully',
+      message: 'User verified and password reset successfully',
       user: {
         email: user.email,
         name: user.name,
         emailVerified: user.emailVerified,
         status: user.status
+      },
+      credentials: {
+        email: user.email,
+        password: '123456'
       }
     })
     

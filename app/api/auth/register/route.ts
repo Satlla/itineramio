@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(validatedData.password, 12)
     
-    // Create user (with PENDING status and unverified email)
+    // Create user (PENDING status until email verification)
     const user = await prisma.user.create({
       data: {
         name: validatedData.name,
@@ -72,8 +72,8 @@ export async function POST(request: NextRequest) {
         phone: validatedData.phone,
         password: hashedPassword,
         preferredLanguage: validatedData.registrationLanguage,
-        status: 'PENDING', // User starts as PENDING until email verification
-        emailVerified: null // Email is not verified yet
+        status: 'PENDING',
+        emailVerified: null
       },
       select: {
         id: true,
@@ -91,12 +91,10 @@ export async function POST(request: NextRequest) {
     } catch (emailError) {
       console.error('🚨 CRITICAL: Error sending verification email:', emailError)
       console.error('📊 Error details:', JSON.stringify(emailError, null, 2))
-      // Don't fail the registration if email fails, but log it
-      // The user can resend verification email later
     }
     
     return NextResponse.json({
-      message: 'Cuenta creada exitosamente. Revisa tu email para verificar tu cuenta.',
+      message: '¡Enhorabuena! Gracias por registrarte en Itineramio. Te hemos enviado un correo de confirmación.',
       user: {
         id: user.id,
         name: user.name,

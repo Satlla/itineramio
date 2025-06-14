@@ -28,8 +28,8 @@ export async function GET(request: NextRequest) {
         const response = NextResponse.json({ user: demoUser })
         response.cookies.set('auth-token', demoToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV !== 'development',
-          sameSite: 'strict',
+          secure: true,
+          sameSite: 'lax',
           maxAge: 24 * 60 * 60,
           path: '/'
         })

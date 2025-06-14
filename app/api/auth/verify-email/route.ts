@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { EmailVerificationService } from '@/lib/auth-email'
 import { prisma } from '@/lib/prisma'
+import jwt from 'jsonwebtoken'
+
+const JWT_SECRET = 'itineramio-secret-key-2024'
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,11 +24,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get user info for welcome email
+    // Get user info and create session
     if (result.email) {
       const user = await prisma.user.findUnique({
         where: { email: result.email },
-        select: { name: true, email: true }
+        select: { id: true, name: true, email: true }
       })
 
       if (user) {
@@ -33,10 +36,32 @@ export async function GET(request: NextRequest) {
         EmailVerificationService.sendWelcomeEmail(user.email, user.name).catch(error => {
           console.error('Error sending welcome email:', error)
         })
+
+        // Create JWT token for automatic login
+        const token = jwt.sign(
+          { userId: user.id },
+          JWT_SECRET as string,
+          { expiresIn: '24h' }
+        )
+
+        // Redirect to dashboard with login cookie
+        const response = NextResponse.redirect(
+          new URL('/main', request.url)
+        )
+        
+        response.cookies.set('auth-token', token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'lax',
+          maxAge: 24 * 60 * 60,
+          path: '/'
+        })
+        
+        return response
       }
     }
 
-    // Redirect to success page
+    // Fallback redirect to login
     return NextResponse.redirect(
       new URL('/login?verified=true', request.url)
     )

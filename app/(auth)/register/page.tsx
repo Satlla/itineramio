@@ -153,7 +153,7 @@ export default function RegisterPage() {
       }
       
       // Success - redirect to verification required page
-      router.push('/verify-required')
+      router.push(`/verify-required?email=${encodeURIComponent(formData.email)}`)
       
     } catch (error) {
       console.error('Registration error:', error)

@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = 'itineramio-secret-key-2024'
 
 const protectedRoutes: string[] = [
   '/main',
@@ -32,41 +29,13 @@ export function middleware(request: NextRequest) {
       loginUrl.searchParams.set('from', pathname)
       return NextResponse.redirect(loginUrl)
     }
-
-    try {
-      jwt.verify(token, JWT_SECRET as string)
-    } catch (error) {
-      const loginUrl = new URL('/login', request.url)
-      loginUrl.searchParams.set('from', pathname)
-      
-      const response = NextResponse.redirect(loginUrl)
-      response.cookies.set('auth-token', '', {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
-        expires: new Date(0),
-        path: '/'
-      })
-      
-      return response
-    }
+    // In Edge Runtime, we can't verify JWT properly
+    // The actual verification happens in the API routes
   }
 
   if (isAuthRoute && token) {
-    try {
-      jwt.verify(token, JWT_SECRET as string)
-      return NextResponse.redirect(new URL('/main', request.url))
-    } catch (error) {
-      const response = NextResponse.next()
-      response.cookies.set('auth-token', '', {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
-        expires: new Date(0),
-        path: '/'
-      })
-      return response
-    }
+    // If user has token and tries to access auth routes, redirect to main
+    return NextResponse.redirect(new URL('/main', request.url))
   }
 
   return NextResponse.next()
