@@ -4,9 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Mail } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Button, Input, Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
