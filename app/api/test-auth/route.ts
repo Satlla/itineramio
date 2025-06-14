@@ -6,10 +6,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'development-secret-key'
 export async function GET(request: NextRequest) {
   const token = request.cookies.get('auth-token')?.value
   
+  // Get all cookies
+  const allCookies: Record<string, string> = {}
+  request.cookies.getAll().forEach(cookie => {
+    allCookies[cookie.name] = cookie.value
+  })
+  
   return NextResponse.json({
     hasToken: !!token,
     tokenValue: token ? token.substring(0, 20) + '...' : null,
-    cookies: Object.fromEntries(request.cookies.entries()),
+    cookies: allCookies,
     headers: {
       cookie: request.headers.get('cookie'),
       host: request.headers.get('host'),
