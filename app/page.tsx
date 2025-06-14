@@ -1,6 +1,29 @@
+'use client'
+
 import Link from 'next/link'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function HomePage() {
+  const router = useRouter()
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me')
+        if (response.ok) {
+          // User is logged in, redirect to dashboard
+          router.push('/main')
+        }
+      } catch (error) {
+        console.error('Auth check error:', error)
+      }
+    }
+    
+    checkAuth()
+  }, [router])
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -12,12 +35,20 @@ export default function HomePage() {
             </div>
             <span className="text-xl font-bold text-gray-900">Itineramio</span>
           </div>
-          <Link 
-            href="/login"
-            className="bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-colors"
-          >
-            Iniciar sesión
-          </Link>
+          <div className="flex items-center space-x-3">
+            <Link 
+              href="/register"
+              className="px-4 py-2 rounded-lg border border-violet-600 text-violet-600 hover:bg-violet-50 transition-colors"
+            >
+              Registrarse
+            </Link>
+            <Link 
+              href="/login"
+              className="bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-colors"
+            >
+              Iniciar sesión
+            </Link>
+          </div>
         </div>
       </header>
 

@@ -13,6 +13,7 @@ model User {
   name                 String
   phone                String?
   password             String?
+  avatar               String?
   emailVerified        DateTime?
   phoneVerified        DateTime?
   preferredLanguage    String                 @default("es")

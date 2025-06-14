@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+export async function GET(request: NextRequest) {
+  // Allow logout via GET for testing
+  return POST(request)
+}
+
 export async function POST(request: NextRequest) {
   try {
     const response = NextResponse.json({
@@ -7,12 +12,14 @@ export async function POST(request: NextRequest) {
       message: 'Logout successful'
     })
 
+    // Clear the auth token
     response.cookies.set('auth-token', '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'lax',
       expires: new Date(0),
-      path: '/'
+      path: '/',
+      maxAge: 0
     })
 
     return response
