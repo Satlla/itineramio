@@ -50,3 +50,13 @@ node_modules/.cache
 # Temp files
 tmp
 temp
+
+# Deployment configs from other platforms
+nixpacks.toml
+railway.toml
+Dockerfile
+.dockerignore
+deploy.sh
+scripts/deploy.sh
+scripts/rollback.sh
+Procfile
