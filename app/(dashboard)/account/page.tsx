@@ -14,9 +14,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react'
-import { Button } from '@/components/ui'
-import { Input } from '@/components/ui'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
+import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/providers/AuthProvider'
 
