@@ -60,3 +60,6 @@ deploy.sh
 scripts/deploy.sh
 scripts/rollback.sh
 Procfile
+docker-compose.yml
+docker-compose.yaml
+*.dockerfile
