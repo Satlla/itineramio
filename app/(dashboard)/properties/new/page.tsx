@@ -22,14 +22,9 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Card } from '@/components/ui/Card'
-import { ImageUpload } from '@/components/ui/ImageUpload'
-import { PropertyPreview } from '@/components/ui/PropertyPreview'
-import { SavedDataBanner } from '@/components/ui/SavedDataBanner'
-import { AutoSaveIndicator } from '@/components/ui/AutoSaveIndicator'
-import { useFormPersistence } from '@/hooks/useFormPersistence'
+import { Button, Input, Card, ImageUpload, PropertyPreview, SavedDataBanner } from '../../../../src/components/ui'
+import { AutoSaveIndicator } from '../../../../src/components/ui/AutoSaveIndicator'
+import { useFormPersistence } from '../../../../src/hooks/useFormPersistence'
 // PropertyType as string literal type
 type PropertyType = 'APARTMENT' | 'HOUSE' | 'ROOM' | 'VILLA'
 
