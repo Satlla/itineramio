@@ -1,6 +1,6 @@
 'use client'
 
-import { DashboardNavbar } from '@/components/layout/DashboardNavbar'
+import { DashboardNavbar } from '../../src/components/layout/DashboardNavbar'
 
 // Mock user data - replace with real auth
 const mockUser = {
