@@ -13,7 +13,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 import Link from 'next/link'
-import { Button, Input } from '@/components/ui'
+import { Button, Input } from '../../../src/components/ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '../../../src/providers/AuthProvider'
 

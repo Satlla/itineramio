@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
-import { Button, Input } from '@/components/ui'
+import { Button, Input } from '../../../src/components/ui'
 import { useRouter } from 'next/navigation'
 
 export default function RegisterPage() {

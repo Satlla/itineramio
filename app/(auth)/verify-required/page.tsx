@@ -10,7 +10,7 @@ import {
   Zap
 } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui'
+import { Button } from '../../../src/components/ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 function VerifyRequiredContent() {
