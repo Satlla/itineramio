@@ -14,9 +14,9 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react'
-import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '../../../src/components/ui'
+import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '../../../src/providers/AuthProvider'
+import { useAuth } from '@/providers/AuthProvider'
 
 export default function AccountPage() {
   const router = useRouter()
