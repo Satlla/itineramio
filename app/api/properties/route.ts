@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import jwt from 'jsonwebtoken'
 import { prisma } from '../../../src/lib/prisma'
+
+const JWT_SECRET = 'itineramio-secret-key-2024'
 
 // Validation schema for property creation
 // Popular zones that are automatically created for new properties
@@ -46,27 +49,21 @@ const createPropertySchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Get user from JWT token
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const userId = decoded.userId
+
     const body = await request.json()
     
     console.log('Creating property with data:', body)
     
     // Validate request data
     const validatedData = createPropertySchema.parse(body)
-    
-    // TODO: Get user ID from authentication session  
-    // For now, find the demo user
-    const demoUser = await prisma.user.findUnique({
-      where: { email: 'demo@itineramio.com' }
-    })
-    
-    if (!demoUser) {
-      return NextResponse.json({
-        success: false,
-        error: 'Usuario demo no encontrado'
-      }, { status: 404 })
-    }
-    
-    const userId = demoUser.id
     
     console.log('Validated data:', validatedData)
     console.log('User ID:', userId)
@@ -106,7 +103,7 @@ export async function POST(request: NextRequest) {
         status: 'DRAFT',
         isPublished: false,
         
-        // Associate with demo user
+        // Associate with authenticated user
         hostId: userId,
         
         // Create analytics record
@@ -174,27 +171,24 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    // Get user from JWT token
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const userId = decoded.userId
+
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
     const status = searchParams.get('status')
     const type = searchParams.get('type')
     
-    // For demo, find the demo user by email
-    const demoUser = await prisma.user.findUnique({
-      where: { email: 'demo@itineramio.com' }
-    })
-    
-    if (!demoUser) {
-      return NextResponse.json({
-        success: false,
-        error: 'Usuario demo no encontrado'
-      }, { status: 404 })
-    }
-    
     // Build where clause
     const where: any = {
-      hostId: demoUser.id
+      hostId: userId
     }
     
     if (status) {

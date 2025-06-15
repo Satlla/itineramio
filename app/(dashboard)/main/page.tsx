@@ -64,12 +64,7 @@ export default function DashboardPage() {
     avgRating: 0
   })
   const router = useRouter()
-  // Mock user data simple
-  const user = {
-    name: 'Demo User',
-    email: 'demo@itineramio.com',
-    avatar: undefined
-  }
+  const { user } = useAuth()
 
   // Mock activity data
   const recentActivity = [

@@ -1,22 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import jwt from 'jsonwebtoken'
+import { prisma } from '../../../src/lib/prisma'
+
+const JWT_SECRET = 'itineramio-secret-key-2024'
 
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Get user ID from authentication session  
-    // For now, find the demo user
-    const demoUser = await prisma.user.findUnique({
-      where: { email: 'demo@itineramio.com' }
-    })
-    
-    if (!demoUser) {
-      return NextResponse.json({
-        success: false,
-        error: 'Usuario demo no encontrado'
-      }, { status: 404 })
+    // Get user from JWT token
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
-    
-    const userId = demoUser.id
+
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const userId = decoded.userId
     
     const propertySets = await prisma.propertySet.findMany({
       where: {
