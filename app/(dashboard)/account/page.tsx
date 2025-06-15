@@ -20,7 +20,7 @@ import { useAuth } from '../../../src/providers/AuthProvider'
 
 export default function AccountPage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
@@ -125,10 +125,12 @@ export default function AccountPage() {
 
       if (response.ok) {
         const data = await response.json()
-        // Success - show message and refresh
+        // Success - show message and refresh user data
         alert('Perfil actualizado correctamente')
-        router.refresh()
-        window.location.reload()
+        // Refresh user data from the server
+        await refreshUser()
+        // Clear confirmation password
+        setConfirmationPassword('')
       } else {
         const data = await response.json()
         setErrors({ general: data.error || 'Error al actualizar' })
