@@ -26,6 +26,7 @@ export default function AccountPage() {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [profileImage, setProfileImage] = useState<string | null>(null)
+  const [showSuccessToast, setShowSuccessToast] = useState(false)
   
   // Form data
   const [formData, setFormData] = useState({
@@ -86,8 +87,9 @@ export default function AccountPage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!confirmationPassword) {
-      newErrors.general = 'Debes ingresar tu contraseña actual para guardar cambios'
+    // Solo requerir contraseña si se está cambiando la contraseña
+    if (formData.newPassword && !confirmationPassword) {
+      newErrors.general = 'Debes ingresar tu contraseña actual para cambiar la contraseña'
     }
 
     if (formData.newPassword) {
@@ -125,8 +127,9 @@ export default function AccountPage() {
 
       if (response.ok) {
         const data = await response.json()
-        // Success - show message and refresh user data
-        alert('Perfil actualizado correctamente')
+        // Success - show toast and refresh user data
+        setShowSuccessToast(true)
+        setTimeout(() => setShowSuccessToast(false), 3000)
         // Refresh user data from the server
         await refreshUser()
         // Clear confirmation password
@@ -354,7 +357,7 @@ export default function AccountPage() {
                     Confirmación Requerida
                   </p>
                   <p className="text-sm text-gray-600 mt-1">
-                    Para guardar cualquier cambio (excepto la foto de perfil), debes ingresar tu contraseña actual.
+                    Solo necesitas ingresar tu contraseña actual cuando quieras cambiar tu contraseña.
                   </p>
                 </div>
               </div>
@@ -402,12 +405,9 @@ export default function AccountPage() {
             </Button>
           </div>
 
-          {/* Danger Zone */}
+          {/* Delete Account */}
           <Card className="border-red-200 bg-red-50">
-            <CardHeader>
-              <CardTitle className="text-red-600">Zona de Peligro</CardTitle>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="space-y-4">
                 <div>
                   <h3 className="font-medium text-gray-900 mb-2">Eliminar Cuenta</h3>
@@ -492,6 +492,23 @@ export default function AccountPage() {
                   {loading ? 'Eliminando...' : 'Sí, eliminar mi cuenta'}
                 </Button>
               </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Success Toast */}
+        {showSuccessToast && (
+          <div className="fixed top-4 right-4 z-50">
+            <motion.div
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 100 }}
+              className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2"
+            >
+              <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              </div>
+              <span>Perfil actualizado correctamente</span>
             </motion.div>
           </div>
         )}
