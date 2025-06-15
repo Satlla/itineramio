@@ -45,12 +45,12 @@ export async function DELETE(request: NextRequest) {
 
     // 2. Delete all properties (this will cascade delete zones and steps)
     await prisma.property.deleteMany({
-      where: { userId: decoded.userId }
+      where: { hostId: decoded.userId }
     })
 
     // 3. Delete property sets
     await prisma.propertySet.deleteMany({
-      where: { userId: decoded.userId }
+      where: { hostId: decoded.userId }
     })
 
     // 4. Finally delete the user
