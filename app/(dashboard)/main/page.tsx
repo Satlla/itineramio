@@ -237,7 +237,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <DashboardNavbar user={user} />
+      <DashboardNavbar user={user || undefined} />
       
       <main className="flex-1 pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -251,7 +251,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  Hola, {user.name} 👋
+                  Hola, {user?.name || 'Usuario'} 👋
                 </h1>
                 <p className="text-gray-600 mt-2">
                   Aquí tienes un resumen de tus propiedades y manuales
