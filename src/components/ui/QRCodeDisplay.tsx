@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { Download, Copy, Share2, RefreshCw, QrCode } from 'lucide-react'
 import { Button } from './Button'
 import { Card, CardContent, CardHeader, CardTitle } from './Card'
-import { generateZoneQRCode, generatePropertyQRCode, downloadQRCode, getZoneURL } from '@/lib/qr'
+import { generateZoneQRCode, generatePropertyQRCode, downloadQRCode, getZoneURL } from '../../lib/qr'
 
 interface QRCodeDisplayProps {
   propertyId: string
