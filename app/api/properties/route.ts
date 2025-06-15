@@ -6,16 +6,14 @@ import { prisma } from '../../../src/lib/prisma'
 const JWT_SECRET = 'itineramio-secret-key-2024'
 
 // Validation schema for property creation
-// Popular zones that are automatically created for new properties
-const POPULAR_ZONES = [
+// Common zones that can be offered to users
+const COMMON_ZONES = [
   { name: 'WiFi', iconId: 'wifi', description: 'Contraseña y conexión a internet', order: 1 },
   { name: 'Check-in', iconId: 'door', description: 'Proceso de entrada y llaves', order: 2 },
   { name: 'Check-out', iconId: 'exit', description: 'Proceso de salida', order: 3 },
-  { name: 'Cocina', iconId: 'kitchen-main', description: 'Electrodomésticos y utensilios', order: 4 },
-  { name: 'Baño', iconId: 'bath', description: 'Uso de la ducha y amenities', order: 5 },
-  { name: 'Información General', iconId: 'info', description: 'Normas y datos importantes', order: 6 },
-  { name: 'Parking', iconId: 'car', description: 'Dónde aparcar y cómo acceder', order: 7 },
-  { name: 'Teléfonos de interés', iconId: 'phone', description: 'Emergencias y contactos útiles', order: 8 }
+  { name: 'Información General', iconId: 'info', description: 'Normas y datos importantes', order: 4 },
+  { name: 'Parking', iconId: 'car', description: 'Dónde aparcar y cómo acceder', order: 5 },
+  { name: 'Teléfonos de interés', iconId: 'phone', description: 'Emergencias y contactos útiles', order: 6 }
 ]
 
 const createPropertySchema = z.object({
@@ -118,32 +116,7 @@ export async function POST(request: NextRequest) {
       }
     })
     
-    // Create popular zones for the property
-    try {
-      console.log('Creating popular zones for property:', property.id)
-      
-      const zonePromises = POPULAR_ZONES.map(zone => 
-        prisma.zone.create({
-          data: {
-            propertyId: property.id,
-            name: { es: zone.name },
-            description: { es: zone.description },
-            icon: zone.iconId,
-            color: 'bg-gray-100',
-            order: zone.order,
-            status: 'ACTIVE',
-            qrCode: `qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            accessCode: `ac_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-          }
-        })
-      )
-      
-      await Promise.all(zonePromises)
-      console.log('Popular zones created successfully')
-    } catch (zoneError) {
-      console.error('Error creating popular zones:', zoneError)
-      // Don't fail the property creation if zones fail
-    }
+    // Zones will be created separately when user navigates to zones page
     
     return NextResponse.json({
       success: true,
