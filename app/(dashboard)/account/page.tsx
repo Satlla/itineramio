@@ -124,11 +124,15 @@ export default function AccountPage() {
       })
 
       if (response.ok) {
-        // Success
+        const data = await response.json()
+        // Success - show message and refresh
+        alert('Perfil actualizado correctamente')
         router.refresh()
+        window.location.reload()
       } else {
         const data = await response.json()
         setErrors({ general: data.error || 'Error al actualizar' })
+        alert('Error: ' + (data.error || 'Error al actualizar'))
       }
     } catch (error) {
       setErrors({ general: 'Error de conexión' })
