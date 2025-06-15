@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn } from '../../lib/utils'
 import { ZONE_ICONS } from '@/data/zoneIcons'
 import { ZONE_CATEGORIES } from '@/types/zones'
 import { Button } from './Button'
