@@ -185,6 +185,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10')
     const status = searchParams.get('status')
     const type = searchParams.get('type')
+    const propertySetId = searchParams.get('propertySetId')
     
     // Build where clause
     const where: any = {
@@ -197,6 +198,10 @@ export async function GET(request: NextRequest) {
     
     if (type) {
       where.type = type
+    }
+
+    if (propertySetId) {
+      where.propertySetId = propertySetId
     }
     
     // Get properties with zones count in a single query
