@@ -40,8 +40,17 @@ export async function POST(request: NextRequest) {
     }
 
     // For production, use Vercel Blob
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      console.error('BLOB_READ_WRITE_TOKEN environment variable is not set')
+      return NextResponse.json(
+        { error: "Blob storage not configured" },
+        { status: 500 }
+      )
+    }
+
     const blob = await put(uniqueFilename, file, {
       access: 'public',
+      token: process.env.BLOB_READ_WRITE_TOKEN,
     })
 
     return NextResponse.json({ 
@@ -51,6 +60,15 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error uploading file:', error)
+    
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { error: `Upload failed: ${error.message}` },
+        { status: 500 }
+      )
+    }
+    
     return NextResponse.json(
       { error: "Error uploading file" },
       { status: 500 }
