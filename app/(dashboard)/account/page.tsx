@@ -25,6 +25,7 @@ export default function AccountPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   
@@ -84,22 +85,8 @@ export default function AccountPage() {
     // TODO: Upload to server
   }
 
-  const validateForm = () => {
+  const validateBasicForm = () => {
     const newErrors: Record<string, string> = {}
-
-    // Solo requerir contraseña si se está cambiando la contraseña
-    if (formData.newPassword && !confirmationPassword) {
-      newErrors.general = 'Debes ingresar tu contraseña actual para cambiar la contraseña'
-    }
-
-    if (formData.newPassword) {
-      if (formData.newPassword.length < 8) {
-        newErrors.newPassword = 'La contraseña debe tener al menos 8 caracteres'
-      }
-      if (formData.newPassword !== formData.confirmPassword) {
-        newErrors.confirmPassword = 'Las contraseñas no coinciden'
-      }
-    }
 
     if (formData.email && !formData.email.includes('@')) {
       newErrors.email = 'Email inválido'
@@ -109,18 +96,41 @@ export default function AccountPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSave = async () => {
-    if (!validateForm()) return
+  const validatePasswordForm = () => {
+    const newErrors: Record<string, string> = {}
+
+    if (!confirmationPassword) {
+      newErrors.currentPassword = 'Debes ingresar tu contraseña actual'
+    }
+
+    if (!formData.newPassword) {
+      newErrors.newPassword = 'Debes ingresar una nueva contraseña'
+    } else if (formData.newPassword.length < 8) {
+      newErrors.newPassword = 'La contraseña debe tener al menos 8 caracteres'
+    }
+
+    if (formData.newPassword !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Las contraseñas no coinciden'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSaveBasicInfo = async () => {
+    if (!validateBasicForm()) return
 
     setLoading(true)
     try {
-      // TODO: API call to update user
+      // Update basic info without password
       const response = await fetch('/api/account/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
-          password: confirmationPassword,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
           profileImage
         })
       })
@@ -132,12 +142,47 @@ export default function AccountPage() {
         setTimeout(() => setShowSuccessToast(false), 3000)
         // Refresh user data from the server
         await refreshUser()
-        // Clear confirmation password
-        setConfirmationPassword('')
       } else {
         const data = await response.json()
         setErrors({ general: data.error || 'Error al actualizar' })
-        alert('Error: ' + (data.error || 'Error al actualizar'))
+      }
+    } catch (error) {
+      setErrors({ general: 'Error de conexión' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleChangePassword = () => {
+    if (formData.newPassword) {
+      setShowPasswordModal(true)
+    }
+  }
+
+  const confirmPasswordChange = async () => {
+    if (!validatePasswordForm()) return
+
+    setLoading(true)
+    try {
+      const response = await fetch('/api/account/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          password: confirmationPassword,
+          newPassword: formData.newPassword
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setShowSuccessToast(true)
+        setTimeout(() => setShowSuccessToast(false), 3000)
+        setShowPasswordModal(false)
+        setConfirmationPassword('')
+        setFormData(prev => ({ ...prev, newPassword: '', confirmPassword: '' }))
+      } else {
+        const data = await response.json()
+        setErrors({ general: data.error || 'Error al cambiar contraseña' })
       }
     } catch (error) {
       setErrors({ general: 'Error de conexión' })
@@ -344,64 +389,30 @@ export default function AccountPage() {
                   <p className="text-sm text-red-500 mt-1">{errors.confirmPassword}</p>
                 )}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Password Confirmation for Changes */}
-          <Card className="mb-8 border-violet-200 bg-violet-50">
-            <CardContent className="pt-6">
-              <div className="flex items-start space-x-3 mb-4">
-                <AlertTriangle className="w-5 h-5 text-violet-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    Confirmación Requerida
-                  </p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Solo necesitas ingresar tu contraseña actual cuando quieras cambiar tu contraseña.
-                  </p>
-                </div>
-              </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Contraseña Actual
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    value={confirmationPassword}
-                    onChange={(e) => setConfirmationPassword(e.target.value)}
-                    className="pl-10 pr-10"
-                    placeholder="Tu contraseña actual"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
+              <div className="flex justify-end">
+                <Button
+                  onClick={handleChangePassword}
+                  disabled={loading || !formData.newPassword}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Lock className="w-4 h-4 mr-2" />
+                  Cambiar Contraseña
+                </Button>
               </div>
-
-              {errors.general && (
-                <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
-                  {errors.general}
-                </div>
-              )}
             </CardContent>
           </Card>
+
 
           {/* Save Button */}
           <div className="flex justify-end mb-16">
             <Button
-              onClick={handleSave}
+              onClick={handleSaveBasicInfo}
               disabled={loading}
               className="bg-violet-600 hover:bg-violet-700"
             >
               <Save className="w-4 h-4 mr-2" />
-              {loading ? 'Guardando...' : 'Guardar Cambios'}
+              {loading ? 'Guardando...' : 'Guardar Información'}
             </Button>
           </div>
 
@@ -432,13 +443,70 @@ export default function AccountPage() {
                     className="bg-red-600 hover:bg-red-700"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Eliminar Mi Cuenta Permanentemente
+                    Eliminar Cuenta
                   </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Password Change Modal */}
+        {showPasswordModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-xl p-6 max-w-md w-full"
+            >
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                Cambiar Contraseña
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Introduce tu contraseña actual para confirmar el cambio.
+              </p>
+              
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Contraseña Actual
+                </label>
+                <Input
+                  type="password"
+                  value={confirmationPassword}
+                  onChange={(e) => setConfirmationPassword(e.target.value)}
+                  placeholder="Tu contraseña actual"
+                />
+                {errors.currentPassword && (
+                  <p className="text-sm text-red-500 mt-1">{errors.currentPassword}</p>
+                )}
+                {errors.general && (
+                  <p className="text-sm text-red-500 mt-1">{errors.general}</p>
+                )}
+              </div>
+
+              <div className="flex space-x-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowPasswordModal(false)
+                    setConfirmationPassword('')
+                    setErrors({})
+                  }}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={confirmPasswordChange}
+                  disabled={loading || !confirmationPassword}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  {loading ? 'Cambiando...' : 'Cambiar Contraseña'}
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && (

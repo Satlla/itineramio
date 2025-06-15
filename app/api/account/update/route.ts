@@ -35,10 +35,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 })
     }
 
-    // Verify current password
-    const isValidPassword = await bcrypt.compare(password, currentUser.password!)
-    if (!isValidPassword) {
-      return NextResponse.json({ error: 'Contraseña incorrecta' }, { status: 401 })
+    // Verify current password only if changing password or if password is provided
+    if (newPassword || password) {
+      if (!password) {
+        return NextResponse.json({ error: 'Contraseña actual requerida' }, { status: 400 })
+      }
+      const isValidPassword = await bcrypt.compare(password, currentUser.password!)
+      if (!isValidPassword) {
+        return NextResponse.json({ error: 'Contraseña incorrecta' }, { status: 401 })
+      }
     }
 
     // Prepare update data
