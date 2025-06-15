@@ -40,8 +40,9 @@ export async function POST(request: NextRequest) {
     }
 
     // For production, use Vercel Blob
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      console.error('BLOB_READ_WRITE_TOKEN environment variable is not set')
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN
+    if (!blobToken) {
+      console.error('Blob token environment variable is not set')
       return NextResponse.json(
         { error: "Blob storage not configured" },
         { status: 500 }
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     const blob = await put(uniqueFilename, file, {
       access: 'public',
-      token: process.env.BLOB_READ_WRITE_TOKEN,
+      token: blobToken,
     })
 
     return NextResponse.json({ 
