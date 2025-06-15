@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, Eye, X, CheckCircle } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, Eye, X, CheckCircle, Lightbulb, ChevronDown } from 'lucide-react'
 import { Button } from '../../../../../src/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../../src/components/ui/Card'
 import { IconSelector, ZoneIconDisplay, useZoneIcon } from '../../../../../src/components/ui/IconSelector'
@@ -87,6 +87,18 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       .filter(template => !existingZoneNames.includes(template.name.toLowerCase()))
       .sort((a, b) => b.popularity - a.popularity)
       .slice(0, 8)
+  }
+
+  // Get 3 random zone suggestions for inspiration
+  const getRandomZoneSuggestions = () => {
+    const existingZoneNames = zones.map(z => z.name.toLowerCase())
+    const availableZones = zoneTemplates
+      .filter(template => !existingZoneNames.includes(template.name.toLowerCase()))
+      .filter(template => template.category !== 'essential') // Exclude essential zones
+    
+    // Shuffle and take 3
+    const shuffled = [...availableZones].sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, 3)
   }
 
   // Check if user has any zone that matches the template
@@ -381,13 +393,35 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   const [showPredefineModal, setShowPredefineModal] = useState(false)
+  const [hasShownPredefineModal, setHasShownPredefineModal] = useState(false)
+
+  // Check if predefined modal has been shown for this property
+  useEffect(() => {
+    if (id) {
+      const key = `predefined_modal_shown_${id}`
+      const hasShown = localStorage.getItem(key) === 'true'
+      setHasShownPredefineModal(hasShown)
+    }
+  }, [id])
 
   const handleOpenMultiSelect = () => {
-    setShowPredefineModal(true)
+    // If user has no zones and hasn't seen the predefined modal, show it
+    if (zones.length === 0 && !hasShownPredefineModal) {
+      setShowPredefineModal(true)
+      const key = `predefined_modal_shown_${id}`
+      localStorage.setItem(key, 'true')
+      setHasShownPredefineModal(true)
+    } else {
+      // Go directly to zone selector
+      setShowTemplateSelector(true)
+    }
   }
 
   const handlePredefinedZonesChoice = async () => {
     setShowPredefineModal(false)
+    // Mark as shown in localStorage
+    const key = `predefined_modal_shown_${id}`
+    localStorage.setItem(key, 'true')
     
     // Get essential zones that don't exist yet
     const existingZoneNames = zones.map(z => z.name.toLowerCase())
@@ -447,6 +481,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   const handleCustomZonesChoice = () => {
     setShowPredefineModal(false)
+    // Mark as shown in localStorage
+    const key = `predefined_modal_shown_${id}`
+    localStorage.setItem(key, 'true')
     setShowTemplateSelector(true)
   }
 
@@ -654,20 +691,51 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </Card>
       </div>
 
+      {/* Mobile Success Notification */}
+      {(() => {
+        const essentialZones = zoneTemplates
+          .filter(template => template.category === 'essential')
+          .sort((a, b) => b.popularity - a.popularity)
+          .slice(0, 5)
+
+        const allExist = essentialZones.every(zone => 
+          zones.find(z => z.name.toLowerCase() === zone.name.toLowerCase()) !== undefined
+        )
+
+        if (allExist) {
+          return (
+            <div className="lg:hidden mb-6">
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3"
+              >
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-green-900">¡Enhorabuena! 🎉</p>
+                  <p className="text-xs text-green-700">Tu manual tiene muy buena pinta</p>
+                </div>
+                <a
+                  href="#zone-inspiration"
+                  className="text-green-600 hover:text-green-700 flex items-center text-sm font-medium"
+                >
+                  <Lightbulb className="w-4 h-4 mr-1" />
+                  Ideas
+                  <ChevronDown className="w-3 h-3 ml-1" />
+                </a>
+              </motion.div>
+            </div>
+          )
+        }
+        return null
+      })()}
+
       {/* Main Content Layout */}
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Left Section - Zones (2/3 width) */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Zone Inspiration Manager */}
-          {user && (
-            <ZoneInspirationManager
-              propertyId={id}
-              existingZoneNames={zones.map(z => z.name)}
-              onCreateZone={handleCreateZoneFromInspiration}
-              userId={user.id}
-            />
-          )}
-
           {/* Mobile header for zones */}
           <div className="lg:hidden mb-4">
             <h2 className="text-xl font-semibold text-gray-900">
@@ -795,7 +863,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center">
                 <div className="w-6 h-6 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full flex items-center justify-center mr-2">
-                  <span className="text-white text-xs">💡</span>
+                  <Lightbulb className="text-white w-3 h-3" />
                 </div>
                 Inspiración
               </CardTitle>
@@ -817,17 +885,32 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
                 if (allExist) {
                   return (
-                    <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <CheckCircle className="w-8 h-8 text-green-600" />
+                    <>
+                      {/* Desktop Success Message */}
+                      <div className="hidden lg:block text-center py-8">
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <CheckCircle className="w-8 h-8 text-green-600" />
+                        </div>
+                        <p className="text-sm font-medium text-gray-900 mb-2">
+                          ¡Enhorabuena! 🎉
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          Tu manual tiene muy buena pinta. Has añadido todas las zonas esenciales.
+                        </p>
                       </div>
-                      <p className="text-sm font-medium text-gray-900 mb-2">
-                        ¡Enhorabuena! 🎉
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        Tu manual tiene muy buena pinta. Has añadido todas las zonas esenciales.
-                      </p>
-                    </div>
+                      
+                      {/* Mobile Link to Inspiration */}
+                      <div className="lg:hidden text-center py-4">
+                        <a
+                          href="#zone-inspiration"
+                          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg hover:from-violet-600 hover:to-purple-700 transition-colors"
+                        >
+                          <Lightbulb className="w-4 h-4 mr-2" />
+                          Ver sugerencias de zonas
+                          <ChevronDown className="w-4 h-4 ml-2" />
+                        </a>
+                      </div>
+                    </>
                   )
                 }
 
@@ -893,6 +976,146 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </Card>
         </div>
       </div>
+
+      {/* Zone Inspiration Section - Desktop: 2 columns, Mobile: full width */}
+      {(() => {
+        const essentialZones = zoneTemplates
+          .filter(template => template.category === 'essential')
+          .sort((a, b) => b.popularity - a.popularity)
+          .slice(0, 5)
+
+        const allExist = essentialZones.every(zone => 
+          zones.find(z => z.name.toLowerCase() === zone.name.toLowerCase()) !== undefined
+        )
+
+        if (allExist) {
+          const randomSuggestions = getRandomZoneSuggestions()
+          
+          return (
+            <div id="zone-inspiration" className="mt-12">
+              {/* Desktop: 2 columns under Inspiration */}
+              <div className="hidden lg:grid lg:grid-cols-3 gap-8">
+                <div className="col-span-1"></div> {/* Empty space to align with inspiration column */}
+                <div className="col-span-2">
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        💡 Más ideas para tu manual
+                      </h3>
+                      <p className="text-gray-600">
+                        Estas zonas adicionales pueden hacer tu alojamiento aún más especial
+                      </p>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4">
+                      {randomSuggestions.map((zone) => (
+                        <motion.div
+                          key={zone.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer group hover:scale-105">
+                            <CardContent className="p-4 text-center">
+                              <div className="w-12 h-12 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:from-violet-200 group-hover:to-purple-200 transition-colors">
+                                <ZoneIcon iconId={zone.icon} className="w-6 h-6 text-violet-600" />
+                              </div>
+                              <h4 className="font-medium text-gray-900 mb-1 text-sm">{zone.name}</h4>
+                              <p className="text-xs text-gray-600 mb-3 line-clamp-2">{zone.description}</p>
+                              <Button
+                                size="sm"
+                                className="w-full bg-violet-600 hover:bg-violet-700 text-xs py-1 h-7"
+                                onClick={() => handleUseTemplate(zone)}
+                              >
+                                <Plus className="w-3 h-3 mr-1" />
+                                Añadir
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mobile: Full width below zones */}
+              <div className="lg:hidden mt-8">
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      💡 Más ideas para tu manual
+                    </h3>
+                    <p className="text-gray-600">
+                      Estas zonas adicionales pueden hacer tu alojamiento aún más especial
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-4">
+                    {randomSuggestions.map((zone) => (
+                      <motion.div
+                        key={zone.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Card className="hover:shadow-lg transition-all duration-200">
+                          <CardContent className="p-4">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-12 h-12 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <ZoneIcon iconId={zone.icon} className="w-6 h-6 text-violet-600" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-gray-900 mb-1">{zone.name}</h4>
+                                <p className="text-sm text-gray-600 mb-3">{zone.description}</p>
+                                <Button
+                                  size="sm"
+                                  className="bg-violet-600 hover:bg-violet-700"
+                                  onClick={() => handleUseTemplate(zone)}
+                                >
+                                  <Plus className="w-4 h-4 mr-2" />
+                                  Añadir zona
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        }
+        return null
+      })()}
+
+      {/* Zone Inspiration Manager - Only shows advanced cards when user has all essential zones */}
+      {user && (() => {
+        const essentialZones = zoneTemplates
+          .filter(template => template.category === 'essential')
+          .sort((a, b) => b.popularity - a.popularity)
+          .slice(0, 5)
+
+        const allExist = essentialZones.every(zone => 
+          zones.find(z => z.name.toLowerCase() === zone.name.toLowerCase()) !== undefined
+        )
+
+        if (allExist) {
+          return (
+            <div className="mt-8">
+              <ZoneInspirationManager
+                propertyId={id}
+                existingZoneNames={zones.map(z => z.name)}
+                onCreateZone={handleCreateZoneFromInspiration}
+                userId={user.id}
+              />
+            </div>
+          )
+        }
+        return null
+      })()}
 
       {/* Create/Edit Form Modal */}
       <AnimatePresence>
