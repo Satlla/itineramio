@@ -9,10 +9,13 @@ import { IconSelector, ZoneIconDisplay, useZoneIcon } from '../../../../../src/c
 import { Input } from '../../../../../src/components/ui/Input'
 import { QRCodeDisplay } from '../../../../../src/components/ui/QRCodeDisplay'
 import { ZoneTemplateSelector } from '../../../../../src/components/ui/ZoneTemplateSelectorNew'
+import { ZoneInspirationManager } from '../../../../../src/components/ui/ZoneInspirationManager'
 import { cn } from '../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
 import { zoneTemplates, zoneCategories, ZoneTemplate } from '../../../../../src/data/zoneTemplates'
 import { ZoneIcon } from '../../../../../src/data/zoneIconsNew'
+import { InspirationZone } from '../../../../../src/data/zoneInspiration'
+import { useAuth } from '../../../../../src/providers/AuthProvider'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 
 interface Zone {
@@ -31,6 +34,7 @@ interface Zone {
 export default function PropertyZonesPage({ params }: { params: Promise<{ id: string }> }) {
   const [id, setId] = useState<string>('')
   const router = useRouter()
+  const { user } = useAuth()
   const [zones, setZones] = useState<Zone[]>([])
   const [propertyName, setPropertyName] = useState<string>('')
   const [showCreateForm, setShowCreateForm] = useState(false)
@@ -376,7 +380,73 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
   }
 
+  const [showPredefineModal, setShowPredefineModal] = useState(false)
+
   const handleOpenMultiSelect = () => {
+    setShowPredefineModal(true)
+  }
+
+  const handlePredefinedZonesChoice = async () => {
+    setShowPredefineModal(false)
+    
+    // Get essential zones that don't exist yet
+    const existingZoneNames = zones.map(z => z.name.toLowerCase())
+    const commonZones = [
+      { name: 'WiFi', iconId: 'wifi', description: 'Contraseña y conexión a internet' },
+      { name: 'Check-in', iconId: 'door', description: 'Proceso de entrada y llaves' },
+      { name: 'Check-out', iconId: 'exit', description: 'Proceso de salida' },
+      { name: 'Cómo llegar', iconId: 'map-pin', description: 'Indicaciones para llegar al alojamiento' },
+      { name: 'Información Básica', iconId: 'info', description: 'Información esencial del alojamiento' },
+      { name: 'Climatización', iconId: 'thermometer', description: 'Aire acondicionado y calefacción' },
+      { name: 'Aparcamiento', iconId: 'car', description: 'Dónde aparcar y cómo acceder' },
+      { name: 'Normas', iconId: 'list', description: 'Normas de la casa y convivencia' },
+      { name: 'Teléfonos de interés', iconId: 'phone', description: 'Emergencias y contactos útiles' }
+    ].filter(zone => !existingZoneNames.includes(zone.name.toLowerCase()))
+
+    try {
+      const createdZones: Zone[] = []
+      
+      for (const zoneData of commonZones) {
+        const response = await fetch(`/api/properties/${id}/zones`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: zoneData.name,
+            description: zoneData.description,
+            icon: zoneData.iconId,
+            color: 'bg-gray-100',
+            status: 'ACTIVE'
+          })
+        })
+
+        const result = await response.json()
+
+        if (response.ok && result.success) {
+          const newZone: Zone = {
+            id: result.data.id,
+            name: zoneData.name,
+            description: zoneData.description,
+            iconId: zoneData.iconId,
+            order: result.data.order,
+            stepsCount: 0,
+            qrUrl: `https://itineramio.com/guide/${id}/${result.data.id}`,
+            lastUpdated: new Date().toISOString().split('T')[0]
+          }
+          createdZones.push(newZone)
+        }
+      }
+
+      setZones([...zones, ...createdZones])
+    } catch (error) {
+      console.error('Error creating predefined zones:', error)
+      alert('Error al crear las zonas predefinidas')
+    }
+  }
+
+  const handleCustomZonesChoice = () => {
+    setShowPredefineModal(false)
     setShowTemplateSelector(true)
   }
 
@@ -440,6 +510,50 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       setTimeout(() => setCopied(false), 2000)
     } catch (error) {
       console.error('Failed to copy URL:', error)
+    }
+  }
+
+  const handleCreateZoneFromInspiration = async (inspiration: InspirationZone) => {
+    try {
+      const response = await fetch(`/api/properties/${id}/zones`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: inspiration.name,
+          description: inspiration.description,
+          icon: inspiration.icon,
+          color: 'bg-gray-100',
+          status: 'ACTIVE'
+        })
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        const newZone: Zone = {
+          id: result.data.id,
+          name: inspiration.name,
+          description: inspiration.description,
+          iconId: inspiration.icon,
+          order: result.data.order,
+          stepsCount: 0,
+          qrUrl: `https://itineramio.com/guide/${id}/${result.data.id}`,
+          lastUpdated: new Date().toISOString().split('T')[0]
+        }
+
+        setZones([...zones, newZone])
+        
+        // Navigate to the new zone's steps page
+        router.push(`/properties/${id}/zones/${result.data.id}/steps`)
+      } else {
+        console.error('Error creating zone from inspiration:', result.error)
+        alert(result.error || 'Error al crear la zona')
+      }
+    } catch (error) {
+      console.error('Error creating zone from inspiration:', error)
+      alert('Error al crear la zona')
     }
   }
 
@@ -544,6 +658,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Left Section - Zones (2/3 width) */}
         <div className="lg:col-span-2 space-y-4">
+          {/* Zone Inspiration Manager */}
+          {user && (
+            <ZoneInspirationManager
+              propertyId={id}
+              existingZoneNames={zones.map(z => z.name)}
+              onCreateZone={handleCreateZoneFromInspiration}
+              userId={user.id}
+            />
+          )}
+
           {/* Mobile header for zones */}
           <div className="lg:hidden mb-4">
             <h2 className="text-xl font-semibold text-gray-900">
@@ -1036,6 +1160,64 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           Añadir Zonas
         </Button>
       </div>
+
+      {/* Predefined Zones Choice Modal */}
+      <AnimatePresence>
+        {showPredefineModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-lg w-full max-w-md"
+            >
+              <div className="p-6">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="w-8 h-8 text-violet-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    ¿Quieres que agreguemos zonas predefinidas?
+                  </h3>
+                  <p className="text-gray-600">
+                    Podemos añadir las zonas más comunes (WiFi, Check-in, Check-out, etc.) o puedes elegir tú mismo qué zonas añadir.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <Button
+                    onClick={handlePredefinedZonesChoice}
+                    className="w-full bg-violet-600 hover:bg-violet-700"
+                  >
+                    Sí, añadir zonas predefinidas
+                  </Button>
+                  
+                  <Button
+                    onClick={handleCustomZonesChoice}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    No, prefiero elegir yo las zonas
+                  </Button>
+                  
+                  <Button
+                    onClick={() => setShowPredefineModal(false)}
+                    variant="ghost"
+                    className="w-full text-gray-500"
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   )
