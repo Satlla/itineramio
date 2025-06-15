@@ -60,22 +60,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    
-    // TODO: Get user ID from authentication session  
-    // For now, find the demo user
-    const demoUser = await prisma.user.findUnique({
-      where: { email: 'demo@itineramio.com' }
-    })
-    
-    if (!demoUser) {
-      return NextResponse.json({
-        success: false,
-        error: 'Usuario demo no encontrado'
-      }, { status: 404 })
+    // Get user from JWT token
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
-    
-    const userId = demoUser.id
+
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const userId = decoded.userId
+
+    const body = await request.json()
     
     // Create the property set
     const propertySet = await prisma.propertySet.create({
