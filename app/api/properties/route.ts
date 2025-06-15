@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '../../../src/lib/prisma'
 
 // Validation schema for property creation
 // Popular zones that are automatically created for new properties

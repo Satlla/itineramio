@@ -5,8 +5,8 @@ import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Globe, Shield, FileText } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
-import { ItineramioLogo } from '@/components/ui/ItineramioLogo'
+import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher'
+import { ItineramioLogo } from '../../components/ui/ItineramioLogo'
 
 export function Footer() {
   const { t } = useTranslation('common')

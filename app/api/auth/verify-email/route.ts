@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { EmailVerificationService } from '@/lib/auth-email'
-import { prisma } from '@/lib/prisma'
+import { EmailVerificationService } from '../../../../src/lib/auth-email'
+import { prisma } from '../../../../src/lib/prisma'
 import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = 'itineramio-secret-key-2024'

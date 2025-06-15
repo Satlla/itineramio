@@ -1,7 +1,7 @@
 'use client'
 
-import { DashboardNavbar } from '@/components/layout/DashboardNavbar'
-import { useAuth } from '@/providers/AuthProvider'
+import { DashboardNavbar } from '../../src/components/layout/DashboardNavbar'
+import { useAuth } from '../../src/providers/AuthProvider'
 
 export default function DashboardLayout({
   children,

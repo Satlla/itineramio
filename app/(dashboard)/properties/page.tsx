@@ -20,8 +20,8 @@ import {
   MoreHorizontal,
   Building2
 } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent } from '@/components/ui/Card'
+import { Button } from '../../../src/components/ui/Button'
+import { Card, CardContent } from '../../../src/components/ui/Card'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'

@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, User, Globe } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/Button'
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
-import { ItineramioLogo } from '@/components/ui/ItineramioLogo'
+import { Button } from '../../components/ui/Button'
+import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher'
+import { ItineramioLogo } from '../../components/ui/ItineramioLogo'
 
 interface NavbarProps {
   transparent?: boolean

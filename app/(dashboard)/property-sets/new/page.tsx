@@ -20,11 +20,11 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Card } from '@/components/ui/Card'
-import { ImageUpload } from '@/components/ui/ImageUpload'
-import { useFormPersistence } from '@/hooks/useFormPersistence'
+import { Button } from '../../../../src/components/ui/Button'
+import { Input } from '../../../../src/components/ui/Input'
+import { Card } from '../../../../src/components/ui/Card'
+import { ImageUpload } from '../../../../src/components/ui/ImageUpload'
+import { useFormPersistence } from '../../../../src/hooks/useFormPersistence'
 
 // PropertySetType as string literal type
 type PropertySetType = 'HOTEL' | 'BUILDING' | 'COMPLEX' | 'RESORT' | 'HOSTEL' | 'APARTHOTEL'

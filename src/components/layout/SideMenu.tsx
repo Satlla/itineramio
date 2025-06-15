@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
+import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher'
 
 interface SideMenuProps {
   isOpen: boolean

@@ -4,7 +4,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { FileText, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
+import { Button } from '../../../src/components/ui/Button'
 
 export default function TermsPage() {
   return (

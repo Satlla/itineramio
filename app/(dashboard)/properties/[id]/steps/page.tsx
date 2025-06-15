@@ -3,11 +3,11 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Edit, ArrowRight, Plus, CheckCircle, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { ZoneIconDisplay } from '@/components/ui/IconSelector'
+import { Button } from '../../../../../src/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../../../src/components/ui/Card'
+import { ZoneIconDisplay } from '../../../../../src/components/ui/IconSelector'
 import { useRouter } from 'next/navigation'
-import { cn } from '@/lib/utils'
+import { cn } from '../../../../../src/lib/utils'
 
 interface Zone {
   id: string

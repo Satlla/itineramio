@@ -13,9 +13,9 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useParams, useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Card } from '@/components/ui/Card'
+import { Button } from '../../../../../../src/components/ui/Button'
+import { Input } from '../../../../../../src/components/ui/Input'
+import { Card } from '../../../../../../src/components/ui/Card'
 // No need to import IconSelector, we'll use inline emoji selector
 
 // Zone validation schema

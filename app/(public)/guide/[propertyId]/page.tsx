@@ -18,8 +18,8 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
+import { Button } from '../../../../src/components/ui/Button'
+import { Card } from '../../../../src/components/ui/Card'
 
 interface Property {
   id: string

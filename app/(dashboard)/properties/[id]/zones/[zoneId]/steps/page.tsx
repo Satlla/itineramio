@@ -17,11 +17,11 @@ import {
   Upload,
   Link
 } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Input } from '@/components/ui/Input'
-import { ZoneIconDisplay, useZoneIcon } from '@/components/ui/IconSelector'
-import { cn } from '@/lib/utils'
+import { Button } from '../../../../../../../src/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../../../../../src/components/ui/Card'
+import { Input } from '../../../../../../../src/components/ui/Input'
+import { ZoneIconDisplay, useZoneIcon } from '../../../../../../../src/components/ui/IconSelector'
+import { cn } from '../../../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
 
 enum StepType {

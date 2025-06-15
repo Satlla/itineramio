@@ -20,8 +20,8 @@ import {
   Settings,
   Package
 } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
+import { Button } from '../../../../src/components/ui/Button'
+import { Card } from '../../../../src/components/ui/Card'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 

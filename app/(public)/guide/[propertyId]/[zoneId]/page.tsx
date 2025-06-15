@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Play, Pause, ChevronLeft, ChevronRight, Phone, MessageCircle, Check, X } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent } from '@/components/ui/Card'
-import { ZoneIconDisplay } from '@/components/ui/IconSelector'
-import { ItineramioLogo } from '@/components/ui/ItineramioLogo'
-import { Badge } from '@/components/ui/Badge'
+import { Button } from '../../../../../src/components/ui/Button'
+import { Card, CardContent } from '../../../../../src/components/ui/Card'
+import { ZoneIconDisplay } from '../../../../../src/components/ui/IconSelector'
+import { ItineramioLogo } from '../../../../../src/components/ui/ItineramioLogo'
+import { Badge } from '../../../../../src/components/ui/Badge'
 
 interface ZoneStep {
   id: string

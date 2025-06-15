@@ -2,10 +2,10 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
-import { I18nProvider } from '@/providers/I18nProvider'
+import { I18nProvider } from '../src/providers/I18nProvider'
 import { Toaster } from 'react-hot-toast'
-import { validateEnvironmentVariables } from '@/lib/env-validation'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { validateEnvironmentVariables } from '../src/lib/env-validation'
+import { ErrorBoundary } from '../src/components/ErrorBoundary'
 
 // Validate environment variables on startup
 if (typeof window === 'undefined') {

@@ -18,10 +18,10 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Card } from '@/components/ui/Card'
-import { ImageUpload } from '@/components/ui/ImageUpload'
+import { Button } from '../../../../../../../../src/components/ui/Button'
+import { Input } from '../../../../../../../../src/components/ui/Input'
+import { Card } from '../../../../../../../../src/components/ui/Card'
+import { ImageUpload } from '../../../../../../../../src/components/ui/ImageUpload'
 
 // Step validation schema
 const createStepSchema = z.object({

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '../../../../src/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
-import { EmailVerificationService } from '@/lib/auth-email'
+import { EmailVerificationService } from '../../../../src/lib/auth-email'
 
 const registerSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),

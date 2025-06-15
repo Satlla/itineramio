@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { Zap, Globe, Heart } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
+import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher'
 
 export function DashboardFooter() {
   const { t } = useTranslation('common')
