@@ -54,6 +54,7 @@ interface Property {
 export default function DashboardPage() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('30d')
   const [properties, setProperties] = useState<Property[]>([])
+  const [propertySets, setPropertySets] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showGuestReportsModal, setShowGuestReportsModal] = useState(false)
@@ -141,9 +142,13 @@ export default function DashboardPage() {
     try {
       setLoading(true)
       
-      // Fetch properties only
+      // Fetch properties
       const propertiesResponse = await fetch('/api/properties')
       const propertiesResult = await propertiesResponse.json()
+      
+      // Fetch property sets
+      const propertySetsResponse = await fetch('/api/property-sets')
+      const propertySetsResult = await propertySetsResponse.json()
       
       if (propertiesResponse.ok && propertiesResult.data) {
         setProperties(propertiesResult.data)
@@ -161,6 +166,10 @@ export default function DashboardPage() {
           activeManuals: activeManuals,
           avgRating: parseFloat(avgRating.toFixed(1))
         })
+      }
+
+      if (propertySetsResponse.ok && propertySetsResult.data) {
+        setPropertySets(propertySetsResult.data)
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -251,7 +260,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  Hola, {user?.name || 'Usuario'} 👋
+                  Hola, {user?.name?.split(' ')[0] || 'Usuario'} 👋
                 </h1>
                 <p className="text-gray-600 mt-2">
                   Aquí tienes un resumen de tus propiedades y manuales
@@ -539,6 +548,88 @@ export default function DashboardPage() {
                 </div>
               )}
             </motion.div>
+
+            {/* Property Sets Section - Only show if user has property sets */}
+            {propertySets.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.25 }}
+                className="lg:col-span-2"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Mis Conjuntos de Propiedades ({propertySets.length})
+                  </h2>
+                  <Button asChild variant="outline">
+                    <Link href="/properties?tab=sets">
+                      Ver todos
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  {propertySets.slice(0, 3).map((propertySet) => (
+                    <Card key={propertySet.id} className="hover:shadow-lg transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex space-x-4">
+                          {/* Property Set Image */}
+                          <div className="flex-shrink-0">
+                            {propertySet.profileImage ? (
+                              <img 
+                                src={propertySet.profileImage} 
+                                alt={propertySet.name}
+                                className="w-16 h-16 rounded-lg object-cover"
+                              />
+                            ) : (
+                              <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+                                <Building2 className="w-8 h-8 text-white" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Property Set Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h3 className="font-semibold text-lg text-gray-900 mb-1 truncate">
+                                  {propertySet.name}
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-2">
+                                  {propertySet.city}, {propertySet.state}
+                                </p>
+                                
+                                <div className="flex items-center space-x-4 text-sm">
+                                  <div className="flex items-center text-gray-600">
+                                    <Home className="h-4 w-4 mr-1" />
+                                    <span>{propertySet.propertiesCount} propiedades</span>
+                                  </div>
+                                  {propertySet.totalViews > 0 && (
+                                    <div className="flex items-center text-gray-600">
+                                      <Eye className="h-4 w-4 mr-1" />
+                                      <span>{propertySet.totalViews} vistas</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => router.push(`/properties?tab=sets&manage=${propertySet.id}`)}
+                              >
+                                Gestionar
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </motion.div>
+            )}
 
             {/* Right Column - Recent Activity (Desktop Only) */}
             <motion.div

@@ -12,7 +12,8 @@ import {
   LogOut,
   ChevronRight,
   Shield,
-  CreditCard
+  CreditCard,
+  Home
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
@@ -32,6 +33,13 @@ export function SideMenu({ isOpen, onClose, user }: SideMenuProps) {
   const { t } = useTranslation('common')
 
   const menuItems = [
+    {
+      icon: <Home className="w-5 h-5" />,
+      label: "Mis Propiedades",
+      href: "/properties",
+      description: "Gestionar propiedades y conjuntos",
+      mobileOnly: true
+    },
     {
       icon: <User className="w-5 h-5" />,
       label: "Cuenta",
@@ -138,6 +146,7 @@ export function SideMenu({ isOpen, onClose, user }: SideMenuProps) {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
+                    className={item.mobileOnly ? "block md:hidden" : ""}
                   >
                     <Link
                       href={item.href}

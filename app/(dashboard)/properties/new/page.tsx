@@ -306,28 +306,32 @@ function NewPropertyPageContent() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
+        <div className="mb-8">
+          {/* Back button - always at top */}
+          <div className="mb-4">
             <Link href="/properties">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver
               </Button>
             </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                {isEditing ? 'Editar Propiedad' : 'Nueva Propiedad'}
-              </h1>
-              <p className="text-gray-600 mt-1">
-                {isEditing 
-                  ? 'Actualiza la información de tu propiedad'
-                  : 'Crea una nueva propiedad para gestionar sus manuales digitales'
-                }
-              </p>
-            </div>
           </div>
           
-          <div className="flex items-center space-x-3">
+          {/* Title and subtitle */}
+          <div className="mb-4">
+            <h1 className="text-3xl font-bold text-gray-900">
+              {isEditing ? 'Editar Propiedad' : 'Nueva Propiedad'}
+            </h1>
+            <p className="text-gray-600 mt-1">
+              {isEditing 
+                ? 'Actualiza la información de tu propiedad'
+                : 'Crea una nueva propiedad para gestionar sus manuales digitales'
+              }
+            </p>
+          </div>
+          
+          {/* Action buttons - responsive layout */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
             {isClient && hasSavedData() && (
               <Button 
                 type="button" 
@@ -343,7 +347,7 @@ function NewPropertyPageContent() {
               type="button" 
               variant="outline"
               onClick={showPropertyPreview}
-              className="flex items-center"
+              className="flex items-center justify-center"
             >
               <Eye className="w-4 h-4 mr-2" />
               Vista Previa
@@ -573,28 +577,29 @@ function NewPropertyPageContent() {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-end mt-8">
-                  <div>
+                <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8">
+                  <div className="flex gap-3 order-2 sm:order-1">
                     <Button 
                       type="button" 
                       variant="outline"
                       onClick={showPropertyPreview}
-                      className="mr-3"
+                      className="flex-1 sm:flex-initial"
                     >
                       <Eye className="w-4 h-4 mr-2" />
                       Vista Previa
                     </Button>
                   </div>
-                  <div className="flex flex-col items-end">
+                  <div className="flex flex-col items-center sm:items-end order-1 sm:order-2">
                     <Button 
                       onClick={nextStep} 
                       type="button"
                       disabled={!validateStep(1)}
+                      className="w-full sm:w-auto"
                     >
                       Siguiente
                     </Button>
                     {!validateStep(1) && (
-                      <p className="text-sm text-red-600 mt-2">
+                      <p className="text-sm text-red-600 mt-2 text-center sm:text-right">
                         Completa todos los campos obligatorios para continuar
                       </p>
                     )}
@@ -695,33 +700,35 @@ function NewPropertyPageContent() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <Button onClick={prevStep} type="button" variant="outline">
-                    Anterior
-                  </Button>
-                  <div className="flex items-end space-x-3">
+                <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8">
+                  <div className="flex gap-3 order-2 sm:order-1">
+                    <Button onClick={prevStep} type="button" variant="outline" className="flex-1 sm:flex-initial">
+                      Anterior
+                    </Button>
                     <Button 
                       type="button" 
                       variant="outline"
                       onClick={showPropertyPreview}
+                      className="flex-1 sm:flex-initial"
                     >
                       <Eye className="w-4 h-4 mr-2" />
                       Vista Previa
                     </Button>
-                    <div className="flex flex-col items-end">
-                      <Button 
-                        onClick={nextStep} 
-                        type="button"
-                        disabled={!validateStep(2)}
-                      >
-                        Siguiente
-                      </Button>
-                      {!validateStep(2) && (
-                        <p className="text-sm text-red-600 mt-2">
-                          Completa todos los campos obligatorios para continuar
-                        </p>
-                      )}
-                    </div>
+                  </div>
+                  <div className="flex flex-col items-center sm:items-end order-1 sm:order-2">
+                    <Button 
+                      onClick={nextStep} 
+                      type="button"
+                      disabled={!validateStep(2)}
+                      className="w-full sm:w-auto"
+                    >
+                      Siguiente
+                    </Button>
+                    {!validateStep(2) && (
+                      <p className="text-sm text-red-600 mt-2 text-center sm:text-right">
+                        Completa todos los campos obligatorios para continuar
+                      </p>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -832,24 +839,28 @@ function NewPropertyPageContent() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-8">
-                  <Button onClick={prevStep} type="button" variant="outline">
-                    Anterior
-                  </Button>
-                  <div className="flex space-x-3">
+                <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8">
+                  <div className="flex gap-3 order-2 sm:order-1">
+                    <Button onClick={prevStep} type="button" variant="outline" className="flex-1 sm:flex-initial">
+                      Anterior
+                    </Button>
                     <Button 
                       type="button" 
                       variant="outline"
                       disabled={!validateStep(3)}
                       onClick={showPropertyPreview}
+                      className="flex-1 sm:flex-initial"
                     >
                       <Eye className="w-4 h-4 mr-2" />
                       Vista Previa
                     </Button>
+                  </div>
+                  <div className="flex flex-col items-center sm:items-end order-1 sm:order-2">
                     <Button 
                       type="submit" 
                       disabled={isSubmitting || !validateStep(3)}
                       loading={isSubmitting}
+                      className="w-full sm:w-auto"
                     >
                       <Save className="w-4 h-4 mr-2" />
                       {isSubmitting 
@@ -858,7 +869,7 @@ function NewPropertyPageContent() {
                       }
                     </Button>
                     {!validateStep(3) && (
-                      <p className="text-sm text-red-600 mt-2">
+                      <p className="text-sm text-red-600 mt-2 text-center sm:text-right">
                         Completa todos los campos obligatorios para {isEditing ? 'actualizar' : 'crear'} la propiedad
                       </p>
                     )}
