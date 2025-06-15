@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 import { X, Check, Info as InfoIcon, Image, Link as LinkIcon, Video, FileText, Plus } from 'lucide-react'
-import { zoneTemplates, zoneCategories } from '@/data/zoneTemplates'
-import { ZoneIcon } from '@/data/zoneIconsNew'
+import { zoneTemplates, zoneCategories } from '../../data/zoneTemplates'
+import { ZoneIcon } from '../../data/zoneIconsNew'
 import { Button } from './Button'
 
 interface ZoneTemplateSelectorProps {
