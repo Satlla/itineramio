@@ -103,7 +103,7 @@ export function ZoneInspirationCard({
           
           <div className={`flex items-start space-x-3 ${compact ? 'pr-6' : 'pr-8'}`}>
             <div className={`${compact ? 'p-1.5' : 'p-2'} bg-white/20 rounded-lg`}>
-              <ZoneIconDisplay iconId={inspiration.icon} size={compact ? 'xs' : 'sm'} />
+              <ZoneIconDisplay iconId={inspiration.icon} size={compact ? 'sm' : 'sm'} />
             </div>
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-1">
