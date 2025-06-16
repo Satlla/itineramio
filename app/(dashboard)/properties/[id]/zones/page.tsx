@@ -13,6 +13,7 @@ import { ZoneInspirationManager } from '../../../../../src/components/ui/ZoneIns
 import { ZoneStaticSuggestions } from '../../../../../src/components/ui/ZoneStaticSuggestions'
 import { ZoneInspirationModal } from '../../../../../src/components/ui/ZoneInspirationModal'
 import { StepEditor, Step } from '../../../../../src/components/ui/StepEditor'
+import { MobileZoneToast } from '../../../../../src/components/ui/MobileZoneToast'
 import { cn } from '../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
 import { zoneTemplates, zoneCategories, ZoneTemplate } from '../../../../../src/data/zoneTemplates'
@@ -885,10 +886,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 <Card 
                   className="hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300"
                   onClick={() => {
-                    console.log('Clicking zone card:', zone.name)
                     setEditingZoneForSteps(zone)
                     setShowStepEditor(true)
-                    console.log('Step editor should be open now')
                   }}
                 >
                   <CardContent className="p-4">
@@ -940,10 +939,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                               <DropdownMenu.Item
                                 className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                                 onSelect={() => {
-                                  console.log('Dropdown edit clicked for zone:', zone.name)
                                   setEditingZoneForSteps(zone)
                                   setShowStepEditor(true)
-                                  console.log('Step editor should open from dropdown')
                                 }}
                               >
                                 <Edit className="h-4 w-4 mr-2" />
@@ -1285,9 +1282,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Step Editor */}
       <AnimatePresence>
         {showStepEditor && editingZoneForSteps && (
-          <>
-            {console.log('Rendering StepEditor for zone:', editingZoneForSteps.name)}
-            <StepEditor
+          <StepEditor
             zoneTitle={editingZoneForSteps.name}
             initialSteps={[]}
             onSave={handleSaveSteps}
@@ -1298,7 +1293,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             maxVideos={5}
             currentVideoCount={0}
           />
-          </>
         )}
       </AnimatePresence>
 
@@ -1380,6 +1374,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Mobile Zone Toast */}
+      <MobileZoneToast
+        existingZoneNames={zones.map(z => z.name)}
+        onCreateZone={handleCreateZoneFromTemplate}
+      />
 
     </div>
   )

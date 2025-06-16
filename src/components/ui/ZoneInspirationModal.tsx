@@ -114,30 +114,63 @@ export function ZoneInspirationModal({
       'wifi': {
         title: 'Conexión WiFi',
         steps: [
-          { type: 'text', content: 'Bienvenido! Aquí tienes la información para conectarte a internet.' },
-          { type: 'text', content: 'Red WiFi: [Nombre de tu red]' },
-          { type: 'text', content: 'Contraseña: [Tu contraseña]' },
-          { type: 'text', content: 'Si tienes problemas, reinicia el router (botón rojo en el pasillo).' }
+          { type: 'text', content: { es: '👋🏻 Bienvenido! Te explico cómo conectarte al WiFi de la casa.' }},
+          { type: 'text', content: { es: '📡 Nombre de la red: [Tu_Red_WiFi]' }},
+          { type: 'text', content: { es: '🔐 Contraseña: [Tu_Contraseña]' }},
+          { type: 'image', content: { es: 'Foto del router' }},
+          { type: 'text', content: { es: '⚠️ Si el internet va lento, reinicia el router presionando el botón rojo durante 10 segundos.' }}
         ]
       },
       'check-in': {
         title: 'Proceso de Entrada',
         steps: [
-          { type: 'text', content: '¡Bienvenido a nuestro alojamiento!' },
-          { type: 'text', content: 'Código de acceso al edificio: [CÓDIGO]' },
-          { type: 'text', content: 'Las llaves están en la caja fuerte: [CÓDIGO]' },
-          { type: 'image', content: 'Foto de la ubicación de la caja fuerte' },
-          { type: 'text', content: 'Una vez dentro, las llaves van en el bowl de la entrada.' }
+          { type: 'text', content: { es: '🏠 ¡Bienvenido! Sigue estos pasos para entrar al alojamiento.' }},
+          { type: 'video', content: { es: 'Video: Cómo llegar a la puerta principal' }},
+          { type: 'text', content: { es: '🔢 Código de acceso al edificio: [CÓDIGO]' }},
+          { type: 'image', content: { es: 'Foto del teclado de entrada' }},
+          { type: 'text', content: { es: '🗝️ Las llaves están en la caja fuerte junto a la puerta.' }},
+          { type: 'image', content: { es: 'Foto de la ubicación de la caja fuerte' }},
+          { type: 'text', content: { es: '🔢 Código de la caja fuerte: [CÓDIGO]' }},
+          { type: 'text', content: { es: '✅ Una vez dentro, deja las llaves siempre en el bowl de la entrada.' }}
         ]
       },
       'parking': {
         title: 'Información de Aparcamiento',
         steps: [
-          { type: 'text', content: 'Información sobre dónde aparcar durante tu estancia.' },
-          { type: 'text', content: 'Plaza asignada: Parking subterráneo, Plaza #[NÚMERO]' },
-          { type: 'text', content: 'Código de acceso: [CÓDIGO]' },
-          { type: 'text', content: 'Horario: 24/7 disponible' },
-          { type: 'text', content: 'En caso de problemas, contacta con recepción: [TELÉFONO]' }
+          { type: 'text', content: { es: '🚗 Información para aparcar tu vehículo' }},
+          { type: 'image', content: { es: 'Foto de la entrada del parking' }},
+          { type: 'text', content: { es: '🅿️ Plaza asignada: Parking subterráneo, Plaza #[NÚMERO]' }},
+          { type: 'video', content: { es: 'Video: Cómo llegar a tu plaza' }},
+          { type: 'text', content: { es: '🔢 Código de acceso: [CÓDIGO]' }},
+          { type: 'text', content: { es: '⏰ Horario: Disponible 24/7' }},
+          { type: 'text', content: { es: '📞 En caso de problemas: [TELÉFONO]' }}
+        ]
+      },
+      'emergency': {
+        title: 'Contactos de Emergencia',
+        steps: [
+          { type: 'text', content: { es: '🆘 Números importantes para tu seguridad' }},
+          { type: 'text', content: { es: '🚑 Emergencias generales: 112' }},
+          { type: 'text', content: { es: '👮 Policía Local: 092' }},
+          { type: 'text', content: { es: '🔥 Bomberos: 080' }},
+          { type: 'text', content: { es: '🏥 Centro médico más cercano: [NOMBRE]' }},
+          { type: 'link', content: { es: 'Dirección del centro médico' }},
+          { type: 'text', content: { es: '📞 Anfitrion: [TU NÚMERO]' }},
+          { type: 'text', content: { es: '💡 Compañía eléctrica: [NÚMERO]' }},
+          { type: 'text', content: { es: '💧 Agua: [NÚMERO]' }}
+        ]
+      },
+      'trash': {
+        title: 'Basura y Reciclaje',
+        steps: [
+          { type: 'text', content: { es: '♾️ Sistema de reciclaje y recogida de basura' }},
+          { type: 'image', content: { es: 'Foto de los contenedores' }},
+          { type: 'text', content: { es: '🟡 Amarillo: Envases y plásticos' }},
+          { type: 'text', content: { es: '🔵 Azul: Papel y cartón' }},
+          { type: 'text', content: { es: '🟢 Verde: Vidrio' }},
+          { type: 'text', content: { es: '⚫ Gris/Negro: Orgánico y resto' }},
+          { type: 'text', content: { es: '🕒 Horario de recogida: Lunes, Miércoles y Viernes a las 22:00h' }},
+          { type: 'text', content: { es: '📍 Ubicación contenedores: En la esquina de la calle' }}
         ]
       }
     }
@@ -145,9 +178,9 @@ export function ZoneInspirationModal({
     return templates[template.id as keyof typeof templates] || {
       title: template.name,
       steps: [
-        { type: 'text', content: `Información sobre ${template.name.toLowerCase()}` },
-        { type: 'text', content: 'Añade aquí las instrucciones paso a paso.' },
-        { type: 'text', content: 'Puedes incluir imágenes, videos o enlaces.' }
+        { type: 'text', content: { es: `Información sobre ${template.name.toLowerCase()}` }},
+        { type: 'text', content: { es: 'Añade aquí las instrucciones paso a paso.' }},
+        { type: 'text', content: { es: 'Puedes incluir imágenes, videos o enlaces.' }}
       ]
     }
   }

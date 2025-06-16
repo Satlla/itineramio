@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { ZONE_ICONS } from '../../data/zoneIcons'
+import { getZoneIcon } from './ZoneIcons'
 import { Button } from './Button'
 import { Input } from './Input'
 
@@ -192,9 +193,13 @@ interface ZoneIconDisplayProps {
 }
 
 export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisplayProps) {
+  // Try to get custom Airbnb-style icon first
+  const CustomIcon = iconId ? getZoneIcon(iconId) : null
+  
+  // Fallback to existing icon system
   const icon = useZoneIcon(iconId)
   
-  if (!icon) {
+  if (!CustomIcon && !icon) {
     return (
       <div className={cn(
         "rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center",
@@ -207,19 +212,40 @@ export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisp
       </div>
     )
   }
+  
+  // Use custom icon if available
+  if (CustomIcon) {
+    return (
+      <div className={cn(
+        "rounded-lg bg-gray-50 flex items-center justify-center",
+        size === 'sm' && "w-8 h-8",
+        size === 'md' && "w-12 h-12",
+        size === 'lg' && "w-16 h-16", 
+        className
+      )}>
+        <CustomIcon className={cn(
+          "text-gray-700",
+          size === 'sm' && "w-4 h-4",
+          size === 'md' && "w-6 h-6",
+          size === 'lg' && "w-8 h-8"
+        )} />
+      </div>
+    )
+  }
 
-  const IconComponent = icon.icon
+  // Fallback to existing icon
+  const IconComponent = icon!.icon
   
   return (
     <div className={cn(
-      "rounded-lg border-2 border-violet-200 bg-violet-50 flex items-center justify-center",
+      "rounded-lg bg-gray-50 flex items-center justify-center",
       size === 'sm' && "w-8 h-8",
       size === 'md' && "w-12 h-12",
       size === 'lg' && "w-16 h-16", 
       className
     )}>
       <IconComponent className={cn(
-        "text-violet-600",
+        "text-gray-700",
         size === 'sm' && "w-4 h-4",
         size === 'md' && "w-6 h-6",
         size === 'lg' && "w-8 h-8"

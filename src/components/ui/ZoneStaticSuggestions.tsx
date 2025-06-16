@@ -97,7 +97,7 @@ export function ZoneStaticSuggestions({
                 <Button
                   onClick={() => onCreateZone(template)}
                   size="sm"
-                  className="flex-1 bg-gray-900 hover:bg-gray-800 text-white text-xs h-7"
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs h-8 font-medium"
                 >
                   <Plus className="w-3 h-3 mr-1" />
                   Añadir
@@ -106,7 +106,7 @@ export function ZoneStaticSuggestions({
                   onClick={() => onViewDetails(template)}
                   variant="outline"
                   size="sm"
-                  className="border-gray-300 text-gray-600 hover:bg-gray-50 text-xs h-7 px-2"
+                  className="border-gray-200 text-gray-500 hover:bg-gray-50 text-xs h-8 px-2"
                 >
                   <Eye className="w-3 h-3" />
                 </Button>

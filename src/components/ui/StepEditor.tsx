@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Plus, 
@@ -18,7 +18,8 @@ import {
   Play,
   ExternalLink,
   Check,
-  AlertCircle
+  AlertCircle,
+  ChevronRight
 } from 'lucide-react'
 import { Button } from './Button'
 import { Card } from './Card'
@@ -58,7 +59,6 @@ export function StepEditor({
   maxVideos = 5,
   currentVideoCount = 0
 }: StepEditorProps) {
-  console.log('StepEditor initialized with:', { zoneTitle, initialSteps: initialSteps.length })
   const [steps, setSteps] = useState<Step[]>(
     initialSteps.length > 0 ? initialSteps : [createNewStep(0)]
   )
@@ -174,6 +174,18 @@ export function StepEditor({
     return steps.filter(step => step.type === 'video').length + currentVideoCount
   }
 
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   return (
     <div className="fixed inset-0 bg-gray-50 z-50 overflow-y-auto">
       {/* Header */}
@@ -199,21 +211,24 @@ export function StepEditor({
               className="bg-gray-900 hover:bg-gray-800 text-white"
               disabled={steps.every(step => !step.content.es.trim())}
             >
-              Guardar Instrucciones
+              <span className="hidden sm:inline">Guardar Instrucciones</span>
+              <span className="sm:hidden">Guardar</span>
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="grid grid-cols-12 gap-8">
-          {/* Timeline Sidebar */}
-          <div className="col-span-3">
-            <Card className="p-6 sticky top-6">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <div className="w-2 h-2 bg-violet-600 rounded-full" />
-                Itinerario de pasos
-              </h3>
+      <div className="max-w-7xl mx-auto p-3 sm:p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8">
+          {/* Timeline Sidebar - Mobile: Horizontal scrollable, Desktop: Vertical */}
+          <div className="col-span-1 lg:col-span-3 order-2 lg:order-1">
+            <Card className={`${isMobile ? 'p-3' : 'p-6'} ${isMobile ? '' : 'lg:sticky lg:top-6'}`}>
+              {!isMobile && (
+                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-violet-600 rounded-full" />
+                  Itinerario de pasos
+                </h3>
+              )}
               
               <div className="space-y-2">
                 {steps.map((step, index) => (
@@ -276,7 +291,7 @@ export function StepEditor({
           </div>
 
           {/* Main Content */}
-          <div className="col-span-9">
+          <div className="col-span-1 lg:col-span-9 order-1 lg:order-2">
             <AnimatePresence mode="wait">
               {steps[activeStep] && (
                 <motion.div
@@ -548,26 +563,47 @@ export function StepEditor({
                         variant="outline"
                         onClick={() => setActiveStep(Math.max(0, activeStep - 1))}
                         disabled={activeStep === 0}
+                        size={isMobile ? 'sm' : 'default'}
                       >
-                        Paso anterior
+                        <span className="hidden sm:inline">Paso anterior</span>
+                        <span className="sm:hidden">Anterior</span>
                       </Button>
                       
-                      <span className="text-sm text-gray-500">
+                      <span className="text-xs sm:text-sm text-gray-500">
                         Paso {activeStep + 1} de {steps.length}
                       </span>
                       
-                      <Button
-                        onClick={() => {
-                          if (activeStep === steps.length - 1) {
-                            addStep()
-                          } else {
-                            setActiveStep(activeStep + 1)
-                          }
-                        }}
-                        className="bg-violet-600 hover:bg-violet-700 text-white"
-                      >
-                        {activeStep === steps.length - 1 ? 'Añadir paso' : 'Siguiente paso'}
-                      </Button>
+                      <div className="flex gap-2">
+                        {activeStep === steps.length - 1 && steps.length > 0 && (
+                          <Button
+                            onClick={() => onSave(steps)}
+                            variant="outline"
+                            size={isMobile ? 'sm' : 'default'}
+                            className="bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                            <span className="hidden sm:inline">Finalizar</span>
+                            <span className="sm:hidden">Fin</span>
+                          </Button>
+                        )}
+                        <Button
+                          onClick={() => {
+                            if (activeStep === steps.length - 1) {
+                              addStep()
+                            } else {
+                              setActiveStep(activeStep + 1)
+                            }
+                          }}
+                          className="bg-violet-600 hover:bg-violet-700 text-white"
+                          size={isMobile ? 'sm' : 'default'}
+                        >
+                          {activeStep === steps.length - 1 ? (
+                            <><Plus className="w-4 h-4 mr-1" />Añadir</>
+                          ) : (
+                            <>Siguiente<ChevronRight className="w-4 h-4 ml-1" /></>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </Card>
                 </motion.div>
