@@ -447,7 +447,7 @@ export function ZoneInspirationModal({
                                   Texto
                                 </span>
                               </div>
-                              <p className="text-sm text-gray-700">{step.content}</p>
+                              <p className="text-sm text-gray-700">{step.content.es}</p>
                             </div>
                           </div>
                         </div>
