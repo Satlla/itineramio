@@ -398,7 +398,7 @@ export function ZoneInspirationModal({
                             {step.type === 'youtube' && (
                               <div className="bg-red-50 rounded-lg p-3 flex items-center gap-3">
                                 <PlayCircle className="w-5 h-5 text-red-600" />
-                                <span className="text-sm font-medium">{typeof step.content === 'string' ? step.content : step.content.es}</span>
+                                <span className="text-sm font-medium">{typeof step.content === 'string' ? step.content : (step.content as any).es || ''}</span>
                               </div>
                             )}
                           </div>
