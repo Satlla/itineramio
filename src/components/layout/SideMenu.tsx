@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   X, 
@@ -13,15 +13,19 @@ import {
   ChevronRight,
   Shield,
   CreditCard,
-  Home
+  Home,
+  Bell
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher'
+import { NotificationCenter } from '../ui/NotificationCenter'
+import { useNotifications } from '../../hooks/useNotifications'
 
 interface SideMenuProps {
   isOpen: boolean
   onClose: () => void
+  notificationCount?: number
   user?: {
     name: string
     email: string
@@ -29,8 +33,10 @@ interface SideMenuProps {
   }
 }
 
-export function SideMenu({ isOpen, onClose, user }: SideMenuProps) {
+export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideMenuProps) {
   const { t } = useTranslation('common')
+  const [showNotifications, setShowNotifications] = useState(false)
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications()
 
   const menuItems = [
     {
@@ -39,6 +45,24 @@ export function SideMenu({ isOpen, onClose, user }: SideMenuProps) {
       href: "/properties",
       description: "Gestionar propiedades y conjuntos",
       mobileOnly: true
+    },
+    {
+      icon: (
+        <div className="relative">
+          <Bell className="w-5 h-5" />
+          {unreadCount > 0 && (
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-medium">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            </div>
+          )}
+        </div>
+      ),
+      label: "Notificaciones",
+      onClick: () => setShowNotifications(true),
+      description: `${unreadCount} notificaciones sin leer`,
+      badge: unreadCount
     },
     {
       icon: <User className="w-5 h-5" />,
@@ -148,11 +172,34 @@ export function SideMenu({ isOpen, onClose, user }: SideMenuProps) {
                     transition={{ delay: index * 0.1 }}
                     className={item.mobileOnly ? "block md:hidden" : ""}
                   >
-                    <Link
-                      href={item.href}
-                      onClick={onClose}
-                      className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors group"
-                    >
+                    {item.onClick ? (
+                      <button
+                        onClick={() => {
+                          item.onClick!()
+                        }}
+                        className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors group"
+                      >
+                        <div className="flex items-start space-x-3">
+                          <div className="text-gray-500 group-hover:text-violet-600 transition-colors">
+                            {item.icon}
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-900 group-hover:text-violet-600 transition-colors">
+                              {item.label}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {item.description}
+                            </div>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-violet-600 transition-colors" />
+                      </button>
+                    ) : (
+                      <Link
+                        href={item.href || '#'}
+                        onClick={onClose}
+                        className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors group"
+                      >
                       <div className="flex items-start space-x-3">
                         <div className="text-gray-500 group-hover:text-violet-600 transition-colors">
                           {item.icon}
@@ -166,8 +213,9 @@ export function SideMenu({ isOpen, onClose, user }: SideMenuProps) {
                           </div>
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-violet-600 transition-colors" />
-                    </Link>
+                        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-violet-600 transition-colors" />
+                      </Link>
+                    )}
                   </motion.div>
                 ))}
               </div>
@@ -222,6 +270,17 @@ export function SideMenu({ isOpen, onClose, user }: SideMenuProps) {
                 </p>
               </div>
             </div>
+            
+            {/* Notification Center */}
+            <NotificationCenter
+              isOpen={showNotifications}
+              onClose={() => setShowNotifications(false)}
+              onBack={() => setShowNotifications(false)}
+              notifications={notifications}
+              unreadCount={unreadCount}
+              onMarkAsRead={markAsRead}
+              onMarkAllAsRead={markAllAsRead}
+            />
           </motion.div>
         )}
       </AnimatePresence>

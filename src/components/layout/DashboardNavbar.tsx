@@ -6,6 +6,7 @@ import { Menu, X, User, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { SideMenu } from './SideMenu'
+import { useNotifications } from '../../hooks/useNotifications'
 
 interface DashboardNavbarProps {
   user?: {
@@ -19,6 +20,7 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { t } = useTranslation('common')
+  const { unreadCount } = useNotifications()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -109,13 +111,24 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
               {/* Menu Button */}
               <motion.button
                 onClick={() => setIsMenuOpen(true)}
-                className="p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors shadow-sm border border-gray-200"
+                className="relative p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors shadow-sm border border-gray-200"
                 whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.7 }}
               >
                 <Menu className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center"
+                  >
+                    <span className="text-white text-xs font-medium">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  </motion.div>
+                )}
               </motion.button>
             </div>
           </div>
@@ -126,6 +139,7 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
       <SideMenu 
         isOpen={isMenuOpen} 
         onClose={() => setIsMenuOpen(false)} 
+        notificationCount={unreadCount}
         user={user}
       />
     </>

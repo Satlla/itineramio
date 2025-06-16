@@ -16,6 +16,7 @@ import { zoneTemplates, zoneCategories, ZoneTemplate } from '../../../../../src/
 // import { ZoneIcon } from '../../../../../src/data/zoneIconsNew'
 import { InspirationZone } from '../../../../../src/data/zoneInspiration'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
+import { useNotifications } from '../../../../../src/hooks/useNotifications'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 
 interface Zone {
@@ -35,6 +36,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [id, setId] = useState<string>('')
   const router = useRouter()
   const { user } = useAuth()
+  const { generateZoneWarnings, addNotification } = useNotifications()
   const [zones, setZones] = useState<Zone[]>([])
   const [propertyName, setPropertyName] = useState<string>('')
   const [showCreateForm, setShowCreateForm] = useState(false)
@@ -141,6 +143,62 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             }
           })
           setZones(transformedZones)
+          
+          // Generate zone warnings after zones are loaded
+          setTimeout(() => {
+            if (transformedZones.length > 0) {
+              // Generate warnings for zones
+              transformedZones.forEach(zone => {
+                // Check for empty zones
+                if (zone.stepsCount === 0) {
+                  addNotification({
+                    type: 'warning',
+                    title: `${propResult.data?.name || 'Propiedad'} - Zona sin configurar`,
+                    message: `La zona "${zone.name}" no tiene instrucciones configuradas`,
+                    propertyId: id,
+                    zoneId: zone.id,
+                    read: false,
+                    actionUrl: `/properties/${id}/zones/${zone.id}/steps`
+                  })
+                }
+                
+                // Check for zones with few steps
+                if (zone.stepsCount > 0 && zone.stepsCount < 3) {
+                  addNotification({
+                    type: 'info',
+                    title: `${propResult.data?.name || 'Propiedad'} - Zona incompleta`,
+                    message: `La zona "${zone.name}" solo tiene ${zone.stepsCount} paso(s). Considera añadir más información`,
+                    propertyId: id,
+                    zoneId: zone.id,
+                    read: false,
+                    actionUrl: `/properties/${id}/zones/${zone.id}/steps`
+                  })
+                }
+              })
+              
+              // Add some demo notifications
+              if (transformedZones.length > 2) {
+                addNotification({
+                  type: 'error',
+                  title: `${propResult.data?.name || 'Propiedad'} - Error reportado`,
+                  message: `Un huésped reportó que el código WiFi no funciona en la zona "${transformedZones[0].name}"`,
+                  propertyId: id,
+                  zoneId: transformedZones[0].id,
+                  read: false,
+                  actionUrl: `/properties/${id}/zones/${transformedZones[0].id}/steps`
+                })
+              }
+              
+              // Success notification
+              addNotification({
+                type: 'info',
+                title: `${propResult.data?.name || 'Propiedad'} - ¡Bienvenido!`,
+                message: 'Tu manual digital está listo. Revisa las notificaciones para optimizarlo',
+                propertyId: id,
+                read: false
+              })
+            }
+          }, 1000)
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -148,7 +206,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
 
     fetchData()
-  }, [id])
+  }, [id, addNotification])
 
   const handleCreateZone = async () => {
     if (!formData.name || !formData.iconId) return
@@ -589,6 +647,41 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </p>
         </div>
         <div className="hidden lg:flex space-x-3">
+          {/* Temporary button for testing notifications */}
+          <Button
+            onClick={() => {
+              // Generate test notifications
+              addNotification({
+                type: 'warning',
+                title: `${propertyName} - Zona desactivada`,
+                message: 'La zona "Check-in" está desactivada y no es visible para los huéspedes',
+                propertyId: id,
+                read: false,
+                actionUrl: `/properties/${id}/zones`
+              })
+              addNotification({
+                type: 'error',
+                title: `${propertyName} - Error reportado`,
+                message: 'Un huésped reportó que el código WiFi no funciona en la zona "WiFi"',
+                propertyId: id,
+                read: false,
+                actionUrl: `/properties/${id}/zones`
+              })
+              addNotification({
+                type: 'info',
+                title: `${propertyName} - Sugerencia`,
+                message: 'Añade fotos a la zona "Cocina" para hacerla más visual e informativa',
+                propertyId: id,
+                read: false,
+                actionUrl: `/properties/${id}/zones`
+              })
+            }}
+            variant="outline"
+            className="border-amber-500 text-amber-600 hover:bg-amber-50"
+          >
+            🔔 Test Notificaciones
+          </Button>
+          
           <Button
             onClick={handleOpenMultiSelect}
             className="bg-violet-600 hover:bg-violet-700"
