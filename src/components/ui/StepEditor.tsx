@@ -19,7 +19,8 @@ import {
   ExternalLink,
   Check,
   AlertCircle,
-  ChevronRight
+  ChevronRight,
+  CheckCircle
 } from 'lucide-react'
 import { Button } from './Button'
 import { Card } from './Card'
@@ -347,14 +348,24 @@ export function StepEditor({
                             disabled={disabled}
                             className={`p-3 rounded-lg border-2 transition-all ${
                               steps[activeStep].type === type
-                                ? `border-${color}-500 bg-${color}-50`
+                                ? color === 'blue' ? 'border-blue-500 bg-blue-50'
+                                : color === 'green' ? 'border-green-500 bg-green-50'
+                                : color === 'red' ? 'border-red-500 bg-red-50'
+                                : color === 'purple' ? 'border-purple-500 bg-purple-50'
+                                : 'border-gray-500 bg-gray-50'
                                 : disabled
                                 ? 'border-gray-200 bg-gray-100 opacity-50 cursor-not-allowed'
                                 : 'border-gray-200 hover:border-gray-300 bg-white'
                             }`}
                           >
                             <Icon className={`w-5 h-5 mx-auto mb-2 ${
-                              steps[activeStep].type === type ? `text-${color}-600` : 'text-gray-600'
+                              steps[activeStep].type === type 
+                                ? color === 'blue' ? 'text-blue-600'
+                                : color === 'green' ? 'text-green-600'
+                                : color === 'red' ? 'text-red-600'
+                                : color === 'purple' ? 'text-purple-600'
+                                : 'text-gray-600'
+                                : 'text-gray-600'
                             }`} />
                             <div className="text-xs font-medium">{label}</div>
                             {disabled && type === 'video' && (
