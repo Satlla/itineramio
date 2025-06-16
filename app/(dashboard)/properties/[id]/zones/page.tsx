@@ -10,6 +10,9 @@ import { Input } from '../../../../../src/components/ui/Input'
 import { QRCodeDisplay } from '../../../../../src/components/ui/QRCodeDisplay'
 import { ZoneTemplateSelector } from '../../../../../src/components/ui/ZoneTemplateSelectorNew'
 import { ZoneInspirationManager } from '../../../../../src/components/ui/ZoneInspirationManager'
+import { ZoneRotatingSuggestions } from '../../../../../src/components/ui/ZoneRotatingSuggestions'
+import { ZoneInspirationModal } from '../../../../../src/components/ui/ZoneInspirationModal'
+import { StepEditor, Step } from '../../../../../src/components/ui/StepEditor'
 import { cn } from '../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
 import { zoneTemplates, zoneCategories, ZoneTemplate } from '../../../../../src/data/zoneTemplates'
@@ -48,6 +51,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showInspirationModal, setShowInspirationModal] = useState(false)
   const [selectedInspirationZone, setSelectedInspirationZone] = useState<ZoneTemplate | null>(null)
   const [copied, setCopied] = useState(false)
+  const [showStepEditor, setShowStepEditor] = useState(false)
+  const [editingZoneForSteps, setEditingZoneForSteps] = useState<Zone | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -603,8 +608,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
         setZones([...zones, newZone])
         
-        // Navigate to the new zone's steps page
-        router.push(`/properties/${id}/zones/${result.data.id}/steps`)
+        // Open step editor for the new zone
+        setEditingZoneForSteps(newZone)
+        setShowStepEditor(true)
       } else {
         console.error('Error creating zone from inspiration:', result.error)
         alert(result.error || 'Error al crear la zona')
@@ -612,6 +618,85 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     } catch (error) {
       console.error('Error creating zone from inspiration:', error)
       alert('Error al crear la zona')
+    }
+  }
+
+  const handleCreateZoneFromTemplate = async (template: ZoneTemplate) => {
+    try {
+      const response = await fetch(`/api/properties/${id}/zones`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: template.name,
+          description: template.description,
+          icon: template.icon,
+          color: 'bg-gray-100',
+          status: 'ACTIVE'
+        })
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        const newZone: Zone = {
+          id: result.data.id,
+          name: template.name,
+          description: template.description,
+          iconId: template.icon,
+          order: result.data.order,
+          stepsCount: 0,
+          qrUrl: `https://itineramio.com/guide/${id}/${result.data.id}`,
+          lastUpdated: new Date().toISOString().split('T')[0]
+        }
+
+        setZones([...zones, newZone])
+        
+        // Open step editor for the new zone
+        setEditingZoneForSteps(newZone)
+        setShowStepEditor(true)
+      } else {
+        console.error('Error creating zone from template:', result.error)
+        alert(result.error || 'Error al crear la zona')
+      }
+    } catch (error) {
+      console.error('Error creating zone from template:', error)
+      alert('Error al crear la zona')
+    }
+  }
+
+  const handleSaveSteps = async (steps: Step[]) => {
+    if (!editingZoneForSteps) return
+
+    try {
+      const response = await fetch(`/api/properties/${id}/zones/${editingZoneForSteps.id}/steps`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ steps })
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        // Update zone steps count
+        setZones(zones.map(zone => 
+          zone.id === editingZoneForSteps.id 
+            ? { ...zone, stepsCount: steps.length, lastUpdated: new Date().toISOString().split('T')[0] }
+            : zone
+        ))
+        
+        setShowStepEditor(false)
+        setEditingZoneForSteps(null)
+      } else {
+        console.error('Error saving steps:', result.error)
+        alert(result.error || 'Error al guardar las instrucciones')
+      }
+    } catch (error) {
+      console.error('Error saving steps:', error)
+      alert('Error al guardar las instrucciones')
     }
   }
 
@@ -783,7 +868,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               >
                 <Card 
                   className="hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300"
-                  onClick={() => router.push(`/properties/${id}/zones/${zone.id}/steps`)}
+                  onClick={() => {
+                    setEditingZoneForSteps(zone)
+                    setShowStepEditor(true)
+                  }}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
@@ -833,7 +921,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                               </DropdownMenu.Item>
                               <DropdownMenu.Item
                                 className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                                onSelect={() => router.push(`/properties/${id}/zones/${zone.id}/steps`)}
+                                onSelect={() => {
+                                  setEditingZoneForSteps(zone)
+                                  setShowStepEditor(true)
+                                }}
                               >
                                 <Edit className="h-4 w-4 mr-2" />
                                 Editar Instrucciones
@@ -978,29 +1069,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
-      {/* Zone Suggestions Section - Moved to bottom */}
+      {/* Zone Rotating Suggestions Section */}
       {user && (
         <div className="mt-12">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              💡 Sugerencias de Zonas
-            </h2>
-            <p className="text-gray-600">
-              Inspírate con estas zonas populares que otros anfitriones han añadido
-            </p>
-          </div>
-          
-          {/* Three horizontal inspiration cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <ZoneInspirationManager
-              propertyId={id}
-              existingZoneNames={zones.map(z => z.name)}
-              onCreateZone={handleCreateZoneFromInspiration}
-              userId={user.id}
-              maxCards={3}
-              horizontal={true}
-            />
-          </div>
+          <ZoneRotatingSuggestions
+            existingZoneNames={zones.map(z => z.name)}
+            onCreateZone={handleCreateZoneFromTemplate}
+            onViewDetails={handleViewInspirationExample}
+            maxVisible={3}
+            autoRotate={true}
+            rotateInterval={8000}
+          />
         </div>
       )}
 
@@ -1174,89 +1253,31 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         )}
       </AnimatePresence>
 
-      {/* Inspiration Modal */}
+      {/* New Inspiration Modal with examples and templates */}
+      <ZoneInspirationModal
+        isOpen={showInspirationModal}
+        onClose={() => {
+          setShowInspirationModal(false)
+          setSelectedInspirationZone(null)
+        }}
+        template={selectedInspirationZone}
+        onCreateZone={handleCreateZoneFromTemplate}
+      />
+
+      {/* Step Editor */}
       <AnimatePresence>
-        {showInspirationModal && selectedInspirationZone && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] overflow-hidden"
-            >
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <ZoneIconDisplay iconId={selectedInspirationZone.icon} size="lg" />
-                    <div>
-                      <h3 className="text-xl font-semibold">{selectedInspirationZone.name}</h3>
-                      <p className="text-gray-600">{selectedInspirationZone.description}</p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setShowInspirationModal(false)
-                      setSelectedInspirationZone(null)
-                    }}
-                  >
-                    <X className="w-5 h-5" />
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="p-6 overflow-y-auto max-h-96">
-                <div className="space-y-4">
-                  <div className="bg-blue-50 rounded-lg p-4">
-                    <h4 className="font-medium text-blue-900 mb-2">📚 Ejemplo de otros usuarios</h4>
-                    <p className="text-sm text-blue-800">
-                      Así han configurado otros hosts la zona "{selectedInspirationZone.name}":
-                    </p>
-                  </div>
-                  
-                  <div className="text-center py-8 text-gray-500">
-                    <p className="mb-4">Esta zona es {selectedInspirationZone.popularity}% popular entre los hosts</p>
-                    <div className="text-left bg-gray-50 rounded-lg p-4">
-                      <h5 className="font-medium mb-2">Ejemplo de contenido:</h5>
-                      <ul className="space-y-1 text-sm text-gray-600">
-                        <li>• Instrucciones paso a paso con imágenes</li>
-                        <li>• Enlaces a manuales o videos</li>
-                        <li>• Consejos y recomendaciones útiles</li>
-                        <li>• Información de contacto relevante</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="p-6 bg-gray-50 border-t border-gray-200">
-                <div className="flex justify-end space-x-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setShowInspirationModal(false)
-                      setSelectedInspirationZone(null)
-                    }}
-                  >
-                    Cerrar
-                  </Button>
-                  <Button
-                    onClick={() => handleUseTemplate(selectedInspirationZone)}
-                    className="bg-violet-600 hover:bg-violet-700"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Utilizar Plantilla
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+        {showStepEditor && editingZoneForSteps && (
+          <StepEditor
+            zoneTitle={editingZoneForSteps.name}
+            initialSteps={[]}
+            onSave={handleSaveSteps}
+            onCancel={() => {
+              setShowStepEditor(false)
+              setEditingZoneForSteps(null)
+            }}
+            maxVideos={5}
+            currentVideoCount={0}
+          />
         )}
       </AnimatePresence>
 
