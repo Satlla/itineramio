@@ -751,15 +751,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Left Section - Zones (2/3 width) */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Zone Inspiration Manager */}
-          {user && (
-            <ZoneInspirationManager
-              propertyId={id}
-              existingZoneNames={zones.map(z => z.name)}
-              onCreateZone={handleCreateZoneFromInspiration}
-              userId={user.id}
-            />
-          )}
 
           {/* Mobile header for zones */}
           <div className="lg:hidden mb-4">
@@ -986,6 +977,32 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </Card>
         </div>
       </div>
+
+      {/* Zone Suggestions Section - Moved to bottom */}
+      {user && (
+        <div className="mt-12">
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              💡 Sugerencias de Zonas
+            </h2>
+            <p className="text-gray-600">
+              Inspírate con estas zonas populares que otros anfitriones han añadido
+            </p>
+          </div>
+          
+          {/* Three horizontal inspiration cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <ZoneInspirationManager
+              propertyId={id}
+              existingZoneNames={zones.map(z => z.name)}
+              onCreateZone={handleCreateZoneFromInspiration}
+              userId={user.id}
+              maxCards={3}
+              horizontal={true}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Create/Edit Form Modal */}
       <AnimatePresence>

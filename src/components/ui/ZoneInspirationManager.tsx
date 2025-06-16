@@ -14,13 +14,17 @@ interface ZoneInspirationManagerProps {
   existingZoneNames: string[]
   onCreateZone: (inspiration: InspirationZone) => void
   userId: string
+  maxCards?: number
+  horizontal?: boolean
 }
 
 export function ZoneInspirationManager({
   propertyId,
   existingZoneNames,
   onCreateZone,
-  userId
+  userId,
+  maxCards = 1,
+  horizontal = false
 }: ZoneInspirationManagerProps) {
   const [userState, setUserState] = useState<UserInspirationState>({
     userId,
@@ -28,8 +32,8 @@ export function ZoneInspirationManager({
     createdZones: [],
     showInspirations: true
   })
-  const [currentInspiration, setCurrentInspiration] = useState<InspirationZone | null>(null)
-  const [showCard, setShowCard] = useState(false)
+  const [currentInspirations, setCurrentInspirations] = useState<InspirationZone[]>([])
+  const [showCards, setShowCards] = useState(false)
 
   // Load user inspiration state from localStorage and API
   useEffect(() => {
@@ -62,12 +66,26 @@ export function ZoneInspirationManager({
     if (!userState.showInspirations) return
     if (!hasAllEssentialZones(existingZoneNames)) return
 
-    const inspiration = getNextInspiration(userState, existingZoneNames)
-    if (inspiration) {
-      setCurrentInspiration(inspiration)
-      setShowCard(true)
+    const inspirations: InspirationZone[] = []
+    let currentState = userState
+    
+    for (let i = 0; i < maxCards; i++) {
+      const inspiration = getNextInspiration(currentState, existingZoneNames)
+      if (inspiration && !inspirations.find(insp => insp.id === inspiration.id)) {
+        inspirations.push(inspiration)
+        // Temporarily mark as dismissed to get next different one
+        currentState = {
+          ...currentState,
+          dismissedZones: [...currentState.dismissedZones, inspiration.id]
+        }
+      }
     }
-  }, [userState, existingZoneNames])
+    
+    if (inspirations.length > 0) {
+      setCurrentInspirations(inspirations)
+      setShowCards(true)
+    }
+  }, [userState, existingZoneNames, maxCards])
 
   // Save state to localStorage and server
   const saveUserState = async (newState: UserInspirationState) => {
@@ -85,16 +103,20 @@ export function ZoneInspirationManager({
     }
   }
 
-  const handleDismissInspiration = () => {
-    if (!currentInspiration) return
-
+  const handleDismissInspiration = (inspirationId: string) => {
     const newState = {
       ...userState,
-      dismissedZones: [...userState.dismissedZones, currentInspiration.id]
+      dismissedZones: [...userState.dismissedZones, inspirationId]
     }
     saveUserState(newState)
-    setShowCard(false)
-    setCurrentInspiration(null)
+    
+    // Remove from current inspirations
+    const updatedInspirations = currentInspirations.filter(insp => insp.id !== inspirationId)
+    setCurrentInspirations(updatedInspirations)
+    
+    if (updatedInspirations.length === 0) {
+      setShowCards(false)
+    }
   }
 
   const handleDisableInspirations = async () => {
@@ -103,56 +125,91 @@ export function ZoneInspirationManager({
       showInspirations: false
     }
     saveUserState(newState)
-    setShowCard(false)
-    setCurrentInspiration(null)
+    setShowCards(false)
+    setCurrentInspirations([])
   }
 
-  const handleCreateZone = () => {
-    if (!currentInspiration) return
-
-    onCreateZone(currentInspiration)
+  const handleCreateZone = (inspiration: InspirationZone) => {
+    onCreateZone(inspiration)
     
     const newState = {
       ...userState,
-      createdZones: [...userState.createdZones, currentInspiration.id]
+      createdZones: [...userState.createdZones, inspiration.id]
     }
     saveUserState(newState)
-    setShowCard(false)
-    setCurrentInspiration(null)
+    
+    // Remove from current inspirations
+    const updatedInspirations = currentInspirations.filter(insp => insp.id !== inspiration.id)
+    setCurrentInspirations(updatedInspirations)
+    
+    if (updatedInspirations.length === 0) {
+      setShowCards(false)
+    }
   }
 
-  const handleViewExamples = () => {
+  const handleViewExamples = (inspiration: InspirationZone) => {
     // Open modal with detailed examples and tips
     // This could be implemented as a separate modal component
-    console.log('View examples for:', currentInspiration?.name)
+    console.log('View examples for:', inspiration?.name)
   }
 
   // Don't render if user has disabled inspirations or doesn't have essential zones
   if (!userState.showInspirations || !hasAllEssentialZones(existingZoneNames)) {
-    return null
+    return horizontal ? <></> : null
   }
 
   return (
     <>
-      {currentInspiration && (
-        <div className="mb-6">
-          <ZoneInspirationCard
-            inspiration={currentInspiration}
-            onDismiss={handleDismissInspiration}
-            onCreateZone={handleCreateZone}
-            onViewExamples={handleViewExamples}
-            isVisible={showCard}
-          />
+      {currentInspirations.length > 0 && (
+        <div className={horizontal ? "contents" : "mb-6"}>
+          {horizontal ? (
+            // Horizontal layout - each card in its own grid cell
+            currentInspirations.map((inspiration, index) => (
+              <div key={inspiration.id} className="">
+                <ZoneInspirationCard
+                  inspiration={inspiration}
+                  onDismiss={() => handleDismissInspiration(inspiration.id)}
+                  onCreateZone={() => handleCreateZone(inspiration)}
+                  onViewExamples={() => handleViewExamples(inspiration)}
+                  isVisible={showCards}
+                  compact={true}
+                />
+              </div>
+            ))
+          ) : (
+            // Vertical layout - single card
+            <ZoneInspirationCard
+              inspiration={currentInspirations[0]}
+              onDismiss={() => handleDismissInspiration(currentInspirations[0].id)}
+              onCreateZone={() => handleCreateZone(currentInspirations[0])}
+              onViewExamples={() => handleViewExamples(currentInspirations[0])}
+              isVisible={showCards}
+            />
+          )}
           
           {/* Option to disable all inspirations */}
-          <div className="mt-2 text-center">
-            <button
-              onClick={handleDisableInspirations}
-              className="text-xs text-gray-500 hover:text-gray-700 underline"
-            >
-              No mostrar más sugerencias
-            </button>
-          </div>
+          {!horizontal && (
+            <div className="mt-2 text-center">
+              <button
+                onClick={handleDisableInspirations}
+                className="text-xs text-gray-500 hover:text-gray-700 underline"
+              >
+                No mostrar más sugerencias
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+      
+      {/* Global disable button for horizontal layout */}
+      {horizontal && currentInspirations.length > 0 && (
+        <div className="col-span-full mt-4 text-center">
+          <button
+            onClick={handleDisableInspirations}
+            className="text-xs text-gray-500 hover:text-gray-700 underline"
+          >
+            No mostrar más sugerencias de zonas
+          </button>
         </div>
       )}
     </>
