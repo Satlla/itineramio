@@ -10,7 +10,7 @@ import { Input } from '../../../../../src/components/ui/Input'
 import { QRCodeDisplay } from '../../../../../src/components/ui/QRCodeDisplay'
 import { ZoneTemplateSelector } from '../../../../../src/components/ui/ZoneTemplateSelectorNew'
 import { ZoneInspirationManager } from '../../../../../src/components/ui/ZoneInspirationManager'
-import { ZoneRotatingSuggestions } from '../../../../../src/components/ui/ZoneRotatingSuggestions'
+import { ZoneStaticSuggestions } from '../../../../../src/components/ui/ZoneStaticSuggestions'
 import { ZoneInspirationModal } from '../../../../../src/components/ui/ZoneInspirationModal'
 import { StepEditor, Step } from '../../../../../src/components/ui/StepEditor'
 import { cn } from '../../../../../src/lib/utils'
@@ -767,13 +767,23 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             🔔 Test Notificaciones
           </Button>
           
-          <Button
-            onClick={handleOpenMultiSelect}
-            className="bg-violet-600 hover:bg-violet-700"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Añadir Zonas
-          </Button>
+          {zones.length === 0 ? (
+            <Button
+              onClick={handleOpenMultiSelect}
+              className="bg-violet-600 hover:bg-violet-700"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Comenzar con Zonas
+            </Button>
+          ) : (
+            <Button
+              onClick={() => setShowCreateForm(true)}
+              className="bg-violet-600 hover:bg-violet-700"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Añadir Zona
+            </Button>
+          )}
         </div>
       </div>
 
@@ -846,15 +856,21 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           <AnimatePresence>
             {zones.length === 0 ? (
               <Card className="p-8 text-center">
-                <p className="text-gray-600 mb-4">
-                  No tienes zonas creadas aún
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MapPin className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Crea tu primer manual digital
+                </h3>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  Añade zonas con instrucciones para que tus huéspedes tengan toda la información que necesitan.
                 </p>
                 <Button
                   onClick={handleOpenMultiSelect}
                   className="bg-violet-600 hover:bg-violet-700"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Añadir tu primera zona
+                  Crear mi primera zona
                 </Button>
               </Card>
             ) : (
@@ -869,8 +885,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 <Card 
                   className="hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300"
                   onClick={() => {
+                    console.log('Clicking zone card:', zone.name)
                     setEditingZoneForSteps(zone)
                     setShowStepEditor(true)
+                    console.log('Step editor should be open now')
                   }}
                 >
                   <CardContent className="p-4">
@@ -922,8 +940,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                               <DropdownMenu.Item
                                 className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                                 onSelect={() => {
+                                  console.log('Dropdown edit clicked for zone:', zone.name)
                                   setEditingZoneForSteps(zone)
                                   setShowStepEditor(true)
+                                  console.log('Step editor should open from dropdown')
                                 }}
                               >
                                 <Edit className="h-4 w-4 mr-2" />
@@ -1069,16 +1089,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
-      {/* Zone Rotating Suggestions Section */}
-      {user && (
+      {/* Zone Static Suggestions Section */}
+      {user && zones.length > 0 && (
         <div className="mt-12">
-          <ZoneRotatingSuggestions
+          <ZoneStaticSuggestions
             existingZoneNames={zones.map(z => z.name)}
             onCreateZone={handleCreateZoneFromTemplate}
             onViewDetails={handleViewInspirationExample}
-            maxVisible={3}
-            autoRotate={true}
-            rotateInterval={8000}
+            maxVisible={6}
           />
         </div>
       )}
@@ -1267,7 +1285,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Step Editor */}
       <AnimatePresence>
         {showStepEditor && editingZoneForSteps && (
-          <StepEditor
+          <>
+            {console.log('Rendering StepEditor for zone:', editingZoneForSteps.name)}
+            <StepEditor
             zoneTitle={editingZoneForSteps.name}
             initialSteps={[]}
             onSave={handleSaveSteps}
@@ -1278,18 +1298,29 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             maxVideos={5}
             currentVideoCount={0}
           />
+          </>
         )}
       </AnimatePresence>
 
       {/* Floating button for mobile */}
       <div className="lg:hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
-        <Button
-          onClick={handleOpenMultiSelect}
-          className="bg-violet-600 hover:bg-violet-700 shadow-lg rounded-full px-6 py-3"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Añadir Zonas
-        </Button>
+        {zones.length === 0 ? (
+          <Button
+            onClick={handleOpenMultiSelect}
+            className="bg-violet-600 hover:bg-violet-700 shadow-lg rounded-full px-6 py-3"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Crear Zona
+          </Button>
+        ) : (
+          <Button
+            onClick={() => setShowCreateForm(true)}
+            className="bg-violet-600 hover:bg-violet-700 shadow-lg rounded-full px-6 py-3"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Añadir Zona
+          </Button>
+        )}
       </div>
 
       {/* Predefined Zones Choice Modal */}

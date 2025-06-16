@@ -58,6 +58,7 @@ export function StepEditor({
   maxVideos = 5,
   currentVideoCount = 0
 }: StepEditorProps) {
+  console.log('StepEditor initialized with:', { zoneTitle, initialSteps: initialSteps.length })
   const [steps, setSteps] = useState<Step[]>(
     initialSteps.length > 0 ? initialSteps : [createNewStep(0)]
   )
@@ -174,7 +175,7 @@ export function StepEditor({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="fixed inset-0 bg-gray-50 z-50 overflow-y-auto">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
