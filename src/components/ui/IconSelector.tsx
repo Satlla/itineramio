@@ -4,8 +4,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
-import { ZONE_ICONS } from '@/data/zoneIcons'
-import { ZONE_CATEGORIES } from '@/types/zones'
+import { ZONE_ICONS } from '../../data/zoneIcons'
 import { Button } from './Button'
 import { Input } from './Input'
 
@@ -28,7 +27,10 @@ export function IconSelector({ selectedIconId, onSelect, onClose, className }: I
 
   const categories = [
     { id: 'all', name: 'Todos', color: 'bg-gray-100 text-gray-800 border-gray-200' },
-    ...ZONE_CATEGORIES
+    { id: 'essential', name: 'Esenciales', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+    { id: 'amenities', name: 'Comodidades', color: 'bg-green-100 text-green-800 border-green-200' },
+    { id: 'rules', name: 'Normas', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    { id: 'local', name: 'Local', color: 'bg-purple-100 text-purple-800 border-purple-200' }
   ]
 
   return (

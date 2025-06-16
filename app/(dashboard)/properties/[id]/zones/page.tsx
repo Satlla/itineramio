@@ -13,7 +13,7 @@ import { ZoneInspirationManager } from '../../../../../src/components/ui/ZoneIns
 import { cn } from '../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
 import { zoneTemplates, zoneCategories, ZoneTemplate } from '../../../../../src/data/zoneTemplates'
-import { ZoneIcon } from '../../../../../src/data/zoneIconsNew'
+// import { ZoneIcon } from '../../../../../src/data/zoneIconsNew'
 import { InspirationZone } from '../../../../../src/data/zoneInspiration'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
@@ -852,9 +852,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                             }}
                           >
                             <div className="flex items-center space-x-3 flex-1">
-                              <ZoneIcon 
+                              <ZoneIconDisplay 
                                 iconId={zone.icon} 
-                                className={`w-5 h-5 ${isExisting ? 'text-green-600' : 'text-gray-600'}`} 
+                                size="sm"
                               />
                               <div className="flex-1 min-w-0">
                                 <p className={`text-sm font-medium ${isExisting ? 'text-green-900' : 'text-gray-900'}`}>
@@ -1082,7 +1082,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <ZoneIcon iconId={selectedInspirationZone.icon} className="w-8 h-8 text-gray-600" />
+                    <ZoneIconDisplay iconId={selectedInspirationZone.icon} size="lg" />
                     <div>
                       <h3 className="text-xl font-semibold">{selectedInspirationZone.name}</h3>
                       <p className="text-gray-600">{selectedInspirationZone.description}</p>

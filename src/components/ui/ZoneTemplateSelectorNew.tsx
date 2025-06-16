@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { X, Check, Info as InfoIcon, Image, Link as LinkIcon, Video, FileText, Plus } from 'lucide-react'
 import { zoneTemplates, zoneCategories } from '../../data/zoneTemplates'
-import { ZoneIcon } from '../../data/zoneIconsNew'
+import { ZoneIconDisplay } from './IconSelector'
 import { Button } from './Button'
 
 interface ZoneTemplateSelectorProps {
@@ -168,9 +168,9 @@ export function ZoneTemplateSelector({
                       p-2 rounded-lg
                       ${isSelected ? 'bg-violet-100' : 'bg-gray-100'}
                     `}>
-                      <ZoneIcon 
+                      <ZoneIconDisplay 
                         iconId={zone.icon} 
-                        className={`w-5 h-5 ${isSelected ? 'text-violet-600' : 'text-gray-600'}`}
+                        size="sm"
                       />
                     </div>
                     

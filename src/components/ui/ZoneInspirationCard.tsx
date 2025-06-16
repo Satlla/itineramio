@@ -16,7 +16,7 @@ import {
 import { Button } from './Button'
 import { Card } from './Card'
 import { Badge } from './Badge'
-import { ZoneIcon } from '../../data/zoneIconsNew'
+import { ZoneIconDisplay } from './IconSelector'
 import { InspirationZone } from '../../data/zoneInspiration'
 
 interface ZoneInspirationCardProps {
@@ -85,7 +85,7 @@ export function ZoneInspirationCard({
             
             <div className="flex items-start space-x-3 pr-8">
               <div className="p-2 bg-white/20 rounded-lg">
-                <ZoneIcon iconId={inspiration.icon} className="w-6 h-6 text-white" />
+                <ZoneIconDisplay iconId={inspiration.icon} size="sm" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-1">

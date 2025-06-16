@@ -19,7 +19,7 @@ export const inspirationZones: InspirationZone[] = [
     id: 'transporte',
     name: 'Transporte',
     category: 'transport',
-    icon: 'bus',
+    icon: 'car',
     title: 'Ayuda a tus huéspedes a moverse por la ciudad',
     description: 'Informa sobre todas las opciones de transporte disponibles y facilita su movilidad',
     benefits: [
@@ -48,7 +48,7 @@ export const inspirationZones: InspirationZone[] = [
     id: 'basuras',
     name: 'Basuras y Reciclaje',
     category: 'local',
-    icon: 'trash-2',
+    icon: 'package',
     title: 'Ayuda a tus huéspedes a reciclar correctamente',
     description: 'Explica el sistema de reciclaje local y ubicaciones de contenedores',
     benefits: [
@@ -106,7 +106,7 @@ export const inspirationZones: InspirationZone[] = [
     id: 'supermercados',
     name: 'Supermercados y Compras',
     category: 'convenience',
-    icon: 'shopping-cart',
+    icon: 'package',
     title: 'Facilita las compras básicas de tus huéspedes',
     description: 'Ubica supermercados, horarios y productos locales',
     benefits: [
@@ -135,7 +135,7 @@ export const inspirationZones: InspirationZone[] = [
     id: 'emergencias',
     name: 'Emergencias y Seguridad',
     category: 'safety',
-    icon: 'shield',
+    icon: 'phone',
     title: 'Información crucial para situaciones de emergencia',
     description: 'Números importantes y protocolos de seguridad',
     benefits: [
@@ -164,7 +164,7 @@ export const inspirationZones: InspirationZone[] = [
     id: 'ocio',
     name: 'Ocio y Entretenimiento',
     category: 'experience',
-    icon: 'camera',
+    icon: 'tv',
     title: 'Experiencias únicas en tu ciudad',
     description: 'Actividades, museos y entretenimiento local',
     benefits: [
@@ -222,7 +222,7 @@ export const inspirationZones: InspirationZone[] = [
     id: 'lavanderia',
     name: 'Lavandería y Tintorería',
     category: 'services',
-    icon: 'shirt',
+    icon: 'washing',
     title: 'Servicios de lavado para estancias largas',
     description: 'Ubicación y precios de lavanderías automáticas',
     benefits: [
