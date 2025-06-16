@@ -375,30 +375,30 @@ export function ZoneInspirationModal({
                           </div>
                           <div className="flex-1">
                             {step.type === 'text' && (
-                              <p className="text-sm text-gray-700">{step.content.es}</p>
+                              <p className="text-sm text-gray-700">{typeof step.content === 'string' ? step.content : (step.content as any).es || ''}</p>
                             )}
                             {step.type === 'video' && (
                               <div className="bg-gray-100 rounded-lg p-3 flex items-center gap-3">
                                 <PlayCircle className="w-5 h-5 text-red-600" />
-                                <span className="text-sm font-medium">{step.content}</span>
+                                <span className="text-sm font-medium">{typeof step.content === 'string' ? step.content : (step.content as any).es || ''}</span>
                               </div>
                             )}
                             {step.type === 'image' && (
                               <div className="bg-gray-100 rounded-lg p-3 flex items-center gap-3">
                                 <ImageIcon className="w-5 h-5 text-blue-600" />
-                                <span className="text-sm font-medium">{step.content}</span>
+                                <span className="text-sm font-medium">{typeof step.content === 'string' ? step.content : step.content.es}</span>
                               </div>
                             )}
                             {step.type === 'link' && (
                               <div className="bg-gray-100 rounded-lg p-3 flex items-center gap-3">
                                 <LinkIcon className="w-5 h-5 text-green-600" />
-                                <span className="text-sm font-medium">{step.content}</span>
+                                <span className="text-sm font-medium">{typeof step.content === 'string' ? step.content : step.content.es}</span>
                               </div>
                             )}
                             {step.type === 'youtube' && (
                               <div className="bg-red-50 rounded-lg p-3 flex items-center gap-3">
                                 <PlayCircle className="w-5 h-5 text-red-600" />
-                                <span className="text-sm font-medium">{step.content}</span>
+                                <span className="text-sm font-medium">{typeof step.content === 'string' ? step.content : step.content.es}</span>
                               </div>
                             )}
                           </div>
@@ -447,7 +447,7 @@ export function ZoneInspirationModal({
                                   Texto
                                 </span>
                               </div>
-                              <p className="text-sm text-gray-700">{step.content.es}</p>
+                              <p className="text-sm text-gray-700">{typeof step.content === 'string' ? step.content : step.content.es}</p>
                             </div>
                           </div>
                         </div>
