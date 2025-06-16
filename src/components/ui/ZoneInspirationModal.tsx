@@ -386,13 +386,13 @@ export function ZoneInspirationModal({
                             {step.type === 'image' && (
                               <div className="bg-gray-100 rounded-lg p-3 flex items-center gap-3">
                                 <ImageIcon className="w-5 h-5 text-blue-600" />
-                                <span className="text-sm font-medium">{typeof step.content === 'string' ? step.content : step.content.es}</span>
+                                <span className="text-sm font-medium">{typeof step.content === 'string' ? step.content : (step.content as any).es || ''}</span>
                               </div>
                             )}
                             {step.type === 'link' && (
                               <div className="bg-gray-100 rounded-lg p-3 flex items-center gap-3">
                                 <LinkIcon className="w-5 h-5 text-green-600" />
-                                <span className="text-sm font-medium">{typeof step.content === 'string' ? step.content : step.content.es}</span>
+                                <span className="text-sm font-medium">{typeof step.content === 'string' ? step.content : (step.content as any).es || ''}</span>
                               </div>
                             )}
                             {step.type === 'youtube' && (
