@@ -375,7 +375,7 @@ export function ZoneInspirationModal({
                           </div>
                           <div className="flex-1">
                             {step.type === 'text' && (
-                              <p className="text-sm text-gray-700">{step.content}</p>
+                              <p className="text-sm text-gray-700">{step.content.es}</p>
                             )}
                             {step.type === 'video' && (
                               <div className="bg-gray-100 rounded-lg p-3 flex items-center gap-3">
