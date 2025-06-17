@@ -805,9 +805,39 @@ export function StepEditor({
               </AnimatePresence>
             </div>
 
-            {/* iPhone Preview - Desktop */}
+            {/* Preview Panel - Desktop */}
             <div className="col-span-1 lg:col-span-4">
-              <div className="sticky top-6">
+              <div className="sticky top-6 space-y-6">
+                {/* Media Preview */}
+                {steps[activeStep]?.media?.url && (
+                  <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+                    <div className="text-center mb-3">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-1">Preview del media</h3>
+                      <p className="text-xs text-gray-600">Paso {activeStep + 1}</p>
+                    </div>
+                    
+                    <div className="rounded-lg overflow-hidden bg-gray-100">
+                      {steps[activeStep].type === 'image' ? (
+                        <img 
+                          src={steps[activeStep].media!.url} 
+                          alt="Preview" 
+                          className="w-full h-48 object-cover"
+                        />
+                      ) : steps[activeStep].type === 'video' ? (
+                        <div className="w-full h-48 bg-black flex items-center justify-center">
+                          <Play className="w-12 h-12 text-white opacity-75" />
+                        </div>
+                      ) : null}
+                    </div>
+                    
+                    {steps[activeStep].content.es && (
+                      <p className="text-xs text-gray-600 mt-2 text-center">
+                        {steps[activeStep].content.es}
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 <div className="text-center mb-4">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Vista previa del huésped</h3>
                   <p className="text-sm text-gray-600">Cómo verá el manual en su móvil</p>

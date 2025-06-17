@@ -19,7 +19,8 @@ import {
   ChevronLeft,
   CheckCircle,
   X,
-  Sparkles
+  Sparkles,
+  PlayCircle
 } from 'lucide-react'
 import { Button } from './Button'
 import { Card } from './Card'
@@ -62,12 +63,10 @@ export function MobileStepEditor({
   const [steps, setSteps] = useState<Step[]>(
     initialSteps.length > 0 ? initialSteps : [createNewStep(0)]
   )
-  const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [showMediaModal, setShowMediaModal] = useState(false)
   const [activeLanguage, setActiveLanguage] = useState<'es' | 'en' | 'fr'>('es')
-  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [selectedStep, setSelectedStep] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
 
   function createNewStep(order: number): Step {
     return {
@@ -91,41 +90,26 @@ export function MobileStepEditor({
     }
   }, [showMediaModal])
 
-  const currentStep = steps[currentStepIndex]
-
   const addNewStep = () => {
     const newStep = createNewStep(steps.length)
     setSteps([...steps, newStep])
-    
-    // Animate to new step
-    setIsTransitioning(true)
-    setTimeout(() => {
-      setCurrentStepIndex(steps.length)
-      setIsTransitioning(false)
-    }, 300)
   }
 
-  const removeCurrentStep = () => {
+  const removeStep = (stepIndex: number) => {
     if (steps.length <= 1) return
-    
-    const newSteps = steps.filter((_, index) => index !== currentStepIndex)
+    const newSteps = steps.filter((_, index) => index !== stepIndex)
     setSteps(newSteps)
-    
-    // Adjust current index
-    if (currentStepIndex >= newSteps.length) {
-      setCurrentStepIndex(newSteps.length - 1)
-    }
   }
 
-  const updateCurrentStep = (updates: Partial<Step>) => {
+  const updateStep = (stepIndex: number, updates: Partial<Step>) => {
     setSteps(steps.map((step, index) => 
-      index === currentStepIndex ? { ...step, ...updates } : step
+      index === stepIndex ? { ...step, ...updates } : step
     ))
   }
 
-  const updateStepContent = (language: 'es' | 'en' | 'fr', content: string) => {
+  const updateStepContent = (stepIndex: number, language: 'es' | 'en' | 'fr', content: string) => {
     setSteps(steps.map((step, index) => 
-      index === currentStepIndex 
+      index === stepIndex 
         ? { 
             ...step, 
             content: { 
@@ -138,25 +122,21 @@ export function MobileStepEditor({
   }
 
   const handleMediaSelect = (type: 'image' | 'video' | 'text' | 'youtube' | 'link') => {
-    updateCurrentStep({ type })
-    setShowMediaModal(false)
-    
-    if (type === 'image' || type === 'video') {
-      // Auto open file picker
-      setTimeout(() => {
-        fileInputRef.current?.click()
-      }, 300)
+    if (selectedStep !== null) {
+      updateStep(selectedStep, { type })
+      setShowMediaModal(false)
+      
+      if (type === 'image' || type === 'video') {
+        setTimeout(() => {
+          fileInputRef.current?.click()
+        }, 300)
+      }
     }
   }
 
-  const goToStep = (index: number) => {
-    if (index < 0 || index >= steps.length) return
-    
-    setIsTransitioning(true)
-    setTimeout(() => {
-      setCurrentStepIndex(index)
-      setIsTransitioning(false)
-    }, 150)
+  const openMediaModal = (stepIndex: number) => {
+    setSelectedStep(stepIndex)
+    setShowMediaModal(true)
   }
 
   const languages = [
@@ -167,6 +147,40 @@ export function MobileStepEditor({
 
   const getVideoCount = () => {
     return steps.filter(step => step.type === 'video').length + currentVideoCount
+  }
+
+  const getStepIcon = (type: Step['type']) => {
+    switch (type) {
+      case 'text':
+        return <FileText className="w-4 h-4" />
+      case 'image':
+        return <ImageIcon className="w-4 h-4" />
+      case 'video':
+        return <PlayCircle className="w-4 h-4" />
+      case 'youtube':
+        return <Youtube className="w-4 h-4" />
+      case 'link':
+        return <Globe className="w-4 h-4" />
+      default:
+        return <FileText className="w-4 h-4" />
+    }
+  }
+
+  const getStepTypeLabel = (type: Step['type']) => {
+    switch (type) {
+      case 'text':
+        return 'Texto'
+      case 'image':
+        return 'Imagen'
+      case 'video':
+        return 'Video'
+      case 'youtube':
+        return 'YouTube'
+      case 'link':
+        return 'Enlace'
+      default:
+        return 'Contenido'
+    }
   }
 
   const MediaSelectionModal = () => (
@@ -190,7 +204,7 @@ export function MobileStepEditor({
             <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
             
             <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
-              Añadir contenido
+              Añadir Contenido
             </h3>
             
             <div className="grid grid-cols-2 gap-3">
@@ -198,7 +212,7 @@ export function MobileStepEditor({
                 onClick={() => handleMediaSelect('text')}
                 className="flex flex-col items-center justify-center p-6 bg-blue-50 rounded-2xl border-2 border-blue-200 active:scale-95 transition-transform"
               >
-                <Type className="w-8 h-8 text-blue-600 mb-2" />
+                <FileText className="w-8 h-8 text-blue-600 mb-2" />
                 <span className="text-sm font-medium text-gray-900">Texto</span>
               </button>
               
@@ -206,8 +220,8 @@ export function MobileStepEditor({
                 onClick={() => handleMediaSelect('image')}
                 className="flex flex-col items-center justify-center p-6 bg-green-50 rounded-2xl border-2 border-green-200 active:scale-95 transition-transform"
               >
-                <Camera className="w-8 h-8 text-green-600 mb-2" />
-                <span className="text-sm font-medium text-gray-900">Foto</span>
+                <ImageIcon className="w-8 h-8 text-green-600 mb-2" />
+                <span className="text-sm font-medium text-gray-900">Imagen</span>
               </button>
               
               <button
@@ -219,11 +233,19 @@ export function MobileStepEditor({
                     : 'bg-red-50 border-red-200'
                 }`}
               >
-                <Film className="w-8 h-8 text-red-600 mb-2" />
+                <PlayCircle className="w-8 h-8 text-red-600 mb-2" />
                 <span className="text-sm font-medium text-gray-900">Video</span>
                 {getVideoCount() >= maxVideos && (
                   <span className="text-xs text-red-600 mt-1">Límite alcanzado</span>
                 )}
+              </button>
+              
+              <button
+                onClick={() => handleMediaSelect('youtube')}
+                className="flex flex-col items-center justify-center p-6 bg-red-50 rounded-2xl border-2 border-red-200 active:scale-95 transition-transform"
+              >
+                <Youtube className="w-8 h-8 text-red-600 mb-2" />
+                <span className="text-sm font-medium text-gray-900">YouTube</span>
               </button>
               
               <button
@@ -259,195 +281,243 @@ export function MobileStepEditor({
           <div className="text-center">
             <h1 className="font-semibold text-gray-900">{zoneTitle}</h1>
             <p className="text-xs text-gray-600 mt-0.5">
-              Paso {currentStepIndex + 1} de {steps.length}
+              Pasos del itinerario
             </p>
           </div>
           
           <Button
             onClick={() => onSave(steps)}
             size="sm"
-            className="bg-green-600 hover:bg-green-700 text-white"
+            style={{ backgroundColor: '#484848' }}
+            className="hover:bg-gray-700 text-white"
             disabled={steps.every(step => !step.content.es?.trim())}
           >
-            Hecho
+            Finalizar
           </Button>
         </div>
       </div>
 
-      {/* Progress Indicator */}
-      <div className="px-4 py-3 bg-gray-50">
-        <div className="flex items-center justify-center gap-1.5">
-          {steps.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToStep(index)}
-              className={`h-1.5 rounded-full transition-all ${
-                index === currentStepIndex 
-                  ? 'w-8 bg-violet-600' 
-                  : index < currentStepIndex
-                  ? 'w-1.5 bg-violet-400'
-                  : 'w-1.5 bg-gray-300'
-              }`}
-            />
-          ))}
+      {/* Language Selector */}
+      <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+        <div className="flex justify-center">
+          <div className="flex bg-white rounded-full p-1 shadow-sm">
+            {languages.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => setActiveLanguage(lang.code as any)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  activeLanguage === lang.code
+                    ? 'bg-gray-900 text-white'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                {lang.flag} {lang.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Main Content - Scrollable */}
-      <div 
-        ref={containerRef}
-        className="flex-1 overflow-y-auto"
-      >
-        <AnimatePresence mode="wait">
-          {!isTransitioning && (
-            <motion.div
-              key={currentStepIndex}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-              className="p-4 pb-20"
-            >
-              {/* Language Selector */}
-              <div className="flex justify-center mb-6">
-                <div className="flex bg-gray-100 rounded-full p-1">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => setActiveLanguage(lang.code as any)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        activeLanguage === lang.code
-                          ? 'bg-white text-gray-900 shadow-sm'
-                          : 'text-gray-600'
-                      }`}
-                    >
-                      {lang.flag} {lang.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Content Area */}
-              <div className="space-y-6">
-                {/* Current content type indicator */}
-                <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                  {currentStep.type === 'text' && <Type className="w-4 h-4" />}
-                  {currentStep.type === 'image' && <Camera className="w-4 h-4" />}
-                  {currentStep.type === 'video' && <Film className="w-4 h-4" />}
-                  {currentStep.type === 'link' && <Globe className="w-4 h-4" />}
-                  <span className="font-medium capitalize">{currentStep.type}</span>
-                </div>
-
-                {/* Text Input */}
-                {currentStep.type === 'text' && (
-                  <textarea
-                    value={currentStep.content[activeLanguage] || ''}
-                    onChange={(e) => updateStepContent(activeLanguage, e.target.value)}
-                    placeholder="Escribe las instrucciones para este paso..."
-                    className="w-full h-40 p-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none text-base"
-                    autoFocus
-                  />
+      <div className="flex-1 overflow-y-auto p-4 pb-20">
+        <div className="max-w-md mx-auto">
+          {/* Steps Timeline */}
+          <div className="space-y-0">
+            {steps.map((step, index) => (
+              <motion.div
+                key={step.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="relative"
+              >
+                {/* Timeline Line */}
+                {index < steps.length - 1 && (
+                  <div className="absolute left-5 top-12 w-0.5 h-16 bg-gray-200 border-dashed border-l-2 border-gray-300" />
                 )}
-
-                {/* Image/Video Display */}
-                {(currentStep.type === 'image' || currentStep.type === 'video') && (
-                  <div className="space-y-4">
-                    {!currentStep.media?.url ? (
-                      <div
-                        onClick={() => fileInputRef.current?.click()}
-                        className="border-2 border-dashed border-gray-300 rounded-2xl p-12 text-center"
-                      >
-                        <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                        <p className="text-gray-600 font-medium">
-                          Toca para subir {currentStep.type === 'image' ? 'foto' : 'video'}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="relative rounded-2xl overflow-hidden bg-gray-100">
-                        {currentStep.type === 'image' ? (
-                          <img 
-                            src={currentStep.media.url} 
-                            alt="Contenido" 
-                            className="w-full"
-                          />
-                        ) : (
-                          <div className="aspect-video bg-black flex items-center justify-center">
-                            <Film className="w-12 h-12 text-white opacity-50" />
-                          </div>
-                        )}
-                        <button
-                          onClick={() => updateCurrentStep({ media: undefined })}
-                          className="absolute top-3 right-3 p-2 bg-black/50 text-white rounded-full"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    )}
+                
+                {/* Step Container */}
+                <div className="bg-white rounded-2xl border border-gray-200 p-4 mb-4 shadow-sm">
+                  {/* Step Header */}
+                  <div className="flex items-center gap-3 mb-3">
+                    {/* Step Number Badge */}
+                    <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-semibold text-sm">{index + 1}</span>
+                    </div>
                     
-                    <Input
-                      value={currentStep.content[activeLanguage] || ''}
-                      onChange={(e) => updateStepContent(activeLanguage, e.target.value)}
-                      placeholder="Añade una descripción (opcional)"
-                      className="text-base"
-                    />
+                    {/* Step Type Icon and Label */}
+                    <div className="flex items-center gap-2 flex-1">
+                      <div className="text-gray-600">
+                        {getStepIcon(step.type)}
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">
+                        {getStepTypeLabel(step.type)}
+                      </span>
+                    </div>
+
+                    {/* Delete Step Button */}
+                    {steps.length > 1 && (
+                      <button
+                        onClick={() => removeStep(index)}
+                        className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
-                )}
 
-                {/* Add Media Button - Always visible */}
-                <button
-                  onClick={() => setShowMediaModal(true)}
-                  className="mx-auto flex items-center gap-2 text-violet-600 font-medium py-3 px-6 rounded-full hover:bg-violet-50 transition-colors"
-                >
-                  <Plus className="w-5 h-5" />
-                  Añade Fotos/video
-                </button>
+                  {/* Content Type Selector */}
+                  <div className="mb-4">
+                    <button
+                      onClick={() => openMediaModal(index)}
+                      className="w-full py-3 px-4 border border-gray-300 rounded-xl text-left text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                    >
+                      Añadir Contenido
+                    </button>
+                  </div>
 
-                {/* Delete Step */}
-                {steps.length > 1 && (
-                  <button
-                    onClick={removeCurrentStep}
-                    className="mx-auto flex items-center gap-2 text-red-600 text-sm py-2"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Eliminar este paso
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                  {/* Content Input Based on Type */}
+                  {step.type === 'text' && (
+                    <textarea
+                      value={step.content[activeLanguage] || ''}
+                      onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
+                      placeholder="Escribe las instrucciones para este paso..."
+                      className="w-full h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none text-sm"
+                      rows={4}
+                    />
+                  )}
+
+                  {step.type === 'image' && (
+                    <div className="space-y-3">
+                      {!step.media?.url ? (
+                        <button
+                          onClick={() => {
+                            setSelectedStep(index)
+                            fileInputRef.current?.click()
+                          }}
+                          className="w-full h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:border-gray-400 transition-colors"
+                        >
+                          <ImageIcon className="w-8 h-8 mb-2" />
+                          <span className="text-sm">Seleccionar imagen</span>
+                        </button>
+                      ) : (
+                        <div className="relative rounded-xl overflow-hidden">
+                          <img 
+                            src={step.media.url} 
+                            alt="Contenido" 
+                            className="w-full h-48 object-cover"
+                          />
+                          <button
+                            onClick={() => updateStep(index, { media: undefined })}
+                            className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded-full"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                      
+                      <Input
+                        value={step.content[activeLanguage] || ''}
+                        onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
+                        placeholder="Descripción de la imagen (opcional)"
+                        className="text-sm"
+                      />
+                    </div>
+                  )}
+
+                  {step.type === 'video' && (
+                    <div className="space-y-3">
+                      {!step.media?.url ? (
+                        <button
+                          onClick={() => {
+                            setSelectedStep(index)
+                            fileInputRef.current?.click()
+                          }}
+                          className="w-full h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:border-gray-400 transition-colors"
+                        >
+                          <PlayCircle className="w-8 h-8 mb-2" />
+                          <span className="text-sm">Seleccionar video</span>
+                        </button>
+                      ) : (
+                        <div className="relative rounded-xl overflow-hidden bg-gray-100">
+                          <div className="w-full h-48 bg-black flex items-center justify-center">
+                            <PlayCircle className="w-12 h-12 text-white opacity-75" />
+                          </div>
+                          <button
+                            onClick={() => updateStep(index, { media: undefined })}
+                            className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded-full"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                      
+                      <Input
+                        value={step.content[activeLanguage] || ''}
+                        onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
+                        placeholder="Descripción del video (opcional)"
+                        className="text-sm"
+                      />
+                    </div>
+                  )}
+
+                  {(step.type === 'youtube' || step.type === 'link') && (
+                    <div className="space-y-3">
+                      <Input
+                        value={step.media?.url || ''}
+                        onChange={(e) => updateStep(index, { 
+                          media: { ...step.media, url: e.target.value } 
+                        })}
+                        placeholder={step.type === 'youtube' ? 'URL de YouTube' : 'URL del enlace'}
+                        className="text-sm"
+                      />
+                      
+                      <Input
+                        value={step.content[activeLanguage] || ''}
+                        onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
+                        placeholder="Descripción (opcional)"
+                        className="text-sm"
+                      />
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+            
+            {/* Add Step Button */}
+            <motion.button
+              onClick={addNewStep}
+              className="w-full py-4 border-2 border-dashed border-gray-300 rounded-2xl text-gray-600 hover:border-gray-400 hover:text-gray-700 transition-colors flex items-center justify-center gap-2"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Plus className="w-5 h-5" />
+              <span className="font-medium">Añadir paso</span>
+            </motion.button>
+          </div>
+        </div>
       </div>
 
       {/* Bottom Navigation - Fixed */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 flex gap-3">
-        {currentStepIndex > 0 && (
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
+        <div className="max-w-md mx-auto flex gap-3">
           <Button
             variant="outline"
-            onClick={() => goToStep(currentStepIndex - 1)}
+            onClick={onCancel}
             className="flex-1"
           >
-            <ChevronLeft className="w-4 h-4 mr-1" />
             Anterior
           </Button>
-        )}
-        
-        {currentStepIndex < steps.length - 1 ? (
+          
           <Button
-            onClick={() => goToStep(currentStepIndex + 1)}
-            className="flex-1 bg-violet-600 hover:bg-violet-700 text-white"
+            onClick={() => onSave(steps)}
+            style={{ backgroundColor: '#484848' }}
+            className="flex-1 hover:bg-gray-700 text-white"
+            disabled={steps.every(step => !step.content.es?.trim())}
           >
-            Siguiente
-            <ChevronRight className="w-4 h-4 ml-1" />
+            Finalizar
           </Button>
-        ) : (
-          <Button
-            onClick={addNewStep}
-            className="flex-1 bg-violet-600 hover:bg-violet-700 text-white"
-          >
-            <Plus className="w-4 h-4 mr-1" />
-            Añadir paso
-          </Button>
-        )}
+        </div>
       </div>
 
       {/* Media Selection Modal */}
@@ -457,12 +527,12 @@ export function MobileStepEditor({
       <input
         ref={fileInputRef}
         type="file"
-        accept={currentStep?.type === 'video' ? 'video/*' : 'image/*'}
+        accept={selectedStep !== null && steps[selectedStep]?.type === 'video' ? 'video/*' : 'image/*'}
         onChange={(e) => {
           const file = e.target.files?.[0]
-          if (file) {
+          if (file && selectedStep !== null) {
             const mockUrl = URL.createObjectURL(file)
-            updateCurrentStep({
+            updateStep(selectedStep, {
               media: {
                 url: mockUrl,
                 thumbnail: file.type.startsWith('video/') ? mockUrl : undefined,
