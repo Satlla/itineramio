@@ -171,7 +171,13 @@ export async function PUT(
 ) {
   try {
     const { id: propertyId, zoneId } = await params
-    const { steps } = await request.json()
+    const body = await request.json()
+    const { steps } = body
+    
+    console.log('PUT /api/properties/[id]/zones/[zoneId]/steps')
+    console.log('PropertyId:', propertyId)
+    console.log('ZoneId:', zoneId)
+    console.log('Steps received:', JSON.stringify(steps, null, 2))
 
     if (!Array.isArray(steps)) {
       return NextResponse.json(

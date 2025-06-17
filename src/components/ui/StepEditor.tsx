@@ -829,22 +829,25 @@ export function StepEditor({
                         </div>
 
                         {/* Steps Preview */}
-                        <div className="space-y-0">
+                        <div className="relative">
                           {steps.map((step, index) => (
-                            <div key={step.id} className="relative">
-                              {/* Timeline Line */}
-                              {index < steps.length - 1 && (
-                                <div 
-                                  className="absolute left-3 top-9 w-0.5 h-[calc(100%+0.5rem)] border-l-2 border-dashed border-gray-300"
-                                  style={{ zIndex: 0 }}
-                                />
-                              )}
+                            <div key={step.id} className="relative flex items-start gap-3 mb-4">
+                              {/* Timeline container */}
+                              <div className="flex flex-col items-center">
+                                {/* Circle */}
+                                <div className="w-2 h-2 bg-gray-400 rounded-full flex-shrink-0" />
+                                {/* Line */}
+                                {index < steps.length - 1 && (
+                                  <div className="w-0.5 h-full flex-1 border-l-2 border-dashed border-gray-300 mt-1" />
+                                )}
+                              </div>
                               
-                              <div className={`relative bg-gray-50 rounded-lg p-3 mb-4 ${index === activeStep ? 'ring-2 ring-violet-500' : ''}`} style={{ zIndex: 1 }}>
-                              <div className="flex items-start gap-3">
-                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${getStepTypeColor(step.type)}`}>
-                                  {index + 1}
-                                </div>
+                              {/* Step content */}
+                              <div className={`flex-1 bg-gray-50 rounded-lg p-3 -mt-1 ${index === activeStep ? 'ring-2 ring-violet-500' : ''}`}>
+                                <div className="flex items-start gap-3">
+                                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${getStepTypeColor(step.type)}`}>
+                                    {index + 1}
+                                  </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-1 mb-1">
                                     {getStepIcon(step.type)}
@@ -871,8 +874,8 @@ export function StepEditor({
                                   <p className="text-xs text-gray-900 leading-relaxed">
                                     {step.content.es || `Paso ${index + 1} - Añade contenido`}
                                   </p>
+                                  </div>
                                 </div>
-                              </div>
                               </div>
                             </div>
                           ))}

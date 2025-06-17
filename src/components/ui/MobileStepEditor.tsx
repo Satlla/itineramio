@@ -341,18 +341,25 @@ export function MobileStepEditor({
                   {/* Step Header */}
                   <div className="flex items-center gap-3 mb-3">
                     {/* Step Number Badge */}
-                    <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-semibold text-sm">{index + 1}</span>
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center">
+                        <span className="text-white font-semibold text-sm">{index + 1}</span>
+                      </div>
+                      <div className="text-center mt-1">
+                        <span className="text-xs font-medium text-gray-600">Paso</span>
+                      </div>
                     </div>
                     
-                    {/* Step Type Icon and Label */}
-                    <div className="flex items-center gap-2 flex-1">
-                      <div className="text-gray-600">
-                        {getStepIcon(step.type)}
+                    {/* Step Type with Icon */}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <div className="text-gray-600">
+                          {getStepIcon(step.type)}
+                        </div>
+                        <span className="text-sm font-medium text-gray-700">
+                          {getStepTypeLabel(step.type)}
+                        </span>
                       </div>
-                      <span className="text-sm font-medium text-gray-700">
-                        {getStepTypeLabel(step.type)}
-                      </span>
                     </div>
 
                     {/* Delete Step Button */}
