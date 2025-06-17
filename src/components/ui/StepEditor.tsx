@@ -21,7 +21,7 @@ import { Button } from './Button'
 import { Card } from './Card'
 import { Input } from './Input'
 import { Badge } from './Badge'
-import { MobileStepEditor } from './MobileStepEditor'
+import { MobileStepEditor as MobileStepEditorNew } from './MobileStepEditor'
 
 export interface Step {
   id: string
@@ -89,7 +89,7 @@ export function StepEditor({
   // Use new mobile editor for mobile devices
   if (isMobile) {
     return (
-      <MobileStepEditor
+      <MobileStepEditorNew
         zoneTitle={zoneTitle}
         initialSteps={initialSteps}
         onSave={onSave}

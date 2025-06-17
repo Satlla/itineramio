@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileTemplate, X, CheckCircle } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle } from 'lucide-react'
 import { Button } from '../../../../../src/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../../src/components/ui/Card'
 import { IconSelector, ZoneIconDisplay, useZoneIcon } from '../../../../../src/components/ui/IconSelector'
@@ -383,7 +383,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         }
         
         setZones([...zones, newZone])
-        setShowTemplateSelector(false)
+        setShowElementSelector(false)
         
         // Navigate to the new zone
         router.push(`/properties/${id}/zones/${result.data.zoneId}/steps`)
@@ -559,7 +559,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   const handleCustomZonesChoice = () => {
     setShowPredefineModal(false)
-    setShowTemplateSelector(true)
+    setShowElementSelector(true)
   }
 
 
@@ -607,7 +607,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
       // Update local state with created zones
       setZones([...zones, ...createdZones])
-      setShowTemplateSelector(false)
+      setShowElementSelector(false)
     } catch (error) {
       console.error('Error creating multiple zones:', error)
       alert('Error al crear las zonas')
@@ -1129,7 +1129,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                                   }}
                                   title="Añadir plantilla"
                                 >
-                                  <FileTemplate className="w-3 h-3" />
+                                  <FileText className="w-3 h-3" />
                                 </Button>
                               </div>
                             )}
