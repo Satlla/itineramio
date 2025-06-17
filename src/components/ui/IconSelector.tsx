@@ -194,7 +194,9 @@ interface ZoneIconDisplayProps {
 
 export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisplayProps) {
   // Use new Airbnb-style icons first
-  const AirbnbIcon = iconId && iconId in zoneIconMapping ? zoneIconMapping[iconId as keyof typeof zoneIconMapping] : null
+  const AirbnbIcon = iconId && Object.prototype.hasOwnProperty.call(zoneIconMapping, iconId) 
+    ? zoneIconMapping[iconId as keyof typeof zoneIconMapping] 
+    : null
   
   // Fallback to existing icon system
   const icon = useZoneIcon(iconId)
