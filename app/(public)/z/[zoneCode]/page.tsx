@@ -224,7 +224,7 @@ export default function PublicZonePage() {
                     {index + 1}
                   </div>
                   {index < zone.steps.length - 1 && (
-                    <div className="w-0.5 h-16 bg-gradient-to-b from-violet-400 to-violet-200 mt-2" />
+                    <div className="w-0.5 h-16 mt-2" style={{ backgroundColor: '#f1f1f1' }} />
                   )}
                 </div>
 

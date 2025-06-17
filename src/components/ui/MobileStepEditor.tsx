@@ -333,7 +333,7 @@ export function MobileStepEditor({
               >
                 {/* Timeline Line */}
                 {index < steps.length - 1 && (
-                  <div className="absolute left-5 top-12 w-0.5 h-16 bg-gray-200 border-dashed border-l-2 border-gray-300" />
+                  <div className="absolute left-5 top-12 w-0.5 h-16 border-l-2 border-dashed" style={{ borderColor: '#f1f1f1' }} />
                 )}
                 
                 {/* Step Container */}

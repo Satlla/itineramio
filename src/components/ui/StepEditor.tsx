@@ -846,10 +846,10 @@ export function StepEditor({
                               {/* Timeline container */}
                               <div className="flex flex-col items-center relative">
                                 {/* Circle */}
-                                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#484848' }} />
+                                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#f1f1f1' }} />
                                 {/* Line */}
                                 {index < steps.length - 1 && (
-                                  <div className="absolute top-3 left-1/2 transform -translate-x-1/2 w-0.5 h-16 border-l-2 border-dashed border-violet-400" />
+                                  <div className="absolute top-3 left-1/2 transform -translate-x-1/2 w-0.5 h-16 border-l-2 border-dashed" style={{ borderColor: '#f1f1f1' }} />
                                 )}
                               </div>
                               
