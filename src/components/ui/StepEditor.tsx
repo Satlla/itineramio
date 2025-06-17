@@ -21,6 +21,7 @@ import { Button } from './Button'
 import { Card } from './Card'
 import { Input } from './Input'
 import { Badge } from './Badge'
+import { MobileStepEditor } from './MobileStepEditor'
 
 export interface Step {
   id: string
@@ -85,18 +86,19 @@ export function StepEditor({
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Auto scroll to active step in mobile
-  useEffect(() => {
-    if (isMobile && activeStep >= 0) {
-      const stepElement = document.getElementById(`step-${activeStep}`)
-      if (stepElement) {
-        stepElement.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
-        })
-      }
-    }
-  }, [activeStep, isMobile])
+  // Use new mobile editor for mobile devices
+  if (isMobile) {
+    return (
+      <MobileStepEditor
+        zoneTitle={zoneTitle}
+        initialSteps={initialSteps}
+        onSave={onSave}
+        onCancel={onCancel}
+        maxVideos={maxVideos}
+        currentVideoCount={currentVideoCount}
+      />
+    )
+  }
 
   const addStep = async () => {
     setIsAddingStep(true)
