@@ -829,9 +829,18 @@ export function StepEditor({
                         </div>
 
                         {/* Steps Preview */}
-                        <div className="space-y-4">
+                        <div className="space-y-0">
                           {steps.map((step, index) => (
-                            <div key={step.id} className={`bg-gray-50 rounded-lg p-3 ${index === activeStep ? 'ring-2 ring-violet-500' : ''}`}>
+                            <div key={step.id} className="relative">
+                              {/* Timeline Line */}
+                              {index < steps.length - 1 && (
+                                <div 
+                                  className="absolute left-3 top-9 w-0.5 h-[calc(100%+0.5rem)] border-l-2 border-dashed border-gray-300"
+                                  style={{ zIndex: 0 }}
+                                />
+                              )}
+                              
+                              <div className={`relative bg-gray-50 rounded-lg p-3 mb-4 ${index === activeStep ? 'ring-2 ring-violet-500' : ''}`} style={{ zIndex: 1 }}>
                               <div className="flex items-start gap-3">
                                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${getStepTypeColor(step.type)}`}>
                                   {index + 1}
@@ -863,6 +872,7 @@ export function StepEditor({
                                     {step.content.es || `Paso ${index + 1} - Añade contenido`}
                                   </p>
                                 </div>
+                              </div>
                               </div>
                             </div>
                           ))}

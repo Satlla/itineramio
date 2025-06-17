@@ -163,3 +163,86 @@ export async function POST(
     )
   }
 }
+
+// PUT /api/properties/[id]/zones/[zoneId]/steps - Update multiple steps at once
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; zoneId: string }> }
+) {
+  try {
+    const { id: propertyId, zoneId } = await params
+    const { steps } = await request.json()
+
+    if (!Array.isArray(steps)) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Se esperaba un array de pasos' 
+        },
+        { status: 400 }
+      )
+    }
+
+    // Verify zone belongs to property
+    const zone = await prisma.zone.findFirst({
+      where: {
+        id: zoneId,
+        propertyId: propertyId
+      }
+    })
+
+    if (!zone) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Zona no encontrada' 
+        },
+        { status: 404 }
+      )
+    }
+
+    // Delete existing steps
+    await prisma.step.deleteMany({
+      where: { zoneId: zoneId }
+    })
+
+    // Create new steps
+    const createdSteps = []
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i]
+      if (step.content?.es?.trim() || step.content?.en?.trim() || step.content?.fr?.trim()) {
+        const createdStep = await prisma.step.create({
+          data: {
+            title: typeof step.content?.es === 'string' ? { es: step.content.es.substring(0, 50) || 'Paso sin título' } : { es: 'Paso sin título' },
+            content: {
+              es: step.content?.es || '',
+              en: step.content?.en || '',
+              fr: step.content?.fr || ''
+            },
+            type: step.type.toUpperCase(),
+            order: i,
+            isPublished: true,
+            zoneId: zoneId
+          }
+        })
+        createdSteps.push(createdStep)
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: createdSteps
+    })
+
+  } catch (error) {
+    console.error('Error updating steps:', error)
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Error al actualizar los pasos',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    )
+  }
+}
