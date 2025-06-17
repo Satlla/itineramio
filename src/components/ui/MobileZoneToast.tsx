@@ -54,22 +54,43 @@ export function MobileZoneToast({
         exit={{ y: 100, opacity: 0 }}
         className="fixed bottom-20 left-4 right-4 z-40"
       >
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3 shadow-lg flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-              <Lightbulb className="w-4 h-4 text-green-600" />
+        <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-3 shadow-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                <Lightbulb className="w-3 h-3 text-green-600" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-green-900">¡Enhorabuena! tu manual tiene muy buena pinta</p>
+                <p className="text-xs text-green-700">Has añadido las zonas esenciales</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-green-900">¡Excelente!</p>
-              <p className="text-xs text-green-700">Tu manual está completo</p>
-            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-1 hover:bg-green-100 rounded"
+            >
+              <X className="w-3 h-3 text-green-600" />
+            </button>
           </div>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="p-1 hover:bg-green-100 rounded"
+          
+          <Button
+            onClick={() => {
+              setShowModal(true)
+              // Scroll down to zone suggestions
+              setTimeout(() => {
+                const element = document.getElementById('zone-suggestions')
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+              }, 300)
+            }}
+            variant="outline"
+            size="sm"
+            className="w-full text-xs bg-white/50 hover:bg-white/80"
           >
-            <X className="w-4 h-4 text-green-600" />
-          </button>
+            Ver más zonas que puedes añadir
+            <ChevronRight className="w-3 h-3 ml-1" />
+          </Button>
         </div>
       </motion.div>
     )

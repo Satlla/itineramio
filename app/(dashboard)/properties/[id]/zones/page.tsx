@@ -447,7 +447,54 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showPredefineModal, setShowPredefineModal] = useState(false)
 
   const handleOpenMultiSelect = () => {
-    setShowPredefineModal(true)
+    setShowTemplateSelector(true)
+  }
+
+  const handleSelectMultipleZones = async (selectedZoneIds: string[]) => {
+    try {
+      const createdZones: Zone[] = []
+      
+      for (const zoneId of selectedZoneIds) {
+        const template = zoneTemplates.find(t => t.id === zoneId)
+        if (!template) continue
+
+        const response = await fetch(`/api/properties/${id}/zones`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: template.name,
+            description: template.description,
+            icon: template.icon,
+            color: 'bg-gray-100',
+            status: 'ACTIVE'
+          })
+        })
+
+        const result = await response.json()
+
+        if (response.ok && result.success) {
+          const newZone: Zone = {
+            id: result.data.id,
+            name: template.name,
+            description: template.description,
+            iconId: template.icon,
+            order: result.data.order,
+            stepsCount: 0,
+            qrUrl: `https://itineramio.com/guide/${id}/${result.data.id}`,
+            lastUpdated: new Date().toISOString().split('T')[0]
+          }
+          createdZones.push(newZone)
+        }
+      }
+
+      setZones([...zones, ...createdZones])
+      setShowTemplateSelector(false)
+    } catch (error) {
+      console.error('Error creating zones:', error)
+      alert('Error al crear las zonas')
+    }
   }
 
   const handlePredefinedZonesChoice = async () => {
@@ -770,7 +817,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           
           {zones.length === 0 ? (
             <Button
-              onClick={handleOpenMultiSelect}
+              onClick={() => setShowTemplateSelector(true)}
               className="bg-violet-600 hover:bg-violet-700"
             >
               <Plus className="w-5 h-5 mr-2" />
@@ -778,7 +825,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             </Button>
           ) : (
             <Button
-              onClick={() => setShowCreateForm(true)}
+              onClick={() => setShowTemplateSelector(true)}
               className="bg-violet-600 hover:bg-violet-700"
             >
               <Plus className="w-5 h-5 mr-2" />
@@ -982,7 +1029,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </div>
 
         {/* Right Section - Inspiration Block (1/3 width on desktop, full on mobile) */}
-        <div className="col-span-full lg:col-span-1 order-first lg:order-last">
+        <div id="zone-suggestions" className="col-span-full lg:col-span-1 order-first lg:order-last">
           <Card className="lg:sticky lg:top-6">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center">
@@ -1308,7 +1355,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </Button>
         ) : (
           <Button
-            onClick={() => setShowCreateForm(true)}
+            onClick={() => setShowTemplateSelector(true)}
             className="bg-violet-600 hover:bg-violet-700 shadow-lg rounded-full px-6 py-3"
           >
             <Plus className="w-5 h-5 mr-2" />
