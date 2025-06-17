@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { ZONE_ICONS } from '../../data/zoneIcons'
-import { getZoneIcon } from './ZoneIcons'
+import { zoneIconMapping } from '../../data/zoneIconsAirbnb'
 import { Button } from './Button'
 import { Input } from './Input'
 
@@ -193,13 +193,13 @@ interface ZoneIconDisplayProps {
 }
 
 export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisplayProps) {
-  // Try to get custom Airbnb-style icon first
-  const CustomIcon = iconId ? getZoneIcon(iconId) : null
+  // Use new Airbnb-style icons first
+  const AirbnbIcon = iconId ? zoneIconMapping[iconId] : null
   
   // Fallback to existing icon system
   const icon = useZoneIcon(iconId)
   
-  if (!CustomIcon && !icon) {
+  if (!AirbnbIcon && !icon) {
     return (
       <div className={cn(
         "rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center",
@@ -213,22 +213,24 @@ export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisp
     )
   }
   
-  // Use custom icon if available
-  if (CustomIcon) {
+  // Use Airbnb-style icon if available
+  if (AirbnbIcon) {
     return (
       <div className={cn(
-        "rounded-lg bg-gray-50 flex items-center justify-center",
+        "rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center shadow-sm border border-gray-200/50",
         size === 'sm' && "w-8 h-8",
         size === 'md' && "w-12 h-12",
         size === 'lg' && "w-16 h-16", 
         className
       )}>
-        <CustomIcon className={cn(
+        <div className={cn(
           "text-gray-700",
           size === 'sm' && "w-4 h-4",
           size === 'md' && "w-6 h-6",
           size === 'lg' && "w-8 h-8"
-        )} />
+        )}>
+          {AirbnbIcon}
+        </div>
       </div>
     )
   }

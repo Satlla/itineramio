@@ -5,22 +5,17 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Plus, 
   Trash2, 
-  GripVertical, 
   FileText, 
   Image as ImageIcon, 
   Video, 
   Link as LinkIcon,
   Youtube,
-  Globe,
-  ChevronDown,
-  ChevronUp,
   Upload,
   Play,
-  ExternalLink,
   Check,
-  AlertCircle,
   ChevronRight,
-  CheckCircle
+  CheckCircle,
+  X
 } from 'lucide-react'
 import { Button } from './Button'
 import { Card } from './Card'
@@ -65,7 +60,8 @@ export function StepEditor({
   )
   const [activeStep, setActiveStep] = useState(0)
   const [activeLanguage, setActiveLanguage] = useState<'es' | 'en' | 'fr'>('es')
-  const [draggedStep, setDraggedStep] = useState<string | null>(null)
+  const [isAddingStep, setIsAddingStep] = useState(false)
+  const [lineProgress, setLineProgress] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   function createNewStep(order: number): Step {
@@ -77,16 +73,70 @@ export function StepEditor({
     }
   }
 
-  const addStep = () => {
-    const newStep = createNewStep(steps.length)
-    setSteps([...steps, newStep])
-    setActiveStep(steps.length)
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Auto scroll to active step in mobile
+  useEffect(() => {
+    if (isMobile && activeStep >= 0) {
+      const stepElement = document.getElementById(`step-${activeStep}`)
+      if (stepElement) {
+        stepElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        })
+      }
+    }
+  }, [activeStep, isMobile])
+
+  const addStep = async () => {
+    setIsAddingStep(true)
+    const newStepIndex = steps.length
+    
+    // Animate line progress
+    setLineProgress(0)
+    const duration = 1500 // 1.5 seconds
+    const startTime = Date.now()
+    
+    const animateLine = () => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      
+      // Easing function for smooth animation
+      const easeInOutQuad = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+      setLineProgress(easeInOutQuad(progress) * 100)
+      
+      if (progress < 1) {
+        requestAnimationFrame(animateLine)
+      } else {
+        // Line animation complete, add the step with explosion effect
+        setTimeout(() => {
+          const newStep = createNewStep(newStepIndex)
+          setSteps(prev => [...prev, newStep])
+          setActiveStep(newStepIndex)
+          setIsAddingStep(false)
+          setLineProgress(0)
+        }, 200)
+      }
+    }
+    
+    requestAnimationFrame(animateLine)
   }
 
   const removeStep = (stepId: string) => {
+    if (steps.length <= 1) return
     const newSteps = steps.filter(step => step.id !== stepId)
     setSteps(newSteps.map((step, index) => ({ ...step, order: index })))
-    setActiveStep(Math.max(0, activeStep - 1))
+    setActiveStep(Math.max(0, Math.min(activeStep, newSteps.length - 1)))
   }
 
   const updateStep = (stepId: string, updates: Partial<Step>) => {
@@ -107,40 +157,6 @@ export function StepEditor({
           } 
         : step
     ))
-  }
-
-  const handleFileUpload = async (stepId: string, file: File) => {
-    // Mock file upload - in real app, upload to your server
-    const mockUrl = URL.createObjectURL(file)
-    
-    updateStep(stepId, {
-      type: file.type.startsWith('video/') ? 'video' : 'image',
-      media: {
-        url: mockUrl,
-        thumbnail: file.type.startsWith('video/') ? mockUrl : undefined,
-        title: file.name
-      }
-    })
-  }
-
-  const extractYouTubeId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
-    const match = url.match(regExp)
-    return match && match[2].length === 11 ? match[2] : null
-  }
-
-  const handleYouTubeLink = (stepId: string, url: string) => {
-    const videoId = extractYouTubeId(url)
-    if (videoId) {
-      updateStep(stepId, {
-        type: 'youtube',
-        media: {
-          url: url,
-          thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-          title: 'Video de YouTube'
-        }
-      })
-    }
   }
 
   const getStepIcon = (type: string) => {
@@ -175,75 +191,43 @@ export function StepEditor({
     return steps.filter(step => step.type === 'video').length + currentVideoCount
   }
 
-  // Mobile detection
-  const [isMobile, setIsMobile] = useState(false)
-  
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  // Auto scroll to active step in mobile
-  useEffect(() => {
-    if (isMobile && activeStep >= 0) {
-      const stepElement = document.getElementById(`step-${activeStep}`)
-      if (stepElement) {
-        stepElement.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
-        })
-      }
-    }
-  }, [activeStep, isMobile])
-
-  // Mobile Step Editor Component
+  // Mobile Step Editor Component with better spacing
   const MobileStepEditor = ({ 
     step, 
-    stepIndex, 
-    updateStep, 
-    updateStepContent, 
-    handleFileUpload, 
-    handleYouTubeLink, 
-    getVideoCount, 
-    maxVideos, 
-    languages, 
-    activeLanguage, 
-    setActiveLanguage, 
-    fileInputRef 
+    stepIndex 
   }: any) => (
-    <div className="bg-white rounded-lg p-4 border border-gray-200 space-y-4">
-      {/* Step Type Selector */}
+    <div className="bg-white rounded-xl p-6 border border-gray-200 space-y-6 shadow-sm">
+      {/* Step Type Selector - Better mobile layout */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de contenido</label>
-        <div className="grid grid-cols-5 gap-1">
+        <label className="block text-sm font-medium text-gray-700 mb-4">Tipo de contenido</label>
+        <div className="grid grid-cols-2 gap-4">
           {[
             { type: 'text', label: 'Texto', icon: FileText, color: 'blue' },
             { type: 'image', label: 'Imagen', icon: ImageIcon, color: 'green' },
             { type: 'video', label: 'Video', icon: Video, color: 'red', disabled: getVideoCount() >= maxVideos && step.type !== 'video' },
             { type: 'youtube', label: 'YouTube', icon: Youtube, color: 'red' },
             { type: 'link', label: 'Enlace', icon: LinkIcon, color: 'purple' }
-          ].map(({ type, label, icon: Icon, color, disabled }) => (
-            <button
+          ].map(({ type, label, icon: Icon, color, disabled }, index) => (
+            <motion.button
               key={type}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.1 }}
               onClick={() => updateStep(step.id, { type: type as any })}
               disabled={disabled}
-              className={`p-2 rounded-lg border-2 transition-all text-xs ${
+              className={`p-5 rounded-xl border-2 transition-all text-sm flex flex-col items-center gap-3 min-h-[80px] ${
                 step.type === type
-                  ? color === 'blue' ? 'border-blue-500 bg-blue-50'
-                  : color === 'green' ? 'border-green-500 bg-green-50'
-                  : color === 'red' ? 'border-red-500 bg-red-50'
-                  : color === 'purple' ? 'border-purple-500 bg-purple-50'
+                  ? color === 'blue' ? 'border-blue-500 bg-blue-50 shadow-lg shadow-blue-100'
+                  : color === 'green' ? 'border-green-500 bg-green-50 shadow-lg shadow-green-100'
+                  : color === 'red' ? 'border-red-500 bg-red-50 shadow-lg shadow-red-100'
+                  : color === 'purple' ? 'border-purple-500 bg-purple-50 shadow-lg shadow-purple-100'
                   : 'border-gray-500 bg-gray-50'
                   : disabled
                   ? 'border-gray-200 bg-gray-100 opacity-50 cursor-not-allowed'
-                  : 'border-gray-200 hover:border-gray-300 bg-white'
+                  : 'border-gray-200 hover:border-gray-300 bg-white hover:shadow-md'
               }`}
             >
-              <Icon className={`w-3 h-3 mx-auto mb-1 ${
+              <Icon className={`w-6 h-6 ${
                 step.type === type 
                   ? color === 'blue' ? 'text-blue-600'
                   : color === 'green' ? 'text-green-600'
@@ -252,23 +236,23 @@ export function StepEditor({
                   : 'text-gray-600'
                   : 'text-gray-600'
               }`} />
-              <div className="font-medium">{label}</div>
+              <div className="font-medium text-center leading-tight">{label}</div>
               {disabled && type === 'video' && (
-                <div className="text-xs text-red-600 mt-1">Límite</div>
+                <div className="text-xs text-red-600">Límite</div>
               )}
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
 
       {/* Language Tabs */}
       <div>
-        <div className="flex bg-gray-100 rounded-lg p-1 mb-3">
+        <div className="flex bg-gray-100 rounded-xl p-1 mb-4">
           {languages.map((lang: any) => (
             <button
               key={lang.code}
               onClick={() => setActiveLanguage(lang.code as any)}
-              className={`flex-1 px-2 py-1.5 rounded-md text-xs font-medium transition-all ${
+              className={`flex-1 px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
                 activeLanguage === lang.code
                   ? 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
@@ -284,46 +268,46 @@ export function StepEditor({
       {/* Content Editor */}
       {step.type === 'text' && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Contenido</label>
+          <label className="block text-sm font-medium text-gray-700 mb-3">Contenido</label>
           <textarea
             value={step.content[activeLanguage] || ''}
             onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
             placeholder={`Escribe las instrucciones...`}
-            className="w-full h-24 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none text-sm"
+            className="w-full h-32 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none text-sm"
           />
         </div>
       )}
 
       {(step.type === 'image' || step.type === 'video') && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
             {step.type === 'image' ? 'Imagen' : 'Video'}
           </label>
           {!step.media?.url ? (
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-violet-400 transition-colors cursor-pointer"
+              className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-violet-400 transition-colors cursor-pointer"
             >
-              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-gray-600 text-sm mb-1">Toca para subir</p>
+              <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+              <p className="text-gray-600 text-sm mb-2">Toca para subir</p>
               <p className="text-xs text-gray-500">
                 {step.type === 'video' ? 'MP4, máx 30 seg' : 'PNG, JPG hasta 10MB'}
               </p>
             </div>
           ) : (
-            <div className="bg-gray-100 rounded-lg p-3">
+            <div className="bg-gray-100 rounded-xl p-4">
               {step.type === 'image' ? (
-                <img src={step.media?.url} alt="Preview" className="max-h-32 mx-auto rounded-lg" />
+                <img src={step.media?.url} alt="Preview" className="max-h-40 mx-auto rounded-lg" />
               ) : (
-                <div className="bg-black rounded-lg aspect-video max-w-48 mx-auto flex items-center justify-center">
-                  <Play className="w-8 h-8 text-white opacity-75" />
+                <div className="bg-black rounded-lg aspect-video max-w-64 mx-auto flex items-center justify-center">
+                  <Play className="w-10 h-10 text-white opacity-75" />
                 </div>
               )}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
-                className="mt-2 w-full"
+                className="mt-3 w-full"
               >
                 Cambiar archivo
               </Button>
@@ -333,56 +317,8 @@ export function StepEditor({
             value={step.content[activeLanguage] || ''}
             onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
             placeholder="Descripción (opcional)"
-            className="mt-2"
+            className="mt-3"
           />
-        </div>
-      )}
-
-      {step.type === 'youtube' && (
-        <div className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">URL de YouTube</label>
-            <Input
-              placeholder="https://www.youtube.com/watch?v=..."
-              onChange={(e) => handleYouTubeLink(step.id, e.target.value)}
-            />
-          </div>
-          {step.media?.url && (
-            <div className="bg-gray-100 rounded-lg p-3">
-              <div className="aspect-video bg-black rounded-lg mb-2 overflow-hidden">
-                <img src={step.media.thumbnail} alt="YouTube thumbnail" className="w-full h-full object-cover" />
-              </div>
-              <div className="flex items-center gap-2">
-                <Youtube className="w-4 h-4 text-red-600" />
-                <span className="text-sm font-medium">Video de YouTube detectado</span>
-              </div>
-            </div>
-          )}
-          <Input
-            value={step.content[activeLanguage] || ''}
-            onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
-            placeholder="Descripción del video"
-          />
-        </div>
-      )}
-
-      {step.type === 'link' && (
-        <div className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">URL del enlace</label>
-            <Input
-              placeholder="https://ejemplo.com"
-              onChange={(e) => updateStep(step.id, { media: { url: e.target.value } })}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Texto del enlace</label>
-            <Input
-              value={step.content[activeLanguage] || ''}
-              onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
-              placeholder="Manual de la vitrocerámica"
-            />
-          </div>
         </div>
       )}
     </div>
@@ -420,13 +356,45 @@ export function StepEditor({
         </div>
       </div>
 
-      {/* Mobile Layout: Vertical Timeline */}
+      {/* Mobile Layout: Vertical Timeline with LED Animation */}
       {isMobile ? (
         <div className="max-w-2xl mx-auto p-4 space-y-6">
-          {/* Steps Timeline */}
+          {/* Steps Timeline with LED effect */}
           <div className="relative">
-            {/* Connecting line */}
+            {/* Main connecting line */}
             <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+            
+            {/* Animated LED line */}
+            {isAddingStep && (
+              <motion.div
+                className="absolute left-6 w-0.5 bg-gradient-to-b from-violet-500 to-blue-500"
+                style={{
+                  top: `${activeStep * 120 + 48}px`,
+                  height: `${lineProgress}%`,
+                  maxHeight: '120px'
+                }}
+                initial={{ height: 0 }}
+                animate={{ height: `${lineProgress}%` }}
+              >
+                {/* LED dot moving along the line */}
+                <motion.div
+                  className="absolute -left-1 w-2.5 h-2.5 bg-violet-500 rounded-full shadow-lg"
+                  style={{ 
+                    bottom: 0,
+                    boxShadow: '0 0 10px rgba(139, 92, 246, 0.6)' 
+                  }}
+                  animate={{
+                    scale: [1, 1.3, 1],
+                    opacity: [1, 0.7, 1]
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+              </motion.div>
+            )}
             
             {steps.map((step, index) => (
               <motion.div
@@ -435,20 +403,29 @@ export function StepEditor({
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className={`relative mb-6 ${
-                  activeStep === index ? 'bg-violet-50 rounded-lg p-4 border-2 border-violet-200' : ''
+                className={`relative mb-8 ${
+                  activeStep === index ? 'bg-violet-50 rounded-xl p-4 border-2 border-violet-200' : ''
                 }`}
               >
-                {/* Step number */}
-                <div className={`absolute left-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-medium ${
-                  activeStep === index ? 'bg-violet-600' : getStepTypeColor(step.type)
-                }`}>
+                {/* Step number with glow effect */}
+                <motion.div 
+                  className={`absolute left-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-medium ${
+                    activeStep === index ? 'bg-violet-600' : getStepTypeColor(step.type)
+                  }`}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  style={{
+                    boxShadow: activeStep === index 
+                      ? '0 0 20px rgba(139, 92, 246, 0.4)' 
+                      : '0 4px 12px rgba(0, 0, 0, 0.1)'
+                  }}
+                >
                   {index + 1}
-                </div>
+                </motion.div>
                 
                 {/* Step Content */}
                 <div className="ml-16">
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-3">
                     {getStepIcon(step.type)}
                     <span className="text-xs font-medium text-gray-600 uppercase">{step.type}</span>
                     {steps.length > 1 && (
@@ -456,41 +433,82 @@ export function StepEditor({
                         variant="ghost"
                         size="sm"
                         onClick={() => removeStep(step.id)}
-                        className="ml-auto text-red-600 hover:bg-red-50 w-6 h-6 p-0"
+                        className="ml-auto text-red-600 hover:bg-red-50 w-8 h-8 p-0"
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     )}
                   </div>
                   
                   {activeStep === index ? (
-                    <MobileStepEditor 
-                      step={step}
-                      stepIndex={index}
-                      updateStep={updateStep}
-                      updateStepContent={updateStepContent}
-                      handleFileUpload={handleFileUpload}
-                      handleYouTubeLink={handleYouTubeLink}
-                      getVideoCount={getVideoCount}
-                      maxVideos={maxVideos}
-                      languages={languages}
-                      activeLanguage={activeLanguage}
-                      setActiveLanguage={setActiveLanguage}
-                      fileInputRef={fileInputRef}
-                    />
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <MobileStepEditor 
+                        step={step}
+                        stepIndex={index}
+                      />
+                    </motion.div>
                   ) : (
-                    <div 
+                    <motion.div 
                       onClick={() => setActiveStep(index)}
-                      className="cursor-pointer bg-white rounded-lg p-3 border border-gray-200 hover:border-gray-300"
+                      className="cursor-pointer bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
                       <p className="text-sm text-gray-900">
                         {step.content.es || `Configura el paso ${index + 1}`}
                       </p>
-                    </div>
+                    </motion.div>
                   )}
                 </div>
               </motion.div>
             ))}
+            
+            {/* New step placeholder with explosion effect */}
+            <AnimatePresence>
+              {isAddingStep && (
+                <motion.div
+                  className="relative mb-8"
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ 
+                    opacity: lineProgress > 90 ? 1 : 0,
+                    scale: lineProgress > 90 ? [0, 1.2, 1] : 0
+                  }}
+                  transition={{ 
+                    duration: 0.6,
+                    ease: "easeOut"
+                  }}
+                >
+                  <motion.div 
+                    className="absolute left-0 w-12 h-12 rounded-full bg-gradient-to-r from-violet-500 to-blue-500 flex items-center justify-center text-white font-medium"
+                    animate={{
+                      boxShadow: [
+                        '0 0 0 0 rgba(139, 92, 246, 0.7)',
+                        '0 0 0 20px rgba(139, 92, 246, 0)',
+                        '0 0 0 0 rgba(139, 92, 246, 0)'
+                      ]
+                    }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      ease: "easeOut"
+                    }}
+                  >
+                    {steps.length + 1}
+                  </motion.div>
+                  <div className="ml-16">
+                    <div className="bg-gradient-to-r from-violet-100 to-blue-100 rounded-xl p-4 border-2 border-dashed border-violet-300">
+                      <p className="text-sm text-violet-700 font-medium">
+                        ✨ Nuevo paso añadiéndose...
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
             
             {/* End cap */}
             <div className="relative">
@@ -500,31 +518,51 @@ export function StepEditor({
             </div>
           </div>
           
-          {/* Add Step Button */}
-          <div className="ml-16">
+          {/* Action Buttons - Mobile Layout */}
+          <div className="ml-16 space-y-3">
             <Button
               onClick={addStep}
+              disabled={isAddingStep}
               variant="outline"
-              className="border-dashed border-gray-300 text-gray-600 hover:border-violet-300 hover:text-violet-600"
+              className="w-full border-dashed border-gray-300 text-gray-600 hover:border-violet-300 hover:text-violet-600 h-12"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Añadir paso
+              <Plus className="w-5 h-5 mr-2" />
+              {isAddingStep ? 'Añadiendo paso...' : 'Añadir paso'}
             </Button>
             
-            {/* Finish Button */}
-            {steps.length > 0 && (
+            {/* Navigation Buttons */}
+            <div className="flex gap-3">
               <Button
-                onClick={() => onSave(steps)}
-                className="ml-3 bg-green-600 hover:bg-green-700 text-white"
+                variant="outline"
+                onClick={() => setActiveStep(Math.max(0, activeStep - 1))}
+                disabled={activeStep === 0}
+                className="flex-1"
               >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Finalizar
+                Anterior
               </Button>
-            )}
+              
+              {activeStep === steps.length - 1 ? (
+                <Button
+                  onClick={() => onSave(steps)}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Finalizar
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => setActiveStep(activeStep + 1)}
+                  className="flex-1 bg-violet-600 hover:bg-violet-700 text-white"
+                >
+                  Siguiente
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       ) : (
-        /* Desktop Layout: Main content + iPhone Preview */
+        /* Desktop Layout with corrected button positioning */
         <div className="max-w-7xl mx-auto p-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Main Content */}
@@ -635,17 +673,6 @@ export function StepEditor({
                             ))}
                           </div>
                         </div>
-
-                        {activeLanguage !== 'es' && !steps[activeStep].content[activeLanguage] && (
-                          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
-                            <div className="flex items-center gap-2">
-                              <AlertCircle className="w-4 h-4 text-amber-600" />
-                              <span className="text-sm text-amber-800">
-                                Traducción opcional - Se mostrará el español si no se proporciona
-                              </span>
-                            </div>
-                          </div>
-                        )}
                       </div>
 
                       {/* Content Editor */}
@@ -710,17 +737,6 @@ export function StepEditor({
                               </div>
                             )}
 
-                            <input
-                              ref={fileInputRef}
-                              type="file"
-                              accept={steps[activeStep].type === 'image' ? 'image/*' : 'video/*'}
-                              onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                if (file) handleFileUpload(steps[activeStep].id, file)
-                              }}
-                              className="hidden"
-                            />
-
                             <div className="mt-4">
                               <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Descripción (opcional)
@@ -733,99 +749,33 @@ export function StepEditor({
                             </div>
                           </div>
                         )}
-
-                        {steps[activeStep].type === 'youtube' && (
-                          <div className="space-y-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                URL de YouTube
-                              </label>
-                              <Input
-                                placeholder="https://www.youtube.com/watch?v=..."
-                                onChange={(e) => handleYouTubeLink(steps[activeStep].id, e.target.value)}
-                              />
-                            </div>
-
-                            {steps[activeStep].media?.url && (
-                              <div className="bg-gray-100 rounded-lg p-4">
-                                <div className="aspect-video bg-black rounded-lg mb-3 overflow-hidden">
-                                  <img
-                                    src={steps[activeStep].media.thumbnail}
-                                    alt="YouTube thumbnail"
-                                    className="w-full h-full object-cover"
-                                  />
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Youtube className="w-4 h-4 text-red-600" />
-                                  <span className="text-sm font-medium">Video de YouTube detectado</span>
-                                  <ExternalLink className="w-4 h-4 text-gray-400" />
-                                </div>
-                              </div>
-                            )}
-
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Descripción
-                              </label>
-                              <Input
-                                value={steps[activeStep].content[activeLanguage] || ''}
-                                onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
-                                placeholder="Descripción del video"
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        {steps[activeStep].type === 'link' && (
-                          <div className="space-y-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                URL del enlace
-                              </label>
-                              <Input
-                                placeholder="https://ejemplo.com"
-                                onChange={(e) => updateStep(steps[activeStep].id, {
-                                  media: { url: e.target.value }
-                                })}
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Texto del enlace
-                              </label>
-                              <Input
-                                value={steps[activeStep].content[activeLanguage] || ''}
-                                onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
-                                placeholder="Manual de la vitrocerámica"
-                              />
-                            </div>
-                          </div>
-                        )}
                       </div>
 
-                      {/* Navigation */}
+                      {/* Navigation - Desktop with CORRECTED positioning */}
                       <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+                        {/* LEFT: Previous button */}
                         <Button
-                          onClick={addStep}
                           variant="outline"
-                          className="border-dashed border-gray-300 text-gray-600 hover:border-violet-300 hover:text-violet-600"
+                          onClick={() => setActiveStep(Math.max(0, activeStep - 1))}
+                          disabled={activeStep === 0}
                         >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Añadir paso
+                          Anterior
                         </Button>
                         
                         <span className="text-sm text-gray-500">
                           Paso {activeStep + 1} de {steps.length}
                         </span>
                         
+                        {/* RIGHT: Add Step + Finish/Next */}
                         <div className="flex gap-2">
                           <Button
+                            onClick={addStep}
+                            disabled={isAddingStep}
                             variant="outline"
-                            onClick={() => setActiveStep(Math.max(0, activeStep - 1))}
-                            disabled={activeStep === 0}
+                            className="border-dashed border-gray-300 text-gray-600 hover:border-violet-300 hover:text-violet-600"
                           >
-                            Anterior
+                            <Plus className="w-4 h-4 mr-2" />
+                            Añadir paso
                           </Button>
                           
                           {activeStep === steps.length - 1 ? (
@@ -853,7 +803,7 @@ export function StepEditor({
               </AnimatePresence>
             </div>
 
-            {/* iPhone 16 Pro Preview */}
+            {/* iPhone Preview - Desktop */}
             <div className="col-span-1 lg:col-span-4">
               <div className="sticky top-6">
                 <div className="text-center mb-4">
@@ -861,9 +811,8 @@ export function StepEditor({
                   <p className="text-sm text-gray-600">Cómo verá el manual en su móvil</p>
                 </div>
                 
-                {/* iPhone 16 Pro Mockup */}
+                {/* iPhone Preview */}
                 <div className="mx-auto relative" style={{ width: '280px', height: '600px' }}>
-                  {/* iPhone Frame */}
                   <div className="absolute inset-0 bg-black rounded-[3rem] p-2">
                     <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
                       {/* Dynamic Island */}
@@ -893,41 +842,10 @@ export function StepEditor({
                                   <p className="text-xs text-gray-900 leading-relaxed">
                                     {step.content.es || `Paso ${index + 1} - Añade contenido`}
                                   </p>
-                                  
-                                  {/* Media Preview */}
-                                  {step.media?.url && (
-                                    <div className="mt-2">
-                                      {step.type === 'image' && (
-                                        <div className="bg-gray-200 rounded aspect-video w-full flex items-center justify-center">
-                                          <ImageIcon className="w-4 h-4 text-gray-500" />
-                                        </div>
-                                      )}
-                                      {(step.type === 'video' || step.type === 'youtube') && (
-                                        <div className="bg-black rounded aspect-video w-full flex items-center justify-center">
-                                          <Play className="w-4 h-4 text-white" />
-                                        </div>
-                                      )}
-                                      {step.type === 'link' && (
-                                        <div className="bg-blue-50 border border-blue-200 rounded p-2 flex items-center gap-2">
-                                          <LinkIcon className="w-3 h-3 text-blue-600" />
-                                          <span className="text-xs text-blue-700 truncate">Enlace externo</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
                                 </div>
                               </div>
                             </div>
                           ))}
-                          
-                          {steps.length === 0 && (
-                            <div className="text-center py-8">
-                              <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <Plus className="w-6 h-6 text-gray-400" />
-                              </div>
-                              <p className="text-xs text-gray-500">Añade el primer paso para empezar</p>
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -938,6 +856,29 @@ export function StepEditor({
           </div>
         </div>
       )}
+
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,video/*"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) {
+            // Handle file upload
+            const mockUrl = URL.createObjectURL(file)
+            updateStep(steps[activeStep].id, {
+              type: file.type.startsWith('video/') ? 'video' : 'image',
+              media: {
+                url: mockUrl,
+                thumbnail: file.type.startsWith('video/') ? mockUrl : undefined,
+                title: file.name
+              }
+            })
+          }
+        }}
+        className="hidden"
+      />
     </div>
   )
 }

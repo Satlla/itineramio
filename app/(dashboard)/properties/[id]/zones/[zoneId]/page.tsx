@@ -22,6 +22,7 @@ import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 import { Button } from '../../../../../../src/components/ui/Button'
 import { Card } from '../../../../../../src/components/ui/Card'
+import { StepEditor } from '../../../../../../src/components/ui/StepEditor'
 
 interface Step {
   id: string
@@ -62,6 +63,9 @@ export default function ZoneDetailPage() {
   const [zone, setZone] = useState<Zone | null>(null)
   const [loading, setLoading] = useState(true)
   const [draggedStep, setDraggedStep] = useState<string | null>(null)
+  const [showStepEditor, setShowStepEditor] = useState(false)
+  const [isEditingExisting, setIsEditingExisting] = useState(false)
+  const [editingStepId, setEditingStepId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchZoneData()
@@ -88,11 +92,15 @@ export default function ZoneDetailPage() {
   }
 
   const handleAddStep = () => {
-    router.push(`/properties/${propertyId}/zones/${zoneId}/steps/new`)
+    setIsEditingExisting(false)
+    setEditingStepId(null)
+    setShowStepEditor(true)
   }
 
   const handleEditStep = (stepId: string) => {
-    router.push(`/properties/${propertyId}/zones/${zoneId}/steps/${stepId}`)
+    setIsEditingExisting(true)
+    setEditingStepId(stepId)
+    setShowStepEditor(true)
   }
 
   const handleDeleteStep = async (stepId: string) => {
@@ -117,6 +125,81 @@ export default function ZoneDetailPage() {
 
   const handleEditZone = () => {
     router.push(`/properties/${propertyId}/zones/${zoneId}/edit`)
+  }
+
+  const handleSaveSteps = async (steps: any[]) => {
+    try {
+      if (isEditingExisting && steps.length === 1) {
+        // Update existing step
+        const step = steps[0]
+        const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps/${editingStepId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: step.content.es.substring(0, 50) || 'Paso sin título',
+            content: step.content.es,
+            type: step.type.toUpperCase(),
+            mediaUrl: step.media?.url,
+            order: step.order
+          })
+        })
+
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || 'Error al actualizar el paso')
+        }
+      } else {
+        // Create new steps
+        for (const step of steps) {
+          if (step.content.es.trim()) {
+            const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: step.content.es.substring(0, 50) || 'Paso sin título',
+                content: step.content.es,
+                type: step.type.toUpperCase(),
+                mediaUrl: step.media?.url,
+                order: zone?.steps?.length ? zone.steps.length + step.order : step.order,
+                status: 'ACTIVE'
+              })
+            })
+
+            if (!response.ok) {
+              const error = await response.json()
+              throw new Error(error.error || 'Error al crear el paso')
+            }
+          }
+        }
+      }
+      
+      setShowStepEditor(false)
+      fetchZoneData() // Refresh the zone data
+    } catch (error) {
+      console.error('Error saving steps:', error)
+      alert('Error al guardar los pasos')
+    }
+  }
+
+  const getInitialSteps = () => {
+    if (!isEditingExisting || !editingStepId || !zone?.steps) {
+      return []
+    }
+
+    const existingStep = zone.steps.find(s => s.id === editingStepId)
+    if (!existingStep) return []
+
+    return [{
+      id: existingStep.id,
+      type: existingStep.type.toLowerCase() as any,
+      content: {
+        es: existingStep.content || existingStep.title || '',
+        en: '',
+        fr: ''
+      },
+      media: existingStep.mediaUrl ? { url: existingStep.mediaUrl } : undefined,
+      order: existingStep.order
+    }]
   }
 
   const getStepIcon = (type: Step['type']) => {
@@ -419,6 +502,18 @@ export default function ZoneDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* StepEditor Modal */}
+      {showStepEditor && zone && (
+        <StepEditor
+          zoneTitle={zone.name}
+          initialSteps={getInitialSteps()}
+          onSave={handleSaveSteps}
+          onCancel={() => setShowStepEditor(false)}
+          maxVideos={5}
+          currentVideoCount={zone.steps?.filter(s => s.type === 'VIDEO').length || 0}
+        />
+      )}
     </div>
   )
 }
