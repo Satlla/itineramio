@@ -833,19 +833,19 @@ export function StepEditor({
                           {steps.map((step, index) => (
                             <div key={step.id} className="relative flex items-start gap-3 mb-4">
                               {/* Timeline container */}
-                              <div className="flex flex-col items-center">
+                              <div className="flex flex-col items-center relative">
                                 {/* Circle */}
-                                <div className="w-2 h-2 bg-gray-400 rounded-full flex-shrink-0" />
+                                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#484848' }} />
                                 {/* Line */}
                                 {index < steps.length - 1 && (
-                                  <div className="w-0.5 h-full flex-1 border-l-2 border-dashed border-gray-300 mt-1" />
+                                  <div className="absolute top-3 left-1/2 transform -translate-x-1/2 w-0.5 h-16 border-l-2 border-dashed border-violet-400" />
                                 )}
                               </div>
                               
                               {/* Step content */}
                               <div className={`flex-1 bg-gray-50 rounded-lg p-3 -mt-1 ${index === activeStep ? 'ring-2 ring-violet-500' : ''}`}>
                                 <div className="flex items-start gap-3">
-                                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${getStepTypeColor(step.type)}`}>
+                                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ backgroundColor: '#484848' }}>
                                     {index + 1}
                                   </div>
                                 <div className="flex-1 min-w-0">
@@ -861,11 +861,11 @@ export function StepEditor({
                                         <img 
                                           src={step.media.url} 
                                           alt="Contenido" 
-                                          className="w-full h-32 object-cover"
+                                          className="w-full h-20 object-cover"
                                         />
                                       ) : step.type === 'video' ? (
-                                        <div className="w-full h-32 bg-black flex items-center justify-center">
-                                          <Play className="w-8 h-8 text-white opacity-75" />
+                                        <div className="w-full h-20 bg-black flex items-center justify-center">
+                                          <Play className="w-6 h-6 text-white opacity-75" />
                                         </div>
                                       ) : null}
                                     </div>

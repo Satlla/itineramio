@@ -216,10 +216,19 @@ export async function PUT(
     const createdSteps = []
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i]
-      if (step.content?.es?.trim() || step.content?.en?.trim() || step.content?.fr?.trim()) {
-        const createdStep = await prisma.step.create({
-          data: {
-            title: typeof step.content?.es === 'string' ? { es: step.content.es.substring(0, 50) || 'Paso sin título' } : { es: 'Paso sin título' },
+      console.log(`Processing step ${i + 1}:`, JSON.stringify(step, null, 2))
+      
+      // Check if step has any content
+      const hasContent = step.content?.es?.trim() || step.content?.en?.trim() || step.content?.fr?.trim()
+      
+      if (hasContent || step.type !== 'text') { // Allow non-text steps even without content
+        try {
+          const stepData = {
+            title: { 
+              es: step.content?.es?.substring(0, 50) || `Paso ${i + 1}`,
+              en: step.content?.en?.substring(0, 50) || `Step ${i + 1}`,
+              fr: step.content?.fr?.substring(0, 50) || `Étape ${i + 1}`
+            },
             content: {
               es: step.content?.es || '',
               en: step.content?.en || '',
@@ -230,8 +239,21 @@ export async function PUT(
             isPublished: true,
             zoneId: zoneId
           }
-        })
-        createdSteps.push(createdStep)
+          
+          console.log(`Creating step with data:`, JSON.stringify(stepData, null, 2))
+          
+          const createdStep = await prisma.step.create({
+            data: stepData
+          })
+          
+          console.log(`Created step:`, createdStep.id)
+          createdSteps.push(createdStep)
+        } catch (stepError) {
+          console.error(`Error creating step ${i + 1}:`, stepError)
+          throw stepError
+        }
+      } else {
+        console.log(`Skipping step ${i + 1} - no content`)
       }
     }
 

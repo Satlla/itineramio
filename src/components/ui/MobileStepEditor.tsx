@@ -342,11 +342,11 @@ export function MobileStepEditor({
                   <div className="flex items-center gap-3 mb-3">
                     {/* Step Number Badge */}
                     <div className="flex-shrink-0">
-                      <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#484848' }}>
                         <span className="text-white font-semibold text-sm">{index + 1}</span>
                       </div>
                       <div className="text-center mt-1">
-                        <span className="text-xs font-medium text-gray-600">Paso</span>
+                        <span className="text-xs font-medium text-gray-800">Paso</span>
                       </div>
                     </div>
                     
@@ -494,7 +494,7 @@ export function MobileStepEditor({
             {/* Add Step Button */}
             <motion.button
               onClick={addNewStep}
-              className="w-full py-4 border-2 border-dashed border-gray-300 rounded-2xl text-gray-600 hover:border-gray-400 hover:text-gray-700 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-4 border-2 border-dashed border-violet-400 rounded-2xl text-violet-600 hover:border-violet-500 hover:text-violet-700 transition-colors flex items-center justify-center gap-2"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
