@@ -807,37 +807,7 @@ export function StepEditor({
 
             {/* Preview Panel - Desktop */}
             <div className="col-span-1 lg:col-span-4">
-              <div className="sticky top-6 space-y-6">
-                {/* Media Preview */}
-                {steps[activeStep]?.media?.url && (
-                  <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-                    <div className="text-center mb-3">
-                      <h3 className="text-sm font-semibold text-gray-900 mb-1">Preview del media</h3>
-                      <p className="text-xs text-gray-600">Paso {activeStep + 1}</p>
-                    </div>
-                    
-                    <div className="rounded-lg overflow-hidden bg-gray-100">
-                      {steps[activeStep].type === 'image' ? (
-                        <img 
-                          src={steps[activeStep].media!.url} 
-                          alt="Preview" 
-                          className="w-full h-48 object-cover"
-                        />
-                      ) : steps[activeStep].type === 'video' ? (
-                        <div className="w-full h-48 bg-black flex items-center justify-center">
-                          <Play className="w-12 h-12 text-white opacity-75" />
-                        </div>
-                      ) : null}
-                    </div>
-                    
-                    {steps[activeStep].content.es && (
-                      <p className="text-xs text-gray-600 mt-2 text-center">
-                        {steps[activeStep].content.es}
-                      </p>
-                    )}
-                  </div>
-                )}
-
+              <div className="sticky top-6">
                 <div className="text-center mb-4">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Vista previa del huésped</h3>
                   <p className="text-sm text-gray-600">Cómo verá el manual en su móvil</p>
@@ -863,7 +833,7 @@ export function StepEditor({
                           {steps.map((step, index) => (
                             <div key={step.id} className={`bg-gray-50 rounded-lg p-3 ${index === activeStep ? 'ring-2 ring-violet-500' : ''}`}>
                               <div className="flex items-start gap-3">
-                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${getStepTypeColor(step.type)}`}>
+                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${getStepTypeColor(step.type)}`}>
                                   {index + 1}
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -871,6 +841,24 @@ export function StepEditor({
                                     {getStepIcon(step.type)}
                                     <span className="text-xs text-gray-500 uppercase font-medium">{step.type}</span>
                                   </div>
+                                  
+                                  {/* Show media preview inside iPhone */}
+                                  {step.media?.url && (
+                                    <div className="mb-2 rounded-md overflow-hidden">
+                                      {step.type === 'image' ? (
+                                        <img 
+                                          src={step.media.url} 
+                                          alt="Contenido" 
+                                          className="w-full h-32 object-cover"
+                                        />
+                                      ) : step.type === 'video' ? (
+                                        <div className="w-full h-32 bg-black flex items-center justify-center">
+                                          <Play className="w-8 h-8 text-white opacity-75" />
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                  )}
+                                  
                                   <p className="text-xs text-gray-900 leading-relaxed">
                                     {step.content.es || `Paso ${index + 1} - Añade contenido`}
                                   </p>

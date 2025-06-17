@@ -137,7 +137,11 @@ export default function ZoneDetailPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: step.content.es.substring(0, 50) || 'Paso sin título',
-            content: step.content.es,
+            content: {
+              es: step.content.es || '',
+              en: step.content.en || '',
+              fr: step.content.fr || ''
+            },
             type: step.type.toUpperCase(),
             mediaUrl: step.media?.url,
             order: step.order
@@ -157,7 +161,11 @@ export default function ZoneDetailPage() {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 title: step.content.es.substring(0, 50) || 'Paso sin título',
-                content: step.content.es,
+                content: {
+                  es: step.content.es || '',
+                  en: step.content.en || '',
+                  fr: step.content.fr || ''
+                },
                 type: step.type.toUpperCase(),
                 mediaUrl: step.media?.url,
                 order: zone?.steps?.length ? zone.steps.length + step.order : step.order,
