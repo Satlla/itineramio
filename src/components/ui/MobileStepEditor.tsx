@@ -60,6 +60,16 @@ export function MobileStepEditor({
   maxVideos = 5,
   currentVideoCount = 0
 }: MobileStepEditorProps) {
+  console.log('📱 MobileStepEditor mounted with:', { zoneTitle, initialSteps });
+  
+  // Debug mount/unmount
+  useEffect(() => {
+    console.log('📱 MobileStepEditor mounted');
+    return () => {
+      console.log('📱 MobileStepEditor unmounting');
+    };
+  }, []);
+  
   const [steps, setSteps] = useState<Step[]>(
     initialSteps.length > 0 ? initialSteps : [createNewStep(0)]
   )
@@ -108,6 +118,7 @@ export function MobileStepEditor({
   }
 
   const updateStepContent = (stepIndex: number, language: 'es' | 'en' | 'fr', content: string) => {
+    console.log(`📝 Updating step ${stepIndex} content for ${language}:`, content.substring(0, 50))
     setSteps(steps.map((step, index) => 
       index === stepIndex 
         ? { 
@@ -269,12 +280,35 @@ export function MobileStepEditor({
     </AnimatePresence>
   )
 
+  // Add a test to ensure component is interactive
+  useEffect(() => {
+    // Test that JavaScript is running
+    console.log('📱 MobileStepEditor is interactive');
+    console.log('📱 Initial steps state:', steps);
+    console.log('📱 onSave type:', typeof onSave);
+    console.log('📱 onCancel type:', typeof onCancel);
+    
+    // Test click handler attachment
+    const testButton = document.querySelector('[data-test-id="finalizar-top"]');
+    if (testButton) {
+      console.log('📱 Found test button:', testButton);
+    }
+  }, [steps, onSave, onCancel]);
+  
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col">
       {/* Header - Fixed */}
       <div className="bg-white border-b border-gray-200 px-4 py-3">
         <div className="flex items-center justify-between">
-          <button onClick={onCancel} className="p-2 -ml-2">
+          <button 
+            type="button"
+            onClick={(e) => {
+              e.preventDefault()
+              console.log('❌ Cancel button clicked')
+              onCancel()
+            }} 
+            className="p-2 -ml-2"
+          >
             <X className="w-5 h-5" />
           </button>
           
@@ -285,20 +319,63 @@ export function MobileStepEditor({
             </p>
           </div>
           
-          <Button
-            onClick={() => onSave(steps)}
-            size="sm"
+          <button
+            type="button"
+            data-test-id="finalizar-top"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              try {
+                console.log('🎯 MobileStepEditor: Finalizar clicked (TOP)');
+                console.log('🎯 Event:', e);
+                console.log('🎯 Event type:', e.type);
+                console.log('🎯 Current target:', e.currentTarget);
+                console.log('🎯 Steps to save:', steps);
+                console.log('🎯 Steps count:', steps.length);
+                console.log('🎯 Steps content:', steps.map(s => ({ type: s.type, content: s.content })));
+                
+                // Filtrar solo los pasos con contenido
+                const stepsWithContent = steps.filter(step => 
+                  step.content.es?.trim() || step.content.en?.trim() || step.content.fr?.trim()
+                );
+                
+                console.log('🎯 Steps with content:', stepsWithContent.length);
+                console.log('🎯 onSave function exists:', typeof onSave === 'function');
+                
+                if (stepsWithContent.length > 0 && typeof onSave === 'function') {
+                  console.log('🎯 Calling onSave...');
+                  onSave(stepsWithContent);
+                  console.log('🎯 onSave called successfully');
+                } else {
+                  console.log('⚠️ No steps with content to save or onSave is not a function');
+                }
+              } catch (error) {
+                console.error('❌ Error in Finalizar click:', error);
+                console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack');
+              }
+            }}
             style={{ backgroundColor: '#484848' }}
-            className="hover:bg-gray-700 text-white"
+            className="px-4 py-2 text-sm rounded-lg text-white hover:bg-gray-700 disabled:opacity-50"
             disabled={steps.every(step => !step.content.es?.trim())}
           >
             Finalizar
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* Language Selector */}
       <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+        {/* Test button to verify JS is working */}
+        <button 
+          type="button"
+          onClick={() => {
+            console.log('🔴 TEST BUTTON CLICKED!');
+            alert('JavaScript is working!');
+          }}
+          className="mb-2 w-full bg-red-500 text-white py-2 rounded"
+        >
+          Test JS (Click me)
+        </button>
         <div className="flex justify-center">
           <div className="flex bg-white rounded-full p-1 shadow-sm">
             {languages.map((lang) => (
@@ -508,22 +585,54 @@ export function MobileStepEditor({
       {/* Bottom Navigation - Fixed */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
         <div className="max-w-md mx-auto flex gap-3">
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            className="flex-1"
+          <button
+            onClick={() => {
+              console.log('🔙 Cancel button clicked');
+              onCancel();
+            }}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50"
           >
             Anterior
-          </Button>
+          </button>
           
-          <Button
-            onClick={() => onSave(steps)}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              try {
+                console.log('🎯 MobileStepEditor BOTTOM: Finalizar clicked');
+                console.log('🎯 Event:', e);
+                console.log('🎯 Steps to save:', steps);
+                console.log('🎯 Steps count:', steps.length);
+                console.log('🎯 Steps content:', steps.map(s => ({ type: s.type, content: s.content })));
+                
+                // Filtrar solo los pasos con contenido
+                const stepsWithContent = steps.filter(step => 
+                  step.content.es?.trim() || step.content.en?.trim() || step.content.fr?.trim()
+                );
+                
+                console.log('🎯 Steps with content:', stepsWithContent.length);
+                console.log('🎯 onSave function exists:', typeof onSave === 'function');
+                
+                if (stepsWithContent.length > 0 && typeof onSave === 'function') {
+                  console.log('🎯 Calling onSave...');
+                  onSave(stepsWithContent);
+                  console.log('🎯 onSave called successfully');
+                } else {
+                  console.log('⚠️ No steps with content to save or onSave is not a function');
+                }
+              } catch (error) {
+                console.error('❌ Error in Finalizar BOTTOM click:', error);
+                console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack');
+              }
+            }}
             style={{ backgroundColor: '#484848' }}
-            className="flex-1 hover:bg-gray-700 text-white"
+            className="flex-1 px-4 py-2 rounded-lg text-white hover:bg-gray-700 disabled:opacity-50"
             disabled={steps.every(step => !step.content.es?.trim())}
           >
             Finalizar
-          </Button>
+          </button>
         </div>
       </div>
 

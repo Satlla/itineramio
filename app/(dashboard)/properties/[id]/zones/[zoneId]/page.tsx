@@ -68,8 +68,19 @@ export default function ZoneDetailPage() {
   const [editingStepId, setEditingStepId] = useState<string | null>(null)
 
   useEffect(() => {
+    console.log('🎯 ZoneDetailPage mounted with:', { propertyId, zoneId })
     fetchZoneData()
   }, [propertyId, zoneId])
+  
+  // Debug component lifecycle
+  useEffect(() => {
+    console.log('🎯 ZoneDetailPage render state:', {
+      loading,
+      zoneExists: !!zone,
+      showStepEditor,
+      stepsCount: zone?.steps?.length || 0
+    })
+  })
 
   const fetchZoneData = async () => {
     try {
@@ -128,10 +139,30 @@ export default function ZoneDetailPage() {
   }
 
   const handleSaveSteps = async (steps: any[]) => {
+    console.log('🔥 HANDLE SAVE STEPS CALLED!')
+    console.log('🔥 Received steps:', steps)
+    console.log('🔥 Steps length:', steps?.length)
+    console.log('🔥 Steps type:', typeof steps)
+    console.log('🔥 Is array:', Array.isArray(steps))
+    
+    // Early validation
+    if (!steps || !Array.isArray(steps)) {
+      console.error('❌ Invalid steps data received')
+      alert('Error: Datos de pasos inválidos')
+      return
+    }
+    
     try {
+      console.log('🚀 Starting to save steps:', steps)
+      console.log('Property ID:', propertyId)
+      console.log('Zone ID:', zoneId)
+      console.log('Is editing existing:', isEditingExisting)
+      
       if (isEditingExisting && steps.length === 1) {
-        // Update existing step
+        // Update existing step using individual endpoint
         const step = steps[0]
+        console.log('📝 Updating existing step:', step)
+        
         const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps/${editingStepId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -152,40 +183,51 @@ export default function ZoneDetailPage() {
           const error = await response.json()
           throw new Error(error.error || 'Error al actualizar el paso')
         }
+        
+        console.log('✅ Step updated successfully')
       } else {
-        // Create new steps
-        for (const step of steps) {
-          if (step.content.es.trim()) {
-            const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                title: step.content.es.substring(0, 50) || 'Paso sin título',
-                content: {
-                  es: step.content.es || '',
-                  en: step.content.en || '',
-                  fr: step.content.fr || ''
-                },
-                type: step.type.toUpperCase(),
-                mediaUrl: step.media?.url,
-                order: zone?.steps?.length ? zone.steps.length + step.order : step.order,
-                status: 'ACTIVE'
-              })
-            })
+        // Use bulk update endpoint for multiple steps
+        console.log('📦 Using bulk save for steps:', steps)
+        console.log('📦 Number of steps to save:', steps.length)
+        console.log('📦 First step sample:', steps[0])
+        console.log('📦 Request URL:', `/api/properties/${propertyId}/zones/${zoneId}/steps`)
+        
+        // Format steps to match API expectations
+        const formattedSteps = steps.map((step, index) => ({
+          type: step.type.toUpperCase(),
+          content: step.content,
+          order: index,
+          media: step.media
+        }))
+        
+        console.log('📦 Formatted steps:', JSON.stringify(formattedSteps, null, 2))
+        console.log('📦 Request body:', JSON.stringify({ steps: formattedSteps }, null, 2))
+        
+        const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ steps: formattedSteps })
+        })
 
-            if (!response.ok) {
-              const error = await response.json()
-              throw new Error(error.error || 'Error al crear el paso')
-            }
-          }
+        console.log('📡 Bulk save response status:', response.status)
+        
+        if (!response.ok) {
+          const error = await response.json()
+          console.error('❌ Bulk save error:', error)
+          throw new Error(error.error || 'Error al guardar los pasos')
         }
+        
+        const result = await response.json()
+        console.log('✅ Bulk save successful:', result)
       }
       
       setShowStepEditor(false)
-      fetchZoneData() // Refresh the zone data
+      console.log('🔄 Refreshing zone data...')
+      await fetchZoneData() // Refresh the zone data
+      console.log('✅ Zone data refreshed')
     } catch (error) {
-      console.error('Error saving steps:', error)
-      alert('Error al guardar los pasos')
+      console.error('❌ Error saving steps:', error)
+      alert('Error al guardar los pasos: ' + (error instanceof Error ? error.message : 'Error desconocido'))
     }
   }
 
@@ -514,10 +556,24 @@ export default function ZoneDetailPage() {
       {/* StepEditor Modal */}
       {showStepEditor && zone && (
         <StepEditor
+          key={`step-editor-${Date.now()}`}
           zoneTitle={zone.name}
           initialSteps={getInitialSteps()}
-          onSave={handleSaveSteps}
-          onCancel={() => setShowStepEditor(false)}
+          onSave={(steps) => {
+            console.log('🎯 PAGE: Direct onSave called with steps:', steps);
+            console.log('🎯 PAGE: handleSaveSteps function exists:', typeof handleSaveSteps === 'function');
+            console.log('🎯 PAGE: showStepEditor state:', showStepEditor);
+            console.log('🎯 PAGE: zone exists:', !!zone);
+            if (typeof handleSaveSteps === 'function') {
+              handleSaveSteps(steps);
+            } else {
+              console.error('❌ PAGE: handleSaveSteps is not a function!');
+            }
+          }}
+          onCancel={() => {
+            console.log('🎯 PAGE: onCancel called');
+            setShowStepEditor(false);
+          }}
           maxVideos={5}
           currentVideoCount={zone.steps?.filter(s => s.type === 'VIDEO').length || 0}
         />

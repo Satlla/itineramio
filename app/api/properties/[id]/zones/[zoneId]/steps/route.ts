@@ -214,12 +214,17 @@ export async function PUT(
 
     // Create new steps
     const createdSteps = []
+    console.log(`Starting to create ${steps.length} steps for zone ${zoneId}`)
+    
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i]
-      console.log(`Processing step ${i + 1}:`, JSON.stringify(step, null, 2))
+      console.log(`\n--- Processing step ${i + 1} ---`)
+      console.log('Step raw data:', JSON.stringify(step, null, 2))
       
       // Check if step has any content
       const hasContent = step.content?.es?.trim() || step.content?.en?.trim() || step.content?.fr?.trim()
+      console.log(`Step ${i + 1} has content:`, hasContent)
+      console.log(`Step ${i + 1} type:`, step.type)
       
       if (hasContent || step.type !== 'text') { // Allow non-text steps even without content
         try {
@@ -234,28 +239,40 @@ export async function PUT(
               en: step.content?.en || '',
               fr: step.content?.fr || ''
             },
-            type: step.type.toUpperCase(),
+            type: step.type?.toUpperCase() || 'TEXT',
             order: i,
             isPublished: true,
             zoneId: zoneId
           }
           
-          console.log(`Creating step with data:`, JSON.stringify(stepData, null, 2))
+          console.log(`Step ${i + 1} - Data to create:`, JSON.stringify(stepData, null, 2))
           
           const createdStep = await prisma.step.create({
             data: stepData
           })
           
-          console.log(`Created step:`, createdStep.id)
+          console.log(`✅ Step ${i + 1} created successfully with ID:`, createdStep.id)
+          console.log('Created step full data:', JSON.stringify(createdStep, null, 2))
           createdSteps.push(createdStep)
         } catch (stepError) {
-          console.error(`Error creating step ${i + 1}:`, stepError)
+          console.error(`❌ Error creating step ${i + 1}:`, stepError)
+          console.error('Step error details:', JSON.stringify(stepError, null, 2))
           throw stepError
         }
       } else {
-        console.log(`Skipping step ${i + 1} - no content`)
+        console.log(`⏭️ Skipping step ${i + 1} - no content and is text type`)
       }
     }
+    
+    console.log(`\n🎉 Successfully created ${createdSteps.length} steps out of ${steps.length} total steps`)
+    
+    // Verify the steps were actually saved by querying them back
+    const verifySteps = await prisma.step.findMany({
+      where: { zoneId: zoneId },
+      orderBy: { order: 'asc' }
+    })
+    console.log(`🔍 Verification: Found ${verifySteps.length} steps in database for zone ${zoneId}`)
+    console.log('Verification step IDs:', verifySteps.map(s => s.id))
 
     return NextResponse.json({
       success: true,

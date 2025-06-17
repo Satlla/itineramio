@@ -22,6 +22,7 @@ import { Card } from './Card'
 import { Input } from './Input'
 import { Badge } from './Badge'
 import { MobileStepEditor as MobileStepEditorNew } from './MobileStepEditor'
+import { MobileStepEditorSimple } from './MobileStepEditorSimple'
 
 export interface Step {
   id: string
@@ -74,26 +75,65 @@ export function StepEditor({
     }
   }
 
-  // Mobile detection
+  // Mobile detection with SSR safety
   const [isMobile, setIsMobile] = useState(false)
+  const [isClient, setIsClient] = useState(false)
   
   useEffect(() => {
+    setIsClient(true)
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024)
+      const mobile = window.innerWidth < 1024
+      console.log('🖥️ Window width:', window.innerWidth, 'Is mobile:', mobile)
+      setIsMobile(mobile)
     }
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Use new mobile editor for mobile devices
+  // Use new mobile editor for mobile devices (only after client-side mount)
+  if (!isClient) {
+    return (
+      <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
+      </div>
+    )
+  }
+  
   if (isMobile) {
+    console.log('📱 Rendering MobileStepEditor')
+    // Temporarily use simple editor for debugging
+    const useSimpleEditor = true // Toggle this for testing
+    
+    if (useSimpleEditor) {
+      console.log('📱 Using SIMPLE editor')
+      return (
+        <MobileStepEditorSimple
+          zoneTitle={zoneTitle}
+          onSave={(steps) => {
+            console.log('📱 Simple editor onSave callback triggered with:', steps)
+            onSave(steps)
+          }}
+          onCancel={() => {
+            console.log('📱 Simple editor onCancel callback triggered')
+            onCancel()
+          }}
+        />
+      )
+    }
+    
     return (
       <MobileStepEditorNew
         zoneTitle={zoneTitle}
         initialSteps={initialSteps}
-        onSave={onSave}
-        onCancel={onCancel}
+        onSave={(steps) => {
+          console.log('📱 MobileStepEditor onSave callback triggered with:', steps)
+          onSave(steps)
+        }}
+        onCancel={() => {
+          console.log('📱 MobileStepEditor onCancel callback triggered')
+          onCancel()
+        }}
         maxVideos={maxVideos}
         currentVideoCount={currentVideoCount}
       />
@@ -347,9 +387,15 @@ export function StepEditor({
               Cancelar
             </Button>
             <Button 
-              onClick={() => onSave(steps)}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                console.log('💾 Desktop Save button clicked')
+                console.log('💾 Steps to save:', steps)
+                onSave(steps)
+              }}
               className="bg-gray-900 hover:bg-gray-800 text-white"
-              disabled={steps.every(step => !step.content.es.trim())}
+              disabled={steps.every(step => !step.content.es?.trim())}
             >
               <span className="hidden sm:inline">Guardar Instrucciones</span>
               <span className="sm:hidden">Guardar</span>
@@ -835,8 +881,8 @@ export function StepEditor({
                       <div className="pt-12 pb-8 px-4 h-full overflow-y-auto">
                         {/* Zone Header */}
                         <div className="text-center mb-6">
-                          <h2 className="text-lg font-bold text-gray-900 mb-1">{zoneTitle}</h2>
-                          <p className="text-xs text-gray-600">Manual de instrucciones</p>
+                          <h2 className="text-sm font-bold text-gray-900 mb-1">Manual de instrucciones</h2>
+                          <p className="text-xs text-gray-600">{zoneTitle}</p>
                         </div>
 
                         {/* Steps Preview */}
@@ -854,37 +900,38 @@ export function StepEditor({
                               </div>
                               
                               {/* Step content */}
-                              <div className={`flex-1 bg-gray-50 rounded-lg p-3 -mt-1 ${index === activeStep ? 'ring-2 ring-violet-500' : ''}`}>
-                                <div className="flex items-start gap-3">
-                                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ backgroundColor: '#484848' }}>
-                                    {index + 1}
+                              <div className={`flex-1 bg-gray-50 rounded-lg overflow-hidden ${index === activeStep ? 'ring-2 ring-violet-500' : ''}`}>
+                                {/* Show media preview inside iPhone - Full width */}
+                                {step.media?.url && (
+                                  <div className="w-full">
+                                    {step.type === 'image' ? (
+                                      <img 
+                                        src={step.media.url} 
+                                        alt="Contenido" 
+                                        className="w-full h-24 object-cover"
+                                      />
+                                    ) : step.type === 'video' ? (
+                                      <div className="w-full h-24 bg-black flex items-center justify-center">
+                                        <Play className="w-6 h-6 text-white opacity-75" />
+                                      </div>
+                                    ) : null}
                                   </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-1 mb-1">
-                                    {getStepIcon(step.type)}
-                                    <span className="text-xs text-gray-500 uppercase font-medium">{step.type}</span>
-                                  </div>
-                                  
-                                  {/* Show media preview inside iPhone */}
-                                  {step.media?.url && (
-                                    <div className="mb-2 rounded-md overflow-hidden">
-                                      {step.type === 'image' ? (
-                                        <img 
-                                          src={step.media.url} 
-                                          alt="Contenido" 
-                                          className="w-full h-20 object-cover"
-                                        />
-                                      ) : step.type === 'video' ? (
-                                        <div className="w-full h-20 bg-black flex items-center justify-center">
-                                          <Play className="w-6 h-6 text-white opacity-75" />
-                                        </div>
-                                      ) : null}
+                                )}
+                                
+                                <div className="p-3">
+                                  <div className="flex items-start gap-3">
+                                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ backgroundColor: '#484848' }}>
+                                      {index + 1}
                                     </div>
-                                  )}
-                                  
-                                  <p className="text-xs text-gray-900 leading-relaxed">
-                                    {step.content.es || `Paso ${index + 1} - Añade contenido`}
-                                  </p>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="mb-1">
+                                        <span className="text-xs text-gray-700 font-medium">Paso {index + 1}</span>
+                                      </div>
+                                      
+                                      <p className="text-xs text-gray-900 leading-relaxed">
+                                        {step.content.es || `Añade contenido para este paso`}
+                                      </p>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
