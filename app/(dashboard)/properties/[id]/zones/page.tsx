@@ -825,13 +825,23 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               Comenzar con Elementos
             </Button>
           ) : (
-            <Button
-              onClick={() => setShowElementSelector(true)}
-              className="bg-violet-600 hover:bg-violet-700"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Añadir Elementos
-            </Button>
+            <>
+              <Button
+                onClick={() => router.push(`/properties/${id}/zones/qr`)}
+                variant="outline"
+                className="border-violet-500 text-violet-600 hover:bg-violet-50"
+              >
+                <QrCode className="w-5 h-5 mr-2" />
+                Códigos QR
+              </Button>
+              <Button
+                onClick={() => setShowElementSelector(true)}
+                className="bg-violet-600 hover:bg-violet-700"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Añadir Elementos
+              </Button>
+            </>
           )}
         </div>
       </div>
