@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, Eye, X, CheckCircle } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileTemplate, X, CheckCircle } from 'lucide-react'
 import { Button } from '../../../../../src/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../../src/components/ui/Card'
 import { IconSelector, ZoneIconDisplay, useZoneIcon } from '../../../../../src/components/ui/IconSelector'
 import { Input } from '../../../../../src/components/ui/Input'
 import { QRCodeDisplay } from '../../../../../src/components/ui/QRCodeDisplay'
-import { ZoneTemplateSelector } from '../../../../../src/components/ui/ZoneTemplateSelectorNew'
+import { ElementSelector } from '../../../../../src/components/ui/ElementSelector'
 import { ZoneInspirationManager } from '../../../../../src/components/ui/ZoneInspirationManager'
 import { ZoneStaticSuggestions } from '../../../../../src/components/ui/ZoneStaticSuggestions'
 import { ZoneInspirationModal } from '../../../../../src/components/ui/ZoneInspirationModal'
@@ -48,7 +48,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showIconSelector, setShowIconSelector] = useState(false)
   const [showQRModal, setShowQRModal] = useState(false)
   const [selectedZoneForQR, setSelectedZoneForQR] = useState<Zone | null>(null)
-  const [showTemplateSelector, setShowTemplateSelector] = useState(false)
+  const [showElementSelector, setShowElementSelector] = useState(false)
   const [showInspirationModal, setShowInspirationModal] = useState(false)
   const [selectedInspirationZone, setSelectedInspirationZone] = useState<ZoneTemplate | null>(null)
   const [copied, setCopied] = useState(false)
@@ -447,16 +447,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showPredefineModal, setShowPredefineModal] = useState(false)
 
   const handleOpenMultiSelect = () => {
-    setShowTemplateSelector(true)
+    setShowElementSelector(true)
   }
 
-  const handleSelectMultipleZones = async (selectedZoneIds: string[]) => {
+  const handleSelectMultipleElements = async (selectedElementIds: string[]) => {
     try {
+      const { apartmentElements } = await import('../../../../../src/data/apartmentElements')
       const createdZones: Zone[] = []
       
-      for (const zoneId of selectedZoneIds) {
-        const template = zoneTemplates.find(t => t.id === zoneId)
-        if (!template) continue
+      for (const elementId of selectedElementIds) {
+        const element = apartmentElements.find(e => e.id === elementId)
+        if (!element) continue
 
         const response = await fetch(`/api/properties/${id}/zones`, {
           method: 'POST',
@@ -464,9 +465,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            name: template.name,
-            description: template.description,
-            icon: template.icon,
+            name: element.name,
+            description: element.description,
+            icon: element.icon,
             color: 'bg-gray-100',
             status: 'ACTIVE'
           })
@@ -477,9 +478,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         if (response.ok && result.success) {
           const newZone: Zone = {
             id: result.data.id,
-            name: template.name,
-            description: template.description,
-            iconId: template.icon,
+            name: element.name,
+            description: element.description,
+            iconId: element.icon,
             order: result.data.order,
             stepsCount: 0,
             qrUrl: `https://itineramio.com/guide/${id}/${result.data.id}`,
@@ -490,10 +491,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       }
 
       setZones([...zones, ...createdZones])
-      setShowTemplateSelector(false)
+      setShowElementSelector(false)
     } catch (error) {
       console.error('Error creating zones:', error)
-      alert('Error al crear las zonas')
+      alert('Error al crear los elementos')
     }
   }
 
@@ -817,19 +818,19 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           
           {zones.length === 0 ? (
             <Button
-              onClick={() => setShowTemplateSelector(true)}
+              onClick={() => setShowElementSelector(true)}
               className="bg-violet-600 hover:bg-violet-700"
             >
               <Plus className="w-5 h-5 mr-2" />
-              Comenzar con Zonas
+              Comenzar con Elementos
             </Button>
           ) : (
             <Button
-              onClick={() => setShowTemplateSelector(true)}
+              onClick={() => setShowElementSelector(true)}
               className="bg-violet-600 hover:bg-violet-700"
             >
               <Plus className="w-5 h-5 mr-2" />
-              Añadir Zona
+              Añadir Elementos
             </Button>
           )}
         </div>
@@ -1105,18 +1106,32 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                               </div>
                             </div>
                             {!isExisting && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0 hover:bg-green-50"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleUseTemplate(zone)
-                                }}
-                                title="Añadir zona"
-                              >
-                                <Plus className="h-3 w-3" />
-                              </Button>
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 text-xs px-2 py-1 hover:bg-violet-50 text-violet-600"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleViewInspirationExample(zone)
+                                  }}
+                                  title="Ver sugerencia"
+                                >
+                                  Ver sugerencia
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 text-xs px-1 py-1 hover:bg-green-50 text-green-600"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleCreateZoneFromTemplate(zone)
+                                  }}
+                                  title="Añadir plantilla"
+                                >
+                                  <FileTemplate className="w-3 h-3" />
+                                </Button>
+                              </div>
                             )}
                           </div>
                           <p className="text-xs text-gray-600 px-3">
@@ -1303,14 +1318,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         )}
       </AnimatePresence>
 
-      {/* Template Selector Modal */}
+      {/* Element Selector Modal */}
       <AnimatePresence>
-        {showTemplateSelector && (
-          <ZoneTemplateSelector
-            onClose={() => setShowTemplateSelector(false)}
-            onSelectZones={handleSelectMultipleZones}
-            onCreateCustomZone={() => setShowCreateForm(true)}
-            existingZoneIds={zones.map(z => z.name.toLowerCase())}
+        {showElementSelector && (
+          <ElementSelector
+            onClose={() => setShowElementSelector(false)}
+            onSelectElements={handleSelectMultipleElements}
+            existingElementNames={zones.map(z => z.name)}
           />
         )}
       </AnimatePresence>
@@ -1355,11 +1369,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </Button>
         ) : (
           <Button
-            onClick={() => setShowTemplateSelector(true)}
+            onClick={() => setShowElementSelector(true)}
             className="bg-violet-600 hover:bg-violet-700 shadow-lg rounded-full px-6 py-3"
           >
             <Plus className="w-5 h-5 mr-2" />
-            Añadir Zona
+            Añadir Elementos
           </Button>
         )}
       </div>
