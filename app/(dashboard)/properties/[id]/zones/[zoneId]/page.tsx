@@ -274,7 +274,9 @@ export default function ZoneDetailPage() {
                 {zone.icon}
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{zone.name}</h1>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}
+                </h1>
                 <p className="text-gray-600 mt-1">
                   Gestiona los pasos de esta zona
                 </p>
@@ -321,8 +323,12 @@ export default function ZoneDetailPage() {
               {zone.icon}
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">{zone.name}</h2>
-              <p className="text-gray-600 mb-4">{zone.description}</p>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                {typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}
+              </h2>
+              <p className="text-gray-600 mb-4">
+                {typeof zone.description === 'string' ? zone.description : (zone.description as any)?.es || ''}
+              </p>
               <div className="flex items-center space-x-6 text-sm text-gray-600">
                 <div className="flex items-center">
                   <span className="font-medium">{zone.steps?.length || 0}</span>
@@ -401,7 +407,7 @@ export default function ZoneDetailPage() {
                             <div className="flex items-start justify-between">
                               <div className="flex-1 min-w-0">
                                 <h3 className="text-lg font-medium text-gray-900 truncate">
-                                  {step.title}
+                                  {typeof step.title === 'string' ? step.title : (step.title as any)?.es || 'Paso'}
                                 </h3>
                                 <div className="flex items-center space-x-3 mt-1">
                                   <div className="flex items-center text-sm text-gray-500">
@@ -430,7 +436,7 @@ export default function ZoneDetailPage() {
                                 </div>
                                 {step.description && (
                                   <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                                    {step.description}
+                                    {typeof step.description === 'string' ? step.description : (step.description as any)?.es || ''}
                                   </p>
                                 )}
                               </div>
