@@ -944,8 +944,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 <Card 
                   className="hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300"
                   onClick={() => {
-                    setEditingZoneForSteps(zone)
-                    setShowStepEditor(true)
+                    router.push(`/properties/${id}/zones/${zone.id}`)
                   }}
                 >
                   <CardContent className="p-4">
