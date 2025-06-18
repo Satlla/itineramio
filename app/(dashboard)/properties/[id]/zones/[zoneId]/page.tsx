@@ -85,27 +85,40 @@ export default function ZoneDetailPage() {
   const fetchZoneData = async () => {
     try {
       setLoading(true)
+      console.log('🔄 FETCHING zone data for:', { propertyId, zoneId })
+      
       const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}`)
       const result = await response.json()
+      
+      console.log('🔄 API Response:', { 
+        status: response.status, 
+        ok: response.ok, 
+        result 
+      })
       
       if (!response.ok) {
         throw new Error(result.error || 'Error al cargar la zona')
       }
       
-      console.log('📊 Zone loaded:', result.data.name, 'with', result.data.steps?.length || 0, 'steps')
-      console.log('📊 Steps data:', result.data.steps?.map((s: any) => ({ 
-        id: s.id, 
-        type: s.type, 
-        title: s.title, 
-        content: s.content,
-        order: s.order 
-      })))
+      const zoneData = result.data || result
+      console.log('📊 Zone loaded:', zoneData.name, 'with', zoneData.steps?.length || 0, 'steps')
       
-      setZone(result.data)
+      if (zoneData.steps) {
+        console.log('📊 Steps data:', zoneData.steps.map((s: any) => ({ 
+          id: s.id, 
+          type: s.type, 
+          title: s.title, 
+          content: s.content,
+          order: s.order,
+          isPublished: s.isPublished
+        })))
+      }
+      
+      setZone(zoneData)
     } catch (error) {
-      console.error('Error fetching zone:', error)
-      alert('Error al cargar la zona')
-      router.push(`/properties/${propertyId}`)
+      console.error('❌ Error fetching zone:', error)
+      // Don't navigate away, let user see the error
+      alert(`Error al cargar la zona: ${error}`)
     } finally {
       setLoading(false)
     }
@@ -364,6 +377,27 @@ export default function ZoneDetailPage() {
               }}
             >
               🩺 Test
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={async () => {
+                console.log('🔍 EMERGENCY DEBUG: Checking all data');
+                try {
+                  const response = await fetch('/api/emergency-debug');
+                  const data = await response.json();
+                  console.log('🔍 EMERGENCY DEBUG RESULT:', data);
+                  alert(`Debug info logged to console. Total zones: ${data.totalZones}, Total steps: ${data.totalSteps}`);
+                  
+                  // Also force refresh the current zone
+                  await fetchZoneData();
+                } catch (error) {
+                  console.error('🔍 DEBUG ERROR:', error);
+                  alert('Debug failed: ' + error);
+                }
+              }}
+            >
+              🔍 Debug
             </Button>
           </div>
         </div>
