@@ -23,6 +23,7 @@ import { Input } from './Input'
 import { Badge } from './Badge'
 import { MobileStepEditor as MobileStepEditorNew } from './MobileStepEditor'
 import { MobileStepEditorSimple } from './MobileStepEditorSimple'
+import { UltraSimpleStepEditor } from './UltraSimpleStepEditor'
 
 export interface Step {
   id: string
@@ -103,7 +104,14 @@ export function StepEditor({
   if (isMobile) {
     console.log('📱 Rendering MobileStepEditor')
     // Temporarily use simple editor for debugging
-    const useSimpleEditor = true // Toggle this for testing
+    const useUltraSimple = true // Force ultra simple for testing
+    
+    if (useUltraSimple) {
+      console.log('📱 Using ULTRA SIMPLE editor')
+      return <UltraSimpleStepEditor onSave={onSave} onCancel={onCancel} />
+    }
+    
+    const useSimpleEditor = false // Toggle this for testing
     
     if (useSimpleEditor) {
       console.log('📱 Using SIMPLE editor')

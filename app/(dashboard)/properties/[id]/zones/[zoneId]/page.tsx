@@ -291,6 +291,23 @@ export default function ZoneDetailPage() {
               <Plus className="w-4 h-4 mr-2" />
               Nuevo Paso
             </Button>
+            {/* Test button */}
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={async () => {
+                console.log('🧪 TEST: Direct save button clicked');
+                const testSteps = [{
+                  type: 'text',
+                  content: { es: 'Test step ' + new Date().toISOString() },
+                  order: 0
+                }];
+                console.log('🧪 TEST: Calling handleSaveSteps directly');
+                await handleSaveSteps(testSteps);
+              }}
+            >
+              🧪 Test Save
+            </Button>
           </div>
         </div>
 
@@ -511,7 +528,7 @@ export default function ZoneDetailPage() {
       {showStepEditor && zone && (
         <StepEditor
           key={`step-editor-${editingStepId || 'new'}`}
-          zoneTitle={typeof zone.name === 'string' ? zone.name : zone.name?.es || 'Zona'}
+          zoneTitle={typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}
           initialSteps={getInitialSteps()}
           onSave={handleSaveSteps}
           onCancel={() => {
