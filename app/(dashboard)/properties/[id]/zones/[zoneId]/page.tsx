@@ -92,10 +92,7 @@ export default function ZoneDetailPage() {
         throw new Error(result.error || 'Error al cargar la zona')
       }
       
-      console.log('📊 Zone data received:', result.data)
-      console.log('📊 Zone steps:', result.data.steps)
-      console.log('📊 Steps count:', result.data.steps?.length || 0)
-      console.log('📊 Steps details:', JSON.stringify(result.data.steps, null, 2))
+      console.log('📊 Zone loaded:', result.data.name, 'with', result.data.steps?.length || 0, 'steps')
       
       setZone(result.data)
     } catch (error) {
@@ -144,14 +141,7 @@ export default function ZoneDetailPage() {
   }
 
   const handleSaveSteps = async (steps: any[]) => {
-    console.log('🔥🔥🔥 handleSaveSteps CALLED!')
-    console.log('🔥🔥🔥 Steps received:', steps)
-    console.log('🔥🔥🔥 Property ID:', propertyId)
-    console.log('🔥🔥🔥 Zone ID:', zoneId)
-    
     try {
-      console.log('💾 Formatting steps...')
-      
       // Simple format for API
       const formattedSteps = steps.map((step, index) => ({
         type: step.type || 'text',
@@ -159,18 +149,13 @@ export default function ZoneDetailPage() {
         order: index
       }))
       
-      console.log('💾 Formatted steps:', formattedSteps)
-      console.log('💾 Making API call...')
-      
       const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ steps: formattedSteps })
       })
 
-      console.log('💾 Response status:', response.status)
       const result = await response.json()
-      console.log('💾 Response data:', result)
       
       if (!response.ok) {
         throw new Error(result.error || 'Error al guardar')
@@ -181,8 +166,8 @@ export default function ZoneDetailPage() {
       await fetchZoneData()
       
     } catch (error) {
-      console.error('❌ Error in handleSaveSteps:', error)
-      alert('Error al guardar los pasos: ' + (error instanceof Error ? error.message : 'Unknown'))
+      console.error('❌ Error saving steps:', error)
+      alert('Error al guardar los pasos')
     }
   }
 
@@ -297,25 +282,6 @@ export default function ZoneDetailPage() {
           </div>
         </div>
 
-        {/* Test Button - More visible */}
-        <div className="mb-4 p-4 bg-yellow-100 border-2 border-yellow-300 rounded-lg">
-          <p className="text-sm font-bold mb-2">🧪 DEBUG: Botón de prueba para guardar pasos</p>
-          <button
-            onClick={async () => {
-              console.log('🧪 TEST: Direct save button clicked');
-              const testSteps = [{
-                type: 'text',
-                content: { es: 'Test step created at ' + new Date().toISOString() },
-                order: 0
-              }];
-              console.log('🧪 TEST: Calling handleSaveSteps directly');
-              await handleSaveSteps(testSteps);
-            }}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            🧪 Guardar Paso de Prueba
-          </button>
-        </div>
 
         {/* Zone Info Card */}
         <Card className="p-6 mb-8">
@@ -363,13 +329,7 @@ export default function ZoneDetailPage() {
             </Button>
           </div>
           
-          {(() => {
-            console.log('🔍 RENDER: zone.steps exists?', !!zone.steps)
-            console.log('🔍 RENDER: zone.steps:', zone.steps)
-            console.log('🔍 RENDER: zone.steps.length:', zone.steps?.length)
-            console.log('🔍 RENDER: Will show empty state?', !zone.steps || zone.steps.length === 0)
-            return !zone.steps || zone.steps.length === 0
-          })() ? (
+          {!zone.steps || zone.steps.length === 0 ? (
             <Card className="p-12 text-center">
               <Play className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">

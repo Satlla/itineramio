@@ -23,7 +23,6 @@ import { Input } from './Input'
 import { Badge } from './Badge'
 import { MobileStepEditor as MobileStepEditorNew } from './MobileStepEditor'
 import { MobileStepEditorSimple } from './MobileStepEditorSimple'
-import { UltraSimpleStepEditor } from './UltraSimpleStepEditor'
 
 export interface Step {
   id: string
@@ -103,53 +102,13 @@ export function StepEditor({
   
   if (isMobile) {
     console.log('📱 Rendering MobileStepEditor')
-    // Temporarily use simple editor for debugging
-    const useUltraSimple = true // Force ultra simple for testing
-    
-    if (useUltraSimple) {
-      console.log('📱 Using ULTRA SIMPLE editor')
-      return <UltraSimpleStepEditor onSave={onSave} onCancel={onCancel} />
-    }
-    
-    const useSimpleEditor = false // Toggle this for testing
-    
-    if (useSimpleEditor) {
-      console.log('📱 Using SIMPLE editor')
-      return (
-        <MobileStepEditorSimple
-          zoneTitle={zoneTitle}
-          onSave={(steps) => {
-            console.log('📱 Simple editor onSave callback triggered with:', steps)
-            console.log('📱 Type of onSave prop:', typeof onSave)
-            console.log('📱 onSave is function:', typeof onSave === 'function')
-            if (typeof onSave === 'function') {
-              console.log('📱 Calling parent onSave...')
-              onSave(steps)
-              console.log('📱 Parent onSave called successfully')
-            } else {
-              console.error('📱 ERROR: onSave is not a function!')
-            }
-          }}
-          onCancel={() => {
-            console.log('📱 Simple editor onCancel callback triggered')
-            onCancel()
-          }}
-        />
-      )
-    }
     
     return (
       <MobileStepEditorNew
         zoneTitle={zoneTitle}
         initialSteps={initialSteps}
-        onSave={(steps) => {
-          console.log('📱 MobileStepEditor onSave callback triggered with:', steps)
-          onSave(steps)
-        }}
-        onCancel={() => {
-          console.log('📱 MobileStepEditor onCancel callback triggered')
-          onCancel()
-        }}
+        onSave={onSave}
+        onCancel={onCancel}
         maxVideos={maxVideos}
         currentVideoCount={currentVideoCount}
       />
