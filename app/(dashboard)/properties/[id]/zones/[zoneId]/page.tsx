@@ -102,6 +102,7 @@ export default function ZoneDetailPage() {
       
       const zoneData = result.data || result
       console.log('📊 Zone loaded:', zoneData.name, 'with', zoneData.steps?.length || 0, 'steps')
+      console.log('📊 RAW zone data:', zoneData)
       
       if (zoneData.steps) {
         console.log('📊 Steps data:', zoneData.steps.map((s: any) => ({ 
@@ -112,9 +113,22 @@ export default function ZoneDetailPage() {
           order: s.order,
           isPublished: s.isPublished
         })))
+        
+        // Log each step content individually
+        zoneData.steps.forEach((step: any, index: number) => {
+          console.log(`📊 Step ${index + 1}:`, {
+            id: step.id,
+            type: step.type,
+            titleES: step.title?.es,
+            contentES: step.content?.es,
+            order: step.order
+          })
+        })
       }
       
+      console.log('📊 About to call setZone with:', zoneData)
       setZone(zoneData)
+      console.log('📊 setZone called')
     } catch (error) {
       console.error('❌ Error fetching zone:', error)
       // Don't navigate away, let user see the error
@@ -449,7 +463,12 @@ export default function ZoneDetailPage() {
             </Button>
           </div>
           
-          {!zone.steps || zone.steps.length === 0 ? (
+          {(() => {
+            console.log('🎨 RENDER: zone?.steps:', zone?.steps)
+            console.log('🎨 RENDER: zone?.steps?.length:', zone?.steps?.length)
+            console.log('🎨 RENDER: condition check:', !zone.steps || zone.steps.length === 0)
+            return !zone.steps || zone.steps.length === 0
+          })() ? (
             <Card className="p-12 text-center">
               <Play className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
