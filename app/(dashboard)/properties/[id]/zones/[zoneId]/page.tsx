@@ -291,24 +291,27 @@ export default function ZoneDetailPage() {
               <Plus className="w-4 h-4 mr-2" />
               Nuevo Paso
             </Button>
-            {/* Test button */}
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={async () => {
-                console.log('🧪 TEST: Direct save button clicked');
-                const testSteps = [{
-                  type: 'text',
-                  content: { es: 'Test step ' + new Date().toISOString() },
-                  order: 0
-                }];
-                console.log('🧪 TEST: Calling handleSaveSteps directly');
-                await handleSaveSteps(testSteps);
-              }}
-            >
-              🧪 Test Save
-            </Button>
           </div>
+        </div>
+
+        {/* Test Button - More visible */}
+        <div className="mb-4 p-4 bg-yellow-100 border-2 border-yellow-300 rounded-lg">
+          <p className="text-sm font-bold mb-2">🧪 DEBUG: Botón de prueba para guardar pasos</p>
+          <button
+            onClick={async () => {
+              console.log('🧪 TEST: Direct save button clicked');
+              const testSteps = [{
+                type: 'text',
+                content: { es: 'Test step created at ' + new Date().toISOString() },
+                order: 0
+              }];
+              console.log('🧪 TEST: Calling handleSaveSteps directly');
+              await handleSaveSteps(testSteps);
+            }}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            🧪 Guardar Paso de Prueba
+          </button>
         </div>
 
         {/* Zone Info Card */}
