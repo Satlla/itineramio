@@ -530,7 +530,10 @@ export default function ZoneDetailPage() {
       </div>
 
       {/* StepEditor Modal */}
-      {showStepEditor && zone && (
+      {(() => {
+        console.log('🟣 PAGE: showStepEditor:', showStepEditor, 'zone exists:', !!zone)
+        return showStepEditor && zone
+      })() && (
         <StepEditor
           key={`step-editor-${editingStepId || 'new'}`}
           zoneTitle={typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}

@@ -107,7 +107,17 @@ export function StepEditor({
       <MobileStepEditorNew
         zoneTitle={zoneTitle}
         initialSteps={initialSteps}
-        onSave={onSave}
+        onSave={(steps) => {
+          console.log('🔵 StepEditor: onSave called with', steps.length, 'steps')
+          console.log('🔵 StepEditor: onSave prop type:', typeof onSave)
+          if (typeof onSave === 'function') {
+            console.log('🔵 StepEditor: Calling parent onSave')
+            onSave(steps)
+            console.log('🔵 StepEditor: Parent onSave called')
+          } else {
+            console.error('🔵 StepEditor: onSave is not a function!')
+          }
+        }}
         onCancel={onCancel}
         maxVideos={maxVideos}
         currentVideoCount={currentVideoCount}
