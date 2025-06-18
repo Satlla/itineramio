@@ -191,15 +191,25 @@ export async function PUT(
     // Simplified: Just save whatever we receive
     console.log('📥 Saving steps for zone:', zoneId)
 
-    // Find the actual zone ID (due to Next.js truncation)
-    const zones = await prisma.zone.findMany({
+    // Find the zone - try exact match first, then startsWith
+    let zone = await prisma.zone.findFirst({
       where: {
-        id: { startsWith: zoneId },
+        id: zoneId,
         propertyId: propertyId
       }
     })
     
-    const zone = zones[0]
+    // If not found, try startsWith (for Next.js truncation)
+    if (!zone) {
+      const zones = await prisma.zone.findMany({
+        where: {
+          id: { startsWith: zoneId },
+          propertyId: propertyId
+        }
+      })
+      zone = zones[0]
+    }
+    
     const actualZoneId = zone?.id || zoneId
     
     if (!zone) {
@@ -223,19 +233,27 @@ export async function PUT(
     for (let i = 0; i < stepsToSave.length; i++) {
       const step = stepsToSave[i]
       
+      // Handle both title and content fields, prioritizing title for the title field
+      const titleContent = step.title || step.content || { es: `Paso ${i + 1}`, en: '', fr: '' }
+      const bodyContent = step.content || { es: '', en: '', fr: '' }
+      
       const stepData = {
-        title: { 
-          es: step.content?.es?.substring(0, 50) || `Paso ${i + 1}`,
-          en: step.content?.en?.substring(0, 50) || '',
-          fr: step.content?.fr?.substring(0, 50) || ''
-        },
-        content: {
-          es: step.content?.es || '',
-          en: step.content?.en || '',
-          fr: step.content?.fr || ''
-        },
-        type: (step.type || 'text').toUpperCase(),
-        order: i,
+        title: typeof titleContent === 'string' 
+          ? { es: titleContent.substring(0, 100), en: '', fr: '' }
+          : {
+              es: (titleContent.es || '').substring(0, 100) || `Paso ${i + 1}`,
+              en: (titleContent.en || '').substring(0, 100) || '',
+              fr: (titleContent.fr || '').substring(0, 100) || ''
+            },
+        content: typeof bodyContent === 'string'
+          ? { es: bodyContent, en: '', fr: '' }
+          : {
+              es: bodyContent.es || '',
+              en: bodyContent.en || '',
+              fr: bodyContent.fr || ''
+            },
+        type: (step.type || 'TEXT').toUpperCase(),
+        order: step.order !== undefined ? step.order : i,
         isPublished: true,
         zoneId: actualZoneId
       }

@@ -152,14 +152,20 @@ export default function ZoneDetailPage() {
     }
     
     try {
-      // Simple format for API
-      const formattedSteps = steps.map((step, index) => ({
-        type: step.type || 'text',
-        content: step.content || { es: '', en: '', fr: '' },
-        order: index
-      }))
+      // Format steps correctly for API
+      const formattedSteps = steps.map((step, index) => {
+        const formattedStep = {
+          type: (step.type || 'text').toUpperCase(), // Ensure uppercase
+          title: step.content || { es: '', en: '', fr: '' }, // Use content as title
+          content: step.content || { es: '', en: '', fr: '' },
+          order: index
+        }
+        
+        console.log(`💾 Step ${index + 1} formatted:`, formattedStep)
+        return formattedStep
+      })
       
-      console.log('💾 Formatted steps:', formattedSteps)
+      console.log('💾 Formatted steps for API:', formattedSteps)
       console.log('💾 API URL:', `/api/properties/${propertyId}/zones/${zoneId}/steps`)
       
       const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
