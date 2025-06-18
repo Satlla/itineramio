@@ -13,9 +13,12 @@ export async function GET(
 
     console.log('🔍 Searching for zone with:', { zoneId, propertyId })
     
-    const zone = await prisma.zone.findFirst({
+    // First try with the truncated zoneId to find the actual zone
+    const zones = await prisma.zone.findMany({
       where: {
-        id: zoneId,
+        id: {
+          startsWith: zoneId // Use startsWith to find zones that begin with the truncated ID
+        },
         propertyId: propertyId
       },
       include: {
@@ -31,6 +34,8 @@ export async function GET(
         }
       }
     })
+    
+    const zone = zones[0] // Take the first match
 
     console.log('🔍 Zone found:', !!zone)
     if (zone) {

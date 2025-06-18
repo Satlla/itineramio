@@ -9,13 +9,18 @@ export async function GET(
   try {
     const { id: propertyId, zoneId } = await params
 
-    // Verify zone belongs to property
-    const zone = await prisma.zone.findFirst({
+    // Find zone using startsWith due to Next.js truncating long IDs
+    const zones = await prisma.zone.findMany({
       where: {
-        id: zoneId,
+        id: {
+          startsWith: zoneId
+        },
         propertyId: propertyId
       }
     })
+    
+    const zone = zones[0]
+    const actualZoneId = zone?.id || zoneId
 
     if (!zone) {
       return NextResponse.json(
@@ -29,7 +34,7 @@ export async function GET(
 
     const steps = await prisma.step.findMany({
       where: {
-        zoneId: zoneId
+        zoneId: actualZoneId
       },
       orderBy: {
         order: 'asc'
@@ -186,9 +191,27 @@ export async function PUT(
     // Simplified: Just save whatever we receive
     console.log('📥 Saving steps for zone:', zoneId)
 
+    // Find the actual zone ID (due to Next.js truncation)
+    const zones = await prisma.zone.findMany({
+      where: {
+        id: { startsWith: zoneId },
+        propertyId: propertyId
+      }
+    })
+    
+    const zone = zones[0]
+    const actualZoneId = zone?.id || zoneId
+    
+    if (!zone) {
+      return NextResponse.json({
+        success: false,
+        error: 'Zone not found'
+      }, { status: 404 })
+    }
+
     // Delete all existing steps
     await prisma.step.deleteMany({
-      where: { zoneId: zoneId }
+      where: { zoneId: actualZoneId }
     })
 
     // Create new steps - simplified version
@@ -214,7 +237,7 @@ export async function PUT(
         type: (step.type || 'text').toUpperCase(),
         order: i,
         isPublished: true,
-        zoneId: zoneId
+        zoneId: actualZoneId
       }
       
       console.log(`🚨 Creating step ${i + 1} with data:`, JSON.stringify(stepData, null, 2))
