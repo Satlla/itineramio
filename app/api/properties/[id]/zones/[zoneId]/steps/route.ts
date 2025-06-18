@@ -169,10 +169,19 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; zoneId: string }> }
 ) {
+  console.log('🚨 PUT /steps endpoint called')
+  
   try {
     const { id: propertyId, zoneId } = await params
+    console.log('🚨 Params:', { propertyId, zoneId })
+    
     const body = await request.json()
+    console.log('🚨 Body received:', JSON.stringify(body, null, 2))
+    
     const { steps } = body
+    console.log('🚨 Steps extracted:', steps)
+    console.log('🚨 Steps is array:', Array.isArray(steps))
+    console.log('🚨 Steps length:', steps?.length)
     
     // Simplified: Just save whatever we receive
     console.log('📥 Saving steps for zone:', zoneId)
@@ -208,10 +217,13 @@ export async function PUT(
         zoneId: zoneId
       }
       
+      console.log(`🚨 Creating step ${i + 1} with data:`, JSON.stringify(stepData, null, 2))
+      
       const createdStep = await prisma.step.create({
         data: stepData
       })
       
+      console.log(`🚨 Step ${i + 1} created:`, createdStep.id)
       createdSteps.push(createdStep)
     }
 
