@@ -6,18 +6,31 @@ export async function GET() {
   try {
     const zones = await prisma.zone.findMany({
       include: {
-        steps: true
+        steps: true,
+        property: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
       },
-      take: 5
+      take: 10,
+      orderBy: {
+        createdAt: 'desc'
+      }
     })
     
     return NextResponse.json({
       success: true,
+      total: zones.length,
       zones: zones.map(z => ({
         id: z.id,
         name: z.name,
+        propertyId: z.propertyId,
+        propertyName: z.property?.name,
         stepsCount: z.steps.length,
-        steps: z.steps
+        steps: z.steps,
+        url: `/properties/${z.propertyId}/zones/${z.id}`
       }))
     })
   } catch (error: any) {
