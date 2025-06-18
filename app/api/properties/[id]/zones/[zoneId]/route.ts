@@ -6,9 +6,13 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; zoneId: string }> }
 ) {
+  console.log('🔍 GET zone endpoint called')
   try {
     const { id: propertyId, zoneId } = await params
+    console.log('🔍 Received params:', { propertyId, zoneId })
 
+    console.log('🔍 Searching for zone with:', { zoneId, propertyId })
+    
     const zone = await prisma.zone.findFirst({
       where: {
         id: zoneId,
@@ -28,11 +32,18 @@ export async function GET(
       }
     })
 
+    console.log('🔍 Zone found:', !!zone)
+    if (zone) {
+      console.log('🔍 Zone details:', { id: zone.id, propertyId: zone.propertyId, stepsCount: zone.steps.length })
+    }
+
     if (!zone) {
+      console.log('🔍 Zone not found - returning 404')
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Zona no encontrada' 
+          error: 'Zona no encontrada',
+          debug: { receivedPropertyId: propertyId, receivedZoneId: zoneId }
         },
         { status: 404 }
       )
