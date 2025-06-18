@@ -510,21 +510,10 @@ export default function ZoneDetailPage() {
       {/* StepEditor Modal */}
       {showStepEditor && zone && (
         <StepEditor
-          key={`step-editor-${Date.now()}`}
-          zoneTitle={zone.name}
+          key={`step-editor-${editingStepId || 'new'}`}
+          zoneTitle={typeof zone.name === 'string' ? zone.name : zone.name?.es || 'Zona'}
           initialSteps={getInitialSteps()}
-          onSave={(steps) => {
-            console.log('🎯 PAGE: onSave prop called with steps:', steps);
-            console.log('🎯 PAGE: Number of steps:', steps?.length);
-            console.log('🎯 PAGE: handleSaveSteps exists:', typeof handleSaveSteps === 'function');
-            
-            if (typeof handleSaveSteps === 'function') {
-              console.log('🎯 PAGE: Calling handleSaveSteps...');
-              handleSaveSteps(steps);
-            } else {
-              console.error('❌ PAGE: handleSaveSteps is not a function!');
-            }
-          }}
+          onSave={handleSaveSteps}
           onCancel={() => {
             console.log('🎯 PAGE: onCancel called');
             setShowStepEditor(false);
