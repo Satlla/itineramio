@@ -141,6 +141,16 @@ export default function ZoneDetailPage() {
   }
 
   const handleSaveSteps = async (steps: any[]) => {
+    console.log('💾 handleSaveSteps called with:', steps)
+    console.log('💾 Number of steps:', steps?.length)
+    console.log('💾 propertyId:', propertyId)
+    console.log('💾 zoneId:', zoneId)
+    
+    if (!steps || steps.length === 0) {
+      console.error('💾 No steps to save!')
+      return
+    }
+    
     try {
       // Simple format for API
       const formattedSteps = steps.map((step, index) => ({
@@ -149,13 +159,18 @@ export default function ZoneDetailPage() {
         order: index
       }))
       
+      console.log('💾 Formatted steps:', formattedSteps)
+      console.log('💾 API URL:', `/api/properties/${propertyId}/zones/${zoneId}/steps`)
+      
       const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ steps: formattedSteps })
       })
 
+      console.log('💾 Response status:', response.status)
       const result = await response.json()
+      console.log('💾 Response data:', result)
       
       if (!response.ok) {
         throw new Error(result.error || 'Error al guardar')
