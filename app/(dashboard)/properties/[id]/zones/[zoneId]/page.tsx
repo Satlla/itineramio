@@ -344,8 +344,30 @@ export default function ZoneDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="flex items-center justify-between p-4">
+          <Link href={`/properties/${propertyId}`}>
+            <Button variant="ghost" size="sm" className="p-2">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <div className="flex items-center space-x-2">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${zone.color || 'bg-gray-100'}`}>
+              {zone.icon}
+            </div>
+            <h1 className="text-lg font-semibold text-gray-900">
+              {typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}
+            </h1>
+          </div>
+          <Button variant="ghost" size="sm" className="p-2">
+            <Settings className="w-5 h-5" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Link href={`/properties/${propertyId}`}>
@@ -378,45 +400,149 @@ export default function ZoneDetailPage() {
               <Plus className="w-4 h-4 mr-2" />
               Nuevo Paso
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                console.log('🩺 DIAGNOSTIC: Testing direct save');
-                const testStep = [{
-                  type: 'text',
-                  content: { es: 'Diagnostic test ' + Date.now() }
-                }];
-                handleSaveSteps(testStep);
-              }}
-            >
-              🩺 Test
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={async () => {
-                console.log('🔍 EMERGENCY DEBUG: Checking all data');
-                try {
-                  const response = await fetch('/api/emergency-debug');
-                  const data = await response.json();
-                  console.log('🔍 EMERGENCY DEBUG RESULT:', data);
-                  alert(`Debug info logged to console. Total zones: ${data.totalZones}, Total steps: ${data.totalSteps}`);
-                  
-                  // Also force refresh the current zone
-                  await fetchZoneData();
-                } catch (error) {
-                  console.error('🔍 DEBUG ERROR:', error);
-                  alert('Debug failed: ' + error);
-                }
-              }}
-            >
-              🔍 Debug
-            </Button>
           </div>
         </div>
+      </div>
 
+      {/* Mobile Content */}
+      <div className="lg:hidden">
+        {/* Zone Info Section */}
+        <div className="bg-white border-b border-gray-200 p-4">
+          <div className="text-center mb-4">
+            <div className={`w-16 h-16 rounded-xl mx-auto mb-3 flex items-center justify-center text-3xl ${zone.color || 'bg-gray-100'}`}>
+              {zone.icon}
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">
+              {typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}
+            </h2>
+            <p className="text-gray-600 text-sm mb-3">
+              {typeof zone.description === 'string' ? zone.description : (zone.description as any)?.es || 'Gestiona los pasos de esta zona'}
+            </p>
+            <div className="flex justify-center items-center space-x-4 text-sm text-gray-600">
+              <span className="font-medium">{zone.steps?.length || 0} pasos</span>
+              <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+              <span className={`px-2 py-1 rounded-full text-xs ${
+                zone.status === 'ACTIVE' 
+                  ? 'bg-green-100 text-green-700' 
+                  : 'bg-yellow-100 text-yellow-700'
+              }`}>
+                {zone.status === 'ACTIVE' ? 'Activo' : 'Borrador'}
+              </span>
+            </div>
+          </div>
+          
+          {/* Add Step Button */}
+          <Button 
+            onClick={handleAddStep}
+            className="w-full bg-gray-900 hover:bg-gray-800 text-white"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Nuevo Paso
+          </Button>
+        </div>
 
+        {/* Steps Timeline */}
+        <div className="p-4">
+          
+          {!zone.steps || zone.steps.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <Play className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No hay pasos aún
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Crea el primer paso para guiar a tus huéspedes
+              </p>
+            </div>
+          ) : (
+            <div className="relative">
+              {/* Timeline line */}
+              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+              
+              {zone.steps
+                .sort((a, b) => a.order - b.order)
+                .map((step, index) => {
+                  const StepIcon = getStepIcon(step.type)
+                  const isLast = index === zone.steps.length - 1
+                  
+                  return (
+                    <motion.div
+                      key={step.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                      className="relative flex items-start mb-6"
+                    >
+                      {/* Timeline dot */}
+                      <div className="relative z-10 flex-shrink-0">
+                        <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center shadow-lg">
+                          <span className="text-white font-semibold text-sm">{index + 1}</span>
+                        </div>
+                        {/* Connecting line to content */}
+                        <div className="absolute top-1/2 left-full w-4 h-0.5 bg-gray-200 -translate-y-0.5"></div>
+                      </div>
+
+                      {/* Step content */}
+                      <div className="flex-1 ml-4 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <h3 className="text-base font-semibold text-gray-900 mb-1">
+                              {getStepText(step, 'title') || `Paso ${index + 1}`}
+                            </h3>
+                            <div className="flex items-center space-x-2 mb-2">
+                              <StepIcon className="w-4 h-4 text-gray-500" />
+                              <span className="text-xs text-gray-500 uppercase font-medium">
+                                {getStepTypeLabel(step.type)}
+                              </span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                (step as any).isPublished 
+                                  ? 'bg-green-100 text-green-700' 
+                                  : 'bg-yellow-100 text-yellow-700'
+                              }`}>
+                                {(step as any).isPublished ? 'Publicado' : 'Borrador'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Actions */}
+                          <div className="flex space-x-1 ml-2">
+                            <Button
+                              onClick={() => handleEditStep(step.id)}
+                              size="sm"
+                              variant="ghost"
+                              className="w-8 h-8 p-0 hover:bg-gray-100"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              onClick={() => handleDeleteStep(step.id)}
+                              size="sm"
+                              variant="ghost"
+                              className="w-8 h-8 p-0 hover:bg-red-50 hover:text-red-600"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        {getStepText(step, 'content') && (
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            {getStepText(step, 'content')}
+                          </p>
+                        )}
+                      </div>
+                    </motion.div>
+                  )
+                })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Desktop Content */}
+      <div className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Zone Info Card */}
         <Card className="p-6 mb-8">
           <div className="flex items-start space-x-4">
@@ -463,12 +589,7 @@ export default function ZoneDetailPage() {
             </Button>
           </div>
           
-          {(() => {
-            console.log('🎨 RENDER: zone?.steps:', zone?.steps)
-            console.log('🎨 RENDER: zone?.steps?.length:', zone?.steps?.length)
-            console.log('🎨 RENDER: condition check:', !zone.steps || zone.steps.length === 0)
-            return !zone.steps || zone.steps.length === 0
-          })() ? (
+          {!zone.steps || zone.steps.length === 0 ? (
             <Card className="p-12 text-center">
               <Play className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
