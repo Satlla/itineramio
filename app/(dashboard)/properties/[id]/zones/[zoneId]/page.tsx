@@ -291,6 +291,17 @@ export default function ZoneDetailPage() {
     return ''
   }
 
+  // Helper function to get zone text (for name, description, etc.)
+  const getZoneText = (value: any, fallback: string = '') => {
+    if (typeof value === 'string') {
+      return value
+    }
+    if (value && typeof value === 'object') {
+      return value.es || value.en || value.fr || fallback
+    }
+    return fallback
+  }
+
   const getStepIcon = (type: Step['type']) => {
     switch (type) {
       case 'TEXT':
@@ -357,7 +368,7 @@ export default function ZoneDetailPage() {
               {zone.icon}
             </div>
             <h1 className="text-lg font-semibold text-gray-900">
-              {typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}
+              {getZoneText(zone.name, 'Zona')}
             </h1>
           </div>
           <Button variant="ghost" size="sm" className="p-2">
@@ -382,7 +393,7 @@ export default function ZoneDetailPage() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  {typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}
+                  {getZoneText(zone.name, 'Zona')}
                 </h1>
                 <p className="text-gray-600 mt-1">
                   Gestiona los pasos de esta zona
@@ -413,10 +424,10 @@ export default function ZoneDetailPage() {
               {zone.icon}
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-2">
-              {typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}
+              {getZoneText(zone.name, 'Zona')}
             </h2>
             <p className="text-gray-600 text-sm mb-3">
-              {typeof zone.description === 'string' ? zone.description : (zone.description as any)?.es || 'Gestiona los pasos de esta zona'}
+              {getZoneText(zone.description, 'Gestiona los pasos de esta zona')}
             </p>
             <div className="flex justify-center items-center space-x-4 text-sm text-gray-600">
               <span className="font-medium">{zone.steps?.length || 0} pasos</span>
@@ -551,10 +562,10 @@ export default function ZoneDetailPage() {
             </div>
             <div className="flex-1">
               <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                {typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}
+                {getZoneText(zone.name, 'Zona')}
               </h2>
               <p className="text-gray-600 mb-4">
-                {typeof zone.description === 'string' ? zone.description : (zone.description as any)?.es || ''}
+                {getZoneText(zone.description, '')}
               </p>
               <div className="flex items-center space-x-6 text-sm text-gray-600">
                 <div className="flex items-center">
@@ -767,7 +778,7 @@ export default function ZoneDetailPage() {
       })() && (
         <StepEditor
           key={`step-editor-${editingStepId || 'new'}`}
-          zoneTitle={typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}
+          zoneTitle={getZoneText(zone.name, 'Zona')}
           initialSteps={getInitialSteps()}
           onSave={handleSaveSteps}
           onCancel={() => {
