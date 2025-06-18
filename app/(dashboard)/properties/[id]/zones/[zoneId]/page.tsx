@@ -95,6 +95,7 @@ export default function ZoneDetailPage() {
       console.log('📊 Zone data received:', result.data)
       console.log('📊 Zone steps:', result.data.steps)
       console.log('📊 Steps count:', result.data.steps?.length || 0)
+      console.log('📊 Steps details:', JSON.stringify(result.data.steps, null, 2))
       
       setZone(result.data)
     } catch (error) {
@@ -362,7 +363,13 @@ export default function ZoneDetailPage() {
             </Button>
           </div>
           
-          {!zone.steps || zone.steps.length === 0 ? (
+          {(() => {
+            console.log('🔍 RENDER: zone.steps exists?', !!zone.steps)
+            console.log('🔍 RENDER: zone.steps:', zone.steps)
+            console.log('🔍 RENDER: zone.steps.length:', zone.steps?.length)
+            console.log('🔍 RENDER: Will show empty state?', !zone.steps || zone.steps.length === 0)
+            return !zone.steps || zone.steps.length === 0
+          })() ? (
             <Card className="p-12 text-center">
               <Play className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
