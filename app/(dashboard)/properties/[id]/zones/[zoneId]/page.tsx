@@ -92,6 +92,10 @@ export default function ZoneDetailPage() {
         throw new Error(result.error || 'Error al cargar la zona')
       }
       
+      console.log('📊 Zone data received:', result.data)
+      console.log('📊 Zone steps:', result.data.steps)
+      console.log('📊 Steps count:', result.data.steps?.length || 0)
+      
       setZone(result.data)
     } catch (error) {
       console.error('Error fetching zone:', error)
@@ -144,11 +148,19 @@ export default function ZoneDetailPage() {
     console.log('🔥 Steps length:', steps?.length)
     console.log('🔥 Steps type:', typeof steps)
     console.log('🔥 Is array:', Array.isArray(steps))
+    console.log('🔥 Steps content:', JSON.stringify(steps, null, 2))
     
     // Early validation
     if (!steps || !Array.isArray(steps)) {
       console.error('❌ Invalid steps data received')
       alert('Error: Datos de pasos inválidos')
+      return
+    }
+    
+    // If no steps with content, don't save
+    if (steps.length === 0) {
+      console.log('⚠️ No steps to save - array is empty')
+      alert('No hay pasos para guardar')
       return
     }
     
@@ -210,15 +222,26 @@ export default function ZoneDetailPage() {
         })
 
         console.log('📡 Bulk save response status:', response.status)
+        console.log('📡 Response headers:', response.headers)
         
-        if (!response.ok) {
-          const error = await response.json()
-          console.error('❌ Bulk save error:', error)
-          throw new Error(error.error || 'Error al guardar los pasos')
+        const responseText = await response.text()
+        console.log('📡 Raw response:', responseText)
+        
+        let result
+        try {
+          result = JSON.parse(responseText)
+        } catch (e) {
+          console.error('❌ Failed to parse response:', e)
+          throw new Error('Invalid response from server')
         }
         
-        const result = await response.json()
+        if (!response.ok) {
+          console.error('❌ Bulk save error:', result)
+          throw new Error(result.error || 'Error al guardar los pasos')
+        }
+        
         console.log('✅ Bulk save successful:', result)
+        console.log('✅ Created steps:', result.data)
       }
       
       setShowStepEditor(false)

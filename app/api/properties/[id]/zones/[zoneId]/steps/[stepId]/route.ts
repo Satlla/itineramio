@@ -13,8 +13,8 @@ export async function GET(
     const step = await prisma.step.findFirst({
       where: {
         id: stepId,
+        zoneId: zoneId,
         zones: {
-          id: zoneId,
           propertyId: propertyId
         }
       },
@@ -71,8 +71,8 @@ export async function PUT(
     const existingStep = await prisma.step.findFirst({
       where: {
         id: stepId,
+        zoneId: zoneId,
         zones: {
-          id: zoneId,
           propertyId: propertyId
         }
       }
@@ -161,8 +161,8 @@ export async function DELETE(
     const existingStep = await prisma.step.findFirst({
       where: {
         id: stepId,
+        zoneId: zoneId,
         zones: {
-          id: zoneId,
           propertyId: propertyId
         }
       }

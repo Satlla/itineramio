@@ -208,9 +208,11 @@ export async function PUT(
     }
 
     // Delete existing steps
-    await prisma.step.deleteMany({
+    console.log(`🗑️ Deleting existing steps for zone ${zoneId}`)
+    const deleteResult = await prisma.step.deleteMany({
       where: { zoneId: zoneId }
     })
+    console.log(`🗑️ Deleted ${deleteResult.count} existing steps`)
 
     // Create new steps
     const createdSteps = []
@@ -226,7 +228,8 @@ export async function PUT(
       console.log(`Step ${i + 1} has content:`, hasContent)
       console.log(`Step ${i + 1} type:`, step.type)
       
-      if (hasContent || step.type !== 'text') { // Allow non-text steps even without content
+      // Always save at least one step, even if empty
+      if (hasContent || step.type?.toLowerCase() !== 'text' || steps.length === 1) {
         try {
           const stepData = {
             title: { 
@@ -251,12 +254,24 @@ export async function PUT(
             data: stepData
           })
           
+          // Immediately verify the step was created
+          const verifyStep = await prisma.step.findUnique({
+            where: { id: createdStep.id }
+          })
+          console.log(`🔍 Verification - Step exists in DB:`, !!verifyStep)
+          console.log(`🔍 Step data from DB:`, JSON.stringify(verifyStep, null, 2))
+          
           console.log(`✅ Step ${i + 1} created successfully with ID:`, createdStep.id)
           console.log('Created step full data:', JSON.stringify(createdStep, null, 2))
           createdSteps.push(createdStep)
-        } catch (stepError) {
+        } catch (stepError: any) {
           console.error(`❌ Error creating step ${i + 1}:`, stepError)
           console.error('Step error details:', JSON.stringify(stepError, null, 2))
+          console.error('Error message:', stepError.message)
+          console.error('Error code:', stepError.code)
+          if (stepError.meta) {
+            console.error('Error meta:', stepError.meta)
+          }
           throw stepError
         }
       } else {

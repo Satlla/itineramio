@@ -334,20 +334,19 @@ export function MobileStepEditor({
                 console.log('🎯 Steps count:', steps.length);
                 console.log('🎯 Steps content:', steps.map(s => ({ type: s.type, content: s.content })));
                 
-                // Filtrar solo los pasos con contenido
-                const stepsWithContent = steps.filter(step => 
-                  step.content.es?.trim() || step.content.en?.trim() || step.content.fr?.trim()
-                );
-                
-                console.log('🎯 Steps with content:', stepsWithContent.length);
+                // Send all steps to the parent component
+                console.log('🎯 Total steps:', steps.length);
                 console.log('🎯 onSave function exists:', typeof onSave === 'function');
+                console.log('🎯 Steps to save:', JSON.stringify(steps, null, 2));
                 
-                if (stepsWithContent.length > 0 && typeof onSave === 'function') {
-                  console.log('🎯 Calling onSave...');
-                  onSave(stepsWithContent);
+                if (steps.length > 0 && typeof onSave === 'function') {
+                  console.log('🎯 Calling onSave with all steps...');
+                  onSave(steps);
                   console.log('🎯 onSave called successfully');
+                } else if (steps.length === 0) {
+                  console.log('⚠️ No steps to save');
                 } else {
-                  console.log('⚠️ No steps with content to save or onSave is not a function');
+                  console.log('⚠️ onSave is not a function');
                 }
               } catch (error) {
                 console.error('❌ Error in Finalizar click:', error);
@@ -607,20 +606,19 @@ export function MobileStepEditor({
                 console.log('🎯 Steps count:', steps.length);
                 console.log('🎯 Steps content:', steps.map(s => ({ type: s.type, content: s.content })));
                 
-                // Filtrar solo los pasos con contenido
-                const stepsWithContent = steps.filter(step => 
-                  step.content.es?.trim() || step.content.en?.trim() || step.content.fr?.trim()
-                );
-                
-                console.log('🎯 Steps with content:', stepsWithContent.length);
+                // Send all steps to the parent component
+                console.log('🎯 Total steps:', steps.length);
                 console.log('🎯 onSave function exists:', typeof onSave === 'function');
+                console.log('🎯 Steps to save:', JSON.stringify(steps, null, 2));
                 
-                if (stepsWithContent.length > 0 && typeof onSave === 'function') {
-                  console.log('🎯 Calling onSave...');
-                  onSave(stepsWithContent);
+                if (steps.length > 0 && typeof onSave === 'function') {
+                  console.log('🎯 Calling onSave with all steps...');
+                  onSave(steps);
                   console.log('🎯 onSave called successfully');
+                } else if (steps.length === 0) {
+                  console.log('⚠️ No steps to save');
                 } else {
-                  console.log('⚠️ No steps with content to save or onSave is not a function');
+                  console.log('⚠️ onSave is not a function');
                 }
               } catch (error) {
                 console.error('❌ Error in Finalizar BOTTOM click:', error);
