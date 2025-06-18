@@ -93,6 +93,13 @@ export default function ZoneDetailPage() {
       }
       
       console.log('📊 Zone loaded:', result.data.name, 'with', result.data.steps?.length || 0, 'steps')
+      console.log('📊 Steps data:', result.data.steps?.map((s: any) => ({ 
+        id: s.id, 
+        type: s.type, 
+        title: s.title, 
+        content: s.content,
+        order: s.order 
+      })))
       
       setZone(result.data)
     } catch (error) {
@@ -193,24 +200,68 @@ export default function ZoneDetailPage() {
   }
 
   const getInitialSteps = () => {
-    if (!isEditingExisting || !editingStepId || !zone?.steps) {
+    console.log('🎬 getInitialSteps called:', { 
+      hasZone: !!zone, 
+      stepsCount: zone?.steps?.length || 0,
+      isEditingExisting, 
+      editingStepId 
+    })
+    
+    if (!zone?.steps) {
       return []
     }
 
-    const existingStep = zone.steps.find(s => s.id === editingStepId)
-    if (!existingStep) return []
+    // When editing a specific step, return only that step
+    if (isEditingExisting && editingStepId) {
+      const existingStep = zone.steps.find(s => s.id === editingStepId)
+      if (!existingStep) return []
 
-    return [{
-      id: existingStep.id,
-      type: existingStep.type.toLowerCase() as any,
-      content: {
-        es: existingStep.content || existingStep.title || '',
-        en: '',
-        fr: ''
-      },
-      media: existingStep.mediaUrl ? { url: existingStep.mediaUrl } : undefined,
-      order: existingStep.order
-    }]
+      return [{
+        id: existingStep.id,
+        type: existingStep.type.toLowerCase() as any,
+        content: typeof existingStep.content === 'string' 
+          ? { es: existingStep.content, en: '', fr: '' }
+          : {
+              es: (existingStep.content as any)?.es || '',
+              en: (existingStep.content as any)?.en || '',
+              fr: (existingStep.content as any)?.fr || ''
+            },
+        media: (existingStep as any).mediaUrl ? { url: (existingStep as any).mediaUrl } : undefined,
+        order: existingStep.order
+      }]
+    }
+
+    // When adding new steps or opening the editor, return ALL existing steps
+    const allSteps = zone.steps
+      .sort((a, b) => a.order - b.order)
+      .map(step => ({
+        id: step.id,
+        type: step.type.toLowerCase() as any,
+        content: typeof step.content === 'string' 
+          ? { es: step.content, en: '', fr: '' }
+          : {
+              es: (step.content as any)?.es || '',
+              en: (step.content as any)?.en || '',
+              fr: (step.content as any)?.fr || ''
+            },
+        media: (step as any).mediaUrl ? { url: (step as any).mediaUrl } : undefined,
+        order: step.order
+      }))
+    
+    console.log('🎬 Returning all steps:', allSteps)
+    return allSteps
+  }
+
+  // Helper function to get step content text
+  const getStepText = (step: any, field: 'title' | 'content' | 'description' = 'content') => {
+    const data = step[field]
+    if (typeof data === 'string') {
+      return data
+    }
+    if (data && typeof data === 'object') {
+      return data.es || data.en || data.fr || ''
+    }
+    return ''
   }
 
   const getStepIcon = (type: Step['type']) => {
@@ -409,7 +460,9 @@ export default function ZoneDetailPage() {
                             <div className="flex items-start justify-between">
                               <div className="flex-1 min-w-0">
                                 <h3 className="text-lg font-medium text-gray-900 truncate">
-                                  {typeof step.title === 'string' ? step.title : (step.title as any)?.es || 'Paso'}
+                                  {getStepText(step, 'title') || 
+                                   getStepText(step, 'content').substring(0, 50) || 
+                                   `Paso ${index + 1}`}
                                 </h3>
                                 <div className="flex items-center space-x-3 mt-1">
                                   <div className="flex items-center text-sm text-gray-500">
@@ -422,23 +475,21 @@ export default function ZoneDetailPage() {
                                     </div>
                                   )}
                                   <div className={`flex items-center text-sm ${
-                                    step.status === 'ACTIVE' ? 'text-green-600' : 
-                                    step.status === 'DRAFT' ? 'text-yellow-600' : 'text-gray-600'
+                                    (step as any).isPublished ? 'text-green-600' : 'text-yellow-600'
                                   }`}>
-                                    {step.status === 'ACTIVE' ? (
+                                    {(step as any).isPublished ? (
                                       <CheckCircle className="w-4 h-4 mr-1" />
                                     ) : (
                                       <AlertCircle className="w-4 h-4 mr-1" />
                                     )}
                                     <span>
-                                      {step.status === 'ACTIVE' ? 'Activo' : 
-                                       step.status === 'DRAFT' ? 'Borrador' : 'Archivado'}
+                                      {(step as any).isPublished ? 'Publicado' : 'Borrador'}
                                     </span>
                                   </div>
                                 </div>
-                                {step.description && (
+                                {(getStepText(step, 'description') || getStepText(step, 'content')) && (
                                   <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                                    {typeof step.description === 'string' ? step.description : (step.description as any)?.es || ''}
+                                    {getStepText(step, 'description') || getStepText(step, 'content')}
                                   </p>
                                 )}
                               </div>
