@@ -10,6 +10,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+    console.log('🔍 Property endpoint - received ID:', id)
     
     // Get user from JWT token
     const token = request.cookies.get('auth-token')?.value
@@ -20,9 +21,12 @@ export async function GET(
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const userId = decoded.userId
     
-    const property = await prisma.property.findFirst({
+    // Handle potential ID truncation
+    const properties = await prisma.property.findMany({
       where: {
-        id,
+        id: {
+          startsWith: id
+        },
         hostId: userId
       },
       include: {
@@ -30,11 +34,18 @@ export async function GET(
       }
     })
     
-    // Fetch zones separately using the same logic that works in zones API
+    const property = properties[0]
+    const actualPropertyId = property?.id || id
+    console.log('🔍 Property found:', !!property, 'actualId:', actualPropertyId)
+    
+    // Fetch zones separately using the actual property ID
     let zones: any[] = []
     try {
-      const allZones = await prisma.zone.findMany()
-      zones = allZones.filter(zone => zone.propertyId === id)
+      zones = await prisma.zone.findMany({
+        where: {
+          propertyId: actualPropertyId
+        }
+      })
     } catch (zoneError) {
       console.error('Error fetching zones:', zoneError)
       zones = []
@@ -99,12 +110,18 @@ export async function PUT(
     
     // TODO: Add validation schema for update
     
-    const property = await prisma.property.findFirst({
+    // Handle potential ID truncation for PUT as well
+    const properties = await prisma.property.findMany({
       where: {
-        id,
-        hostId: userId // Using hostId to match the correct user
+        id: {
+          startsWith: id
+        },
+        hostId: userId
       }
     })
+    
+    const property = properties[0]
+    const actualPropertyId = property?.id || id
     
     if (!property) {
       return NextResponse.json({
@@ -114,7 +131,7 @@ export async function PUT(
     }
     
     const updatedProperty = await prisma.property.update({
-      where: { id },
+      where: { id: actualPropertyId },
       data: {
         ...body,
         updatedAt: new Date()
