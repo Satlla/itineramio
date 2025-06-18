@@ -112,7 +112,15 @@ export function StepEditor({
           zoneTitle={zoneTitle}
           onSave={(steps) => {
             console.log('📱 Simple editor onSave callback triggered with:', steps)
-            onSave(steps)
+            console.log('📱 Type of onSave prop:', typeof onSave)
+            console.log('📱 onSave is function:', typeof onSave === 'function')
+            if (typeof onSave === 'function') {
+              console.log('📱 Calling parent onSave...')
+              onSave(steps)
+              console.log('📱 Parent onSave called successfully')
+            } else {
+              console.error('📱 ERROR: onSave is not a function!')
+            }
           }}
           onCancel={() => {
             console.log('📱 Simple editor onCancel callback triggered')

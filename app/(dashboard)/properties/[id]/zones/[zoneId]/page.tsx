@@ -143,8 +143,13 @@ export default function ZoneDetailPage() {
   }
 
   const handleSaveSteps = async (steps: any[]) => {
+    console.log('🔥🔥🔥 handleSaveSteps CALLED!')
+    console.log('🔥🔥🔥 Steps received:', steps)
+    console.log('🔥🔥🔥 Property ID:', propertyId)
+    console.log('🔥🔥🔥 Zone ID:', zoneId)
+    
     try {
-      console.log('💾 Saving steps...')
+      console.log('💾 Formatting steps...')
       
       // Simple format for API
       const formattedSteps = steps.map((step, index) => ({
@@ -153,13 +158,18 @@ export default function ZoneDetailPage() {
         order: index
       }))
       
+      console.log('💾 Formatted steps:', formattedSteps)
+      console.log('💾 Making API call...')
+      
       const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ steps: formattedSteps })
       })
 
+      console.log('💾 Response status:', response.status)
       const result = await response.json()
+      console.log('💾 Response data:', result)
       
       if (!response.ok) {
         throw new Error(result.error || 'Error al guardar')
@@ -170,8 +180,8 @@ export default function ZoneDetailPage() {
       await fetchZoneData()
       
     } catch (error) {
-      console.error('❌ Error:', error)
-      alert('Error al guardar los pasos')
+      console.error('❌ Error in handleSaveSteps:', error)
+      alert('Error al guardar los pasos: ' + (error instanceof Error ? error.message : 'Unknown'))
     }
   }
 
@@ -504,11 +514,12 @@ export default function ZoneDetailPage() {
           zoneTitle={zone.name}
           initialSteps={getInitialSteps()}
           onSave={(steps) => {
-            console.log('🎯 PAGE: Direct onSave called with steps:', steps);
-            console.log('🎯 PAGE: handleSaveSteps function exists:', typeof handleSaveSteps === 'function');
-            console.log('🎯 PAGE: showStepEditor state:', showStepEditor);
-            console.log('🎯 PAGE: zone exists:', !!zone);
+            console.log('🎯 PAGE: onSave prop called with steps:', steps);
+            console.log('🎯 PAGE: Number of steps:', steps?.length);
+            console.log('🎯 PAGE: handleSaveSteps exists:', typeof handleSaveSteps === 'function');
+            
             if (typeof handleSaveSteps === 'function') {
+              console.log('🎯 PAGE: Calling handleSaveSteps...');
               handleSaveSteps(steps);
             } else {
               console.error('❌ PAGE: handleSaveSteps is not a function!');
