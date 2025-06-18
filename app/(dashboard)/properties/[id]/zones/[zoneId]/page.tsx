@@ -279,6 +279,20 @@ export default function ZoneDetailPage() {
               <Plus className="w-4 h-4 mr-2" />
               Nuevo Paso
             </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                console.log('🩺 DIAGNOSTIC: Testing direct save');
+                const testStep = [{
+                  type: 'text',
+                  content: { es: 'Diagnostic test ' + Date.now() }
+                }];
+                handleSaveSteps(testStep);
+              }}
+            >
+              🩺 Test
+            </Button>
           </div>
         </div>
 
