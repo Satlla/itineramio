@@ -143,114 +143,35 @@ export default function ZoneDetailPage() {
   }
 
   const handleSaveSteps = async (steps: any[]) => {
-    console.log('🔥 HANDLE SAVE STEPS CALLED!')
-    console.log('🔥 Received steps:', steps)
-    console.log('🔥 Steps length:', steps?.length)
-    console.log('🔥 Steps type:', typeof steps)
-    console.log('🔥 Is array:', Array.isArray(steps))
-    console.log('🔥 Steps content:', JSON.stringify(steps, null, 2))
-    
-    // Early validation
-    if (!steps || !Array.isArray(steps)) {
-      console.error('❌ Invalid steps data received')
-      alert('Error: Datos de pasos inválidos')
-      return
-    }
-    
-    // If no steps with content, don't save
-    if (steps.length === 0) {
-      console.log('⚠️ No steps to save - array is empty')
-      alert('No hay pasos para guardar')
-      return
-    }
-    
     try {
-      console.log('🚀 Starting to save steps:', steps)
-      console.log('Property ID:', propertyId)
-      console.log('Zone ID:', zoneId)
-      console.log('Is editing existing:', isEditingExisting)
+      console.log('💾 Saving steps...')
       
-      if (isEditingExisting && steps.length === 1) {
-        // Update existing step using individual endpoint
-        const step = steps[0]
-        console.log('📝 Updating existing step:', step)
-        
-        const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps/${editingStepId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: step.content.es.substring(0, 50) || 'Paso sin título',
-            content: {
-              es: step.content.es || '',
-              en: step.content.en || '',
-              fr: step.content.fr || ''
-            },
-            type: step.type.toUpperCase(),
-            mediaUrl: step.media?.url,
-            order: step.order
-          })
-        })
+      // Simple format for API
+      const formattedSteps = steps.map((step, index) => ({
+        type: step.type || 'text',
+        content: step.content || { es: '', en: '', fr: '' },
+        order: index
+      }))
+      
+      const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ steps: formattedSteps })
+      })
 
-        if (!response.ok) {
-          const error = await response.json()
-          throw new Error(error.error || 'Error al actualizar el paso')
-        }
-        
-        console.log('✅ Step updated successfully')
-      } else {
-        // Use bulk update endpoint for multiple steps
-        console.log('📦 Using bulk save for steps:', steps)
-        console.log('📦 Number of steps to save:', steps.length)
-        console.log('📦 First step sample:', steps[0])
-        console.log('📦 Request URL:', `/api/properties/${propertyId}/zones/${zoneId}/steps`)
-        
-        // Format steps to match API expectations
-        const formattedSteps = steps.map((step, index) => ({
-          type: step.type.toUpperCase(),
-          content: step.content,
-          order: index,
-          media: step.media
-        }))
-        
-        console.log('📦 Formatted steps:', JSON.stringify(formattedSteps, null, 2))
-        console.log('📦 Request body:', JSON.stringify({ steps: formattedSteps }, null, 2))
-        
-        const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ steps: formattedSteps })
-        })
-
-        console.log('📡 Bulk save response status:', response.status)
-        console.log('📡 Response headers:', response.headers)
-        
-        const responseText = await response.text()
-        console.log('📡 Raw response:', responseText)
-        
-        let result
-        try {
-          result = JSON.parse(responseText)
-        } catch (e) {
-          console.error('❌ Failed to parse response:', e)
-          throw new Error('Invalid response from server')
-        }
-        
-        if (!response.ok) {
-          console.error('❌ Bulk save error:', result)
-          throw new Error(result.error || 'Error al guardar los pasos')
-        }
-        
-        console.log('✅ Bulk save successful:', result)
-        console.log('✅ Created steps:', result.data)
+      const result = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al guardar')
       }
       
+      console.log('✅ Steps saved:', result.message)
       setShowStepEditor(false)
-      console.log('🔄 Refreshing zone data...')
-      await fetchZoneData() // Refresh the zone data
-      console.log('✅ Zone data refreshed')
+      await fetchZoneData()
+      
     } catch (error) {
-      console.error('❌ Error saving steps:', error)
-      alert('Error al guardar los pasos: ' + (error instanceof Error ? error.message : 'Error desconocido'))
+      console.error('❌ Error:', error)
+      alert('Error al guardar los pasos')
     }
   }
 
