@@ -48,6 +48,17 @@ interface Zone {
   stepsCount: number
 }
 
+// Helper function to get multilingual text safely
+const getMultilingualText = (value: any, selectedLanguage: 'es' | 'en' = 'es', fallback: string = '') => {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value && typeof value === 'object') {
+    return value[selectedLanguage] || value.es || value.en || value.fr || fallback
+  }
+  return fallback
+}
+
 // Mock data - esto será reemplazado por datos reales del API
 const mockZone: Zone = {
   id: '1',
@@ -230,7 +241,7 @@ export default async function ZoneStepsPage({
       case StepType.TEXT:
         return (
           <div className="prose prose-sm max-w-none">
-            <p className="text-gray-700">{step.content[selectedLanguage] || step.content.es}</p>
+            <p className="text-gray-700">{getMultilingualText(step.content, selectedLanguage, '')}</p>
           </div>
         )
       
@@ -240,13 +251,13 @@ export default async function ZoneStepsPage({
             <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
               <img 
                 src={step.content.imageUrl} 
-                alt={step.title[selectedLanguage]}
+                alt={getMultilingualText(step.title, selectedLanguage, 'Imagen')}
                 className="w-full h-full object-cover"
               />
             </div>
             {step.content.description && (
               <p className="text-sm text-gray-600">
-                {step.content.description[selectedLanguage] || step.content.description.es}
+                {getMultilingualText(step.content.description, selectedLanguage, 'Descripción')}
               </p>
             )}
           </div>
@@ -258,7 +269,7 @@ export default async function ZoneStepsPage({
             <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden relative">
               <img 
                 src={step.content.thumbnail} 
-                alt={step.title[selectedLanguage]}
+                alt={getMultilingualText(step.title, selectedLanguage, 'Imagen')}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
@@ -272,7 +283,7 @@ export default async function ZoneStepsPage({
             </div>
             {step.content.description && (
               <p className="text-sm text-gray-600">
-                {step.content.description[selectedLanguage] || step.content.description.es}
+                {getMultilingualText(step.content.description, selectedLanguage, 'Descripción')}
               </p>
             )}
           </div>
@@ -466,7 +477,7 @@ export default async function ZoneStepsPage({
           <ZoneIconDisplay iconId={mockZone.iconId} size="sm" />
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              {mockZone.name[selectedLanguage]}
+              {getMultilingualText(mockZone.name, selectedLanguage, 'Zona')}
             </h1>
             <p className="text-gray-600">
               Editor de steps • {steps.length} pasos configurados
@@ -563,7 +574,7 @@ export default async function ZoneStepsPage({
                         
                         <div>
                           <CardTitle className="text-lg">
-                            {step.title[selectedLanguage] || step.title.es}
+                            {getMultilingualText(step.title, selectedLanguage, 'Paso')}
                           </CardTitle>
                           <div className="flex items-center space-x-2 mt-1">
                             <span className={cn(

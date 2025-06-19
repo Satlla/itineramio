@@ -23,11 +23,11 @@ import { Card } from '../../../../src/components/ui/Card'
 
 interface Property {
   id: string
-  name: string
-  description: string
+  name: string | { es: string; en?: string; fr?: string }
+  description: string | { es: string; en?: string; fr?: string }
   type: string
-  city: string
-  state: string
+  city: string | { es: string; en?: string; fr?: string }
+  state: string | { es: string; en?: string; fr?: string }
   street: string
   bedrooms: number
   bathrooms: number
@@ -42,13 +42,24 @@ interface Property {
 
 interface Zone {
   id: string
-  name: string
-  description: string
+  name: string | { es: string; en?: string; fr?: string }
+  description: string | { es: string; en?: string; fr?: string }
   icon: string
   color?: string
   order: number
   stepsCount?: number
   status: string
+}
+
+// Helper function to get text from multilingual objects
+const getText = (value: any, fallback: string = '') => {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value && typeof value === 'object') {
+    return value.es || value.en || value.fr || fallback
+  }
+  return fallback
 }
 
 export default function PropertyGuidePage() {
@@ -131,7 +142,7 @@ export default function PropertyGuidePage() {
           {property.profileImage ? (
             <img 
               src={property.profileImage} 
-              alt={property.name}
+              alt={getText(property.name, 'Propiedad')}
               className="w-full h-full object-cover"
             />
           ) : (
@@ -166,11 +177,11 @@ export default function PropertyGuidePage() {
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              {property.name}
+              {getText(property.name, 'Propiedad')}
             </h1>
             <div className="flex items-center text-white text-opacity-90 mb-4">
               <MapPin className="w-5 h-5 mr-2" />
-              <span>{property.city}, {property.state}</span>
+              <span>{getText(property.city, '')}, {getText(property.state, '')}</span>
             </div>
             <div className="flex items-center space-x-6 text-white text-opacity-90">
               <div className="flex items-center">
@@ -199,7 +210,7 @@ export default function PropertyGuidePage() {
               ¡Bienvenido a tu alojamiento!
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              {property.description}
+              {getText(property.description, '')}
             </p>
           </div>
         </Card>
@@ -234,7 +245,7 @@ export default function PropertyGuidePage() {
                   variant="outline" 
                   size="sm"
                   onClick={() => {
-                    const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${property.name} y necesito ayuda.`)
+                    const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${getText(property.name, 'la propiedad')} y necesito ayuda.`)
                     const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
                     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
                   }}
@@ -295,11 +306,11 @@ export default function PropertyGuidePage() {
                       </div>
                       
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        {zone.name}
+                        {getText(zone.name, 'Zona')}
                       </h3>
                       
                       <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                        {zone.description}
+                        {getText(zone.description, '')}
                       </p>
                       
                       <div className="flex items-center justify-between text-sm text-gray-500">

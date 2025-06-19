@@ -6,6 +6,7 @@ import { Lightbulb, X, Plus, ChevronRight } from 'lucide-react'
 import { Button } from './Button'
 import { ZoneIconDisplay } from './IconSelector'
 import { zoneTemplates, ZoneTemplate } from '../../data/zoneTemplates'
+import { getText } from '../../lib/utils'
 
 interface MobileZoneToastProps {
   existingZoneNames: string[]
@@ -177,10 +178,10 @@ export function MobileZoneToast({
                         </div>
                         <div className="flex-1">
                           <h3 className="font-medium text-sm text-gray-900">
-                            {template.name}
+                            {getText(template.name, 'Zona')}
                           </h3>
                           <p className="text-xs text-gray-600 line-clamp-1">
-                            {template.description}
+                            {getText(template.description, '')}
                           </p>
                         </div>
                       </div>

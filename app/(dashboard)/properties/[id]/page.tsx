@@ -73,6 +73,17 @@ const zoneTypes = [
   { id: 'rules', name: 'Normas', icon: '📋', color: 'bg-pink-100' },
 ]
 
+// Helper function to get text from multilingual objects
+const getPropertyText = (value: any, fallback: string = '') => {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value && typeof value === 'object') {
+    return value.es || value.en || value.fr || fallback
+  }
+  return fallback
+}
+
 export default function PropertyEditPage() {
   const router = useRouter()
   const params = useParams()
@@ -98,7 +109,14 @@ export default function PropertyEditPage() {
       }
       
       setProperty(result.data)
-      setZones(result.data.zones || [])
+      
+      // Transform zones to ensure names are strings
+      const transformedZones = (result.data.zones || []).map((zone: any) => ({
+        ...zone,
+        name: getPropertyText(zone.name),
+        description: getPropertyText(zone.description)
+      }))
+      setZones(transformedZones)
     } catch (error) {
       console.error('Error fetching property:', error)
       alert('Error al cargar la propiedad')
@@ -174,7 +192,7 @@ export default function PropertyEditPage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{property.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-900">{getPropertyText(property.name)}</h1>
               <p className="text-gray-600 mt-1">
                 Gestiona las zonas y pasos de tu propiedad
               </p>
@@ -201,7 +219,7 @@ export default function PropertyEditPage() {
               {property.profileImage ? (
                 <img 
                   src={property.profileImage} 
-                  alt={property.name}
+                  alt={getPropertyText(property.name)}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -217,7 +235,7 @@ export default function PropertyEditPage() {
                 <p className="text-sm text-gray-600 mb-1">Ubicación</p>
                 <p className="font-medium text-gray-900 flex items-center">
                   <MapPin className="w-4 h-4 mr-1 text-gray-400" />
-                  {property.city}, {property.state}
+                  {getPropertyText(property.city)}, {getPropertyText(property.state)}
                 </p>
               </div>
               <div>
@@ -298,7 +316,7 @@ export default function PropertyEditPage() {
                           {zone.icon || '📁'}
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900">{zone.name}</h3>
+                          <h3 className="font-semibold text-gray-900">{getPropertyText(zone.name)}</h3>
                           <p className="text-sm text-gray-600">
                             {zone.stepsCount || 0} pasos
                           </p>

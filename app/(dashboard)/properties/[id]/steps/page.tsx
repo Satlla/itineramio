@@ -1,6 +1,17 @@
 'use client'
 
 import React, { useState } from 'react'
+
+// Helper function to get text from multilingual objects
+const getText = (value: any, fallback: string = '') => {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value && typeof value === 'object') {
+    return value.es || value.en || value.fr || fallback
+  }
+  return fallback
+}
 import { motion } from 'framer-motion'
 import { Edit, ArrowRight, Plus, CheckCircle, AlertCircle } from 'lucide-react'
 import { Button } from '../../../../../src/components/ui/Button'
@@ -193,7 +204,7 @@ export default async function PropertyStepsPage({ params }: { params: Promise<{ 
                     <ZoneIconDisplay iconId={zone.iconId} size="md" />
                     
                     <div>
-                      <h3 className="font-semibold text-gray-900">{zone.name}</h3>
+                      <h3 className="font-semibold text-gray-900">{getText(zone.name, 'Zona')}</h3>
                       <div className="flex items-center space-x-4 mt-1">
                         <div className="flex items-center space-x-1">
                           <StatusIcon className={cn("w-4 h-4", statusInfo.color)} />

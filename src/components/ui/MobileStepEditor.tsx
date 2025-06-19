@@ -364,17 +364,6 @@ export function MobileStepEditor({
 
       {/* Language Selector */}
       <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-        {/* Test button to verify JS is working */}
-        <button 
-          type="button"
-          onClick={() => {
-            console.log('🔴 TEST BUTTON CLICKED!');
-            alert('JavaScript is working!');
-          }}
-          className="mb-2 w-full bg-red-500 text-white py-2 rounded"
-        >
-          Test JS (Click me)
-        </button>
         <div className="flex justify-center">
           <div className="flex bg-white rounded-full p-1 shadow-sm">
             {languages.map((lang) => (

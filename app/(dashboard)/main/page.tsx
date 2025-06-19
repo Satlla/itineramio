@@ -334,20 +334,6 @@ export default function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
-            
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Star className="h-8 w-8 text-yellow-600" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Valoración Media</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {loading ? '...' : stats.avgRating || '0.0'}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </motion.div>
 
 

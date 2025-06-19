@@ -13,9 +13,9 @@ import { Badge } from '../../../../../src/components/ui/Badge'
 interface ZoneStep {
   id: string
   type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'LINK'
-  title: string
-  description?: string
-  content?: string
+  title: string | { es: string; en?: string; fr?: string }
+  description?: string | { es: string; en?: string; fr?: string }
+  content?: string | { es: string; en?: string; fr?: string }
   mediaUrl?: string
   linkUrl?: string
   estimatedTime?: number
@@ -25,8 +25,8 @@ interface ZoneStep {
 
 interface Zone {
   id: string
-  name: string
-  description: string
+  name: string | { es: string; en?: string; fr?: string }
+  description: string | { es: string; en?: string; fr?: string }
   icon: string
   color?: string
   propertyId: string
@@ -35,11 +35,22 @@ interface Zone {
 
 interface Property {
   id: string
-  name: string
+  name: string | { es: string; en?: string; fr?: string }
   hostContactName: string
   hostContactPhone: string
   hostContactEmail: string
   hostContactPhoto?: string
+}
+
+// Helper function to get text from multilingual objects
+const getText = (value: any, fallback: string = '') => {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value && typeof value === 'object') {
+    return value.es || value.en || value.fr || fallback
+  }
+  return fallback
 }
 
 export default async function ZoneGuidePage({ 
@@ -94,7 +105,7 @@ export default async function ZoneGuidePage({
 
   const openWhatsApp = () => {
     if (property?.hostContactPhone && zone) {
-      const message = encodeURIComponent(`Hola ${property.hostContactName}, tengo una consulta sobre la zona "${zone.name}" en ${property.name}`)
+      const message = encodeURIComponent(`Hola ${property.hostContactName}, tengo una consulta sobre la zona "${getText(zone.name, 'la zona')}" en ${getText(property.name, 'la propiedad')}`)
       const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
       window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
     }
@@ -188,8 +199,8 @@ export default async function ZoneGuidePage({
             }`}>
               {zone.icon || '📁'}
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">{zone.name}</h2>
-            <p className="text-gray-600 mb-6">{zone.description}</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{getText(zone.name, 'Zona')}</h2>
+            <p className="text-gray-600 mb-6">{getText(zone.description, '')}</p>
             <div className="bg-yellow-50 rounded-lg p-4">
               <p className="text-yellow-800">
                 <strong>🚧 En construcción:</strong> El anfitrión aún está preparando el contenido de esta zona.
@@ -224,8 +235,8 @@ export default async function ZoneGuidePage({
                   {zone.icon || '📁'}
                 </div>
                 <div>
-                  <h1 className="font-semibold text-gray-900">{zone.name}</h1>
-                  <p className="text-sm text-gray-600">{property.name}</p>
+                  <h1 className="font-semibold text-gray-900">{getText(zone.name, 'Zona')}</h1>
+                  <p className="text-sm text-gray-600">{getText(property.name, 'Propiedad')}</p>
                 </div>
               </div>
             </div>
@@ -299,16 +310,16 @@ export default async function ZoneGuidePage({
                       )}
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                      {currentStep.title}
+                      {getText(currentStep.title, 'Paso')}
                     </h2>
                     {currentStep.description && (
                       <p className="text-gray-700 leading-relaxed mb-4">
-                        {currentStep.description}
+                        {getText(currentStep.description, '')}
                       </p>
                     )}
                     {currentStep.content && (
                       <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                        {currentStep.content}
+                        {getText(currentStep.content, '')}
                       </div>
                     )}
                   </div>
@@ -346,7 +357,7 @@ export default async function ZoneGuidePage({
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       src={currentStep.mediaUrl}
-                      alt={currentStep.title}
+                      alt={getText(currentStep.title, 'Imagen del paso')}
                       className="w-full h-auto rounded-lg shadow-lg"
                     />
                   </div>
@@ -481,7 +492,7 @@ export default async function ZoneGuidePage({
                     )}
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">{step.title}</h4>
+                    <h4 className="font-medium text-gray-900">{getText(step.title, 'Paso')}</h4>
                     <div className="flex items-center space-x-2 text-sm text-gray-500">
                       <Badge variant={step.status === 'ACTIVE' ? 'default' : 'secondary'} size="sm">
                         {step.type}

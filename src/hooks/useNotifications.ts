@@ -3,6 +3,17 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Notification, ZoneWarning } from '../types/notifications'
 
+// Helper function to get text from multilingual objects
+const getZoneText = (value: any, fallback: string = '') => {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value && typeof value === 'object') {
+    return value.es || value.en || value.fr || fallback
+  }
+  return fallback
+}
+
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([])
 
@@ -57,9 +68,9 @@ export function useNotifications() {
       if (zone.status === 'DRAFT' || !zone.isPublished) {
         warnings.push({
           zoneId: zone.id,
-          zoneName: zone.name,
+          zoneName: getZoneText(zone.name),
           type: 'inactive',
-          message: `La zona "${zone.name}" está desactivada y no es visible para los huéspedes`,
+          message: `La zona "${getZoneText(zone.name)}" está desactivada y no es visible para los huéspedes`,
           propertyId
         })
       }
@@ -68,9 +79,9 @@ export function useNotifications() {
       if (!zone.steps || zone.steps.length === 0 || zone.stepsCount === 0) {
         warnings.push({
           zoneId: zone.id,
-          zoneName: zone.name,
+          zoneName: getZoneText(zone.name),
           type: 'empty',
-          message: `La zona "${zone.name}" no tiene instrucciones configuradas`,
+          message: `La zona "${getZoneText(zone.name)}" no tiene instrucciones configuradas`,
           propertyId
         })
       }
@@ -81,9 +92,9 @@ export function useNotifications() {
         if (daysSinceCreated > 7) {
           warnings.push({
             zoneId: zone.id,
-            zoneName: zone.name,
+            zoneName: getZoneText(zone.name),
             type: 'no_visits',
-            message: `La zona "${zone.name}" no ha sido visitada en los últimos 7 días`,
+            message: `La zona "${getZoneText(zone.name)}" no ha sido visitada en los últimos 7 días`,
             propertyId
           })
         }

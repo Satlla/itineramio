@@ -6,6 +6,7 @@ import { Button } from './Button'
 import { Card } from './Card'
 import { ZoneIconDisplay } from './IconSelector'
 import { zoneTemplates, ZoneTemplate } from '../../data/zoneTemplates'
+import { getText } from '../../lib/utils'
 
 interface ZoneStaticSuggestionsProps {
   existingZoneNames: string[]
@@ -69,10 +70,10 @@ export function ZoneStaticSuggestions({
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium text-gray-900 text-sm mb-1">
-                    {template.name}
+                    {getText(template.name, 'Zona')}
                   </h3>
                   <p className="text-xs text-gray-600 line-clamp-2">
-                    {template.description}
+                    {getText(template.description, '')}
                   </p>
                 </div>
               </div>

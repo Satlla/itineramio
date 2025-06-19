@@ -25,14 +25,16 @@ import { Card, CardContent } from '../../../src/components/ui/Card'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { createPropertySlug } from '../../../src/lib/slugs'
+import { LoadingSpinner } from '../../../src/components/ui/LoadingSpinner'
 
 interface Property {
   id: string
-  name: string
-  description: string
+  name: string | { es: string; en?: string; fr?: string }
+  description: string | { es: string; en?: string; fr?: string }
   type: 'APARTMENT' | 'HOUSE' | 'ROOM' | 'VILLA'
-  city: string
-  state: string
+  city: string | { es: string; en?: string; fr?: string }
+  state: string | { es: string; en?: string; fr?: string }
   bedrooms: number
   bathrooms: number
   maxGuests: number
@@ -48,6 +50,17 @@ interface Property {
   errorReports?: number
   notifications?: number
   propertySetId?: string | null
+}
+
+// Helper function to get text from multilingual objects
+const getText = (value: any, fallback: string = '') => {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value && typeof value === 'object') {
+    return value.es || value.en || value.fr || fallback
+  }
+  return fallback
 }
 
 interface PropertySet {
@@ -201,14 +214,18 @@ export default function PropertiesPage() {
   }
 
   const getShareUrl = (property: Property) => {
-    // Create a URL-friendly slug from the property name
-    const slug = property.name.toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
-    
-    return `${window.location.origin}/guide/${property.id}/${slug}`
+    const slug = createPropertySlug(property)
+    return `${window.location.origin}/guide/${slug}`
+  }
+
+  const getFriendlyUrl = (property: Property) => {
+    const slug = createPropertySlug(property)
+    return `/properties/${slug}`
+  }
+
+  const handlePropertyClick = (property: Property) => {
+    const friendlyUrl = getFriendlyUrl(property)
+    router.push(friendlyUrl)
   }
 
   const copyToClipboard = async () => {
@@ -250,6 +267,10 @@ export default function PropertiesPage() {
   const handleBackToSets = () => {
     setSelectedPropertySet(null)
     setPropertySetProperties([])
+  }
+
+  if (loading) {
+    return <LoadingSpinner text="Cargando propiedades..." />
   }
 
   return (
@@ -443,7 +464,7 @@ export default function PropertiesPage() {
                           {property.profileImage ? (
                             <img 
                               src={property.profileImage} 
-                              alt={property.name}
+                              alt={getText(property.name, 'Propiedad')}
                               className="w-20 h-20 rounded-full object-cover mx-auto"
                             />
                           ) : (
@@ -466,7 +487,7 @@ export default function PropertiesPage() {
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h3 className="font-semibold text-lg text-gray-900 truncate">
-                                {property.name}
+                                {getText(property.name, 'Propiedad')}
                               </h3>
                               {property.propertySetId && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
@@ -476,7 +497,7 @@ export default function PropertiesPage() {
                               )}
                             </div>
                             <p className="text-sm text-gray-600 mb-2">
-                              {property.city}, {property.state}
+                              {getText(property.city, '')}, {getText(property.state, '')}
                             </p>
                             <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
                               <span>{property.bedrooms} hab</span>
@@ -555,7 +576,7 @@ export default function PropertiesPage() {
                             variant="outline"
                             size="sm"
                             className="w-full"
-                            onClick={() => router.push(`/properties/${property.id}/zones`)}
+                            onClick={() => router.push(getFriendlyUrl(property))}
                           >
                             Añadir Zonas
                           </Button>
@@ -623,7 +644,7 @@ export default function PropertiesPage() {
                               {property.profileImage ? (
                                 <img 
                                   src={property.profileImage} 
-                                  alt={property.name}
+                                  alt={getText(property.name, 'Propiedad')}
                                   className="w-20 h-20 rounded-lg object-cover mx-auto"
                                 />
                               ) : (
@@ -639,10 +660,10 @@ export default function PropertiesPage() {
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <h3 className="font-semibold text-lg text-gray-900 mb-1 truncate">
-                                  {property.name}
+                                  {getText(property.name, 'Propiedad')}
                                 </h3>
                                 <p className="text-sm text-gray-600 mb-2">
-                                  {property.city}, {property.state}
+                                  {getText(property.city, '')}, {getText(property.state, '')}
                                 </p>
                                 <p className="text-sm text-gray-500 mb-3">
                                   {propertyTypeLabels[property.type]} • {property.bedrooms} hab • {property.bathrooms} baños • {property.maxGuests} huéspedes
@@ -680,7 +701,7 @@ export default function PropertiesPage() {
                                 variant="outline"
                                 size="sm"
                                 className="w-full"
-                                onClick={() => router.push(`/properties/${property.id}/zones`)}
+                                onClick={() => router.push(getFriendlyUrl(property))}
                               >
                                 Gestionar Zonas
                               </Button>
@@ -878,7 +899,7 @@ export default function PropertiesPage() {
                     {shareProperty.profileImage ? (
                       <img 
                         src={shareProperty.profileImage} 
-                        alt={shareProperty.name}
+                        alt={getText(shareProperty.name, 'Propiedad')}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -889,10 +910,10 @@ export default function PropertiesPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-lg font-semibold text-gray-900 truncate">
-                      {shareProperty.name}
+                      {getText(shareProperty.name, 'Propiedad')}
                     </h4>
                     <p className="text-sm text-gray-600">
-                      {shareProperty.city}, {shareProperty.state}
+                      {getText(shareProperty.city, '')}, {getText(shareProperty.state, '')}
                     </p>
                   </div>
                 </div>

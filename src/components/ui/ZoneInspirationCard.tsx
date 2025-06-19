@@ -19,6 +19,7 @@ import { Card } from './Card'
 import { Badge } from './Badge'
 import { ZoneIconDisplay } from './IconSelector'
 import { InspirationZone } from '../../data/zoneInspiration'
+import { getText } from '../../lib/utils'
 
 interface ZoneInspirationCardProps {
   inspiration: InspirationZone
@@ -110,7 +111,7 @@ export function ZoneInspirationCard({
                 <Sparkles className={`${compact ? 'w-3 h-3' : 'w-4 h-4'} text-yellow-300`} />
                 <span className={`${compact ? 'text-xs' : 'text-xs'} font-medium opacity-90`}>Sugerencia</span>
               </div>
-              <h3 className={`${compact ? 'text-sm' : 'text-lg'} font-bold`}>{inspiration.name}</h3>
+              <h3 className={`${compact ? 'text-sm' : 'text-lg'} font-bold`}>{getText(inspiration.name, 'Zona')}</h3>
               <p className={`${compact ? 'text-xs' : 'text-sm'} opacity-90`}>{inspiration.title}</p>
             </div>
           </div>

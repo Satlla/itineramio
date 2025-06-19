@@ -22,6 +22,7 @@ import { InspirationZone } from '../../../../../src/data/zoneInspiration'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
 import { useNotifications } from '../../../../../src/hooks/useNotifications'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
 
 interface Zone {
   id: string
@@ -85,9 +86,20 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     return helpTexts[zoneName.toLowerCase()] || 'Añade instrucciones detalladas para ayudar a tus huéspedes.'
   }
 
+  // Helper function to get zone text (for name, description, etc.)
+  const getZoneText = (value: any, fallback: string = '') => {
+    if (typeof value === 'string') {
+      return value
+    }
+    if (value && typeof value === 'object') {
+      return value.es || value.en || value.fr || fallback
+    }
+    return fallback
+  }
+
   // Get zones that the user doesn't have and existing zones
   const getMissingZones = () => {
-    const existingZoneNames = zones.map(z => z.name.toLowerCase())
+    const existingZoneNames = zones.map(z => getZoneText(z.name).toLowerCase())
     
     // Get top zones by popularity from essential category
     return zoneTemplates
@@ -99,7 +111,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   // Check if user has any zone that matches the template
   const findExistingZone = (templateName: string): Zone | undefined => {
-    return zones.find(z => z.name.toLowerCase() === templateName.toLowerCase())
+    return zones.find(z => getZoneText(z.name).toLowerCase() === templateName.toLowerCase())
   }
 
   // Fetch property name and zones
@@ -121,21 +133,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         if (zonesResult.success && zonesResult.data) {
           // Transform API data to match Zone interface
           const transformedZones: Zone[] = zonesResult.data.map((zone: any) => {
-            // Handle name - API stores as Json object {es: "name"} or string
-            let zoneName = ''
-            if (typeof zone.name === 'string') {
-              zoneName = zone.name
-            } else if (zone.name && typeof zone.name === 'object') {
-              zoneName = zone.name.es || zone.name.en || Object.values(zone.name)[0] || ''
-            }
-
-            // Handle description - API stores as Json object {es: "description"} or string  
-            let zoneDescription = ''
-            if (typeof zone.description === 'string') {
-              zoneDescription = zone.description
-            } else if (zone.description && typeof zone.description === 'object') {
-              zoneDescription = zone.description.es || zone.description.en || Object.values(zone.description)[0] || ''
-            }
+            // Use helper to get zone text
+            const zoneName = getZoneText(zone.name)
+            const zoneDescription = getZoneText(zone.description)
 
             return {
               id: zone.id,
@@ -160,7 +160,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   addNotification({
                     type: 'warning',
                     title: `${propResult.data?.name || 'Propiedad'} - Zona sin configurar`,
-                    message: `La zona "${zone.name}" no tiene instrucciones configuradas`,
+                    message: `La zona "${getZoneText(zone.name)}" no tiene instrucciones configuradas`,
                     propertyId: id,
                     zoneId: zone.id,
                     read: false,
@@ -173,7 +173,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   addNotification({
                     type: 'info',
                     title: `${propResult.data?.name || 'Propiedad'} - Zona incompleta`,
-                    message: `La zona "${zone.name}" solo tiene ${zone.stepsCount} paso(s). Considera añadir más información`,
+                    message: `La zona "${getZoneText(zone.name)}" solo tiene ${zone.stepsCount} paso(s). Considera añadir más información`,
                     propertyId: id,
                     zoneId: zone.id,
                     read: false,
@@ -187,7 +187,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 addNotification({
                   type: 'error',
                   title: `${propResult.data?.name || 'Propiedad'} - Error reportado`,
-                  message: `Un huésped reportó que el código WiFi no funciona en la zona "${transformedZones[0].name}"`,
+                  message: `Un huésped reportó que el código WiFi no funciona en la zona "${getZoneText(transformedZones[0].name)}"`,
                   propertyId: id,
                   zoneId: transformedZones[0].id,
                   read: false,
@@ -263,8 +263,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleEditZone = (zone: Zone) => {
     setEditingZone(zone)
     setFormData({
-      name: zone.name,
-      description: zone.description || '',
+      name: getZoneText(zone.name),
+      description: getZoneText(zone.description),
       iconId: zone.iconId
     })
     setShowCreateForm(true)
@@ -408,8 +408,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          name: zoneTemplate.name,
-          description: zoneTemplate.description || 'Descripción de la zona',
+          name: getZoneText(zoneTemplate.name),
+          description: getZoneText(zoneTemplate.description, 'Descripción de la zona'),
           icon: zoneTemplate.icon,
           color: 'bg-gray-100',
           status: 'ACTIVE'
@@ -422,8 +422,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         // Update local state with the new zone
         const newZone: Zone = {
           id: result.data.id,
-          name: zoneTemplate.name,
-          description: zoneTemplate.description || '',
+          name: getZoneText(zoneTemplate.name),
+          description: getZoneText(zoneTemplate.description),
           iconId: zoneTemplate.icon,
           order: result.data.order,
           stepsCount: 0,
@@ -465,8 +465,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            name: element.name,
-            description: element.description,
+            name: getZoneText(element.name),
+            description: getZoneText(element.description),
             icon: element.icon,
             color: 'bg-gray-100',
             status: 'ACTIVE'
@@ -478,8 +478,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         if (response.ok && result.success) {
           const newZone: Zone = {
             id: result.data.id,
-            name: element.name,
-            description: element.description,
+            name: getZoneText(element.name),
+            description: getZoneText(element.description),
             iconId: element.icon,
             order: result.data.order,
             stepsCount: 0,
@@ -502,7 +502,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setShowPredefineModal(false)
     
     // Get essential zones that don't exist yet
-    const existingZoneNames = zones.map(z => z.name.toLowerCase())
+    const existingZoneNames = zones.map(z => getZoneText(z.name).toLowerCase())
     const commonZones = [
       { name: 'WiFi', iconId: 'wifi', description: 'Contraseña y conexión a internet' },
       { name: 'Check-in', iconId: 'door', description: 'Proceso de entrada y llaves' },
@@ -578,8 +578,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            name: template.name,
-            description: template.description,
+            name: getZoneText(template.name),
+            description: getZoneText(template.description),
             icon: template.icon,
             color: 'bg-gray-100',
             status: 'ACTIVE'
@@ -591,8 +591,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         if (response.ok && result.success) {
           const newZone: Zone = {
             id: result.data.id,
-            name: template.name,
-            description: template.description,
+            name: getZoneText(template.name),
+            description: getZoneText(template.description),
             iconId: template.icon,
             order: result.data.order,
             stepsCount: 0,
@@ -633,8 +633,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          name: inspiration.name,
-          description: inspiration.description,
+          name: getZoneText(inspiration.name),
+          description: getZoneText(inspiration.description),
           icon: inspiration.icon,
           color: 'bg-gray-100',
           status: 'ACTIVE'
@@ -646,8 +646,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       if (response.ok && result.success) {
         const newZone: Zone = {
           id: result.data.id,
-          name: inspiration.name,
-          description: inspiration.description,
+          name: getZoneText(inspiration.name),
+          description: getZoneText(inspiration.description),
           iconId: inspiration.icon,
           order: result.data.order,
           stepsCount: 0,
@@ -954,7 +954,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                         <ZoneIconDisplay iconId={zone.iconId} size="md" />
                         
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-1">{zone.name}</h3>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">{getZoneText(zone.name)}</h3>
                           
                           <div className="flex items-center space-x-6 text-sm text-gray-600">
                             <div className="flex items-center">
@@ -1107,7 +1107,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                               />
                               <div className="flex-1 min-w-0">
                                 <p className={`text-sm font-medium ${isExisting ? 'text-green-900' : 'text-gray-900'}`}>
-                                  {zone.name}
+                                  {getZoneText(zone.name)}
                                 </p>
                                 <p className="text-xs text-gray-500">
                                   {isExisting ? '✓ Ya añadida' : 'Recomendada'}
@@ -1144,7 +1144,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                             )}
                           </div>
                           <p className="text-xs text-gray-600 px-3">
-                            {getZoneHelpText(zone.name)}
+                            {getZoneHelpText(getZoneText(zone.name))}
                           </p>
                         </div>
                       )
@@ -1161,7 +1161,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {user && zones.length > 0 && (
         <div className="mt-12">
           <ZoneStaticSuggestions
-            existingZoneNames={zones.map(z => z.name)}
+            existingZoneNames={zones.map(z => getZoneText(z.name))}
             onCreateZone={handleCreateZoneFromTemplate}
             onViewDetails={handleViewInspirationExample}
             maxVisible={6}
@@ -1293,7 +1293,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             >
               <div className="p-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">QR Code - {selectedZoneForQR.name}</h3>
+                  <h3 className="text-lg font-semibold">QR Code - {getZoneText(selectedZoneForQR.name)}</h3>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -1311,7 +1311,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 <QRCodeDisplay
                   propertyId={id}
                   zoneId={selectedZoneForQR.id}
-                  zoneName={selectedZoneForQR.name}
+                  zoneName={getZoneText(selectedZoneForQR.name)}
                   size="lg"
                   showTitle={false}
                 />
@@ -1333,7 +1333,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           <ElementSelector
             onClose={() => setShowElementSelector(false)}
             onSelectElements={handleSelectMultipleElements}
-            existingElementNames={zones.map(z => z.name)}
+            existingElementNames={zones.map(z => getZoneText(z.name))}
           />
         )}
       </AnimatePresence>
@@ -1353,7 +1353,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       <AnimatePresence>
         {showStepEditor && editingZoneForSteps && (
           <StepEditor
-            zoneTitle={editingZoneForSteps.name}
+            zoneTitle={getZoneText(editingZoneForSteps.name)}
             initialSteps={[]}
             onSave={handleSaveSteps}
             onCancel={() => {
@@ -1447,7 +1447,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
       {/* Mobile Zone Toast */}
       <MobileZoneToast
-        existingZoneNames={zones.map(z => z.name)}
+        existingZoneNames={zones.map(z => getZoneText(z.name))}
         onCreateZone={handleCreateZoneFromTemplate}
       />
 

@@ -1,6 +1,17 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+
+// Helper function to get text from multilingual objects
+const getText = (value: any, fallback: string = '') => {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value && typeof value === 'object') {
+    return value.es || value.en || value.fr || fallback
+  }
+  return fallback
+}
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ArrowLeft, 
@@ -152,10 +163,10 @@ export default function PublicZonePage() {
                 {zone.icon}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{zone.name}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{getText(zone.name, 'Zona')}</h1>
                 <p className="text-sm text-gray-600 flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
-                  {zone.property.name} • {zone.property.city}, {zone.property.country}
+                  {getText(zone.property.name, 'Propiedad')} • {getText(zone.property.city, '')}, {getText(zone.property.country, '')}
                 </p>
               </div>
             </div>

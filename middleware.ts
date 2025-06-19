@@ -15,6 +15,9 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('auth-token')?.value
 
+  // Handle URL redirects for slug-based URLs
+  // Detect old ID-based URLs and let them coexist with new slug URLs for now
+  
   const isProtectedRoute = protectedRoutes.some(route => 
     pathname.startsWith(route)
   )

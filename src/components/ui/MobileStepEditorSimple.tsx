@@ -97,17 +97,6 @@ export function MobileStepEditorSimple({
       <div className="flex-1 overflow-y-auto p-4">
         <div className="mb-4 p-4 bg-red-100 rounded">
           <p className="text-red-800 text-sm mb-2">Debug: Editor Simple Activo</p>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault()
-              console.log('🔴 Test button clicked!')
-              alert('Button works!')
-            }}
-            className="px-3 py-1 bg-red-500 text-white rounded text-sm"
-          >
-            Test Click
-          </button>
         </div>
 
         {steps.map((step, index) => (

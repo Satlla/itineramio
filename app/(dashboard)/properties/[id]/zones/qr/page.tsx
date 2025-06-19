@@ -1,6 +1,17 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+
+// Helper function to get text from multilingual objects
+const getText = (value: any, fallback: string = '') => {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value && typeof value === 'object') {
+    return value.es || value.en || value.fr || fallback
+  }
+  return fallback
+}
 import { motion } from 'framer-motion'
 import { 
   ArrowLeft, 
@@ -136,7 +147,7 @@ export default function ZoneQRPage() {
         <!DOCTYPE html>
         <html>
         <head>
-          <title>QR Code - ${zone.name}</title>
+          <title>QR Code - ${getText(zone.name, 'Zona')}</title>
           <style>
             body {
               font-family: Arial, sans-serif;
@@ -205,7 +216,7 @@ export default function ZoneQRPage() {
         <body>
           <div class="qr-container">
             <div class="zone-icon">${zone.icon}</div>
-            <div class="zone-name">${zone.name}</div>
+            <div class="zone-name">${getText(zone.name, 'Zona')}</div>
             ${zone.description ? `<div class="zone-description">${zone.description}</div>` : ''}
             <div class="qr-code">
               <img src="${qrDataUrl}" alt="QR Code" style="width: 200px; height: 200px;">
@@ -295,7 +306,7 @@ export default function ZoneQRPage() {
                     {zone.icon}
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{zone.name}</h3>
+                    <h3 className="font-semibold text-gray-900">{getText(zone.name, 'Zona')}</h3>
                     <p className="text-sm text-gray-600">
                       {zone.stepsCount} pasos
                     </p>
@@ -307,7 +318,7 @@ export default function ZoneQRPage() {
                   {qrDataUrls[zone.id] ? (
                     <img 
                       src={qrDataUrls[zone.id]} 
-                      alt={`QR Code para ${zone.name}`}
+                      alt={`QR Code para ${getText(zone.name, 'Zona')}`}
                       className="w-32 h-32 mx-auto border border-gray-200 rounded-lg"
                     />
                   ) : (

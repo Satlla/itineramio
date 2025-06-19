@@ -23,6 +23,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { Button } from '../../../../../../src/components/ui/Button'
 import { Card } from '../../../../../../src/components/ui/Card'
 import { StepEditor } from '../../../../../../src/components/ui/StepEditor'
+import { LoadingSpinner } from '../../../../../../src/components/ui/LoadingSpinner'
 
 interface Step {
   id: string
@@ -333,11 +334,7 @@ export default function ZoneDetailPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
-      </div>
-    )
+    return <LoadingSpinner text="Cargando zona..." />
   }
 
   if (!zone) {
@@ -453,10 +450,10 @@ export default function ZoneDetailPage() {
         </div>
 
         {/* Steps Timeline */}
-        <div className="p-4">
+        <div className="px-4 pb-4">
           
           {!zone.steps || zone.steps.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
               <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
                 <Play className="w-8 h-8 text-gray-400" />
               </div>
@@ -468,10 +465,7 @@ export default function ZoneDetailPage() {
               </p>
             </div>
           ) : (
-            <div className="relative">
-              {/* Timeline line */}
-              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
-              
+            <div className="space-y-4">
               {zone.steps
                 .sort((a, b) => a.order - b.order)
                 .map((step, index) => {
@@ -481,33 +475,39 @@ export default function ZoneDetailPage() {
                   return (
                     <motion.div
                       key={step.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.1 }}
-                      className="relative flex items-start mb-6"
+                      className="relative"
                     >
-                      {/* Timeline dot */}
-                      <div className="relative z-10 flex-shrink-0">
-                        <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center shadow-lg">
-                          <span className="text-white font-semibold text-sm">{index + 1}</span>
-                        </div>
-                        {/* Connecting line to content */}
-                        <div className="absolute top-1/2 left-full w-4 h-0.5 bg-gray-200 -translate-y-0.5"></div>
-                      </div>
-
-                      {/* Step content */}
-                      <div className="flex-1 ml-4 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-                        <div className="flex items-start justify-between mb-2">
+                      {/* Step Container */}
+                      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        {/* Step Header with Timeline */}
+                        <div className="flex items-center p-4 bg-gray-50 border-b border-gray-200">
+                          {/* Timeline Section */}
+                          <div className="flex items-center mr-4">
+                            {/* Timeline Dot */}
+                            <div className="relative">
+                              <div className="w-8 h-8 bg-violet-600 rounded-full flex items-center justify-center shadow-sm">
+                                <span className="text-white font-semibold text-xs">{index + 1}</span>
+                              </div>
+                              {/* Vertical line */}
+                              {!isLast && (
+                                <div className="absolute top-8 left-1/2 w-0.5 h-4 bg-gray-300 -translate-x-0.5"></div>
+                              )}
+                            </div>
+                            {/* Horizontal line */}
+                            <div className="w-4 h-0.5 bg-gray-300 ml-2"></div>
+                          </div>
+                          
+                          {/* Step Info */}
                           <div className="flex-1">
-                            <h3 className="text-base font-semibold text-gray-900 mb-1">
-                              {getStepText(step, 'title') || `Paso ${index + 1}`}
-                            </h3>
-                            <div className="flex items-center space-x-2 mb-2">
-                              <StepIcon className="w-4 h-4 text-gray-500" />
-                              <span className="text-xs text-gray-500 uppercase font-medium">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <StepIcon className="w-4 h-4 text-gray-600" />
+                              <span className="text-xs font-medium text-gray-600 uppercase tracking-wide">
                                 {getStepTypeLabel(step.type)}
                               </span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                                 (step as any).isPublished 
                                   ? 'bg-green-100 text-green-700' 
                                   : 'bg-yellow-100 text-yellow-700'
@@ -515,17 +515,20 @@ export default function ZoneDetailPage() {
                                 {(step as any).isPublished ? 'Publicado' : 'Borrador'}
                               </span>
                             </div>
+                            <h3 className="text-sm font-semibold text-gray-900">
+                              {getStepText(step, 'title') || `Paso ${index + 1}`}
+                            </h3>
                           </div>
                           
                           {/* Actions */}
-                          <div className="flex space-x-1 ml-2">
+                          <div className="flex space-x-1">
                             <Button
                               onClick={() => handleEditStep(step.id)}
                               size="sm"
                               variant="ghost"
-                              className="w-8 h-8 p-0 hover:bg-gray-100"
+                              className="w-8 h-8 p-0 hover:bg-white hover:shadow-sm"
                             >
-                              <Edit2 className="w-3.5 h-3.5" />
+                              <Edit2 className="w-3.5 h-3.5 text-gray-600" />
                             </Button>
                             <Button
                               onClick={() => handleDeleteStep(step.id)}
@@ -538,10 +541,13 @@ export default function ZoneDetailPage() {
                           </div>
                         </div>
                         
+                        {/* Step Content */}
                         {getStepText(step, 'content') && (
-                          <p className="text-sm text-gray-600 leading-relaxed">
-                            {getStepText(step, 'content')}
-                          </p>
+                          <div className="p-4">
+                            <p className="text-sm text-gray-700 leading-relaxed">
+                              {getStepText(step, 'content')}
+                            </p>
+                          </div>
                         )}
                       </div>
                     </motion.div>
