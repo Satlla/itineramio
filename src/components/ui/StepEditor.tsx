@@ -863,7 +863,13 @@ export function StepEditor({
                       <div className="absolute top-6 left-1/2 transform -translate-x-1/2 w-24 h-6 bg-black rounded-full z-10"></div>
                       
                       {/* Screen Content */}
-                      <div className="pt-12 pb-8 px-4 h-full overflow-y-auto">
+                      <div 
+                        className="pt-12 pb-8 px-4 h-full overflow-y-auto scrollbar-none" 
+                        style={{ 
+                          scrollbarWidth: 'none', 
+                          msOverflowStyle: 'none'
+                        }}
+                      >
                         {/* Zone Header */}
                         <div className="text-center mb-6">
                           <h2 className="text-sm font-bold text-gray-900 mb-1">Manual de instrucciones</h2>
@@ -873,7 +879,11 @@ export function StepEditor({
                         {/* Steps Preview */}
                         <div className="relative">
                           {steps.map((step, index) => (
-                            <div key={step.id} className="relative flex items-start gap-3 mb-4">
+                            <div 
+                              key={step.id} 
+                              className="relative flex items-start gap-3 mb-4 cursor-pointer"
+                              onClick={() => setActiveStep(index)}
+                            >
                               {/* Timeline container */}
                               <div className="flex flex-col items-center relative">
                                 {/* Circle */}
@@ -885,7 +895,11 @@ export function StepEditor({
                               </div>
                               
                               {/* Step content */}
-                              <div className={`flex-1 bg-gray-50 rounded-lg overflow-hidden ${index === activeStep ? 'ring-2 ring-violet-500' : ''}`}>
+                              <div className={`flex-1 bg-gray-50 rounded-lg overflow-hidden transition-all duration-200 ${
+                                index === activeStep 
+                                  ? 'ring-2 ring-violet-500 bg-violet-50' 
+                                  : 'hover:bg-gray-100 hover:ring-1 hover:ring-gray-300'
+                              }`}>
                                 {/* Show media preview inside iPhone - Full width */}
                                 {step.media?.url && (
                                   <div className="w-full">

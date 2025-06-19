@@ -24,6 +24,7 @@ import { Button } from '../../../../../../src/components/ui/Button'
 import { Card } from '../../../../../../src/components/ui/Card'
 import { StepEditor } from '../../../../../../src/components/ui/StepEditor'
 import { LoadingSpinner } from '../../../../../../src/components/ui/LoadingSpinner'
+import { createPropertySlug, createZoneSlug } from '../../../../../../src/lib/slugs'
 
 interface Step {
   id: string
@@ -88,7 +89,40 @@ export default function ZoneDetailPage() {
       setLoading(true)
       console.log('🔄 FETCHING zone data for:', { propertyId, zoneId })
       
-      const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}`)
+      let actualPropertyId = propertyId
+      let actualZoneId = zoneId
+      
+      // Check if propertyId is a slug (contains hyphens and no uppercase)
+      if (propertyId.includes('-') && propertyId === propertyId.toLowerCase()) {
+        const propertiesResponse = await fetch('/api/properties')
+        const propertiesResult = await propertiesResponse.json()
+        
+        if (propertiesResult.success) {
+          const foundProperty = propertiesResult.data.find((p: any) => 
+            createPropertySlug(p) === propertyId
+          )
+          if (foundProperty) {
+            actualPropertyId = foundProperty.id
+          }
+        }
+      }
+      
+      // Check if zoneId is a slug
+      if (zoneId.includes('-') && zoneId === zoneId.toLowerCase()) {
+        const zonesResponse = await fetch(`/api/properties/${actualPropertyId}/zones`)
+        const zonesResult = await zonesResponse.json()
+        
+        if (zonesResult.success) {
+          const foundZone = zonesResult.data.find((z: any) => 
+            createZoneSlug(z) === zoneId
+          )
+          if (foundZone) {
+            actualZoneId = foundZone.id
+          }
+        }
+      }
+      
+      const response = await fetch(`/api/properties/${actualPropertyId}/zones/${actualZoneId}`)
       const result = await response.json()
       
       console.log('🔄 API Response:', { 
@@ -235,12 +269,10 @@ export default function ZoneDetailPage() {
       editingStepId 
     })
     
-    if (!zone?.steps) {
-      return []
-    }
-
     // When editing a specific step, return only that step
     if (isEditingExisting && editingStepId) {
+      if (!zone?.steps) return []
+      
       const existingStep = zone.steps.find(s => s.id === editingStepId)
       if (!existingStep) return []
 
@@ -259,25 +291,16 @@ export default function ZoneDetailPage() {
       }]
     }
 
-    // When adding new steps or opening the editor, return ALL existing steps
-    const allSteps = zone.steps
-      .sort((a, b) => a.order - b.order)
-      .map(step => ({
-        id: step.id,
-        type: step.type.toLowerCase() as any,
-        content: typeof step.content === 'string' 
-          ? { es: step.content, en: '', fr: '' }
-          : {
-              es: (step.content as any)?.es || '',
-              en: (step.content as any)?.en || '',
-              fr: (step.content as any)?.fr || ''
-            },
-        media: (step as any).mediaUrl ? { url: (step as any).mediaUrl } : undefined,
-        order: step.order
-      }))
+    // When adding a new step, create a new empty step with the next order
+    const existingStepsCount = zone?.steps?.length || 0
+    const nextOrder = existingStepsCount
     
-    console.log('🎬 Returning all steps:', allSteps)
-    return allSteps
+    return [{
+      id: `new-step-${Date.now()}`,
+      type: 'text' as any,
+      content: { es: '', en: '', fr: '' },
+      order: nextOrder
+    }]
   }
 
   // Helper function to get step content text
