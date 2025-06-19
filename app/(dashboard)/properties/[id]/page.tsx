@@ -24,6 +24,7 @@ import { Button } from '../../../../src/components/ui/Button'
 import { Card } from '../../../../src/components/ui/Card'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
+import { findPropertyBySlug } from '../../../../src/lib/slugs'
 
 interface Zone {
   id: string
@@ -101,7 +102,24 @@ export default function PropertyEditPage() {
   const fetchPropertyData = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/properties/${propertyId}`)
+      
+      let actualPropertyId = propertyId
+      
+      // Check if propertyId is a slug (contains hyphens and no uppercase)
+      if (propertyId.includes('-') && propertyId === propertyId.toLowerCase()) {
+        // It's likely a slug, try to find the property by slug
+        const propertiesResponse = await fetch('/api/properties')
+        const propertiesResult = await propertiesResponse.json()
+        
+        if (propertiesResult.success) {
+          const foundProperty = findPropertyBySlug(propertyId, propertiesResult.data)
+          if (foundProperty) {
+            actualPropertyId = foundProperty.id
+          }
+        }
+      }
+      
+      const response = await fetch(`/api/properties/${actualPropertyId}`)
       const result = await response.json()
       
       if (!response.ok) {
@@ -128,6 +146,11 @@ export default function PropertyEditPage() {
 
   const handleAddZone = () => {
     router.push(`/properties/${propertyId}/zones/new`)
+  }
+
+  const handleZoneClick = (zone: Zone) => {
+    // For now, keep using ID-based routing but prepare for slug transition
+    router.push(`/properties/${propertyId}/zones/${zone.id}`)
   }
 
   const handleEditZone = (zoneId: string) => {
@@ -307,7 +330,10 @@ export default function PropertyEditPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Card className="p-4 hover:shadow-lg transition-shadow duration-200">
+                  <Card 
+                    className="p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                    onClick={() => handleZoneClick(zone)}
+                  >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center space-x-3">
                         <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-2xl ${
@@ -329,7 +355,10 @@ export default function PropertyEditPage() {
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0"
-                          onClick={() => setSelectedZone(selectedZone === zone.id ? null : zone.id)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedZone(selectedZone === zone.id ? null : zone.id)
+                          }}
                         >
                           <MoreVertical className="w-4 h-4" />
                         </Button>
