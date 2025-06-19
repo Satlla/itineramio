@@ -944,10 +944,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 <Card 
                   className="hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300"
                   onClick={() => {
-                    // Use friendly URL with slugs
-                    const propertySlug = createPropertySlug({ name: propertyName })
-                    const zoneSlug = createZoneSlug(zone)
-                    router.push(`/properties/${propertySlug}/${zoneSlug}`)
+                    router.push(`/properties/${id}/zones/${zone.id}`)
                   }}
                 >
                   <CardContent className="p-4">
@@ -1099,9 +1096,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                             }`}
                             onClick={() => {
                               if (isExisting && existingZone) {
-                                const propertySlug = createPropertySlug({ name: propertyName })
-                                const zoneSlug = createZoneSlug(existingZone)
-                                router.push(`/properties/${propertySlug}/${zoneSlug}`)
+                                router.push(`/properties/${id}/zones/${existingZone.id}`)
                               }
                             }}
                           >
