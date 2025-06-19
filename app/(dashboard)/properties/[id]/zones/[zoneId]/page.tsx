@@ -342,8 +342,8 @@ export default function ZoneDetailPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Zona no encontrada</h2>
-          <Link href={`/properties/${propertyId}`}>
-            <Button variant="outline">Volver a la propiedad</Button>
+          <Link href={`/properties/${propertyId}/zones`}>
+            <Button variant="outline">Volver a zonas</Button>
           </Link>
         </div>
       </div>
@@ -355,7 +355,7 @@ export default function ZoneDetailPage() {
       {/* Mobile Header */}
       <div className="lg:hidden bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="flex items-center justify-between p-4">
-          <Link href={`/properties/${propertyId}`}>
+          <Link href={`/properties/${propertyId}/zones`}>
             <Button variant="ghost" size="sm" className="p-2">
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -378,7 +378,7 @@ export default function ZoneDetailPage() {
       <div className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
-            <Link href={`/properties/${propertyId}`}>
+            <Link href={`/properties/${propertyId}/zones`}>
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver

@@ -151,7 +151,7 @@ export default function NewZonePage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
-            <Link href={`/properties/${propertyId}`}>
+            <Link href={`/properties/${propertyId}/zones`}>
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver
@@ -313,7 +313,7 @@ export default function NewZonePage() {
             </div>
 
             <div className="flex justify-end space-x-3 mt-8">
-              <Link href={`/properties/${propertyId}`}>
+              <Link href={`/properties/${propertyId}/zones`}>
                 <Button type="button" variant="outline">
                   Cancelar
                 </Button>

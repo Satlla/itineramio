@@ -220,7 +220,7 @@ export default function PropertiesPage() {
 
   const getFriendlyUrl = (property: Property) => {
     const slug = createPropertySlug(property)
-    return `/properties/${slug}`
+    return `/properties/${slug}/zones`
   }
 
   const handlePropertyClick = (property: Property) => {
