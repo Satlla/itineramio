@@ -26,6 +26,9 @@ export async function GET(
       }
     })
     
+    console.log('🔍 Zones fetched:', zones.length)
+    console.log('🔍 First zone slug:', zones[0]?.slug)
+    
     return NextResponse.json({
       success: true,
       data: zones
