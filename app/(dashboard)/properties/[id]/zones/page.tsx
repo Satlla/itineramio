@@ -950,11 +950,20 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 <Card 
                   className="hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300"
                   onClick={() => {
+                    // Debug logging
+                    console.log('🔍 Zone click debug:', {
+                      zoneName: zone.name,
+                      zoneSlug: zone.slug,
+                      propertySlug: propertySlug,
+                      hasSlug: !!(zone.slug && propertySlug)
+                    })
+                    
                     // Use slug if available, fallback to ID
                     if (zone.slug && propertySlug) {
+                      console.log('🚀 Using clean URL:', `/properties/${propertySlug}/${zone.slug}`)
                       router.push(`/properties/${propertySlug}/${zone.slug}`)
                     } else {
-                      // Fallback to ID-based URL
+                      console.log('🚀 Using ID URL:', `/properties/${id}/zones/${zone.id}`)
                       router.push(`/properties/${id}/zones/${zone.id}`)
                     }
                   }}

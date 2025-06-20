@@ -278,16 +278,45 @@ export default function ZoneDetailPage() {
       }]
     }
 
-    // When adding a new step, create a new empty step with the next order
-    const existingStepsCount = zone?.steps?.length || 0
-    const nextOrder = existingStepsCount
-    
-    return [{
+    // When adding a new step, return ALL existing steps + a new empty step
+    if (!zone?.steps) {
+      // No existing steps, create first step
+      return [{
+        id: `new-step-${Date.now()}`,
+        type: 'text' as any,
+        content: { es: '', en: '', fr: '' },
+        order: 0
+      }]
+    }
+
+    // Convert all existing steps to editor format
+    const allSteps = zone.steps
+      .sort((a, b) => a.order - b.order)
+      .map(step => ({
+        id: step.id,
+        type: step.type.toLowerCase() as any,
+        content: typeof step.content === 'string' 
+          ? { es: step.content, en: '', fr: '' }
+          : {
+              es: (step.content as any)?.es || '',
+              en: (step.content as any)?.en || '',
+              fr: (step.content as any)?.fr || ''
+            },
+        media: (step as any).mediaUrl ? { url: (step as any).mediaUrl } : undefined,
+        order: step.order
+      }))
+
+    // Add a new empty step at the end
+    const nextOrder = allSteps.length
+    allSteps.push({
       id: `new-step-${Date.now()}`,
       type: 'text' as any,
       content: { es: '', en: '', fr: '' },
       order: nextOrder
-    }]
+    })
+
+    console.log('🎬 Returning all steps + new:', allSteps.length, 'steps')
+    return allSteps
   }
 
   // Helper function to get step content text

@@ -9,13 +9,13 @@ const prisma = new PrismaClient();
 
 export interface ResolvedProperty {
   id: string;
-  slug: string;
+  slug: string | null;
   name: string;
 }
 
 export interface ResolvedZone {
   id: string;
-  slug: string;
+  slug: string | null;
   name: any;
   propertyId: string;
 }
