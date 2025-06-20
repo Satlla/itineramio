@@ -17,7 +17,7 @@ export interface ResolvedZone {
   id: string;
   slug: string | null;
   name: any;
-  propertyId: string;
+  propertyId: string | null;
 }
 
 /**
