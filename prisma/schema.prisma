@@ -80,6 +80,7 @@ model Property {
   buildingId          String?
   propertySetId       String?
   name                String
+  slug                String?            @unique
   description         String
   street              String
   city                String
@@ -112,6 +113,7 @@ model Property {
   analytics           PropertyAnalytics?
   zones               Zone[]
 
+  @@index([slug])
   @@map("properties")
 }
 
@@ -121,6 +123,7 @@ model Zone {
   organizationId      String?
   buildingId          String?
   name                Json
+  slug                String?
   description         Json?
   icon                String
   color               String?
@@ -147,8 +150,10 @@ model Zone {
   organizations       organizations? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   property            Property?      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
+  @@unique([propertyId, slug])
   @@index([propertyId, status])
   @@index([qrCode])
+  @@index([slug])
   @@map("zones")
 }
 

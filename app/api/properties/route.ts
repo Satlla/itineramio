@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../../../src/lib/prisma'
+import { generateSlug, generateUniqueSlug } from '../../../src/lib/slug-utils'
 
 const JWT_SECRET = 'itineramio-secret-key-2024'
 
@@ -66,11 +67,20 @@ export async function POST(request: NextRequest) {
     console.log('Validated data:', validatedData)
     console.log('User ID:', userId)
     
+    // Generate unique slug for the property
+    const baseSlug = generateSlug(validatedData.name)
+    const existingSlugs = await prisma.property.findMany({
+      where: { slug: { not: null } },
+      select: { slug: true }
+    }).then(results => results.map(r => r.slug).filter(Boolean) as string[])
+    const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
+    
     // Create property in database
     const property = await prisma.property.create({
       data: {
         // Basic info
         name: validatedData.name,
+        slug: uniqueSlug,
         description: validatedData.description,
         type: validatedData.type,
         
@@ -201,6 +211,7 @@ export async function GET(request: NextRequest) {
     const propertiesWithZones = properties.map((property) => ({
       id: property.id,
       name: property.name,
+      slug: property.slug,
       description: property.description,
       type: property.type,
       city: property.city,

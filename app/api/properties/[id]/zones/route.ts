@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { generateSlug, generateUniqueSlug } from '../../../../../src/lib/slug-utils'
 
 // GET /api/properties/[id]/zones - Get all zones for a property
 export async function GET(
@@ -139,11 +140,23 @@ export async function POST(
     const qrCode = `qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     const accessCode = `ac_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
+    // Generate unique slug for the zone within this property
+    const baseSlug = generateSlug(name.trim())
+    const existingSlugs = await prisma.zone.findMany({
+      where: { 
+        propertyId,
+        slug: { not: null }
+      },
+      select: { slug: true }
+    }).then(results => results.map(r => r.slug).filter(Boolean) as string[])
+    const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
+
     // Create the zone
     const zone = await prisma.zone.create({
       data: {
         propertyId,
         name: { es: name.trim() },
+        slug: uniqueSlug,
         description: { es: finalDescription },
         icon: icon.trim(),
         color: color || 'bg-gray-100',

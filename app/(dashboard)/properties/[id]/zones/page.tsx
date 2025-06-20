@@ -47,6 +47,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const { generateZoneWarnings, addNotification } = useNotifications()
   const [zones, setZones] = useState<Zone[]>([])
   const [propertyName, setPropertyName] = useState<string>('')
+  const [propertySlug, setPropertySlug] = useState<string>('')
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [editingZone, setEditingZone] = useState<Zone | null>(null)
   const [showIconSelector, setShowIconSelector] = useState(false)
@@ -128,6 +129,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         const propResult = await propResponse.json()
         if (propResult.success && propResult.data) {
           setPropertyName(propResult.data.name)
+          setPropertySlug(propResult.data.slug || '')
         }
 
         // Fetch zones
@@ -148,7 +150,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               order: zone.order || 0,
               stepsCount: zone.steps?.length || 0,
               qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
-              lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+              lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+              slug: zone.slug
             }
           })
           setZones(transformedZones)
@@ -948,8 +951,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   className="hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300"
                   onClick={() => {
                     // Use slug if available, fallback to ID
-                    if (zone.slug && propertyName) {
-                      const propertySlug = generateSlug(getZoneText(propertyName) || 'propiedad')
+                    if (zone.slug && propertySlug) {
                       router.push(`/properties/${propertySlug}/${zone.slug}`)
                     } else {
                       // Fallback to ID-based URL
@@ -1107,8 +1109,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                             onClick={() => {
                               if (isExisting && existingZone) {
                                 // Use slug if available, fallback to ID
-                                if (existingZone.slug && propertyName) {
-                                  const propertySlug = generateSlug(getZoneText(propertyName) || 'propiedad')
+                                if (existingZone.slug && propertySlug) {
                                   router.push(`/properties/${propertySlug}/${existingZone.slug}`)
                                 } else {
                                   // Fallback to ID-based URL

@@ -30,10 +30,12 @@ import { DashboardNavbar } from '../../../src/components/layout/DashboardNavbar'
 import { DashboardFooter } from '../../../src/components/layout/DashboardFooter'
 import { useAuth } from '../../../src/providers/AuthProvider'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { getZonesSlugUrl } from '../../../src/components/navigation/slug-link'
 
 interface Property {
   id: string
   name: string
+  slug?: string | null
   description?: string
   type: string
   city: string
@@ -521,7 +523,7 @@ export default function DashboardPage() {
                                 variant="outline"
                                 size="sm"
                                 className="w-full"
-                                onClick={() => router.push(`/properties/${property.id}/zones`)}
+                                onClick={() => router.push(getZonesSlugUrl(property))}
                               >
                                 Añadir Zonas
                               </Button>

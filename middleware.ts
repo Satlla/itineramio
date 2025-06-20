@@ -15,8 +15,11 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('auth-token')?.value
 
-  // Handle URL redirects for slug-based URLs
-  // Detect old ID-based URLs and let them coexist with new slug URLs for now
+  // Handle slug-based URL resolution by rewriting to dynamic routes
+  const rewriteResponse = handleSlugRewrite(request)
+  if (rewriteResponse) {
+    return rewriteResponse
+  }
   
   const isProtectedRoute = protectedRoutes.some(route => 
     pathname.startsWith(route)
@@ -42,6 +45,68 @@ export function middleware(request: NextRequest) {
   }
 
   return NextResponse.next()
+}
+
+function handleSlugRewrite(request: NextRequest): NextResponse | null {
+  const { pathname } = request.nextUrl
+  
+  // Handle clean URLs by rewriting them to the existing dynamic route structure
+  // This allows us to keep existing route handlers while supporting clean URLs
+  
+  // Pattern: /properties/[slug] -> /properties/[id]
+  const propertyMatch = pathname.match(/^\/properties\/([^\/]+)$/)
+  if (propertyMatch) {
+    const identifier = propertyMatch[1]
+    // If it doesn't look like a CUID, it's likely a slug
+    if (!identifier.match(/^c[a-z0-9]{24,}$/i)) {
+      // Rewrite to a special slug route
+      const url = request.nextUrl.clone()
+      url.pathname = `/properties/slug/${identifier}`
+      return NextResponse.rewrite(url)
+    }
+  }
+  
+  // Pattern: /properties/[slug]/zones -> /properties/[id]/zones
+  const propertyZonesMatch = pathname.match(/^\/properties\/([^\/]+)\/zones$/)
+  if (propertyZonesMatch) {
+    const identifier = propertyZonesMatch[1]
+    if (!identifier.match(/^c[a-z0-9]{24,}$/i)) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/properties/slug/${identifier}/zones`
+      return NextResponse.rewrite(url)
+    }
+  }
+  
+  // Pattern: /properties/[slug]/zones/[zoneSlug] -> /properties/[id]/zones/[id]
+  const zoneMatch = pathname.match(/^\/properties\/([^\/]+)\/zones\/([^\/]+)$/)
+  if (zoneMatch) {
+    const propertyIdentifier = zoneMatch[1]
+    const zoneIdentifier = zoneMatch[2]
+    
+    // If either is not a CUID, treat as slug
+    if (!propertyIdentifier.match(/^c[a-z0-9]{24,}$/i) || !zoneIdentifier.match(/^c[a-z0-9]{24,}$/i)) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/properties/slug/${propertyIdentifier}/zones/${zoneIdentifier}`
+      return NextResponse.rewrite(url)
+    }
+  }
+  
+  // Pattern: /properties/[slug]/[zoneSlug] (direct zone access)
+  const directZoneMatch = pathname.match(/^\/properties\/([^\/]+)\/([^\/]+)$/)
+  if (directZoneMatch && !pathname.includes('/zones/')) {
+    const propertyIdentifier = directZoneMatch[1]
+    const zoneIdentifier = directZoneMatch[2]
+    
+    // Skip if this looks like other routes (like 'zones', 'settings', etc.)
+    const reservedRoutes = ['zones', 'settings', 'analytics', 'steps', 'qr', 'new']
+    if (!reservedRoutes.includes(zoneIdentifier)) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/properties/slug/${propertyIdentifier}/zone/${zoneIdentifier}`
+      return NextResponse.rewrite(url)
+    }
+  }
+  
+  return null
 }
 
 export const config = {

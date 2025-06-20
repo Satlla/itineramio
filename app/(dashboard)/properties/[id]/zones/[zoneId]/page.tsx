@@ -24,7 +24,8 @@ import { Button } from '../../../../../../src/components/ui/Button'
 import { Card } from '../../../../../../src/components/ui/Card'
 import { StepEditor } from '../../../../../../src/components/ui/StepEditor'
 import { LoadingSpinner } from '../../../../../../src/components/ui/LoadingSpinner'
-import { createPropertySlug, createZoneSlug } from '../../../../../../src/lib/slugs'
+import { resolveProperty, resolveZone } from '../../../../../../src/lib/slug-resolver'
+import { isCuid } from '../../../../../../src/lib/slug-utils'
 
 interface Step {
   id: string
@@ -92,33 +93,19 @@ export default function ZoneDetailPage() {
       let actualPropertyId = propertyId
       let actualZoneId = zoneId
       
-      // Check if propertyId is a slug (contains hyphens and no uppercase)
-      if (propertyId.includes('-') && propertyId === propertyId.toLowerCase()) {
-        const propertiesResponse = await fetch('/api/properties')
-        const propertiesResult = await propertiesResponse.json()
-        
-        if (propertiesResult.success) {
-          const foundProperty = propertiesResult.data.find((p: any) => 
-            createPropertySlug(p) === propertyId
-          )
-          if (foundProperty) {
-            actualPropertyId = foundProperty.id
-          }
+      // Resolve property identifier if it's a slug
+      if (!isCuid(propertyId)) {
+        const resolvedProperty = await resolveProperty(propertyId)
+        if (resolvedProperty) {
+          actualPropertyId = resolvedProperty.id
         }
       }
       
-      // Check if zoneId is a slug
-      if (zoneId.includes('-') && zoneId === zoneId.toLowerCase()) {
-        const zonesResponse = await fetch(`/api/properties/${actualPropertyId}/zones`)
-        const zonesResult = await zonesResponse.json()
-        
-        if (zonesResult.success) {
-          const foundZone = zonesResult.data.find((z: any) => 
-            createZoneSlug(z) === zoneId
-          )
-          if (foundZone) {
-            actualZoneId = foundZone.id
-          }
+      // Resolve zone identifier if it's a slug
+      if (!isCuid(zoneId)) {
+        const resolvedZone = await resolveZone(actualPropertyId, zoneId)
+        if (resolvedZone) {
+          actualZoneId = resolvedZone.id
         }
       }
       
