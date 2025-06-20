@@ -53,8 +53,8 @@ export async function GET(request: NextRequest) {
         where: { hostId: userId },
         select: {
           id: true,
-          name: true,
-          slug: true
+          name: true
+          // slug: true // Temporarily disabled - column doesn't exist
         },
         take: 1
       })

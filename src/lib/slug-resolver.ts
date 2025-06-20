@@ -31,16 +31,17 @@ export async function resolveProperty(identifier: string): Promise<ResolvedPrope
     if (isCuid(identifier)) {
       const property = await prisma.property.findUnique({
         where: { id: identifier },
-        select: { id: true, slug: true, name: true }
+        select: { id: true, name: true } // slug temporarily disabled
       });
-      return property;
+      return property ? { ...property, slug: null } : null;
     }
     
-    // Treat as slug
-    const property = await prisma.property.findUnique({
-      where: { slug: identifier },
-      select: { id: true, slug: true, name: true }
-    });
+    // Treat as slug (temporarily disabled)
+    // const property = await prisma.property.findUnique({
+    //   where: { slug: identifier },
+    //   select: { id: true, slug: true, name: true }
+    // });
+    const property = null; // Temporarily disabled
     
     return property;
   } catch (error) {
@@ -64,19 +65,20 @@ export async function resolveZone(propertyId: string, zoneIdentifier: string): P
           id: zoneIdentifier,
           propertyId: propertyId
         },
-        select: { id: true, slug: true, name: true, propertyId: true }
+        select: { id: true, name: true, propertyId: true } // slug temporarily disabled
       });
-      return zone;
+      return zone ? { ...zone, slug: null } : null;
     }
     
-    // Treat as slug
-    const zone = await prisma.zone.findFirst({
-      where: { 
-        slug: zoneIdentifier,
-        propertyId: propertyId
-      },
-      select: { id: true, slug: true, name: true, propertyId: true }
-    });
+    // Treat as slug (temporarily disabled)
+    // const zone = await prisma.zone.findFirst({
+    //   where: { 
+    //     slug: zoneIdentifier,
+    //     propertyId: propertyId
+    //   },
+    //   select: { id: true, slug: true, name: true, propertyId: true }
+    // });
+    const zone = null; // Temporarily disabled
     
     return zone;
   } catch (error) {
@@ -94,11 +96,12 @@ export async function getPropertiesWithSlugs(hostId: string): Promise<ResolvedPr
   try {
     const properties = await prisma.property.findMany({
       where: { hostId },
-      select: { id: true, slug: true, name: true },
+      select: { id: true, name: true }, // slug temporarily disabled
       orderBy: { name: 'asc' }
     });
     
-    return properties.filter(p => p.slug) as ResolvedProperty[];
+    // return properties.filter(p => p.slug) as ResolvedProperty[];
+    return []; // Temporarily return empty array since no slugs available
   } catch (error) {
     console.error('Error getting properties with slugs:', error);
     return [];
@@ -114,11 +117,12 @@ export async function getZonesWithSlugs(propertyId: string): Promise<ResolvedZon
   try {
     const zones = await prisma.zone.findMany({
       where: { propertyId },
-      select: { id: true, slug: true, name: true, propertyId: true },
+      select: { id: true, name: true, propertyId: true }, // slug temporarily disabled
       orderBy: { order: 'asc' }
     });
     
-    return zones.filter(z => z.slug) as ResolvedZone[];
+    // return zones.filter(z => z.slug) as ResolvedZone[];
+    return []; // Temporarily return empty array since no slugs available
   } catch (error) {
     console.error('Error getting zones with slugs:', error);
     return [];

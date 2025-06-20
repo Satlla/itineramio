@@ -105,7 +105,7 @@ model Property {
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
   publishedAt         DateTime?
-  slug                String?            @unique
+  // slug                String?            @unique // Temporarily disabled - column doesn't exist in production
   buildings           buildings?         @relation(fields: [buildingId], references: [id])
   host                User               @relation(fields: [hostId], references: [id], onDelete: Cascade)
   organizations       organizations?     @relation(fields: [organizationId], references: [id])
@@ -113,7 +113,7 @@ model Property {
   analytics           PropertyAnalytics?
   zones               Zone[]
 
-  @@index([slug])
+  // @@index([slug]) // Temporarily disabled
   @@map("properties")
 }
 
@@ -141,7 +141,7 @@ model Zone {
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
   publishedAt         DateTime?
-  slug                String?
+  // slug                String? // Temporarily disabled - column doesn't exist in production
   errorReports        ErrorReport[]
   steps               Step[]
   comments            ZoneComment[]
@@ -150,10 +150,10 @@ model Zone {
   organizations       organizations? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   property            Property?      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
-  @@unique([propertyId, slug])
+  // @@unique([propertyId, slug]) // Temporarily disabled
   @@index([propertyId, status])
   @@index([qrCode])
-  @@index([slug])
+  // @@index([slug]) // Temporarily disabled
   @@map("zones")
 }
 
