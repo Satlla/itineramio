@@ -8,28 +8,28 @@ datasource db {
 }
 
 model User {
-  id                   String                  @id @default(cuid())
-  email                String                  @unique
+  id                   String                 @id @default(cuid())
+  email                String                 @unique
   name                 String
   phone                String?
   password             String?
-  avatar               String?
   emailVerified        DateTime?
   phoneVerified        DateTime?
-  preferredLanguage    String                  @default("es")
-  timezone             String                  @default("Europe/Madrid")
-  role                 String                  @default("HOST")
-  status               String                  @default("PENDING")
-  subscription         String                  @default("FREE")
-  createdAt            DateTime                @default(now())
-  updatedAt            DateTime                @updatedAt
+  preferredLanguage    String                 @default("es")
+  timezone             String                 @default("Europe/Madrid")
+  role                 String                 @default("HOST")
+  status               String                 @default("PENDING")
+  subscription         String                 @default("FREE")
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
   lastLoginAt          DateTime?
-  assignedErrorReports ErrorReport[]           @relation("ErrorReportAssignee")
+  avatar               String?
+  assignedErrorReports ErrorReport[]          @relation("ErrorReportAssignee")
   organization_members organization_members[]
   properties           Property[]
   propertySets         PropertySet[]
-  moderatedComments    ZoneComment[]           @relation("CommentModerator")
   inspirationState     UserInspirationState?
+  moderatedComments    ZoneComment[]          @relation("CommentModerator")
 
   @@map("users")
 }
@@ -80,7 +80,6 @@ model Property {
   buildingId          String?
   propertySetId       String?
   name                String
-  slug                String?            @unique
   description         String
   street              String
   city                String
@@ -106,6 +105,7 @@ model Property {
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
   publishedAt         DateTime?
+  slug                String?            @unique
   buildings           buildings?         @relation(fields: [buildingId], references: [id])
   host                User               @relation(fields: [hostId], references: [id], onDelete: Cascade)
   organizations       organizations?     @relation(fields: [organizationId], references: [id])
@@ -123,7 +123,6 @@ model Zone {
   organizationId      String?
   buildingId          String?
   name                Json
-  slug                String?
   description         Json?
   icon                String
   color               String?
@@ -142,6 +141,7 @@ model Zone {
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
   publishedAt         DateTime?
+  slug                String?
   errorReports        ErrorReport[]
   steps               Step[]
   comments            ZoneComment[]
