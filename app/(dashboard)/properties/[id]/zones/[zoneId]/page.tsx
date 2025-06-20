@@ -285,6 +285,7 @@ export default function ZoneDetailPage() {
         id: `new-step-${Date.now()}`,
         type: 'text' as any,
         content: { es: '', en: '', fr: '' },
+        media: undefined,
         order: 0
       }]
     }
@@ -312,6 +313,7 @@ export default function ZoneDetailPage() {
       id: `new-step-${Date.now()}`,
       type: 'text' as any,
       content: { es: '', en: '', fr: '' },
+      media: undefined,
       order: nextOrder
     })
 
