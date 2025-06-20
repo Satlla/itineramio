@@ -23,6 +23,8 @@ import { useAuth } from '../../../../../src/providers/AuthProvider'
 import { useNotifications } from '../../../../../src/hooks/useNotifications'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
+import { getCleanZoneUrl } from '../../../../../src/lib/slug-resolver'
+import { generateSlug } from '../../../../../src/lib/slug-utils'
 
 interface Zone {
   id: string
@@ -33,6 +35,7 @@ interface Zone {
   stepsCount: number
   qrUrl: string
   lastUpdated: string
+  slug?: string
 }
 
 // Remove mock data - now using real API data
@@ -944,7 +947,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 <Card 
                   className="hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300"
                   onClick={() => {
-                    router.push(`/properties/${id}/zones/${zone.id}`)
+                    // Use slug if available, fallback to ID
+                    if (zone.slug && propertyName) {
+                      const propertySlug = generateSlug(getZoneText(propertyName) || 'propiedad')
+                      router.push(`/properties/${propertySlug}/${zone.slug}`)
+                    } else {
+                      // Fallback to ID-based URL
+                      router.push(`/properties/${id}/zones/${zone.id}`)
+                    }
                   }}
                 >
                   <CardContent className="p-4">
@@ -1096,7 +1106,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                             }`}
                             onClick={() => {
                               if (isExisting && existingZone) {
-                                router.push(`/properties/${id}/zones/${existingZone.id}`)
+                                // Use slug if available, fallback to ID
+                                if (existingZone.slug && propertyName) {
+                                  const propertySlug = generateSlug(getZoneText(propertyName) || 'propiedad')
+                                  router.push(`/properties/${propertySlug}/${existingZone.slug}`)
+                                } else {
+                                  // Fallback to ID-based URL
+                                  router.push(`/properties/${id}/zones/${existingZone.id}`)
+                                }
                               }
                             }}
                           >
