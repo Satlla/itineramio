@@ -27,7 +27,7 @@ export async function GET(
     })
     
     console.log('🔍 Zones fetched:', zones.length)
-    console.log('🔍 First zone slug:', zones[0]?.slug)
+    // console.log('🔍 First zone slug:', zones[0]?.slug) // Temporarily disabled
     
     return NextResponse.json({
       success: true,
@@ -143,23 +143,24 @@ export async function POST(
     const qrCode = `qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     const accessCode = `ac_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
-    // Generate unique slug for the zone within this property
-    const baseSlug = generateSlug(name.trim())
-    const existingSlugs = await prisma.zone.findMany({
-      where: { 
-        propertyId,
-        slug: { not: null }
-      },
-      select: { slug: true }
-    }).then(results => results.map(r => r.slug).filter(Boolean) as string[])
-    const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
+    // Generate unique slug for the zone within this property (temporarily disabled)
+    // const baseSlug = generateSlug(name.trim())
+    // const existingSlugs = await prisma.zone.findMany({
+    //   where: { 
+    //     propertyId,
+    //     slug: { not: null }
+    //   },
+    //   select: { slug: true }
+    // }).then(results => results.map(r => r.slug).filter(Boolean) as string[])
+    // const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
+    const uniqueSlug = null // Temporarily disabled
 
     // Create the zone
     const zone = await prisma.zone.create({
       data: {
         propertyId,
         name: { es: name.trim() },
-        slug: uniqueSlug,
+        // slug: uniqueSlug, // Temporarily disabled
         description: { es: finalDescription },
         icon: icon.trim(),
         color: color || 'bg-gray-100',

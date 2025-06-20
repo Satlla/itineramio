@@ -37,7 +37,7 @@ export async function GET(
     const property = properties[0]
     const actualPropertyId = property?.id || id
     console.log('🔍 Property found:', !!property, 'actualId:', actualPropertyId)
-    console.log('🔍 Property slug:', property?.slug)
+    // console.log('🔍 Property slug:', property?.slug) // Temporarily disabled
     
     // Fetch zones separately using the actual property ID
     let zones: any[] = []
