@@ -255,7 +255,10 @@ export async function PUT(
         type: (step.type || 'TEXT').toUpperCase(),
         order: step.order !== undefined ? step.order : i,
         isPublished: true,
-        zoneId: actualZoneId
+        zoneId: actualZoneId,
+        // Include media URLs if provided
+        ...(step.mediaUrl && { mediaUrl: step.mediaUrl }),
+        ...(step.linkUrl && { linkUrl: step.linkUrl })
       }
       
       console.log(`🚨 Creating step ${i + 1} with data:`, JSON.stringify(stepData, null, 2))

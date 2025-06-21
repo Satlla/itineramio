@@ -214,7 +214,10 @@ export default function ZoneDetailPage() {
           type: (step.type || 'text').toUpperCase(), // Ensure uppercase
           title: step.content || { es: '', en: '', fr: '' }, // Use content as title
           content: step.content || { es: '', en: '', fr: '' },
-          order: index
+          order: index,
+          // Include media data for images/videos
+          mediaUrl: step.media?.url || null,
+          linkUrl: step.type === 'link' ? step.media?.url : null
         }
         
         console.log(`💾 Step ${index + 1} formatted:`, formattedStep)
