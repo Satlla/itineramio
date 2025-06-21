@@ -276,7 +276,9 @@ export default function ZoneDetailPage() {
                 en: (step.content as any)?.en || '',
                 fr: (step.content as any)?.fr || ''
               },
-          media: (step as any).mediaUrl ? { url: (step as any).mediaUrl } : undefined,
+          media: (step as any).mediaUrl ? { url: (step as any).mediaUrl } 
+            : (step.content as any)?.mediaUrl ? { url: (step.content as any).mediaUrl }
+            : undefined,
           order: step.order,
           isBeingEdited: step.id === editingStepId // Mark which step is being edited
         }))
@@ -310,7 +312,9 @@ export default function ZoneDetailPage() {
               en: (step.content as any)?.en || '',
               fr: (step.content as any)?.fr || ''
             },
-        media: (step as any).mediaUrl ? { url: (step as any).mediaUrl } : undefined,
+        media: (step as any).mediaUrl ? { url: (step as any).mediaUrl } 
+          : (step.content as any)?.mediaUrl ? { url: (step.content as any).mediaUrl }
+          : undefined,
         order: step.order
       }))
 

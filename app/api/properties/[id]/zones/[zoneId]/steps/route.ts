@@ -246,19 +246,26 @@ export async function PUT(
               fr: (titleContent.fr || '').substring(0, 100) || ''
             },
         content: typeof bodyContent === 'string'
-          ? { es: bodyContent, en: '', fr: '' }
+          ? { 
+              es: bodyContent, 
+              en: '', 
+              fr: '',
+              // Include media data in content JSON
+              ...(step.mediaUrl && { mediaUrl: step.mediaUrl }),
+              ...(step.linkUrl && { linkUrl: step.linkUrl })
+            }
           : {
               es: bodyContent.es || '',
               en: bodyContent.en || '',
-              fr: bodyContent.fr || ''
+              fr: bodyContent.fr || '',
+              // Include media data in content JSON
+              ...(step.mediaUrl && { mediaUrl: step.mediaUrl }),
+              ...(step.linkUrl && { linkUrl: step.linkUrl })
             },
         type: (step.type || 'TEXT').toUpperCase(),
         order: step.order !== undefined ? step.order : i,
         isPublished: true,
-        zoneId: actualZoneId,
-        // Include media URLs if provided
-        ...(step.mediaUrl && { mediaUrl: step.mediaUrl }),
-        ...(step.linkUrl && { linkUrl: step.linkUrl })
+        zoneId: actualZoneId
       }
       
       console.log(`🚨 Creating step ${i + 1} with data:`, JSON.stringify(stepData, null, 2))
