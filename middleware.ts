@@ -57,12 +57,16 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
   const propertyMatch = pathname.match(/^\/properties\/([^\/]+)$/)
   if (propertyMatch) {
     const identifier = propertyMatch[1]
-    // If it doesn't look like a CUID, it's likely a slug
-    if (!identifier.match(/^c[a-z0-9]{24,}$/i)) {
-      // Rewrite to a special slug route
-      const url = request.nextUrl.clone()
-      url.pathname = `/properties/slug/${identifier}`
-      return NextResponse.rewrite(url)
+    // Skip reserved routes
+    const reservedPropertyRoutes = ['new']
+    if (!reservedPropertyRoutes.includes(identifier)) {
+      // If it doesn't look like a CUID, it's likely a slug
+      if (!identifier.match(/^c[a-z0-9]{24,}$/i)) {
+        // Rewrite to a special slug route
+        const url = request.nextUrl.clone()
+        url.pathname = `/properties/slug/${identifier}`
+        return NextResponse.rewrite(url)
+      }
     }
   }
   
