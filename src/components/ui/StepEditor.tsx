@@ -67,6 +67,9 @@ export function StepEditor({
   const getInitialActiveStep = () => {
     if (editingStepId && initialSteps.length > 0) {
       const stepIndex = initialSteps.findIndex(step => step.id === editingStepId)
+      console.log('🎯 StepEditor: Looking for step with ID:', editingStepId)
+      console.log('🎯 StepEditor: Steps IDs:', initialSteps.map(s => s.id))
+      console.log('🎯 StepEditor: Found at index:', stepIndex)
       return stepIndex >= 0 ? stepIndex : 0
     }
     return 0

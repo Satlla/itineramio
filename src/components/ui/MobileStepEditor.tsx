@@ -82,6 +82,9 @@ export function MobileStepEditor({
   const getInitialSelectedStep = () => {
     if (editingStepId && initialSteps.length > 0) {
       const stepIndex = initialSteps.findIndex(step => step.id === editingStepId)
+      console.log('📱 MobileStepEditor: Looking for step with ID:', editingStepId)
+      console.log('📱 MobileStepEditor: Steps IDs:', initialSteps.map(s => s.id))
+      console.log('📱 MobileStepEditor: Found at index:', stepIndex)
       return stepIndex >= 0 ? stepIndex : null
     }
     return null
