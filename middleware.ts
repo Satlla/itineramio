@@ -53,12 +53,13 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
   // Handle clean URLs by rewriting them to the existing dynamic route structure
   // This allows us to keep existing route handlers while supporting clean URLs
   
+  // Skip reserved routes
+  const reservedPropertyRoutes = ['new', 'slug']
+  
   // Pattern: /properties/[slug] -> /properties/[id]
   const propertyMatch = pathname.match(/^\/properties\/([^\/]+)$/)
   if (propertyMatch) {
     const identifier = propertyMatch[1]
-    // Skip reserved routes
-    const reservedPropertyRoutes = ['new']
     if (!reservedPropertyRoutes.includes(identifier)) {
       // If it doesn't look like a CUID, it's likely a slug
       if (!identifier.match(/^c[a-z0-9]{24,}$/i)) {
@@ -74,10 +75,13 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
   const propertyZonesMatch = pathname.match(/^\/properties\/([^\/]+)\/zones$/)
   if (propertyZonesMatch) {
     const identifier = propertyZonesMatch[1]
-    if (!identifier.match(/^c[a-z0-9]{24,}$/i)) {
-      const url = request.nextUrl.clone()
-      url.pathname = `/properties/slug/${identifier}/zones`
-      return NextResponse.rewrite(url)
+    // Skip reserved routes
+    if (!reservedPropertyRoutes.includes(identifier)) {
+      if (!identifier.match(/^c[a-z0-9]{24,}$/i)) {
+        const url = request.nextUrl.clone()
+        url.pathname = `/properties/slug/${identifier}/zones`
+        return NextResponse.rewrite(url)
+      }
     }
   }
   
@@ -87,11 +91,14 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
     const propertyIdentifier = zoneMatch[1]
     const zoneIdentifier = zoneMatch[2]
     
-    // If either is not a CUID, treat as slug
-    if (!propertyIdentifier.match(/^c[a-z0-9]{24,}$/i) || !zoneIdentifier.match(/^c[a-z0-9]{24,}$/i)) {
-      const url = request.nextUrl.clone()
-      url.pathname = `/properties/slug/${propertyIdentifier}/zones/${zoneIdentifier}`
-      return NextResponse.rewrite(url)
+    // Skip reserved routes
+    if (!reservedPropertyRoutes.includes(propertyIdentifier)) {
+      // If either is not a CUID, treat as slug
+      if (!propertyIdentifier.match(/^c[a-z0-9]{24,}$/i) || !zoneIdentifier.match(/^c[a-z0-9]{24,}$/i)) {
+        const url = request.nextUrl.clone()
+        url.pathname = `/properties/slug/${propertyIdentifier}/zones/${zoneIdentifier}`
+        return NextResponse.rewrite(url)
+      }
     }
   }
   
@@ -101,12 +108,15 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
     const propertyIdentifier = directZoneMatch[1]
     const zoneIdentifier = directZoneMatch[2]
     
-    // Skip if this looks like other routes (like 'zones', 'settings', etc.)
-    const reservedRoutes = ['zones', 'settings', 'analytics', 'steps', 'qr', 'new']
-    if (!reservedRoutes.includes(zoneIdentifier)) {
-      const url = request.nextUrl.clone()
-      url.pathname = `/properties/slug/${propertyIdentifier}/zone/${zoneIdentifier}`
-      return NextResponse.rewrite(url)
+    // Skip if property identifier is reserved
+    if (!reservedPropertyRoutes.includes(propertyIdentifier)) {
+      // Skip if this looks like other routes (like 'zones', 'settings', etc.)
+      const reservedRoutes = ['zones', 'settings', 'analytics', 'steps', 'qr', 'new']
+      if (!reservedRoutes.includes(zoneIdentifier)) {
+        const url = request.nextUrl.clone()
+        url.pathname = `/properties/slug/${propertyIdentifier}/zone/${zoneIdentifier}`
+        return NextResponse.rewrite(url)
+      }
     }
   }
   
