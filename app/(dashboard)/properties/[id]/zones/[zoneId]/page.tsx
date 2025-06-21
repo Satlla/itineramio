@@ -162,7 +162,7 @@ export default function ZoneDetailPage() {
 
   const handleAddStep = () => {
     setIsEditingExisting(false)
-    setEditingStepId(null)
+    setEditingStepId('NEW_STEP_FOCUS') // Special ID to indicate we want to focus the new step
     setShowStepEditor(true)
   }
 

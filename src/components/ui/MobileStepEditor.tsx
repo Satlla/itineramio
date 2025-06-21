@@ -81,6 +81,12 @@ export function MobileStepEditor({
   // Find the index of the step being edited, or default to null
   const getInitialSelectedStep = () => {
     if (editingStepId && initialSteps.length > 0) {
+      // Special case: if adding new step, focus on the last step (the new one)
+      if (editingStepId === 'NEW_STEP_FOCUS') {
+        console.log('📱 MobileStepEditor: Focusing on new step at index:', initialSteps.length - 1)
+        return initialSteps.length - 1
+      }
+      
       const stepIndex = initialSteps.findIndex(step => step.id === editingStepId)
       console.log('📱 MobileStepEditor: Looking for step with ID:', editingStepId)
       console.log('📱 MobileStepEditor: Steps IDs:', initialSteps.map(s => s.id))
