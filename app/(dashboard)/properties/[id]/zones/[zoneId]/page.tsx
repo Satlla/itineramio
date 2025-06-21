@@ -256,26 +256,30 @@ export default function ZoneDetailPage() {
       editingStepId 
     })
     
-    // When editing a specific step, return only that step
+    // When editing a specific step, return ALL steps but focus on the one being edited
     if (isEditingExisting && editingStepId) {
       if (!zone?.steps) return []
       
-      const existingStep = zone.steps.find(s => s.id === editingStepId)
-      if (!existingStep) return []
+      // Convert all existing steps to editor format, preserving ALL steps
+      const allSteps = zone.steps
+        .sort((a, b) => a.order - b.order)
+        .map(step => ({
+          id: step.id,
+          type: step.type.toLowerCase() as any,
+          content: typeof step.content === 'string' 
+            ? { es: step.content, en: '', fr: '' }
+            : {
+                es: (step.content as any)?.es || '',
+                en: (step.content as any)?.en || '',
+                fr: (step.content as any)?.fr || ''
+              },
+          media: (step as any).mediaUrl ? { url: (step as any).mediaUrl } : undefined,
+          order: step.order,
+          isBeingEdited: step.id === editingStepId // Mark which step is being edited
+        }))
 
-      return [{
-        id: existingStep.id,
-        type: existingStep.type.toLowerCase() as any,
-        content: typeof existingStep.content === 'string' 
-          ? { es: existingStep.content, en: '', fr: '' }
-          : {
-              es: (existingStep.content as any)?.es || '',
-              en: (existingStep.content as any)?.en || '',
-              fr: (existingStep.content as any)?.fr || ''
-            },
-        media: (existingStep as any).mediaUrl ? { url: (existingStep as any).mediaUrl } : undefined,
-        order: existingStep.order
-      }]
+      console.log('🎬 Editing mode: Returning all', allSteps.length, 'steps with editing flag')
+      return allSteps
     }
 
     // When adding a new step, return ALL existing steps + a new empty step
