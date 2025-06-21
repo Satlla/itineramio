@@ -47,6 +47,7 @@ interface StepEditorProps {
   onCancel: () => void
   maxVideos?: number
   currentVideoCount?: number
+  editingStepId?: string | null
 }
 
 export function StepEditor({
@@ -55,12 +56,23 @@ export function StepEditor({
   onSave,
   onCancel,
   maxVideos = 5,
-  currentVideoCount = 0
+  currentVideoCount = 0,
+  editingStepId = null
 }: StepEditorProps) {
   const [steps, setSteps] = useState<Step[]>(
     initialSteps.length > 0 ? initialSteps : [createNewStep(0)]
   )
-  const [activeStep, setActiveStep] = useState(0)
+  
+  // Find the index of the step being edited, or default to 0
+  const getInitialActiveStep = () => {
+    if (editingStepId && initialSteps.length > 0) {
+      const stepIndex = initialSteps.findIndex(step => step.id === editingStepId)
+      return stepIndex >= 0 ? stepIndex : 0
+    }
+    return 0
+  }
+  
+  const [activeStep, setActiveStep] = useState(getInitialActiveStep())
   const [activeLanguage, setActiveLanguage] = useState<'es' | 'en' | 'fr'>('es')
   const [isAddingStep, setIsAddingStep] = useState(false)
   const [lineProgress, setLineProgress] = useState(0)
@@ -121,6 +133,7 @@ export function StepEditor({
         onCancel={onCancel}
         maxVideos={maxVideos}
         currentVideoCount={currentVideoCount}
+        editingStepId={editingStepId}
       />
     )
   }

@@ -845,6 +845,7 @@ export default function ZoneDetailPage() {
           }}
           maxVideos={5}
           currentVideoCount={zone.steps?.filter(s => s.type === 'VIDEO').length || 0}
+          editingStepId={editingStepId}
         />
       )}
     </div>

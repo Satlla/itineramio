@@ -50,6 +50,7 @@ interface MobileStepEditorProps {
   onCancel: () => void
   maxVideos?: number
   currentVideoCount?: number
+  editingStepId?: string | null
 }
 
 export function MobileStepEditor({
@@ -58,7 +59,8 @@ export function MobileStepEditor({
   onSave,
   onCancel,
   maxVideos = 5,
-  currentVideoCount = 0
+  currentVideoCount = 0,
+  editingStepId = null
 }: MobileStepEditorProps) {
   console.log('📱 MobileStepEditor mounted with:', { zoneTitle, initialSteps });
   
@@ -75,7 +77,17 @@ export function MobileStepEditor({
   )
   const [showMediaModal, setShowMediaModal] = useState(false)
   const [activeLanguage, setActiveLanguage] = useState<'es' | 'en' | 'fr'>('es')
-  const [selectedStep, setSelectedStep] = useState<number | null>(null)
+  
+  // Find the index of the step being edited, or default to null
+  const getInitialSelectedStep = () => {
+    if (editingStepId && initialSteps.length > 0) {
+      const stepIndex = initialSteps.findIndex(step => step.id === editingStepId)
+      return stepIndex >= 0 ? stepIndex : null
+    }
+    return null
+  }
+  
+  const [selectedStep, setSelectedStep] = useState<number | null>(getInitialSelectedStep())
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   function createNewStep(order: number): Step {
