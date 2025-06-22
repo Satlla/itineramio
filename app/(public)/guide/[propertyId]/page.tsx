@@ -28,6 +28,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { Button } from '../../../../src/components/ui/Button'
 import { Card } from '../../../../src/components/ui/Card'
 import { ZoneIconDisplay } from '../../../../src/components/ui/IconSelector'
+import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
 
 interface Property {
   id: string
@@ -134,11 +135,7 @@ export default function PropertyGuidePage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
-      </div>
-    )
+    return <AnimatedLoadingSpinner text="Cargando manual de la propiedad..." type="properties" />
   }
 
   if (!property) {

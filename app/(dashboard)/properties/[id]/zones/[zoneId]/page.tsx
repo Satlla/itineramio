@@ -40,7 +40,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { Button } from '../../../../../../src/components/ui/Button'
 import { Card } from '../../../../../../src/components/ui/Card'
 import { StepEditor } from '../../../../../../src/components/ui/StepEditor'
-import { LoadingSpinner } from '../../../../../../src/components/ui/LoadingSpinner'
+import { AnimatedLoadingSpinner } from '../../../../../../src/components/ui/AnimatedLoadingSpinner'
 import { resolveProperty, resolveZone } from '../../../../../../src/lib/slug-resolver'
 import { isCuid } from '../../../../../../src/lib/slug-utils'
 import { getZoneIcon as getExtendedZoneIcon, getZoneIconByName } from '../../../../../../src/data/zoneIconsExtended'
@@ -422,7 +422,7 @@ export default function ZoneDetailPage() {
   }
 
   if (loading) {
-    return <LoadingSpinner text="Cargando zona..." />
+    return <AnimatedLoadingSpinner text="Cargando zona..." type="zones" />
   }
 
   if (!zone) {

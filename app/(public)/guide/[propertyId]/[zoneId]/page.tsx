@@ -9,6 +9,7 @@ import { Card, CardContent } from '../../../../../src/components/ui/Card'
 import { ZoneIconDisplay } from '../../../../../src/components/ui/IconSelector'
 import { ItineramioLogo } from '../../../../../src/components/ui/ItineramioLogo'
 import { Badge } from '../../../../../src/components/ui/Badge'
+import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
 
 interface ZoneStep {
   id: string
@@ -165,15 +166,7 @@ export default function ZoneGuidePage({
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full"
-        />
-      </div>
-    )
+    return <AnimatedLoadingSpinner text="Cargando instrucciones de la zona..." type="zones" />
   }
 
   if (!zone || !property) {

@@ -26,6 +26,7 @@ import {
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Avatar } from '../../../src/components/ui'
+import { AnimatedLoadingSpinner } from '../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardNavbar } from '../../../src/components/layout/DashboardNavbar'
 import { DashboardFooter } from '../../../src/components/layout/DashboardFooter'
 import { useAuth } from '../../../src/providers/AuthProvider'
@@ -246,6 +247,10 @@ export default function DashboardPage() {
   }
 
 
+  if (loading) {
+    return <AnimatedLoadingSpinner text="Cargando tu panel..." type="general" />
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <DashboardNavbar user={user || undefined} />
@@ -285,7 +290,7 @@ export default function DashboardPage() {
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">Propiedades</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      {loading ? '...' : stats.totalProperties}
+                      {stats.totalProperties}
                     </p>
                   </div>
                 </div>
@@ -299,7 +304,7 @@ export default function DashboardPage() {
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">Visualizaciones</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      {loading ? '...' : stats.totalViews}
+                      {stats.totalViews}
                     </p>
                   </div>
                 </div>
@@ -330,7 +335,7 @@ export default function DashboardPage() {
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">Manuales Activos</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      {loading ? '...' : stats.activeManuals}
+                      {stats.activeManuals}
                     </p>
                   </div>
                 </div>

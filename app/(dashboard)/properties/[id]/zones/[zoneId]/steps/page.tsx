@@ -24,6 +24,7 @@ import { Input } from '../../../../../../../src/components/ui/Input'
 import { ZoneIconDisplay, useZoneIcon } from '../../../../../../../src/components/ui/IconSelector'
 import { cn } from '../../../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
+import { AnimatedLoadingSpinner } from '../../../../../../../src/components/ui/AnimatedLoadingSpinner'
 
 enum StepType {
   TEXT = 'TEXT',
@@ -529,6 +530,10 @@ export default function ZoneStepsPage({
           </div>
         )
     }
+  }
+
+  if (loading) {
+    return <AnimatedLoadingSpinner text="Cargando pasos de la zona..." type="zones" />
   }
 
   return (
