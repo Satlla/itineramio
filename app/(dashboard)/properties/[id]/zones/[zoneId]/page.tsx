@@ -599,18 +599,10 @@ export default function ZoneDetailPage() {
             </div>
           </div>
           
-          {/* Add Step Button */}
-          <Button 
-            onClick={handleAddStep}
-            className="w-full bg-gray-900 hover:bg-gray-800 text-white"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nuevo Paso
-          </Button>
         </div>
 
-        {/* Steps Timeline */}
-        <div className="px-4 pb-4">
+        {/* Steps Timeline - Mobile Itinerary Design */}
+        <div className="px-4 pb-6">
           
           {!zone.steps || zone.steps.length === 0 ? (
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
@@ -625,94 +617,117 @@ export default function ZoneDetailPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {zone.steps
-                .sort((a, b) => a.order - b.order)
-                .map((step, index) => {
-                  const StepIcon = getStepIcon(step.type)
-                  const isLast = index === zone.steps.length - 1
-                  
-                  return (
-                    <motion.div
-                      key={step.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.1 }}
-                      className="relative"
-                    >
-                      {/* Step Container */}
-                      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                        {/* Step Header with Timeline */}
-                        <div className="flex items-center p-4 bg-gray-50 border-b border-gray-200">
-                          {/* Timeline Section */}
-                          <div className="flex items-center mr-4">
-                            {/* Timeline Dot */}
-                            <div className="relative">
-                              <div className="w-8 h-8 bg-violet-600 rounded-full flex items-center justify-center shadow-sm">
-                                <span className="text-white font-semibold text-xs">{index + 1}</span>
-                              </div>
-                              {/* Vertical line */}
-                              {!isLast && (
-                                <div className="absolute top-8 left-1/2 w-0.5 h-4 bg-gray-300 -translate-x-0.5"></div>
-                              )}
-                            </div>
-                            {/* Horizontal line */}
-                            <div className="w-4 h-0.5 bg-gray-300 ml-2"></div>
-                          </div>
-                          
-                          {/* Step Info */}
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <StepIcon className="w-4 h-4 text-gray-600" />
-                              <span className="text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                {getStepTypeLabel(step.type)}
-                              </span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                                (step as any).isPublished 
-                                  ? 'bg-green-100 text-green-700' 
-                                  : 'bg-yellow-100 text-yellow-700'
-                              }`}>
-                                {(step as any).isPublished ? 'Publicado' : 'Borrador'}
-                              </span>
-                            </div>
-                            <h3 className="text-sm font-semibold text-gray-900">
-                              {getStepText(step, 'title') || `Paso ${index + 1}`}
-                            </h3>
-                          </div>
-                          
-                          {/* Actions */}
-                          <div className="flex space-x-1">
-                            <Button
-                              onClick={() => handleEditStep(step.id)}
-                              size="sm"
-                              variant="ghost"
-                              className="w-8 h-8 p-0 hover:bg-white hover:shadow-sm"
-                            >
-                              <Edit2 className="w-3.5 h-3.5 text-gray-600" />
-                            </Button>
-                            <Button
-                              onClick={() => handleDeleteStep(step.id)}
-                              size="sm"
-                              variant="ghost"
-                              className="w-8 h-8 p-0 hover:bg-red-50 hover:text-red-600"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
+            <div className="relative">
+              {/* Timeline Line */}
+              <div className="absolute left-6 top-8 bottom-16 w-0.5 bg-gray-200"></div>
+              
+              <div className="space-y-6">
+                {zone.steps
+                  .sort((a, b) => a.order - b.order)
+                  .map((step, index) => {
+                    const StepIcon = getStepIcon(step.type)
+                    const isLast = index === zone.steps.length - 1
+                    
+                    return (
+                      <motion.div
+                        key={step.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        className="relative flex items-start space-x-4"
+                      >
+                        {/* Timeline Step Circle */}
+                        <div className="relative z-10 flex-shrink-0">
+                          <div className="w-12 h-12 bg-violet-600 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
+                            <span className="text-white font-bold text-sm">{index + 1}</span>
                           </div>
                         </div>
                         
-                        {/* Step Content */}
-                        {getStepText(step, 'content') && (
-                          <div className="p-4">
-                            <p className="text-sm text-gray-700 leading-relaxed">
-                              {getStepText(step, 'content')}
-                            </p>
+                        {/* Step Card */}
+                        <div className="flex-1 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                          {/* Step Header */}
+                          <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm font-bold text-gray-900">
+                                  Paso {index + 1}
+                                </span>
+                                <div className="flex items-center space-x-1">
+                                  <StepIcon className="w-4 h-4 text-gray-500" />
+                                  <span className="text-xs text-gray-500 uppercase tracking-wide">
+                                    {getStepTypeLabel(step.type)}
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              {/* Status & Actions */}
+                              <div className="flex items-center space-x-2">
+                                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                                  (step as any).isPublished 
+                                    ? 'bg-green-100 text-green-700' 
+                                    : 'bg-yellow-100 text-yellow-700'
+                                }`}>
+                                  {(step as any).isPublished ? 'Activo' : 'Borrador'}
+                                </span>
+                                
+                                <div className="flex space-x-1">
+                                  <Button
+                                    onClick={() => handleEditStep(step.id)}
+                                    size="sm"
+                                    variant="ghost"
+                                    className="w-7 h-7 p-0 hover:bg-violet-50 hover:text-violet-600"
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5" />
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleDeleteStep(step.id)}
+                                    size="sm"
+                                    variant="ghost"
+                                    className="w-7 h-7 p-0 hover:bg-red-50 hover:text-red-600"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Step Title */}
+                            <h3 className="text-sm font-semibold text-gray-900 mt-2">
+                              {getStepText(step, 'title') || `Instrucción ${index + 1}`}
+                            </h3>
                           </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  )
-                })}
+                          
+                          {/* Step Content */}
+                          {getStepText(step, 'content') && (
+                            <div className="p-4">
+                              <p className="text-sm text-gray-700 leading-relaxed">
+                                {getStepText(step, 'content')}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+              </div>
+              
+              {/* Add Step Button at the end of timeline */}
+              <div className="relative flex items-start space-x-4 mt-6">
+                <div className="relative z-10 flex-shrink-0">
+                  <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center border-4 border-white">
+                    <Plus className="w-5 h-5 text-gray-600" />
+                  </div>
+                </div>
+                
+                <div className="flex-1">
+                  <Button 
+                    onClick={handleAddStep}
+                    className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-xl py-3 font-medium shadow-sm"
+                  >
+                    Añadir Paso
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
         </div>
