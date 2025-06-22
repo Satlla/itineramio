@@ -610,123 +610,395 @@ export default function ZoneStepsPage({
         </div>
       </div>
 
-      {/* Steps List */}
-      {steps.length > 0 ? (
-        <Reorder.Group
-          axis="y"
-          values={steps}
-          onReorder={handleReorder}
-          className="space-y-4"
-        >
-          {steps.map((step, index) => (
-            <Reorder.Item
-              key={step.id}
-              value={step}
-              className="bg-white"
-            >
-              <Card className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center space-x-2">
-                        <GripVertical className="w-5 h-5 text-gray-400 cursor-grab" />
-                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
-                          {index + 1}
+      {/* Desktop Layout: Two Columns */}
+      <div className="hidden lg:grid lg:grid-cols-3 lg:gap-8">
+        {/* Left Column - Steps (2/3 width) */}
+        <div className="lg:col-span-2">
+          {steps.length > 0 ? (
+            <div className="relative">
+              {/* Timeline Line */}
+              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+              
+              <Reorder.Group
+                axis="y"
+                values={steps}
+                onReorder={handleReorder}
+                className="space-y-6"
+              >
+                {steps.map((step, index) => (
+                  <Reorder.Item
+                    key={step.id}
+                    value={step}
+                    className="relative"
+                  >
+                    {/* Step Number Outside */}
+                    <div className="absolute left-0 top-6">
+                      <div className="w-12 h-12 bg-white border-4 border-gray-900 rounded-full flex items-center justify-center text-lg font-bold text-gray-900 shadow-lg">
+                        {index + 1}
+                      </div>
+                    </div>
+                    
+                    {/* Step Content */}
+                    <div className="ml-20">
+                      <Card className="hover:shadow-md transition-shadow border-gray-200">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center space-x-3">
+                              <GripVertical className="w-5 h-5 text-gray-400 cursor-grab" />
+                              
+                              <div className="flex items-center space-x-2">
+                                {(() => {
+                                  const stepType = stepTypes.find(t => t.type === step.type)
+                                  const IconComponent = stepType?.icon || Type
+                                  return (
+                                    <div className={cn(
+                                      "w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-r",
+                                      stepType?.color || "from-gray-500 to-gray-600"
+                                    )}>
+                                      <IconComponent className="w-4 h-4 text-white" />
+                                    </div>
+                                  )
+                                })()} 
+                                
+                                <div>
+                                  <CardTitle className="text-lg text-gray-900">
+                                    {getMultilingualText(step.title, selectedLanguage, 'Paso')}
+                                  </CardTitle>
+                                  <div className="flex items-center space-x-2 mt-1">
+                                    <span className={cn(
+                                      "text-xs px-2 py-1 rounded-full",
+                                      step.isPublished 
+                                        ? "bg-green-100 text-green-800" 
+                                        : "bg-yellow-100 text-yellow-800"
+                                    )}>
+                                      {step.isPublished ? 'Publicado' : 'Borrador'}
+                                    </span>
+                                    <span className="text-xs text-gray-500">
+                                      {stepTypes.find(t => t.type === step.type)?.name}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => togglePublished(step.id)}
+                                className={cn(
+                                  "text-xs",
+                                  step.isPublished 
+                                    ? "text-yellow-600 hover:text-yellow-700" 
+                                    : "text-green-600 hover:text-green-700"
+                                )}
+                              >
+                                {step.isPublished ? 'Ocultar' : 'Publicar'}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEditStep(step)}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteStep(step.id)}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        
+                        <CardContent className="pt-0">
+                          {renderStepContent(step)}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </Reorder.Item>
+                ))}
+              </Reorder.Group>
+              
+              {/* Add New Step Button */}
+              <div className="relative mt-6">
+                <div className="absolute left-0 top-6">
+                  <div className="w-12 h-12 bg-white border-4 border-dashed border-gray-400 rounded-full flex items-center justify-center text-lg font-bold text-gray-400">
+                    <Plus className="w-5 h-5" />
+                  </div>
+                </div>
+                
+                <div className="ml-20">
+                  <Card 
+                    className="border-2 border-dashed border-gray-300 hover:border-violet-400 transition-colors cursor-pointer"
+                    onClick={() => setShowCreateForm(true)}
+                  >
+                    <CardContent className="p-8 text-center">
+                      <Plus className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-600 font-medium">Añadir nuevo paso</p>
+                      <p className="text-gray-500 text-sm">Haz clic para crear un nuevo paso</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <Card className="text-center py-12 border-2 border-dashed border-gray-300">
+              <CardContent>
+                <div className="text-gray-400 text-lg mb-2">No hay steps configurados</div>
+                <div className="text-gray-500 text-sm mb-6">
+                  Crea tu primer step para comenzar a guiar a tus huéspedes
+                </div>
+                <Button
+                  onClick={() => setShowCreateForm(true)}
+                  className="bg-violet-600 hover:bg-violet-700"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  Crear Primer Step
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+        
+        {/* Right Column - Tips & Info (1/3 width) */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-6 space-y-6">
+            {/* Best Practices Card */}
+            <Card className="border-violet-200 bg-violet-50">
+              <CardHeader>
+                <CardTitle className="text-lg text-violet-900 flex items-center">
+                  <div className="w-6 h-6 bg-violet-600 rounded-full flex items-center justify-center mr-2">
+                    <span className="text-white text-sm">💡</span>
+                  </div>
+                  Mejores Prácticas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 text-sm text-violet-800">
+                  <div className="flex items-start space-x-2">
+                    <div className="w-1.5 h-1.5 bg-violet-600 rounded-full mt-2 flex-shrink-0"></div>
+                    <p>Añade tantos pasos como necesites para ser claro</p>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <div className="w-1.5 h-1.5 bg-violet-600 rounded-full mt-2 flex-shrink-0"></div>
+                    <p>Los manuales que tienen imágenes son más fáciles de entender</p>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <div className="w-1.5 h-1.5 bg-violet-600 rounded-full mt-2 flex-shrink-0"></div>
+                    <p>Revisa que los pasos estén en los tres idiomas</p>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <div className="w-1.5 h-1.5 bg-violet-600 rounded-full mt-2 flex-shrink-0"></div>
+                    <p>Usa videos cortos para procesos complejos</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Statistics Card */}
+            <Card className="border-gray-200">
+              <CardHeader>
+                <CardTitle className="text-lg text-gray-900 flex items-center">
+                  <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center mr-2">
+                    <span className="text-white text-sm">📊</span>
+                  </div>
+                  Estadísticas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">Total pasos</span>
+                    <span className="text-gray-900 font-semibold">{steps.length}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">Publicados</span>
+                    <span className="text-green-600 font-semibold">{steps.filter(s => s.isPublished).length}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">Borradores</span>
+                    <span className="text-yellow-600 font-semibold">{steps.filter(s => !s.isPublished).length}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">Con imágenes</span>
+                    <span className="text-blue-600 font-semibold">{steps.filter(s => s.type === StepType.IMAGE).length}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Quick Actions Card */}
+            <Card className="border-gray-200">
+              <CardHeader>
+                <CardTitle className="text-lg text-gray-900 flex items-center">
+                  <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center mr-2">
+                    <span className="text-white text-sm">⚡</span>
+                  </div>
+                  Acciones Rápidas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start"
+                    onClick={() => setShowCreateForm(true)}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nuevo paso
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setSteps(steps.map(s => ({ ...s, isPublished: true })))
+                    }}
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    Publicar todos
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start"
+                    onClick={handleSaveSteps}
+                    disabled={saving}
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    Guardar cambios
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+      
+      {/* Mobile Layout - Original Design */}
+      <div className="lg:hidden">
+        {steps.length > 0 ? (
+          <Reorder.Group
+            axis="y"
+            values={steps}
+            onReorder={handleReorder}
+            className="space-y-4"
+          >
+            {steps.map((step, index) => (
+              <Reorder.Item
+                key={step.id}
+                value={step}
+                className="bg-white"
+              >
+                <Card className="hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-2">
+                          <GripVertical className="w-5 h-5 text-gray-400 cursor-grab" />
+                          <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
+                            {index + 1}
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          {(() => {
+                            const stepType = stepTypes.find(t => t.type === step.type)
+                            const IconComponent = stepType?.icon || Type
+                            return (
+                              <div className={cn(
+                                "w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-r",
+                                stepType?.color || "from-gray-500 to-gray-600"
+                              )}>
+                                <IconComponent className="w-4 h-4 text-white" />
+                              </div>
+                            )
+                          })()} 
+                          
+                          <div>
+                            <CardTitle className="text-lg">
+                              {getMultilingualText(step.title, selectedLanguage, 'Paso')}
+                            </CardTitle>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <span className={cn(
+                                "text-xs px-2 py-1 rounded-full",
+                                step.isPublished 
+                                  ? "bg-green-100 text-green-800" 
+                                  : "bg-yellow-100 text-yellow-800"
+                              )}>
+                                {step.isPublished ? 'Publicado' : 'Borrador'}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {stepTypes.find(t => t.type === step.type)?.name}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       
                       <div className="flex items-center space-x-2">
-                        {(() => {
-                          const stepType = stepTypes.find(t => t.type === step.type)
-                          const IconComponent = stepType?.icon || Type
-                          return (
-                            <div className={cn(
-                              "w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-r",
-                              stepType?.color || "from-gray-500 to-gray-600"
-                            )}>
-                              <IconComponent className="w-4 h-4 text-white" />
-                            </div>
-                          )
-                        })()}
-                        
-                        <div>
-                          <CardTitle className="text-lg">
-                            {getMultilingualText(step.title, selectedLanguage, 'Paso')}
-                          </CardTitle>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <span className={cn(
-                              "text-xs px-2 py-1 rounded-full",
-                              step.isPublished 
-                                ? "bg-green-100 text-green-800" 
-                                : "bg-yellow-100 text-yellow-800"
-                            )}>
-                              {step.isPublished ? 'Publicado' : 'Borrador'}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {stepTypes.find(t => t.type === step.type)?.name}
-                            </span>
-                          </div>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => togglePublished(step.id)}
+                          className={cn(
+                            "text-xs",
+                            step.isPublished 
+                              ? "text-yellow-600 hover:text-yellow-700" 
+                              : "text-green-600 hover:text-green-700"
+                          )}
+                        >
+                          {step.isPublished ? 'Ocultar' : 'Publicar'}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditStep(step)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteStep(step.id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => togglePublished(step.id)}
-                        className={cn(
-                          "text-xs",
-                          step.isPublished 
-                            ? "text-yellow-600 hover:text-yellow-700" 
-                            : "text-green-600 hover:text-green-700"
-                        )}
-                      >
-                        {step.isPublished ? 'Ocultar' : 'Publicar'}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditStep(step)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteStep(step.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="pt-0">
-                  {renderStepContent(step)}
-                </CardContent>
-              </Card>
-            </Reorder.Item>
-          ))}
-        </Reorder.Group>
-      ) : (
-        <Card className="text-center py-12">
-          <CardContent>
-            <div className="text-gray-400 text-lg mb-2">No hay steps configurados</div>
-            <div className="text-gray-500 text-sm mb-6">
-              Crea tu primer step para comenzar a guiar a tus huéspedes
-            </div>
-            <Button
-              onClick={() => setShowCreateForm(true)}
-              className="bg-violet-600 hover:bg-violet-700"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Crear Primer Step
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0">
+                    {renderStepContent(step)}
+                  </CardContent>
+                </Card>
+              </Reorder.Item>
+            ))}
+          </Reorder.Group>
+        ) : (
+          <Card className="text-center py-12">
+            <CardContent>
+              <div className="text-gray-400 text-lg mb-2">No hay steps configurados</div>
+              <div className="text-gray-500 text-sm mb-6">
+                Crea tu primer step para comenzar a guiar a tus huéspedes
+              </div>
+              <Button
+                onClick={() => setShowCreateForm(true)}
+                className="bg-violet-600 hover:bg-violet-700"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Crear Primer Step
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* Create/Edit Form Modal */}
       <AnimatePresence>
