@@ -281,15 +281,15 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+            className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8"
           >
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-3 sm:p-6">
                 <div className="flex items-center">
-                  <Home className="h-8 w-8 text-violet-600" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Propiedades</p>
-                    <p className="text-2xl font-bold text-gray-900">
+                  <Home className="h-6 w-6 sm:h-8 sm:w-8 text-violet-600" />
+                  <div className="ml-3 sm:ml-4">
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Propiedades</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900">
                       {stats.totalProperties}
                     </p>
                   </div>
@@ -298,12 +298,12 @@ export default function DashboardPage() {
             </Card>
             
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-3 sm:p-6">
                 <div className="flex items-center">
-                  <Eye className="h-8 w-8 text-blue-600" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Visualizaciones</p>
-                    <p className="text-2xl font-bold text-gray-900">
+                  <Eye className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+                  <div className="ml-3 sm:ml-4">
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Visualizaciones</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900">
                       {stats.totalViews}
                     </p>
                   </div>
@@ -313,15 +313,15 @@ export default function DashboardPage() {
             
             {/* Actividad Reciente card */}
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-3 sm:p-6">
                 <button
                   onClick={() => setShowHistoryModal(true)}
                   className="flex items-center w-full text-left"
                 >
-                  <Calendar className="h-8 w-8 text-orange-600" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Actividad Reciente</p>
-                    <p className="text-2xl font-bold text-gray-900">{recentActivity.length}</p>
+                  <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
+                  <div className="ml-3 sm:ml-4">
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Actividad Reciente</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900">{recentActivity.length}</p>
                   </div>
                 </button>
               </CardContent>
@@ -329,12 +329,12 @@ export default function DashboardPage() {
 
             {/* Manuales Activos card */}
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-3 sm:p-6">
                 <div className="flex items-center">
-                  <PlayCircle className="h-8 w-8 text-green-600" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Manuales Activos</p>
-                    <p className="text-2xl font-bold text-gray-900">
+                  <PlayCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
+                  <div className="ml-3 sm:ml-4">
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Manuales Activos</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900">
                       {stats.activeManuals}
                     </p>
                   </div>
