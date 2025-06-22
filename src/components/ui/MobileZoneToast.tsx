@@ -49,51 +49,122 @@ export function MobileZoneToast({
 
   if (hasAllEssentialZones) {
     return (
-      <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
-        className="fixed bottom-20 left-4 right-4 z-40"
-      >
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-3 shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
+      <>
+        {/* Banner fijo en lugar de toast flotante */}
+        <div className="sticky top-0 z-40 bg-gradient-to-r from-green-50 to-blue-50 border-b border-green-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 flex-1">
               <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
                 <Lightbulb className="w-3 h-3 text-green-600" />
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="text-xs font-medium text-green-900">¡Enhorabuena! tu manual tiene muy buena pinta</p>
                 <p className="text-xs text-green-700">Has añadido las zonas esenciales</p>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 hover:bg-green-100 rounded"
+              className="p-1 hover:bg-green-100 rounded ml-2"
             >
               <X className="w-3 h-3 text-green-600" />
             </button>
           </div>
           
           <Button
-            onClick={() => {
-              setShowModal(true)
-              // Scroll down to zone suggestions
-              setTimeout(() => {
-                const element = document.getElementById('zone-suggestions')
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                }
-              }, 300)
-            }}
+            onClick={() => setShowModal(true)}
             variant="outline"
             size="sm"
-            className="w-full text-xs bg-white/50 hover:bg-white/80"
+            className="w-full text-xs bg-white/50 hover:bg-white/80 mt-3"
           >
             Ver más zonas que puedes añadir
             <ChevronRight className="w-3 h-3 ml-1" />
           </Button>
         </div>
-      </motion.div>
+
+        {/* Modal con sugerencias */}
+        <AnimatePresence>
+          {showModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-50 flex items-end"
+              onClick={() => setShowModal(false)}
+            >
+              <motion.div
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                className="bg-white w-full rounded-t-2xl max-h-[80vh] overflow-hidden"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="p-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold">Zonas Sugeridas</h2>
+                    <button
+                      onClick={() => setShowModal(false)}
+                      className="p-2 hover:bg-gray-100 rounded-full"
+                    >
+                      <X className="w-5 h-5 text-gray-500" />
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="p-4 overflow-y-auto max-h-[calc(80vh-80px)]">
+                  <div className="space-y-3">
+                    {availableZones.slice(0, 10).map((template) => (
+                      <div
+                        key={template.id}
+                        className="bg-gray-50 rounded-lg p-3 flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className="p-2 bg-white rounded-lg">
+                            <ZoneIconDisplay iconId={template.icon} size="sm" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-medium text-sm text-gray-900">
+                              {getText(template.name, 'Zona')}
+                            </h3>
+                            <p className="text-xs text-gray-600 line-clamp-1">
+                              {getText(template.description, '')}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 ml-2">
+                          {/* Botón Ver más grande */}
+                          <Button
+                            onClick={() => {
+                              // Aquí se puede mostrar más detalles si es necesario
+                              console.log('Ver detalles:', template)
+                            }}
+                            variant="outline"
+                            size="sm"
+                            className="text-xs px-3 py-1"
+                          >
+                            Ver más
+                          </Button>
+                          {/* Botón Añadir más pequeño */}
+                          <Button
+                            onClick={() => {
+                              onCreateZone(template)
+                              setShowModal(false)
+                              setIsOpen(false)
+                            }}
+                            size="sm"
+                            className="bg-violet-600 hover:bg-violet-700 text-white text-xs px-2 py-1"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </>
     )
   }
 
@@ -136,74 +207,6 @@ export function MobileZoneToast({
         </div>
       </motion.div>
 
-      {/* Modal with zone suggestions */}
-      <AnimatePresence>
-        {showModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50 flex items-end"
-            onClick={() => setShowModal(false)}
-          >
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              className="bg-white w-full rounded-t-2xl max-h-[80vh] overflow-hidden"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="p-4 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Zonas Sugeridas</h2>
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="p-2 hover:bg-gray-100 rounded-full"
-                  >
-                    <X className="w-5 h-5 text-gray-500" />
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-4 overflow-y-auto max-h-[calc(80vh-80px)]">
-                <div className="space-y-3">
-                  {availableZones.slice(0, 10).map((template) => (
-                    <div
-                      key={template.id}
-                      className="bg-gray-50 rounded-lg p-3 flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white rounded-lg">
-                          <ZoneIconDisplay iconId={template.icon} size="sm" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-medium text-sm text-gray-900">
-                            {getText(template.name, 'Zona')}
-                          </h3>
-                          <p className="text-xs text-gray-600 line-clamp-1">
-                            {getText(template.description, '')}
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          onCreateZone(template)
-                          setShowModal(false)
-                          setIsOpen(false)
-                        }}
-                        size="sm"
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   )
 }
