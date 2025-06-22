@@ -255,8 +255,8 @@ export default function DashboardPage() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <DashboardNavbar user={user || undefined} />
       
-      <main className="flex-1 pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 pt-6 sm:pt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -355,33 +355,22 @@ export default function DashboardPage() {
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
-                  {/* Spectacular Property Icon - Airbnb style */}
-                  <div className="relative">
-                    <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <svg 
-                        viewBox="0 0 24 24" 
-                        className="w-6 h-6 text-white"
-                        fill="currentColor"
-                      >
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                      </svg>
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                      <svg viewBox="0 0 12 12" className="w-2.5 h-2.5 text-white" fill="currentColor">
-                        <path d="M2 6.5L5 9.5L10 2.5"/>
-                      </svg>
-                    </div>
+                  {/* Minimalist Property Icon - Black vectorial */}
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <svg 
+                      viewBox="0 0 24 24" 
+                      className="w-7 h-7 text-gray-900"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <path d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
+                    </svg>
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900">
                     Mis Propiedades ({loading ? '...' : properties.length})
                   </h2>
                 </div>
-                <Button asChild variant="outline">
-                  <Link href="/properties">
-                    Ver todas
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </Button>
               </div>
 
               {loading ? (
@@ -558,6 +547,18 @@ export default function DashboardPage() {
                     </Card>
                   ))}
                 </div>
+                
+                {/* Ver todas button below properties */}
+                {!loading && properties.length > 0 && (
+                  <div className="mt-6 text-center">
+                    <Button asChild variant="outline" className="w-full sm:w-auto">
+                      <Link href="/properties">
+                        Ver todas las propiedades
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               )}
             </motion.div>
 
@@ -571,37 +572,23 @@ export default function DashboardPage() {
               >
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
-                    {/* Spectacular Property Set Icon - Airbnb style */}
-                    <div className="relative">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <svg 
-                          viewBox="0 0 24 24" 
-                          className="w-6 h-6 text-white"
-                          fill="currentColor"
-                        >
-                          <path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/>
-                          <circle cx="6" cy="6" r="1"/>
-                          <circle cx="18" cy="6" r="1"/>
-                          <circle cx="6" cy="18" r="1"/>
-                          <circle cx="18" cy="18" r="1"/>
-                        </svg>
-                      </div>
-                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
-                        <svg viewBox="0 0 12 12" className="w-2.5 h-2.5 text-white" fill="currentColor">
-                          <path d="M6 1L7 4h3l-2.5 2L8.5 9L6 7l-2.5 2L4.5 6L2 4h3z"/>
-                        </svg>
-                      </div>
+                    {/* Minimalist Property Set Icon - Black vectorial */}
+                    <div className="w-8 h-8 flex items-center justify-center">
+                      <svg 
+                        viewBox="0 0 24 24" 
+                        className="w-7 h-7 text-gray-900"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                      >
+                        <path d="M2.25 21h19.5m-18-18v18m2.25-18v18m6-18v18m2.25-18v18m6-18v18"/>
+                        <path d="M6.75 6.75h.008v.008H6.75V6.75zm0 3h.008v.008H6.75V9.75zm0 3h.008v.008H6.75v-.008zm3-6h.008v.008H9.75V6.75zm0 3h.008v.008H9.75V9.75zm0 3h.008v.008H9.75v-.008zm3-6h.008v.008h-.008V6.75zm0 3h.008v.008h-.008V9.75zm0 3h.008v.008h-.008v-.008z"/>
+                      </svg>
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900">
                       Mis Conjuntos de Propiedades ({propertySets.length})
                     </h2>
                   </div>
-                  <Button asChild variant="outline">
-                    <Link href="/properties?tab=sets">
-                      Ver todos
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Link>
-                  </Button>
                 </div>
 
                 <div className="space-y-4">
@@ -626,36 +613,37 @@ export default function DashboardPage() {
 
                           {/* Property Set Info */}
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <h3 className="font-semibold text-lg text-gray-900 mb-1 truncate">
-                                  {propertySet.name}
-                                </h3>
-                                <p className="text-sm text-gray-600 mb-2">
-                                  {propertySet.city}, {propertySet.state}
-                                </p>
-                                
-                                <div className="flex items-center space-x-4 text-sm">
-                                  <div className="flex items-center text-gray-600">
-                                    <Home className="h-4 w-4 mr-1" />
-                                    <span>{propertySet.propertiesCount} propiedades</span>
-                                  </div>
-                                  {propertySet.totalViews > 0 && (
-                                    <div className="flex items-center text-gray-600">
-                                      <Eye className="h-4 w-4 mr-1" />
-                                      <span>{propertySet.totalViews} vistas</span>
-                                    </div>
-                                  )}
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-lg text-gray-900 mb-1 truncate">
+                                {propertySet.name}
+                              </h3>
+                              <p className="text-sm text-gray-600 mb-2">
+                                {propertySet.city}, {propertySet.state}
+                              </p>
+                              
+                              <div className="flex items-center space-x-4 text-sm mb-4">
+                                <div className="flex items-center text-gray-600">
+                                  <Home className="h-4 w-4 mr-1" />
+                                  <span>{propertySet.propertiesCount} propiedades</span>
                                 </div>
+                                {propertySet.totalViews > 0 && (
+                                  <div className="flex items-center text-gray-600">
+                                    <Eye className="h-4 w-4 mr-1" />
+                                    <span>{propertySet.totalViews} vistas</span>
+                                  </div>
+                                )}
                               </div>
                               
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => router.push(`/properties?tab=sets&manage=${propertySet.id}`)}
-                              >
-                                Gestionar
-                              </Button>
+                              <div className="pt-4 border-t border-gray-200">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full"
+                                  onClick={() => router.push(`/properties?tab=sets&manage=${propertySet.id}`)}
+                                >
+                                  Gestionar
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -663,6 +651,18 @@ export default function DashboardPage() {
                     </Card>
                   ))}
                 </div>
+                
+                {/* Ver todos button below property sets */}
+                {propertySets.length > 0 && (
+                  <div className="mt-6 text-center">
+                    <Button asChild variant="outline" className="w-full sm:w-auto">
+                      <Link href="/properties?tab=sets">
+                        Ver todos los conjuntos
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               </motion.div>
             )}
 
