@@ -18,7 +18,12 @@ import {
   Check,
   X,
   MoreHorizontal,
-  Building2
+  Building2,
+  Languages,
+  CheckCircle,
+  ArrowRight,
+  Lightbulb,
+  TrendingUp
 } from 'lucide-react'
 import { Button } from '../../../src/components/ui/Button'
 import { Card, CardContent } from '../../../src/components/ui/Card'
@@ -102,6 +107,122 @@ const statusColors = {
   ACTIVE: 'bg-green-100 text-green-800',
   DRAFT: 'bg-yellow-100 text-yellow-800',
   ARCHIVED: 'bg-gray-100 text-gray-800'
+}
+
+interface Recommendation {
+  id: string
+  type: 'language' | 'zone' | 'content' | 'optimization' | 'congratulations'
+  priority: 'high' | 'medium' | 'low'
+  title: string
+  description: string
+  actionText: string
+  actionUrl?: string
+  propertyName?: string
+  icon: React.ReactNode
+}
+
+// Generate smart recommendations based on properties analysis
+const generateRecommendations = (properties: Property[]): Recommendation[] => {
+  const recommendations: Recommendation[] = []
+  const activeProperties = properties.filter(p => p.status === 'ACTIVE')
+  
+  // Check for missing zones
+  activeProperties.forEach(property => {
+    if (property.zonesCount === 0) {
+      recommendations.push({
+        id: `zones-${property.id}`,
+        type: 'zone',
+        priority: 'high',
+        title: 'Agregar zonas esenciales',
+        description: `${getText(property.name)} no tiene zonas creadas. Agrega zonas como Check-in, WiFi, Cocina.`,
+        actionText: 'Crear zonas',
+        actionUrl: `/properties/${property.id}/zones`,
+        propertyName: getText(property.name),
+        icon: <MapPin className="w-5 h-5 text-orange-600" />
+      })
+    } else if (property.zonesCount < 3) {
+      recommendations.push({
+        id: `few-zones-${property.id}`,
+        type: 'zone',
+        priority: 'medium',
+        title: 'Ampliar zonas del manual',
+        description: `${getText(property.name)} solo tiene ${property.zonesCount} zona${property.zonesCount > 1 ? 's' : ''}. Considera agregar más zonas.`,
+        actionText: 'Ver zonas',
+        actionUrl: `/properties/${property.id}/zones`,
+        propertyName: getText(property.name),
+        icon: <MapPin className="w-5 h-5 text-blue-600" />
+      })
+    }
+  })
+
+  // Check for low view properties
+  activeProperties.forEach(property => {
+    if (property.totalViews === 0) {
+      recommendations.push({
+        id: `no-views-${property.id}`,
+        type: 'optimization',
+        priority: 'medium',
+        title: 'Manual sin visualizaciones',
+        description: `${getText(property.name)} no ha recibido visitas. Comparte el enlace con tus huéspedes.`,
+        actionText: 'Compartir manual',
+        propertyName: getText(property.name),
+        icon: <Eye className="w-5 h-5 text-purple-600" />
+      })
+    }
+  })
+
+  // Language recommendations (simulated)
+  if (activeProperties.length > 0) {
+    const randomProperty = activeProperties[Math.floor(Math.random() * activeProperties.length)]
+    recommendations.push({
+      id: `language-${randomProperty.id}`,
+      type: 'language',
+      priority: 'medium',
+      title: 'Traducir a más idiomas',
+      description: `${getText(randomProperty.name)} podría beneficiarse de traducciones a inglés y francés.`,
+      actionText: 'Gestionar idiomas',
+      actionUrl: `/properties/${randomProperty.id}/zones`,
+      propertyName: getText(randomProperty.name),
+      icon: <Languages className="w-5 h-5 text-green-600" />
+    })
+  }
+
+  // Growth recommendations
+  if (activeProperties.length > 0) {
+    const totalViews = activeProperties.reduce((sum, p) => sum + p.totalViews, 0)
+    if (totalViews > 50) {
+      recommendations.push({
+        id: 'growth-tip',
+        type: 'optimization',
+        priority: 'low',
+        title: 'Optimizar manuales populares',
+        description: `Tus manuales han recibido ${totalViews} visualizaciones. ¡Considera agregar más contenido!`,
+        actionText: 'Ver estadísticas',
+        icon: <TrendingUp className="w-5 h-5 text-indigo-600" />
+      })
+    }
+  }
+
+  // Congratulations message if everything is good
+  if (recommendations.length === 0 || recommendations.every(r => r.priority === 'low')) {
+    recommendations.unshift({
+      id: 'congratulations',
+      type: 'congratulations',
+      priority: 'low',
+      title: '¡Excelente trabajo!',
+      description: 'Tus manuales están bien configurados. Sigue monitoreando las estadísticas para mejoras.',
+      actionText: 'Ver actividad',
+      icon: <CheckCircle className="w-5 h-5 text-green-600" />
+    })
+  }
+
+  // Sort by priority and return max 4 recommendations
+  return recommendations
+    .sort((a, b) => {
+      const priorityOrder = { high: 3, medium: 2, low: 1 }
+      return priorityOrder[b.priority] - priorityOrder[a.priority]
+    })
+    .slice(0, 4)
 }
 
 function PropertiesPageContent() {
@@ -245,6 +366,19 @@ function PropertiesPageContent() {
       setShareProperty(property)
       setShareModalOpen(true)
       setCopied(false)
+    }
+  }
+
+  const handleRecommendationAction = (recommendation: Recommendation) => {
+    if (recommendation.actionUrl) {
+      router.push(recommendation.actionUrl)
+    } else if (recommendation.type === 'optimization' && recommendation.id.includes('no-views')) {
+      // For share recommendations without URL, trigger share modal
+      const propertyName = recommendation.propertyName
+      const property = properties.find(p => getText(p.name) === propertyName)
+      if (property) {
+        handleShareProperty(property.id)
+      }
     }
   }
 
@@ -473,24 +607,105 @@ function PropertiesPageContent() {
             console.log('🏠 Properties with sets:', properties.filter(p => p.propertySetId).map(p => ({ name: getText(p.name), setId: p.propertySetId, setName: p.propertySet?.name })))
             return individualProperties.length === 0
           })() ? (
-            <Card className="p-12 text-center">
-              <Home className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No tienes propiedades individuales
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Crea propiedades individuales o ve a la pestaña "Conjuntos" para gestionar propiedades agrupadas
-              </p>
-              <Link href="/properties/new">
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Crear Primera Propiedad
-                </Button>
-              </Link>
-            </Card>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+              {/* Empty State - Takes 3 columns on desktop */}
+              <div className="lg:col-span-3">
+                <Card className="p-12 text-center">
+                  <Home className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No tienes propiedades individuales
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Crea propiedades individuales o ve a la pestaña "Conjuntos" para gestionar propiedades agrupadas
+                  </p>
+                  <Link href="/properties/new">
+                    <Button>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Crear Primera Propiedad
+                    </Button>
+                  </Link>
+                </Card>
+              </div>
+
+              {/* Getting Started Panel - Takes 2 columns on desktop */}
+              <div className="lg:col-span-2 order-first lg:order-last">
+                <div className="sticky top-8">
+                  <Card className="p-6">
+                    <div className="flex items-center mb-4">
+                      <Lightbulb className="w-5 h-5 text-violet-600 mr-2" />
+                      <h3 className="text-lg font-semibold text-gray-900">Primeros pasos</h3>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="p-4 rounded-lg border border-blue-200 bg-blue-50"
+                      >
+                        <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0 mt-0.5">
+                            <Home className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-semibold text-gray-900 mb-1">
+                              Crea tu primera propiedad
+                            </h4>
+                            <p className="text-xs text-gray-600 mb-3 leading-relaxed">
+                              Comienza agregando la información básica de tu alojamiento para crear tu primer manual digital.
+                            </p>
+                            <Link href="/properties/new">
+                              <Button 
+                                size="sm" 
+                                className="text-xs h-8 px-3 bg-blue-600 hover:bg-blue-700"
+                              >
+                                Crear propiedad
+                                <ArrowRight className="w-3 h-3 ml-1" />
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="p-4 rounded-lg border border-purple-200 bg-purple-50"
+                      >
+                        <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0 mt-0.5">
+                            <Building2 className="w-5 h-5 text-purple-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-semibold text-gray-900 mb-1">
+                              ¿Tienes múltiples propiedades?
+                            </h4>
+                            <p className="text-xs text-gray-600 mb-3 leading-relaxed">
+                              Si gestionas un hotel, edificio o complejo, crea un conjunto para organizar mejor tus propiedades.
+                            </p>
+                            <Link href="/property-sets/new">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                className="text-xs h-8 px-3"
+                              >
+                                Crear conjunto
+                                <ArrowRight className="w-3 h-3 ml-1" />
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </div>
+                  </Card>
+                </div>
+              </div>
+            </div>
           ) : (
-            <div className="space-y-4">
-              {properties.filter(property => !property.propertySetId).map((property) => (
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+              {/* Properties List - Takes 3 columns on desktop */}
+              <div className="lg:col-span-3 space-y-4">
+                {properties.filter(property => !property.propertySetId).map((property) => (
               <motion.div
                 key={property.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -630,8 +845,67 @@ function PropertiesPageContent() {
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
-          </div>
+                ))}
+              </div>
+
+              {/* Recommendations Panel - Takes 2 columns on desktop, full width on mobile */}
+              <div className="lg:col-span-2 order-first lg:order-last">
+                <div className="sticky top-8">
+                  <Card className="p-6">
+                    <div className="flex items-center mb-4">
+                      <Lightbulb className="w-5 h-5 text-violet-600 mr-2" />
+                      <h3 className="text-lg font-semibold text-gray-900">Recomendaciones</h3>
+                    </div>
+                    
+                    {(() => {
+                      const recommendations = generateRecommendations(properties.filter(property => !property.propertySetId))
+                      
+                      return (
+                        <div className="space-y-4">
+                          {recommendations.map((recommendation) => (
+                            <motion.div
+                              key={recommendation.id}
+                              initial={{ opacity: 0, x: 20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              className={`p-4 rounded-lg border ${
+                                recommendation.priority === 'high' 
+                                  ? 'border-red-200 bg-red-50' 
+                                  : recommendation.priority === 'medium'
+                                  ? 'border-yellow-200 bg-yellow-50'
+                                  : 'border-green-200 bg-green-50'
+                              }`}
+                            >
+                              <div className="flex items-start space-x-3">
+                                <div className="flex-shrink-0 mt-0.5">
+                                  {recommendation.icon}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-sm font-semibold text-gray-900 mb-1">
+                                    {recommendation.title}
+                                  </h4>
+                                  <p className="text-xs text-gray-600 mb-3 leading-relaxed">
+                                    {recommendation.description}
+                                  </p>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    className="text-xs h-8 px-3"
+                                    onClick={() => handleRecommendationAction(recommendation)}
+                                  >
+                                    {recommendation.actionText}
+                                    <ArrowRight className="w-3 h-3 ml-1" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      )
+                    })()}
+                  </Card>
+                </div>
+              </div>
+            </div>
           )
         ) : selectedPropertySet ? (
           // Property Set Management View
