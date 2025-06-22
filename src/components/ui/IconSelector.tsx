@@ -6,6 +6,7 @@ import { Search, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { ZONE_ICONS } from '../../data/zoneIcons'
 import { zoneIconMapping } from '../../data/zoneIconsAirbnb'
+import { getZoneIcon as getExtendedZoneIcon, getZoneIconByName } from '../../data/zoneIconsExtended'
 import { Button } from './Button'
 import { Input } from './Input'
 
@@ -201,7 +202,11 @@ export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisp
   // Fallback to existing icon system
   const icon = useZoneIcon(iconId)
   
-  if (!AirbnbIcon && !icon) {
+  // Try extended icon system if we have an iconId
+  const ExtendedIconComponent = iconId ? getExtendedZoneIcon(iconId) : null
+  
+  // If no icon found anywhere, show default
+  if (!AirbnbIcon && !icon && !ExtendedIconComponent) {
     return (
       <div className={cn(
         "rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center",
@@ -233,6 +238,26 @@ export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisp
         )}>
           {AirbnbIcon}
         </div>
+      </div>
+    )
+  }
+
+  // Use extended icon system if available
+  if (ExtendedIconComponent) {
+    return (
+      <div className={cn(
+        "rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center shadow-sm border border-gray-200/50",
+        size === 'sm' && "w-8 h-8",
+        size === 'md' && "w-12 h-12",
+        size === 'lg' && "w-16 h-16", 
+        className
+      )}>
+        <ExtendedIconComponent className={cn(
+          "text-gray-700",
+          size === 'sm' && "w-4 h-4",
+          size === 'md' && "w-6 h-6",
+          size === 'lg' && "w-8 h-8"
+        )} />
       </div>
     )
   }

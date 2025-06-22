@@ -43,6 +43,7 @@ import { StepEditor } from '../../../../../../src/components/ui/StepEditor'
 import { LoadingSpinner } from '../../../../../../src/components/ui/LoadingSpinner'
 import { resolveProperty, resolveZone } from '../../../../../../src/lib/slug-resolver'
 import { isCuid } from '../../../../../../src/lib/slug-utils'
+import { getZoneIcon as getExtendedZoneIcon, getZoneIconByName } from '../../../../../../src/data/zoneIconsExtended'
 
 interface Step {
   id: string
@@ -389,23 +390,20 @@ export default function ZoneDetailPage() {
     }
   }
 
-  // Helper function to get zone icon component based on emoji
-  const getZoneIcon = (emoji: string) => {
-    const iconMap: { [key: string]: any } = {
-      '📶': Wifi,
-      '🗝️': Key,
-      '🚗': Car,
-      '🍽️': Utensils,
-      '🚿': Bath,
-      '🛏️': Bed,
-      '🏠': Home,
-      '📍': MapPin,
-      '👥': Users,
-      'ℹ️': Info,
-      '📊': BarChart3,
+  // Helper function to get zone icon component based on emoji and name
+  const getZoneIcon = (emoji: string, zoneName?: string) => {
+    // Try emoji first with extended mapping
+    const iconFromEmoji = getExtendedZoneIcon(emoji)
+    if (iconFromEmoji !== Home) {
+      return iconFromEmoji
     }
     
-    return iconMap[emoji] || null
+    // If no emoji match and we have a name, try to match by name
+    if (zoneName) {
+      return getZoneIconByName(zoneName)
+    }
+    
+    return Home
   }
 
   const getStepTypeLabel = (type: Step['type']) => {
@@ -453,7 +451,7 @@ export default function ZoneDetailPage() {
           <div className="flex items-center space-x-2">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${zone.color || 'bg-gray-100'}`}>
               {(() => {
-                const IconComponent = getZoneIcon(zone.icon)
+                const IconComponent = getZoneIcon(zone.icon, getZoneText(zone.name, ''))
                 return IconComponent ? (
                   <IconComponent className="w-5 h-5 text-gray-700" />
                 ) : (
@@ -490,7 +488,7 @@ export default function ZoneDetailPage() {
               {/* Zone Icon */}
               <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${zone.color || 'bg-gray-100'} shadow-sm`}>
                 {(() => {
-                  const IconComponent = getZoneIcon(zone.icon)
+                  const IconComponent = getZoneIcon(zone.icon, getZoneText(zone.name, ''))
                   return IconComponent ? (
                     <IconComponent className="w-8 h-8 text-gray-700" />
                   ) : (

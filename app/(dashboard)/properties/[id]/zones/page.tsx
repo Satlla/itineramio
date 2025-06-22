@@ -62,6 +62,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showStepEditor, setShowStepEditor] = useState(false)
   const [editingZoneForSteps, setEditingZoneForSteps] = useState<Zone | null>(null)
   const [isCreatingZone, setIsCreatingZone] = useState(false)
+  const [isLoadingZones, setIsLoadingZones] = useState(true)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -158,6 +159,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             }
           })
           setZones(transformedZones)
+          setIsLoadingZones(false)
           
           // Generate zone warnings after zones are loaded
           setTimeout(() => {
@@ -217,6 +219,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         }
       } catch (error) {
         console.error('Error fetching data:', error)
+        setIsLoadingZones(false)
       }
     }
 
@@ -778,6 +781,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         alert('Error al eliminar la propiedad')
       }
     }
+  }
+
+  // Show loading spinner when loading zones
+  if (isLoadingZones) {
+    return <AnimatedLoadingSpinner text="Cargando zonas..." type="zones" />
   }
 
   return (
