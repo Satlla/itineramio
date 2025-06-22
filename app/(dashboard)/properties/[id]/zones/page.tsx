@@ -813,26 +813,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             <ExternalLink className="w-5 h-5 mr-2" />
             Vista Pública
           </Button>
-          
-          {zones.length === 0 ? (
-            <Button
-              onClick={() => setShowElementSelector(true)}
-              className="bg-violet-600 hover:bg-violet-700"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Comenzar con Elementos
-            </Button>
-          ) : (
-            <>
-              <Button
-                onClick={() => setShowElementSelector(true)}
-                className="bg-violet-600 hover:bg-violet-700"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Añadir Elementos
-              </Button>
-            </>
-          )}
         </div>
       </div>
 
@@ -902,6 +882,24 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               Tus zonas en {propertyName || 'la propiedad'}
             </h2>
           </div>
+
+          {/* Desktop Add Elements Button - Above zones */}
+          {zones.length > 0 && (
+            <div className="hidden lg:block mb-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Tus zonas
+                </h2>
+                <Button
+                  onClick={() => setShowElementSelector(true)}
+                  className="bg-violet-600 hover:bg-violet-700"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  Añadir Elementos
+                </Button>
+              </div>
+            </div>
+          )}
           <AnimatePresence>
             {zones.length === 0 ? (
               <Card className="p-8 text-center">
