@@ -251,7 +251,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <>
+      <div className="min-h-screen flex flex-col bg-gray-50">
       <DashboardNavbar user={user || undefined} />
       
       <main className="flex-1 pt-6 sm:pt-16">
@@ -900,6 +901,7 @@ export default function DashboardPage() {
       </main>
       
       <DashboardFooter />
-    </div>
+      </div>
+    </>
   )
 }
