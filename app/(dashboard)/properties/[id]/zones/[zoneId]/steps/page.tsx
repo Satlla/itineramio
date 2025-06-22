@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence, Reorder } from 'framer-motion'
 import { 
   Plus, 
@@ -15,7 +15,8 @@ import {
   ArrowLeft,
   Eye,
   Upload,
-  Link
+  Link,
+  Loader2
 } from 'lucide-react'
 import { Button } from '../../../../../../../src/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../../../../src/components/ui/Card'
@@ -59,88 +60,158 @@ const getMultilingualText = (value: any, selectedLanguage: 'es' | 'en' = 'es', f
   return fallback
 }
 
-// Mock data - esto será reemplazado por datos reales del API
-const mockZone: Zone = {
-  id: '1',
-  name: { es: 'Lavadora', en: 'Washing Machine' },
-  description: { es: 'Instrucciones para usar la lavadora', en: 'Instructions for using the washing machine' },
-  iconId: 'washing',
-  qrCode: 'abc123',
-  stepsCount: 4
+// API integration functions
+const fetchZoneData = async (propertyId: string, zoneId: string) => {
+  try {
+    const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}`)
+    const result = await response.json()
+    
+    if (result.success) {
+      return {
+        id: result.data.id,
+        name: result.data.name || { es: 'Zona', en: 'Zone' },
+        description: result.data.description || { es: '', en: '' },
+        iconId: result.data.icon || 'home',
+        qrCode: result.data.accessCode || '',
+        stepsCount: 0
+      }
+    }
+    throw new Error(result.error || 'Error fetching zone')
+  } catch (error) {
+    console.error('Error fetching zone:', error)
+    return null
+  }
 }
 
-const mockSteps: Step[] = [
-  {
-    id: '1',
-    type: StepType.TEXT,
-    title: { es: 'Preparación', en: 'Preparation' },
-    content: {
-      es: 'Asegúrate de que la ropa esté separada por colores y tipos de tejido.',
-      en: 'Make sure clothes are separated by colors and fabric types.'
-    },
-    order: 1,
-    isPublished: true
-  },
-  {
-    id: '2',
-    type: StepType.IMAGE,
-    title: { es: 'Panel de Control', en: 'Control Panel' },
-    content: {
-      imageUrl: '/api/placeholder/400/300',
-      description: {
-        es: 'Localiza el panel de control en la parte frontal de la lavadora',
-        en: 'Locate the control panel on the front of the washing machine'
-      }
-    },
-    order: 2,
-    isPublished: true
-  },
-  {
-    id: '3',
-    type: StepType.VIDEO,
-    title: { es: 'Seleccionar Programa', en: 'Select Program' },
-    content: {
-      videoUrl: '/api/placeholder/video',
-      thumbnail: '/api/placeholder/400/300',
-      duration: 30,
-      description: {
-        es: 'Selecciona el programa adecuado según el tipo de ropa',
-        en: 'Select the appropriate program according to the type of clothes'
-      }
-    },
-    order: 3,
-    isPublished: true
-  },
-  {
-    id: '4',
-    type: StepType.TEXT,
-    title: { es: 'Iniciar Lavado', en: 'Start Washing' },
-    content: {
-      es: 'Presiona el botón de inicio y espera a que termine el ciclo.',
-      en: 'Press the start button and wait for the cycle to finish.'
-    },
-    order: 4,
-    isPublished: false
+const fetchStepsData = async (propertyId: string, zoneId: string) => {
+  try {
+    const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`)
+    const result = await response.json()
+    
+    if (result.success) {
+      return result.data.map((step: any, index: number) => ({
+        id: step.id,
+        type: step.type?.toUpperCase() || 'TEXT',
+        title: step.title || { es: `Paso ${index + 1}`, en: `Step ${index + 1}` },
+        content: step.content || { es: '', en: '' },
+        order: step.order || index + 1,
+        isPublished: step.status === 'ACTIVE'
+      }))
+    }
+    return []
+  } catch (error) {
+    console.error('Error fetching steps:', error)
+    return []
   }
-]
+}
 
-export default async function ZoneStepsPage({ 
+const saveStepsData = async (propertyId: string, zoneId: string, steps: Step[]) => {
+  try {
+    const stepsForAPI = steps.map((step, index) => ({
+      type: step.type?.toLowerCase() || 'text',
+      title: step.title,
+      content: step.content,
+      order: index + 1,
+      status: step.isPublished ? 'ACTIVE' : 'DRAFT'
+    }))
+
+    const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ steps: stepsForAPI })
+    })
+
+    const result = await response.json()
+    return result.success
+  } catch (error) {
+    console.error('Error saving steps:', error)
+    return false
+  }
+}
+
+export default function ZoneStepsPage({ 
   params 
 }: { 
   params: Promise<{ id: string; zoneId: string }> 
 }) {
-  const { id, zoneId } = await params
   const router = useRouter()
-  const [steps, setSteps] = useState<Step[]>(mockSteps)
+  const [propertyId, setPropertyId] = useState<string>('')
+  const [zoneId, setZoneId] = useState<string>('')
+  const [zone, setZone] = useState<Zone | null>(null)
+  const [steps, setSteps] = useState<Step[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [editingStep, setEditingStep] = useState<Step | null>(null)
   const [selectedLanguage, setSelectedLanguage] = useState<'es' | 'en'>('es')
   const [newStepType, setNewStepType] = useState<StepType>(StepType.TEXT)
 
+  // Unwrap params and load data
+  useEffect(() => {
+    params.then(({ id, zoneId: zId }) => {
+      setPropertyId(id)
+      setZoneId(zId)
+      loadZoneAndSteps(id, zId)
+    })
+  }, [params])
+
+  const loadZoneAndSteps = async (propId: string, zId: string) => {
+    setLoading(true)
+    try {
+      const [zoneData, stepsData] = await Promise.all([
+        fetchZoneData(propId, zId),
+        fetchStepsData(propId, zId)
+      ])
+      
+      if (zoneData) {
+        setZone(zoneData)
+      }
+      setSteps(stepsData)
+    } catch (error) {
+      console.error('Error loading data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSaveSteps = async () => {
+    if (!propertyId || !zoneId) return
+    
+    setSaving(true)
+    try {
+      const success = await saveStepsData(propertyId, zoneId, steps)
+      if (success) {
+        // Show success message or update UI
+        console.log('Steps saved successfully')
+      } else {
+        alert('Error al guardar los pasos')
+      }
+    } catch (error) {
+      console.error('Error saving:', error)
+      alert('Error al guardar los pasos')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const [formData, setFormData] = useState({
     title: { es: '', en: '' },
     content: {}
   })
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-violet-600" />
+          <p className="text-gray-600">Cargando zona y pasos...</p>
+        </div>
+      </div>
+    )
+  }
 
   const stepTypes = [
     {
@@ -474,10 +545,10 @@ export default async function ZoneStepsPage({
             Volver
           </Button>
           <div className="h-6 w-px bg-gray-300" />
-          <ZoneIconDisplay iconId={mockZone.iconId} size="sm" />
+          <ZoneIconDisplay iconId={zone?.iconId || 'home'} size="sm" />
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              {getMultilingualText(mockZone.name, selectedLanguage, 'Zona')}
+              {getMultilingualText(zone?.name, selectedLanguage, 'Zona')}
             </h1>
             <p className="text-gray-600">
               Editor de steps • {steps.length} pasos configurados
@@ -517,9 +588,15 @@ export default async function ZoneStepsPage({
               variant="outline"
               size="sm"
               className="flex items-center"
+              onClick={handleSaveSteps}
+              disabled={saving}
             >
-              <Eye className="w-4 h-4 mr-2" />
-              Vista Previa
+              {saving ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              {saving ? 'Guardando...' : 'Guardar'}
             </Button>
           </div>
 
