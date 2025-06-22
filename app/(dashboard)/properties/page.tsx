@@ -312,23 +312,23 @@ function PropertiesPageContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
+            <div className="w-full sm:w-auto">
               <h1 className="text-3xl font-bold text-gray-900">Mis Propiedades</h1>
               <p className="text-gray-600 mt-1">
                 Gestiona tus alojamientos y sus manuales digitales
               </p>
             </div>
             
-            <div className="flex items-center space-x-3">
-              <Link href="/properties/new">
-                <Button className="bg-violet-600 hover:bg-violet-700">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+              <Link href="/properties/new" className="w-full sm:w-auto">
+                <Button className="bg-violet-600 hover:bg-violet-700 w-full sm:w-auto">
                   <Plus className="w-4 h-4 mr-2" />
                   Nueva Propiedad
                 </Button>
               </Link>
-              <Link href="/property-sets/new">
-                <Button variant="outline" className="border-violet-600 text-violet-600 hover:bg-violet-50">
+              <Link href="/property-sets/new" className="w-full sm:w-auto">
+                <Button variant="outline" className="border-violet-600 text-violet-600 hover:bg-violet-50 w-full sm:w-auto">
                   <Building2 className="w-4 h-4 mr-2" />
                   Crear Conjunto
                 </Button>
@@ -339,8 +339,8 @@ function PropertiesPageContent() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          <Card className="p-3 sm:p-6">
             <div className="flex items-center">
               <div className="p-3 bg-violet-100 rounded-lg">
                 <Home className="w-6 h-6 text-violet-600" />
@@ -358,7 +358,7 @@ function PropertiesPageContent() {
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-3 sm:p-6">
             <div className="flex items-center">
               <div className="p-3 bg-green-100 rounded-lg">
                 <Eye className="w-6 h-6 text-green-600" />
@@ -375,7 +375,7 @@ function PropertiesPageContent() {
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-3 sm:p-6">
             <div className="flex items-center">
               <div className="p-3 bg-blue-100 rounded-lg">
                 <Users className="w-6 h-6 text-blue-600" />
@@ -394,7 +394,7 @@ function PropertiesPageContent() {
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-3 sm:p-6">
             <div className="flex items-center">
               <div className="p-3 bg-yellow-100 rounded-lg">
                 <MapPin className="w-6 h-6 text-yellow-600" />
@@ -601,13 +601,15 @@ function PropertiesPageContent() {
                                   <Share2 className="h-4 w-4 mr-2" />
                                   Compartir
                                 </DropdownMenu.Item>
-                                <DropdownMenu.Item
-                                  className="flex items-center px-2 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                                  onSelect={() => handleViewManual(property.id)}
-                                >
-                                  <Eye className="h-4 w-4 mr-2" />
-                                  Vista Pública
-                                </DropdownMenu.Item>
+                                {property.status === 'ACTIVE' && (
+                                  <DropdownMenu.Item
+                                    className="flex items-center px-2 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                                    onSelect={() => handleViewManual(property.id)}
+                                  >
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    Vista Pública
+                                  </DropdownMenu.Item>
+                                )}
                               </DropdownMenu.Content>
                             </DropdownMenu.Portal>
                           </DropdownMenu.Root>
@@ -620,7 +622,7 @@ function PropertiesPageContent() {
                             className="w-full"
                             onClick={() => router.push(getFriendlyUrl(property))}
                           >
-                            Añadir Zonas
+                            Gestionar
                           </Button>
                         </div>
                       </div>
