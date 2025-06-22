@@ -1073,134 +1073,22 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </AnimatePresence>
         </div>
 
-        {/* Right Section - Inspiration Block (1/3 width on desktop, full on mobile) */}
-        <div id="zone-suggestions" className="col-span-full lg:col-span-1 order-first lg:order-last">
-          <Card className="lg:sticky lg:top-6">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center">
-                <div className="w-6 h-6 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full flex items-center justify-center mr-2">
-                  <span className="text-white text-xs">💡</span>
-                </div>
-                Inspiración
-              </CardTitle>
-              <p className="text-sm text-gray-600">
-                Zonas recomendadas que podrías añadir
-              </p>
-            </CardHeader>
-            <CardContent className="p-4">
-              {(() => {
-                // Get all essential zones (max 5)
-                const essentialZones = zoneTemplates
-                  .filter(template => template.category === 'essential')
-                  .sort((a, b) => b.popularity - a.popularity)
-                  .slice(0, 5)
-
-                const allExist = essentialZones.every(zone => 
-                  findExistingZone(zone.name) !== undefined
-                )
-
-                if (allExist) {
-                  return (
-                    <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <CheckCircle className="w-8 h-8 text-green-600" />
-                      </div>
-                      <p className="text-sm font-medium text-gray-900 mb-2">
-                        ¡Enhorabuena! 🎉
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        Tu manual tiene muy buena pinta. Has añadido todas las zonas esenciales.
-                      </p>
-                    </div>
-                  )
-                }
-
-                return (
-                  <div className="space-y-4">
-                    {essentialZones.map((zone) => {
-                      const existingZone = findExistingZone(zone.name)
-                      const isExisting = existingZone !== undefined
-
-                      return (
-                        <div key={zone.id} className="space-y-2">
-                          <div 
-                            className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
-                              isExisting 
-                                ? 'bg-green-50 hover:bg-green-100 cursor-pointer' 
-                                : 'bg-gray-50 hover:bg-gray-100'
-                            }`}
-                            onClick={() => {
-                              if (isExisting && existingZone) {
-                                // Use slug if available, fallback to ID
-                                if (existingZone.slug && propertySlug) {
-                                  router.push(`/properties/${propertySlug}/${existingZone.slug}`)
-                                } else {
-                                  // Fallback to ID-based URL
-                                  router.push(`/properties/${id}/zones/${existingZone.id}`)
-                                }
-                              }
-                            }}
-                          >
-                            <div className="flex items-center space-x-3 flex-1">
-                              <ZoneIconDisplay 
-                                iconId={zone.icon} 
-                                size="sm"
-                              />
-                              <div className="flex-1 min-w-0">
-                                <p className={`text-sm font-medium ${isExisting ? 'text-green-900' : 'text-gray-900'}`}>
-                                  {getZoneText(zone.name)}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {isExisting ? '✓ Ya añadida' : 'Recomendada'}
-                                </p>
-                              </div>
-                            </div>
-                            {!isExisting && (
-                              <div className="flex gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 text-xs px-2 py-1 hover:bg-violet-50 text-violet-600"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleViewInspirationExample(zone)
-                                  }}
-                                  title="Ver sugerencia"
-                                >
-                                  Ver sugerencia
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 text-xs px-1 py-1 hover:bg-green-50 text-green-600"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleCreateZoneFromTemplate(zone)
-                                  }}
-                                  title="Añadir plantilla"
-                                >
-                                  <FileText className="w-3 h-3" />
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                          <p className="text-xs text-gray-600 px-3">
-                            {getZoneHelpText(getZoneText(zone.name))}
-                          </p>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )
-              })()}
-            </CardContent>
-          </Card>
+        {/* Right Section - Zone Suggestions (1/3 width on desktop, hidden on mobile) */}
+        <div className="hidden lg:block lg:col-span-1">
+          <div className="lg:sticky lg:top-6">
+            <ZoneStaticSuggestions
+              existingZoneNames={zones.map(z => getZoneText(z.name))}
+              onCreateZone={handleCreateZoneFromTemplate}
+              onViewDetails={handleViewInspirationExample}
+              maxVisible={6}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Zone Static Suggestions Section */}
+      {/* Zone Static Suggestions Section - Mobile Only */}
       {user && zones.length > 0 && (
-        <div className="mt-12">
+        <div className="mt-12 lg:hidden">
           <ZoneStaticSuggestions
             existingZoneNames={zones.map(z => getZoneText(z.name))}
             onCreateZone={handleCreateZoneFromTemplate}
