@@ -801,39 +801,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </p>
         </div>
         <div className="hidden lg:flex space-x-3">
-          {/* Temporary button for testing notifications */}
+          {/* Vista Pública button */}
           <Button
             onClick={() => {
-              // Generate test notifications
-              addNotification({
-                type: 'warning',
-                title: `${propertyName} - Zona desactivada`,
-                message: 'La zona "Check-in" está desactivada y no es visible para los huéspedes',
-                propertyId: id,
-                read: false,
-                actionUrl: `/properties/${id}/zones`
-              })
-              addNotification({
-                type: 'error',
-                title: `${propertyName} - Error reportado`,
-                message: 'Un huésped reportó que el código WiFi no funciona en la zona "WiFi"',
-                propertyId: id,
-                read: false,
-                actionUrl: `/properties/${id}/zones`
-              })
-              addNotification({
-                type: 'info',
-                title: `${propertyName} - Sugerencia`,
-                message: 'Añade fotos a la zona "Cocina" para hacerla más visual e informativa',
-                propertyId: id,
-                read: false,
-                actionUrl: `/properties/${id}/zones`
-              })
+              const publicUrl = `${window.location.origin}/guide/${id}`
+              window.open(publicUrl, '_blank')
             }}
             variant="outline"
-            className="border-amber-500 text-amber-600 hover:bg-amber-50"
+            className="border-green-500 text-green-600 hover:bg-green-50"
           >
-            🔔 Test Notificaciones
+            <ExternalLink className="w-5 h-5 mr-2" />
+            Vista Pública
           </Button>
           
           {zones.length === 0 ? (
@@ -846,14 +824,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             </Button>
           ) : (
             <>
-              <Button
-                onClick={() => router.push(`/properties/${id}/zones/qr`)}
-                variant="outline"
-                className="border-violet-500 text-violet-600 hover:bg-violet-50"
-              >
-                <QrCode className="w-5 h-5 mr-2" />
-                Códigos QR
-              </Button>
               <Button
                 onClick={() => setShowElementSelector(true)}
                 className="bg-violet-600 hover:bg-violet-700"
