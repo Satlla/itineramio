@@ -54,7 +54,7 @@ interface Property {
   updatedAt: string
 }
 
-export default function DashboardPage() {
+export default function DashboardPage(): JSX.Element {
   const [selectedTimeframe, setSelectedTimeframe] = useState('30d')
   const [properties, setProperties] = useState<Property[]>([])
   const [propertySets, setPropertySets] = useState<any[]>([])
@@ -251,8 +251,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <>
-      <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <DashboardNavbar user={user || undefined} />
       
       <main className="flex-1 pt-6 sm:pt-16">
@@ -901,7 +900,6 @@ export default function DashboardPage() {
       </main>
       
       <DashboardFooter />
-      </div>
-    </>
+    </div>
   )
 }
