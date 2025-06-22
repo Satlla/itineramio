@@ -54,7 +54,7 @@ interface Property {
   updatedAt: string
 }
 
-export default function DashboardPage(): JSX.Element {
+export default function DashboardPage(): React.ReactElement {
   const [selectedTimeframe, setSelectedTimeframe] = useState('30d')
   const [properties, setProperties] = useState<Property[]>([])
   const [propertySets, setPropertySets] = useState<any[]>([])
@@ -70,37 +70,187 @@ export default function DashboardPage(): JSX.Element {
   const router = useRouter()
   const { user } = useAuth()
 
+  // Fetch properties data
+  const fetchPropertiesData = useCallback(async () => {
+    try {
+      setLoading(true)
+      
+      const propertiesResponse = await fetch('/api/properties')
+      const propertiesResult = await propertiesResponse.json()
+      
+      const propertySetsResponse = await fetch('/api/property-sets')
+      const propertySetsResult = await propertySetsResponse.json()
+      
+      if (propertiesResponse.ok && propertiesResult.data) {
+        setProperties(propertiesResult.data)
+        
+        const allProperties = propertiesResult.data || []
+        
+        const totalViews = allProperties.reduce((sum: number, p: Property) => sum + (p.totalViews || 0), 0)
+        const activeManuals = allProperties.reduce((sum: number, p: Property) => sum + (p.zonesCount || 0), 0)
+        const avgRating = allProperties.length > 0 ? allProperties.reduce((sum: number, p: Property) => sum + (p.avgRating || 0), 0) / allProperties.length : 0
+        
+        setStats({
+          totalProperties: allProperties.length,
+          totalViews: totalViews,
+          activeManuals: activeManuals,
+          avgRating: parseFloat(avgRating.toFixed(1))
+        })
+      }
+
+      if (propertySetsResponse.ok && propertySetsResult.data) {
+        setPropertySets(propertySetsResult.data)
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchPropertiesData()
+  }, [fetchPropertiesData])
+
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando tu panel..." type="general" />
+    return React.createElement(AnimatedLoadingSpinner, {
+      text: "Cargando tu panel...",
+      type: "general"
+    })
   }
 
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <DashboardNavbar user={user || undefined} />
-      
-      <main className="flex-1 pt-6 sm:pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-8"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  Hola, {user?.name?.split(' ')[0] || 'Usuario'} 👋
-                </h1>
-                <p className="text-gray-600 mt-2">
-                  Aquí tienes un resumen de tus propiedades y manuales
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </main>
-      
-      <DashboardFooter />
-    </div>
+  return React.createElement('div', {
+    className: "min-h-screen flex flex-col bg-gray-50"
+  },
+    React.createElement(DashboardNavbar, {
+      user: user || undefined
+    }),
+    React.createElement('main', {
+      className: "flex-1 pt-6 sm:pt-16"
+    },
+      React.createElement('div', {
+        className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8"
+      },
+        React.createElement(motion.div, {
+          initial: { opacity: 0, y: 20 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.5 },
+          className: "mb-8"
+        },
+          React.createElement('div', {
+            className: "flex items-center justify-between"
+          },
+            React.createElement('div', {},
+              React.createElement('h1', {
+                className: "text-3xl font-bold text-gray-900"
+              }, `Hola, ${user?.name?.split(' ')[0] || 'Usuario'} 👋`),
+              React.createElement('p', {
+                className: "text-gray-600 mt-2"
+              }, "Aquí tienes un resumen de tus propiedades y manuales")
+            )
+          )
+        ),
+        React.createElement(motion.div, {
+          initial: { opacity: 0, y: 20 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.5, delay: 0.1 },
+          className: "grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8"
+        },
+          React.createElement(Card, { children: null },
+            React.createElement(CardContent, {
+              className: "p-3 sm:p-6"
+            },
+              React.createElement('div', {
+                className: "flex items-center"
+              },
+                React.createElement(Home, {
+                  className: "h-6 w-6 sm:h-8 sm:w-8 text-violet-600"
+                }),
+                React.createElement('div', {
+                  className: "ml-3 sm:ml-4"
+                },
+                  React.createElement('p', {
+                    className: "text-xs sm:text-sm font-medium text-gray-600"
+                  }, "Propiedades"),
+                  React.createElement('p', {
+                    className: "text-xl sm:text-2xl font-bold text-gray-900"
+                  }, stats.totalProperties)
+                )
+              )
+            )
+          ),
+          React.createElement(Card, { children: null },
+            React.createElement(CardContent, {
+              className: "p-3 sm:p-6"
+            },
+              React.createElement('div', {
+                className: "flex items-center"
+              },
+                React.createElement(Eye, {
+                  className: "h-6 w-6 sm:h-8 sm:w-8 text-blue-600"
+                }),
+                React.createElement('div', {
+                  className: "ml-3 sm:ml-4"
+                },
+                  React.createElement('p', {
+                    className: "text-xs sm:text-sm font-medium text-gray-600"
+                  }, "Visualizaciones"),
+                  React.createElement('p', {
+                    className: "text-xl sm:text-2xl font-bold text-gray-900"
+                  }, stats.totalViews)
+                )
+              )
+            )
+          ),
+          React.createElement(Card, { children: null },
+            React.createElement(CardContent, {
+              className: "p-3 sm:p-6"
+            },
+              React.createElement('div', {
+                className: "flex items-center"
+              },
+                React.createElement(Calendar, {
+                  className: "h-6 w-6 sm:h-8 sm:w-8 text-orange-600"
+                }),
+                React.createElement('div', {
+                  className: "ml-3 sm:ml-4"
+                },
+                  React.createElement('p', {
+                    className: "text-xs sm:text-sm font-medium text-gray-600"
+                  }, "Actividad Reciente"),
+                  React.createElement('p', {
+                    className: "text-xl sm:text-2xl font-bold text-gray-900"
+                  }, "5")
+                )
+              )
+            )
+          ),
+          React.createElement(Card, { children: null },
+            React.createElement(CardContent, {
+              className: "p-3 sm:p-6"
+            },
+              React.createElement('div', {
+                className: "flex items-center"
+              },
+                React.createElement(PlayCircle, {
+                  className: "h-6 w-6 sm:h-8 sm:w-8 text-green-600"
+                }),
+                React.createElement('div', {
+                  className: "ml-3 sm:ml-4"
+                },
+                  React.createElement('p', {
+                    className: "text-xs sm:text-sm font-medium text-gray-600"
+                  }, "Manuales Activos"),
+                  React.createElement('p', {
+                    className: "text-xl sm:text-2xl font-bold text-gray-900"
+                  }, stats.activeManuals)
+                )
+              )
+            )
+          )
+        )
+      )
+    ),
+    React.createElement(DashboardFooter)
   )
 }
