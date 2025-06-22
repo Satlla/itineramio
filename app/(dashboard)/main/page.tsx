@@ -227,7 +227,6 @@ export default function DashboardPage() {
 
       const result = await response.json()
       console.log(result.message)
-      
     } catch (error) {
       console.error('Error toggling property:', error)
       // Revertir el cambio en caso de error
@@ -547,18 +546,18 @@ export default function DashboardPage() {
                     </Card>
                   ))}
                 </div>
-                
-                {/* Ver todas button below properties */}
-                {!loading && properties.length > 0 && (
-                  <div className="mt-6 text-center">
-                    <Button asChild variant="outline" className="w-full sm:w-auto">
-                      <Link href="/properties">
-                        Ver todas las propiedades
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
-                    </Button>
-                  </div>
-                )}
+              )}
+              
+              {/* Ver todas button below properties */}
+              {!loading && properties.length > 0 && (
+                <div className="mt-6 text-center">
+                  <Button asChild variant="outline" className="w-full sm:w-auto">
+                    <Link href="/properties">
+                      Ver todas las propiedades
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
+                  </Button>
+                </div>
               )}
             </motion.div>
 
