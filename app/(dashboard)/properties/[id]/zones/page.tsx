@@ -21,6 +21,8 @@ import { zoneTemplates, zoneCategories, ZoneTemplate } from '../../../../../src/
 import { InspirationZone } from '../../../../../src/data/zoneInspiration'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
 import { useNotifications } from '../../../../../src/hooks/useNotifications'
+import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
+import { InlineLoadingSpinner } from '../../../../../src/components/ui/InlineLoadingSpinner'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
 import { getCleanZoneUrl } from '../../../../../src/lib/slug-resolver'
@@ -59,6 +61,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [copied, setCopied] = useState(false)
   const [showStepEditor, setShowStepEditor] = useState(false)
   const [editingZoneForSteps, setEditingZoneForSteps] = useState<Zone | null>(null)
+  const [isCreatingZone, setIsCreatingZone] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -677,6 +680,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   const handleCreateZoneFromTemplate = async (template: ZoneTemplate) => {
+    setIsCreatingZone(true)
     try {
       const response = await fetch(`/api/properties/${id}/zones`, {
         method: 'POST',
@@ -718,6 +722,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     } catch (error) {
       console.error('Error creating zone from template:', error)
       alert('Error al crear la zona')
+    } finally {
+      setIsCreatingZone(false)
     }
   }
 
@@ -1477,6 +1483,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         existingZoneNames={zones.map(z => getZoneText(z.name))}
         onCreateZone={handleCreateZoneFromTemplate}
       />
+
+      {/* Loading Spinner when creating zones */}
+      {isCreatingZone && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-2xl p-8 shadow-2xl">
+            <InlineLoadingSpinner text="Creando zona..." type="zones" />
+          </div>
+        </div>
+      )}
 
     </div>
   )

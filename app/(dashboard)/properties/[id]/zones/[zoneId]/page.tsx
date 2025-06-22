@@ -16,7 +16,24 @@ import {
   Image as ImageIcon,
   FileText,
   Video,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Wifi,
+  MapPin,
+  Key,
+  Car,
+  Utensils,
+  Bath,
+  Bed,
+  Home,
+  Calendar,
+  Clock,
+  BarChart3,
+  AlertTriangle,
+  ToggleLeft,
+  ToggleRight,
+  Users,
+  Info,
+  ChevronRight
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
@@ -55,6 +72,8 @@ interface Zone {
   steps: Step[]
   createdAt: string
   updatedAt: string
+  errorReportsCount?: number
+  isPublished?: boolean
 }
 
 export default function ZoneDetailPage() {
@@ -370,6 +389,25 @@ export default function ZoneDetailPage() {
     }
   }
 
+  // Helper function to get zone icon component based on emoji
+  const getZoneIcon = (emoji: string) => {
+    const iconMap: { [key: string]: any } = {
+      '📶': Wifi,
+      '🗝️': Key,
+      '🚗': Car,
+      '🍽️': Utensils,
+      '🚿': Bath,
+      '🛏️': Bed,
+      '🏠': Home,
+      '📍': MapPin,
+      '👥': Users,
+      'ℹ️': Info,
+      '📊': BarChart3,
+    }
+    
+    return iconMap[emoji] || null
+  }
+
   const getStepTypeLabel = (type: Step['type']) => {
     switch (type) {
       case 'TEXT':
@@ -414,52 +452,124 @@ export default function ZoneDetailPage() {
           </Link>
           <div className="flex items-center space-x-2">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${zone.color || 'bg-gray-100'}`}>
-              {zone.icon}
+              {(() => {
+                const IconComponent = getZoneIcon(zone.icon)
+                return IconComponent ? (
+                  <IconComponent className="w-5 h-5 text-gray-700" />
+                ) : (
+                  <span className="text-lg">{zone.icon}</span>
+                )
+              })()}
             </div>
             <h1 className="text-lg font-semibold text-gray-900">
               {getZoneText(zone.name, 'Zona')}
             </h1>
           </div>
-          <Button variant="ghost" size="sm" className="p-2">
+          <Button variant="ghost" size="sm" className="p-2" onClick={handleEditZone}>
             <Settings className="w-5 h-5" />
           </Button>
         </div>
       </div>
 
-      {/* Desktop Header */}
-      <div className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
+      {/* Desktop Header - Airbnb Style */}
+      <div className="hidden lg:block bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          {/* Navigation */}
+          <div className="mb-6">
             <Link href={`/properties/${propertyId}/zones`}>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="hover:bg-gray-100">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
+                Volver a zonas
               </Button>
             </Link>
-            <div className="flex items-center space-x-3">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-2xl ${zone.color || 'bg-gray-100'}`}>
-                {zone.icon}
+          </div>
+
+          {/* Zone Header */}
+          <div className="flex items-start justify-between">
+            <div className="flex items-start space-x-4">
+              {/* Zone Icon */}
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${zone.color || 'bg-gray-100'} shadow-sm`}>
+                {(() => {
+                  const IconComponent = getZoneIcon(zone.icon)
+                  return IconComponent ? (
+                    <IconComponent className="w-8 h-8 text-gray-700" />
+                  ) : (
+                    <span className="text-3xl">{zone.icon}</span>
+                  )
+                })()}
               </div>
+              
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {getZoneText(zone.name, 'Zona')}
-                </h1>
-                <p className="text-gray-600 mt-1">
-                  Gestiona los pasos de esta zona
+                <div className="flex items-center space-x-3 mb-2">
+                  <h1 className="text-3xl font-semibold text-gray-900">
+                    {getZoneText(zone.name, 'Zona')}
+                  </h1>
+                  {/* Status Badge */}
+                  <div className="flex items-center space-x-2">
+                    {zone.isPublished ? (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <ToggleRight className="w-4 h-4 mr-1" />
+                        Activa
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                        <ToggleLeft className="w-4 h-4 mr-1" />
+                        Inactiva
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
+                <p className="text-gray-600 text-lg mb-4">
+                  {getZoneText(zone.description, '')}
                 </p>
+
+                {/* Stats */}
+                <div className="flex items-center space-x-6 text-sm">
+                  <div className="flex items-center text-gray-600">
+                    <FileText className="w-4 h-4 mr-1.5" />
+                    <span className="font-medium">{zone.steps?.length || 0}</span>
+                    <span className="ml-1">pasos</span>
+                  </div>
+                  
+                  <div className="flex items-center text-gray-600">
+                    <Calendar className="w-4 h-4 mr-1.5" />
+                    <span>Actualizado {new Date(zone.updatedAt).toLocaleDateString('es-ES', { 
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric'
+                    })}</span>
+                  </div>
+                  
+                  {zone.errorReportsCount !== undefined && (
+                    <div className="flex items-center text-gray-600">
+                      <AlertTriangle className="w-4 h-4 mr-1.5" />
+                      <span className="font-medium">{zone.errorReportsCount}</span>
+                      <span className="ml-1">errores reportados</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <Button variant="outline" size="sm" onClick={handleEditZone}>
-              <Settings className="w-4 h-4 mr-2" />
-              Editar Zona
-            </Button>
-            <Button onClick={handleAddStep}>
-              <Plus className="w-4 h-4 mr-2" />
-              Nuevo Paso
-            </Button>
+            
+            {/* Action Buttons */}
+            <div className="flex items-center space-x-3">
+              <Button 
+                variant="outline" 
+                onClick={handleEditZone}
+                className="border-gray-300 hover:bg-gray-50"
+              >
+                <Edit2 className="w-4 h-4 mr-2" />
+                Editar Zona
+              </Button>
+              <Button 
+                onClick={handleAddStep}
+                className="bg-gray-900 hover:bg-gray-800 text-white"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Nuevo Paso
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -611,40 +721,7 @@ export default function ZoneDetailPage() {
       </div>
 
       {/* Desktop Content */}
-      <div className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Zone Info Card */}
-        <Card className="p-6 mb-8">
-          <div className="flex items-start space-x-4">
-            <div className={`w-16 h-16 rounded-lg flex items-center justify-center text-3xl flex-shrink-0 ${zone.color || 'bg-gray-100'}`}>
-              {zone.icon}
-            </div>
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                {getZoneText(zone.name, 'Zona')}
-              </h2>
-              <p className="text-gray-600 mb-4">
-                {getZoneText(zone.description, '')}
-              </p>
-              <div className="flex items-center space-x-6 text-sm text-gray-600">
-                <div className="flex items-center">
-                  <span className="font-medium">{zone.steps?.length || 0}</span>
-                  <span className="ml-1">pasos</span>
-                </div>
-                <div className="flex items-center">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    zone.status === 'ACTIVE' 
-                      ? 'bg-green-100 text-green-800' 
-                      : zone.status === 'DRAFT'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {zone.status === 'ACTIVE' ? 'Activo' : zone.status === 'DRAFT' ? 'Borrador' : 'Archivado'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
+      <div className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Steps Section */}
         <div className="mb-6">
@@ -686,15 +763,15 @@ export default function ZoneDetailPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
                     >
-                      <Card className="p-4 hover:shadow-md transition-shadow duration-200">
-                        <div className="flex items-center space-x-4">
+                      <Card className="p-6 hover:shadow-lg transition-all duration-200 border border-gray-200 bg-white">
+                        <div className="flex items-start space-x-4">
                           {/* Drag Handle */}
                           <div className="flex-shrink-0 cursor-move text-gray-400 hover:text-gray-600">
                             <GripVertical className="w-4 h-4" />
                           </div>
 
                           {/* Step Number */}
-                          <div className="flex-shrink-0 w-8 h-8 bg-violet-100 text-violet-700 rounded-full flex items-center justify-center text-sm font-medium">
+                          <div className="flex-shrink-0 w-10 h-10 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-semibold shadow-sm">
                             {index + 1}
                           </div>
 
@@ -702,39 +779,39 @@ export default function ZoneDetailPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between">
                               <div className="flex-1 min-w-0">
-                                <h3 className="text-lg font-medium text-gray-900 truncate">
+                                <div className="flex items-center space-x-3 mb-2">
+                                  <div className="flex items-center text-sm text-gray-500">
+                                    <StepIcon className="w-4 h-4 mr-1.5" />
+                                    <span className="font-medium">{getStepTypeLabel(step.type)}</span>
+                                  </div>
+                                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                    (step as any).isPublished ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                  }`}>
+                                    {(step as any).isPublished ? 'Publicado' : 'Borrador'}
+                                  </span>
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                                   {getStepText(step, 'title') || 
-                                   getStepText(step, 'content').substring(0, 50) || 
+                                   getStepText(step, 'content').substring(0, 60) || 
                                    `Paso ${index + 1}`}
                                 </h3>
-                                <div className="flex items-center space-x-3 mt-1">
-                                  <div className="flex items-center text-sm text-gray-500">
-                                    <StepIcon className="w-4 h-4 mr-1" />
-                                    <span>{getStepTypeLabel(step.type)}</span>
-                                  </div>
-                                  {step.estimatedTime && (
-                                    <div className="text-sm text-gray-500">
-                                      {step.estimatedTime} min
-                                    </div>
-                                  )}
-                                  <div className={`flex items-center text-sm ${
-                                    (step as any).isPublished ? 'text-green-600' : 'text-yellow-600'
-                                  }`}>
-                                    {(step as any).isPublished ? (
-                                      <CheckCircle className="w-4 h-4 mr-1" />
-                                    ) : (
-                                      <AlertCircle className="w-4 h-4 mr-1" />
-                                    )}
-                                    <span>
-                                      {(step as any).isPublished ? 'Publicado' : 'Borrador'}
-                                    </span>
-                                  </div>
-                                </div>
-                                {(getStepText(step, 'description') || getStepText(step, 'content')) && (
-                                  <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                                    {getStepText(step, 'description') || getStepText(step, 'content')}
+                                {getStepText(step, 'content') && (
+                                  <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 mb-3">
+                                    {getStepText(step, 'content').substring(0, 120)}...
                                   </p>
                                 )}
+                                <div className="flex items-center space-x-4 text-xs text-gray-500">
+                                  {step.estimatedTime && (
+                                    <div className="flex items-center">
+                                      <Clock className="w-3.5 h-3.5 mr-1" />
+                                      <span>{step.estimatedTime} min</span>
+                                    </div>
+                                  )}
+                                  <div className="flex items-center">
+                                    <Calendar className="w-3.5 h-3.5 mr-1" />
+                                    <span>Actualizado {new Date(step.updatedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
+                                  </div>
+                                </div>
                               </div>
 
                               {/* Actions */}
@@ -742,16 +819,17 @@ export default function ZoneDetailPage() {
                                 <Button
                                   onClick={() => handleEditStep(step.id)}
                                   size="sm"
-                                  variant="ghost"
-                                  className="h-8 w-8 p-0 hover:bg-violet-50 hover:text-violet-600"
+                                  variant="outline"
+                                  className="text-gray-600 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
                                 >
-                                  <Edit2 className="w-4 h-4" />
+                                  <Edit2 className="w-4 h-4 mr-1.5" />
+                                  Editar
                                 </Button>
                                 <Button
                                   onClick={() => handleDeleteStep(step.id)}
                                   size="sm"
-                                  variant="ghost"
-                                  className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
+                                  variant="outline"
+                                  className="text-red-600 border-red-300 hover:bg-red-50 hover:border-red-400"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
@@ -771,14 +849,17 @@ export default function ZoneDetailPage() {
                 transition={{ duration: 0.3, delay: (zone.steps?.length || 0) * 0.05 }}
               >
                 <Card 
-                  className="p-4 border-2 border-dashed border-gray-300 hover:border-violet-400 hover:bg-violet-50 transition-all duration-200 cursor-pointer"
+                  className="p-8 border-2 border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 cursor-pointer group"
                   onClick={handleAddStep}
                 >
-                  <div className="flex items-center justify-center space-x-3 text-gray-600 hover:text-violet-600">
-                    <div className="w-8 h-8 bg-violet-100 rounded-full flex items-center justify-center">
-                      <Plus className="w-4 h-4 text-violet-600" />
+                  <div className="flex items-center justify-center space-x-4 text-gray-500 group-hover:text-gray-700">
+                    <div className="w-12 h-12 bg-gray-100 group-hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors">
+                      <Plus className="w-6 h-6" />
                     </div>
-                    <span className="font-medium">Añadir nuevo paso</span>
+                    <div className="text-center">
+                      <div className="font-semibold text-lg mb-1">Añadir nuevo paso</div>
+                      <div className="text-sm text-gray-400">Crear instrucciones adicionales</div>
+                    </div>
                   </div>
                 </Card>
               </motion.div>

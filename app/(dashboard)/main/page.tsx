@@ -401,7 +401,7 @@ export default function DashboardPage() {
                 </Card>
               ) : (
                 <div className="space-y-4">
-                  {properties.slice(0, 6).map((property) => (
+                  {properties.filter(property => !property.propertySetId).slice(0, 6).map((property) => (
                     <Card key={property.id} className="hover:shadow-lg transition-shadow">
                       <CardContent className="p-6">
                         <div className="flex space-x-4">
@@ -525,7 +525,7 @@ export default function DashboardPage() {
                                 className="w-full"
                                 onClick={() => router.push(getZonesSlugUrl(property))}
                               >
-                                Añadir Zonas
+                                Gestionar
                               </Button>
                             </div>
                           </div>

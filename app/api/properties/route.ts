@@ -198,6 +198,12 @@ export async function GET(request: NextRequest) {
       },
       include: {
         analytics: true,
+        propertySet: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
         _count: {
           select: {
             zones: true
@@ -229,6 +235,7 @@ export async function GET(request: NextRequest) {
       isPublished: property.isPublished,
       profileImage: property.profileImage,
       propertySetId: property.propertySetId,
+      propertySet: property.propertySet,
       hostContactName: property.hostContactName,
       hostContactPhoto: property.hostContactPhoto
     }))

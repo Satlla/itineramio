@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Plus, 
@@ -23,10 +23,12 @@ import {
 import { Button } from '../../../src/components/ui/Button'
 import { Card, CardContent } from '../../../src/components/ui/Card'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug } from '../../../src/lib/slugs'
 import { LoadingSpinner } from '../../../src/components/ui/LoadingSpinner'
+import { AnimatedLoadingSpinner } from '../../../src/components/ui/AnimatedLoadingSpinner'
+import { InlineLoadingSpinner } from '../../../src/components/ui/InlineLoadingSpinner'
 
 interface Property {
   id: string
@@ -50,6 +52,10 @@ interface Property {
   errorReports?: number
   notifications?: number
   propertySetId?: string | null
+  propertySet?: {
+    id: string
+    name: string
+  } | null
 }
 
 // Helper function to get text from multilingual objects
@@ -98,8 +104,9 @@ const statusColors = {
   ARCHIVED: 'bg-gray-100 text-gray-800'
 }
 
-export default function PropertiesPage() {
+function PropertiesPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [properties, setProperties] = useState<Property[]>([])
   const [propertySets, setPropertySets] = useState<PropertySet[]>([])
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null)
@@ -111,6 +118,22 @@ export default function PropertiesPage() {
   const [activeTab, setActiveTab] = useState<'properties' | 'sets'>('properties')
   const [selectedPropertySet, setSelectedPropertySet] = useState<PropertySet | null>(null)
   const [propertySetProperties, setPropertySetProperties] = useState<Property[]>([])
+
+  // Handle URL parameters on mount
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    const manageSetId = searchParams.get('manage')
+    
+    if (tab === 'sets') {
+      setActiveTab('sets')
+    }
+    
+    if (manageSetId) {
+      // If there's a manage parameter, switch to sets tab and select the property set
+      setActiveTab('sets')
+      // We'll select the property set after it's loaded
+    }
+  }, [searchParams])
 
   // Fetch properties and property sets from API
   useEffect(() => {
@@ -160,6 +183,18 @@ export default function PropertiesPage() {
       console.error('Error fetching property sets:', err)
     }
   }
+
+  // Select property set from URL parameter after data is loaded
+  useEffect(() => {
+    const manageSetId = searchParams.get('manage')
+    
+    if (manageSetId && propertySets.length > 0) {
+      const targetPropertySet = propertySets.find(set => set.id === manageSetId)
+      if (targetPropertySet) {
+        handleManagePropertySet(targetPropertySet)
+      }
+    }
+  }, [propertySets, searchParams])
 
   const handleEditProperty = (propertyId: string) => {
     router.push(`/properties/new?edit=${propertyId}`)
@@ -269,7 +304,7 @@ export default function PropertiesPage() {
   }
 
   if (loading) {
-    return <LoadingSpinner text="Cargando propiedades..." />
+    return <AnimatedLoadingSpinner text="Cargando propiedades..." type="properties" />
   }
 
   return (
@@ -315,7 +350,9 @@ export default function PropertiesPage() {
                   {activeTab === 'properties' ? 'Total Propiedades' : 'Total Conjuntos'}
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {activeTab === 'properties' ? properties.length : propertySets.length}
+                  {activeTab === 'properties' 
+                    ? properties.filter(property => !property.propertySetId).length 
+                    : propertySets.length}
                 </p>
               </div>
             </div>
@@ -330,7 +367,7 @@ export default function PropertiesPage() {
                 <p className="text-sm font-medium text-gray-600">Total Visualizaciones</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {activeTab === 'properties' 
-                    ? properties.reduce((sum, p) => sum + (p.totalViews || 0), 0)
+                    ? properties.filter(property => !property.propertySetId).reduce((sum, p) => sum + (p.totalViews || 0), 0)
                     : propertySets.reduce((sum, s) => sum + (s.totalViews || 0), 0)
                   }
                 </p>
@@ -349,7 +386,7 @@ export default function PropertiesPage() {
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
                   {activeTab === 'properties' 
-                    ? `${properties.reduce((sum, p) => sum + p.maxGuests, 0)} huéspedes`
+                    ? `${properties.filter(property => !property.propertySetId).reduce((sum, p) => sum + p.maxGuests, 0)} huéspedes`
                     : propertySets.reduce((sum, s) => sum + (s.propertiesCount || 0), 0)
                   }
                 </p>
@@ -366,7 +403,7 @@ export default function PropertiesPage() {
                 <p className="text-sm font-medium text-gray-600">Zonas Totales</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {activeTab === 'properties' 
-                    ? properties.reduce((sum, p) => sum + p.zonesCount, 0)
+                    ? properties.filter(property => !property.propertySetId).reduce((sum, p) => sum + p.zonesCount, 0)
                     : propertySets.reduce((sum, s) => sum + (s.totalZones || 0), 0)
                   }
                 </p>
@@ -388,7 +425,7 @@ export default function PropertiesPage() {
             >
               Propiedades Individuales
               <span className="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">
-                {properties.length}
+                {properties.filter(property => !property.propertySetId).length}
               </span>
             </button>
             <button
@@ -410,10 +447,10 @@ export default function PropertiesPage() {
         {/* Loading, Error, and Content */}
         {loading ? (
           <Card className="p-12 text-center">
-            <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-600">
-              {activeTab === 'properties' ? 'Cargando propiedades...' : 'Cargando conjuntos...'}
-            </p>
+            <InlineLoadingSpinner 
+              text={activeTab === 'properties' ? 'Cargando propiedades...' : 'Cargando conjuntos...'} 
+              type={activeTab === 'properties' ? 'properties' : 'properties'}
+            />
           </Card>
         ) : error ? (
           <Card className="p-12 text-center">
@@ -429,14 +466,20 @@ export default function PropertiesPage() {
             </Button>
           </Card>
         ) : activeTab === 'properties' ? (
-          properties.length === 0 ? (
+          (() => {
+            const individualProperties = properties.filter(property => !property.propertySetId)
+            console.log('🏠 Total properties:', properties.length)
+            console.log('🏠 Individual properties:', individualProperties.length)
+            console.log('🏠 Properties with sets:', properties.filter(p => p.propertySetId).map(p => ({ name: getText(p.name), setId: p.propertySetId, setName: p.propertySet?.name })))
+            return individualProperties.length === 0
+          })() ? (
             <Card className="p-12 text-center">
               <Home className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No tienes propiedades aún
+                No tienes propiedades individuales
               </h3>
               <p className="text-gray-600 mb-6">
-                Crea tu primera propiedad para empezar a gestionar manuales digitales
+                Crea propiedades individuales o ve a la pestaña "Conjuntos" para gestionar propiedades agrupadas
               </p>
               <Link href="/properties/new">
                 <Button>
@@ -447,7 +490,7 @@ export default function PropertiesPage() {
             </Card>
           ) : (
             <div className="space-y-4">
-              {properties.map((property) => (
+              {properties.filter(property => !property.propertySetId).map((property) => (
               <motion.div
                 key={property.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -488,10 +531,10 @@ export default function PropertiesPage() {
                               <h3 className="font-semibold text-lg text-gray-900 truncate">
                                 {getText(property.name, 'Propiedad')}
                               </h3>
-                              {property.propertySetId && (
+                              {property.propertySetId && property.propertySet && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                                   <Building2 className="w-3 h-3 mr-1" />
-                                  En conjunto
+                                  Pertenece a {property.propertySet.name}
                                 </span>
                               )}
                             </div>
@@ -982,5 +1025,17 @@ export default function PropertiesPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function PropertiesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
+      </div>
+    }>
+      <PropertiesPageContent />
+    </Suspense>
   )
 }
