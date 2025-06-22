@@ -616,13 +616,18 @@ export default function ZoneStepsPage({
       </div>
 
       {/* Desktop Layout: Two Columns */}
-      <div className="hidden lg:grid lg:grid-cols-3 lg:gap-8">
+      <div className="hidden lg:block">
+        {/* Debug indicator - remove after testing */}
+        <div className="mb-4 bg-blue-100 border border-blue-300 text-blue-800 px-4 py-2 rounded text-sm">
+          🖥️ Desktop Timeline View ({steps.length} pasos)
+        </div>
+        <div className="lg:grid lg:grid-cols-3 lg:gap-8">
         {/* Left Column - Steps (2/3 width) */}
         <div className="lg:col-span-2">
           {steps.length > 0 ? (
             <div className="relative">
               {/* Timeline Line */}
-              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+              <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-gray-300"></div>
               
               <Reorder.Group
                 axis="y"
@@ -638,7 +643,7 @@ export default function ZoneStepsPage({
                   >
                     {/* Step Number Outside */}
                     <div className="absolute left-0 top-6">
-                      <div className="w-12 h-12 bg-white border-4 border-gray-900 rounded-full flex items-center justify-center text-lg font-bold text-gray-900 shadow-lg">
+                      <div className="w-12 h-12 bg-white border-4 border-gray-900 rounded-full flex items-center justify-center text-xl font-black text-gray-900 shadow-xl relative z-10">
                         {index + 1}
                       </div>
                     </div>
@@ -882,6 +887,7 @@ export default function ZoneStepsPage({
               </CardContent>
             </Card>
           </div>
+        </div>
         </div>
       </div>
       
