@@ -69,18 +69,18 @@ export function ZoneStaticSuggestions({
           {suggestedZones.length > 0 && (
             <div className="space-y-3">
               {suggestedZones.map((template) => (
-                <Card key={template.id} className="hover:shadow-md transition-shadow duration-200 bg-white border border-gray-200">
+                <Card key={template.id} className="hover:shadow-md transition-shadow duration-200 bg-white border border-gray-200 min-w-0">
                   <div className="p-3">
                     {/* Header */}
-                    <div className="flex items-start gap-3 mb-3">
-                      <div className="p-2 bg-gray-50 rounded-lg">
+                    <div className="flex items-start gap-3 mb-3 min-w-0">
+                      <div className="p-2 bg-gray-50 rounded-lg flex-shrink-0">
                         <ZoneIconDisplay iconId={template.icon} size="sm" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 text-sm mb-1">
+                        <h3 className="font-medium text-gray-900 text-sm mb-1 truncate">
                           {getText(template.name, 'Zona')}
                         </h3>
-                        <p className="text-xs text-gray-600 line-clamp-2">
+                        <p className="text-xs text-gray-600 line-clamp-2 overflow-hidden">
                           {getText(template.description, '')}
                         </p>
                       </div>
@@ -155,17 +155,17 @@ export function ZoneStaticSuggestions({
                 <div className="p-4 overflow-y-auto max-h-[calc(80vh-80px)]">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {availableZones.map((template) => (
-                      <Card key={template.id} className="hover:shadow-md transition-shadow duration-200 bg-white border border-gray-200">
+                      <Card key={template.id} className="hover:shadow-md transition-shadow duration-200 bg-white border border-gray-200 min-w-0">
                         <div className="p-3">
-                          <div className="flex items-start gap-3 mb-3">
-                            <div className="p-2 bg-gray-50 rounded-lg">
+                          <div className="flex items-start gap-3 mb-3 min-w-0">
+                            <div className="p-2 bg-gray-50 rounded-lg flex-shrink-0">
                               <ZoneIconDisplay iconId={template.icon} size="sm" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-medium text-gray-900 text-sm mb-1">
+                              <h3 className="font-medium text-gray-900 text-sm mb-1 truncate">
                                 {getText(template.name, 'Zona')}
                               </h3>
-                              <p className="text-xs text-gray-600 line-clamp-2">
+                              <p className="text-xs text-gray-600 line-clamp-2 overflow-hidden">
                                 {getText(template.description, '')}
                               </p>
                             </div>
@@ -239,28 +239,28 @@ export function ZoneStaticSuggestions({
       </div>
       
       {/* Zone Cards - Static Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {displayZones.map((template) => (
-          <Card key={template.id} className="hover:shadow-md transition-shadow duration-200 bg-white border border-gray-200">
+          <Card key={template.id} className="hover:shadow-md transition-shadow duration-200 bg-white border border-gray-200 min-w-0">
             <div className="p-4">
               {/* Header */}
-              <div className="flex items-start gap-3 mb-3">
-                <div className="p-2 bg-gray-50 rounded-lg">
+              <div className="flex items-start gap-3 mb-3 min-w-0">
+                <div className="p-2 bg-gray-50 rounded-lg flex-shrink-0">
                   <ZoneIconDisplay iconId={template.icon} size="sm" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm mb-1">
+                  <h3 className="font-medium text-gray-900 text-sm mb-1 truncate">
                     {getText(template.name, 'Zona')}
                   </h3>
-                  <p className="text-xs text-gray-600 line-clamp-2">
+                  <p className="text-xs text-gray-600 line-clamp-2 overflow-hidden">
                     {getText(template.description, '')}
                   </p>
                 </div>
               </div>
 
               {/* Stats */}
-              <div className="flex items-center gap-2 mb-3">
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+              <div className="flex items-center gap-2 mb-3 min-w-0">
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 flex-shrink-0">
                   {template.category === 'essential' && 'Esencial'}
                   {template.category === 'amenities' && 'Comodidad'}
                   {template.category === 'rules' && 'Normas'}
@@ -268,7 +268,7 @@ export function ZoneStaticSuggestions({
                   {template.category === 'savings' && 'Ahorro'}
                   {template.category === 'emergency' && 'Emergencia'}
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 truncate">
                   {template.popularity}% hosts
                 </span>
               </div>

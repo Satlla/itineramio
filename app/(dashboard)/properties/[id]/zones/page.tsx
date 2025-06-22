@@ -1074,8 +1074,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </div>
 
         {/* Right Section - Zone Suggestions (1/3 width on desktop, hidden on mobile) */}
-        <div className="hidden lg:block lg:col-span-1">
-          <div className="lg:sticky lg:top-6">
+        <div className="hidden lg:block lg:col-span-1 overflow-hidden">
+          <div className="lg:sticky lg:top-6 overflow-hidden">
             <ZoneStaticSuggestions
               existingZoneNames={zones.map(z => getZoneText(z.name))}
               onCreateZone={handleCreateZoneFromTemplate}
