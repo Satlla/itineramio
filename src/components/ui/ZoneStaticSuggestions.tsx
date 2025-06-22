@@ -70,7 +70,44 @@ export function ZoneStaticSuggestions({
             <div className="space-y-3">
               {suggestedZones.map((template) => (
                 <Card key={template.id} className="hover:shadow-md transition-shadow duration-200 bg-white border border-gray-200 min-w-0">
-                  <div className="p-3">
+                  {/* Desktop Compact Design */}
+                  <div className="hidden lg:block p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="p-1.5 bg-gray-50 rounded-lg flex-shrink-0">
+                          <ZoneIconDisplay iconId={template.icon} size="sm" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-gray-900 text-sm truncate">
+                            {getText(template.name, 'Zona')}
+                          </h3>
+                          <p className="text-xs text-gray-500 truncate">
+                            {getText(template.description, '').substring(0, 40)}...
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-1.5 flex-shrink-0">
+                        <Button
+                          onClick={() => onViewDetails(template)}
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-200 text-gray-600 hover:bg-gray-50 text-xs h-7 px-2"
+                        >
+                          <Eye className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          onClick={() => onCreateZone(template)}
+                          size="sm"
+                          className="bg-violet-600 hover:bg-violet-700 text-white text-xs h-7 px-2"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile Full Design */}
+                  <div className="lg:hidden p-3">
                     {/* Header */}
                     <div className="flex items-start gap-3 mb-3 min-w-0">
                       <div className="p-2 bg-gray-50 rounded-lg flex-shrink-0">
@@ -238,11 +275,59 @@ export function ZoneStaticSuggestions({
         </p>
       </div>
       
-      {/* Zone Cards - Static Grid */}
-      <div className="grid grid-cols-1 gap-3">
+      {/* Zone Cards - Responsive Design */}
+      <div className="space-y-3">
         {displayZones.map((template) => (
           <Card key={template.id} className="hover:shadow-md transition-shadow duration-200 bg-white border border-gray-200 min-w-0">
-            <div className="p-4">
+            {/* Desktop Compact Design - Hidden on Mobile */}
+            <div className="hidden lg:block p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="p-1.5 bg-gray-50 rounded-lg flex-shrink-0">
+                    <ZoneIconDisplay iconId={template.icon} size="sm" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-gray-900 text-sm truncate">
+                      {getText(template.name, 'Zona')}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-gray-500">
+                        {template.category === 'essential' && 'Esencial'}
+                        {template.category === 'amenities' && 'Comodidad'}
+                        {template.category === 'rules' && 'Normas'}
+                        {template.category === 'local' && 'Local'}
+                        {template.category === 'savings' && 'Ahorro'}
+                        {template.category === 'emergency' && 'Emergencia'}
+                      </span>
+                      <span className="text-xs text-gray-400">•</span>
+                      <span className="text-xs text-gray-500">
+                        {template.popularity}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-1.5 flex-shrink-0">
+                  <Button
+                    onClick={() => onViewDetails(template)}
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-200 text-gray-600 hover:bg-gray-50 text-xs h-7 px-2"
+                  >
+                    <Eye className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    onClick={() => onCreateZone(template)}
+                    size="sm"
+                    className="bg-violet-600 hover:bg-violet-700 text-white text-xs h-7 px-2"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Full Design - Hidden on Desktop */}
+            <div className="lg:hidden p-4">
               {/* Header */}
               <div className="flex items-start gap-3 mb-3 min-w-0">
                 <div className="p-2 bg-gray-50 rounded-lg flex-shrink-0">
