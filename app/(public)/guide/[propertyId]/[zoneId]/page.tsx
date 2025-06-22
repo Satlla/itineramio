@@ -53,34 +53,42 @@ const getText = (value: any, fallback: string = '') => {
   return fallback
 }
 
-export default async function ZoneGuidePage({ 
+export default function ZoneGuidePage({ 
   params 
 }: { 
   params: Promise<{ propertyId: string; zoneId: string }> 
 }) {
-  const { propertyId, zoneId } = await params
+  const [propertyId, setPropertyId] = useState<string>('')
+  const [zoneId, setZoneId] = useState<string>('')
   const [zone, setZone] = useState<Zone | null>(null)
   const [property, setProperty] = useState<Property | null>(null)
   const [loading, setLoading] = useState(true)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set())
 
+  // Unwrap params and fetch data
   useEffect(() => {
-    fetchZoneData()
-  }, [propertyId, zoneId])
+    params.then(({ propertyId: pId, zoneId: zId }) => {
+      setPropertyId(pId)
+      setZoneId(zId)
+      fetchZoneData(pId, zId)
+    })
+  }, [params])
 
-  const fetchZoneData = async () => {
+  const fetchZoneData = async (pId: string, zId: string) => {
     try {
       setLoading(true)
       
-      // Fetch both zone and property data
-      const [zoneResponse, propertyResponse] = await Promise.all([
-        fetch(`/api/properties/${propertyId}/zones/${zoneId}`),
-        fetch(`/api/properties/${propertyId}`)
+      // Fetch both zone data and steps
+      const [zoneResponse, stepsResponse, propertyResponse] = await Promise.all([
+        fetch(`/api/properties/${pId}/zones/${zId}`),
+        fetch(`/api/properties/${pId}/zones/${zId}/steps`),
+        fetch(`/api/properties/${pId}`)
       ])
       
-      const [zoneResult, propertyResult] = await Promise.all([
+      const [zoneResult, stepsResult, propertyResult] = await Promise.all([
         zoneResponse.json(),
+        stepsResponse.json(),
         propertyResponse.json()
       ])
       
@@ -92,7 +100,18 @@ export default async function ZoneGuidePage({
         throw new Error(propertyResult.error || 'Propiedad no encontrada')
       }
       
-      setZone(zoneResult.data)
+      // Combine zone data with steps
+      const zoneWithSteps = {
+        ...zoneResult.data,
+        steps: stepsResult.success ? stepsResult.data.map((step: any) => ({
+          ...step,
+          title: step.title || { es: `Paso ${step.order}`, en: `Step ${step.order}` },
+          description: step.description || step.content,
+          content: step.content
+        })) : []
+      }
+      
+      setZone(zoneWithSteps)
       setProperty(propertyResult.data)
     } catch (error) {
       console.error('Error fetching zone data:', error)
