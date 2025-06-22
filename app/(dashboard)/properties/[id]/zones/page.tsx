@@ -891,7 +891,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   Tus zonas
                 </h2>
                 <Button
-                  onClick={() => setShowElementSelector(true)}
+                  onClick={handleOpenMultiSelect}
                   className="bg-violet-600 hover:bg-violet-700"
                 >
                   <Plus className="w-5 h-5 mr-2" />
