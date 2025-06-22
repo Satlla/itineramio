@@ -1,13 +1,12 @@
-'use client';
+'use client'
 
-import React from 'react';
-import { AnimatedLoadingSpinner } from '../../../src/components/ui/AnimatedLoadingSpinner';
-import { DashboardNavbar } from '../../../src/components/layout/DashboardNavbar';
-import { DashboardFooter } from '../../../src/components/layout/DashboardFooter';
-import { useAuth } from '../../../src/providers/AuthProvider';
+import React from 'react'
+import { DashboardNavbar } from '../../../src/components/layout/DashboardNavbar'
+import { DashboardFooter } from '../../../src/components/layout/DashboardFooter'
+import { useAuth } from '../../../src/providers/AuthProvider'
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user } = useAuth()
   
   return React.createElement(
     'div',
@@ -22,15 +21,15 @@ export default function DashboardPage() {
         React.createElement(
           'h1',
           { className: 'text-3xl font-bold text-gray-900 mb-4' },
-          'Dashboard'
+          'Dashboard Funcionando ✅'
         ),
         React.createElement(
           'p',
           { className: 'text-gray-600' },
-          'Panel de control funcionando correctamente'
+          'El panel principal está operativo'
         )
       )
     ),
     React.createElement(DashboardFooter)
-  );
+  )
 }
