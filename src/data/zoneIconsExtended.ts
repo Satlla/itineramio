@@ -33,7 +33,7 @@ import {
   Lightbulb,
   Trash2,
   Recycle,
-  WashingMachine,
+  Package,
   ShoppingBag,
   Bus,
   Train,
@@ -49,7 +49,6 @@ import {
   Book,
   Gamepad2,
   Camera,
-  Package,
   Gift,
   CreditCard,
   Banknote,
@@ -69,6 +68,7 @@ import {
   Mail,
   MessageSquare,
   Bell,
+  FileText,
   LucideIcon
 } from 'lucide-react'
 
@@ -100,7 +100,7 @@ export const extendedZoneIconMap: { [key: string]: LucideIcon } = {
   '🌡️': Thermometer,
   '🔊': Volume2,
   '💡': Lightbulb,
-  '🧺': WashingMachine,
+  '🧺': Package,
   
   // Location
   '🏠': Home,
@@ -254,9 +254,9 @@ export const commonZoneIcons = {
   'residuos': Trash2,
   'recycling': Recycle,
   'reciclaje': Recycle,
-  'laundry': WashingMachine,
-  'lavanderia': WashingMachine,
-  'lavadora': WashingMachine,
+  'laundry': Package,
+  'lavanderia': Package,
+  'lavadora': Package,
   'heating': Thermometer,
   'calefaccion': Thermometer,
   'ac': Thermometer,
