@@ -354,9 +354,28 @@ export default function DashboardPage() {
               className="lg:col-span-2"
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Mis Propiedades ({loading ? '...' : properties.length})
-                </h2>
+                <div className="flex items-center space-x-3">
+                  {/* Spectacular Property Icon - Airbnb style */}
+                  <div className="relative">
+                    <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <svg 
+                        viewBox="0 0 24 24" 
+                        className="w-6 h-6 text-white"
+                        fill="currentColor"
+                      >
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                      </svg>
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                      <svg viewBox="0 0 12 12" className="w-2.5 h-2.5 text-white" fill="currentColor">
+                        <path d="M2 6.5L5 9.5L10 2.5"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Mis Propiedades ({loading ? '...' : properties.length})
+                  </h2>
+                </div>
                 <Button asChild variant="outline">
                   <Link href="/properties">
                     Ver todas
@@ -551,9 +570,32 @@ export default function DashboardPage() {
                 className="lg:col-span-2"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    Mis Conjuntos de Propiedades ({propertySets.length})
-                  </h2>
+                  <div className="flex items-center space-x-3">
+                    {/* Spectacular Property Set Icon - Airbnb style */}
+                    <div className="relative">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <svg 
+                          viewBox="0 0 24 24" 
+                          className="w-6 h-6 text-white"
+                          fill="currentColor"
+                        >
+                          <path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/>
+                          <circle cx="6" cy="6" r="1"/>
+                          <circle cx="18" cy="6" r="1"/>
+                          <circle cx="6" cy="18" r="1"/>
+                          <circle cx="18" cy="18" r="1"/>
+                        </svg>
+                      </div>
+                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
+                        <svg viewBox="0 0 12 12" className="w-2.5 h-2.5 text-white" fill="currentColor">
+                          <path d="M6 1L7 4h3l-2.5 2L8.5 9L6 7l-2.5 2L4.5 6L2 4h3z"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      Mis Conjuntos de Propiedades ({propertySets.length})
+                    </h2>
+                  </div>
                   <Button asChild variant="outline">
                     <Link href="/properties?tab=sets">
                       Ver todos
