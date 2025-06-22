@@ -23,7 +23,8 @@ import {
   CheckCircle,
   ArrowRight,
   Lightbulb,
-  TrendingUp
+  TrendingUp,
+  Calendar
 } from 'lucide-react'
 import { Button } from '../../../src/components/ui/Button'
 import { Card, CardContent } from '../../../src/components/ui/Card'
@@ -111,7 +112,7 @@ const statusColors = {
 
 interface Recommendation {
   id: string
-  type: 'language' | 'zone' | 'content' | 'optimization' | 'congratulations'
+  type: 'language' | 'zone' | 'content' | 'optimization' | 'congratulations' | 'guide' | 'integration'
   priority: 'high' | 'medium' | 'low'
   title: string
   description: string
@@ -119,110 +120,262 @@ interface Recommendation {
   actionUrl?: string
   propertyName?: string
   icon: React.ReactNode
+  hasModal?: boolean
+  modalContent?: {
+    title: string
+    content: React.ReactNode
+  }
 }
 
-// Generate smart recommendations based on properties analysis
+// Generate smart daily recommendations - Itineramio usage guide
 const generateRecommendations = (properties: Property[]): Recommendation[] => {
-  const recommendations: Recommendation[] = []
-  const activeProperties = properties.filter(p => p.status === 'ACTIVE')
-  
-  // Check for missing zones
-  activeProperties.forEach(property => {
-    if (property.zonesCount === 0) {
-      recommendations.push({
-        id: `zones-${property.id}`,
-        type: 'zone',
-        priority: 'high',
-        title: 'Agregar zonas esenciales',
-        description: `${getText(property.name)} no tiene zonas creadas. Agrega zonas como Check-in, WiFi, Cocina.`,
-        actionText: 'Crear zonas',
-        actionUrl: `/properties/${property.id}/zones`,
-        propertyName: getText(property.name),
-        icon: <MapPin className="w-5 h-5 text-orange-600" />
-      })
-    } else if (property.zonesCount < 3) {
-      recommendations.push({
-        id: `few-zones-${property.id}`,
-        type: 'zone',
-        priority: 'medium',
-        title: 'Ampliar zonas del manual',
-        description: `${getText(property.name)} solo tiene ${property.zonesCount} zona${property.zonesCount > 1 ? 's' : ''}. Considera agregar más zonas.`,
-        actionText: 'Ver zonas',
-        actionUrl: `/properties/${property.id}/zones`,
-        propertyName: getText(property.name),
-        icon: <MapPin className="w-5 h-5 text-blue-600" />
-      })
-    }
-  })
-
-  // Check for low view properties
-  activeProperties.forEach(property => {
-    if (property.totalViews === 0) {
-      recommendations.push({
-        id: `no-views-${property.id}`,
-        type: 'optimization',
-        priority: 'medium',
-        title: 'Manual sin visualizaciones',
-        description: `${getText(property.name)} no ha recibido visitas. Comparte el enlace con tus huéspedes.`,
-        actionText: 'Compartir manual',
-        propertyName: getText(property.name),
-        icon: <Eye className="w-5 h-5 text-purple-600" />
-      })
-    }
-  })
-
-  // Language recommendations (simulated)
-  if (activeProperties.length > 0) {
-    const randomProperty = activeProperties[Math.floor(Math.random() * activeProperties.length)]
-    recommendations.push({
-      id: `language-${randomProperty.id}`,
-      type: 'language',
+  const allRecommendations: Recommendation[] = [
+    {
+      id: 'airbnb-booking-integration',
+      type: 'integration',
+      priority: 'high',
+      title: 'Integrar manual en Airbnb/Booking',
+      description: 'Aprende a incluir automáticamente tu manual en los mensajes de bienvenida de Airbnb y Booking.',
+      actionText: 'Ver guía completa',
+      hasModal: true,
+      icon: <Share2 className="w-5 h-5 text-blue-600" />,
+      modalContent: {
+        title: 'Integración con Airbnb y Booking.com',
+        content: (
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">📱 Airbnb - Mensaje automático</h4>
+              <div className="bg-gray-50 p-3 rounded-lg text-sm">
+                <p className="mb-2"><strong>Plantilla sugerida:</strong></p>
+                <p className="italic text-gray-700">
+                  "¡Hola! 👋 Te doy la bienvenida a [NOMBRE_PROPIEDAD]. <br/>
+                  Para que tu estancia sea perfecta, he creado un manual digital con toda la información que necesitas: <br/>
+                  🔗 [TU_ENLACE_ITINERAMIO] <br/>
+                  Incluye WiFi, check-in, recomendaciones locales y mucho más. ¡Que disfrutes!"
+                </p>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">🏨 Booking.com - Mensaje automático</h4>
+              <div className="bg-blue-50 p-3 rounded-lg text-sm">
+                <p className="mb-2"><strong>En el apartado "Instrucciones especiales":</strong></p>
+                <p className="italic text-gray-700">
+                  "Manual digital del apartamento: [TU_ENLACE_ITINERAMIO] - Toda la información sobre WiFi, check-in, parking, y recomendaciones locales en un solo lugar."
+                </p>
+              </div>
+            </div>
+            <div className="bg-violet-50 p-3 rounded-lg">
+              <p className="text-sm text-violet-700">
+                💡 <strong>Consejo:</strong> Personaliza el mensaje incluyendo 2-3 características únicas de tu propiedad para generar más confianza.
+              </p>
+            </div>
+          </div>
+        )
+      }
+    },
+    {
+      id: 'zone-specific-sharing',
+      type: 'guide',
+      priority: 'high',
+      title: 'Compartir zonas específicas',
+      description: 'Cómo enviar URLs directas a zonas específicas cuando un huésped pregunta sobre parking, WiFi, etc.',
+      actionText: 'Ver técnica',
+      hasModal: true,
+      icon: <MapPin className="w-5 h-5 text-green-600" />,
+      modalContent: {
+        title: 'Compartir zonas específicas por WhatsApp',
+        content: (
+          <div className="space-y-4">
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-gray-900 mb-2">💬 Ejemplo práctico</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                <strong>Huésped pregunta:</strong> "¿Dónde puedo aparcar?"
+              </p>
+              <p className="text-sm text-gray-700">
+                <strong>Tu respuesta:</strong> "¡Hola! Aquí tienes toda la info del parking: [ENLACE_ZONA_PARKING] 🚗"
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">🔗 Cómo obtener el enlace</h4>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
+                <li>Ve a la zona específica (ej. Parking)</li>
+                <li>Copia la URL del navegador</li>
+                <li>Guárdala en notas para usar rápidamente</li>
+                <li>Envía solo esa zona al huésped</li>
+              </ol>
+            </div>
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <p className="text-sm text-blue-700">
+                <strong>Beneficio:</strong> El huésped ve directamente lo que necesita sin perderse en el manual completo.
+              </p>
+            </div>
+          </div>
+        )
+      }
+    },
+    {
+      id: 'pre-arrival-communication',
+      type: 'guide',
       priority: 'medium',
-      title: 'Traducir a más idiomas',
-      description: `${getText(randomProperty.name)} podría beneficiarse de traducciones a inglés y francés.`,
-      actionText: 'Gestionar idiomas',
-      actionUrl: `/properties/${randomProperty.id}/zones`,
-      propertyName: getText(randomProperty.name),
-      icon: <Languages className="w-5 h-5 text-green-600" />
-    })
-  }
-
-  // Growth recommendations
-  if (activeProperties.length > 0) {
-    const totalViews = activeProperties.reduce((sum, p) => sum + p.totalViews, 0)
-    if (totalViews > 50) {
-      recommendations.push({
-        id: 'growth-tip',
-        type: 'optimization',
-        priority: 'low',
-        title: 'Optimizar manuales populares',
-        description: `Tus manuales han recibido ${totalViews} visualizaciones. ¡Considera agregar más contenido!`,
-        actionText: 'Ver estadísticas',
-        icon: <TrendingUp className="w-5 h-5 text-indigo-600" />
-      })
-    }
-  }
-
-  // Congratulations message if everything is good
-  if (recommendations.length === 0 || recommendations.every(r => r.priority === 'low')) {
-    recommendations.unshift({
-      id: 'congratulations',
-      type: 'congratulations',
+      title: 'Comunicación pre-llegada',
+      description: 'Estrategia para enviar información clave días antes de la llegada: aeropuerto, parking, alquiler.',
+      actionText: 'Ver estrategia',
+      hasModal: true,
+      icon: <Calendar className="w-5 h-5 text-purple-600" />,
+      modalContent: {
+        title: 'Guía de comunicación pre-llegada',
+        content: (
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">📅 Timeline recomendado</h4>
+              <div className="space-y-3">
+                <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                  <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs font-medium">7 días antes</span>
+                  <div className="text-sm">
+                    <p className="font-medium">Información de viaje</p>
+                    <p className="text-gray-600">Cómo llegar desde aeropuerto, estaciones de tren, parking público</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                  <span className="bg-green-100 text-green-600 px-2 py-1 rounded text-xs font-medium">3 días antes</span>
+                  <div className="text-sm">
+                    <p className="font-medium">Servicios locales</p>
+                    <p className="text-gray-600">Alquiler de coches/motos, supermercados, farmacias</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                  <span className="bg-violet-100 text-violet-600 px-2 py-1 rounded text-xs font-medium">1 día antes</span>
+                  <div className="text-sm">
+                    <p className="font-medium">Check-in y manual completo</p>
+                    <p className="text-gray-600">Instrucciones detalladas + enlace al manual de Itineramio</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-violet-50 p-3 rounded-lg">
+              <p className="text-sm text-violet-700">
+                <strong>💡 Pro tip:</strong> Usa las zonas específicas de tu manual para cada mensaje (parking, transporte, recomendaciones locales).
+              </p>
+            </div>
+          </div>
+        )
+      }
+    },
+    {
+      id: 'local-recommendations',
+      type: 'content',
+      priority: 'medium',
+      title: 'Crear zona de recomendaciones locales',
+      description: 'Añade valor con restaurantes, actividades y secretos locales que solo tú conoces.',
+      actionText: 'Crear zona',
+      actionUrl: properties.length > 0 ? `/properties/${properties[0].id}/zones` : '/properties/new',
+      icon: <Star className="w-5 h-5 text-orange-600" />
+    },
+    {
+      id: 'qr-placement',
+      type: 'optimization',
+      priority: 'medium',
+      title: 'Ubicación estratégica del código QR',
+      description: 'Dónde colocar tu código QR para máxima visibilidad: recibidor, nevera, mesita de noche.',
+      actionText: 'Ver ubicaciones',
+      hasModal: true,
+      icon: <Eye className="w-5 h-5 text-indigo-600" />,
+      modalContent: {
+        title: 'Ubicaciones estratégicas para el código QR',
+        content: (
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">📍 Lugares más efectivos</h4>
+              <div className="grid grid-cols-1 gap-3">
+                <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
+                  <span className="text-xl">🚪</span>
+                  <div>
+                    <p className="font-medium text-sm">Recibidor/Entrada</p>
+                    <p className="text-xs text-gray-600">Primer punto de contacto del huésped</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
+                  <span className="text-xl">❄️</span>
+                  <div>
+                    <p className="font-medium text-sm">Nevera</p>
+                    <p className="text-xs text-gray-600">Lo ven cuando buscan agua/comida</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
+                  <span className="text-xl">🛏️</span>
+                  <div>
+                    <p className="font-medium text-sm">Mesita de noche</p>
+                    <p className="text-xs text-gray-600">Visible cuando se acuestan/levantan</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-green-50 p-3 rounded-lg">
+              <p className="text-sm text-green-700">
+                <strong>✅ Recomendación:</strong> Coloca 2-3 códigos QR en lugares estratégicos para asegurar que lo vean.
+              </p>
+            </div>
+          </div>
+        )
+      }
+    },
+    {
+      id: 'guest-feedback-optimization',
+      type: 'optimization',
       priority: 'low',
-      title: '¡Excelente trabajo!',
-      description: 'Tus manuales están bien configurados. Sigue monitoreando las estadísticas para mejoras.',
-      actionText: 'Ver actividad',
-      icon: <CheckCircle className="w-5 h-5 text-green-600" />
-    })
-  }
+      title: 'Optimizar según feedback de huéspedes',
+      description: 'Analiza preguntas frecuentes de huéspedes para mejorar y expandir tus zonas del manual.',
+      actionText: 'Ver análisis',
+      hasModal: true,
+      icon: <TrendingUp className="w-5 h-5 text-blue-600" />,
+      modalContent: {
+        title: 'Optimización basada en feedback',
+        content: (
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">🔍 Señales de optimización</h4>
+              <div className="space-y-2">
+                <div className="flex items-start space-x-2 text-sm">
+                  <span className="text-red-500">❌</span>
+                  <p><strong>Preguntas repetitivas:</strong> Si te preguntan lo mismo, añádelo al manual</p>
+                </div>
+                <div className="flex items-start space-x-2 text-sm">
+                  <span className="text-orange-500">📊</span>
+                  <p><strong>Zonas con pocas visitas:</strong> Revisa si están bien explicadas</p>
+                </div>
+                <div className="flex items-start space-x-2 text-sm">
+                  <span className="text-green-500">✅</span>
+                  <p><strong>Comentarios positivos:</strong> Destaca esas secciones más</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <p className="text-sm text-blue-700">
+                <strong>Método:</strong> Cada mes, revisa las consultas recibidas y actualiza tu manual en consecuencia.
+              </p>
+            </div>
+          </div>
+        )
+      }
+    },
+    {
+      id: 'multilingual-strategy',
+      type: 'language',
+      priority: 'low',
+      title: 'Estrategia multiidioma',
+      description: 'Prioriza idiomas según tu ubicación: inglés (turistas), francés (proximidad), alemán (turismo).',
+      actionText: 'Ver estrategia',
+      actionUrl: properties.length > 0 ? `/properties/${properties[0].id}/zones` : '/properties/new',
+      icon: <Languages className="w-5 h-5 text-green-600" />
+    }
+  ]
 
-  // Sort by priority and return max 4 recommendations
-  return recommendations
-    .sort((a, b) => {
-      const priorityOrder = { high: 3, medium: 2, low: 1 }
-      return priorityOrder[b.priority] - priorityOrder[a.priority]
-    })
-    .slice(0, 4)
+  // Return 5 random recommendations daily
+  const dailyRecommendations = allRecommendations
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 5)
+  
+  return dailyRecommendations
 }
 
 function PropertiesPageContent() {
@@ -239,6 +392,8 @@ function PropertiesPageContent() {
   const [activeTab, setActiveTab] = useState<'properties' | 'sets'>('properties')
   const [selectedPropertySet, setSelectedPropertySet] = useState<PropertySet | null>(null)
   const [propertySetProperties, setPropertySetProperties] = useState<Property[]>([])
+  const [recommendationModalOpen, setRecommendationModalOpen] = useState(false)
+  const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null)
 
   // Handle URL parameters on mount
   useEffect(() => {
@@ -370,15 +525,18 @@ function PropertiesPageContent() {
   }
 
   const handleRecommendationAction = (recommendation: Recommendation) => {
-    if (recommendation.actionUrl) {
+    if (recommendation.hasModal) {
+      setSelectedRecommendation(recommendation)
+      setRecommendationModalOpen(true)
+    } else if (recommendation.actionUrl) {
       router.push(recommendation.actionUrl)
-    } else if (recommendation.type === 'optimization' && recommendation.id.includes('no-views')) {
-      // For share recommendations without URL, trigger share modal
-      const propertyName = recommendation.propertyName
-      const property = properties.find(p => getText(p.name) === propertyName)
-      if (property) {
-        handleShareProperty(property.id)
-      }
+    }
+  }
+
+  const scrollToRecommendations = () => {
+    const element = document.getElementById('mobile-recommendations')
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
     }
   }
 
@@ -578,6 +736,34 @@ function PropertiesPageContent() {
           </nav>
         </div>
 
+        {/* Mobile Recommendations Banner - Only show on mobile */}
+        <div className="lg:hidden mb-6">
+          <Card 
+            className="p-4 cursor-pointer hover:shadow-md transition-shadow border-violet-200 bg-gradient-to-r from-violet-50 to-purple-50"
+            onClick={scrollToRecommendations}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-violet-100 rounded-lg">
+                  <Lightbulb className="w-5 h-5 text-violet-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-sm">Recomendaciones diarias</h3>
+                  <p className="text-xs text-gray-600">Consejos para optimizar tus manuales</p>
+                </div>
+              </div>
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="text-xs px-3 py-2 border-violet-200 text-violet-600 hover:bg-violet-50"
+              >
+                Ver consejos
+                <ArrowRight className="w-3 h-3 ml-1" />
+              </Button>
+            </div>
+          </Card>
+        </div>
+
         {/* Loading, Error, and Content */}
         {loading ? (
           <Card className="p-12 text-center">
@@ -627,8 +813,8 @@ function PropertiesPageContent() {
                 </Card>
               </div>
 
-              {/* Getting Started Panel - Takes 2 columns on desktop */}
-              <div className="lg:col-span-2 order-first lg:order-last">
+              {/* Getting Started Panel - Only visible on desktop */}
+              <div className="hidden lg:block lg:col-span-2">
                 <div className="sticky top-8">
                   <Card className="p-6">
                     <div className="flex items-center mb-4">
@@ -848,8 +1034,8 @@ function PropertiesPageContent() {
                 ))}
               </div>
 
-              {/* Recommendations Panel - Takes 2 columns on desktop, full width on mobile */}
-              <div className="lg:col-span-2 order-first lg:order-last">
+              {/* Recommendations Panel - Only visible on desktop */}
+              <div className="hidden lg:block lg:col-span-2">
                 <div className="sticky top-8">
                   <Card className="p-6">
                     <div className="flex items-center mb-4">
@@ -869,10 +1055,10 @@ function PropertiesPageContent() {
                               animate={{ opacity: 1, x: 0 }}
                               className={`p-4 rounded-lg border ${
                                 recommendation.priority === 'high' 
-                                  ? 'border-red-200 bg-red-50' 
+                                  ? 'border-orange-200 bg-orange-50' 
                                   : recommendation.priority === 'medium'
-                                  ? 'border-yellow-200 bg-yellow-50'
-                                  : 'border-green-200 bg-green-50'
+                                  ? 'border-blue-200 bg-blue-50'
+                                  : 'border-violet-200 bg-violet-50'
                               }`}
                             >
                               <div className="flex items-start space-x-3">
@@ -1294,6 +1480,126 @@ function PropertiesPageContent() {
                   >
                     Ver manual
                   </Button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Mobile Recommendations Section - Only visible on mobile */}
+        <div id="mobile-recommendations" className="lg:hidden mt-16 border-t border-gray-200 pt-8">
+          <div className="mb-6">
+            <div className="flex items-center mb-4">
+              <Lightbulb className="w-5 h-5 text-violet-600 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Recomendaciones diarias</h3>
+            </div>
+            <p className="text-sm text-gray-600">
+              Consejos diarios para aprovechar al máximo Itineramio y mejorar la experiencia de tus huéspedes
+            </p>
+          </div>
+          
+          {(() => {
+            const recommendations = generateRecommendations(properties.filter(property => !property.propertySetId))
+            
+            return (
+              <div className="space-y-4">
+                {recommendations.map((recommendation, index) => (
+                  <motion.div
+                    key={recommendation.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Card className="p-4">
+                      <div className={`p-4 rounded-lg border ${
+                        recommendation.priority === 'high' 
+                          ? 'border-orange-200 bg-orange-50' 
+                          : recommendation.priority === 'medium'
+                          ? 'border-blue-200 bg-blue-50'
+                          : 'border-violet-200 bg-violet-50'
+                      }`}>
+                        <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0 mt-0.5">
+                            {recommendation.icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-semibold text-gray-900 mb-1">
+                              {recommendation.title}
+                            </h4>
+                            <p className="text-xs text-gray-600 mb-3 leading-relaxed">
+                              {recommendation.description}
+                            </p>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="text-xs h-8 px-3 w-full"
+                              onClick={() => handleRecommendationAction(recommendation)}
+                            >
+                              {recommendation.actionText}
+                              <ArrowRight className="w-3 h-3 ml-1" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )
+          })()}
+        </div>
+
+        {/* Recommendation Modal */}
+        {recommendationModalOpen && selectedRecommendation && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={() => setRecommendationModalOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {selectedRecommendation.modalContent?.title}
+                </h3>
+                <button
+                  onClick={() => setRecommendationModalOpen(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                {selectedRecommendation.modalContent?.content}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="px-6 py-4 bg-gray-50 rounded-b-2xl">
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    onClick={() => setRecommendationModalOpen(false)}
+                    variant="outline"
+                  >
+                    Cerrar
+                  </Button>
+                  {selectedRecommendation.actionUrl && (
+                    <Button
+                      onClick={() => {
+                        router.push(selectedRecommendation.actionUrl!)
+                        setRecommendationModalOpen(false)
+                      }}
+                      className="bg-violet-600 hover:bg-violet-700"
+                    >
+                      Ir a la sección
+                    </Button>
+                  )}
                 </div>
               </div>
             </motion.div>
