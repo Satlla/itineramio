@@ -78,6 +78,132 @@ const getText = (value: any, language: string = 'es', fallback: string = '') => 
   return fallback
 }
 
+// Translations for the public interface
+const translations = {
+  es: {
+    loading: 'Cargando instrucciones de la zona...',
+    zoneNotFound: 'Zona no encontrada',
+    zoneNotFoundDesc: 'La zona que buscas no existe o no está disponible.',
+    backToProperty: 'Volver a la propiedad',
+    noSteps: 'Sin instrucciones',
+    noStepsDesc: 'Esta zona aún no tiene instrucciones configuradas.',
+    previous: 'Anterior',
+    next: 'Siguiente',
+    finish: '¡Ya lo tengo!',
+    rateExperience: '¿Te ha resultado útil la información?',
+    rateExperienceDesc: 'Tu opinión nos ayuda a mejorar la experiencia para futuros huéspedes',
+    addComment: 'Agregar comentario (opcional)',
+    commentPlaceholder: '¿Algo que agregar o mejorar?',
+    submitRating: 'Enviar valoración',
+    skip: 'Omitir',
+    contactHost: 'Contactar anfitrión',
+    callHost: 'Llamar',
+    messageHost: 'Mensaje',
+    step: 'Paso',
+    of: 'de',
+    underConstruction: '🚧 En construcción:',
+    underConstructionDesc: 'El anfitrión aún está preparando el contenido de esta zona.',
+    completed: 'Completado',
+    hostOf: 'Anfitrión de',
+    close: 'Cerrar',
+    call: 'Llamar',
+    send: 'Enviar',
+    email: 'Email',
+    externalLink: 'Enlace externo',
+    externalLinkDesc: 'Haz clic para abrir este recurso en una nueva pestaña',
+    openLink: 'Abrir enlace',
+    videoNotSupported: 'Tu navegador no soporta videos.',
+    instructionCompleted: '¡Instrucción completada!',
+    zoneCompleted: '¡Zona completada!',
+    commentOptional: 'Comentario o reporte (opcional)',
+    commentPlaceholder2: 'Cuéntanos qué te pareció o reporta algún problema con el manual...',
+    viewed: 'Visto'
+  },
+  en: {
+    loading: 'Loading zone instructions...',
+    zoneNotFound: 'Zone not found',
+    zoneNotFoundDesc: 'The zone you are looking for does not exist or is not available.',
+    backToProperty: 'Back to property',
+    noSteps: 'No instructions',
+    noStepsDesc: 'This zone does not have instructions configured yet.',
+    previous: 'Previous',
+    next: 'Next',
+    finish: 'Got it!',
+    rateExperience: 'Was this information helpful?',
+    rateExperienceDesc: 'Your feedback helps us improve the experience for future guests',
+    addComment: 'Add comment (optional)',
+    commentPlaceholder: 'Anything to add or improve?',
+    submitRating: 'Submit rating',
+    skip: 'Skip',
+    contactHost: 'Contact host',
+    callHost: 'Call',
+    messageHost: 'Message',
+    step: 'Step',
+    of: 'of',
+    underConstruction: '🚧 Under construction:',
+    underConstructionDesc: 'The host is still preparing the content for this zone.',
+    completed: 'Completed',
+    hostOf: 'Host of',
+    close: 'Close',
+    call: 'Call',
+    send: 'Send',
+    email: 'Email',
+    externalLink: 'External link',
+    externalLinkDesc: 'Click to open this resource in a new tab',
+    openLink: 'Open link',
+    videoNotSupported: 'Your browser does not support videos.',
+    instructionCompleted: 'Instruction completed!',
+    zoneCompleted: 'Zone completed!',
+    commentOptional: 'Comment or report (optional)',
+    commentPlaceholder2: 'Tell us what you thought or report any problem with the manual...',
+    viewed: 'Viewed'
+  },
+  fr: {
+    loading: 'Chargement des instructions de la zone...',
+    zoneNotFound: 'Zone non trouvée',
+    zoneNotFoundDesc: 'La zone que vous recherchez n\'existe pas ou n\'est pas disponible.',
+    backToProperty: 'Retour à la propriété',
+    noSteps: 'Aucune instruction',
+    noStepsDesc: 'Cette zone n\'a pas encore d\'instructions configurées.',
+    previous: 'Précédent',
+    next: 'Suivant',
+    finish: 'Compris !',
+    rateExperience: 'Cette information a-t-elle été utile ?',
+    rateExperienceDesc: 'Vos commentaires nous aident à améliorer l\'expérience pour les futurs invités',
+    addComment: 'Ajouter un commentaire (optionnel)',
+    commentPlaceholder: 'Quelque chose à ajouter ou améliorer ?',
+    submitRating: 'Soumettre l\'évaluation',
+    skip: 'Ignorer',
+    contactHost: 'Contacter l\'hôte',
+    callHost: 'Appeler',
+    messageHost: 'Message',
+    step: 'Étape',
+    of: 'sur',
+    underConstruction: '🚧 En construction :',
+    underConstructionDesc: 'L\'hôte prépare encore le contenu de cette zone.',
+    completed: 'Terminé',
+    hostOf: 'Hôte de',
+    close: 'Fermer',
+    call: 'Appeler',
+    send: 'Envoyer',
+    email: 'E-mail',
+    externalLink: 'Lien externe',
+    externalLinkDesc: 'Cliquez pour ouvrir cette ressource dans un nouvel onglet',
+    openLink: 'Ouvrir le lien',
+    videoNotSupported: 'Votre navigateur ne prend pas en charge les vidéos.',
+    instructionCompleted: 'Instruction terminée !',
+    zoneCompleted: 'Zone terminée !',
+    commentOptional: 'Commentaire ou signalement (optionnel)',
+    commentPlaceholder2: 'Dites-nous ce que vous en avez pensé ou signalez un problème avec le manuel...',
+    viewed: 'Vu'
+  }
+}
+
+// Get translation function
+const t = (key: string, language: string = 'es') => {
+  return translations[language as keyof typeof translations]?.[key as keyof typeof translations.es] || translations.es[key as keyof typeof translations.es] || key
+}
+
 // Tracking functions according to OPEN_METRICS_ALGORITHM.md
 const trackStepViewed = async (propertyId: string, zoneId: string, stepIndex: number, totalSteps: number) => {
   try {
@@ -307,6 +433,11 @@ export default function ZoneGuidePage({
         const wasAlreadyViewed = localStorage.getItem(`zone-${zoneId}-viewed`)
         if (!wasAlreadyViewed) {
           setShowRatingModal(true)
+        } else {
+          // If already viewed, redirect directly to property guide
+          setTimeout(() => {
+            window.location.href = `/guide/${propertyId}`
+          }, 500)
         }
       }
     }
@@ -372,7 +503,7 @@ export default function ZoneGuidePage({
   }
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando instrucciones de la zona..." type="zones" />
+    return <AnimatedLoadingSpinner text={t('loading', language)} type="zones" />
   }
 
   if (!zone || !property) {
@@ -382,12 +513,12 @@ export default function ZoneGuidePage({
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-red-600 text-2xl">!</span>
           </div>
-          <h1 className="text-xl font-semibold text-gray-900 mb-2">Zona no encontrada</h1>
-          <p className="text-gray-600 mb-4">La zona que buscas no existe o no está disponible.</p>
+          <h1 className="text-xl font-semibold text-gray-900 mb-2">{t('zoneNotFound', language)}</h1>
+          <p className="text-gray-600 mb-4">{t('zoneNotFoundDesc', language)}</p>
           <Link href={`/guide/${propertyId}`}>
             <Button variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Volver a la propiedad
+              {t('backToProperty', language)}
             </Button>
           </Link>
         </div>
@@ -404,7 +535,7 @@ export default function ZoneGuidePage({
             <Link href={`/guide/${propertyId}`}>
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
+                {t('backToProperty', language)}
               </Button>
             </Link>
           </div>
@@ -421,7 +552,7 @@ export default function ZoneGuidePage({
             <p className="text-gray-600 mb-6">{getText(zone.description, language, '')}</p>
             <div className="bg-yellow-50 rounded-lg p-4">
               <p className="text-yellow-800">
-                <strong>🚧 En construcción:</strong> El anfitrión aún está preparando el contenido de esta zona.
+                <strong>{t('underConstruction', language)}</strong> {t('underConstructionDesc', language)}
               </p>
             </div>
           </Card>
@@ -443,7 +574,7 @@ export default function ZoneGuidePage({
               <Link href={`/guide/${zone.propertyId}`}>
                 <Button variant="ghost" size="sm">
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Volver
+                  {t('backToProperty', language)}
                 </Button>
               </Link>
               <div className="flex items-center space-x-3">
@@ -457,7 +588,7 @@ export default function ZoneGuidePage({
                     <h1 className="font-semibold text-gray-900">{getText(zone.name, language, 'Zona')}</h1>
                     {isZoneViewed() && (
                       <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                        Visto
+                        {t('viewed', language)}
                       </span>
                     )}
                   </div>
@@ -714,7 +845,7 @@ export default function ZoneGuidePage({
                               poster="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=400&fit=crop"
                             >
                               <source src={step.mediaUrl} type="video/mp4" />
-                              Tu navegador no soporta videos.
+                              {t('videoNotSupported', language)}
                             </video>
                           </div>
                         </motion.div>
@@ -733,15 +864,15 @@ export default function ZoneGuidePage({
                                 <ArrowRight className="w-6 h-6 text-white" />
                               </div>
                               <div className="flex-1">
-                                <h3 className="font-semibold text-blue-900 mb-1">Enlace externo</h3>
+                                <h3 className="font-semibold text-blue-900 mb-1">{t('externalLink', language)}</h3>
                                 <p className="text-blue-700 text-sm mb-3">
-                                  Haz clic para abrir este recurso en una nueva pestaña
+                                  {t('externalLinkDesc', language)}
                                 </p>
                                 <Button
                                   onClick={() => window.open(step.linkUrl, '_blank')}
                                   className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                                 >
-                                  Abrir enlace
+                                  {t('openLink', language)}
                                   <ArrowRight className="w-4 h-4 ml-2" />
                                 </Button>
                               </div>
@@ -766,7 +897,7 @@ export default function ZoneGuidePage({
                             className="flex-1 border-violet-200 text-violet-700 hover:bg-violet-50"
                           >
                             <ChevronLeft className="w-4 h-4 mr-2" />
-                            Anterior
+                            {t('previous', language)}
                           </Button>
                         )}
                         
@@ -777,7 +908,7 @@ export default function ZoneGuidePage({
                             disabled={completedSteps.has(step.id)}
                             className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
                           >
-                            {completedSteps.has(step.id) ? 'Completado' : '¡Ya lo tengo!'}
+                            {completedSteps.has(step.id) ? t('completed', language) : t('finish', language)}
                             <Check className="w-4 h-4 ml-2" />
                           </Button>
                         ) : (
@@ -785,7 +916,7 @@ export default function ZoneGuidePage({
                             onClick={nextStep}
                             className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg"
                           >
-                            Siguiente
+                            {t('next', language)}
                             <ChevronRight className="w-4 h-4 ml-2" />
                           </Button>
                         )}
@@ -848,7 +979,7 @@ export default function ZoneGuidePage({
                   {property.hostContactName}
                 </h3>
                 <p className="text-gray-600">
-                  Anfitrión de {getText(property.name, language, 'esta propiedad')}
+                  {t('hostOf', language)} {getText(property.name, language, 'esta propiedad')}
                 </p>
               </div>
 
@@ -863,7 +994,7 @@ export default function ZoneGuidePage({
                     onClick={() => window.open(`tel:${property.hostContactPhone}`, '_self')}
                     className="bg-blue-600 hover:bg-blue-700"
                   >
-                    Llamar
+                    {t('call', language)}
                   </Button>
                 </div>
 
@@ -877,7 +1008,7 @@ export default function ZoneGuidePage({
                     onClick={openWhatsApp}
                     className="bg-green-600 hover:bg-green-700"
                   >
-                    Enviar
+                    {t('send', language)}
                   </Button>
                 </div>
 
@@ -891,7 +1022,7 @@ export default function ZoneGuidePage({
                     onClick={() => window.open(`mailto:${property.hostContactEmail}`, '_self')}
                     className="bg-purple-600 hover:bg-purple-700"
                   >
-                    Email
+                    {t('email', language)}
                   </Button>
                 </div>
               </div>
@@ -901,7 +1032,7 @@ export default function ZoneGuidePage({
                 onClick={() => setShowHostModal(false)}
                 className="w-full"
               >
-                Cerrar
+                {t('close', language)}
               </Button>
             </motion.div>
           </motion.div>
@@ -935,17 +1066,12 @@ export default function ZoneGuidePage({
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   {zone.steps.length === 1 
-                    ? (language === 'en' ? 'Instruction completed!' : language === 'fr' ? 'Instruction terminée!' : '¡Instrucción completada!')
-                    : (language === 'en' ? 'Zone completed!' : language === 'fr' ? 'Zone terminée!' : '¡Zona completada!')
+                    ? t('instructionCompleted', language)
+                    : t('zoneCompleted', language)
                   }
                 </h3>
                 <p className="text-gray-600">
-                  {language === 'en' 
-                    ? 'Was this information helpful?' 
-                    : language === 'fr' 
-                    ? 'Cette information vous a-t-elle été utile?' 
-                    : '¿Te ha resultado útil la información?'
-                  }
+                  {t('rateExperience', language)}
                 </p>
               </div>
 
@@ -972,23 +1098,12 @@ export default function ZoneGuidePage({
               {/* Comment */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {language === 'en' 
-                    ? 'Comment or report (optional)' 
-                    : language === 'fr' 
-                    ? 'Commentaire ou signalement (optionnel)' 
-                    : 'Comentario o reporte (opcional)'
-                  }
+                  {t('commentOptional', language)}
                 </label>
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder={
-                    language === 'en' 
-                      ? 'Tell us what you thought or report any problem with the manual...'
-                      : language === 'fr' 
-                      ? 'Dites-nous ce que vous en avez pensé ou signalez un problème avec le manuel...'
-                      : 'Cuéntanos qué te pareció o reporta algún problema con el manual...'
-                  }
+                  placeholder={t('commentPlaceholder2', language)}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                 />
@@ -1002,7 +1117,7 @@ export default function ZoneGuidePage({
                   className="flex-1"
                   disabled={isSubmittingRating}
                 >
-                  {language === 'en' ? 'Skip' : language === 'fr' ? 'Passer' : 'Omitir'}
+                  {t('skip', language)}
                 </Button>
                 <Button
                   onClick={submitRating}
@@ -1018,7 +1133,7 @@ export default function ZoneGuidePage({
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      {language === 'en' ? 'Send' : language === 'fr' ? 'Envoyer' : 'Enviar'}
+                      {t('submitRating', language)}
                     </>
                   )}
                 </Button>

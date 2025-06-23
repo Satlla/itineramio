@@ -94,14 +94,209 @@ const getZoneIcon = (iconName: string, className: string = "w-6 h-6") => {
 }
 
 // Helper function to get text from multilingual objects
-const getText = (value: any, fallback: string = '') => {
+const getText = (value: any, language: string = 'es', fallback: string = '') => {
   if (typeof value === 'string') {
     return value
   }
   if (value && typeof value === 'object') {
-    return value.es || value.en || value.fr || fallback
+    return value[language] || value.es || value.en || value.fr || fallback
   }
   return fallback
+}
+
+// Translations for the public interface
+const translations = {
+  es: {
+    loading: 'Cargando manual de la propiedad...',
+    manualNotFound: 'Manual no encontrado',
+    manualNotFoundDesc: 'No pudimos encontrar el manual de esta propiedad. Es posible que el enlace sea incorrecto.',
+    back: 'Volver',
+    aboutYourAccommodation: 'Sobre tu alojamiento',
+    aboutYourApartment: 'Sobre tu apartamento', 
+    aboutYourHouse: 'Sobre tu casa',
+    aboutYourHotel: 'Sobre tu hotel',
+    aboutYourProperty: 'Sobre tu propiedad',
+    accommodationWelcome: 'Bienvenido a este hermoso alojamiento. Esperamos que disfrutes tu estancia.',
+    guests: 'Huéspedes',
+    rooms: 'Habitaciones',
+    bathrooms: 'Baños',
+    type: 'Tipo',
+    location: 'Ubicación',
+    yourHost: 'Tu anfitrión',
+    superhost: 'Superanfitrión',
+    contactWhatsApp: 'Contactar por WhatsApp',
+    sendEmail: 'Enviar email',
+    call: 'Llamar',
+    emergencies247: 'Emergencias 24/7',
+    share: 'Compartir',
+    progressWarningTitle: '¡Has visto solo el {progress}% del manual!',
+    progressWarningDesc: 'Para tener una estancia sin dudas, te recomendamos revisar todas las secciones. Esto te ayudará a conocer todos los servicios y evitar inconvenientes durante tu viaje.',
+    apartmentManual: 'Manual del apartamento',
+    houseManual: 'Manual de la casa',
+    hotelManual: 'Manual del hotel',
+    propertyManual: 'Manual de la propiedad',
+    sectionsAvailable: 'secciones disponibles',
+    completed: 'completado',
+    suggestions: 'Sugerencias',
+    manualInPreparation: 'Manual en preparación',
+    manualInPreparationDesc: 'El anfitrión está preparando el manual de esta propiedad.',
+    viewed: 'Visto',
+    available: 'Disponible',
+    inPreparation: 'En preparación',
+    instructions: 'instrucciones',
+    zone: 'Zona',
+    zoneCopied: 'URL de la zona copiada',
+    digitalManualFooter: 'Manual digital creado con ❤️ para tu comodidad',
+    suggestionsFooter: '¿Tienes alguna sugerencia? Contacta con tu anfitrión',
+    suggestionBoxTitle: 'Buzón de Sugerencias',
+    suggestionBoxDesc: 'Ayuda a {hostName} a mejorar este manual',
+    yourSuggestion: 'Tu sugerencia',
+    suggestionPlaceholder: '¿Qué información adicional te gustaría ver? ¿Hay algo que no está claro? Comparte tus ideas...',
+    cancel: 'Cancelar',
+    send: 'Enviar'
+  },
+  en: {
+    loading: 'Loading property manual...',
+    manualNotFound: 'Manual not found',
+    manualNotFoundDesc: 'We could not find the manual for this property. The link may be incorrect.',
+    back: 'Back',
+    aboutYourAccommodation: 'About your accommodation',
+    aboutYourApartment: 'About your apartment',
+    aboutYourHouse: 'About your house', 
+    aboutYourHotel: 'About your hotel',
+    aboutYourProperty: 'About your property',
+    accommodationWelcome: 'Welcome to this beautiful accommodation. We hope you enjoy your stay.',
+    guests: 'Guests',
+    rooms: 'Rooms',
+    bathrooms: 'Bathrooms',
+    type: 'Type',
+    location: 'Location',
+    yourHost: 'Your host',
+    superhost: 'Superhost',
+    contactWhatsApp: 'Contact via WhatsApp',
+    sendEmail: 'Send email',
+    call: 'Call',
+    emergencies247: '24/7 Emergencies',
+    share: 'Share',
+    progressWarningTitle: 'You have only seen {progress}% of the manual!',
+    progressWarningDesc: 'For a worry-free stay, we recommend reviewing all sections. This will help you know all the services and avoid inconveniences during your trip.',
+    apartmentManual: 'Apartment manual',
+    houseManual: 'House manual',
+    hotelManual: 'Hotel manual',
+    propertyManual: 'Property manual',
+    sectionsAvailable: 'sections available',
+    completed: 'completed',
+    suggestions: 'Suggestions',
+    manualInPreparation: 'Manual in preparation',
+    manualInPreparationDesc: 'The host is preparing the manual for this property.',
+    viewed: 'Viewed',
+    available: 'Available',
+    inPreparation: 'In preparation',
+    instructions: 'instructions',
+    zone: 'Zone',
+    zoneCopied: 'Zone URL copied',
+    digitalManualFooter: 'Digital manual created with ❤️ for your comfort',
+    suggestionsFooter: 'Have any suggestions? Contact your host',
+    suggestionBoxTitle: 'Suggestion Box',
+    suggestionBoxDesc: 'Help {hostName} improve this manual',
+    yourSuggestion: 'Your suggestion',
+    suggestionPlaceholder: 'What additional information would you like to see? Is there anything that is not clear? Share your ideas...',
+    cancel: 'Cancel',
+    send: 'Send'
+  },
+  fr: {
+    loading: 'Chargement du manuel de la propriété...',
+    manualNotFound: 'Manuel non trouvé',
+    manualNotFoundDesc: 'Nous n\'avons pas pu trouver le manuel de cette propriété. Le lien peut être incorrect.',
+    back: 'Retour',
+    aboutYourAccommodation: 'À propos de votre hébergement',
+    aboutYourApartment: 'À propos de votre appartement',
+    aboutYourHouse: 'À propos de votre maison',
+    aboutYourHotel: 'À propos de votre hôtel',
+    aboutYourProperty: 'À propos de votre propriété',
+    accommodationWelcome: 'Bienvenue dans ce bel hébergement. Nous espérons que vous apprécierez votre séjour.',
+    guests: 'Invités',
+    rooms: 'Chambres',
+    bathrooms: 'Salles de bain',
+    type: 'Type',
+    location: 'Localisation',
+    yourHost: 'Votre hôte',
+    superhost: 'Super-hôte',
+    contactWhatsApp: 'Contacter via WhatsApp',
+    sendEmail: 'Envoyer un email',
+    call: 'Appeler',
+    emergencies247: 'Urgences 24h/24',
+    share: 'Partager',
+    progressWarningTitle: 'Vous n\'avez vu que {progress}% du manuel !',
+    progressWarningDesc: 'Pour un séjour sans souci, nous recommandons de consulter toutes les sections. Cela vous aidera à connaître tous les services et à éviter les désagréments pendant votre voyage.',
+    apartmentManual: 'Manuel de l\'appartement',
+    houseManual: 'Manuel de la maison',
+    hotelManual: 'Manuel de l\'hôtel',
+    propertyManual: 'Manuel de la propriété',
+    sectionsAvailable: 'sections disponibles',
+    completed: 'terminé',
+    suggestions: 'Suggestions',
+    manualInPreparation: 'Manuel en préparation',
+    manualInPreparationDesc: 'L\'hôte prépare le manuel de cette propriété.',
+    viewed: 'Vu',
+    available: 'Disponible',
+    inPreparation: 'En préparation',
+    instructions: 'instructions',
+    zone: 'Zone',
+    zoneCopied: 'URL de la zone copiée',
+    digitalManualFooter: 'Manuel numérique créé avec ❤️ pour votre confort',
+    suggestionsFooter: 'Avez-vous des suggestions ? Contactez votre hôte',
+    suggestionBoxTitle: 'Boîte à suggestions',
+    suggestionBoxDesc: 'Aidez {hostName} à améliorer ce manuel',
+    yourSuggestion: 'Votre suggestion',
+    suggestionPlaceholder: 'Quelles informations supplémentaires aimeriez-vous voir ? Y a-t-il quelque chose qui n\'est pas clair ? Partagez vos idées...',
+    cancel: 'Annuler',
+    send: 'Envoyer'
+  }
+}
+
+// Get translation function
+const t = (key: string, language: string = 'es', replacements: Record<string, string> = {}) => {
+  let text = translations[language as keyof typeof translations]?.[key as keyof typeof translations.es] || translations.es[key as keyof typeof translations.es] || key
+  
+  // Replace placeholders
+  Object.keys(replacements).forEach(placeholder => {
+    text = text.replace(`{${placeholder}}`, replacements[placeholder])
+  })
+  
+  return text
+}
+
+// Get accommodation type-specific text
+const getAccommodationText = (property: Property | null, language: string = 'es') => {
+  if (!property) return t('aboutYourProperty', language)
+  
+  const type = property.type?.toLowerCase()
+  if (type?.includes('apartamento') || type?.includes('apartment')) {
+    return t('aboutYourApartment', language)
+  } else if (type?.includes('casa') || type?.includes('house') || type?.includes('villa')) {
+    return t('aboutYourHouse', language)
+  } else if (type?.includes('hotel') || type?.includes('hostel')) {
+    return t('aboutYourHotel', language)
+  } else {
+    return t('aboutYourAccommodation', language)
+  }
+}
+
+// Get manual title based on property type
+const getManualTitle = (property: Property | null, language: string = 'es') => {
+  if (!property) return t('propertyManual', language)
+  
+  const type = property.type?.toLowerCase()
+  if (type?.includes('apartamento') || type?.includes('apartment')) {
+    return t('apartmentManual', language)
+  } else if (type?.includes('casa') || type?.includes('house') || type?.includes('villa')) {
+    return t('houseManual', language)
+  } else if (type?.includes('hotel') || type?.includes('hostel')) {
+    return t('hotelManual', language)
+  } else {
+    return t('propertyManual', language)
+  }
 }
 
 // Helper function to check if zone is viewed
@@ -126,6 +321,7 @@ export default function PropertyGuidePage() {
   const [suggestion, setSuggestion] = useState('')
   const [isSubmittingSuggestion, setIsSubmittingSuggestion] = useState(false)
   const [showProgressWarning, setShowProgressWarning] = useState(false)
+  const [language, setLanguage] = useState('es')
 
   useEffect(() => {
     fetchPropertyData()
@@ -203,7 +399,7 @@ export default function PropertyGuidePage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Manual de ${getText(property?.name, 'Propiedad')}`,
+          title: `Manual de ${getText(property?.name, language, 'Propiedad')}`,
           text: 'Manual digital del apartamento',
           url: url
         })
@@ -218,7 +414,7 @@ export default function PropertyGuidePage() {
   }
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando manual de la propiedad..." type="properties" />
+    return <AnimatedLoadingSpinner text={t('loading', language)} type="properties" />
   }
 
   if (!property) {
@@ -228,12 +424,12 @@ export default function PropertyGuidePage() {
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-red-600 text-2xl">!</span>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Manual no encontrado</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('manualNotFound', language)}</h2>
           <p className="text-gray-600 mb-6">
-            No pudimos encontrar el manual de esta propiedad. Es posible que el enlace sea incorrecto.
+            {t('manualNotFoundDesc', language)}
           </p>
           <Button onClick={() => router.back()} variant="outline">
-            Volver
+            {t('back', language)}
           </Button>
         </div>
       </div>
@@ -275,7 +471,7 @@ export default function PropertyGuidePage() {
               className="bg-white bg-opacity-90 text-gray-900 hover:bg-white"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Volver
+{t('back', language)}
             </Button>
             <Button 
               onClick={handleShare}
@@ -284,7 +480,7 @@ export default function PropertyGuidePage() {
               className="bg-white bg-opacity-90 text-gray-900 hover:bg-white"
             >
               <Share2 className="w-4 h-4 mr-2" />
-              Compartir
+{t('share', language)}
             </Button>
           </div>
         </div>
@@ -293,24 +489,24 @@ export default function PropertyGuidePage() {
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              {getText(property.name, 'Propiedad')}
+{getText(property.name, language, 'Propiedad')}
             </h1>
             <div className="flex items-center text-white text-opacity-90 mb-4">
               <MapPin className="w-5 h-5 mr-2" />
-              <span>{getText(property.city, '')}, {getText(property.state, '')}</span>
+<span>{getText(property.city, language, '')}, {getText(property.state, language, '')}</span>
             </div>
             <div className="flex items-center space-x-6 text-white text-opacity-90">
               <div className="flex items-center">
                 <Users className="w-4 h-4 mr-1" />
-                <span>{property.maxGuests} huéspedes</span>
+<span>{property.maxGuests} {t('guests', language)}</span>
               </div>
               <div className="flex items-center">
                 <Bed className="w-4 h-4 mr-1" />
-                <span>{property.bedrooms} habitaciones</span>
+<span>{property.bedrooms} {t('rooms', language)}</span>
               </div>
               <div className="flex items-center">
                 <Bath className="w-4 h-4 mr-1" />
-                <span>{property.bathrooms} baños</span>
+<span>{property.bathrooms} {t('bathrooms', language)}</span>
               </div>
             </div>
           </div>
@@ -325,10 +521,10 @@ export default function PropertyGuidePage() {
           <div className="lg:col-span-2">
             <Card className="p-6 mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Sobre tu alojamiento
+                {getAccommodationText(property, language)}
               </h2>
               <p className="text-gray-600 leading-relaxed mb-6">
-                {getText(property.description, 'Bienvenido a este hermoso alojamiento. Esperamos que disfrutes tu estancia.')}
+                {getText(property.description, language, t('accommodationWelcome', language))}
               </p>
               
               {/* Property Features */}
@@ -336,22 +532,22 @@ export default function PropertyGuidePage() {
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <Users className="w-6 h-6 mx-auto mb-2 text-violet-600" />
                   <div className="text-sm font-medium text-gray-900">{property.maxGuests}</div>
-                  <div className="text-xs text-gray-600">Huéspedes</div>
+                  <div className="text-xs text-gray-600">{t('guests', language)}</div>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <Bed className="w-6 h-6 mx-auto mb-2 text-violet-600" />
                   <div className="text-sm font-medium text-gray-900">{property.bedrooms}</div>
-                  <div className="text-xs text-gray-600">Habitaciones</div>
+                  <div className="text-xs text-gray-600">{t('rooms', language)}</div>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <Bath className="w-6 h-6 mx-auto mb-2 text-violet-600" />
                   <div className="text-sm font-medium text-gray-900">{property.bathrooms}</div>
-                  <div className="text-xs text-gray-600">Baños</div>
+                  <div className="text-xs text-gray-600">{t('bathrooms', language)}</div>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <Home className="w-6 h-6 mx-auto mb-2 text-violet-600" />
                   <div className="text-sm font-medium text-gray-900">{property.type}</div>
-                  <div className="text-xs text-gray-600">Tipo</div>
+                  <div className="text-xs text-gray-600">{t('type', language)}</div>
                 </div>
               </div>
             </Card>
@@ -359,13 +555,13 @@ export default function PropertyGuidePage() {
             {/* Address */}
             <Card className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Ubicación
+                {t('location', language)}
               </h3>
               <div className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                 <div>
                   <div className="font-medium text-gray-900">{property.street}</div>
-                  <div className="text-gray-600">{getText(property.city, '')}, {getText(property.state, '')}</div>
+                  <div className="text-gray-600">{getText(property.city, language, '')}, {getText(property.state, language, '')}</div>
                 </div>
               </div>
             </Card>
