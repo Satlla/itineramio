@@ -340,7 +340,10 @@ export default function ZoneGuidePage({
       // Mark zone as viewed in localStorage
       localStorage.setItem(`zone-${zoneId}-viewed`, 'true')
       setShowRatingModal(false)
-      // Optionally redirect back to property page or show success message
+      // Redirect back to zones view
+      setTimeout(() => {
+        window.location.href = `/guide/${propertyId}`
+      }, 500)
     } catch (error) {
       console.error('Error submitting rating:', error)
     } finally {
@@ -352,6 +355,10 @@ export default function ZoneGuidePage({
     // Mark zone as viewed even if rating is skipped
     localStorage.setItem(`zone-${zoneId}-viewed`, 'true')
     setShowRatingModal(false)
+    // Redirect back to zones view
+    setTimeout(() => {
+      window.location.href = `/guide/${propertyId}`
+    }, 500)
   }
 
   const goToStep = (index: number) => {
@@ -564,11 +571,11 @@ export default function ZoneGuidePage({
                 {index < sortedSteps.length - 1 && (
                   <div className="relative mt-3">
                     {/* Background line */}
-                    <div className="w-1 h-24 bg-gray-200 rounded-full" />
+                    <div className="w-1 h-32 bg-gray-200" />
                     
                     {/* Animated progress line */}
                     <motion.div
-                      className={`absolute top-0 w-1 rounded-full ${
+                      className={`absolute top-0 w-1 ${
                         animatingLines.has(index)
                           ? 'bg-gradient-to-b from-violet-500 to-purple-600'
                           : index < activeStepIndex
@@ -586,15 +593,16 @@ export default function ZoneGuidePage({
                       style={{
                         background: animatingLines.has(index) 
                           ? 'linear-gradient(to bottom, #8b5cf6, #a855f7, #10b981)'
-                          : undefined
+                          : undefined,
+                        borderLeft: animatingLines.has(index) ? '2px dashed rgba(255,255,255,0.5)' : undefined
                       }}
                     />
                     
                     {/* Flowing particles effect */}
                     {animatingLines.has(index) && (
                       <motion.div
-                        className="absolute top-0 left-1/2 w-2 h-2 bg-white rounded-full transform -translate-x-1/2"
-                        animate={{ y: [0, 96] }}
+                        className="absolute top-0 left-1/2 w-2 h-2 bg-white rounded-full transform -translate-x-1/2 shadow-lg"
+                        animate={{ y: [0, 128] }}
                         transition={{ duration: 0.8, ease: "easeInOut" }}
                       />
                     )}

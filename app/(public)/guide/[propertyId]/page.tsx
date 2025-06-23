@@ -21,7 +21,16 @@ import {
   Home,
   Shield,
   Wifi,
-  Car
+  Car,
+  Utensils,
+  Tv,
+  Coffee,
+  Zap,
+  Eye,
+  BarChart3,
+  Lightbulb,
+  Send,
+  X
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -60,6 +69,30 @@ interface Zone {
   status: string
 }
 
+// Zone icon mapping
+const getZoneIcon = (iconName: string, className: string = "w-6 h-6") => {
+  const iconMap: { [key: string]: JSX.Element } = {
+    'wifi': <Wifi className={className} />,
+    'zap': <Zap className={className} />,
+    'car': <Car className={className} />,
+    'parking': <Car className={className} />,
+    'kitchen': <Utensils className={className} />,
+    'cocina': <Utensils className={className} />,
+    'bed': <Bed className={className} />,
+    'dormitorio': <Bed className={className} />,
+    'bath': <Bath className={className} />,
+    'baño': <Bath className={className} />,
+    'security': <Shield className={className} />,
+    'seguridad': <Shield className={className} />,
+    'tv': <Tv className={className} />,
+    'coffee': <Coffee className={className} />,
+    'location': <MapPin className={className} />,
+    'ubicacion': <MapPin className={className} />
+  }
+  
+  return iconMap[iconName.toLowerCase()] || <MapPin className={className} />
+}
+
 // Helper function to get text from multilingual objects
 const getText = (value: any, fallback: string = '') => {
   if (typeof value === 'string') {
@@ -71,6 +104,17 @@ const getText = (value: any, fallback: string = '') => {
   return fallback
 }
 
+// Helper function to check if zone is viewed
+const isZoneViewed = (zoneId: string) => {
+  return localStorage.getItem(`zone-${zoneId}-viewed`) === 'true'
+}
+
+// Helper function to calculate progress
+const calculateProgress = (zones: Zone[]) => {
+  const viewedZones = zones.filter(zone => isZoneViewed(zone.id)).length
+  return zones.length > 0 ? Math.round((viewedZones / zones.length) * 100) : 0
+}
+
 export default function PropertyGuidePage() {
   const router = useRouter()
   const params = useParams()
@@ -78,10 +122,24 @@ export default function PropertyGuidePage() {
   
   const [property, setProperty] = useState<Property | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showSuggestionBox, setShowSuggestionBox] = useState(false)
+  const [suggestion, setSuggestion] = useState('')
+  const [isSubmittingSuggestion, setIsSubmittingSuggestion] = useState(false)
+  const [showProgressWarning, setShowProgressWarning] = useState(false)
 
   useEffect(() => {
     fetchPropertyData()
   }, [propertyId])
+
+  // Check progress and show warning if needed
+  useEffect(() => {
+    if (property && property.zones) {
+      const progress = calculateProgress(property.zones)
+      if (progress > 0 && progress < 100) {
+        setShowProgressWarning(true)
+      }
+    }
+  }, [property])
 
   const fetchPropertyData = async () => {
     try {
@@ -108,6 +166,31 @@ export default function PropertyGuidePage() {
       setProperty(null)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const submitSuggestion = async () => {
+    if (!suggestion.trim()) return
+
+    setIsSubmittingSuggestion(true)
+    try {
+      await fetch('/api/tracking/suggestion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          propertyId,
+          suggestion: suggestion.trim(),
+          timestamp: new Date()
+        })
+      })
+      
+      setSuggestion('')
+      setShowSuggestionBox(false)
+      // Show success message or toast
+    } catch (error) {
+      console.error('Error submitting suggestion:', error)
+    } finally {
+      setIsSubmittingSuggestion(false)
     }
   }
 
@@ -371,15 +454,73 @@ export default function PropertyGuidePage() {
         </div>
 
 
+        {/* Progress Warning */}
+        {showProgressWarning && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <Card className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
+              <div className="flex items-start space-x-3">
+                <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <BarChart3 className="w-5 h-5 text-amber-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-amber-900 mb-1">
+                    ¡Has visto solo el {calculateProgress(property.zones)}% del manual!
+                  </h3>
+                  <p className="text-sm text-amber-800 mb-3">
+                    Para tener una estancia sin dudas, te recomendamos revisar todas las secciones. 
+                    Esto te ayudará a conocer todos los servicios y evitar inconvenientes durante tu viaje.
+                  </p>
+                  <div className="w-full bg-amber-200 rounded-full h-2">
+                    <motion.div
+                      className="bg-amber-600 h-2 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${calculateProgress(property.zones)}%` }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                    />
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowProgressWarning(false)}
+                  className="text-amber-600 hover:text-amber-700"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+
         {/* Manual Sections */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Manual del apartamento
-            </h2>
-            <div className="text-sm text-gray-600">
-              {property.zones.filter(z => z.status === 'ACTIVE').length} secciones disponibles
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Manual del apartamento
+              </h2>
+              <div className="flex items-center mt-2 space-x-4">
+                <div className="text-sm text-gray-600">
+                  {property.zones.filter(z => z.status === 'ACTIVE').length} secciones disponibles
+                </div>
+                <div className="text-sm text-violet-600 font-medium">
+                  {calculateProgress(property.zones)}% completado
+                </div>
+              </div>
             </div>
+            <Button
+              onClick={() => setShowSuggestionBox(true)}
+              variant="outline"
+              size="sm"
+              className="border-violet-200 text-violet-700 hover:bg-violet-50"
+            >
+              <Lightbulb className="w-4 h-4 mr-2" />
+              Sugerencias
+            </Button>
           </div>
           
           {property.zones.length === 0 ? (
@@ -411,16 +552,23 @@ export default function PropertyGuidePage() {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4 flex-1">
-                          <div className="w-12 h-12 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <ZoneIconDisplay iconId={zone.icon} size="sm" />
+                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 text-white ${
+                            zone.color || 'bg-gradient-to-br from-violet-500 to-purple-600'
+                          }`}>
+                            {getZoneIcon(zone.icon, "w-6 h-6")}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center space-x-3 mb-1">
                               <h3 className="text-lg font-semibold text-gray-900">
                                 {getText(zone.name, 'Zona')}
                               </h3>
-                              {zone.status === 'ACTIVE' ? (
+                              {isZoneViewed(zone.id) ? (
                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  <Eye className="w-3 h-3 mr-1" />
+                                  Visto
+                                </span>
+                              ) : zone.status === 'ACTIVE' ? (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                   <CheckCircle className="w-3 h-3 mr-1" />
                                   Disponible
                                 </span>
@@ -474,6 +622,103 @@ export default function PropertyGuidePage() {
           </p>
         </div>
       </div>
+
+      {/* Floating WhatsApp Button */}
+      <motion.button
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 1, type: "spring", stiffness: 200 }}
+        onClick={() => {
+          const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${getText(property.name, 'la propiedad')} y necesito ayuda.`)
+          const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
+          window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
+        }}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-50 group"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <MessageCircle className="w-6 h-6" />
+        <div className="absolute right-16 top-1/2 transform -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+          Contactar por WhatsApp
+        </div>
+      </motion.button>
+
+      {/* Suggestion Modal */}
+      {showSuggestionBox && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowSuggestionBox(false)
+            }
+          }}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lightbulb className="w-8 h-8 text-violet-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Buzón de Sugerencias
+              </h3>
+              <p className="text-gray-600">
+                Ayuda a {property.hostContactName} a mejorar este manual
+              </p>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tu sugerencia
+              </label>
+              <textarea
+                value={suggestion}
+                onChange={(e) => setSuggestion(e.target.value)}
+                placeholder="¿Qué información adicional te gustaría ver? ¿Hay algo que no está claro? Comparte tus ideas..."
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowSuggestionBox(false)}
+                className="flex-1"
+                disabled={isSubmittingSuggestion}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={submitSuggestion}
+                disabled={!suggestion.trim() || isSubmittingSuggestion}
+                className="flex-1 bg-violet-600 hover:bg-violet-700"
+              >
+                {isSubmittingSuggestion ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                  />
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Enviar
+                  </>
+                )}
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   )
 }
