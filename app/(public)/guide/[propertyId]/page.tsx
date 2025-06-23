@@ -241,7 +241,7 @@ const translations = {
     type: 'Tipo',
     location: 'Ubicación',
     yourHost: 'Tu anfitrión',
-    superhost: 'Superanfitrión',
+    superhost: 'Anfitrión Verificado',
     contactWhatsApp: 'Contactar por WhatsApp',
     sendEmail: 'Enviar email',
     call: 'Llamar',
@@ -291,7 +291,7 @@ const translations = {
     type: 'Type',
     location: 'Location',
     yourHost: 'Your host',
-    superhost: 'Superhost',
+    superhost: 'Verified Host',
     contactWhatsApp: 'Contact via WhatsApp',
     sendEmail: 'Send email',
     call: 'Call',
@@ -341,7 +341,7 @@ const translations = {
     type: 'Type',
     location: 'Localisation',
     yourHost: 'Votre hôte',
-    superhost: 'Super-hôte',
+    superhost: 'Hôte Vérifié',
     contactWhatsApp: 'Contacter via WhatsApp',
     sendEmail: 'Envoyer un email',
     call: 'Appeler',
@@ -607,15 +607,16 @@ export default function PropertyGuidePage() {
               {getText(property.name, language, 'Propiedad')}
             </h1>
             <div className="flex items-center space-x-4 text-sm">
-              <div className="flex items-center space-x-1">
-                <Star className="w-4 h-4 text-black fill-current" />
-                <span className="font-medium">4.9</span>
-                <span className="text-gray-600">·</span>
-                <button className="text-gray-600 hover:text-black underline">
-                  12 reviews
-                </button>
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1 bg-violet-50 px-3 py-1 rounded-full">
+                  <Star className="w-4 h-4 text-violet-600 fill-current" />
+                  <span className="font-medium text-violet-700">4.9</span>
+                  <span className="text-violet-500">·</span>
+                  <button className="text-violet-600 hover:text-violet-800 font-medium">
+                    12 valoraciones
+                  </button>
+                </div>
               </div>
-              <span className="text-gray-600">·</span>
               <div className="flex items-center text-gray-600">
                 <MapPin className="w-4 h-4 mr-1" />
                 <span>{getText(property.city, language, '')}, {getText(property.state, language, '')}</span>
@@ -667,7 +668,7 @@ export default function PropertyGuidePage() {
                       window.open(`https://maps.google.com/maps?q=${address}`, '_blank')
                     }}
                     variant="outline"
-                    className="border-black text-black hover:bg-black hover:text-white"
+                    className="border-violet-200 text-violet-700 hover:bg-violet-50"
                   >
                     <MapPin className="w-4 h-4 mr-2" />
                     {t('takeMeThere', language)}
@@ -676,13 +677,13 @@ export default function PropertyGuidePage() {
               </div>
             </div>
 
-            {/* Host Card - Airbnb Style */}
+            {/* Host Contact Card */}
             <div className="lg:col-span-1">
               <div className="sticky top-24">
-                <Card className="p-6 border border-gray-200 rounded-xl shadow-sm">
+                <Card className="p-6 border border-violet-100 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50">
                   {/* Host Info */}
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="w-12 h-12 rounded-full overflow-hidden">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 rounded-full overflow-hidden mx-auto mb-3 ring-2 ring-violet-200">
                       {property.hostContactPhoto ? (
                         <img 
                           src={property.hostContactPhoto} 
@@ -690,32 +691,30 @@ export default function PropertyGuidePage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                          <span className="text-gray-600 font-semibold text-lg">
+                        <div className="w-full h-full bg-violet-100 flex items-center justify-center">
+                          <span className="text-violet-600 font-semibold text-xl">
                             {property.hostContactName.charAt(0)}
                           </span>
                         </div>
                       )}
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900">
-                        {t('yourHost', language)} {property.hostContactName}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {t('superhost', language)}
-                      </p>
-                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-1">
+                      {property.hostContactName}
+                    </h3>
+                    <p className="text-sm text-violet-600 font-medium">
+                      {t('yourHost', language)}
+                    </p>
                   </div>
 
                   {/* Host Stats */}
                   <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-                    <div>
-                      <div className="font-semibold text-gray-900">100%</div>
-                      <div className="text-gray-600">Response rate</div>
+                    <div className="text-center p-3 bg-white/50 rounded-lg">
+                      <div className="font-semibold text-violet-700">100%</div>
+                      <div className="text-gray-600">Tasa respuesta</div>
                     </div>
-                    <div>
-                      <div className="font-semibold text-gray-900">&lt; 1 hour</div>
-                      <div className="text-gray-600">Response time</div>
+                    <div className="text-center p-3 bg-white/50 rounded-lg">
+                      <div className="font-semibold text-violet-700">&lt; 1 hora</div>
+                      <div className="text-gray-600">Tiempo respuesta</div>
                     </div>
                   </div>
                   
@@ -726,7 +725,7 @@ export default function PropertyGuidePage() {
                       const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
                       window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
                     }}
-                    className="w-full bg-black hover:bg-gray-800 text-white mb-4"
+                    className="w-full bg-violet-600 hover:bg-violet-700 text-white mb-4"
                   >
                     <MessageCircle className="w-4 h-4 mr-2" />
                     {t('contactWhatsApp', language)}
@@ -797,11 +796,11 @@ export default function PropertyGuidePage() {
           </motion.div>
         )}
 
-        {/* What this place offers - Airbnb Style */}
+        {/* Manual Sections */}
         <div className="border-b border-gray-200 pb-8 mb-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-gray-900">
-              What this place offers
+              {getManualTitle(property, language)}
             </h3>
             <Button
               onClick={() => setShowSuggestionBox(true)}
@@ -810,7 +809,7 @@ export default function PropertyGuidePage() {
               className="text-gray-600 hover:text-black"
             >
               <Lightbulb className="w-4 h-4 mr-2" />
-              Suggest
+              {t('suggestions', language)}
             </Button>
           </div>
           
@@ -842,12 +841,12 @@ export default function PropertyGuidePage() {
                         className="flex-shrink-0 w-72"
                       >
                         <div 
-                          className="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
+                          className="bg-gradient-to-br from-white to-violet-50 border border-violet-100 rounded-xl p-4 cursor-pointer hover:shadow-lg hover:border-violet-200 transition-all duration-200"
                           onClick={() => handleZoneClick(zone.id)}
                         >
                           <div className="flex items-start space-x-3">
-                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                              {zone.icon ? getZoneIcon(zone.icon, "w-4 h-4 text-gray-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-4 h-4 text-gray-600")}
+                            <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+                              {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5 text-violet-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-5 h-5 text-violet-600")}
                             </div>
                             <div className="flex-1 min-w-0">
                               <h4 className="font-medium text-gray-900 truncate">
@@ -857,8 +856,8 @@ export default function PropertyGuidePage() {
                                 {getText(zone.description, language, '')}
                               </p>
                               {isZoneViewed(zone.id) && (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 mt-2">
-                                  <Eye className="w-3 h-3 mr-1" />
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 mt-2">
+                                  <CheckCircle className="w-3 h-3 mr-1" />
                                   {t('viewed', language)}
                                 </span>
                               )}
@@ -882,11 +881,11 @@ export default function PropertyGuidePage() {
                       transition={{ duration: 0.3, delay: index * 0.1 }}
                     >
                       <div 
-                        className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+                        className="flex items-start space-x-4 p-5 bg-gradient-to-r from-white to-violet-50 border border-violet-100 rounded-xl cursor-pointer hover:shadow-lg hover:border-violet-200 transition-all duration-200"
                         onClick={() => handleZoneClick(zone.id)}
                       >
-                        <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                          {zone.icon ? getZoneIcon(zone.icon, "w-4 h-4 text-gray-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-4 h-4 text-gray-600")}
+                        <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+                          {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5 text-violet-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-5 h-5 text-violet-600")}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-1">
@@ -894,8 +893,8 @@ export default function PropertyGuidePage() {
                               {getText(zone.name, language, t('zone', language))}
                             </h4>
                             {isZoneViewed(zone.id) && (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                <Eye className="w-3 h-3 mr-1" />
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                <CheckCircle className="w-3 h-3 mr-1" />
                                 {t('viewed', language)}
                               </span>
                             )}
@@ -912,13 +911,16 @@ export default function PropertyGuidePage() {
           )}
         </div>
 
-        {/* Reviews Section - Airbnb Style */}
+        {/* Guest Reviews Section */}
         <div className="border-b border-gray-200 pb-8 mb-8">
           <div className="flex items-center space-x-2 mb-6">
-            <Star className="w-5 h-5 text-black fill-current" />
+            <Star className="w-5 h-5 text-violet-600 fill-current" />
             <h3 className="text-xl font-semibold text-gray-900">
-              4.9 · 12 reviews
+              Comentarios de huéspedes
             </h3>
+            <span className="px-3 py-1 bg-violet-100 text-violet-700 text-sm font-medium rounded-full">
+              4.9 · 12 valoraciones
+            </span>
           </div>
           
           <div className="grid md:grid-cols-2 gap-6">
@@ -931,7 +933,7 @@ export default function PropertyGuidePage() {
                     <span className="text-gray-500 text-sm">· December 2024</span>
                   </div>
                   <p className="text-gray-700 text-sm">
-                    "Excellent location and very helpful guide. Everything was perfectly explained!"
+                    "El manual digital fue súper útil, todo muy bien explicado paso a paso. ¡Genial!"
                   </p>
                 </div>
               </div>
@@ -944,7 +946,7 @@ export default function PropertyGuidePage() {
                     <span className="text-gray-500 text-sm">· November 2024</span>
                   </div>
                   <p className="text-gray-700 text-sm">
-                    "The digital manual made our stay so much easier. Highly recommend!"
+                    "Amazing property guide! Made our check-in seamless and answered all our questions."
                   </p>
                 </div>
               </div>
@@ -959,7 +961,7 @@ export default function PropertyGuidePage() {
                     <span className="text-gray-500 text-sm">· November 2024</span>
                   </div>
                   <p className="text-gray-700 text-sm">
-                    "Clear instructions and quick response from the host. Perfect stay!"
+                    "Love this digital approach! So much better than traditional check-in processes."
                   </p>
                 </div>
               </div>
@@ -972,7 +974,7 @@ export default function PropertyGuidePage() {
                     <span className="text-gray-500 text-sm">· October 2024</span>
                   </div>
                   <p className="text-gray-700 text-sm">
-                    "Tout était parfait ! Le guide numérique est une excellente idée."
+                    "Guide numérique très pratique ! J'ai pu tout comprendre facilement."
                   </p>
                 </div>
               </div>
@@ -981,9 +983,9 @@ export default function PropertyGuidePage() {
           
           <Button 
             variant="outline" 
-            className="mt-6 border-black text-black hover:bg-black hover:text-white"
+            className="mt-6 border-violet-200 text-violet-700 hover:bg-violet-50"
           >
-            Show all 12 reviews
+            Ver todas las valoraciones
           </Button>
         </div>
 
