@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { 
   ArrowLeft,
@@ -447,20 +447,32 @@ export default function PropertyGuidePage() {
   const [isSubmittingSuggestion, setIsSubmittingSuggestion] = useState(false)
   const [showProgressWarning, setShowProgressWarning] = useState(false)
   const [language, setLanguage] = useState('es')
+  const [carouselScrollPosition, setCarouselScrollPosition] = useState(0)
+  const carouselRef = useRef<HTMLDivElement>(null)
+  const [showRatingsModal, setShowRatingsModal] = useState(false)
+  const [ratings, setRatings] = useState<any[]>([])
+  const [showCompletionReward, setShowCompletionReward] = useState(false)
+  const [showPublicRatingModal, setShowPublicRatingModal] = useState(false)
 
   useEffect(() => {
     fetchPropertyData()
   }, [propertyId])
 
-  // Check progress and show warning if needed
+  // Check progress and show warning or completion reward
   useEffect(() => {
     if (property && property.zones) {
       const progress = calculateProgress(property.zones)
-      if (progress > 0 && progress < 100) {
+      if (progress === 100) {
+        // Check if user has already rated this property publicly
+        const hasPublicRating = localStorage.getItem(`property-${propertyId}-public-rating`)
+        if (!hasPublicRating) {
+          setShowCompletionReward(true)
+        }
+      } else if (progress > 0 && progress < 100) {
         setShowProgressWarning(true)
       }
     }
-  }, [property])
+  }, [property, propertyId])
 
   const fetchPropertyData = async () => {
     try {
@@ -517,6 +529,21 @@ export default function PropertyGuidePage() {
 
   const handleZoneClick = (zoneId: string) => {
     router.push(`/guide/${propertyId}/${zoneId}`)
+  }
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const scrollAmount = 280 // Width of card + gap
+      const newPosition = direction === 'left' 
+        ? Math.max(0, carouselScrollPosition - scrollAmount)
+        : carouselScrollPosition + scrollAmount
+      
+      carouselRef.current.scrollTo({
+        left: newPosition,
+        behavior: 'smooth'
+      })
+      setCarouselScrollPosition(newPosition)
+    }
   }
 
   const handleShare = async () => {
@@ -616,10 +643,17 @@ export default function PropertyGuidePage() {
                   <Star className="w-4 h-4 text-violet-600 fill-current" />
                   <span className="font-medium text-violet-700">4.9</span>
                   <span className="text-violet-500">·</span>
-                  <button className="text-violet-600 hover:text-violet-800 font-medium">
-                    12 valoraciones
+                  <button 
+                    onClick={() => setShowRatingsModal(true)}
+                    className="text-violet-600 hover:text-violet-800 font-medium"
+                  >
+                    12 valoraciones públicas
                   </button>
                 </div>
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  <CheckCircle className="w-3 h-3 mr-1" />
+                  Manual 100% completado
+                </span>
               </div>
               <div className="flex items-center text-gray-600">
                 <MapPin className="w-4 h-4 mr-1" />
@@ -658,9 +692,9 @@ export default function PropertyGuidePage() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">
                   {t('location', language)}
                 </h3>
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 flex-1">
+                    <MapPin className="w-5 h-5 text-gray-400" />
                     <div className="flex-1">
                       <div className="font-medium text-gray-900">{property.street}</div>
                       <div className="text-gray-600">{getText(property.city, language, '')}, {getText(property.state, language, '')}</div>
@@ -672,7 +706,7 @@ export default function PropertyGuidePage() {
                       window.open(`https://maps.google.com/maps?q=${address}`, '_blank')
                     }}
                     variant="outline"
-                    className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                    className="border-violet-200 text-violet-700 hover:bg-violet-50 ml-4"
                   >
                     <MapPin className="w-4 h-4 mr-2" />
                     {t('takeMeThere', language)}
@@ -803,6 +837,60 @@ export default function PropertyGuidePage() {
           </motion.div>
         )}
 
+        {/* Completion Reward Notification */}
+        {showCompletionReward && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <Card className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+              <div className="flex items-start space-x-3">
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-green-900 mb-1">
+                    ¡Felicidades! Has completado el 100% del manual
+                  </h3>
+                  <p className="text-sm text-green-800 mb-3">
+                    Ahora puedes evaluar públicamente esta propiedad. Tu valoración ayudará a futuros huéspedes a tomar mejores decisiones.
+                  </p>
+                  <div className="flex space-x-2">
+                    <Button
+                      onClick={() => {
+                        setShowCompletionReward(false)
+                        setShowPublicRatingModal(true)
+                      }}
+                      className="bg-green-600 hover:bg-green-700 text-white text-sm"
+                      size="sm"
+                    >
+                      <Star className="w-4 h-4 mr-2" />
+                      Evaluar Propiedad
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowCompletionReward(false)}
+                      className="text-green-600 hover:text-green-700"
+                    >
+                      Quizás más tarde
+                    </Button>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowCompletionReward(false)}
+                  className="text-green-600 hover:text-green-700"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+
         {/* Manual Sections */}
         <div className="border-b border-gray-200 pb-8 mb-8">
           <div className="flex items-center justify-between mb-6">
@@ -836,7 +924,11 @@ export default function PropertyGuidePage() {
             <>
               {/* Mobile Horizontal Scroll */}
               <div className="lg:hidden relative">
-                <div className="overflow-x-auto scrollbar-hide pb-4">
+                <div 
+                  ref={carouselRef}
+                  className="overflow-x-auto scrollbar-hide pb-4"
+                  onScroll={(e) => setCarouselScrollPosition(e.currentTarget.scrollLeft)}
+                >
                   <div className="flex space-x-4 px-1">
                     {property.zones
                       .sort((a, b) => a.order - b.order)
@@ -879,12 +971,23 @@ export default function PropertyGuidePage() {
                   </div>
                 </div>
                 
-                {/* Airbnb-style scroll indicators */}
+                {/* Carousel Controls */}
                 <div className="flex justify-end mt-2 mr-2">
-                  <div className="flex items-center space-x-1 text-gray-400">
-                    <ChevronLeft className="w-4 h-4" />
-                    <ChevronRight className="w-4 h-4" />
-                    <span className="text-xs ml-1">{t('swipe', language)}</span>
+                  <div className="flex items-center space-x-2">
+                    <button 
+                      onClick={() => scrollCarousel('left')}
+                      className="p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                      disabled={carouselScrollPosition === 0}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => scrollCarousel('right')}
+                      className="p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                    <span className="text-xs ml-1 text-gray-400">{t('swipe', language)}</span>
                   </div>
                 </div>
               </div>
@@ -1112,6 +1215,231 @@ export default function PropertyGuidePage() {
                   </>
                 )}
               </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Ratings Modal */}
+      {showRatingsModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowRatingsModal(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">
+                Valoraciones Públicas
+              </h3>
+              <button
+                onClick={() => setShowRatingsModal(false)}
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {/* Overall Rating */}
+              <div className="flex items-center space-x-4 mb-6 p-4 bg-violet-50 rounded-lg">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-violet-700">4.9</div>
+                  <div className="flex items-center justify-center space-x-1 mb-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star key={star} className="w-4 h-4 text-violet-600 fill-current" />
+                    ))}
+                  </div>
+                  <div className="text-sm text-violet-600">12 valoraciones</div>
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900 mb-2">Distribución de valoraciones</h4>
+                  {[5, 4, 3, 2, 1].map((rating) => (
+                    <div key={rating} className="flex items-center space-x-2 mb-1">
+                      <span className="text-sm text-gray-600 w-3">{rating}</span>
+                      <Star className="w-3 h-3 text-gray-400" />
+                      <div className="flex-1 bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-violet-600 h-2 rounded-full" 
+                          style={{ width: rating === 5 ? '80%' : rating === 4 ? '15%' : '5%' }}
+                        />
+                      </div>
+                      <span className="text-sm text-gray-600 w-6">
+                        {rating === 5 ? '10' : rating === 4 ? '2' : '0'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Individual Reviews */}
+              <div className="space-y-4">
+                {[
+                  {
+                    id: 1,
+                    name: "María González",
+                    rating: 5,
+                    date: "Hace 2 días",
+                    comment: "Increíble apartamento! El manual digital fue súper útil, especialmente la información sobre el WiFi y la cocina. Todo estaba muy claro y bien explicado.",
+                    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face"
+                  },
+                  {
+                    id: 2,
+                    name: "Carlos Ruiz",
+                    rating: 5,
+                    date: "Hace 1 semana",
+                    comment: "El manual nos salvó mucho tiempo. La información sobre el parking y cómo usar la lavadora fue perfecta. Muy recomendado!",
+                    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
+                  },
+                  {
+                    id: 3,
+                    name: "Ana López",
+                    rating: 4,
+                    date: "Hace 2 semanas",
+                    comment: "Muy buena experiencia en general. El apartamento estaba limpio y el manual digital muy completo. Solo faltó un poco más de información sobre transporte público.",
+                    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face"
+                  }
+                ].map((review) => (
+                  <div key={review.id} className="border-b border-gray-100 pb-4 last:border-b-0">
+                    <div className="flex items-start space-x-3">
+                      <img 
+                        src={review.avatar} 
+                        alt={review.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h5 className="font-medium text-gray-900">{review.name}</h5>
+                          <span className="text-sm text-gray-500">{review.date}</span>
+                        </div>
+                        <div className="flex items-center space-x-1 mb-2">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star 
+                              key={star} 
+                              className={`w-3 h-3 ${
+                                star <= review.rating 
+                                  ? 'text-violet-600 fill-current' 
+                                  : 'text-gray-300'
+                              }`} 
+                            />
+                          ))}
+                        </div>
+                        <p className="text-gray-700 text-sm leading-relaxed">
+                          {review.comment}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Public Rating Modal */}
+      {showPublicRatingModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowPublicRatingModal(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white rounded-xl max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">
+                Evaluar Propiedad
+              </h3>
+              <button
+                onClick={() => setShowPublicRatingModal(false)}
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <CheckCircle className="w-8 h-8 text-green-600" />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                  ¡Completaste todo el manual!
+                </h4>
+                <p className="text-gray-600 text-sm">
+                  Tu evaluación será visible públicamente y ayudará a futuros huéspedes
+                </p>
+              </div>
+
+              {/* Rating Stars */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  ¿Cómo calificarías tu experiencia general?
+                </label>
+                <div className="flex justify-center space-x-2">
+                  {[1, 2, 3, 4, 5].map((rating) => (
+                    <button
+                      key={rating}
+                      className="p-1 hover:scale-110 transition-transform"
+                    >
+                      <Star className="w-8 h-8 text-gray-300 hover:text-yellow-400 fill-current" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Comment */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Comentario público (opcional)
+                </label>
+                <textarea
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+                  rows={3}
+                  placeholder="Comparte tu experiencia para ayudar a otros huéspedes..."
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex space-x-3">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowPublicRatingModal(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  onClick={() => {
+                    // Save public rating
+                    localStorage.setItem(`property-${propertyId}-public-rating`, 'true')
+                    setShowPublicRatingModal(false)
+                    // TODO: Send to API
+                  }}
+                >
+                  Publicar Evaluación
+                </Button>
+              </div>
             </div>
           </motion.div>
         </motion.div>

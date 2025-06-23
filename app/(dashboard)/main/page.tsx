@@ -89,8 +89,8 @@ export default function DashboardPage(): JSX.Element {
   const router = useRouter()
   const { user } = useAuth()
 
-  // Mock activity data
-  const recentActivity = [
+  // Real-time activity state
+  const [recentActivity, setRecentActivity] = useState([
     { 
       id: '1', 
       type: 'completed', 
@@ -100,33 +100,58 @@ export default function DashboardPage(): JSX.Element {
     },
     { 
       id: '2', 
-      type: 'rating', 
-      message: 'Un usuario ha evaluado con 5 estrellas la zona Cocina de Loft Moderno', 
-      time: 'hace 2 horas',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face'
+      type: 'comment', 
+      message: 'Nuevo comentario en Cocina: "Perfecto! Encontré todo lo que necesitaba para cocinar"', 
+      time: 'hace 1 hora',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face',
+      property: 'Loft Moderno',
+      zone: 'Cocina'
     },
     { 
       id: '3', 
-      type: 'step', 
-      message: 'Un huésped vio un paso en Check-in de Apartamento Centro', 
-      time: 'hace 4 horas',
-      avatar: null
+      type: 'rating', 
+      message: 'Un usuario ha evaluado con 5 estrellas la zona WiFi de Villa Sunset', 
+      time: 'hace 2 horas',
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face'
     },
     { 
       id: '4', 
       type: 'comment', 
-      message: 'Nuevo comentario: "Muy útil la información del parking" en Villa Sunset', 
-      time: 'hace 1 día',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face'
+      message: 'Nuevo comentario en Parking: "Muy útil la información, encontré el parking fácilmente"', 
+      time: 'hace 3 horas',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face',
+      property: 'Villa Sunset',
+      zone: 'Parking'
+    },
+    { 
+      id: '5', 
+      type: 'step', 
+      message: 'Un huésped vio un paso en Check-in de Apartamento Centro', 
+      time: 'hace 6 horas',
+      avatar: null
     },
     {
-      id: '5',
+      id: '6',
+      type: 'comment',
+      message: 'Nuevo comentario en Baño: "Gracias por las instrucciones de la ducha, muy claras!"',
+      time: 'hace 1 día',
+      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=40&h=40&fit=crop&crop=face',
+      property: 'Apartamento Centro',
+      zone: 'Baño'
+    },
+    {
+      id: '7',
       type: 'report',
       message: 'Reporte técnico: "La vitrocerámica no funciona bien" en Apartamento Playa',
       time: 'hace 2 días',
       avatar: null
     }
-  ]
+  ])
+
+  // Add new activity (simulates real-time updates)
+  const addNewActivity = useCallback((activity: any) => {
+    setRecentActivity(prev => [activity, ...prev.slice(0, 9)]) // Keep only last 10 activities
+  }, [])
 
   // Fetch properties data
   const fetchPropertiesData = useCallback(async () => {
@@ -173,6 +198,48 @@ export default function DashboardPage(): JSX.Element {
   useEffect(() => {
     fetchPropertiesData()
   }, [fetchPropertiesData])
+
+  // Simulate real-time activity updates
+  useEffect(() => {
+    const guestComments = [
+      {
+        message: 'Nuevo comentario en WiFi: "Conexión súper rápida, gracias por la contraseña!"',
+        property: 'Villa Sunset',
+        zone: 'WiFi'
+      },
+      {
+        message: 'Nuevo comentario en Lavadora: "Instrucciones perfectas, ya tengo la ropa lavándose"',
+        property: 'Loft Moderno',
+        zone: 'Lavadora'
+      },
+      {
+        message: 'Nuevo comentario en Check-in: "Todo súper fácil siguiendo las instrucciones"',
+        property: 'Apartamento Centro',
+        zone: 'Check-in'
+      },
+      {
+        message: 'Nuevo comentario en Aire Acondicionado: "Genial! Ya tengo la temperatura perfecta"',
+        property: 'Villa Sunset',
+        zone: 'Aire Acondicionado'
+      }
+    ]
+
+    const interval = setInterval(() => {
+      const randomComment = guestComments[Math.floor(Math.random() * guestComments.length)]
+      const newActivity = {
+        id: Date.now().toString(),
+        type: 'comment',
+        message: randomComment.message,
+        time: 'hace unos segundos',
+        avatar: `https://images.unsplash.com/photo-${Math.random() > 0.5 ? '1494790108755-2616b612b786' : '1507003211169-0a1dd7228f2d'}?w=40&h=40&fit=crop&crop=face`,
+        property: randomComment.property,
+        zone: randomComment.zone
+      }
+      addNewActivity(newActivity)
+    }, 15000) // Add new comment every 15 seconds
+
+    return () => clearInterval(interval)
+  }, [addNewActivity])
 
   const handlePropertyAction = (action: string, propertyId: string) => {
     switch (action) {
