@@ -404,7 +404,7 @@ export default function DashboardPage(): JSX.Element {
               ) : (
                 <div className="space-y-4">
                   {properties.filter(property => !property.propertySetId).slice(0, 6).map((property) => (
-                    <Card key={property.id} className="hover:shadow-lg transition-shadow">
+                    <Card key={property.id} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push(`/properties/${property.id}`)}>
                       <CardContent className="p-6">
                         <div className="flex space-x-4">
                           {/* Property Image */}
@@ -423,7 +423,10 @@ export default function DashboardPage(): JSX.Element {
                               )}
                               <div 
                                 className="mt-2 text-center text-xs text-violet-600 underline cursor-pointer hover:text-violet-800"
-                                onClick={() => handleEditProperty(property.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleEditProperty(property.id)
+                                }}
                               >
                                 Editar
                               </div>
@@ -473,7 +476,7 @@ export default function DashboardPage(): JSX.Element {
                                     <span className="text-sm text-gray-600">
                                       {property.status === 'ACTIVE' ? 'Activa' : 'Inactiva'}
                                     </span>
-                                    <label className="relative inline-flex items-center cursor-pointer">
+                                    <label className="relative inline-flex items-center cursor-pointer" onClick={(e) => e.stopPropagation()}>
                                       <input
                                         type="checkbox"
                                         checked={property.status === 'ACTIVE'}
@@ -488,7 +491,7 @@ export default function DashboardPage(): JSX.Element {
 
                               <DropdownMenu.Root>
                                 <DropdownMenu.Trigger asChild>
-                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                                     <MoreHorizontal className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenu.Trigger>

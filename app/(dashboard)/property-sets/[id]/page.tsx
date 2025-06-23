@@ -361,7 +361,7 @@ export default function PropertySetDetailPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-4">
                         <Badge 
                           variant={property.status === 'ACTIVE' ? 'default' : 'secondary'}
                           className={property.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : ''}
@@ -376,6 +376,16 @@ export default function PropertySetDetailPage() {
                           </div>
                         )}
                       </div>
+
+                      {/* Gestionar Button */}
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => handlePropertyAction('edit', property.id)}
+                      >
+                        Gestionar
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
                     </CardContent>
                   </Card>
                 ))}
