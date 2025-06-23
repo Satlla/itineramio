@@ -746,7 +746,7 @@ export default function DashboardPage(): JSX.Element {
                         <Button
                           variant="outline"
                           className="w-full"
-                          onClick={() => router.push(`/property-sets/${propertySet.id}`)}
+                          onClick={() => router.push(`/properties/groups/${propertySet.id}`)}
                         >
                           Gestionar
                           <ArrowRight className="w-4 h-4 ml-2" />
@@ -762,7 +762,7 @@ export default function DashboardPage(): JSX.Element {
                 <Button 
                   variant="outline" 
                   className="w-full sm:w-auto"
-                  onClick={() => router.push('/property-sets')}
+                  onClick={() => router.push('/properties/groups')}
                 >
                   Ver todos los conjuntos
                   <ArrowRight className="w-4 h-4 ml-2" />
