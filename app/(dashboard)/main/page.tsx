@@ -643,7 +643,7 @@ export default function DashboardPage(): JSX.Element {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.25 }}
-                  className="mt-4 order-2"
+                  className="mt-6 order-2"
                 >
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
