@@ -418,14 +418,15 @@ export default function DashboardPage(): JSX.Element {
           </motion.div>
 
           {/* Main Content - Two Column Layout for Desktop */}
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Left Column - Properties */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="lg:col-span-2 order-1"
-            >
+          <div className="lg:grid lg:grid-cols-4 lg:gap-8">
+            {/* Left Column - Properties and Property Sets */}
+            <div className="lg:col-span-3 space-y-0">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="order-1"
+              >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
                   {/* Minimalist Property Icon - Black vectorial */}
@@ -634,16 +635,16 @@ export default function DashboardPage(): JSX.Element {
                   </Button>
                 </div>
               )}
-            </motion.div>
+              </motion.div>
 
-            {/* Property Sets Section - Only show if user has property sets */}
-            {propertySets.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.25 }}
-                className="lg:col-span-2 order-3"
-              >
+              {/* Property Sets Section - Only show if user has property sets */}
+              {propertySets.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.25 }}
+                  className="mt-8 order-2"
+                >
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
                     {/* Minimalist Property Set Icon - Black vectorial */}
@@ -787,15 +788,16 @@ export default function DashboardPage(): JSX.Element {
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
-              </motion.div>
-            )}
+                </motion.div>
+              )}
+            </div>
 
             {/* Right Column - Activity - Order last on mobile */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="order-4 lg:order-2"
+              className="lg:col-span-1 order-4 lg:order-2"
             >
               <div className="flex items-center space-x-3 mb-6">
                 <TrendingUp className="w-6 h-6 text-orange-600" />
