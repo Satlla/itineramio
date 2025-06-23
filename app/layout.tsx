@@ -85,7 +85,7 @@ export default function RootLayout({
         
         {/* Additional meta tags */}
         <meta name="theme-color" content="#8B5CF6" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Itineramio" />
       </head>

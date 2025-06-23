@@ -558,49 +558,26 @@ export default function PropertyGuidePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="relative">
-        {/* Hero Image */}
-        <div className="h-64 md:h-80 lg:h-96 relative overflow-hidden">
-          {property.profileImage ? (
-            <img 
-              src={property.profileImage} 
-              alt={getText(property.name, 'Propiedad')}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center">
-              <div className="text-center text-white">
-                <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-4xl">🏠</span>
-                </div>
-                <h1 className="text-2xl font-bold">Manual de la Propiedad</h1>
-              </div>
-            </div>
-          )}
-          
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-          
-          {/* Header Actions */}
-          <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
+    <div className="min-h-screen bg-white">
+      {/* Airbnb-style Header */}
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
             <Button 
               onClick={() => router.back()}
               variant="ghost" 
               size="sm"
-              className="bg-white bg-opacity-90 text-gray-900 hover:bg-white"
+              className="hover:bg-gray-100 rounded-full p-2"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {t('back', language)}
+              <ArrowLeft className="w-5 h-5" />
             </Button>
             
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-4">
               {/* Language Selector */}
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="px-2 py-1 text-sm bg-white bg-opacity-90 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
               >
                 <option value="es">🇪🇸 ES</option>
                 <option value="en">🇬🇧 EN</option>
@@ -611,180 +588,170 @@ export default function PropertyGuidePage() {
                 onClick={handleShare}
                 variant="ghost" 
                 size="sm"
-                className="bg-white bg-opacity-90 text-gray-900 hover:bg-white"
+                className="hover:bg-gray-100 rounded-full p-2"
               >
-                <Share2 className="w-4 h-4 mr-2" />
-                {t('share', language)}
+                <Share2 className="w-5 h-5" />
               </Button>
             </div>
           </div>
         </div>
-
-        {/* Property Info Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-{getText(property.name, language, 'Propiedad')}
-            </h1>
-            <div className="flex items-center text-white text-opacity-90 mb-4">
-              <MapPin className="w-5 h-5 mr-2" />
-<span>{getText(property.city, language, '')}, {getText(property.state, language, '')}</span>
-            </div>
-            <div className="flex items-center space-x-6 text-white text-opacity-90">
-              <div className="flex items-center">
-                <Users className="w-4 h-4 mr-1" />
-<span>{property.maxGuests} {t('guests', language)}</span>
-              </div>
-              <div className="flex items-center">
-                <Bed className="w-4 h-4 mr-1" />
-<span>{property.bedrooms} {t('rooms', language)}</span>
-              </div>
-              <div className="flex items-center">
-                <Bath className="w-4 h-4 mr-1" />
-<span>{property.bathrooms} {t('bathrooms', language)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Property Details Section */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
-          {/* Main Info */}
-          <div className="lg:col-span-1">
-            <Card className="p-6 mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                {getAccommodationText(property, language)}
-              </h2>
-              <p className="text-gray-600 leading-relaxed mb-6">
-                {getText(property.description, language, t('accommodationWelcome', language))}
-              </p>
-              
-              {/* Property Features */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <Users className="w-6 h-6 mx-auto mb-2 text-violet-600" />
-                  <div className="text-sm font-medium text-gray-900">{property.maxGuests}</div>
-                  <div className="text-xs text-gray-600">{t('guests', language)}</div>
-                </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <Bed className="w-6 h-6 mx-auto mb-2 text-violet-600" />
-                  <div className="text-sm font-medium text-gray-900">{property.bedrooms}</div>
-                  <div className="text-xs text-gray-600">{t('rooms', language)}</div>
-                </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <Bath className="w-6 h-6 mx-auto mb-2 text-violet-600" />
-                  <div className="text-sm font-medium text-gray-900">{property.bathrooms}</div>
-                  <div className="text-xs text-gray-600">{t('bathrooms', language)}</div>
-                </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <Home className="w-6 h-6 mx-auto mb-2 text-violet-600" />
-                  <div className="text-sm font-medium text-gray-900">{property.type}</div>
-                  <div className="text-xs text-gray-600">{t('type', language)}</div>
-                </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Property Header - Airbnb Style */}
+        <div className="mb-8">
+          {/* Property Title and Rating */}
+          <div className="mb-6">
+            <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+              {getText(property.name, language, 'Propiedad')}
+            </h1>
+            <div className="flex items-center space-x-4 text-sm">
+              <div className="flex items-center space-x-1">
+                <Star className="w-4 h-4 text-black fill-current" />
+                <span className="font-medium">4.9</span>
+                <span className="text-gray-600">·</span>
+                <button className="text-gray-600 hover:text-black underline">
+                  12 reviews
+                </button>
               </div>
-            </Card>
-
-            {/* Address */}
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                {t('location', language)}
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900">{property.street}</div>
-                    <div className="text-gray-600">{getText(property.city, language, '')}, {getText(property.state, language, '')}</div>
-                  </div>
-                </div>
-                <Button
-                  onClick={() => {
-                    const address = encodeURIComponent(`${property.street}, ${getText(property.city, language, '')}, ${getText(property.state, language, '')}`)
-                    window.open(`https://maps.google.com/maps?q=${address}`, '_blank')
-                  }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  <MapPin className="w-4 h-4 mr-2" />
-                  {t('takeMeThere', language)}
-                </Button>
+              <span className="text-gray-600">·</span>
+              <div className="flex items-center text-gray-600">
+                <MapPin className="w-4 h-4 mr-1" />
+                <span>{getText(property.city, language, '')}, {getText(property.state, language, '')}</span>
               </div>
-            </Card>
+            </div>
           </div>
 
-          {/* Host Card - Sidebar */}
-          <div className="lg:col-span-1">
-            <Card className="p-6 sticky top-6">
-              {/* Host Photo */}
-              <div className="text-center mb-4">
-                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3">
-                  {property.hostContactPhoto ? (
-                    <img 
-                      src={property.hostContactPhoto} 
-                      alt={property.hostContactName}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-violet-100 flex items-center justify-center">
-                      <span className="text-violet-600 font-semibold text-2xl">
-                        {property.hostContactName.charAt(0)}
-                      </span>
-                    </div>
-                  )}
+          {/* Property Info Grid */}
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Main Property Info */}
+            <div className="lg:col-span-2">
+              {/* Property Type and Details */}
+              <div className="border-b border-gray-200 pb-6 mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-3">
+                  {getAccommodationText(property, language)}
+                </h2>
+                <div className="flex items-center space-x-4 text-gray-600">
+                  <span>{property.maxGuests} {t('guests', language)}</span>
+                  <span>·</span>
+                  <span>{property.bedrooms} {t('rooms', language)}</span>
+                  <span>·</span>
+                  <span>{property.bathrooms} {t('bathrooms', language)}</span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                  {property.hostContactName}
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  {t('yourHost', language)}
-                </p>
-              </div>
-              
-              {/* Contact Buttons - Inline */}
-              <div className="flex gap-3 mb-4">
-                <Button 
-                  onClick={() => {
-                    const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${getText(property.name, language, 'la propiedad')} y necesito ayuda.`)
-                    const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
-                    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
-                  }}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                >
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  {t('contactWhatsApp', language)}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex-1"
-                  onClick={() => window.open(`tel:${property.hostContactPhone}`, '_blank')}
-                >
-                  <Phone className="w-4 h-4 mr-2" />
-                  {t('call', language)}
-                </Button>
               </div>
 
-              {/* Emergency Block */}
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Shield className="w-4 h-4 text-red-600" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center text-red-700 mb-1">
-                      <span className="text-sm font-medium">{t('emergencies247', language)}</span>
+              {/* Description */}
+              <div className="border-b border-gray-200 pb-6 mb-6">
+                <p className="text-gray-700 leading-relaxed">
+                  {getText(property.description, language, t('accommodationWelcome', language))}
+                </p>
+              </div>
+
+              {/* Location */}
+              <div className="border-b border-gray-200 pb-6 mb-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  {t('location', language)}
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">{property.street}</div>
+                      <div className="text-gray-600">{getText(property.city, language, '')}, {getText(property.state, language, '')}</div>
                     </div>
-                    <a 
-                      href={`tel:${property.hostContactPhone}`}
-                      className="text-red-600 font-medium hover:text-red-700 text-sm"
-                    >
-                      {property.hostContactPhone}
-                    </a>
                   </div>
+                  <Button
+                    onClick={() => {
+                      const address = encodeURIComponent(`${property.street}, ${getText(property.city, language, '')}, ${getText(property.state, language, '')}`)
+                      window.open(`https://maps.google.com/maps?q=${address}`, '_blank')
+                    }}
+                    variant="outline"
+                    className="border-black text-black hover:bg-black hover:text-white"
+                  >
+                    <MapPin className="w-4 h-4 mr-2" />
+                    {t('takeMeThere', language)}
+                  </Button>
                 </div>
               </div>
-            </Card>
+            </div>
+
+            {/* Host Card - Airbnb Style */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-24">
+                <Card className="p-6 border border-gray-200 rounded-xl shadow-sm">
+                  {/* Host Info */}
+                  <div className="flex items-center space-x-4 mb-6">
+                    <div className="w-12 h-12 rounded-full overflow-hidden">
+                      {property.hostContactPhoto ? (
+                        <img 
+                          src={property.hostContactPhoto} 
+                          alt={property.hostContactName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                          <span className="text-gray-600 font-semibold text-lg">
+                            {property.hostContactName.charAt(0)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">
+                        {t('yourHost', language)} {property.hostContactName}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {t('superhost', language)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Host Stats */}
+                  <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+                    <div>
+                      <div className="font-semibold text-gray-900">100%</div>
+                      <div className="text-gray-600">Response rate</div>
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900">&lt; 1 hour</div>
+                      <div className="text-gray-600">Response time</div>
+                    </div>
+                  </div>
+                  
+                  {/* Contact Button */}
+                  <Button 
+                    onClick={() => {
+                      const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${getText(property.name, language, 'la propiedad')} y necesito ayuda.`)
+                      const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
+                      window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
+                    }}
+                    className="w-full bg-black hover:bg-gray-800 text-white mb-4"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    {t('contactWhatsApp', language)}
+                  </Button>
+
+                  {/* Emergency Block */}
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <div className="flex items-center space-x-2">
+                      <Shield className="w-4 h-4 text-red-600" />
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-red-700">
+                          {t('emergencies247', language)}
+                        </div>
+                        <a 
+                          href={`tel:${property.hostContactPhone}`}
+                          className="text-sm text-red-600 hover:text-red-700"
+                        >
+                          {property.hostContactPhone}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -830,35 +797,25 @@ export default function PropertyGuidePage() {
           </motion.div>
         )}
 
-        {/* Manual Sections */}
-        <div className="mb-8">
+        {/* What this place offers - Airbnb Style */}
+        <div className="border-b border-gray-200 pb-8 mb-8">
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                {getManualTitle(property, language)}
-              </h2>
-              <div className="flex items-center mt-2 space-x-4">
-                <div className="text-sm text-gray-600">
-                  {property.zones.filter(z => z.status === 'ACTIVE').length} {t('sectionsAvailable', language)}
-                </div>
-                <div className="text-sm text-violet-600 font-medium">
-                  {calculateProgress(property.zones)}% {t('completed', language)}
-                </div>
-              </div>
-            </div>
+            <h3 className="text-xl font-semibold text-gray-900">
+              What this place offers
+            </h3>
             <Button
               onClick={() => setShowSuggestionBox(true)}
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="border-violet-200 text-violet-700 hover:bg-violet-50"
+              className="text-gray-600 hover:text-black"
             >
               <Lightbulb className="w-4 h-4 mr-2" />
-              {t('suggestions', language)}
+              Suggest
             </Button>
           </div>
           
           {property.zones.length === 0 ? (
-            <Card className="p-12 text-center">
+            <div className="text-center py-12">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">📖</span>
               </div>
@@ -868,63 +825,166 @@ export default function PropertyGuidePage() {
               <p className="text-gray-600">
                 {t('manualInPreparationDesc', language)}
               </p>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-              {property.zones
-                .sort((a, b) => a.order - b.order)
-                .map((zone, index) => (
-                  <motion.div
-                    key={zone.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                  >
-                    <Card 
-                      className="relative overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group border-0 bg-white"
-                      onClick={() => handleZoneClick(zone.id)}
-                    >
-                      {/* Header with Icon and Status */}
-                      <div className="p-4 border-b border-gray-100">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${
-                            zone.color || 'bg-gradient-to-br from-violet-500 to-purple-600'
-                          }`}>
-                            {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-5 h-5")}
-                          </div>
-                          {isZoneViewed(zone.id) && (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                              <Eye className="w-3 h-3 mr-1" />
-                              {t('viewed', language)}
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="font-semibold text-gray-900 text-base mb-1 group-hover:text-violet-600 transition-colors">
-                          {getText(zone.name, language, t('zone', language))}
-                        </h3>
-                        <p className="text-sm text-gray-500 line-clamp-2">
-                          {getText(zone.description, language, '')}
-                        </p>
-                      </div>
-
-                      {/* Footer */}
-                      <div className="p-4 bg-gray-50">
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <div className="flex items-center">
-                            <Clock className="w-3 h-3 mr-1" />
-                            <span>{zone.stepsCount || 0} {t('instructions', language)}</span>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-violet-500 transition-colors" />
-                        </div>
-                      </div>
-
-                      {/* Hover Overlay */}
-                      <div className="absolute inset-0 bg-violet-500 bg-opacity-0 group-hover:bg-opacity-5 transition-all duration-300 pointer-events-none"></div>
-                    </Card>
-                  </motion.div>
-                ))}
             </div>
+          ) : (
+            <>
+              {/* Mobile Horizontal Scroll */}
+              <div className="lg:hidden overflow-x-auto scrollbar-hide pb-4">
+                <div className="flex space-x-4">
+                  {property.zones
+                    .sort((a, b) => a.order - b.order)
+                    .map((zone, index) => (
+                      <motion.div
+                        key={zone.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        className="flex-shrink-0 w-72"
+                      >
+                        <div 
+                          className="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
+                          onClick={() => handleZoneClick(zone.id)}
+                        >
+                          <div className="flex items-start space-x-3">
+                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                              {zone.icon ? getZoneIcon(zone.icon, "w-4 h-4 text-gray-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-4 h-4 text-gray-600")}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-gray-900 truncate">
+                                {getText(zone.name, language, t('zone', language))}
+                              </h4>
+                              <p className="text-sm text-gray-500 line-clamp-2">
+                                {getText(zone.description, language, '')}
+                              </p>
+                              {isZoneViewed(zone.id) && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 mt-2">
+                                  <Eye className="w-3 h-3 mr-1" />
+                                  {t('viewed', language)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                </div>
+              </div>
+
+              {/* Desktop Grid */}
+              <div className="hidden lg:grid grid-cols-2 gap-4">
+                {property.zones
+                  .sort((a, b) => a.order - b.order)
+                  .map((zone, index) => (
+                    <motion.div
+                      key={zone.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                    >
+                      <div 
+                        className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => handleZoneClick(zone.id)}
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                          {zone.icon ? getZoneIcon(zone.icon, "w-4 h-4 text-gray-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-4 h-4 text-gray-600")}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <h4 className="font-medium text-gray-900">
+                              {getText(zone.name, language, t('zone', language))}
+                            </h4>
+                            {isZoneViewed(zone.id) && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                <Eye className="w-3 h-3 mr-1" />
+                                {t('viewed', language)}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-500">
+                            {getText(zone.description, language, '')}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+              </div>
+            </>
           )}
+        </div>
+
+        {/* Reviews Section - Airbnb Style */}
+        <div className="border-b border-gray-200 pb-8 mb-8">
+          <div className="flex items-center space-x-2 mb-6">
+            <Star className="w-5 h-5 text-black fill-current" />
+            <h3 className="text-xl font-semibold text-gray-900">
+              4.9 · 12 reviews
+            </h3>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"></div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="font-medium text-gray-900">María</span>
+                    <span className="text-gray-500 text-sm">· December 2024</span>
+                  </div>
+                  <p className="text-gray-700 text-sm">
+                    "Excellent location and very helpful guide. Everything was perfectly explained!"
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"></div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="font-medium text-gray-900">David</span>
+                    <span className="text-gray-500 text-sm">· November 2024</span>
+                  </div>
+                  <p className="text-gray-700 text-sm">
+                    "The digital manual made our stay so much easier. Highly recommend!"
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"></div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="font-medium text-gray-900">Sarah</span>
+                    <span className="text-gray-500 text-sm">· November 2024</span>
+                  </div>
+                  <p className="text-gray-700 text-sm">
+                    "Clear instructions and quick response from the host. Perfect stay!"
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"></div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="font-medium text-gray-900">Jean</span>
+                    <span className="text-gray-500 text-sm">· October 2024</span>
+                  </div>
+                  <p className="text-gray-700 text-sm">
+                    "Tout était parfait ! Le guide numérique est une excellente idée."
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <Button 
+            variant="outline" 
+            className="mt-6 border-black text-black hover:bg-black hover:text-white"
+          >
+            Show all 12 reviews
+          </Button>
         </div>
 
         {/* Footer */}
