@@ -75,8 +75,11 @@ export default function PropertySetDetailPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchPropertySetData()
-  }, [propertySetId])
+    // Only redirect if we're actually on the old URL path
+    if (typeof window !== 'undefined' && window.location.pathname.includes('/property-sets/')) {
+      router.replace(`/properties/groups/${propertySetId}`)
+    }
+  }, [propertySetId, router])
 
   const fetchPropertySetData = async () => {
     try {

@@ -90,6 +90,15 @@ function NewPropertySetPageContent() {
   const [availableProperties, setAvailableProperties] = useState<Property[]>([])
   const [selectedProperties, setSelectedProperties] = useState<string[]>([])
 
+  // Redirect to new URL structure  
+  useEffect(() => {
+    // Only redirect if we're actually on the old URL path
+    if (typeof window !== 'undefined' && window.location.pathname === '/property-sets/new') {
+      const query = editId ? `?edit=${editId}` : ''
+      router.replace(`/properties/groups/new${query}`)
+    }
+  }, [router, editId])
+
   const {
     register,
     handleSubmit,
