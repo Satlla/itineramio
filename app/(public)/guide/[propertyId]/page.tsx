@@ -13,6 +13,7 @@ import {
   Phone,
   Mail,
   ChevronRight,
+  ChevronLeft,
   Clock,
   ArrowRight,
   Share2,
@@ -272,7 +273,8 @@ const translations = {
     suggestionPlaceholder: '¿Qué información adicional te gustaría ver? ¿Hay algo que no está claro? Comparte tus ideas...',
     cancel: 'Cancelar',
     send: 'Enviar',
-    takeMeThere: 'Llévame'
+    takeMeThere: 'Llévame',
+    swipe: 'Desliza'
   },
   en: {
     loading: 'Loading property manual...',
@@ -322,7 +324,8 @@ const translations = {
     suggestionPlaceholder: 'What additional information would you like to see? Is there anything that is not clear? Share your ideas...',
     cancel: 'Cancel',
     send: 'Send',
-    takeMeThere: 'Take me there'
+    takeMeThere: 'Take me there',
+    swipe: 'Swipe'
   },
   fr: {
     loading: 'Chargement du manuel de la propriété...',
@@ -372,7 +375,8 @@ const translations = {
     suggestionPlaceholder: 'Quelles informations supplémentaires aimeriez-vous voir ? Y a-t-il quelque chose qui n\'est pas clair ? Partagez vos idées...',
     cancel: 'Annuler',
     send: 'Envoyer',
-    takeMeThere: 'Emmenez-moi'
+    takeMeThere: 'Emmenez-moi',
+    swipe: 'Glissez'
   }
 }
 
@@ -732,16 +736,18 @@ export default function PropertyGuidePage() {
                   </Button>
 
                   {/* Emergency Block */}
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                    <div className="flex items-center space-x-2">
-                      <Shield className="w-4 h-4 text-red-600" />
-                      <div className="flex-1">
-                        <div className="text-sm font-medium text-red-700">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Shield className="w-4 h-4 text-red-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-red-700 mb-1">
                           {t('emergencies247', language)}
                         </div>
                         <a 
                           href={`tel:${property.hostContactPhone}`}
-                          className="text-sm text-red-600 hover:text-red-700"
+                          className="text-sm text-red-600 hover:text-red-700 font-medium break-all"
                         >
                           {property.hostContactPhone}
                         </a>
@@ -828,44 +834,57 @@ export default function PropertyGuidePage() {
           ) : (
             <>
               {/* Mobile Horizontal Scroll */}
-              <div className="lg:hidden overflow-x-auto scrollbar-hide pb-4">
-                <div className="flex space-x-4">
-                  {property.zones
-                    .sort((a, b) => a.order - b.order)
-                    .map((zone, index) => (
-                      <motion.div
-                        key={zone.id}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                        className="flex-shrink-0 w-72"
-                      >
-                        <div 
-                          className="bg-gradient-to-br from-white to-violet-50 border border-violet-100 rounded-xl p-4 cursor-pointer hover:shadow-lg hover:border-violet-200 transition-all duration-200"
-                          onClick={() => handleZoneClick(zone.id)}
+              <div className="lg:hidden relative">
+                <div className="overflow-x-auto scrollbar-hide pb-4">
+                  <div className="flex space-x-4 px-1">
+                    {property.zones
+                      .sort((a, b) => a.order - b.order)
+                      .map((zone, index) => (
+                        <motion.div
+                          key={zone.id}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3, delay: index * 0.1 }}
+                          className="flex-shrink-0 w-64"
                         >
-                          <div className="flex items-start space-x-3">
-                            <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
-                              {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5 text-violet-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-5 h-5 text-violet-600")}
+                          <div 
+                            className="bg-gradient-to-br from-white to-violet-50 border border-violet-100 rounded-xl p-4 cursor-pointer hover:shadow-lg hover:border-violet-200 transition-all duration-200 h-32 flex flex-col justify-between"
+                            onClick={() => handleZoneClick(zone.id)}
+                          >
+                            <div className="flex items-start space-x-3 flex-1">
+                              <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+                                {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5 text-violet-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-5 h-5 text-violet-600")}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-gray-900 truncate mb-1">
+                                  {getText(zone.name, language, t('zone', language))}
+                                </h4>
+                                <p className="text-sm text-gray-500 line-clamp-2">
+                                  {getText(zone.description, language, '').substring(0, 60)}...
+                                </p>
+                              </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-gray-900 truncate">
-                                {getText(zone.name, language, t('zone', language))}
-                              </h4>
-                              <p className="text-sm text-gray-500 line-clamp-2">
-                                {getText(zone.description, language, '')}
-                              </p>
-                              {isZoneViewed(zone.id) && (
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 mt-2">
+                            {isZoneViewed(zone.id) && (
+                              <div className="flex justify-end">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
                                   <CheckCircle className="w-3 h-3 mr-1" />
                                   {t('viewed', language)}
                                 </span>
-                              )}
-                            </div>
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      </motion.div>
-                    ))}
+                        </motion.div>
+                      ))}
+                  </div>
+                </div>
+                
+                {/* Airbnb-style scroll indicators */}
+                <div className="flex justify-end mt-2 mr-2">
+                  <div className="flex items-center space-x-1 text-gray-400">
+                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4" />
+                    <span className="text-xs ml-1">{t('swipe', language)}</span>
+                  </div>
                 </div>
               </div>
 

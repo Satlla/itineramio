@@ -674,15 +674,12 @@ export default function DashboardPage(): JSX.Element {
 
                         {/* Action Button */}
                         <Button
-                          asChild
                           variant="outline"
                           className="w-full"
                           onClick={() => router.push(`/property-sets/${propertySet.id}`)}
                         >
-                          <span>
-                            Gestionar
-                            <ArrowRight className="w-4 h-4 ml-2" />
-                          </span>
+                          Gestionar
+                          <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                       </div>
                     </CardContent>
@@ -692,11 +689,13 @@ export default function DashboardPage(): JSX.Element {
 
               {/* Ver todos button below property sets */}
               <div className="mt-6 text-center">
-                <Button asChild variant="outline" className="w-full sm:w-auto">
-                  <Link href="/property-sets">
-                    Ver todos los conjuntos
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
+                <Button 
+                  variant="outline" 
+                  className="w-full sm:w-auto"
+                  onClick={() => router.push('/property-sets')}
+                >
+                  Ver todos los conjuntos
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
             </motion.div>

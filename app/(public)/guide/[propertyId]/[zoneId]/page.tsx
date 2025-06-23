@@ -624,8 +624,8 @@ export default function ZoneGuidePage({
           {/* Progress Bar */}
           <div className="mt-4">
             <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-              <span>Paso {activeStepIndex + 1} de {zone.steps.length}</span>
-              <span>{Math.round(progress)}% completado</span>
+              <span>{t('step', language)} {activeStepIndex + 1} {t('of', language)} {zone.steps.length}</span>
+              <span>{Math.round(progress)}% {t('completed', language)}</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <motion.div
@@ -780,7 +780,7 @@ export default function ZoneGuidePage({
                         }`}
                         layoutId={`title-${step.id}`}
                       >
-                        {getText(step.title, language, 'Paso')}
+                        {getText(step.title, language, t('step', language))}
                       </motion.h2>
                       
                       {step.estimatedTime && (
