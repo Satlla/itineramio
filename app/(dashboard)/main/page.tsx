@@ -591,7 +591,7 @@ export default function DashboardPage(): JSX.Element {
                                     </DropdownMenu.Item>
                                     <DropdownMenu.Item 
                                       className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                      onClick={() => router.push(`/properties/${property.id}`)}
+                                      onClick={() => router.push(`/properties/${property.id}/zones`)}
                                     >
                                       <Building2 className="mr-2 h-4 w-4" />
                                       Gestionar
