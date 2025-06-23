@@ -586,7 +586,14 @@ export default function DashboardPage(): JSX.Element {
                                       onClick={() => handlePropertyAction('edit', property.id)}
                                     >
                                       <Edit className="mr-2 h-4 w-4" />
-                                      Editar Propiedad
+                                      Editar
+                                    </DropdownMenu.Item>
+                                    <DropdownMenu.Item 
+                                      className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                                      onClick={() => router.push(`/properties/${property.id}`)}
+                                    >
+                                      <Building2 className="mr-2 h-4 w-4" />
+                                      Gestionar
                                     </DropdownMenu.Item>
                                     <DropdownMenu.Item 
                                       className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
@@ -673,7 +680,7 @@ export default function DashboardPage(): JSX.Element {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.25 }}
-              className="mt-8 order-2"
+              className="mt-6 order-2"
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
@@ -737,7 +744,7 @@ export default function DashboardPage(): JSX.Element {
                                   onClick={() => handlePropertySetAction('edit', propertySet.id)}
                                 >
                                   <Edit className="mr-2 h-4 w-4" />
-                                  Editar Conjunto
+                                  Editar
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item 
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
