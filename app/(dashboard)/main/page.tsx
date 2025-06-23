@@ -420,7 +420,7 @@ export default function DashboardPage(): JSX.Element {
           {/* Main Content - Two Column Layout for Desktop */}
           <div className="lg:grid lg:grid-cols-4 lg:gap-8">
             {/* Left Column - Properties and Property Sets */}
-            <div className="lg:col-span-3 space-y-0">
+            <div className="lg:col-span-3">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -643,7 +643,7 @@ export default function DashboardPage(): JSX.Element {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.25 }}
-                  className="mt-8 order-2"
+                  className="mt-4 order-2"
                 >
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
