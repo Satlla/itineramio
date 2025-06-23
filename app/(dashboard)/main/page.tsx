@@ -301,6 +301,23 @@ export default function DashboardPage(): JSX.Element {
     setShowGuestReportsModal(false)
   }
 
+  const handlePropertySetAction = (action: string, propertySetId: string) => {
+    switch (action) {
+      case 'edit':
+        router.push(`/properties/groups/new?edit=${propertySetId}`)
+        break
+      case 'manage':
+        router.push(`/properties/groups/${propertySetId}`)
+        break
+      case 'share':
+        // Compartir conjunto - podrías implementar esto más tarde
+        console.log(`Compartir conjunto ${propertySetId}`)
+        break
+      default:
+        break
+    }
+  }
+
   if (loading) {
     return React.createElement(AnimatedLoadingSpinner, {
       text: "Cargando tu panel...",
@@ -569,7 +586,7 @@ export default function DashboardPage(): JSX.Element {
                                       onClick={() => handlePropertyAction('edit', property.id)}
                                     >
                                       <Edit className="mr-2 h-4 w-4" />
-                                      Gestionar
+                                      Editar Propiedad
                                     </DropdownMenu.Item>
                                     <DropdownMenu.Item 
                                       className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
@@ -656,7 +673,7 @@ export default function DashboardPage(): JSX.Element {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.25 }}
-              className="mt-12 order-2"
+              className="mt-8 order-2"
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
@@ -706,6 +723,39 @@ export default function DashboardPage(): JSX.Element {
                               </p>
                             </div>
                           </div>
+
+                          <DropdownMenu.Root>
+                            <DropdownMenu.Trigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenu.Trigger>
+                            <DropdownMenu.Portal>
+                              <DropdownMenu.Content className="w-56 bg-white rounded-md shadow-lg border border-gray-200 p-1">
+                                <DropdownMenu.Item 
+                                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                                  onClick={() => handlePropertySetAction('edit', propertySet.id)}
+                                >
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Editar Conjunto
+                                </DropdownMenu.Item>
+                                <DropdownMenu.Item 
+                                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                                  onClick={() => handlePropertySetAction('manage', propertySet.id)}
+                                >
+                                  <Building2 className="mr-2 h-4 w-4" />
+                                  Gestionar
+                                </DropdownMenu.Item>
+                                <DropdownMenu.Item 
+                                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                                  onClick={() => handlePropertySetAction('share', propertySet.id)}
+                                >
+                                  <Share2 className="mr-2 h-4 w-4" />
+                                  Compartir
+                                </DropdownMenu.Item>
+                              </DropdownMenu.Content>
+                            </DropdownMenu.Portal>
+                          </DropdownMenu.Root>
                         </div>
 
                         {/* Stats */}
