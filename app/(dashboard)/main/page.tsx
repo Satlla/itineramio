@@ -54,10 +54,26 @@ interface Property {
   updatedAt: string
 }
 
+interface PropertySet {
+  id: string
+  name: string
+  description?: string
+  type: 'HOTEL' | 'BUILDING' | 'COMPLEX' | 'RESORT' | 'HOSTEL' | 'APARTHOTEL'
+  profileImage?: string
+  city: string
+  state: string
+  propertiesCount: number
+  totalViews: number
+  avgRating: number
+  totalZones?: number
+  status: string
+  createdAt: string
+}
+
 export default function DashboardPage(): JSX.Element {
   const [selectedTimeframe, setSelectedTimeframe] = useState('30d')
   const [properties, setProperties] = useState<Property[]>([])
-  const [propertySets, setPropertySets] = useState<any[]>([])
+  const [propertySets, setPropertySets] = useState<PropertySet[]>([])
   const [loading, setLoading] = useState(true)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showGuestReportsModal, setShowGuestReportsModal] = useState(false)
@@ -546,6 +562,128 @@ export default function DashboardPage(): JSX.Element {
               </div>
             </motion.div>
           </div>
+
+          {/* Property Sets Section - Only show if user has property sets */}
+          {propertySets.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.25 }}
+              className="mt-12"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  {/* Minimalist Property Set Icon - Black vectorial */}
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <svg 
+                      viewBox="0 0 24 24" 
+                      className="w-7 h-7 text-gray-900"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <path d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Conjuntos de Propiedades ({loading ? '...' : propertySets.length})
+                  </h2>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {propertySets.map((propertySet) => (
+                  <Card key={propertySet.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex flex-col h-full">
+                        {/* Property Set Header */}
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            {propertySet.profileImage ? (
+                              <img 
+                                src={propertySet.profileImage} 
+                                alt={propertySet.name}
+                                className="w-12 h-12 rounded-lg object-cover"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-400 to-blue-500 flex items-center justify-center">
+                                <Building2 className="w-6 h-6 text-white" />
+                              </div>
+                            )}
+                            <div>
+                              <h3 className="font-semibold text-lg text-gray-900">
+                                {propertySet.name}
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                {propertySet.city}, {propertySet.state}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="grid grid-cols-3 gap-3 mb-4 flex-grow">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-gray-900">{propertySet.propertiesCount || 0}</div>
+                            <div className="text-xs text-gray-600">Propiedades</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-gray-900">{propertySet.totalZones || 0}</div>
+                            <div className="text-xs text-gray-600">Zonas</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-gray-900">{propertySet.totalViews || 0}</div>
+                            <div className="text-xs text-gray-600">Vistas</div>
+                          </div>
+                        </div>
+
+                        {/* Type Badge */}
+                        <div className="flex items-center justify-between mb-4">
+                          <Badge variant="secondary" className="text-xs">
+                            {propertySet.type === 'HOTEL' && 'Hotel'}
+                            {propertySet.type === 'BUILDING' && 'Edificio'}
+                            {propertySet.type === 'COMPLEX' && 'Complejo'}
+                            {propertySet.type === 'RESORT' && 'Resort'}
+                            {propertySet.type === 'HOSTEL' && 'Hostel'}
+                            {propertySet.type === 'APARTHOTEL' && 'Aparthotel'}
+                          </Badge>
+                          {propertySet.avgRating > 0 && (
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Star className="w-4 h-4 text-yellow-500 mr-1" />
+                              <span>{propertySet.avgRating.toFixed(1)}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Action Button */}
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => router.push(`/property-sets/${propertySet.id}`)}
+                        >
+                          <span>
+                            Gestionar
+                            <ArrowRight className="w-4 h-4 ml-2" />
+                          </span>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Ver todos button below property sets */}
+              <div className="mt-6 text-center">
+                <Button asChild variant="outline" className="w-full sm:w-auto">
+                  <Link href="/property-sets">
+                    Ver todos los conjuntos
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+            </motion.div>
+          )}
         </div>
       </main>
       
