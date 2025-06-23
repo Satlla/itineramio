@@ -1,5 +1,12 @@
 'use client'
 
+// Extend Window interface for Google Maps
+declare global {
+  interface Window {
+    google: typeof google;
+  }
+}
+
 import React, { useState, useEffect, Suspense, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
