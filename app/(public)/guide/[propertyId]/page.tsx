@@ -69,28 +69,48 @@ interface Zone {
   status: string
 }
 
-// Zone icon mapping
+// Zone icon mapping with Airbnb-style minimal icons
 const getZoneIcon = (iconName: string, className: string = "w-6 h-6") => {
   const iconMap: { [key: string]: JSX.Element } = {
     'wifi': <Wifi className={className} />,
+    'internet': <Wifi className={className} />,
     'zap': <Zap className={className} />,
+    'electricidad': <Zap className={className} />,
     'car': <Car className={className} />,
     'parking': <Car className={className} />,
+    'aparcamiento': <Car className={className} />,
     'kitchen': <Utensils className={className} />,
     'cocina': <Utensils className={className} />,
     'bed': <Bed className={className} />,
     'dormitorio': <Bed className={className} />,
+    'habitacion': <Bed className={className} />,
     'bath': <Bath className={className} />,
     'baño': <Bath className={className} />,
+    'bathroom': <Bath className={className} />,
     'security': <Shield className={className} />,
     'seguridad': <Shield className={className} />,
+    'emergencias': <Shield className={className} />,
+    'emergency': <Shield className={className} />,
     'tv': <Tv className={className} />,
+    'television': <Tv className={className} />,
+    'entertainment': <Tv className={className} />,
     'coffee': <Coffee className={className} />,
+    'cafe': <Coffee className={className} />,
+    'desayuno': <Coffee className={className} />,
+    'breakfast': <Coffee className={className} />,
     'location': <MapPin className={className} />,
-    'ubicacion': <MapPin className={className} />
+    'ubicacion': <MapPin className={className} />,
+    'direccion': <MapPin className={className} />,
+    'checkin': <CheckCircle className={className} />,
+    'check-in': <CheckCircle className={className} />,
+    'checkout': <ArrowRight className={className} />,
+    'check-out': <ArrowRight className={className} />,
+    'casa': <Home className={className} />,
+    'house': <Home className={className} />,
+    'home': <Home className={className} />
   }
   
-  return iconMap[iconName.toLowerCase()] || <MapPin className={className} />
+  return iconMap[iconName.toLowerCase()] || <Home className={className} />
 }
 
 // Helper function to get text from multilingual objects
@@ -153,7 +173,8 @@ const translations = {
     yourSuggestion: 'Tu sugerencia',
     suggestionPlaceholder: '¿Qué información adicional te gustaría ver? ¿Hay algo que no está claro? Comparte tus ideas...',
     cancel: 'Cancelar',
-    send: 'Enviar'
+    send: 'Enviar',
+    takeMeThere: 'Llévame'
   },
   en: {
     loading: 'Loading property manual...',
@@ -202,7 +223,8 @@ const translations = {
     yourSuggestion: 'Your suggestion',
     suggestionPlaceholder: 'What additional information would you like to see? Is there anything that is not clear? Share your ideas...',
     cancel: 'Cancel',
-    send: 'Send'
+    send: 'Send',
+    takeMeThere: 'Take me there'
   },
   fr: {
     loading: 'Chargement du manuel de la propriété...',
@@ -251,7 +273,8 @@ const translations = {
     yourSuggestion: 'Votre suggestion',
     suggestionPlaceholder: 'Quelles informations supplémentaires aimeriez-vous voir ? Y a-t-il quelque chose qui n\'est pas clair ? Partagez vos idées...',
     cancel: 'Annuler',
-    send: 'Envoyer'
+    send: 'Envoyer',
+    takeMeThere: 'Emmenez-moi'
   }
 }
 
@@ -463,7 +486,7 @@ export default function PropertyGuidePage() {
           <div className="absolute inset-0 bg-black bg-opacity-30"></div>
           
           {/* Header Actions */}
-          <div className="absolute top-4 left-4 right-4 flex justify-between">
+          <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
             <Button 
               onClick={() => router.back()}
               variant="ghost" 
@@ -471,17 +494,31 @@ export default function PropertyGuidePage() {
               className="bg-white bg-opacity-90 text-gray-900 hover:bg-white"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-{t('back', language)}
+              {t('back', language)}
             </Button>
-            <Button 
-              onClick={handleShare}
-              variant="ghost" 
-              size="sm"
-              className="bg-white bg-opacity-90 text-gray-900 hover:bg-white"
-            >
-              <Share2 className="w-4 h-4 mr-2" />
-{t('share', language)}
-            </Button>
+            
+            <div className="flex items-center space-x-2">
+              {/* Language Selector */}
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="px-2 py-1 text-sm bg-white bg-opacity-90 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              >
+                <option value="es">🇪🇸 ES</option>
+                <option value="en">🇬🇧 EN</option>
+                <option value="fr">🇫🇷 FR</option>
+              </select>
+              
+              <Button 
+                onClick={handleShare}
+                variant="ghost" 
+                size="sm"
+                className="bg-white bg-opacity-90 text-gray-900 hover:bg-white"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                {t('share', language)}
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -516,9 +553,9 @@ export default function PropertyGuidePage() {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Property Details Section */}
-        <div className="grid lg:grid-cols-3 gap-8 mb-8">
+        <div className="grid lg:grid-cols-2 gap-8 mb-8">
           {/* Main Info */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-1">
             <Card className="p-6 mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
                 {getAccommodationText(property, language)}
@@ -557,12 +594,24 @@ export default function PropertyGuidePage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 {t('location', language)}
               </h3>
-              <div className="flex items-start space-x-3">
-                <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                <div>
-                  <div className="font-medium text-gray-900">{property.street}</div>
-                  <div className="text-gray-600">{getText(property.city, language, '')}, {getText(property.state, language, '')}</div>
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">{property.street}</div>
+                    <div className="text-gray-600">{getText(property.city, language, '')}, {getText(property.state, language, '')}</div>
+                  </div>
                 </div>
+                <Button
+                  onClick={() => {
+                    const address = encodeURIComponent(`${property.street}, ${getText(property.city, language, '')}, ${getText(property.state, language, '')}`)
+                    window.open(`https://maps.google.com/maps?q=${address}`, '_blank')
+                  }}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <MapPin className="w-4 h-4 mr-2" />
+                  {t('takeMeThere', language)}
+                </Button>
               </div>
             </Card>
           </div>
@@ -570,8 +619,9 @@ export default function PropertyGuidePage() {
           {/* Host Card - Sidebar */}
           <div className="lg:col-span-1">
             <Card className="p-6 sticky top-6">
-              <div className="text-center mb-6">
-                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4">
+              {/* Host Photo */}
+              <div className="text-center mb-4">
+                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3">
                   {property.hostContactPhoto ? (
                     <img 
                       src={property.hostContactPhoto} 
@@ -589,61 +639,52 @@ export default function PropertyGuidePage() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-1">
                   {property.hostContactName}
                 </h3>
-                <p className="text-gray-600 text-sm mb-1">
-                  Tu anfitrión
+                <p className="text-gray-600 text-sm">
+                  {t('yourHost', language)}
                 </p>
-                <div className="flex items-center justify-center text-yellow-500 mb-4">
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                  <span className="ml-2 text-sm text-gray-600">Superanfitrión</span>
-                </div>
               </div>
               
-              <div className="space-y-3">
+              {/* Contact Buttons - Inline */}
+              <div className="flex gap-3 mb-4">
                 <Button 
                   onClick={() => {
-                    const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${getText(property.name, 'la propiedad')} y necesito ayuda.`)
+                    const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${getText(property.name, language, 'la propiedad')} y necesito ayuda.`)
                     const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
                     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
                   }}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
-                  Contactar por WhatsApp
+                  {t('contactWhatsApp', language)}
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full"
-                  onClick={() => window.open(`mailto:${property.hostContactEmail}`, '_blank')}
-                >
-                  <Mail className="w-4 h-4 mr-2" />
-                  Enviar email
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
+                  className="flex-1"
                   onClick={() => window.open(`tel:${property.hostContactPhone}`, '_blank')}
                 >
                   <Phone className="w-4 h-4 mr-2" />
-                  Llamar
+                  {t('call', language)}
                 </Button>
               </div>
 
-              {/* Emergency */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <div className="flex items-center text-red-600 mb-2">
-                  <Shield className="w-4 h-4 mr-2" />
-                  <span className="text-sm font-medium">Emergencias 24/7</span>
+              {/* Emergency Block */}
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Shield className="w-4 h-4 text-red-600" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center text-red-700 mb-1">
+                      <span className="text-sm font-medium">{t('emergencies247', language)}</span>
+                    </div>
+                    <a 
+                      href={`tel:${property.hostContactPhone}`}
+                      className="text-red-600 font-medium hover:text-red-700 text-sm"
+                    >
+                      {property.hostContactPhone}
+                    </a>
+                  </div>
                 </div>
-                <a 
-                  href={`tel:${property.hostContactPhone}`}
-                  className="text-red-600 font-medium hover:text-red-700 text-sm"
-                >
-                  {property.hostContactPhone}
-                </a>
               </div>
             </Card>
           </div>
@@ -664,11 +705,10 @@ export default function PropertyGuidePage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-amber-900 mb-1">
-                    ¡Has visto solo el {calculateProgress(property.zones)}% del manual!
+                    {t('progressWarningTitle', language, { progress: calculateProgress(property.zones).toString() })}
                   </h3>
                   <p className="text-sm text-amber-800 mb-3">
-                    Para tener una estancia sin dudas, te recomendamos revisar todas las secciones. 
-                    Esto te ayudará a conocer todos los servicios y evitar inconvenientes durante tu viaje.
+                    {t('progressWarningDesc', language)}
                   </p>
                   <div className="w-full bg-amber-200 rounded-full h-2">
                     <motion.div
@@ -697,14 +737,14 @@ export default function PropertyGuidePage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
-                Manual del apartamento
+                {getManualTitle(property, language)}
               </h2>
               <div className="flex items-center mt-2 space-x-4">
                 <div className="text-sm text-gray-600">
-                  {property.zones.filter(z => z.status === 'ACTIVE').length} secciones disponibles
+                  {property.zones.filter(z => z.status === 'ACTIVE').length} {t('sectionsAvailable', language)}
                 </div>
                 <div className="text-sm text-violet-600 font-medium">
-                  {calculateProgress(property.zones)}% completado
+                  {calculateProgress(property.zones)}% {t('completed', language)}
                 </div>
               </div>
             </div>
@@ -715,7 +755,7 @@ export default function PropertyGuidePage() {
               className="border-violet-200 text-violet-700 hover:bg-violet-50"
             >
               <Lightbulb className="w-4 h-4 mr-2" />
-              Sugerencias
+              {t('suggestions', language)}
             </Button>
           </div>
           
@@ -725,82 +765,72 @@ export default function PropertyGuidePage() {
                 <span className="text-2xl">📖</span>
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Manual en preparación
+                {t('manualInPreparation', language)}
               </h3>
               <p className="text-gray-600">
-                El anfitrión está preparando el manual de esta propiedad.
+                {t('manualInPreparationDesc', language)}
               </p>
             </Card>
           ) : (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               {property.zones
                 .sort((a, b) => a.order - b.order)
                 .map((zone, index) => (
                   <motion.div
                     key={zone.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.3, delay: index * 0.1 }}
                   >
                     <Card 
-                      className="p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group border-l-4 border-l-violet-500 hover:border-l-violet-600"
+                      className="relative overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group border-0 bg-white"
                       onClick={() => handleZoneClick(zone.id)}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4 flex-1">
-                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 text-white ${
+                      {/* Header with Icon and Status */}
+                      <div className="p-4 border-b border-gray-100">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${
                             zone.color || 'bg-gradient-to-br from-violet-500 to-purple-600'
                           }`}>
-                            {getZoneIcon(zone.icon, "w-6 h-6")}
+                            {getZoneIcon(zone.icon, "w-5 h-5")}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-3 mb-1">
-                              <h3 className="text-lg font-semibold text-gray-900">
-                                {getText(zone.name, 'Zona')}
-                              </h3>
-                              {isZoneViewed(zone.id) ? (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                  <Eye className="w-3 h-3 mr-1" />
-                                  Visto
-                                </span>
-                              ) : zone.status === 'ACTIVE' ? (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                  <CheckCircle className="w-3 h-3 mr-1" />
-                                  Disponible
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                                  En preparación
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-600 mb-2">
-                              {getText(zone.description, '')}
-                            </p>
-                            <div className="flex items-center text-xs text-gray-500">
-                              <Clock className="w-3 h-3 mr-1" />
-                              <span>{zone.stepsCount || 0} instrucciones</span>
-                              <span className="mx-2">•</span>
-                              <span>Zona {index + 1}</span>
-                            </div>
-                          </div>
+                          {isZoneViewed(zone.id) ? (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                              <Eye className="w-3 h-3 mr-1" />
+                              {t('viewed', language)}
+                            </span>
+                          ) : zone.status === 'ACTIVE' ? (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              {t('available', language)}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                              {t('inPreparation', language)}
+                            </span>
+                          )}
                         </div>
-                        <div className="flex items-center space-x-3">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              const url = `${window.location.origin}/guide/${propertyId}/${zone.id}`
-                              navigator.clipboard.writeText(url)
-                              alert('URL de la zona copiada')
-                            }}
-                          >
-                            <Copy className="w-4 h-4" />
-                          </Button>
-                          <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-violet-600 transition-colors" />
+                        <h3 className="font-semibold text-gray-900 text-base mb-1 group-hover:text-violet-600 transition-colors">
+                          {getText(zone.name, language, t('zone', language))}
+                        </h3>
+                        <p className="text-sm text-gray-500 line-clamp-2">
+                          {getText(zone.description, language, '')}
+                        </p>
+                      </div>
+
+                      {/* Footer */}
+                      <div className="p-4 bg-gray-50">
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <div className="flex items-center">
+                            <Clock className="w-3 h-3 mr-1" />
+                            <span>{zone.stepsCount || 0} {t('instructions', language)}</span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-violet-500 transition-colors" />
                         </div>
                       </div>
+
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-violet-500 bg-opacity-0 group-hover:bg-opacity-5 transition-all duration-300 pointer-events-none"></div>
                     </Card>
                   </motion.div>
                 ))}
@@ -811,10 +841,10 @@ export default function PropertyGuidePage() {
         {/* Footer */}
         <div className="text-center py-8 border-t border-gray-200">
           <p className="text-gray-600 text-sm mb-2">
-            Manual digital creado con ❤️ para tu comodidad
+            {t('digitalManualFooter', language)}
           </p>
           <p className="text-gray-500 text-xs">
-            ¿Tienes alguna sugerencia? Contacta con tu anfitrión
+            {t('suggestionsFooter', language)}
           </p>
         </div>
       </div>
@@ -864,21 +894,21 @@ export default function PropertyGuidePage() {
                 <Lightbulb className="w-8 h-8 text-violet-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Buzón de Sugerencias
+                {t('suggestionBoxTitle', language)}
               </h3>
               <p className="text-gray-600">
-                Ayuda a {property.hostContactName} a mejorar este manual
+                {t('suggestionBoxDesc', language, { hostName: property.hostContactName })}
               </p>
             </div>
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tu sugerencia
+                {t('yourSuggestion', language)}
               </label>
               <textarea
                 value={suggestion}
                 onChange={(e) => setSuggestion(e.target.value)}
-                placeholder="¿Qué información adicional te gustaría ver? ¿Hay algo que no está claro? Comparte tus ideas..."
+                placeholder={t('suggestionPlaceholder', language)}
                 rows={4}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
               />
@@ -891,7 +921,7 @@ export default function PropertyGuidePage() {
                 className="flex-1"
                 disabled={isSubmittingSuggestion}
               >
-                Cancelar
+{t('cancel', language)}
               </Button>
               <Button
                 onClick={submitSuggestion}
@@ -907,7 +937,7 @@ export default function PropertyGuidePage() {
                 ) : (
                   <>
                     <Send className="w-4 h-4 mr-2" />
-                    Enviar
+{t('send', language)}
                   </>
                 )}
               </Button>
