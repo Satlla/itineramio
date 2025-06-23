@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Play, Pause, ChevronLeft, ChevronRight, Phone, MessageCircle, Check, X, Star, Send } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Play, Pause, ChevronLeft, ChevronRight, Phone, MessageCircle, Check, X, Star, Send, Wifi, Zap, Car, Utensils, Bed, Bath, Shield, Tv, Coffee, MapPin, Globe, Clock, Mail } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '../../../../../src/components/ui/Button'
 import { Card, CardContent } from '../../../../../src/components/ui/Card'
@@ -43,13 +43,37 @@ interface Property {
   hostContactPhoto?: string
 }
 
+// Zone icon mapping
+const getZoneIcon = (iconName: string, className: string = "w-6 h-6") => {
+  const iconMap: { [key: string]: JSX.Element } = {
+    'wifi': <Wifi className={className} />,
+    'zap': <Zap className={className} />,
+    'car': <Car className={className} />,
+    'parking': <Car className={className} />,
+    'kitchen': <Utensils className={className} />,
+    'cocina': <Utensils className={className} />,
+    'bed': <Bed className={className} />,
+    'dormitorio': <Bed className={className} />,
+    'bath': <Bath className={className} />,
+    'baño': <Bath className={className} />,
+    'security': <Shield className={className} />,
+    'seguridad': <Shield className={className} />,
+    'tv': <Tv className={className} />,
+    'coffee': <Coffee className={className} />,
+    'location': <MapPin className={className} />,
+    'ubicacion': <MapPin className={className} />
+  }
+  
+  return iconMap[iconName.toLowerCase()] || <MapPin className={className} />
+}
+
 // Helper function to get text from multilingual objects
-const getText = (value: any, fallback: string = '') => {
+const getText = (value: any, language: string = 'es', fallback: string = '') => {
   if (typeof value === 'string') {
     return value
   }
   if (value && typeof value === 'object') {
-    return value.es || value.en || value.fr || fallback
+    return value[language] || value.es || value.en || value.fr || fallback
   }
   return fallback
 }
@@ -126,6 +150,9 @@ export default function ZoneGuidePage({
   const [isSubmittingRating, setIsSubmittingRating] = useState(false)
   const [zoneCompleted, setZoneCompleted] = useState(false)
   const [activeStepIndex, setActiveStepIndex] = useState(0)
+  const [language, setLanguage] = useState('es')
+  const [showHostModal, setShowHostModal] = useState(false)
+  const [animatingLines, setAnimatingLines] = useState<Set<number>>(new Set())
 
   // Unwrap params and fetch data
   useEffect(() => {
@@ -208,7 +235,15 @@ export default function ZoneGuidePage({
 
   const openWhatsApp = () => {
     if (property?.hostContactPhone && zone) {
-      const message = encodeURIComponent(`Hola ${property.hostContactName}, tengo una consulta sobre la zona "${getText(zone.name, 'la zona')}" en ${getText(property.name, 'la propiedad')}`)
+      const greeting = language === 'en' ? 'Hello' : language === 'fr' ? 'Bonjour' : 'Hola'
+      const question = language === 'en' 
+        ? 'I have a question about the zone' 
+        : language === 'fr' 
+        ? 'J\'ai une question sur la zone' 
+        : 'tengo una consulta sobre la zona'
+      const inText = language === 'en' ? 'in' : language === 'fr' ? 'dans' : 'en'
+      
+      const message = encodeURIComponent(`${greeting} ${property.hostContactName}, ${question} "${getText(zone.name, language, 'la zona')}" ${inText} ${getText(property.name, language, 'la propiedad')}`)
       const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
       window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
     }
@@ -235,18 +270,25 @@ export default function ZoneGuidePage({
   const nextStep = () => {
     if (zone && activeStepIndex < zone.steps.length - 1) {
       const currentStep = zone.steps.sort((a, b) => a.order - b.order)[activeStepIndex]
+      
       // Mark current step as completed
       setCompletedSteps(prev => new Set(Array.from(prev).concat(currentStep.id)))
-      // Move to next step
-      setActiveStepIndex(activeStepIndex + 1)
       
-      // Scroll to next step smoothly
+      // Animate the connecting line
+      setAnimatingLines(prev => new Set(Array.from(prev).concat(activeStepIndex)))
+      
+      // Move to next step with delay for line animation
       setTimeout(() => {
-        const nextStepElement = document.getElementById(`step-${activeStepIndex + 1}`)
-        if (nextStepElement) {
-          nextStepElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }
-      }, 100)
+        setActiveStepIndex(activeStepIndex + 1)
+        
+        // Scroll to next step smoothly
+        setTimeout(() => {
+          const nextStepElement = document.getElementById(`step-${activeStepIndex + 1}`)
+          if (nextStepElement) {
+            nextStepElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+        }, 300)
+      }, 150)
     }
   }
 
@@ -256,13 +298,23 @@ export default function ZoneGuidePage({
       // Mark current step as completed
       setCompletedSteps(prev => new Set(Array.from(prev).concat(currentStep.id)))
       
-      // If single step or last step, show rating modal
+      // If single step or last step, complete zone and show rating modal only if not already viewed
       if (zone.steps.length === 1 || activeStepIndex === zone.steps.length - 1) {
         setZoneCompleted(true)
         trackZoneCompleted(propertyId, zoneId, Date.now())
-        setShowRatingModal(true)
+        
+        // Check if zone was already rated to avoid showing modal again
+        const wasAlreadyViewed = localStorage.getItem(`zone-${zoneId}-viewed`)
+        if (!wasAlreadyViewed) {
+          setShowRatingModal(true)
+        }
       }
     }
+  }
+
+  // Check if zone is already viewed
+  const isZoneViewed = () => {
+    return localStorage.getItem(`zone-${zoneId}-viewed`) === 'true'
   }
 
   const prevStep = () => {
@@ -285,6 +337,8 @@ export default function ZoneGuidePage({
     setIsSubmittingRating(true)
     try {
       await trackZoneRated(propertyId, zoneId, rating, comment || undefined)
+      // Mark zone as viewed in localStorage
+      localStorage.setItem(`zone-${zoneId}-viewed`, 'true')
       setShowRatingModal(false)
       // Optionally redirect back to property page or show success message
     } catch (error) {
@@ -292,6 +346,12 @@ export default function ZoneGuidePage({
     } finally {
       setIsSubmittingRating(false)
     }
+  }
+
+  const skipRating = () => {
+    // Mark zone as viewed even if rating is skipped
+    localStorage.setItem(`zone-${zoneId}-viewed`, 'true')
+    setShowRatingModal(false)
   }
 
   const goToStep = (index: number) => {
@@ -350,8 +410,8 @@ export default function ZoneGuidePage({
             }`}>
               {zone.icon || '📁'}
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">{getText(zone.name, 'Zona')}</h2>
-            <p className="text-gray-600 mb-6">{getText(zone.description, '')}</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{getText(zone.name, language, 'Zona')}</h2>
+            <p className="text-gray-600 mb-6">{getText(zone.description, language, '')}</p>
             <div className="bg-yellow-50 rounded-lg p-4">
               <p className="text-yellow-800">
                 <strong>🚧 En construcción:</strong> El anfitrión aún está preparando el contenido de esta zona.
@@ -380,36 +440,45 @@ export default function ZoneGuidePage({
                 </Button>
               </Link>
               <div className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
-                  zone.color || 'bg-gray-100'
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-white ${
+                  zone.color || 'bg-gradient-to-br from-violet-500 to-purple-600'
                 }`}>
-                  {zone.icon || '📁'}
+                  {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5") : <MapPin className="w-5 h-5" />}
                 </div>
                 <div>
-                  <h1 className="font-semibold text-gray-900">{getText(zone.name, 'Zona')}</h1>
-                  <p className="text-sm text-gray-600">{getText(property.name, 'Propiedad')}</p>
+                  <div className="flex items-center gap-2">
+                    <h1 className="font-semibold text-gray-900">{getText(zone.name, language, 'Zona')}</h1>
+                    {isZoneViewed() && (
+                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                        Visto
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600">{getText(property.name, language, 'Propiedad')}</p>
                 </div>
               </div>
             </div>
             
             <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={openWhatsApp}
-                className="text-green-600 border-green-200 hover:bg-green-50"
+              {/* Language Selector */}
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-transparent"
               >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">WhatsApp</span>
-              </Button>
+                <option value="es">🇪🇸 ES</option>
+                <option value="en">🇬🇧 EN</option>
+                <option value="fr">🇫🇷 FR</option>
+              </select>
+              
               <Button
                 variant="outline"
                 size="sm"
-                onClick={makeCall}
+                onClick={() => setShowHostModal(true)}
                 className="text-blue-600 border-blue-200 hover:bg-blue-50"
               >
                 <Phone className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Llamar</span>
+                <span className="hidden sm:inline">Contacto</span>
               </Button>
             </div>
           </div>
@@ -432,7 +501,7 @@ export default function ZoneGuidePage({
         </div>
       </header>
 
-      {/* Main Content - Vertical Timeline */}
+      {/* Main Content - Dynamic Vertical Timeline */}
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="relative">
           {/* Timeline Steps */}
@@ -440,146 +509,253 @@ export default function ZoneGuidePage({
             <motion.div
               key={step.id}
               id={`step-${index}`}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30, scale: 0.9 }}
               animate={{ 
-                opacity: index <= activeStepIndex ? 1 : 0.4,
-                y: 0 
+                opacity: index <= activeStepIndex ? 1 : 0.3,
+                y: 0,
+                scale: index === activeStepIndex ? 1 : 0.95
               }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={`relative flex mb-8 ${index <= activeStepIndex ? '' : 'pointer-events-none'}`}
+              transition={{ 
+                duration: 0.6, 
+                delay: index * 0.15,
+                type: "spring",
+                stiffness: 100
+              }}
+              className={`relative flex mb-12 ${index <= activeStepIndex ? '' : 'pointer-events-none'}`}
             >
-              {/* Timeline Line */}
-              <div className="flex flex-col items-center mr-6">
-                {/* Step Number Circle */}
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 z-10 ${
-                  completedSteps.has(step.id)
-                    ? 'bg-green-600 text-white border-green-600'
-                    : index === activeStepIndex
-                    ? 'bg-violet-600 text-white border-violet-600'
-                    : index < activeStepIndex
-                    ? 'bg-violet-100 text-violet-600 border-violet-300'
-                    : 'bg-gray-200 text-gray-500 border-gray-300'
-                }`}>
+              {/* Enhanced Timeline Line */}
+              <div className="flex flex-col items-center mr-8">
+                {/* Step Number Circle with Glow Effect */}
+                <motion.div 
+                  className={`relative w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold border-3 z-10 shadow-lg ${
+                    completedSteps.has(step.id)
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-green-400 shadow-green-400/50'
+                      : index === activeStepIndex
+                      ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white border-violet-400 shadow-violet-400/50'
+                      : index < activeStepIndex
+                      ? 'bg-gradient-to-r from-violet-100 to-purple-100 text-violet-700 border-violet-300'
+                      : 'bg-white text-gray-400 border-gray-300'
+                  }`}
+                  animate={{
+                    scale: index === activeStepIndex ? [1, 1.1, 1] : 1,
+                    boxShadow: index === activeStepIndex 
+                      ? ["0 0 0 0 rgba(139, 92, 246, 0.3)", "0 0 0 8px rgba(139, 92, 246, 0)", "0 0 0 0 rgba(139, 92, 246, 0)"]
+                      : "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+                  }}
+                  transition={{
+                    scale: { duration: 2, repeat: Infinity },
+                    boxShadow: { duration: 2, repeat: Infinity }
+                  }}
+                >
                   {completedSteps.has(step.id) ? (
-                    <Check className="w-5 h-5" />
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", stiffness: 200 }}
+                    >
+                      <Check className="w-6 h-6" />
+                    </motion.div>
                   ) : (
-                    step.order
+                    <span className="text-lg font-bold">{index + 1}</span>
                   )}
-                </div>
+                </motion.div>
                 
-                {/* Vertical Line */}
+                {/* Animated Connecting Line */}
                 {index < sortedSteps.length - 1 && (
-                  <div className={`w-0.5 h-20 mt-2 ${
-                    index < activeStepIndex
-                      ? 'bg-violet-600'
-                      : 'bg-gray-300'
-                  }`} />
+                  <div className="relative mt-3">
+                    {/* Background line */}
+                    <div className="w-1 h-24 bg-gray-200 rounded-full" />
+                    
+                    {/* Animated progress line */}
+                    <motion.div
+                      className={`absolute top-0 w-1 rounded-full ${
+                        animatingLines.has(index)
+                          ? 'bg-gradient-to-b from-violet-500 to-purple-600'
+                          : index < activeStepIndex
+                          ? 'bg-gradient-to-b from-green-500 to-emerald-600'
+                          : 'bg-gray-200'
+                      }`}
+                      initial={{ height: 0 }}
+                      animate={{ 
+                        height: animatingLines.has(index) || index < activeStepIndex ? '100%' : 0 
+                      }}
+                      transition={{ 
+                        duration: animatingLines.has(index) ? 0.8 : 0.3,
+                        ease: "easeInOut"
+                      }}
+                      style={{
+                        background: animatingLines.has(index) 
+                          ? 'linear-gradient(to bottom, #8b5cf6, #a855f7, #10b981)'
+                          : undefined
+                      }}
+                    />
+                    
+                    {/* Flowing particles effect */}
+                    {animatingLines.has(index) && (
+                      <motion.div
+                        className="absolute top-0 left-1/2 w-2 h-2 bg-white rounded-full transform -translate-x-1/2"
+                        animate={{ y: [0, 96] }}
+                        transition={{ duration: 0.8, ease: "easeInOut" }}
+                      />
+                    )}
+                  </div>
                 )}
               </div>
 
-              {/* Step Content */}
-              <div className="flex-1">
-                <Card className={`${
+              {/* Enhanced Step Content */}
+              <motion.div 
+                className="flex-1"
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 + 0.3 }}
+              >
+                <Card className={`relative overflow-hidden transition-all duration-500 ${
                   index === activeStepIndex 
-                    ? 'border-violet-300 bg-violet-50/50' 
+                    ? 'border-violet-300 bg-gradient-to-br from-violet-50 to-purple-50 shadow-xl shadow-violet-100' 
                     : index < activeStepIndex
-                    ? 'border-green-200 bg-green-50/30'
-                    : 'border-gray-200'
+                    ? 'border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 shadow-md'
+                    : 'border-gray-200 bg-white'
                 }`}>
-                  <CardContent className="p-6">
-                    {/* Step Header */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Badge variant={step.status === 'ACTIVE' ? 'default' : 'secondary'}>
-                            {step.type}
-                          </Badge>
-                          {step.estimatedTime && (
-                            <span className="text-sm text-gray-500">
-                              {step.estimatedTime} min
-                            </span>
-                          )}
-                          {completedSteps.has(step.id) && (
-                            <Badge variant="default" className="bg-green-600">
-                              Completado
-                            </Badge>
-                          )}
+                  {/* Glowing border for active step */}
+                  {index === activeStepIndex && (
+                    <motion.div
+                      className="absolute inset-0 rounded-lg"
+                      animate={{
+                        background: [
+                          "linear-gradient(0deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.1))",
+                          "linear-gradient(90deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.2))",
+                          "linear-gradient(180deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.1))",
+                          "linear-gradient(270deg, rgba(168, 85, 247, 0.2), rgba(139, 92, 246, 0.2))"
+                        ]
+                      }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                    />
+                  )}
+                  
+                  <CardContent className="p-8 relative z-10">
+                    {/* Step Header - Clean, no badges */}
+                    <div className="mb-6">
+                      <motion.h2 
+                        className={`text-2xl font-bold mb-3 ${
+                          index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
+                        }`}
+                        layoutId={`title-${step.id}`}
+                      >
+                        {getText(step.title, language, 'Paso')}
+                      </motion.h2>
+                      
+                      {step.estimatedTime && (
+                        <div className="flex items-center text-sm text-gray-500 mb-2">
+                          <Clock className="w-4 h-4 mr-1" />
+                          <span>{step.estimatedTime} min</span>
                         </div>
-                        <h2 className="text-xl font-bold text-gray-900 mb-2">
-                          {getText(step.title, 'Paso')}
-                        </h2>
-                        {step.description && (
-                          <p className="text-gray-700 leading-relaxed mb-4">
-                            {getText(step.description, '')}
-                          </p>
-                        )}
-                        {step.content && (
-                          <div className="text-gray-700 leading-relaxed whitespace-pre-wrap mb-4">
-                            {getText(step.content, '')}
-                          </div>
-                        )}
-                      </div>
+                      )}
+                      
+                      {step.description && (
+                        <p className="text-gray-700 leading-relaxed text-lg">
+                          {getText(step.description, language, '')}
+                        </p>
+                      )}
+                      
+                      {step.content && (
+                        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap mt-4">
+                          {getText(step.content, language, '')}
+                        </div>
+                      )}
+                      
+                      {completedSteps.has(step.id) && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-4 flex items-center text-green-600 font-medium"
+                        >
+                          <Check className="w-5 h-5 mr-2" />
+                          Completado
+                        </motion.div>
+                      )}
                     </div>
 
-                    {/* Step Media */}
-                    {step.type === 'IMAGE' && step.mediaUrl && (
-                      <div className="mb-6">
-                        <img
-                          src={step.mediaUrl}
-                          alt={getText(step.title, 'Imagen del paso')}
-                          className="w-full h-auto rounded-lg shadow-lg"
-                        />
-                      </div>
-                    )}
+                    {/* Enhanced Step Media */}
+                    <AnimatePresence mode="wait">
+                      {step.type === 'IMAGE' && step.mediaUrl && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          className="mb-6"
+                        >
+                          <img
+                            src={step.mediaUrl}
+                            alt={getText(step.title, language, 'Imagen del paso')}
+                            className="w-full h-auto rounded-xl shadow-lg hover:shadow-xl transition-shadow"
+                          />
+                        </motion.div>
+                      )}
 
-                    {step.type === 'VIDEO' && step.mediaUrl && (
-                      <div className="mb-6">
-                        <div className="relative rounded-lg overflow-hidden shadow-lg">
-                          <video
-                            className="w-full h-auto"
-                            controls
-                            poster="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=400&fit=crop"
-                          >
-                            <source src={step.mediaUrl} type="video/mp4" />
-                            Tu navegador no soporta videos.
-                          </video>
-                        </div>
-                      </div>
-                    )}
+                      {step.type === 'VIDEO' && step.mediaUrl && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          className="mb-6"
+                        >
+                          <div className="relative rounded-xl overflow-hidden shadow-lg">
+                            <video
+                              className="w-full h-auto"
+                              controls
+                              poster="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=400&fit=crop"
+                            >
+                              <source src={step.mediaUrl} type="video/mp4" />
+                              Tu navegador no soporta videos.
+                            </video>
+                          </div>
+                        </motion.div>
+                      )}
 
-                    {step.type === 'LINK' && step.linkUrl && (
-                      <div className="mb-6">
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                              <ArrowRight className="w-6 h-6 text-blue-600" />
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="font-medium text-blue-900 mb-1">Enlace externo</h3>
-                              <p className="text-blue-700 text-sm mb-3">
-                                Haz clic para abrir este recurso en una nueva pestaña
-                              </p>
-                              <Button
-                                onClick={() => window.open(step.linkUrl, '_blank')}
-                                className="bg-blue-600 hover:bg-blue-700"
-                              >
-                                Abrir enlace
-                                <ArrowRight className="w-4 h-4 ml-2" />
-                              </Button>
+                      {step.type === 'LINK' && step.linkUrl && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 20 }}
+                          className="mb-6"
+                        >
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                                <ArrowRight className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="flex-1">
+                                <h3 className="font-semibold text-blue-900 mb-1">Enlace externo</h3>
+                                <p className="text-blue-700 text-sm mb-3">
+                                  Haz clic para abrir este recurso en una nueva pestaña
+                                </p>
+                                <Button
+                                  onClick={() => window.open(step.linkUrl, '_blank')}
+                                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                                >
+                                  Abrir enlace
+                                  <ArrowRight className="w-4 h-4 ml-2" />
+                                </Button>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                    {/* Step Actions - Show only for active step */}
+                    {/* Enhanced Step Actions - Show only for active step */}
                     {index === activeStepIndex && (
-                      <div className="flex gap-3 pt-4 border-t border-gray-200">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="flex gap-4 pt-6 border-t border-gray-200"
+                      >
                         {activeStepIndex > 0 && (
                           <Button
                             variant="outline"
                             onClick={prevStep}
-                            className="flex-1"
+                            className="flex-1 border-violet-200 text-violet-700 hover:bg-violet-50"
                           >
                             <ChevronLeft className="w-4 h-4 mr-2" />
                             Anterior
@@ -591,7 +767,7 @@ export default function ZoneGuidePage({
                           <Button
                             onClick={finishStep}
                             disabled={completedSteps.has(step.id)}
-                            className="flex-1 bg-green-600 hover:bg-green-700"
+                            className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
                           >
                             {completedSteps.has(step.id) ? 'Completado' : '¡Ya lo tengo!'}
                             <Check className="w-4 h-4 ml-2" />
@@ -599,17 +775,17 @@ export default function ZoneGuidePage({
                         ) : (
                           <Button
                             onClick={nextStep}
-                            className="flex-1"
+                            className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg"
                           >
                             Siguiente
                             <ChevronRight className="w-4 h-4 ml-2" />
                           </Button>
                         )}
-                      </div>
+                      </motion.div>
                     )}
                   </CardContent>
                 </Card>
-              </div>
+              </motion.div>
             </motion.div>
           ))}
         </div>
@@ -626,6 +802,103 @@ export default function ZoneGuidePage({
           </p>
         </motion.div>
       </main>
+
+      {/* Host Contact Modal */}
+      <AnimatePresence>
+        {showHostModal && property && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowHostModal(false)
+              }
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-center mb-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  {property.hostContactPhoto ? (
+                    <img 
+                      src={property.hostContactPhoto} 
+                      alt={property.hostContactName}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <MessageCircle className="w-10 h-10 text-white" />
+                  )}
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  {property.hostContactName}
+                </h3>
+                <p className="text-gray-600">
+                  Anfitrión de {getText(property.name, language, 'esta propiedad')}
+                </p>
+              </div>
+
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center">
+                    <Phone className="w-5 h-5 text-gray-500 mr-3" />
+                    <span className="text-gray-700">{property.hostContactPhone}</span>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => window.open(`tel:${property.hostContactPhone}`, '_self')}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Llamar
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center">
+                    <MessageCircle className="w-5 h-5 text-gray-500 mr-3" />
+                    <span className="text-gray-700">WhatsApp</span>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={openWhatsApp}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    Enviar
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center">
+                    <Mail className="w-5 h-5 text-gray-500 mr-3" />
+                    <span className="text-gray-700 truncate">{property.hostContactEmail}</span>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => window.open(`mailto:${property.hostContactEmail}`, '_self')}
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
+                    Email
+                  </Button>
+                </div>
+              </div>
+
+              <Button
+                variant="outline"
+                onClick={() => setShowHostModal(false)}
+                className="w-full"
+              >
+                Cerrar
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Rating Modal */}
       <AnimatePresence>
@@ -653,10 +926,18 @@ export default function ZoneGuidePage({
                   <Check className="w-8 h-8 text-green-600" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  {zone.steps.length === 1 ? '¡Instrucción completada!' : '¡Zona completada!'}
+                  {zone.steps.length === 1 
+                    ? (language === 'en' ? 'Instruction completed!' : language === 'fr' ? 'Instruction terminée!' : '¡Instrucción completada!')
+                    : (language === 'en' ? 'Zone completed!' : language === 'fr' ? 'Zone terminée!' : '¡Zona completada!')
+                  }
                 </h3>
                 <p className="text-gray-600">
-                  ¿Te ha resultado útil la información?
+                  {language === 'en' 
+                    ? 'Was this information helpful?' 
+                    : language === 'fr' 
+                    ? 'Cette information vous a-t-elle été utile?' 
+                    : '¿Te ha resultado útil la información?'
+                  }
                 </p>
               </div>
 
@@ -683,12 +964,23 @@ export default function ZoneGuidePage({
               {/* Comment */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Comentario o reporte (opcional)
+                  {language === 'en' 
+                    ? 'Comment or report (optional)' 
+                    : language === 'fr' 
+                    ? 'Commentaire ou signalement (optionnel)' 
+                    : 'Comentario o reporte (opcional)'
+                  }
                 </label>
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder="Cuéntanos qué te pareció o reporta algún problema con el manual..."
+                  placeholder={
+                    language === 'en' 
+                      ? 'Tell us what you thought or report any problem with the manual...'
+                      : language === 'fr' 
+                      ? 'Dites-nous ce que vous en avez pensé ou signalez un problème avec le manuel...'
+                      : 'Cuéntanos qué te pareció o reporta algún problema con el manual...'
+                  }
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                 />
@@ -698,11 +990,11 @@ export default function ZoneGuidePage({
               <div className="flex gap-3">
                 <Button
                   variant="outline"
-                  onClick={() => setShowRatingModal(false)}
+                  onClick={skipRating}
                   className="flex-1"
                   disabled={isSubmittingRating}
                 >
-                  Omitir
+                  {language === 'en' ? 'Skip' : language === 'fr' ? 'Passer' : 'Omitir'}
                 </Button>
                 <Button
                   onClick={submitRating}
@@ -718,7 +1010,7 @@ export default function ZoneGuidePage({
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      Enviar
+                      {language === 'en' ? 'Send' : language === 'fr' ? 'Envoyer' : 'Enviar'}
                     </>
                   )}
                 </Button>
