@@ -200,19 +200,19 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
                         onClick={onClose}
                         className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors group"
                       >
-                      <div className="flex items-start space-x-3">
-                        <div className="text-gray-500 group-hover:text-violet-600 transition-colors">
-                          {item.icon}
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900 group-hover:text-violet-600 transition-colors">
-                            {item.label}
+                        <div className="flex items-start space-x-3">
+                          <div className="text-gray-500 group-hover:text-violet-600 transition-colors">
+                            {item.icon}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {item.description}
+                          <div>
+                            <div className="font-medium text-gray-900 group-hover:text-violet-600 transition-colors">
+                              {item.label}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {item.description}
+                            </div>
                           </div>
                         </div>
-                      </div>
                         <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-violet-600 transition-colors" />
                       </Link>
                     )}

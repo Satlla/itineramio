@@ -21,7 +21,9 @@ import {
   ExternalLink,
   AlertTriangle,
   X,
-  Building2
+  Building2,
+  CheckCircle,
+  MessageCircle
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -81,7 +83,8 @@ export default function DashboardPage(): JSX.Element {
     totalProperties: 0,
     totalViews: 0,
     activeManuals: 0,
-    avgRating: 0
+    avgRating: 0,
+    zonesViewed: 0
   })
   const router = useRouter()
   const { user } = useAuth()
@@ -90,30 +93,38 @@ export default function DashboardPage(): JSX.Element {
   const recentActivity = [
     { 
       id: '1', 
-      type: 'view', 
-      message: 'Un huésped vio "Manual de Cocina" en Villa Sunset', 
+      type: 'completed', 
+      message: 'Un huésped completó los pasos de WiFi de Villa Sunset', 
       time: 'hace 5 minutos',
       avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face'
     },
     { 
       id: '2', 
-      type: 'update', 
-      message: 'Se ha cambiado video de zona Baño en Loft Moderno', 
+      type: 'rating', 
+      message: 'Un usuario ha evaluado con 5 estrellas la zona Cocina de Loft Moderno', 
       time: 'hace 2 horas',
-      avatar: null
-    },
-    { 
-      id: '3', 
-      type: 'checkout', 
-      message: 'Un huésped ha visto Check-out en Apartamento Centro', 
-      time: 'hace 4 horas',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face'
     },
     { 
+      id: '3', 
+      type: 'step', 
+      message: 'Un huésped vio un paso en Check-in de Apartamento Centro', 
+      time: 'hace 4 horas',
+      avatar: null
+    },
+    { 
       id: '4', 
-      type: 'create', 
-      message: 'Nueva zona "Terraza" creada en Villa Sunset', 
-      time: 'hace 1 día'
+      type: 'comment', 
+      message: 'Nuevo comentario: "Muy útil la información del parking" en Villa Sunset', 
+      time: 'hace 1 día',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face'
+    },
+    {
+      id: '5',
+      type: 'report',
+      message: 'Reporte técnico: "La vitrocerámica no funciona bien" en Apartamento Playa',
+      time: 'hace 2 días',
+      avatar: null
     }
   ]
 
@@ -144,7 +155,8 @@ export default function DashboardPage(): JSX.Element {
           totalProperties: allProperties.length,
           totalViews: totalViews,
           activeManuals: activeManuals,
-          avgRating: parseFloat(avgRating.toFixed(1))
+          avgRating: parseFloat(avgRating.toFixed(1)),
+          zonesViewed: 0 // TODO: Implement real data from API
         })
       }
 
@@ -305,15 +317,15 @@ export default function DashboardPage(): JSX.Element {
               </CardContent>
             </Card>
 
-            {/* Manuales Activos card */}
+            {/* Zonas Vistas card */}
             <Card>
               <CardContent className="p-3 sm:p-6">
                 <div className="flex items-center">
-                  <PlayCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
+                  <Eye className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
                   <div className="ml-3 sm:ml-4">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">Manuales Activos</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Zonas Vistas</p>
                     <p className="text-xl sm:text-2xl font-bold text-gray-900">
-                      {stats.activeManuals}
+                      {stats.zonesViewed || 0}
                     </p>
                   </div>
                 </div>
@@ -328,7 +340,7 @@ export default function DashboardPage(): JSX.Element {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="lg:col-span-2"
+              className="lg:col-span-2 order-1"
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
@@ -530,11 +542,12 @@ export default function DashboardPage(): JSX.Element {
               )}
             </motion.div>
 
-            {/* Right Column - Activity */}
+            {/* Right Column - Activity - Order last on mobile */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
+              className="order-3 lg:order-2"
             >
               <div className="flex items-center space-x-3 mb-6">
                 <TrendingUp className="w-6 h-6 text-orange-600" />
@@ -550,7 +563,11 @@ export default function DashboardPage(): JSX.Element {
                       </Avatar>
                     ) : (
                       <div className="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center">
-                        <Calendar className="h-4 w-4 text-gray-500" />
+                        {activity.type === 'completed' && <CheckCircle className="h-4 w-4 text-green-500" />}
+                        {activity.type === 'rating' && <Star className="h-4 w-4 text-yellow-500" />}
+                        {activity.type === 'step' && <Eye className="h-4 w-4 text-blue-500" />}
+                        {activity.type === 'comment' && <MessageCircle className="h-4 w-4 text-purple-500" />}
+                        {activity.type === 'report' && <AlertTriangle className="h-4 w-4 text-red-500" />}
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
@@ -569,7 +586,7 @@ export default function DashboardPage(): JSX.Element {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.25 }}
-              className="mt-12"
+              className="mt-12 order-2"
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
