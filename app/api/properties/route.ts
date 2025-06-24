@@ -48,13 +48,25 @@ const createPropertySchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('POST /api/properties - Start')
+    
     // Get user from JWT token
     const token = request.cookies.get('auth-token')?.value
+    console.log('Auth token present:', !!token)
+    
     if (!token) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    let decoded: { userId: string }
+    try {
+      decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+      console.log('JWT decoded successfully, userId:', decoded.userId)
+    } catch (jwtError) {
+      console.error('JWT verification failed:', jwtError)
+      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
+    }
+    
     const userId = decoded.userId
 
     const body = await request.json()
@@ -67,21 +79,33 @@ export async function POST(request: NextRequest) {
     console.log('Validated data:', validatedData)
     console.log('User ID:', userId)
     
-    // Generate unique slug for the property (temporarily disabled)
-    // const baseSlug = generateSlug(validatedData.name)
-    // const existingSlugs = await prisma.property.findMany({
-    //   where: { slug: { not: null } },
-    //   select: { slug: true }
-    // }).then(results => results.map(r => r.slug).filter(Boolean) as string[])
-    // const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
-    const uniqueSlug = null // Temporarily disable until DB migration
+    // Generate unique slug for the property
+    const baseSlug = generateSlug(validatedData.name)
+    console.log('Generated base slug:', baseSlug)
+    
+    let existingSlugs: string[] = []
+    try {
+      const existingProperties = await prisma.property.findMany({
+        where: { slug: { not: null } },
+        select: { slug: true }
+      })
+      existingSlugs = existingProperties.map(r => r.slug).filter(Boolean) as string[]
+      console.log('Found existing slugs:', existingSlugs.length)
+    } catch (dbError) {
+      console.error('Error fetching existing slugs:', dbError)
+      throw new Error('Database connection error')
+    }
+    
+    const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
+    console.log('Generated unique slug:', uniqueSlug)
     
     // Create property in database
+    console.log('Attempting to create property in database...')
     const property = await prisma.property.create({
       data: {
         // Basic info
         name: validatedData.name,
-        // slug: uniqueSlug, // Temporarily disabled until DB migration
+        slug: uniqueSlug,
         description: validatedData.description,
         type: validatedData.type,
         
@@ -127,6 +151,8 @@ export async function POST(request: NextRequest) {
       }
     })
     
+    console.log('Property created successfully:', property.id)
+    
     // Zones will be created separately when user navigates to zones page
     
     return NextResponse.json({
@@ -136,6 +162,11 @@ export async function POST(request: NextRequest) {
     
   } catch (error) {
     console.error('Error creating property:', error)
+    console.error('Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    })
     
     if (error instanceof z.ZodError) {
       return NextResponse.json({
@@ -143,6 +174,23 @@ export async function POST(request: NextRequest) {
         error: 'Datos de entrada inválidos',
         details: error.errors
       }, { status: 400 })
+    }
+    
+    // Check for Prisma errors
+    if (error instanceof Error && error.message.includes('Unique constraint')) {
+      return NextResponse.json({
+        success: false,
+        error: 'Ya existe una propiedad con ese nombre. Por favor, elige otro nombre.',
+        details: error.message
+      }, { status: 400 })
+    }
+    
+    if (error instanceof Error && error.message.includes('Foreign key constraint')) {
+      return NextResponse.json({
+        success: false,
+        error: 'Error de autenticación. Por favor, inicia sesión nuevamente.',
+        details: error.message
+      }, { status: 401 })
     }
     
     return NextResponse.json({
@@ -218,7 +266,7 @@ export async function GET(request: NextRequest) {
     const propertiesWithZones = properties.map((property) => ({
       id: property.id,
       name: property.name,
-      slug: null, // Temporarily disable slug until DB migration is complete
+      slug: property.slug,
       description: property.description,
       type: property.type,
       city: property.city,

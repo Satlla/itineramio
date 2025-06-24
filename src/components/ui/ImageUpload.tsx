@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Upload, X, Camera, User } from 'lucide-react'
+import { Upload, X, Camera, User, FolderOpen } from 'lucide-react'
 import { Button } from './Button'
+import { MediaSelector } from './MediaSelector'
 
 interface ImageUploadProps {
   value?: string
@@ -13,6 +14,7 @@ interface ImageUploadProps {
   maxSize?: number // in MB
   accept?: string
   error?: boolean
+  saveToLibrary?: boolean // Whether to save to media library
 }
 
 export function ImageUpload({
@@ -23,11 +25,13 @@ export function ImageUpload({
   variant = 'property',
   maxSize = 5,
   accept = "image/*",
-  error = false
+  error = false,
+  saveToLibrary = true
 }: ImageUploadProps) {
   const [dragActive, setDragActive] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [showMediaSelector, setShowMediaSelector] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const isProfile = variant === 'profile'
@@ -124,6 +128,30 @@ export function ImageUpload({
       
       if (result.success) {
         const imageUrl = result.url
+        
+        // Save to media library if enabled
+        if (saveToLibrary) {
+          try {
+            await fetch('/api/media-library', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                url: imageUrl,
+                type: 'image',
+                metadata: {
+                  filename: result.filename,
+                  originalName: file.name,
+                  mimeType: file.type,
+                  size: file.size
+                }
+              })
+            })
+          } catch (error) {
+            console.warn('Failed to save to media library:', error)
+            // Don't fail the upload if library save fails
+          }
+        }
+        
         setPreviewUrl(imageUrl)
         onChange(imageUrl)
       } else {
@@ -151,6 +179,12 @@ export function ImageUpload({
     if (inputRef.current) {
       inputRef.current.value = ''
     }
+  }
+
+  const handleSelectFromLibrary = (media: any) => {
+    setPreviewUrl(media.url)
+    onChange(media.url)
+    setShowMediaSelector(false)
   }
 
   return (
@@ -244,10 +278,34 @@ export function ImageUpload({
               <p className="text-xs text-gray-400 mt-1">
                 Máximo {maxSize}MB
               </p>
+              {!isProfile && (
+                <div className="mt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowMediaSelector(true)
+                    }}
+                    className="text-xs"
+                  >
+                    <FolderOpen className="w-4 h-4 mr-1" />
+                    Desde biblioteca
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </div>
       )}
+      
+      <MediaSelector
+        type="image"
+        isOpen={showMediaSelector}
+        onSelect={handleSelectFromLibrary}
+        onClose={() => setShowMediaSelector(false)}
+      />
     </div>
   )
 }

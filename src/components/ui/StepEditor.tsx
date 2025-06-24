@@ -21,6 +21,8 @@ import { Button } from './Button'
 import { Card } from './Card'
 import { Input } from './Input'
 import { Badge } from './Badge'
+import { ImageUpload } from './ImageUpload'
+import { VideoUpload } from './VideoUpload'
 import { MobileStepEditor as MobileStepEditorNew } from './MobileStepEditor'
 import { MobileStepEditorSimple } from './MobileStepEditorSimple'
 
@@ -85,7 +87,6 @@ export function StepEditor({
   const [activeLanguage, setActiveLanguage] = useState<'es' | 'en' | 'fr'>('es')
   const [isAddingStep, setIsAddingStep] = useState(false)
   const [lineProgress, setLineProgress] = useState(0)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   function createNewStep(order: number): Step {
     return {
@@ -327,41 +328,56 @@ export function StepEditor({
         </div>
       )}
 
-      {(step.type === 'image' || step.type === 'video') && (
+      {step.type === 'image' && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            {step.type === 'image' ? 'Imagen' : 'Video'}
-          </label>
-          {!step.media?.url ? (
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-violet-400 transition-colors cursor-pointer"
-            >
-              <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-              <p className="text-gray-600 text-sm mb-2">Toca para subir</p>
-              <p className="text-xs text-gray-500">
-                {step.type === 'video' ? 'MP4, máx 30 seg' : 'PNG, JPG hasta 10MB'}
-              </p>
-            </div>
-          ) : (
-            <div className="bg-gray-100 rounded-xl p-4">
-              {step.type === 'image' ? (
-                <img src={step.media?.url} alt="Preview" className="max-h-40 mx-auto rounded-lg" />
-              ) : (
-                <div className="bg-black rounded-lg aspect-video max-w-64 mx-auto flex items-center justify-center">
-                  <Play className="w-10 h-10 text-white opacity-75" />
-                </div>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-                className="mt-3 w-full"
-              >
-                Cambiar archivo
-              </Button>
-            </div>
-          )}
+          <label className="block text-sm font-medium text-gray-700 mb-3">Imagen</label>
+          <ImageUpload
+            value={step.media?.url}
+            onChange={(url) => {
+              if (url) {
+                updateStep(step.id, {
+                  media: {
+                    url,
+                    title: 'Uploaded image'
+                  }
+                })
+              } else {
+                updateStep(step.id, { media: undefined })
+              }
+            }}
+            className="mb-3"
+          />
+          <Input
+            value={step.content[activeLanguage] || ''}
+            onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
+            placeholder="Descripción (opcional)"
+            className="mt-3"
+          />
+        </div>
+      )}
+
+      {step.type === 'video' && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-3">Video</label>
+          <VideoUpload
+            value={step.media?.url}
+            onChange={(url, metadata) => {
+              if (url) {
+                updateStep(step.id, {
+                  media: {
+                    url,
+                    thumbnail: metadata?.thumbnail,
+                    title: 'Uploaded video'
+                  }
+                })
+              } else {
+                updateStep(step.id, { media: undefined })
+              }
+            }}
+            className="mb-3"
+            maxSize={50}
+            maxDuration={30}
+          />
           <Input
             value={step.content[activeLanguage] || ''}
             onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
@@ -746,52 +762,27 @@ export function StepEditor({
                           </div>
                         )}
 
-                        {(steps[activeStep].type === 'image' || steps[activeStep].type === 'video') && (
+                        {steps[activeStep].type === 'image' && (
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Subir {steps[activeStep].type === 'image' ? 'imagen' : 'video'}
+                              Subir imagen
                             </label>
-                            
-                            {!steps[activeStep].media?.url ? (
-                              <div
-                                onClick={() => fileInputRef.current?.click()}
-                                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-violet-400 transition-colors cursor-pointer"
-                              >
-                                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                <p className="text-gray-600 mb-2">
-                                  Arrastra y suelta o haz clic para subir
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {steps[activeStep].type === 'video' 
-                                    ? 'MP4, máximo 30 segundos' 
-                                    : 'PNG, JPG hasta 10MB'
-                                  }
-                                </p>
-                              </div>
-                            ) : (
-                              <div className="bg-gray-100 rounded-lg p-4">
-                                {steps[activeStep].type === 'image' ? (
-                                  <img
-                                    src={steps[activeStep].media?.url}
-                                    alt="Preview"
-                                    className="max-h-64 mx-auto rounded-lg"
-                                  />
-                                ) : (
-                                  <div className="bg-black rounded-lg aspect-video max-w-md mx-auto flex items-center justify-center">
-                                    <Play className="w-16 h-16 text-white opacity-75" />
-                                  </div>
-                                )}
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => fileInputRef.current?.click()}
-                                  className="mt-3"
-                                >
-                                  Cambiar archivo
-                                </Button>
-                              </div>
-                            )}
-
+                            <ImageUpload
+                              value={steps[activeStep].media?.url}
+                              onChange={(url) => {
+                                if (url) {
+                                  updateStep(steps[activeStep].id, {
+                                    media: {
+                                      url,
+                                      title: 'Uploaded image'
+                                    }
+                                  })
+                                } else {
+                                  updateStep(steps[activeStep].id, { media: undefined })
+                                }
+                              }}
+                              className="mb-4"
+                            />
                             <div className="mt-4">
                               <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Descripción (opcional)
@@ -799,7 +790,44 @@ export function StepEditor({
                               <Input
                                 value={steps[activeStep].content[activeLanguage] || ''}
                                 onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
-                                placeholder="Descripción de la imagen/video"
+                                placeholder="Descripción de la imagen"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {steps[activeStep].type === 'video' && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Subir video
+                            </label>
+                            <VideoUpload
+                              value={steps[activeStep].media?.url}
+                              onChange={(url, metadata) => {
+                                if (url) {
+                                  updateStep(steps[activeStep].id, {
+                                    media: {
+                                      url,
+                                      thumbnail: metadata?.thumbnail,
+                                      title: 'Uploaded video'
+                                    }
+                                  })
+                                } else {
+                                  updateStep(steps[activeStep].id, { media: undefined })
+                                }
+                              }}
+                              className="mb-4"
+                              maxSize={50}
+                              maxDuration={30}
+                            />
+                            <div className="mt-4">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción (opcional)
+                              </label>
+                              <Input
+                                value={steps[activeStep].content[activeLanguage] || ''}
+                                onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
+                                placeholder="Descripción del video"
                               />
                             </div>
                           </div>
@@ -969,28 +997,6 @@ export function StepEditor({
         </div>
       )}
 
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*,video/*"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) {
-            // Handle file upload
-            const mockUrl = URL.createObjectURL(file)
-            updateStep(steps[activeStep].id, {
-              type: file.type.startsWith('video/') ? 'video' : 'image',
-              media: {
-                url: mockUrl,
-                thumbnail: file.type.startsWith('video/') ? mockUrl : undefined,
-                title: file.name
-              }
-            })
-          }
-        }}
-        className="hidden"
-      />
     </div>
   )
 }

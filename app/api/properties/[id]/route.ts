@@ -1,8 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
+import { z } from 'zod'
 import { prisma } from '../../../../src/lib/prisma'
 
 const JWT_SECRET = 'itineramio-secret-key-2024'
+
+// Validation schema for property update
+const updatePropertySchema = z.object({
+  name: z.string().min(3).max(100).optional(),
+  description: z.string().min(10).max(1000).optional(),
+  type: z.enum(['APARTMENT', 'HOUSE', 'ROOM', 'VILLA']).optional(),
+  
+  // Address
+  street: z.string().min(5).optional(),
+  city: z.string().min(2).optional(),
+  state: z.string().min(2).optional(),
+  country: z.string().optional(),
+  postalCode: z.string().regex(/^[0-9]{5}$/).optional(),
+  
+  // Characteristics
+  bedrooms: z.coerce.number().min(0).max(20).optional(),
+  bathrooms: z.coerce.number().min(0).max(10).optional(),
+  maxGuests: z.coerce.number().min(1).max(50).optional(),
+  squareMeters: z.coerce.number().min(10).max(1000).optional(),
+  
+  // Property image
+  profileImage: z.string().optional(),
+  
+  // Host contact
+  hostContactName: z.string().min(2).max(100).optional(),
+  hostContactPhone: z.string().regex(/^[+]?[(]?[0-9\s\-()]{9,}$/).optional(),
+  hostContactEmail: z.string().email().optional(),
+  hostContactLanguage: z.string().optional(),
+  hostContactPhoto: z.string().optional(),
+  
+  // Status
+  status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE']).optional(),
+  isPublished: z.boolean().optional()
+}).strict()
 
 export async function GET(
   request: NextRequest,
@@ -94,22 +129,17 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
     
-    // TODO: Get user ID from authentication session  
-    // For now, find the demo user
-    const demoUser = await prisma.user.findUnique({
-      where: { email: 'demo@itineramio.com' }
-    })
-    
-    if (!demoUser) {
-      return NextResponse.json({
-        success: false,
-        error: 'Usuario demo no encontrado'
-      }, { status: 404 })
+    // Get user from JWT token
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const userId = decoded.userId
     
-    const userId = demoUser.id
-    
-    // TODO: Add validation schema for update
+    // Validate request data
+    const validatedData = updatePropertySchema.parse(body)
     
     // Handle potential ID truncation for PUT as well
     const properties = await prisma.property.findMany({
@@ -134,7 +164,7 @@ export async function PUT(
     const updatedProperty = await prisma.property.update({
       where: { id: actualPropertyId },
       data: {
-        ...body,
+        ...validatedData,
         updatedAt: new Date()
       }
     })
@@ -146,6 +176,14 @@ export async function PUT(
     
   } catch (error) {
     console.error('Error updating property:', error)
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({
+        success: false,
+        error: 'Datos de entrada inválidos',
+        details: error.errors
+      }, { status: 400 })
+    }
     
     return NextResponse.json({
       success: false,
@@ -161,20 +199,14 @@ export async function DELETE(
   try {
     const { id } = await params
     
-    // TODO: Get user ID from authentication session  
-    // For now, find the demo user
-    const demoUser = await prisma.user.findUnique({
-      where: { email: 'demo@itineramio.com' }
-    })
-    
-    if (!demoUser) {
-      return NextResponse.json({
-        success: false,
-        error: 'Usuario demo no encontrado'
-      }, { status: 404 })
+    // Get user from JWT token
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
-    
-    const userId = demoUser.id
+
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const userId = decoded.userId
     
     const property = await prisma.property.findFirst({
       where: {

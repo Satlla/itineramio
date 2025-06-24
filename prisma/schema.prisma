@@ -36,6 +36,7 @@ model User {
   propertySets         PropertySet[]
   inspirationState     UserInspirationState?
   moderatedComments    ZoneComment[]          @relation("CommentModerator")
+  mediaItems           MediaLibrary[]
   // Admin relations
   subscriptions        UserSubscription[]
   invoices             Invoice[]
@@ -450,4 +451,33 @@ model SystemSetting {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("system_settings")
+}
+
+model MediaLibrary {
+  id              String   @id @default(cuid())
+  userId          String
+  type            String   // 'image', 'video'
+  url             String
+  thumbnailUrl    String?
+  filename        String
+  originalName    String
+  mimeType        String
+  size            Int      // in bytes
+  duration        Int?     // in seconds for videos
+  width           Int?
+  height          Int?
+  hash            String   // MD5 hash for duplicate detection
+  tags            String[] @default([])
+  usageCount      Int      @default(0)
+  isPublic        Boolean  @default(false)
+  metadata        Json?    // Additional metadata (codecs, bitrate, etc)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lastUsedAt      DateTime?
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, hash])
+  @@index([userId, type])
+  @@index([hash])
+  @@map("media_library")
 }
