@@ -2,6 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   
+  // Configuración para uploads grandes
+  serverExternalPackages: ['@vercel/blob'],
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-dropdown-menu'],
+    largePageDataBytes: 128 * 1000, // 128KB
+  },
+  
   // Optimización de build
   generateBuildId: async () => {
     // Use commit hash as build id for better caching
@@ -66,10 +73,6 @@ const nextConfig = {
     ]
   },
   
-  // Configuración experimental para mejorar builds
-  experimental: {
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-dropdown-menu'],
-  },
 }
 
 module.exports = nextConfig

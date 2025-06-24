@@ -89,9 +89,43 @@ export async function GET(
       )
     }
 
+    // Process steps to extract mediaUrl from content JSON
+    const processedSteps = zone.steps.map(step => {
+      let mediaUrl = null
+      let linkUrl = null
+      
+      try {
+        if (step.content && typeof step.content === 'object') {
+          const content = step.content as any
+          // Extract mediaUrl from content JSON
+          if (content.mediaUrl) {
+            mediaUrl = content.mediaUrl
+          }
+          if (content.linkUrl) {
+            linkUrl = content.linkUrl
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing step content:', error)
+      }
+
+      return {
+        ...step,
+        mediaUrl,
+        linkUrl,
+        // Also provide the original content for backward compatibility
+        content: step.content
+      }
+    })
+
+    const processedZone = {
+      ...zone,
+      steps: processedSteps
+    }
+
     return NextResponse.json({
       success: true,
-      data: zone
+      data: processedZone
     })
   } catch (error) {
     console.error('Error fetching zone:', error)

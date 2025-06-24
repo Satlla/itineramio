@@ -76,9 +76,38 @@ export async function GET(
       }
     })
 
+    // Process steps to extract mediaUrl from content JSON
+    const processedSteps = steps.map(step => {
+      let mediaUrl = null
+      let linkUrl = null
+      
+      try {
+        if (step.content && typeof step.content === 'object') {
+          const content = step.content as any
+          // Extract mediaUrl from content JSON
+          if (content.mediaUrl) {
+            mediaUrl = content.mediaUrl
+          }
+          if (content.linkUrl) {
+            linkUrl = content.linkUrl
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing step content:', error)
+      }
+
+      return {
+        ...step,
+        mediaUrl,
+        linkUrl,
+        // Also provide the original content for backward compatibility
+        content: step.content
+      }
+    })
+
     return NextResponse.json({
       success: true,
-      data: steps
+      data: processedSteps
     })
   } catch (error) {
     console.error('Error fetching steps:', error)
@@ -205,11 +234,24 @@ export async function POST(
       stepOrder = lastStep ? lastStep.order + 1 : 0
     }
 
+    // Prepare content with media URLs
+    let stepContent = typeof content === 'string' ? { es: content } : (content || { es: description || '' })
+    
+    // Add mediaUrl and linkUrl to content if provided
+    if (mediaUrl) {
+      stepContent = { ...stepContent, mediaUrl }
+    }
+    if (linkUrl) {
+      stepContent = { ...stepContent, linkUrl }
+    }
+
+    console.log('📹 Creating step with content:', { type, mediaUrl, linkUrl, stepContent })
+
     // Create the step directly linked to the zone
     const step = await prisma.step.create({
       data: {
         title: typeof title === 'string' ? { es: title } : title,
-        content: typeof content === 'string' ? { es: content } : (content || { es: description || '' }),
+        content: stepContent,
         type,
         order: stepOrder,
         isPublished: true,

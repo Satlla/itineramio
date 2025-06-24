@@ -1,9 +1,10 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Upload, X, Video, AlertCircle, Loader2, FolderOpen } from 'lucide-react'
+import { Upload, X, Video, AlertCircle, Loader2, FolderOpen, CheckCircle } from 'lucide-react'
 import { Button } from './Button'
 import { MediaSelector } from './MediaSelector'
+import { useNotifications } from '../../hooks/useNotifications'
 
 interface VideoUploadProps {
   value?: string
@@ -39,12 +40,15 @@ export function VideoUpload({
   const [dragActive, setDragActive] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadStage, setUploadStage] = useState<'uploading' | 'processing' | 'saving' | 'complete'>('uploading')
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [videoError, setVideoError] = useState<string | null>(null)
   const [metadata, setMetadata] = useState<VideoMetadata | null>(null)
   const [showMediaSelector, setShowMediaSelector] = useState(false)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const { addNotification } = useNotifications()
 
   // Sync previewUrl with initial value
   useEffect(() => {
@@ -119,8 +123,10 @@ export function VideoUpload({
 
   const handleUpload = async (file: File) => {
     setVideoError(null)
+    setUploadSuccess(false)
     
     // Validate video
+    setUploadStage('processing')
     const isValid = await validateVideo(file)
     if (!isValid) return
 
@@ -131,6 +137,7 @@ export function VideoUpload({
     // Upload to server
     setUploading(true)
     setUploadProgress(0)
+    setUploadStage('uploading')
     
     const formData = new FormData()
     formData.append('file', file)
@@ -143,17 +150,31 @@ export function VideoUpload({
         if (e.lengthComputable) {
           const progress = Math.round((e.loaded / e.total) * 100)
           setUploadProgress(progress)
+          
+          // Update stage based on progress
+          if (progress < 90) {
+            setUploadStage('uploading')
+          } else {
+            setUploadStage('processing')
+          }
         }
       })
       
       xhr.onload = async () => {
         if (xhr.status === 200) {
+          setUploadStage('saving')
           const data = JSON.parse(xhr.responseText)
           if (data.url) {
-            // Save to media library if enabled
+            // Save to media library if enabled (with timeout and better error handling)
             if (saveToLibrary) {
               try {
-                await fetch('/api/media-library', {
+                console.log('💾 Saving video to media library...')
+                
+                // Add timeout to prevent hanging
+                const controller = new AbortController()
+                const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+                
+                const response = await fetch('/api/media-library', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
@@ -169,28 +190,68 @@ export function VideoUpload({
                       height: metadata?.height,
                       thumbnail: metadata?.thumbnail
                     }
-                  })
+                  }),
+                  signal: controller.signal
                 })
+                
+                clearTimeout(timeoutId)
+                
+                if (response.ok) {
+                  const mediaResult = await response.json()
+                  console.log('✅ Video saved to media library:', mediaResult)
+                } else {
+                  console.warn('⚠️ Media library save failed with status:', response.status)
+                }
               } catch (error) {
-                console.warn('Failed to save to media library:', error)
+                if (error.name === 'AbortError') {
+                  console.warn('⏱️ Media library save timed out')
+                } else {
+                  console.warn('❌ Failed to save to media library:', error)
+                }
                 // Don't fail the upload if library save fails
               }
             }
             
+            setUploadStage('complete')
+            setUploadProgress(100)
+            setUploadSuccess(true)
+            
+            // Show success notification
+            addNotification({
+              type: 'success',
+              title: 'Video subido correctamente',
+              message: `El video "${file.name}" se ha subido y guardado exitosamente`,
+              read: false
+            })
+            
             onChange(data.url, metadata || undefined)
             setPreviewUrl(data.url)
             URL.revokeObjectURL(objectUrl)
+            
+            // Reset success state after 3 seconds
+            setTimeout(() => {
+              setUploadSuccess(false)
+              setUploading(false)
+            }, 3000)
           }
         } else {
           throw new Error('Error al subir el video')
         }
-        setUploading(false)
       }
       
       xhr.onerror = () => {
         setVideoError('Error al subir el video')
         setUploading(false)
+        setUploadSuccess(false)
         URL.revokeObjectURL(objectUrl)
+        
+        // Show error notification
+        addNotification({
+          type: 'error',
+          title: 'Error al subir video',
+          message: 'No se pudo subir el video. Por favor, inténtalo de nuevo.',
+          read: false
+        })
       }
       
       xhr.open('POST', '/api/upload')
@@ -200,7 +261,16 @@ export function VideoUpload({
       console.error('Error uploading video:', error)
       setVideoError('Error al subir el video')
       setUploading(false)
+      setUploadSuccess(false)
       URL.revokeObjectURL(objectUrl)
+      
+      // Show error notification
+      addNotification({
+        type: 'error',
+        title: 'Error al subir video',
+        message: error instanceof Error ? error.message : 'Error desconocido',
+        read: false
+      })
     }
   }
 
@@ -238,6 +308,10 @@ export function VideoUpload({
     setPreviewUrl(null)
     setMetadata(null)
     setVideoError(null)
+    setUploadSuccess(false)
+    setUploading(false)
+    setUploadProgress(0)
+    setUploadStage('uploading')
     onChange(null)
     if (inputRef.current) {
       inputRef.current.value = ''
@@ -246,21 +320,32 @@ export function VideoUpload({
 
   const handleSelectFromLibrary = (media: any) => {
     setPreviewUrl(media.url)
-    setMetadata({
+    setUploadSuccess(true)
+    
+    const videoMetadata = {
       duration: media.duration || 0,
       thumbnail: media.thumbnailUrl || '',
       size: media.size || 0,
       width: media.width || 0,
       height: media.height || 0
-    })
-    onChange(media.url, {
-      duration: media.duration || 0,
-      thumbnail: media.thumbnailUrl || '',
-      size: media.size || 0,
-      width: media.width || 0,
-      height: media.height || 0
-    })
+    }
+    
+    setMetadata(videoMetadata)
+    onChange(media.url, videoMetadata)
     setShowMediaSelector(false)
+    
+    // Show notification for library selection
+    addNotification({
+      type: 'success',
+      title: 'Video seleccionado',
+      message: `Video "${media.originalName || 'desde biblioteca'}" agregado exitosamente`,
+      read: false
+    })
+    
+    // Reset success state after 2 seconds
+    setTimeout(() => {
+      setUploadSuccess(false)
+    }, 2000)
   }
 
   return (
@@ -290,16 +375,50 @@ export function VideoUpload({
           onClick={() => !uploading && inputRef.current?.click()}
         >
           <div className="flex flex-col items-center justify-center space-y-2">
-            {uploading ? (
+            {uploading || uploadSuccess ? (
               <>
-                <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
-                <p className="text-sm text-gray-600">Subiendo... {uploadProgress}%</p>
-                <div className="w-full max-w-xs bg-gray-200 rounded-full h-2 mt-2">
-                  <div 
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${uploadProgress}%` }}
-                  />
-                </div>
+                {uploadSuccess ? (
+                  <CheckCircle className="w-8 h-8 text-green-500" />
+                ) : (
+                  <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                )}
+                
+                <p className="text-sm font-medium text-gray-700">
+                  {uploadSuccess ? (
+                    'Video subido correctamente ✓'
+                  ) : uploadStage === 'processing' ? (
+                    'Validando video...'
+                  ) : uploadStage === 'uploading' ? (
+                    `Subiendo... ${uploadProgress}%`
+                  ) : uploadStage === 'saving' ? (
+                    'Guardando en biblioteca...'
+                  ) : (
+                    'Completando...'
+                  )}
+                </p>
+                
+                {!uploadSuccess && (
+                  <div className="w-full max-w-xs bg-gray-200 rounded-full h-3 mt-2 overflow-hidden shadow-inner">
+                    <div 
+                      className={`h-3 rounded-full transition-all duration-300 ${
+                        uploadStage === 'complete' 
+                          ? 'bg-green-500' 
+                          : uploadStage === 'saving'
+                          ? 'bg-yellow-500'
+                          : 'bg-blue-500'
+                      }`}
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                )}
+                
+                {uploadStage !== 'uploading' && !uploadSuccess && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {uploadStage === 'processing' && 'Verificando duración y formato...'}
+                    {uploadStage === 'saving' && 'Añadiendo a tu biblioteca de medios...'}
+                    {uploadStage === 'complete' && 'Finalizando...'}
+                  </p>
+                )}
               </>
             ) : (
               <>
@@ -315,7 +434,7 @@ export function VideoUpload({
                       e.stopPropagation()
                       setShowMediaSelector(true)
                     }}
-                    className="text-xs"
+                    className="text-xs hover:bg-violet-50 hover:border-violet-200 transition-colors"
                   >
                     <FolderOpen className="w-4 h-4 mr-1" />
                     Desde biblioteca
@@ -339,6 +458,13 @@ export function VideoUpload({
               Duración: {Math.round(metadata.duration)}s | 
               Tamaño: {(metadata.size / (1024 * 1024)).toFixed(1)}MB |
               {metadata.width}x{metadata.height}
+            </div>
+          )}
+          
+          {uploadSuccess && (
+            <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs flex items-center space-x-1 shadow-lg">
+              <CheckCircle className="w-3 h-3" />
+              <span>Guardado</span>
             </div>
           )}
           <button
