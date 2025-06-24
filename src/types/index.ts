@@ -82,10 +82,6 @@ export interface Address {
   state: string
   country: string
   postalCode: string
-  coordinates?: {
-    lat: number
-    lng: number
-  }
 }
 
 // Form types
@@ -97,8 +93,6 @@ export interface CreatePropertyData {
   state: string
   country: string
   postalCode: string
-  latitude?: number
-  longitude?: number
   type: 'APARTMENT' | 'HOUSE' | 'ROOM' | 'VILLA'
   bedrooms: number
   bathrooms: number
@@ -118,8 +112,6 @@ export interface CreatePropertySetData {
   state: string
   country: string
   postalCode: string
-  latitude?: number
-  longitude?: number
   type: 'HOTEL' | 'BUILDING' | 'COMPLEX' | 'RESORT' | 'HOSTEL' | 'APARTHOTEL'
   profileImage?: string
   hostContactName: string

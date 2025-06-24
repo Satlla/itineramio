@@ -24,12 +24,24 @@ model User {
   updatedAt            DateTime               @updatedAt
   lastLoginAt          DateTime?
   avatar               String?
+  // New admin fields
+  isAdmin              Boolean                @default(false)
+  isActive             Boolean                @default(true)
+  companyName          String?
+  notes                String? // Internal admin notes
+  createdBy            String? // Admin who created this user
   assignedErrorReports ErrorReport[]          @relation("ErrorReportAssignee")
   organization_members organization_members[]
   properties           Property[]
   propertySets         PropertySet[]
   inspirationState     UserInspirationState?
   moderatedComments    ZoneComment[]          @relation("CommentModerator")
+  // Admin relations
+  subscriptions        UserSubscription[]
+  invoices             Invoice[]
+  createdUsers         User[]                 @relation("UserCreatedBy")
+  creator              User?                  @relation("UserCreatedBy", fields: [createdBy], references: [id])
+  adminLogs            AdminActivityLog[]
 
   @@map("users")
 }
@@ -55,8 +67,6 @@ model PropertySet {
   state               String
   country             String
   postalCode          String
-  latitude            Float?
-  longitude           Float?
   type                String
   profileImage        String?
   hostContactName     String
@@ -86,8 +96,6 @@ model Property {
   state               String
   country             String
   postalCode          String
-  latitude            Float?
-  longitude           Float?
   type                String
   bedrooms            Int
   bathrooms           Int
@@ -105,7 +113,7 @@ model Property {
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
   publishedAt         DateTime?
-  // slug                String?            @unique // Temporarily disabled - column doesn't exist in production
+  slug                String?            @unique
   buildings           buildings?         @relation(fields: [buildingId], references: [id])
   host                User               @relation(fields: [hostId], references: [id], onDelete: Cascade)
   organizations       organizations?     @relation(fields: [organizationId], references: [id])
@@ -113,7 +121,7 @@ model Property {
   analytics           PropertyAnalytics?
   zones               Zone[]
 
-  // @@index([slug]) // Temporarily disabled
+  @@index([slug])
   @@map("properties")
 }
 
@@ -141,7 +149,7 @@ model Zone {
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
   publishedAt         DateTime?
-  // slug                String? // Temporarily disabled - column doesn't exist in production
+  slug                String?
   errorReports        ErrorReport[]
   steps               Step[]
   comments            ZoneComment[]
@@ -150,10 +158,10 @@ model Zone {
   organizations       organizations? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   property            Property?      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
-  // @@unique([propertyId, slug]) // Temporarily disabled
+  @@unique([propertyId, slug])
   @@index([propertyId, status])
   @@index([qrCode])
-  // @@index([slug]) // Temporarily disabled
+  @@index([slug])
   @@map("zones")
 }
 
@@ -352,4 +360,94 @@ model UserInspirationState {
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_inspiration_states")
+}
+
+// New Admin System Models
+
+model SubscriptionPlan {
+  id                  String             @id @default(cuid())
+  name                String
+  description         String?
+  priceMonthly        Decimal            @map("price_monthly")
+  priceYearly         Decimal?           @map("price_yearly")
+  aiMessagesIncluded  Int                @default(0) @map("ai_messages_included")
+  maxProperties       Int                @default(1) @map("max_properties")
+  features            Json               @default("[]") // ["ai_chatbot", "analytics", "whatsapp_notifications"]
+  isActive            Boolean            @default(true) @map("is_active")
+  createdAt           DateTime           @default(now()) @map("created_at")
+  updatedAt           DateTime           @updatedAt @map("updated_at")
+  subscriptions       UserSubscription[]
+
+  @@map("subscription_plans")
+}
+
+model UserSubscription {
+  id                 String          @id @default(cuid())
+  userId             String          @map("user_id")
+  planId             String          @map("plan_id")
+  status             String // 'active', 'cancelled', 'suspended', 'pending'
+  customPrice        Decimal?        @map("custom_price")
+  discountPercentage Decimal?        @default(0) @map("discount_percentage")
+  discountReason     String?         @map("discount_reason")
+  startDate          DateTime        @map("start_date")
+  endDate            DateTime?       @map("end_date")
+  notes              String? // Internal notes
+  createdBy          String?         @map("created_by")
+  createdAt          DateTime        @default(now()) @map("created_at")
+  updatedAt          DateTime        @updatedAt @map("updated_at")
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan               SubscriptionPlan @relation(fields: [planId], references: [id])
+  invoices           Invoice[]
+
+  @@map("user_subscriptions")
+}
+
+model Invoice {
+  id               String            @id @default(cuid())
+  userId           String            @map("user_id")
+  subscriptionId   String?           @map("subscription_id")
+  invoiceNumber    String            @unique @map("invoice_number") // AUTO: INV-2024-001
+  amount           Decimal
+  discountAmount   Decimal           @default(0) @map("discount_amount")
+  finalAmount      Decimal           @map("final_amount")
+  status           String // 'pending', 'paid', 'overdue', 'cancelled'
+  paymentMethod    String?           @map("payment_method") // 'transfer', 'card', 'cash', 'other'
+  paymentReference String?           @map("payment_reference")
+  dueDate          DateTime          @map("due_date")
+  paidDate         DateTime?         @map("paid_date")
+  notes            String?
+  createdBy        String?           @map("created_by")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription     UserSubscription? @relation(fields: [subscriptionId], references: [id])
+
+  @@map("invoices")
+}
+
+model AdminActivityLog {
+  id          String   @id @default(cuid())
+  adminUserId String   @map("admin_user_id")
+  action      String // 'user_created', 'plan_changed', 'invoice_generated'
+  targetType  String?  @map("target_type") // 'user', 'property', 'invoice', 'plan'
+  targetId    String?  @map("target_id")
+  description String?
+  metadata    Json?    @default("{}") // Additional data
+  createdAt   DateTime @default(now()) @map("created_at")
+  admin       User     @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([adminUserId, createdAt])
+  @@map("admin_activity_log")
+}
+
+model SystemSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  type        String   @default("string") // 'string', 'number', 'boolean', 'json'
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("system_settings")
 }

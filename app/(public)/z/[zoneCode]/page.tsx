@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
+import ChatBot from '../../../../src/components/ui/ChatBot'
 
 // Helper function to get text from multilingual objects
 const getText = (value: any, fallback: string = '') => {
@@ -54,6 +55,9 @@ interface Zone {
     name: string
     city: string
     country: string
+    hostContactName?: string
+    hostContactPhone?: string
+    hostContactEmail?: string
   }
 }
 
@@ -71,6 +75,30 @@ export default function PublicZonePage() {
       fetchZoneData()
     }
   }, [zoneCode])
+
+  // Track zone view
+  useEffect(() => {
+    if (zone?.id) {
+      trackEvent('zone_view', {
+        zoneId: zone.id,
+        zoneName: getText(zone.name, ''),
+        propertyId: zone.property?.id,
+        propertyName: getText(zone.property?.name, '')
+      })
+    }
+  }, [zone])
+
+  const trackEvent = async (event: string, data: any) => {
+    try {
+      await fetch('/api/admin/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event, data })
+      })
+    } catch (error) {
+      console.error('Error tracking event:', error)
+    }
+  }
 
   const fetchZoneData = async () => {
     try {
@@ -194,7 +222,7 @@ export default function PublicZonePage() {
         {/* Zone Description */}
         {zone.description && (
           <div className="bg-white rounded-2xl p-6 mb-8 shadow-sm border border-gray-200">
-            <p className="text-gray-700 leading-relaxed">{zone.description}</p>
+            <p className="text-gray-700 leading-relaxed">{getText(zone.description, '')}</p>
           </div>
         )}
 
@@ -314,6 +342,20 @@ export default function PublicZonePage() {
           </p>
         </div>
       </div>
+
+      {/* AI Chatbot */}
+      <ChatBot
+        propertyId={zone.property.id}
+        zoneId={zone.id}
+        zoneName={getText(zone.name, 'Zona')}
+        propertyName={getText(zone.property.name, 'Propiedad')}
+        language={language}
+        hostContact={{
+          name: zone.property.hostContactName || getText(zone.property.name, ''),
+          phone: zone.property.hostContactPhone || '',
+          email: zone.property.hostContactEmail || ''
+        }}
+      />
     </div>
   )
 }

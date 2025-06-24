@@ -85,8 +85,6 @@ export async function POST(request: NextRequest) {
         state: body.state,
         country: body.country,
         postalCode: body.postalCode,
-        latitude: body.latitude,
-        longitude: body.longitude,
         
         // Images
         profileImage: body.profileImage,

@@ -30,7 +30,10 @@ export async function GET(
             name: true,
             city: true,
             country: true,
-            isPublished: true
+            isPublished: true,
+            hostContactName: true,
+            hostContactPhone: true,
+            hostContactEmail: true
           }
         }
       }

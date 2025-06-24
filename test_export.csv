@@ -1,0 +1,5 @@
+ID,Fecha,Fecha Local,Admin ID,Admin Nombre,Admin Email,Acción,Tipo Objetivo,ID Objetivo,Descripción,Metadata
+cmca09ksa000c7cfizbxx4myt,"2025-06-24T04:08:26.746Z","24/6/2025, 6:08:26",admin-test,"Admin Test","admin@test.com","system_settings_updated","system","settings","Updated system settings","{""updatedKeys"":[""chatbotEnabled"",""whatsappNotifications"",""chatbotWelcomeMessage""],""settingsCount"":3}"
+cmca094ja00077cfiq0xhtovv,"2025-06-24T04:08:05.687Z","24/6/2025, 6:08:05",admin-test,"Admin Test","admin@test.com","system_settings_updated","system","settings","Updated system settings","{""updatedKeys"":[""chatbotEnabled""],""settingsCount"":1}"
+cmc9zxwjj00047cfi0gutpmjf,"2025-06-24T03:59:22.111Z","24/6/2025, 5:59:22",admin-test,"Admin Test","admin@test.com","system_settings_updated","system","settings","Updated system settings","{""updatedKeys"":[""companyName"",""platformName"",""maintenanceMode""],""settingsCount"":3}"
+cmc9zvmys000r7c8gblrdt5x6,"2025-06-24T03:57:36.388Z","24/6/2025, 5:57:36",admin-test,"Admin Test","admin@test.com","test_action","system","test123","Test log entry from API","{""test"":true}"

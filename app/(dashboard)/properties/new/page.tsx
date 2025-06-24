@@ -1,13 +1,6 @@
 'use client'
 
-// Extend Window interface for Google Maps
-declare global {
-  interface Window {
-    google: typeof google;
-  }
-}
-
-import React, { useState, useEffect, Suspense, useRef, useCallback } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -93,19 +86,6 @@ function NewPropertyPageContent() {
     timestamp: Date | null
     hasData: boolean
   }>({ data: null, timestamp: null, hasData: false })
-
-  // Google Maps state
-  const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false)
-  const [selectedLocation, setSelectedLocation] = useState<{
-    lat: number
-    lng: number
-    address: string
-  } | null>(null)
-  const [addressConfirmed, setAddressConfirmed] = useState(false)
-  const autocompleteRef = useRef<HTMLInputElement>(null)
-  const mapRef = useRef<HTMLDivElement>(null)
-  const [map, setMap] = useState<google.maps.Map | null>(null)
-  const [marker, setMarker] = useState<google.maps.Marker | null>(null)
 
   const {
     register,
@@ -324,135 +304,6 @@ function NewPropertyPageContent() {
     setShowSavedDataBanner(false)
   }
 
-  // Load Google Maps API
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !window.google && !googleMapsLoaded) {
-      const script = document.createElement('script')
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`
-      script.async = true
-      script.defer = true
-      script.onload = () => {
-        setGoogleMapsLoaded(true)
-      }
-      document.head.appendChild(script)
-    } else if (window.google) {
-      setGoogleMapsLoaded(true)
-    }
-  }, [googleMapsLoaded])
-
-  // Initialize map when Google Maps is loaded and we're on step 2
-  useEffect(() => {
-    if (googleMapsLoaded && currentStep === 2 && mapRef.current && !map) {
-      const defaultCenter = { lat: 40.4168, lng: -3.7038 } // Madrid
-      
-      const newMap = new google.maps.Map(mapRef.current, {
-        center: defaultCenter,
-        zoom: 15,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false,
-      })
-
-      const newMarker = new google.maps.Marker({
-        position: defaultCenter,
-        map: newMap,
-        draggable: true,
-        title: 'Ubicación de la propiedad'
-      })
-
-      // Handle marker drag
-      newMarker.addListener('dragend', () => {
-        const position = newMarker.getPosition()
-        if (position) {
-          const lat = position.lat()
-          const lng = position.lng()
-          
-          // Reverse geocode to get address
-          const geocoder = new google.maps.Geocoder()
-          geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-            if (status === 'OK' && results && results[0]) {
-              const address = results[0].formatted_address
-              updateLocationFromPlace(results[0])
-              setSelectedLocation({ lat, lng, address })
-              setAddressConfirmed(false)
-            }
-          })
-        }
-      })
-
-      setMap(newMap)
-      setMarker(newMarker)
-
-      // Initialize autocomplete
-      if (autocompleteRef.current) {
-        const autocomplete = new google.maps.places.Autocomplete(autocompleteRef.current, {
-          componentRestrictions: { country: 'es' },
-          types: ['address']
-        })
-
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace()
-          if (place.geometry && place.geometry.location) {
-            const lat = place.geometry.location.lat()
-            const lng = place.geometry.location.lng()
-            
-            newMap.setCenter({ lat, lng })
-            newMarker.setPosition({ lat, lng })
-            
-            updateLocationFromPlace(place)
-            setSelectedLocation({ 
-              lat, 
-              lng, 
-              address: place.formatted_address || ''
-            })
-            setAddressConfirmed(false)
-          }
-        })
-      }
-    }
-  }, [googleMapsLoaded, currentStep, map])
-
-  // Update form fields from Google Places result
-  const updateLocationFromPlace = useCallback((place: google.maps.places.PlaceResult) => {
-    const components = place.address_components || []
-    let street = ''
-    let city = ''
-    let state = ''
-    let postalCode = ''
-    let country = ''
-
-    components.forEach((component) => {
-      const types = component.types
-      
-      if (types.includes('street_number') || types.includes('route')) {
-        street += component.long_name + ' '
-      }
-      if (types.includes('locality') || types.includes('administrative_area_level_2')) {
-        city = component.long_name
-      }
-      if (types.includes('administrative_area_level_1')) {
-        state = component.long_name
-      }
-      if (types.includes('postal_code')) {
-        postalCode = component.long_name
-      }
-      if (types.includes('country')) {
-        country = component.long_name
-      }
-    })
-
-    // Update form values
-    setValue('street', street.trim() || place.formatted_address || '')
-    setValue('city', city)
-    setValue('state', state)
-    setValue('postalCode', postalCode)
-    setValue('country', country || 'España')
-  }, [setValue])
-
-  // Confirm selected address
-  const confirmAddress = () => {
-    setAddressConfirmed(true)
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -773,167 +624,91 @@ function NewPropertyPageContent() {
                   Ubicación
                 </h2>
 
-                {/* Google Maps Integration */}
-                <div className="space-y-6">
-                  {/* Address Search */}
-                  <div>
+                <div className="bg-blue-50 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-blue-800">
+                    <strong>📍 Información importante:</strong> Introduce la dirección completa de la propiedad. Esta información ayudará a los huéspedes a localizarla fácilmente.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Dirección */}
+                  <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <MapPin className="inline w-4 h-4 mr-1" />
-                      Buscar dirección exacta *
+                      Dirección completa *
                     </label>
-                    <input
-                      ref={autocompleteRef}
-                      type="text"
-                      placeholder="Escribe la dirección y selecciona de las sugerencias..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                    <Input
+                      {...register('street')}
+                      placeholder="Ej: Calle Gran Vía 123, 2º A"
+                      error={!!errors.street}
                     />
-                    <p className="mt-1 text-sm text-gray-500">
-                      Usa el buscador o arrastra el marcador en el mapa para ubicar exactamente la propiedad
+                    {errors.street && (
+                      <p className="mt-1 text-sm text-red-600">{errors.street.message}</p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">
+                      Incluye calle, número, piso y puerta si corresponde
                     </p>
                   </div>
 
-                  {/* Interactive Map */}
-                  <div className="relative">
-                    <div 
-                      ref={mapRef}
-                      className="w-full h-96 rounded-lg border border-gray-300"
-                      style={{ minHeight: '400px' }}
+                  {/* Ciudad */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Ciudad *
+                    </label>
+                    <Input
+                      {...register('city')}
+                      placeholder="Ej: Madrid"
+                      error={!!errors.city}
                     />
-                    {!googleMapsLoaded && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-lg">
-                        <div className="text-center">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600 mx-auto mb-2"></div>
-                          <p className="text-sm text-gray-500">Cargando mapa...</p>
-                        </div>
-                      </div>
+                    {errors.city && (
+                      <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
                     )}
                   </div>
 
-                  {/* Location confirmation */}
-                  {selectedLocation && !addressConfirmed && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                      <div className="flex items-start space-x-3">
-                        <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
-                        <div className="flex-1">
-                          <h4 className="font-medium text-amber-900">Confirma la ubicación exacta</h4>
-                          <p className="text-sm text-amber-800 mt-1">
-                            {selectedLocation.address}
-                          </p>
-                          <p className="text-sm text-amber-700 mt-2">
-                            Es importante confirmar que esta es la ubicación exacta para evitar problemas con los huéspedes.
-                          </p>
-                          <div className="flex space-x-3 mt-3">
-                            <Button 
-                              onClick={confirmAddress}
-                              size="sm"
-                              className="bg-green-600 hover:bg-green-700"
-                            >
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              Confirmar ubicación
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  {/* Provincia */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Provincia *
+                    </label>
+                    <Input
+                      {...register('state')}
+                      placeholder="Ej: Madrid"
+                      error={!!errors.state}
+                    />
+                    {errors.state && (
+                      <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
+                    )}
+                  </div>
 
-                  {/* Address confirmation success */}
-                  {addressConfirmed && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <div className="flex items-center space-x-3">
-                        <CheckCircle className="w-5 h-5 text-green-600" />
-                        <div>
-                          <h4 className="font-medium text-green-900">Ubicación confirmada</h4>
-                          <p className="text-sm text-green-800">
-                            La dirección ha sido verificada y es correcta.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  {/* Código postal */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Código postal *
+                    </label>
+                    <Input
+                      {...register('postalCode')}
+                      placeholder="Ej: 28013"
+                      maxLength={5}
+                      error={!!errors.postalCode}
+                    />
+                    {errors.postalCode && (
+                      <p className="mt-1 text-sm text-red-600">{errors.postalCode.message}</p>
+                    )}
+                  </div>
 
-                  {/* Form fields (auto-populated) */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Dirección */}
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Dirección completa *
-                      </label>
-                      <Input
-                        {...register('street')}
-                        placeholder="Se completará automáticamente"
-                        error={!!errors.street}
-                        readOnly
-                      />
-                      {errors.street && (
-                        <p className="mt-1 text-sm text-red-600">{errors.street.message}</p>
-                      )}
-                    </div>
-
-                    {/* Ciudad */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Ciudad *
-                      </label>
-                      <Input
-                        {...register('city')}
-                        placeholder="Se completará automáticamente"
-                        error={!!errors.city}
-                        readOnly
-                      />
-                      {errors.city && (
-                        <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
-                      )}
-                    </div>
-
-                    {/* Provincia */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Provincia *
-                      </label>
-                      <Input
-                        {...register('state')}
-                        placeholder="Se completará automáticamente"
-                        error={!!errors.state}
-                        readOnly
-                      />
-                      {errors.state && (
-                        <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
-                      )}
-                    </div>
-
-                    {/* Código postal */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Código postal *
-                      </label>
-                      <Input
-                        {...register('postalCode')}
-                        placeholder="Se completará automáticamente"
-                        maxLength={5}
-                        error={!!errors.postalCode}
-                        readOnly
-                      />
-                      {errors.postalCode && (
-                        <p className="mt-1 text-sm text-red-600">{errors.postalCode.message}</p>
-                      )}
-                    </div>
-
-                    {/* País */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        País *
-                      </label>
-                      <Input
-                        {...register('country')}
-                        placeholder="España"
-                        error={!!errors.country}
-                        readOnly
-                      />
-                      {errors.country && (
-                        <p className="mt-1 text-sm text-red-600">{errors.country.message}</p>
-                      )}
-                    </div>
+                  {/* País */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      País *
+                    </label>
+                    <Input
+                      {...register('country')}
+                      placeholder="España"
+                      error={!!errors.country}
+                    />
+                    {errors.country && (
+                      <p className="mt-1 text-sm text-red-600">{errors.country.message}</p>
+                    )}
                   </div>
                 </div>
 
@@ -956,14 +731,14 @@ function NewPropertyPageContent() {
                     <Button 
                       onClick={nextStep} 
                       type="button"
-                      disabled={!validateStep(2) || !addressConfirmed}
+                      disabled={!validateStep(2)}
                       className="w-full sm:w-auto"
                     >
                       Siguiente
                     </Button>
-                    {(!validateStep(2) || !addressConfirmed) && (
+                    {!validateStep(2) && (
                       <p className="text-sm text-red-600 mt-2 text-center sm:text-right">
-                        {!addressConfirmed ? 'Confirma la ubicación exacta para continuar' : 'Completa todos los campos obligatorios para continuar'}
+                        Completa todos los campos obligatorios para continuar
                       </p>
                     )}
                   </div>
