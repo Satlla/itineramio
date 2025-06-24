@@ -203,7 +203,7 @@ export function VideoUpload({
                   console.warn('⚠️ Media library save failed with status:', response.status)
                 }
               } catch (error) {
-                if (error.name === 'AbortError') {
+                if (error instanceof Error && error.name === 'AbortError') {
                   console.warn('⏱️ Media library save timed out')
                 } else {
                   console.warn('❌ Failed to save to media library:', error)
@@ -218,7 +218,7 @@ export function VideoUpload({
             
             // Show success notification
             addNotification({
-              type: 'success',
+              type: 'info',
               title: 'Video subido correctamente',
               message: `El video "${file.name}" se ha subido y guardado exitosamente`,
               read: false
@@ -336,7 +336,7 @@ export function VideoUpload({
     
     // Show notification for library selection
     addNotification({
-      type: 'success',
+      type: 'info',
       title: 'Video seleccionado',
       message: `Video "${media.originalName || 'desde biblioteca'}" agregado exitosamente`,
       read: false
