@@ -20,6 +20,9 @@ export async function GET(
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const userId = decoded.userId
     
+    // Set JWT claims for PostgreSQL RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    
     const propertySet = await prisma.propertySet.findFirst({
       where: {
         id,

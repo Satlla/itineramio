@@ -15,6 +15,9 @@ export async function GET(request: NextRequest) {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const userId = decoded.userId
     
+    // Set JWT claims for PostgreSQL RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    
     const propertySets = await prisma.propertySet.findMany({
       where: {
         hostId: userId
@@ -68,6 +71,9 @@ export async function POST(request: NextRequest) {
 
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const userId = decoded.userId
+
+    // Set JWT claims for PostgreSQL RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
 
     const body = await request.json()
     

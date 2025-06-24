@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import jwt from 'jsonwebtoken'
+
+const JWT_SECRET = 'itineramio-secret-key-2024'
 
 // GET /api/properties/[id]/zones/[zoneId]/steps - Get all steps for a zone
 export async function GET(
@@ -8,6 +11,38 @@ export async function GET(
 ) {
   try {
     const { id: propertyId, zoneId } = await params
+
+    // Check authentication
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    let userId: string
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+      userId = decoded.userId
+    } catch (error) {
+      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
+    }
+
+    // Set JWT claims for RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+
+    // Verify user owns the property
+    const property = await prisma.property.findFirst({
+      where: {
+        id: propertyId,
+        hostId: userId
+      }
+    })
+
+    if (!property) {
+      return NextResponse.json(
+        { error: 'Propiedad no encontrada o no autorizada' },
+        { status: 404 }
+      )
+    }
 
     // Find zone using startsWith due to Next.js truncating long IDs
     const zones = await prisma.zone.findMany({
@@ -65,6 +100,38 @@ export async function POST(
   try {
     const { id: propertyId, zoneId } = await params
     const body = await request.json()
+
+    // Check authentication
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    let userId: string
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+      userId = decoded.userId
+    } catch (error) {
+      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
+    }
+
+    // Set JWT claims for RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+
+    // Verify user owns the property
+    const property = await prisma.property.findFirst({
+      where: {
+        id: propertyId,
+        hostId: userId
+      }
+    })
+
+    if (!property) {
+      return NextResponse.json(
+        { error: 'Propiedad no encontrada o no autorizada' },
+        { status: 404 }
+      )
+    }
 
     // Validate required fields
     const { title, description, type, content, mediaUrl, linkUrl, estimatedTime, order, status } = body
@@ -179,6 +246,38 @@ export async function PUT(
   try {
     const { id: propertyId, zoneId } = await params
     console.log('🚨 Params:', { propertyId, zoneId })
+
+    // Check authentication
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    let userId: string
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+      userId = decoded.userId
+    } catch (error) {
+      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
+    }
+
+    // Set JWT claims for RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+
+    // Verify user owns the property
+    const property = await prisma.property.findFirst({
+      where: {
+        id: propertyId,
+        hostId: userId
+      }
+    })
+
+    if (!property) {
+      return NextResponse.json(
+        { error: 'Propiedad no encontrada o no autorizada' },
+        { status: 404 }
+      )
+    }
     
     const body = await request.json()
     console.log('🚨 Body received:', JSON.stringify(body, null, 2))

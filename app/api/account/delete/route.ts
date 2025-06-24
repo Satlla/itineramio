@@ -15,6 +15,9 @@ export async function DELETE(request: NextRequest) {
 
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     
+    // Set JWT claims for PostgreSQL RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${decoded.userId}, true)`
+    
     const body = await request.json()
     const { password } = body
 

@@ -69,6 +69,9 @@ export async function POST(request: NextRequest) {
     
     const userId = decoded.userId
 
+    // Set JWT claims for PostgreSQL RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+
     const body = await request.json()
     
     console.log('Creating property with data:', body)
@@ -211,6 +214,9 @@ export async function GET(request: NextRequest) {
 
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const userId = decoded.userId
+
+    // Set JWT claims for PostgreSQL RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
 
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')

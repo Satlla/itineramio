@@ -56,6 +56,9 @@ export async function GET(
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const userId = decoded.userId
     
+    // Set JWT claims for PostgreSQL RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    
     // Handle potential ID truncation
     const properties = await prisma.property.findMany({
       where: {
@@ -138,6 +141,9 @@ export async function PUT(
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const userId = decoded.userId
     
+    // Set JWT claims for PostgreSQL RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    
     // Validate request data
     const validatedData = updatePropertySchema.parse(body)
     
@@ -207,6 +213,9 @@ export async function DELETE(
 
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const userId = decoded.userId
+    
+    // Set JWT claims for PostgreSQL RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
     
     const property = await prisma.property.findFirst({
       where: {

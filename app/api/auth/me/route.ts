@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
     // Verify JWT token
     const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string }
     
+    // Set JWT claims for PostgreSQL RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${decoded.userId}, true)`
     
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },

@@ -26,6 +26,9 @@ export async function GET(
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const { userId } = await params
 
+    // Set JWT claims for PostgreSQL RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${decoded.userId}, true)`
+
     // Verify the user is accessing their own data
     if (decoded.userId !== userId) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
@@ -83,6 +86,9 @@ export async function POST(
 
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const { userId } = await params
+
+    // Set JWT claims for PostgreSQL RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${decoded.userId}, true)`
 
     // Verify the user is updating their own data
     if (decoded.userId !== userId) {
