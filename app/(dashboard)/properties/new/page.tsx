@@ -9,7 +9,6 @@ import { useSearchParams } from 'next/navigation'
 import { 
   ArrowLeft, 
   Home, 
-  MapPin, 
   Users, 
   Bed, 
   Bath, 
@@ -626,7 +625,7 @@ function NewPropertyPageContent() {
 
                 <div className="bg-blue-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-blue-800">
-                    <strong>📍 Información importante:</strong> Introduce la dirección completa de la propiedad. Esta información ayudará a los huéspedes a localizarla fácilmente.
+                    <strong>Información importante:</strong> Introduce la dirección completa de la propiedad. Esta información ayudará a los huéspedes a encontrarla.
                   </p>
                 </div>
 
@@ -634,7 +633,6 @@ function NewPropertyPageContent() {
                   {/* Dirección */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <MapPin className="inline w-4 h-4 mr-1" />
                       Dirección completa *
                     </label>
                     <Input

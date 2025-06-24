@@ -911,3 +911,7 @@ prisma:query SELECT "public"."invoices"."id", "public"."invoices"."user_id", "pu
  ✓ Compiled in 392ms (2145 modules)
  ✓ Compiled in 382ms (1255 modules)
  ✓ Compiled in 226ms (1255 modules)
+ ✓ Compiled in 376ms (1255 modules)
+ ✓ Compiled in 175ms (1255 modules)
+ ✓ Compiled in 255ms (1255 modules)
+ ✓ Compiled in 149ms (1255 modules)
