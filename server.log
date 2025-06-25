@@ -1601,3 +1601,4 @@ prisma:query SELECT "public"."properties"."id", "public"."properties"."hostId", 
  ✓ Compiled in 65ms (367 modules)
  ✓ Compiled in 93ms (279 modules)
  ✓ Compiled in 40ms (279 modules)
+ ✓ Compiled in 47ms (279 modules)
