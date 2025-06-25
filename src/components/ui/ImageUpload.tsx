@@ -20,7 +20,7 @@ interface ImageUploadProps {
 export function ImageUpload({
   value,
   onChange,
-  placeholder = "Subir imagen",
+  placeholder = "Subir imagen VERTICAL",
   className = "",
   variant = 'property',
   maxSize = 5,
@@ -90,6 +90,23 @@ export function ImageUpload({
     }
   }
 
+  const validateImageOrientation = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.onload = () => {
+        const aspectRatio = img.width / img.height
+        // Check if image is vertical (portrait mode)
+        resolve(aspectRatio < 1)
+        URL.revokeObjectURL(img.src)
+      }
+      img.onerror = () => {
+        resolve(false)
+        URL.revokeObjectURL(img.src)
+      }
+      img.src = URL.createObjectURL(file)
+    })
+  }
+
   const handleFile = async (file: File) => {
     // Validate file size
     if (file.size > maxSize * 1024 * 1024) {
@@ -101,6 +118,15 @@ export function ImageUpload({
     if (!file.type.startsWith('image/')) {
       alert('Solo se permiten archivos de imagen.')
       return
+    }
+
+    // Validate image orientation (vertical only for property images)
+    if (variant === 'property') {
+      const isVertical = await validateImageOrientation(file)
+      if (!isVertical) {
+        alert('La imagen debe estar en orientación vertical (modo retrato) para optimizar la visualización en móviles.')
+        return
+      }
     }
 
     setUploading(true)
@@ -278,6 +304,16 @@ export function ImageUpload({
               <p className="text-xs text-gray-400 mt-1">
                 Máximo {maxSize}MB
               </p>
+              
+              {!isProfile && variant === 'property' && (
+                <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-center">
+                  <p className="text-xs text-blue-700">
+                    📱 <strong>Formato vertical requerido</strong><br />
+                    Optimizado para móviles
+                  </p>
+                </div>
+              )}
+              
               {!isProfile && (
                 <div className="mt-2">
                   <Button

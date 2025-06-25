@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
 import { v4 as uuidv4 } from 'uuid'
 
+// Route configuration for large file uploads
+export const maxDuration = 30 // 30 seconds timeout
+export const dynamic = 'force-dynamic' // Ensure dynamic rendering
+export const runtime = 'nodejs' // Use Node.js runtime
+
 export async function POST(request: NextRequest) {
   try {
     console.log('🔥 Upload endpoint called')
@@ -15,10 +20,10 @@ export async function POST(request: NextRequest) {
 
     console.log(`📁 File details: ${file.name}, size: ${file.size}, type: ${file.type}`)
 
-    // Validate file size (50MB max)
-    if (file.size > 50 * 1024 * 1024) {
+    // Validate file size (100MB max)
+    if (file.size > 100 * 1024 * 1024) {
       console.log('❌ File too large:', file.size)
-      return NextResponse.json({ error: "File too large. Maximum 50MB." }, { status: 400 })
+      return NextResponse.json({ error: "File too large. Maximum 100MB." }, { status: 400 })
     }
 
     // Generate unique filename

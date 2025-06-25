@@ -825,11 +825,22 @@ export default function ZoneGuidePage({
                           exit={{ opacity: 0, scale: 0.9 }}
                           className="mb-6"
                         >
-                          <img
-                            src={step.mediaUrl}
-                            alt={getText(step.title, language, 'Imagen del paso')}
-                            className="w-full h-auto rounded-xl shadow-lg hover:shadow-xl transition-shadow"
-                          />
+                          <div className="relative rounded-xl overflow-hidden shadow-lg">
+                            <img
+                              src={step.mediaUrl}
+                              alt={getText(step.title, language, 'Imagen del paso')}
+                              className="w-full h-auto max-w-xs mx-auto block rounded-xl shadow-lg hover:shadow-xl transition-shadow"
+                              style={{
+                                maxHeight: '50vh',
+                                objectFit: 'contain'
+                              }}
+                            />
+                            
+                            {/* Mobile-optimized image hint */}
+                            <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded pointer-events-none">
+                              📱 Optimizado para móvil
+                            </div>
+                          </div>
                         </motion.div>
                       )}
 
@@ -840,15 +851,28 @@ export default function ZoneGuidePage({
                           exit={{ opacity: 0, scale: 0.9 }}
                           className="mb-6"
                         >
-                          <div className="relative rounded-xl overflow-hidden shadow-lg">
+                          <div className="relative rounded-xl overflow-hidden shadow-lg bg-black">
+                            {/* Video optimized for vertical format */}
                             <video
-                              className="w-full h-auto"
+                              className="w-full h-auto max-w-xs mx-auto block"
                               controls
-                              poster="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=400&fit=crop"
+                              playsInline
+                              preload="metadata"
+                              style={{
+                                maxHeight: '50vh',
+                                aspectRatio: 'auto'
+                              }}
+                              poster="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=700&fit=crop"
                             >
                               <source src={step.mediaUrl} type="video/mp4" />
-                              {t('videoNotSupported', language)}
+                              <source src={step.mediaUrl} type="video/webm" />
+                              {t('videoNotSupported', language, 'Tu navegador no soporta este video')}
                             </video>
+                            
+                            {/* Mobile-optimized video controls hint */}
+                            <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded pointer-events-none">
+                              📱 Optimizado para móvil - Toca para reproducir
+                            </div>
                           </div>
                         </motion.div>
                       )}

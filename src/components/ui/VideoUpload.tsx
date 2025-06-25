@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Upload, X, Video, AlertCircle, Loader2, FolderOpen, CheckCircle } from 'lucide-react'
+import { Upload, X, Video, AlertCircle, Loader2, FolderOpen, CheckCircle, Camera, StopCircle } from 'lucide-react'
 import { Button } from './Button'
 import { MediaSelector } from './MediaSelector'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -29,9 +29,9 @@ interface VideoMetadata {
 export function VideoUpload({
   value,
   onChange,
-  placeholder = "Subir video (máx. 30 segundos)",
+  placeholder = "Subir video VERTICAL (máx. 30 segundos)",
   className = "",
-  maxSize = 50,
+  maxSize = 100,
   maxDuration = 30,
   accept = "video/mp4,video/webm,video/quicktime",
   error = false,
@@ -46,8 +46,15 @@ export function VideoUpload({
   const [metadata, setMetadata] = useState<VideoMetadata | null>(null)
   const [showMediaSelector, setShowMediaSelector] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+  const [showCamera, setShowCamera] = useState(false)
+  const [recordingTime, setRecordingTime] = useState(0)
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const cameraRef = useRef<HTMLVideoElement>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const recordedChunksRef = useRef<Blob[]>([])
   const { addNotification } = useNotifications()
 
   // Sync previewUrl with initial value
@@ -63,72 +70,231 @@ export function VideoUpload({
       if (previewUrl?.startsWith('blob:')) {
         URL.revokeObjectURL(previewUrl)
       }
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop())
+      }
     }
-  }, [previewUrl])
+  }, [previewUrl, mediaStream])
+
+  // Recording timer
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (isRecording) {
+      interval = setInterval(() => {
+        setRecordingTime(prev => {
+          if (prev >= maxDuration) {
+            stopRecording()
+            return prev
+          }
+          return prev + 1
+        })
+      }, 1000)
+    } else {
+      setRecordingTime(0)
+    }
+    return () => clearInterval(interval)
+  }, [isRecording, maxDuration])
 
   const validateVideo = async (file: File): Promise<boolean> => {
+    console.log('📋 Validating file:', file.name, file.type, file.size)
+    
     // Check file size
     const sizeMB = file.size / (1024 * 1024)
+    console.log('📏 File size:', sizeMB.toFixed(2), 'MB')
     if (sizeMB > maxSize) {
       setVideoError(`El video debe ser menor a ${maxSize}MB`)
       return false
     }
 
-    // Check video duration
+    // Check video duration and orientation
     return new Promise((resolve) => {
       const video = document.createElement('video')
       video.preload = 'metadata'
       
       video.onloadedmetadata = () => {
+        console.log('📹 Video metadata:', {
+          duration: video.duration,
+          width: video.videoWidth,
+          height: video.videoHeight,
+          aspectRatio: video.videoWidth / video.videoHeight
+        })
+        
         if (video.duration > maxDuration) {
+          console.log('⏱️ Video too long:', video.duration, 'seconds')
           setVideoError(`El video debe durar máximo ${maxDuration} segundos`)
           URL.revokeObjectURL(video.src)
           resolve(false)
-        } else {
-          // Generate thumbnail from first frame
-          const canvas = document.createElement('canvas')
-          canvas.width = video.videoWidth
-          canvas.height = video.videoHeight
-          
-          video.currentTime = 0.5 // Get frame at 0.5 seconds
-          video.onseeked = () => {
-            const ctx = canvas.getContext('2d')
-            if (ctx) {
-              ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-              const thumbnail = canvas.toDataURL('image/jpeg', 0.8)
-              
-              setMetadata({
-                duration: video.duration,
-                thumbnail,
-                size: file.size,
-                width: video.videoWidth,
-                height: video.videoHeight
-              })
-            }
-            URL.revokeObjectURL(video.src)
-            resolve(true)
+          return
+        }
+
+        // Check if video is vertical (portrait mode) - temporarily relaxed
+        const aspectRatio = video.videoWidth / video.videoHeight
+        if (aspectRatio > 1.5) { // Allow square and slightly horizontal videos temporarily
+          console.warn('📐 Video is not vertical but allowing upload:', aspectRatio)
+          setVideoError('Para mejor experiencia móvil, recomendamos videos verticales (modo retrato)')
+          // Don't block upload, just show warning
+        }
+
+        // Generate thumbnail from first frame
+        const canvas = document.createElement('canvas')
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        
+        video.currentTime = 0.5 // Get frame at 0.5 seconds
+        video.onseeked = () => {
+          const ctx = canvas.getContext('2d')
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+            const thumbnail = canvas.toDataURL('image/jpeg', 0.8)
+            
+            setMetadata({
+              duration: video.duration,
+              thumbnail,
+              size: file.size,
+              width: video.videoWidth,
+              height: video.videoHeight
+            })
           }
+          URL.revokeObjectURL(video.src)
+          resolve(true)
         }
       }
       
-      video.onerror = () => {
-        setVideoError('Error al procesar el video')
+      video.onerror = (error) => {
+        console.error('🚨 Video validation error:', error)
+        setVideoError('Error al procesar el video. Verifica que sea un archivo de video válido.')
         URL.revokeObjectURL(video.src)
         resolve(false)
       }
       
       video.src = URL.createObjectURL(file)
+      console.log('🔗 Created video URL for validation:', video.src)
     })
   }
 
+  const startCamera = async () => {
+    try {
+      setVideoError(null)
+      console.log('📱 Requesting camera access...')
+      
+      // Try back camera first, fallback to any camera
+      let constraints = {
+        video: {
+          facingMode: 'environment', // Use back camera on mobile
+          width: { ideal: 720, min: 640 },
+          height: { ideal: 1280, min: 480 }
+        },
+        audio: true
+      }
+      
+      let stream
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(constraints)
+      } catch (backCameraError) {
+        console.warn('Back camera failed, trying any camera:', backCameraError)
+        // Fallback to any available camera
+        constraints = {
+          video: {
+            width: { ideal: 720, min: 640 },
+            height: { ideal: 1280, min: 480 }
+          },
+          audio: true
+        }
+        stream = await navigator.mediaDevices.getUserMedia(constraints)
+      }
+      
+      console.log('✅ Camera access granted')
+      setMediaStream(stream)
+      setShowCamera(true)
+      
+      if (cameraRef.current) {
+        cameraRef.current.srcObject = stream
+      }
+    } catch (error) {
+      console.error('🚨 Error accessing camera:', error)
+      setVideoError('No se pudo acceder a la cámara. Verifica los permisos del navegador.')
+    }
+  }
+
+  const stopCamera = () => {
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop())
+      setMediaStream(null)
+    }
+    setShowCamera(false)
+    setIsRecording(false)
+    setRecordingTime(0)
+    if (cameraRef.current) {
+      cameraRef.current.srcObject = null
+    }
+  }
+
+  const startRecording = () => {
+    if (!mediaStream) return
+
+    recordedChunksRef.current = []
+    
+    // Try different video formats for better compatibility
+    let options = { mimeType: 'video/webm;codecs=vp9' }
+    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      options = { mimeType: 'video/webm' }
+    }
+    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      options = { mimeType: 'video/mp4' }
+    }
+
+    const mediaRecorder = new MediaRecorder(mediaStream, options)
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        recordedChunksRef.current.push(event.data)
+      }
+    }
+
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(recordedChunksRef.current, { type: options.mimeType })
+      const extension = options.mimeType.includes('mp4') ? 'mp4' : 'webm'
+      const file = new File([blob], `recording-${Date.now()}.${extension}`, { type: options.mimeType })
+      
+      console.log('📹 Recording complete:', file.name, file.size, 'bytes')
+      
+      // Stop camera and process the recorded video
+      stopCamera()
+      handleUpload(file)
+    }
+
+    mediaRecorder.onerror = (event) => {
+      console.error('MediaRecorder error:', event)
+      setVideoError('Error durante la grabación')
+      stopCamera()
+    }
+
+    mediaRecorderRef.current = mediaRecorder
+    mediaRecorder.start()
+    setIsRecording(true)
+  }
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop()
+      setIsRecording(false)
+    }
+  }
+
   const handleUpload = async (file: File) => {
+    console.log('🎬 Starting video upload:', file.name, file.size, file.type)
     setVideoError(null)
     setUploadSuccess(false)
     
     // Validate video
     setUploadStage('processing')
+    console.log('🔍 Validating video...')
     const isValid = await validateVideo(file)
-    if (!isValid) return
+    console.log('✅ Video validation result:', isValid)
+    if (!isValid) {
+      console.log('❌ Video validation failed')
+      return
+    }
 
     // Create preview
     const objectUrl = URL.createObjectURL(file)
@@ -161,7 +327,20 @@ export function VideoUpload({
       })
       
       xhr.onload = async () => {
-        if (xhr.status === 200) {
+        if (xhr.status === 413) {
+          setVideoError('El video es demasiado grande. Intenta con un video más corto o de menor calidad.')
+          setUploading(false)
+          setUploadSuccess(false)
+          URL.revokeObjectURL(objectUrl)
+          
+          addNotification({
+            type: 'error',
+            title: 'Video demasiado grande',
+            message: 'Reduce el tamaño del video e inténtalo de nuevo. Límite: 100MB.',
+            read: false
+          })
+          return
+        } else if (xhr.status === 200) {
           setUploadStage('saving')
           const data = JSON.parse(xhr.responseText)
           if (data.url) {
@@ -240,7 +419,11 @@ export function VideoUpload({
       }
       
       xhr.onerror = () => {
-        setVideoError('Error al subir el video')
+        const errorMessage = xhr.status === 413 
+          ? 'El video es demasiado grande. Intenta con un video más corto o de menor calidad.'
+          : 'Error al subir el video'
+        
+        setVideoError(errorMessage)
         setUploading(false)
         setUploadSuccess(false)
         URL.revokeObjectURL(objectUrl)
@@ -249,7 +432,9 @@ export function VideoUpload({
         addNotification({
           type: 'error',
           title: 'Error al subir video',
-          message: 'No se pudo subir el video. Por favor, inténtalo de nuevo.',
+          message: xhr.status === 413 
+            ? 'El archivo es demasiado grande. Reduce el tamaño del video e inténtalo de nuevo.'
+            : 'No se pudo subir el video. Por favor, inténtalo de nuevo.',
           read: false
         })
       }
@@ -425,7 +610,39 @@ export function VideoUpload({
                 <Video className="w-8 h-8 text-gray-400" />
                 <p className="text-sm text-gray-600">{placeholder}</p>
                 <p className="text-xs text-gray-500">MP4, WebM o MOV hasta {maxSize}MB</p>
-                <div className="mt-3 flex gap-2">
+                
+                {/* Important requirements notice */}
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center space-x-2 text-blue-800">
+                    <AlertCircle className="w-4 h-4" />
+                    <span className="text-xs font-medium">Requisitos importantes:</span>
+                  </div>
+                  <ul className="text-xs text-blue-700 mt-1 space-y-1">
+                    <li>• Video en VERTICAL (modo retrato)</li>
+                    <li>• Máximo {maxDuration} segundos de duración</li>
+                    <li>• Máximo {maxSize}MB de tamaño</li>
+                    <li>• Optimizado para móviles</li>
+                  </ul>
+                </div>
+                
+                <div className="mt-3 flex gap-2 flex-wrap justify-center">
+                  {/* Check if we're on mobile and camera is available */}
+                  {typeof navigator !== 'undefined' && navigator.mediaDevices && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        startCamera()
+                      }}
+                      className="text-xs hover:bg-green-50 hover:border-green-200 transition-colors"
+                    >
+                      <Camera className="w-4 h-4 mr-1" />
+                      Grabar video
+                    </Button>
+                  )}
+                  
                   <Button
                     type="button"
                     variant="outline"
@@ -439,6 +656,13 @@ export function VideoUpload({
                     <FolderOpen className="w-4 h-4 mr-1" />
                     Desde biblioteca
                   </Button>
+                  
+                  {/* Debug button for testing upload without strict validation */}
+                  <div className="w-full mt-2 text-center">
+                    <span className="text-xs text-gray-500">
+                      ⚠️ Modo de debug activo - Revisa la consola para logs
+                    </span>
+                  </div>
                 </div>
               </>
             )}
@@ -451,7 +675,10 @@ export function VideoUpload({
             src={previewUrl}
             controls
             className="w-full rounded-lg shadow-sm"
-            style={{ maxHeight: '300px' }}
+            style={{ 
+              maxHeight: '400px',
+              aspectRatio: metadata?.width && metadata?.height ? `${metadata.width}/${metadata.height}` : 'auto'
+            }}
           />
           {metadata && (
             <div className="mt-2 text-xs text-gray-600">
@@ -491,6 +718,86 @@ export function VideoUpload({
         onSelect={handleSelectFromLibrary}
         onClose={() => setShowMediaSelector(false)}
       />
+      
+      {/* Camera Recording Modal */}
+      {showCamera && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-4 max-w-md w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Grabar Video Vertical</h3>
+              <button
+                onClick={stopCamera}
+                className="p-2 hover:bg-gray-100 rounded-full"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="relative">
+              <video
+                ref={cameraRef}
+                autoPlay
+                muted
+                playsInline
+                className="w-full h-80 object-cover rounded-lg bg-black"
+                style={{ transform: 'scaleX(-1)' }} // Mirror effect for front camera
+              />
+              
+              {/* Recording indicator */}
+              {isRecording && (
+                <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  <span>REC {recordingTime}s</span>
+                </div>
+              )}
+              
+              {/* Time remaining */}
+              <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                {maxDuration - recordingTime}s restantes
+              </div>
+            </div>
+            
+            {/* Instructions */}
+            <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
+              <p className="text-xs text-yellow-800">
+                📱 Mantén el teléfono en vertical y graba máximo {maxDuration} segundos
+              </p>
+            </div>
+            
+            {/* Controls */}
+            <div className="flex justify-center space-x-4 mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={stopCamera}
+                disabled={isRecording}
+              >
+                Cancelar
+              </Button>
+              
+              {!isRecording ? (
+                <Button
+                  type="button"
+                  onClick={startRecording}
+                  className="bg-red-500 hover:bg-red-600 text-white"
+                >
+                  <div className="w-4 h-4 bg-white rounded-full mr-2" />
+                  Iniciar grabación
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={stopRecording}
+                  className="bg-red-500 hover:bg-red-600 text-white"
+                >
+                  <StopCircle className="w-4 h-4 mr-2" />
+                  Detener ({recordingTime}s)
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

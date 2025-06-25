@@ -22,6 +22,7 @@ import { Button } from '../../../../../../../src/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../../../../src/components/ui/Card'
 import { Input } from '../../../../../../../src/components/ui/Input'
 import { ZoneIconDisplay, useZoneIcon } from '../../../../../../../src/components/ui/IconSelector'
+import { VideoUpload } from '../../../../../../../src/components/ui/VideoUpload'
 import { cn } from '../../../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
 import { AnimatedLoadingSpinner } from '../../../../../../../src/components/ui/AnimatedLoadingSpinner'
@@ -37,6 +38,11 @@ interface Step {
   type: StepType
   title: { es: string; en: string }
   content: any // Flexible content based on type
+  media?: {
+    url: string
+    thumbnail?: string
+    title?: string
+  }
   order: number
   isPublished: boolean
 }
@@ -90,14 +96,33 @@ const fetchStepsData = async (propertyId: string, zoneId: string) => {
     const result = await response.json()
     
     if (result.success) {
-      return result.data.map((step: any, index: number) => ({
-        id: step.id,
-        type: step.type?.toUpperCase() || 'TEXT',
-        title: step.title || { es: `Paso ${index + 1}`, en: `Step ${index + 1}` },
-        content: step.content || { es: '', en: '' },
-        order: step.order || index + 1,
-        isPublished: step.status === 'ACTIVE'
-      }))
+      return result.data.map((step: any, index: number) => {
+        // Extract media information from content if it exists
+        let media = undefined
+        let cleanContent = step.content || { es: '', en: '' }
+        
+        if (step.content && typeof step.content === 'object' && step.content.mediaUrl) {
+          media = {
+            url: step.content.mediaUrl,
+            thumbnail: step.content.thumbnail,
+            title: step.content.title || 'Media'
+          }
+          
+          // Remove media fields from content to keep it clean
+          const { mediaUrl, thumbnail, title, ...restContent } = step.content
+          cleanContent = restContent
+        }
+        
+        return {
+          id: step.id,
+          type: step.type?.toUpperCase() || 'TEXT',
+          title: step.title || { es: `Paso ${index + 1}`, en: `Step ${index + 1}` },
+          content: cleanContent,
+          media: media,
+          order: step.order || index + 1,
+          isPublished: step.status === 'ACTIVE'
+        }
+      })
     }
     return []
   } catch (error) {
@@ -108,13 +133,58 @@ const fetchStepsData = async (propertyId: string, zoneId: string) => {
 
 const saveStepsData = async (propertyId: string, zoneId: string, steps: Step[]) => {
   try {
-    const stepsForAPI = steps.map((step, index) => ({
-      type: step.type?.toLowerCase() || 'text',
-      title: step.title,
-      content: step.content,
-      order: index + 1,
-      status: step.isPublished ? 'ACTIVE' : 'DRAFT'
-    }))
+    console.log('🚀 Starting saveStepsData with steps:', steps.length)
+    
+    const stepsForAPI = steps.map((step, index) => {
+      console.log(`📝 Processing step ${index + 1}:`, {
+        id: step.id,
+        type: step.type,
+        hasMedia: !!step.media,
+        mediaUrl: step.media?.url,
+        contentMediaUrl: step.content?.mediaUrl,
+        title: step.title
+      })
+      
+      // Prepare content object that includes media URLs
+      let contentData = step.content || {}
+      
+      // If step has media (video/image), include mediaUrl in content
+      if (step.media?.url) {
+        console.log(`🎬 Step ${index + 1} has media, adding to content:`, {
+          url: step.media.url,
+          thumbnail: step.media.thumbnail,
+          title: step.media.title
+        })
+        contentData = {
+          ...contentData,
+          mediaUrl: step.media.url,
+          thumbnail: step.media.thumbnail,
+          title: step.media.title
+        }
+      } else if (step.content?.mediaUrl) {
+        console.log(`📹 Step ${index + 1} has content.mediaUrl, preserving:`, step.content.mediaUrl)
+        // Ensure mediaUrl from content is preserved
+        contentData = {
+          ...contentData,
+          mediaUrl: step.content.mediaUrl
+        }
+      } else {
+        console.log(`❌ Step ${index + 1} has no media URL`)
+      }
+      
+      const apiStep = {
+        type: step.type?.toLowerCase() || 'text',
+        title: step.title,
+        content: contentData,
+        order: index + 1,
+        status: step.isPublished ? 'ACTIVE' : 'DRAFT'
+      }
+      
+      console.log(`✅ Step ${index + 1} prepared for API:`, apiStep)
+      return apiStep
+    })
+    
+    console.log('💾 Final steps payload for API:', JSON.stringify(stepsForAPI, null, 2))
 
     const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
       method: 'PUT',
@@ -169,6 +239,7 @@ export default function ZoneStepsPage({
       if (zoneData) {
         setZone(zoneData)
       }
+      console.log('📥 Loaded steps from API:', stepsData)
       setSteps(stepsData)
     } catch (error) {
       console.error('Error loading data:', error)
@@ -199,7 +270,8 @@ export default function ZoneStepsPage({
 
   const [formData, setFormData] = useState({
     title: { es: '', en: '' },
-    content: {}
+    content: {},
+    media: undefined as { url: string; thumbnail?: string; title?: string } | undefined
   })
 
   // Show loading state
@@ -246,20 +318,34 @@ export default function ZoneStepsPage({
       type: newStepType,
       title: formData.title,
       content: formData.content,
+      media: formData.media,
       order: steps.length + 1,
       isPublished: false
     }
 
+    console.log('🆕 Creating new step:', { 
+      step: newStep, 
+      hasMedia: !!formData.media,
+      mediaUrl: formData.media?.url,
+      contentMediaUrl: formData.content?.mediaUrl
+    })
     setSteps([...steps, newStep])
     resetForm()
   }
 
   const handleEditStep = (step: Step) => {
+    console.log('✏️ Editing step:', step)
     setEditingStep(step)
-    setFormData({
+    
+    // Ensure we have the complete step data including media
+    const formDataToSet = {
       title: step.title,
-      content: step.content
-    })
+      content: step.content || {},
+      media: step.media
+    }
+    
+    console.log('📝 Setting form data for editing:', formDataToSet)
+    setFormData(formDataToSet)
     setNewStepType(step.type)
     setShowCreateForm(true)
   }
@@ -273,11 +359,18 @@ export default function ZoneStepsPage({
             ...step,
             title: formData.title,
             content: formData.content,
+            media: formData.media,
             type: newStepType
           }
         : step
     ))
 
+    console.log('📝 Updating step:', { 
+      stepId: editingStep.id, 
+      hasMedia: !!formData.media,
+      mediaUrl: formData.media?.url,
+      contentMediaUrl: formData.content?.mediaUrl
+    })
     resetForm()
   }
 
@@ -302,7 +395,7 @@ export default function ZoneStepsPage({
   }
 
   const resetForm = () => {
-    setFormData({ title: { es: '', en: '' }, content: {} })
+    setFormData({ title: { es: '', en: '' }, content: {}, media: undefined })
     setEditingStep(null)
     setShowCreateForm(false)
     setNewStepType(StepType.TEXT)
@@ -339,9 +432,10 @@ export default function ZoneStepsPage({
         return (
           <div className="space-y-3">
             <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden relative">
+              {/* Try to get thumbnail from media first, then from content */}
               <img 
-                src={step.content.thumbnail} 
-                alt={getMultilingualText(step.title, selectedLanguage, 'Imagen')}
+                src={step.media?.thumbnail || step.content.thumbnail || '/placeholder-video.jpg'} 
+                alt={getMultilingualText(step.title, selectedLanguage, 'Video')}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
@@ -349,8 +443,12 @@ export default function ZoneStepsPage({
                   <Video className="w-8 h-8 text-gray-700" />
                 </div>
               </div>
+              {/* Show video URL for debugging */}
+              <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                {step.media?.url ? '✅ Video URL' : step.content.mediaUrl ? '⚠️ Content URL' : '❌ No URL'}
+              </div>
               <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
-                {step.content.duration}s
+                {step.content.duration || 'N/A'}s
               </div>
             </div>
             {step.content.description && (
@@ -358,6 +456,11 @@ export default function ZoneStepsPage({
                 {getMultilingualText(step.content.description, selectedLanguage, 'Descripción')}
               </p>
             )}
+            {/* Debug info */}
+            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+              <p>🔍 Debug: Media URL = {step.media?.url || 'none'}</p>
+              <p>🔍 Debug: Content URL = {step.content.mediaUrl || 'none'}</p>
+            </div>
           </div>
         )
     }
@@ -465,28 +568,48 @@ export default function ZoneStepsPage({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Video
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <Video className="mx-auto h-12 w-12 text-gray-400 mb-2" />
-                <div className="text-sm text-gray-600">
-                  <button className="font-medium text-violet-600 hover:text-violet-500">
-                    Subir video
-                  </button>
-                  {' o introduce URL'}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">MP4, WebM hasta 50MB (máx. 30s)</p>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                URL del video (opcional)
-              </label>
-              <Input
-                value={(formData.content as any).videoUrl || ''}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  content: { ...formData.content, videoUrl: e.target.value }
-                })}
-                placeholder="https://..."
+              <VideoUpload
+                value={editingStep?.media?.url || editingStep?.content?.mediaUrl || ''}
+                onChange={(videoUrl, metadata) => {
+                  console.log('🎬 VideoUpload onChange called:', { videoUrl, metadata })
+                  
+                  if (videoUrl && metadata) {
+                    const newFormData = {
+                      ...formData,
+                      content: {
+                        ...formData.content,
+                        mediaUrl: videoUrl,
+                        thumbnail: metadata.thumbnail,
+                        duration: metadata.duration
+                      },
+                      media: {
+                        url: videoUrl,
+                        thumbnail: metadata.thumbnail,
+                        title: formData.title.es || 'Video'
+                      }
+                    }
+                    console.log('📝 Setting form data with video and media:', newFormData)
+                    setFormData(newFormData)
+                  } else {
+                    // Clear media
+                    const newFormData = {
+                      ...formData,
+                      content: {
+                        ...formData.content,
+                        mediaUrl: undefined,
+                        thumbnail: undefined,
+                        duration: undefined
+                      },
+                      media: undefined
+                    }
+                    console.log('🗑️ Clearing video from form data:', newFormData)
+                    setFormData(newFormData)
+                  }
+                }}
+                placeholder="Subir video VERTICAL (máx. 30 segundos)"
+                maxSize={100}
+                maxDuration={30}
+                saveToLibrary={true}
               />
             </div>
             <div>
@@ -605,13 +728,28 @@ export default function ZoneStepsPage({
             </Button>
           </div>
 
-          <Button
-            onClick={() => setShowCreateForm(true)}
-            className="bg-violet-600 hover:bg-violet-700"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Nuevo Step
-          </Button>
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                // Open public zone page in new tab
+                const publicUrl = `/guide/${propertyId}/${zoneId}`
+                window.open(publicUrl, '_blank')
+              }}
+              className="flex items-center"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Vista Previa
+            </Button>
+            
+            <Button
+              onClick={() => setShowCreateForm(true)}
+              className="bg-violet-600 hover:bg-violet-700"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Nuevo Step
+            </Button>
+          </div>
         </div>
       </div>
 

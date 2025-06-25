@@ -373,10 +373,15 @@ export async function PUT(
     
     for (let i = 0; i < stepsToSave.length; i++) {
       const step = stepsToSave[i]
+      console.log(`🔍 API Processing step ${i + 1}:`, JSON.stringify(step, null, 2))
       
       // Handle both title and content fields, prioritizing title for the title field
       const titleContent = step.title || step.content || { es: `Paso ${i + 1}`, en: '', fr: '' }
       const bodyContent = step.content || { es: '', en: '', fr: '' }
+      
+      console.log(`📝 Step ${i + 1} title:`, titleContent)
+      console.log(`📋 Step ${i + 1} content:`, bodyContent)
+      console.log(`🎬 Step ${i + 1} media URL:`, bodyContent.mediaUrl || 'none')
       
       const stepData = {
         title: typeof titleContent === 'string' 
