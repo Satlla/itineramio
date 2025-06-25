@@ -747,7 +747,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   const handleSaveSteps = async (steps: Step[]) => {
-    if (!editingZoneForSteps) return
+    console.log('🚨 ===== HANDLESAVESTEPS CALLED =====')
+    console.log('🚨 editingZoneForSteps:', editingZoneForSteps)
+    console.log('🚨 steps received:', steps)
+    console.log('🚨 steps length:', steps?.length)
+    
+    if (!editingZoneForSteps) {
+      console.log('❌ No editingZoneForSteps, returning early')
+      return
+    }
     
     console.log('💾 handleSaveSteps called with:', steps.length, 'steps')
     console.log('🔍 Raw steps data:', steps)
