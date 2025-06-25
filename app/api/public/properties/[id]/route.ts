@@ -12,9 +12,8 @@ export async function GET(
     // Handle potential ID truncation by trying exact match first, then startsWith
     let property = await prisma.property.findFirst({
       where: {
-        id: id
-        // TODO: Add back isPublished: true when properties are properly published
-        // isPublished: true // Only published properties
+        id: id,
+        isPublished: true // Only published properties
       },
       include: {
         zones: {
@@ -48,8 +47,8 @@ export async function GET(
         where: {
           id: {
             startsWith: id
-          }
-          // TODO: Add back isPublished: true when properties are properly published
+          },
+          isPublished: true // Only published properties
         },
         include: {
           zones: {

@@ -14,6 +14,9 @@ export async function GET(
       where: {
         id: zoneId,
         propertyId: propertyId,
+        property: {
+          isPublished: true // Property must be published
+        },
         OR: [
           { isPublished: true },
           { steps: { some: { isPublished: true } } }
@@ -46,6 +49,9 @@ export async function GET(
           },
           propertyId: {
             startsWith: propertyId
+          },
+          property: {
+            isPublished: true // Property must be published
           },
           OR: [
             { isPublished: true },

@@ -8,10 +8,22 @@ export async function PATCH(
   try {
     const propertyId = (await params).id
 
-    // Verificar que la propiedad existe
-    const existingProperty = await prisma.property.findUnique({
+    // Verificar que la propiedad existe (handle potential ID truncation)
+    let existingProperty = await prisma.property.findFirst({
       where: { id: propertyId }
     })
+
+    // If not found with exact match, try startsWith (for Next.js truncation)
+    if (!existingProperty) {
+      const properties = await prisma.property.findMany({
+        where: {
+          id: {
+            startsWith: propertyId
+          }
+        }
+      })
+      existingProperty = properties[0]
+    }
 
     if (!existingProperty) {
       return NextResponse.json({
@@ -20,13 +32,18 @@ export async function PATCH(
       }, { status: 404 })
     }
 
-    // Alternar el estado
+    // Alternar el estado y la publicación
     const newStatus = existingProperty.status === 'ACTIVE' ? 'DRAFT' : 'ACTIVE'
+    const newIsPublished = newStatus === 'ACTIVE'
 
     // Actualizar la propiedad
     const updatedProperty = await prisma.property.update({
-      where: { id: propertyId },
-      data: { status: newStatus }
+      where: { id: existingProperty.id },
+      data: { 
+        status: newStatus,
+        isPublished: newIsPublished,
+        publishedAt: newIsPublished ? new Date() : null
+      }
     })
 
     return NextResponse.json({
