@@ -26,6 +26,8 @@ import { Button } from './Button'
 import { Card } from './Card'
 import { Input } from './Input'
 import { Badge } from './Badge'
+import { VideoUpload } from './VideoUpload'
+import { ImageUpload } from './ImageUpload'
 
 export interface Step {
   id: string
@@ -155,14 +157,12 @@ export function MobileStepEditor({
 
   const handleMediaSelect = (type: 'image' | 'video' | 'text' | 'youtube' | 'link') => {
     if (selectedStep !== null) {
+      console.log('📱 Media type selected:', type)
       updateStep(selectedStep, { type })
       setShowMediaModal(false)
       
-      if (type === 'image' || type === 'video') {
-        setTimeout(() => {
-          fileInputRef.current?.click()
-        }, 300)
-      }
+      // Note: Image and video uploads are now handled by their respective components
+      // No need to trigger file input manually
     }
   }
 
@@ -482,32 +482,29 @@ export function MobileStepEditor({
 
                   {step.type === 'image' && (
                     <div className="space-y-3">
-                      {!step.media?.url ? (
-                        <button
-                          onClick={() => {
-                            setSelectedStep(index)
-                            fileInputRef.current?.click()
-                          }}
-                          className="w-full h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:border-gray-400 transition-colors"
-                        >
-                          <ImageIcon className="w-8 h-8 mb-2" />
-                          <span className="text-sm">Seleccionar imagen</span>
-                        </button>
-                      ) : (
-                        <div className="relative rounded-xl overflow-hidden">
-                          <img 
-                            src={step.media.url} 
-                            alt="Contenido" 
-                            className="w-full h-48 object-cover"
-                          />
-                          <button
-                            onClick={() => updateStep(index, { media: undefined })}
-                            className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded-full"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
+                      <ImageUpload
+                        value={step.media?.url}
+                        onChange={(url) => {
+                          console.log('🖼️ MobileStepEditor ImageUpload onChange:', { url })
+                          
+                          if (url) {
+                            console.log('📸 Setting image data in step:', {
+                              url,
+                              title: 'Uploaded image'
+                            })
+                            updateStep(index, {
+                              media: {
+                                url: url,
+                                title: 'Uploaded image'
+                              }
+                            })
+                          } else {
+                            console.log('🗑️ Clearing image from step')
+                            updateStep(index, { media: undefined })
+                          }
+                        }}
+                        className="mb-3"
+                      />
                       
                       <Input
                         value={step.content[activeLanguage] || ''}
@@ -516,34 +513,39 @@ export function MobileStepEditor({
                         className="text-sm"
                       />
                     </div>
-                  )}
+                  )} 
 
                   {step.type === 'video' && (
                     <div className="space-y-3">
-                      {!step.media?.url ? (
-                        <button
-                          onClick={() => {
-                            setSelectedStep(index)
-                            fileInputRef.current?.click()
-                          }}
-                          className="w-full h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:border-gray-400 transition-colors"
-                        >
-                          <PlayCircle className="w-8 h-8 mb-2" />
-                          <span className="text-sm">Seleccionar video</span>
-                        </button>
-                      ) : (
-                        <div className="relative rounded-xl overflow-hidden bg-gray-100">
-                          <div className="w-full h-48 bg-black flex items-center justify-center">
-                            <PlayCircle className="w-12 h-12 text-white opacity-75" />
-                          </div>
-                          <button
-                            onClick={() => updateStep(index, { media: undefined })}
-                            className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded-full"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
+                      <VideoUpload
+                        value={step.media?.url}
+                        onChange={(url, metadata) => {
+                          console.log('🎬 MobileStepEditor VideoUpload onChange:', { url, metadata })
+                          
+                          if (url && metadata) {
+                            console.log('📹 Setting video data in step:', {
+                              url,
+                              thumbnail: metadata.thumbnail,
+                              title: 'Uploaded video'
+                            })
+                            updateStep(index, {
+                              media: {
+                                url: url,
+                                thumbnail: metadata.thumbnail,
+                                title: 'Uploaded video'
+                              }
+                            })
+                          } else {
+                            console.log('🗑️ Clearing video from step')
+                            updateStep(index, { media: undefined })
+                          }
+                        }}
+                        placeholder="Subir video VERTICAL (máx. 30 segundos)"
+                        maxSize={100}
+                        maxDuration={30}
+                        saveToLibrary={true}
+                        className="mb-3"
+                      />
                       
                       <Input
                         value={step.content[activeLanguage] || ''}
@@ -647,26 +649,7 @@ export function MobileStepEditor({
       {/* Media Selection Modal */}
       <MediaSelectionModal />
 
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={selectedStep !== null && steps[selectedStep]?.type === 'video' ? 'video/*' : 'image/*'}
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file && selectedStep !== null) {
-            const mockUrl = URL.createObjectURL(file)
-            updateStep(selectedStep, {
-              media: {
-                url: mockUrl,
-                thumbnail: file.type.startsWith('video/') ? mockUrl : undefined,
-                title: file.name
-              }
-            })
-          }
-        }}
-        className="hidden"
-      />
+      {/* File inputs are now handled by VideoUpload and ImageUpload components */}
     </div>
   )
 }
