@@ -193,14 +193,14 @@ export function VideoUpload({
       } catch (backCameraError) {
         console.warn('Back camera failed, trying any camera:', backCameraError)
         // Fallback to any available camera
-        constraints = {
+        const fallbackConstraints = {
           video: {
             width: { ideal: 720, min: 640 },
             height: { ideal: 1280, min: 480 }
           },
           audio: true
         }
-        stream = await navigator.mediaDevices.getUserMedia(constraints)
+        stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints)
       }
       
       console.log('✅ Camera access granted')

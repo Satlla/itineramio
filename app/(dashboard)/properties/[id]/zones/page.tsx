@@ -1265,7 +1265,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         }}
         template={selectedInspirationZone}
         onCreateZone={handleCreateZoneFromTemplate}
-        isLoading={isCreatingZone}
       />
 
       {/* Step Editor */}

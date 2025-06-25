@@ -866,7 +866,7 @@ export default function ZoneGuidePage({
                             >
                               <source src={step.mediaUrl} type="video/mp4" />
                               <source src={step.mediaUrl} type="video/webm" />
-                              {t('videoNotSupported', language, 'Tu navegador no soporta este video')}
+                              {t('videoNotSupported', language) || 'Tu navegador no soporta este video'}
                             </video>
                             
                             {/* Mobile-optimized video controls hint */}

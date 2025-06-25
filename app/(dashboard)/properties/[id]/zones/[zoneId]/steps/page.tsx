@@ -327,7 +327,7 @@ export default function ZoneStepsPage({
       step: newStep, 
       hasMedia: !!formData.media,
       mediaUrl: formData.media?.url,
-      contentMediaUrl: formData.content?.mediaUrl
+      contentMediaUrl: (formData.content as any)?.mediaUrl
     })
     setSteps([...steps, newStep])
     resetForm()
@@ -369,7 +369,7 @@ export default function ZoneStepsPage({
       stepId: editingStep.id, 
       hasMedia: !!formData.media,
       mediaUrl: formData.media?.url,
-      contentMediaUrl: formData.content?.mediaUrl
+      contentMediaUrl: (formData.content as any)?.mediaUrl
     })
     resetForm()
   }
