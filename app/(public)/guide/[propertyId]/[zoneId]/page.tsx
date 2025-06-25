@@ -316,11 +316,11 @@ export default function ZoneGuidePage({
     try {
       setLoading(true)
       
-      // Fetch both zone data and steps
+      // Fetch both zone data and steps using public APIs
       const [zoneResponse, stepsResponse, propertyResponse] = await Promise.all([
-        fetch(`/api/properties/${pId}/zones/${zId}`),
-        fetch(`/api/properties/${pId}/zones/${zId}/steps`),
-        fetch(`/api/properties/${pId}`)
+        fetch(`/api/public/properties/${pId}/zones/${zId}`),
+        fetch(`/api/public/properties/${pId}/zones/${zId}/steps`),
+        fetch(`/api/public/properties/${pId}`)
       ])
       
       const [zoneResult, stepsResult, propertyResult] = await Promise.all([

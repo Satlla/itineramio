@@ -477,23 +477,14 @@ export default function PropertyGuidePage() {
   const fetchPropertyData = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/properties/${propertyId}`)
+      const response = await fetch(`/api/public/properties/${propertyId}`)
       const result = await response.json()
       
       if (!response.ok) {
         throw new Error(result.error || 'Manual no encontrado')
       }
       
-      // Add mock stepsCount for zones that don't have steps yet
-      const propertyWithSteps = {
-        ...result.data,
-        zones: result.data.zones?.map((zone: any) => ({
-          ...zone,
-          stepsCount: zone.stepsCount || 0
-        })) || []
-      }
-      
-      setProperty(propertyWithSteps)
+      setProperty(result.data)
     } catch (error) {
       console.error('Error fetching property:', error)
       setProperty(null)
