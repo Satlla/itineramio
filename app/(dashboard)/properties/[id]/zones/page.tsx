@@ -748,14 +748,53 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   const handleSaveSteps = async (steps: Step[]) => {
     if (!editingZoneForSteps) return
+    
+    console.log('💾 handleSaveSteps called with:', steps.length, 'steps')
+    console.log('🔍 Raw steps data:', steps)
 
     try {
+      // Transform steps to match API expectations
+      const transformedSteps = steps.map((step, index) => {
+        console.log(`📝 Processing step ${index}:`, step)
+        
+        // Prepare content object
+        let contentData = step.content || {}
+        
+        // If step has media, include mediaUrl in content
+        if (step.media?.url) {
+          console.log(`🎬 Step ${index} has media, adding to content:`, {
+            url: step.media.url,
+            thumbnail: step.media.thumbnail,
+            title: step.media.title
+          })
+          contentData = {
+            ...contentData,
+            mediaUrl: step.media.url,
+            thumbnail: step.media.thumbnail,
+            title: step.media.title
+          }
+        }
+        
+        const apiStep = {
+          type: step.type?.toLowerCase() || 'text',
+          title: step.content, // Use content as title for API
+          content: contentData,
+          order: index + 1,
+          status: 'ACTIVE'
+        }
+        
+        console.log(`✅ Step ${index} transformed for API:`, apiStep)
+        return apiStep
+      })
+      
+      console.log('💾 Final payload for API:', transformedSteps)
+
       const response = await fetch(`/api/properties/${id}/zones/${editingZoneForSteps.id}/steps`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ steps })
+        body: JSON.stringify({ steps: transformedSteps })
       })
 
       const result = await response.json()
