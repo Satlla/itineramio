@@ -607,7 +607,7 @@ export default function ZoneStepsPage({
                   }
                 }}
                 placeholder="Subir video VERTICAL (máx. 30 segundos)"
-                maxSize={100}
+                maxSize={20}
                 maxDuration={30}
                 saveToLibrary={true}
               />

@@ -1624,3 +1624,20 @@ prisma:query DELETE FROM "public"."steps" WHERE ("public"."steps"."id" = $1 AND 
 ✅ File written successfully
  POST /api/upload 200 in 209ms
  ✓ Compiled in 88ms (279 modules)
+ ✓ Compiled in 34ms (279 modules)
+ ⚠ Found a change in next.config.js. Restarting the server to apply the changes...
+   ▲ Next.js 15.3.3
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.137:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1228ms
+ ⚠ Found a change in next.config.js. Restarting the server to apply the changes...
+   ▲ Next.js 15.3.3
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.137:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1162ms

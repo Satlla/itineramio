@@ -20,10 +20,14 @@ export async function POST(request: NextRequest) {
 
     console.log(`📁 File details: ${file.name}, size: ${file.size}, type: ${file.type}`)
 
-    // Validate file size (100MB max)
-    if (file.size > 100 * 1024 * 1024) {
+    // Validate file size (20MB max for Vercel compatibility)
+    if (file.size > 20 * 1024 * 1024) {
       console.log('❌ File too large:', file.size)
-      return NextResponse.json({ error: "File too large. Maximum 100MB." }, { status: 400 })
+      return NextResponse.json({ 
+        error: "Archivo demasiado grande. Máximo 20MB. Intenta comprimir el video o usar menor calidad.", 
+        maxSize: "20MB",
+        currentSize: `${(file.size / (1024 * 1024)).toFixed(1)}MB`
+      }, { status: 413 })
     }
 
     // Generate unique filename

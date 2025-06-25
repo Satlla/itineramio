@@ -1,10 +1,12 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Upload, X, Video, AlertCircle, Loader2, FolderOpen, CheckCircle, Camera, StopCircle } from 'lucide-react'
+import { Upload, X, Video, AlertCircle, Loader2, FolderOpen, CheckCircle, Camera, StopCircle, Zap } from 'lucide-react'
 import { Button } from './Button'
 import { MediaSelector } from './MediaSelector'
 import { useNotifications } from '../../hooks/useNotifications'
+import { uploadFileInChunks } from '../../utils/chunkedUpload'
+import { compressVideo } from '../../utils/videoCompression'
 
 interface VideoUploadProps {
   value?: string
@@ -40,7 +42,9 @@ export function VideoUpload({
   const [dragActive, setDragActive] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
-  const [uploadStage, setUploadStage] = useState<'uploading' | 'processing' | 'saving' | 'complete'>('uploading')
+  const [uploadStage, setUploadStage] = useState<'compressing' | 'uploading' | 'processing' | 'saving' | 'complete'>('uploading')
+  const [compressionProgress, setCompressionProgress] = useState(0)
+  const [isCompressing, setIsCompressing] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [videoError, setVideoError] = useState<string | null>(null)
   const [metadata, setMetadata] = useState<VideoMetadata | null>(null)
@@ -286,10 +290,62 @@ export function VideoUpload({
     setVideoError(null)
     setUploadSuccess(false)
     
+    // Check if compression is needed
+    const fileSizeMB = file.size / (1024 * 1024)
+    let fileToUpload = file
+    
+    if (fileSizeMB > 3) {
+      console.log('📦 File size:', fileSizeMB.toFixed(2), 'MB - Compression needed!')
+      
+      try {
+        setIsCompressing(true)
+        setUploadStage('compressing')
+        setCompressionProgress(0)
+        
+        // Show compression notification
+        addNotification({
+          type: 'info',
+          title: 'Comprimiendo video',
+          message: 'El video es muy grande. Comprimiendo automáticamente...',
+          read: false
+        })
+        
+        // Compress the video
+        fileToUpload = await compressVideo(file, {
+          maxSizeMB: 3.5, // Target 3.5MB to leave some buffer
+          quality: 0.7,
+          scale: 0.75,
+          fps: 24,
+          onProgress: (progress) => {
+            setCompressionProgress(progress)
+          }
+        })
+        
+        const compressedSizeMB = fileToUpload.size / (1024 * 1024)
+        console.log('✅ Compression complete! New size:', compressedSizeMB.toFixed(2), 'MB')
+        
+        // Show success notification
+        addNotification({
+          type: 'info',
+          title: 'Video comprimido',
+          message: `Tamaño reducido de ${fileSizeMB.toFixed(1)}MB a ${compressedSizeMB.toFixed(1)}MB`,
+          read: false
+        })
+        
+      } catch (compressionError) {
+        console.error('❌ Compression failed:', compressionError)
+        setVideoError('Error al comprimir el video. Intenta con un video más pequeño.')
+        setIsCompressing(false)
+        return
+      } finally {
+        setIsCompressing(false)
+      }
+    }
+    
     // Validate video
     setUploadStage('processing')
     console.log('🔍 Validating video...')
-    const isValid = await validateVideo(file)
+    const isValid = await validateVideo(fileToUpload)
     console.log('✅ Video validation result:', isValid)
     if (!isValid) {
       console.log('❌ Video validation failed')
@@ -297,7 +353,7 @@ export function VideoUpload({
     }
 
     // Create preview
-    const objectUrl = URL.createObjectURL(file)
+    const objectUrl = URL.createObjectURL(fileToUpload)
     setPreviewUrl(objectUrl)
     
     // Upload to server
@@ -306,7 +362,7 @@ export function VideoUpload({
     setUploadStage('uploading')
     
     const formData = new FormData()
-    formData.append('file', file)
+    formData.append('file', fileToUpload)
     formData.append('type', 'video')
     
     try {
@@ -328,7 +384,14 @@ export function VideoUpload({
       
       xhr.onload = async () => {
         if (xhr.status === 413) {
-          setVideoError('El video es demasiado grande. Intenta con un video más corto o de menor calidad.')
+          const errorText = await xhr.responseText || '{}'
+          let errorData = {}
+          try {
+            errorData = JSON.parse(errorText)
+          } catch {}
+          
+          const errorMessage = errorData.error || 'El video es demasiado grande. Intenta con un video más corto o de menor calidad.'
+          setVideoError(errorMessage)
           setUploading(false)
           setUploadSuccess(false)
           URL.revokeObjectURL(objectUrl)
@@ -336,7 +399,7 @@ export function VideoUpload({
           addNotification({
             type: 'error',
             title: 'Video demasiado grande',
-            message: 'Reduce el tamaño del video e inténtalo de nuevo. Límite: 100MB.',
+            message: errorMessage,
             read: false
           })
           return
@@ -361,9 +424,9 @@ export function VideoUpload({
                     type: 'video',
                     metadata: {
                       filename: data.filename,
-                      originalName: file.name,
-                      mimeType: file.type,
-                      size: file.size,
+                      originalName: fileToUpload.name,
+                      mimeType: fileToUpload.type,
+                      size: fileToUpload.size,
                       duration: metadata?.duration,
                       width: metadata?.width,
                       height: metadata?.height,
@@ -399,7 +462,7 @@ export function VideoUpload({
             addNotification({
               type: 'info',
               title: 'Video subido correctamente',
-              message: `El video "${file.name}" se ha subido y guardado exitosamente`,
+              message: `El video "${fileToUpload.name}" se ha subido y guardado exitosamente`,
               read: false
             })
             
@@ -411,6 +474,7 @@ export function VideoUpload({
             setTimeout(() => {
               setUploadSuccess(false)
               setUploading(false)
+              setCompressionProgress(0)
             }, 3000)
           }
         } else {
@@ -496,7 +560,9 @@ export function VideoUpload({
     setUploadSuccess(false)
     setUploading(false)
     setUploadProgress(0)
+    setCompressionProgress(0)
     setUploadStage('uploading')
+    setIsCompressing(false)
     onChange(null)
     if (inputRef.current) {
       inputRef.current.value = ''
@@ -609,7 +675,7 @@ export function VideoUpload({
               <>
                 <Video className="w-8 h-8 text-gray-400" />
                 <p className="text-sm text-gray-600">{placeholder}</p>
-                <p className="text-xs text-gray-500">MP4, WebM o MOV hasta {maxSize}MB</p>
+                <p className="text-xs text-gray-500">MP4, WebM o MOV hasta {maxSize}MB (se comprime automáticamente si es necesario)</p>
                 
                 {/* Important requirements notice */}
                 <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
