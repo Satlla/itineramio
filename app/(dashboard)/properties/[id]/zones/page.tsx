@@ -758,7 +758,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         console.log(`📝 Processing step ${index}:`, step)
         
         // Prepare content object
-        let contentData = step.content || {}
+        let contentData: any = step.content || {}
         
         // If step has media, include mediaUrl in content
         if (step.media?.url) {
