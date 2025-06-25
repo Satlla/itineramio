@@ -1602,3 +1602,25 @@ prisma:query SELECT "public"."properties"."id", "public"."properties"."hostId", 
  ✓ Compiled in 93ms (279 modules)
  ✓ Compiled in 40ms (279 modules)
  ✓ Compiled in 47ms (279 modules)
+ ✓ Compiled /api/diagnostic in 166ms (365 modules)
+prisma:query SELECT 1+1 as result
+prisma:query SELECT COUNT(*) AS "_count._all" FROM (SELECT "public"."zones"."id" FROM "public"."zones" WHERE 1=1 OFFSET $1) AS "sub"
+prisma:query SELECT COUNT(*) AS "_count._all" FROM (SELECT "public"."steps"."id" FROM "public"."steps" WHERE 1=1 OFFSET $1) AS "sub"
+prisma:query SELECT "public"."zones"."id", "public"."zones"."propertyId", "public"."zones"."organizationId", "public"."zones"."buildingId", "public"."zones"."name", "public"."zones"."description", "public"."zones"."icon", "public"."zones"."color", "public"."zones"."order", "public"."zones"."qrCode", "public"."zones"."accessCode", "public"."zones"."whatsappEnabled", "public"."zones"."errorReportsEnabled", "public"."zones"."commentsEnabled", "public"."zones"."ratingsEnabled", "public"."zones"."status", "public"."zones"."isPublished", "public"."zones"."viewCount", "public"."zones"."lastViewedAt", "public"."zones"."avgRating", "public"."zones"."createdAt", "public"."zones"."updatedAt", "public"."zones"."publishedAt", "public"."zones"."slug" FROM "public"."zones" WHERE 1=1 ORDER BY "public"."zones"."updatedAt" DESC LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."steps"."id", "public"."steps"."zoneId", "public"."steps"."type", "public"."steps"."title", "public"."steps"."content", "public"."steps"."order", "public"."steps"."isPublished", "public"."steps"."createdAt", "public"."steps"."updatedAt" FROM "public"."steps" WHERE "public"."steps"."zoneId" IN ($1) OFFSET $2
+prisma:query INSERT INTO "public"."steps" ("id","zoneId","type","title","content","order","isPublished","createdAt","updatedAt") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "public"."steps"."id", "public"."steps"."zoneId", "public"."steps"."type", "public"."steps"."title", "public"."steps"."content", "public"."steps"."order", "public"."steps"."isPublished", "public"."steps"."createdAt", "public"."steps"."updatedAt"
+prisma:query DELETE FROM "public"."steps" WHERE ("public"."steps"."id" = $1 AND 1=1) RETURNING "public"."steps"."id", "public"."steps"."zoneId", "public"."steps"."type", "public"."steps"."title", "public"."steps"."content", "public"."steps"."order", "public"."steps"."isPublished", "public"."steps"."createdAt", "public"."steps"."updatedAt"
+ GET /api/diagnostic 200 in 2518ms
+ ✓ Compiled /api/upload in 148ms (394 modules)
+🔥 Upload endpoint called
+(node:91289) ExperimentalWarning: buffer.File is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+📁 File details: test-video.mp4, size: 102400, type: application/octet-stream
+📝 Generated filename: 67f3735e-73e8-4e82-8d7d-d01a195bd522-test-video.mp4
+💻 Development mode: saving to filesystem
+📂 Upload directory: /Users/alejandrosatlla/Documents/itineramio/public/uploads
+✅ Directory created/verified
+💾 Writing file to: /Users/alejandrosatlla/Documents/itineramio/public/uploads/67f3735e-73e8-4e82-8d7d-d01a195bd522-test-video.mp4
+✅ File written successfully
+ POST /api/upload 200 in 209ms
+ ✓ Compiled in 88ms (279 modules)

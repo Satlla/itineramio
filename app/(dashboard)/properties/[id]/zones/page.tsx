@@ -789,6 +789,24 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       
       console.log('💾 Final payload for API:', transformedSteps)
 
+      // Send debug data first
+      try {
+        const debugResponse = await fetch('/api/debug-video-flow', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            originalSteps: steps,
+            transformedSteps: transformedSteps,
+            zoneId: editingZoneForSteps.id,
+            timestamp: new Date().toISOString()
+          })
+        })
+        const debugResult = await debugResponse.json()
+        console.log('🐛 Debug response:', debugResult)
+      } catch (debugError) {
+        console.log('🐛 Debug endpoint failed:', debugError)
+      }
+
       const response = await fetch(`/api/properties/${id}/zones/${editingZoneForSteps.id}/steps`, {
         method: 'PUT',
         headers: {
