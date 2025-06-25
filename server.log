@@ -1599,3 +1599,4 @@ prisma:query SELECT "public"."properties"."id", "public"."properties"."hostId", 
  GET /api/public/properties/cmcax421e0001jx04lg9szpxg 404 in 179ms
  ✓ Compiled in 19ms (88 modules)
  ✓ Compiled in 65ms (367 modules)
+ ✓ Compiled in 93ms (279 modules)
