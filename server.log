@@ -62,3 +62,10 @@ prisma:query SELECT "public"."properties"."id", "public"."properties"."hostId", 
 prisma:query SELECT "public"."zones"."id", "public"."zones"."propertyId", "public"."zones"."organizationId", "public"."zones"."buildingId", "public"."zones"."name", "public"."zones"."description", "public"."zones"."icon", "public"."zones"."color", "public"."zones"."order", "public"."zones"."qrCode", "public"."zones"."accessCode", "public"."zones"."whatsappEnabled", "public"."zones"."errorReportsEnabled", "public"."zones"."commentsEnabled", "public"."zones"."ratingsEnabled", "public"."zones"."status", "public"."zones"."isPublished", "public"."zones"."viewCount", "public"."zones"."lastViewedAt", "public"."zones"."avgRating", "public"."zones"."createdAt", "public"."zones"."updatedAt", "public"."zones"."publishedAt", "public"."zones"."slug" FROM "public"."zones" WHERE (("public"."zones"."id" = $1 OR "public"."zones"."id"::text LIKE $2) AND "public"."zones"."propertyId" = $3) OFFSET $4
 prisma:query SELECT "public"."steps"."id", "public"."steps"."zoneId", "public"."steps"."type", "public"."steps"."title", "public"."steps"."content", "public"."steps"."order", "public"."steps"."isPublished", "public"."steps"."createdAt", "public"."steps"."updatedAt" FROM "public"."steps" WHERE ("public"."steps"."zoneId" = $1 AND "public"."steps"."isPublished" = $2) ORDER BY "public"."steps"."order" ASC OFFSET $3
  GET /api/public/properties/test-property-741922b0/zones/test-zone-50280b62/steps 200 in 1452ms
+ ✓ Compiled in 276ms (423 modules)
+ ✓ Compiled in 147ms (423 modules)
+ ✓ Compiled in 143ms (423 modules)
+ ✓ Compiled in 227ms (423 modules)
+ ✓ Compiled in 159ms (423 modules)
+ ✓ Compiled in 124ms (423 modules)
+ ✓ Compiled in 141ms (423 modules)

@@ -62,6 +62,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showStepEditor, setShowStepEditor] = useState(false)
   const [editingZoneForSteps, setEditingZoneForSteps] = useState<Zone | null>(null)
   const [isCreatingZone, setIsCreatingZone] = useState(false)
+  const [isUpdatingZone, setIsUpdatingZone] = useState(false)
   const [isLoadingZones, setIsLoadingZones] = useState(true)
   const [formData, setFormData] = useState({
     name: '',
@@ -229,6 +230,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleCreateZone = async () => {
     if (!formData.name || !formData.iconId) return
 
+    setIsCreatingZone(true)
     try {
       const response = await fetch(`/api/properties/${id}/zones`, {
         method: 'POST',
@@ -269,6 +271,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     } catch (error) {
       console.error('Error creating zone:', error)
       alert('Error al crear la zona')
+    } finally {
+      setIsCreatingZone(false)
     }
   }
 
@@ -285,6 +289,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleUpdateZone = async () => {
     if (!editingZone || !formData.name || !formData.iconId) return
 
+    setIsUpdatingZone(true)
     try {
       const response = await fetch(`/api/properties/${id}/zones/${editingZone.id}`, {
         method: 'PUT',
@@ -326,6 +331,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     } catch (error) {
       console.error('Error updating zone:', error)
       alert('Error al actualizar la zona')
+    } finally {
+      setIsUpdatingZone(false)
     }
   }
 
@@ -463,6 +470,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   const handleSelectMultipleElements = async (selectedElementIds: string[]) => {
+    setIsCreatingZone(true)
     try {
       const { apartmentElements } = await import('../../../../../src/data/apartmentElements')
       const createdZones: Zone[] = []
@@ -507,6 +515,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     } catch (error) {
       console.error('Error creating zones:', error)
       alert('Error al crear los elementos')
+    } finally {
+      setIsCreatingZone(false)
     }
   }
 
@@ -576,6 +586,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
 
   const handleSelectMultipleZones = async (zoneIds: string[]) => {
+    setIsCreatingZone(true)
     try {
       // Create zones from templates via API
       const createdZones: Zone[] = []
@@ -623,6 +634,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     } catch (error) {
       console.error('Error creating multiple zones:', error)
       alert('Error al crear las zonas')
+    } finally {
+      setIsCreatingZone(false)
     }
   }
 
@@ -638,6 +651,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   const handleCreateZoneFromInspiration = async (inspiration: InspirationZone) => {
+    setIsCreatingZone(true)
     try {
       const response = await fetch(`/api/properties/${id}/zones`, {
         method: 'POST',
@@ -679,6 +693,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     } catch (error) {
       console.error('Error creating zone from inspiration:', error)
       alert('Error al crear la zona')
+    } finally {
+      setIsCreatingZone(false)
     }
   }
 
@@ -1135,10 +1151,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 </Button>
                 <Button
                   onClick={editingZone ? handleUpdateZone : handleCreateZone}
-                  disabled={!formData.name || !formData.iconId}
+                  disabled={!formData.name || !formData.iconId || isCreatingZone || isUpdatingZone}
                   className="flex-1 bg-violet-600 hover:bg-violet-700"
                 >
-                  {editingZone ? 'Actualizar' : 'Crear'}
+                  {(isCreatingZone || isUpdatingZone) ? (
+                    <InlineLoadingSpinner />
+                  ) : (
+                    editingZone ? 'Actualizar' : 'Crear'
+                  )}
                 </Button>
               </div>
             </motion.div>
@@ -1231,6 +1251,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             onClose={() => setShowElementSelector(false)}
             onSelectElements={handleSelectMultipleElements}
             existingElementNames={zones.map(z => getZoneText(z.name))}
+            isLoading={isCreatingZone}
           />
         )}
       </AnimatePresence>
@@ -1244,6 +1265,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         }}
         template={selectedInspirationZone}
         onCreateZone={handleCreateZoneFromTemplate}
+        isLoading={isCreatingZone}
       />
 
       {/* Step Editor */}

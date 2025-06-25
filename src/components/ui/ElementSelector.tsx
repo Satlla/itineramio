@@ -12,12 +12,14 @@ interface ElementSelectorProps {
   onClose: () => void
   onSelectElements: (elementIds: string[]) => void
   existingElementNames: string[]
+  isLoading?: boolean
 }
 
 export function ElementSelector({ 
   onClose, 
   onSelectElements,
-  existingElementNames = []
+  existingElementNames = [],
+  isLoading = false
 }: ElementSelectorProps) {
   const [selectedElements, setSelectedElements] = useState<string[]>([])
   const [activeCategory, setActiveCategory] = useState<string>('all')
@@ -292,11 +294,20 @@ export function ElementSelector({
               </Button>
               <Button 
                 onClick={handleAddElements}
-                disabled={selectedElements.length === 0}
+                disabled={selectedElements.length === 0 || isLoading}
                 className="bg-violet-600 hover:bg-violet-700"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Añadir {selectedElements.length > 0 ? `(${selectedElements.length})` : 'Elementos'}
+                {isLoading ? (
+                  <>
+                    <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Añadiendo...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Añadir {selectedElements.length > 0 ? `(${selectedElements.length})` : 'Elementos'}
+                  </>
+                )}
               </Button>
             </div>
           </div>
