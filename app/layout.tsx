@@ -6,6 +6,7 @@ import { I18nProvider } from '../src/providers/I18nProvider'
 import { Toaster } from 'react-hot-toast'
 import { validateEnvironmentVariables } from '../src/lib/env-validation'
 import { ErrorBoundary } from '../src/components/ErrorBoundary'
+import { ChunkErrorHandler } from '../src/components/ChunkErrorHandler'
 
 // Validate environment variables on startup
 if (typeof window === 'undefined') {
@@ -90,6 +91,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Itineramio" />
       </head>
       <body className={`${inter.className} antialiased`}>
+        <ChunkErrorHandler />
         <ErrorBoundary>
           <I18nProvider>
             <Providers>
