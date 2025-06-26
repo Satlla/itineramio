@@ -367,6 +367,14 @@ export function VideoUpload({
     setUploadProgress(0)
     setUploadStage('uploading')
     
+    // Show upload started notification
+    addNotification({
+      type: 'info',
+      title: '📤 Subiendo video...',
+      message: 'El video se está procesando y subiendo al servidor',
+      read: false
+    })
+    
     const formData = new FormData()
     formData.append('file', fileToUpload)
     formData.append('type', 'video')
@@ -473,7 +481,7 @@ export function VideoUpload({
             // Show success notification
             addNotification({
               type: 'info',
-              title: 'Video subido correctamente',
+              title: '✅ Video subido correctamente',
               message: `El video "${fileToUpload.name}" se ha subido y guardado exitosamente`,
               read: false
             })
@@ -663,24 +671,37 @@ export function VideoUpload({
                 </p>
                 
                 {!uploadSuccess && (
-                  <div className="w-full max-w-xs bg-gray-200 rounded-full h-4 mt-2 overflow-hidden shadow-inner border">
-                    <div 
-                      className={`h-4 rounded-full transition-all duration-500 flex items-center justify-center ${
-                        uploadStage === 'complete' 
-                          ? 'bg-green-500' 
-                          : uploadStage === 'compressing'
-                          ? 'bg-orange-500'
-                          : uploadStage === 'saving'
-                          ? 'bg-yellow-500'
-                          : 'bg-blue-500'
-                      }`}
-                      style={{ width: `${uploadStage === 'compressing' ? compressionProgress : uploadProgress}%` }}
-                    >
-                      {(uploadStage === 'compressing' ? compressionProgress : uploadProgress) > 20 && (
-                        <span className="text-xs text-white font-medium px-1">
+                  <div className="w-full max-w-xs">
+                    <div className="bg-gray-200 rounded-full h-5 mt-2 overflow-hidden shadow-inner border border-gray-300">
+                      <div 
+                        className={`h-5 rounded-full transition-all duration-300 flex items-center justify-center relative ${
+                          uploadStage === 'complete' 
+                            ? 'bg-green-500' 
+                            : uploadStage === 'compressing'
+                            ? 'bg-orange-500'
+                            : uploadStage === 'saving'
+                            ? 'bg-yellow-500'
+                            : 'bg-blue-500'
+                        }`}
+                        style={{ width: `${Math.max(5, uploadStage === 'compressing' ? compressionProgress : uploadProgress)}%` }}
+                      >
+                        <span className="text-xs text-white font-semibold px-1 drop-shadow-sm">
                           {uploadStage === 'compressing' ? compressionProgress : uploadProgress}%
                         </span>
-                      )}
+                      </div>
+                    </div>
+                    
+                    {/* Additional progress indicator */}
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>
+                        {uploadStage === 'compressing' && '📦 Comprimiendo'}
+                        {uploadStage === 'uploading' && '📤 Subiendo'}
+                        {uploadStage === 'processing' && '⚙️ Procesando'}
+                        {uploadStage === 'saving' && '💾 Guardando'}
+                      </span>
+                      <span className="font-medium">
+                        {uploadStage === 'compressing' ? compressionProgress : uploadProgress}%
+                      </span>
                     </div>
                   </div>
                 )}

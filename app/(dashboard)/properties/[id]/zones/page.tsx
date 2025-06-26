@@ -23,6 +23,7 @@ import { useAuth } from '../../../../../src/providers/AuthProvider'
 import { useNotifications } from '../../../../../src/hooks/useNotifications'
 import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
 import { InlineLoadingSpinner } from '../../../../../src/components/ui/InlineLoadingSpinner'
+import { DeleteConfirmationModal } from '../../../../../src/components/ui/DeleteConfirmationModal'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
 import { getCleanZoneUrl } from '../../../../../src/lib/slug-resolver'
@@ -61,6 +62,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [copied, setCopied] = useState(false)
   const [showStepEditor, setShowStepEditor] = useState(false)
   const [editingZoneForSteps, setEditingZoneForSteps] = useState<Zone | null>(null)
+  
+  // Delete confirmation modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [zoneToDelete, setZoneToDelete] = useState<Zone | null>(null)
+  const [isDeletingZone, setIsDeletingZone] = useState(false)
+  
   const [isCreatingZone, setIsCreatingZone] = useState(false)
   const [isUpdatingZone, setIsUpdatingZone] = useState(false)
   const [isLoadingZones, setIsLoadingZones] = useState(true)
@@ -336,28 +343,59 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  const handleDeleteZone = async (zoneId: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta zona? Esta acción no se puede deshacer.')) {
-      return
-    }
+  const handleDeleteZone = (zone: Zone) => {
+    setZoneToDelete(zone)
+    setShowDeleteModal(true)
+  }
 
+  const handleConfirmDelete = async () => {
+    if (!zoneToDelete) return
+
+    setIsDeletingZone(true)
+    
     try {
-      const response = await fetch(`/api/properties/${id}/zones/${zoneId}`, {
+      const response = await fetch(`/api/properties/${id}/zones/${zoneToDelete.id}`, {
         method: 'DELETE'
       })
 
       const result = await response.json()
 
       if (response.ok && result.success) {
-        setZones(zones.filter(zone => zone.id !== zoneId))
+        setZones(zones.filter(zone => zone.id !== zoneToDelete.id))
+        addNotification({
+          type: 'info',
+          title: '✅ Zona eliminada',
+          message: `La zona "${getZoneText(zoneToDelete.name)}" ha sido eliminada correctamente`,
+          read: false
+        })
+        setShowDeleteModal(false)
+        setZoneToDelete(null)
       } else {
         console.error('Error deleting zone:', result.error)
-        alert(result.error || 'Error al eliminar la zona')
+        addNotification({
+          type: 'error',
+          title: '❌ Error al eliminar zona',
+          message: result.error || 'No se pudo eliminar la zona. Inténtalo de nuevo.',
+          read: false
+        })
       }
     } catch (error) {
       console.error('Error deleting zone:', error)
-      alert('Error al eliminar la zona')
+      addNotification({
+        type: 'error',
+        title: '❌ Error al eliminar zona',
+        message: 'Error de conexión. Inténtalo de nuevo.',
+        read: false
+      })
+    } finally {
+      setIsDeletingZone(false)
     }
+  }
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false)
+    setZoneToDelete(null)
+    setIsDeletingZone(false)
   }
 
   const handleShowQR = (zone: Zone) => {
@@ -1104,7 +1142,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                               <DropdownMenu.Separator className="my-1 h-px bg-gray-200" />
                               <DropdownMenu.Item
                                 className="flex items-center px-3 py-2 text-sm hover:bg-red-100 text-red-600 rounded cursor-pointer"
-                                onSelect={() => handleDeleteZone(zone.id)}
+                                onSelect={() => handleDeleteZone(zone)}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Eliminar
@@ -1442,6 +1480,24 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="Eliminar zona permanentemente"
+        description="Esta acción eliminará permanentemente la zona y todo su contenido. Una vez eliminada, no podrás recuperar la información."
+        itemName={zoneToDelete ? getZoneText(zoneToDelete.name) : ''}
+        itemType="Zona"
+        consequences={zoneToDelete ? [
+          `${zoneToDelete.stepsCount} ${zoneToDelete.stepsCount === 1 ? 'paso' : 'pasos'} de instrucciones`,
+          'Código QR y enlaces públicos',
+          'Historial de visualizaciones',
+          'Toda la configuración de la zona'
+        ] : []}
+        isLoading={isDeletingZone}
+      />
 
     </div>
   )

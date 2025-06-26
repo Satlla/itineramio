@@ -960,8 +960,33 @@ export function StepEditor({
                                         className="w-full h-24 object-cover"
                                       />
                                     ) : step.type === 'video' ? (
-                                      <div className="w-full h-24 bg-black flex items-center justify-center">
-                                        <Play className="w-6 h-6 text-white opacity-75" />
+                                      <div className="w-full relative bg-black rounded-t-lg overflow-hidden" style={{ aspectRatio: '9/16', maxHeight: '120px' }}>
+                                        {step.media.thumbnail ? (
+                                          <img 
+                                            src={step.media.thumbnail} 
+                                            alt="Video thumbnail" 
+                                            className="w-full h-full object-cover"
+                                          />
+                                        ) : (
+                                          <div className="w-full h-full bg-gradient-to-br from-gray-800 to-black flex items-center justify-center">
+                                            <div className="text-center">
+                                              <Play className="w-8 h-8 text-white opacity-75 mx-auto mb-1" />
+                                              <span className="text-xs text-white opacity-60">Video</span>
+                                            </div>
+                                          </div>
+                                        )}
+                                        {/* Play overlay */}
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20">
+                                          <div className="w-8 h-8 rounded-full bg-white bg-opacity-90 flex items-center justify-center">
+                                            <Play className="w-4 h-4 text-black ml-0.5" />
+                                          </div>
+                                        </div>
+                                        {/* Duration badge if available */}
+                                        {step.media.title && (
+                                          <div className="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1.5 py-0.5 rounded">
+                                            📹
+                                          </div>
+                                        )}
                                       </div>
                                     ) : null}
                                   </div>

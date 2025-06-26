@@ -851,16 +851,18 @@ export default function ZoneGuidePage({
                           exit={{ opacity: 0, scale: 0.9 }}
                           className="mb-6"
                         >
-                          <div className="relative rounded-xl overflow-hidden shadow-lg bg-black">
+                          <div className="relative rounded-2xl overflow-hidden shadow-lg bg-black mx-auto max-w-sm">
                             {/* Video optimized for vertical format */}
                             <video
-                              className="w-full h-auto max-w-xs mx-auto block"
+                              className="w-full h-auto block"
                               controls
                               playsInline
                               preload="metadata"
                               style={{
-                                maxHeight: '50vh',
-                                aspectRatio: 'auto'
+                                maxHeight: '70vh',
+                                minHeight: '300px',
+                                aspectRatio: '9/16', // Force vertical aspect ratio
+                                objectFit: 'cover'
                               }}
                               poster="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=700&fit=crop"
                             >
@@ -870,8 +872,11 @@ export default function ZoneGuidePage({
                             </video>
                             
                             {/* Mobile-optimized video controls hint */}
-                            <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded pointer-events-none">
-                              📱 Optimizado para móvil - Toca para reproducir
+                            <div className="absolute bottom-3 left-3 right-3 bg-black bg-opacity-60 text-white text-xs px-3 py-2 rounded-lg backdrop-blur-sm pointer-events-none">
+                              <div className="flex items-center justify-center space-x-2">
+                                <span>📱</span>
+                                <span>Optimizado para móvil - Toca para reproducir</span>
+                              </div>
                             </div>
                           </div>
                         </motion.div>
