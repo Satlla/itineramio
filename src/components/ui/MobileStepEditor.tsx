@@ -53,6 +53,8 @@ interface MobileStepEditorProps {
   maxVideos?: number
   currentVideoCount?: number
   editingStepId?: string | null
+  propertyId?: string
+  zoneId?: string
 }
 
 export function MobileStepEditor({
@@ -62,7 +64,9 @@ export function MobileStepEditor({
   onCancel,
   maxVideos = 5,
   currentVideoCount = 0,
-  editingStepId = null
+  editingStepId = null,
+  propertyId,
+  zoneId
 }: MobileStepEditorProps) {
   console.log('📱 MobileStepEditor mounted with:', { zoneTitle, initialSteps });
   

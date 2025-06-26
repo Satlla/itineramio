@@ -50,6 +50,8 @@ interface StepEditorProps {
   maxVideos?: number
   currentVideoCount?: number
   editingStepId?: string | null
+  propertyId?: string
+  zoneId?: string
 }
 
 export function StepEditor({
@@ -59,7 +61,9 @@ export function StepEditor({
   onCancel,
   maxVideos = 5,
   currentVideoCount = 0,
-  editingStepId = null
+  editingStepId = null,
+  propertyId,
+  zoneId
 }: StepEditorProps) {
   const [steps, setSteps] = useState<Step[]>(
     initialSteps.length > 0 ? initialSteps : [createNewStep(0)]
@@ -144,6 +148,8 @@ export function StepEditor({
         maxVideos={maxVideos}
         currentVideoCount={currentVideoCount}
         editingStepId={editingStepId}
+        propertyId={propertyId}
+        zoneId={zoneId}
       />
     )
   }
@@ -893,10 +899,14 @@ export function StepEditor({
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Vista previa del huésped</h3>
                   <p className="text-sm text-gray-600 mb-3">Cómo verá el manual en su móvil</p>
                   <a
-                    href={`/z/PREVIEW_${Date.now()}`}
+                    href={propertyId && zoneId ? `/guide/${propertyId}/${zoneId}` : '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-violet-600 text-white text-sm rounded-lg hover:bg-violet-700 transition-colors"
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      propertyId && zoneId 
+                        ? 'bg-violet-600 text-white hover:bg-violet-700' 
+                        : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                    }`}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
