@@ -375,7 +375,7 @@ export function StepEditor({
               }
             }}
             className="mb-3"
-            maxSize={50}
+            maxSize={200}
             maxDuration={60}
           />
           <Input
@@ -817,7 +817,7 @@ export function StepEditor({
                                 }
                               }}
                               className="mb-4"
-                              maxSize={50}
+                              maxSize={200}
                               maxDuration={60}
                             />
                             <div className="mt-4">

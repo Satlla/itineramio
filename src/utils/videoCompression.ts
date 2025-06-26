@@ -9,11 +9,17 @@ interface CompressionOptions {
   onProgress?: (progress: number) => void
 }
 
-// Calculate optimal bitrate based on duration and target size
+// Calculate optimal bitrate based on duration and target size (AGGRESSIVE)
 function calculateBitrate(durationSeconds: number, targetSizeMB: number): number {
-  // Leave 10% buffer for container overhead
-  const targetSizeBits = targetSizeMB * 8 * 1024 * 1024 * 0.9
-  return Math.floor(targetSizeBits / durationSeconds)
+  // Leave 20% buffer for container overhead and be more aggressive
+  const targetSizeBits = targetSizeMB * 8 * 1024 * 1024 * 0.8
+  const calculatedBitrate = Math.floor(targetSizeBits / durationSeconds)
+  
+  // Cap the bitrate to ensure ultra-small files
+  const maxBitrate = 250000 // 250kbps max for tiny files
+  const minBitrate = 50000  // 50kbps minimum for watchable quality
+  
+  return Math.max(minBitrate, Math.min(maxBitrate, calculatedBitrate))
 }
 
 // Browser-based video compression using canvas and MediaRecorder
@@ -22,10 +28,10 @@ export async function compressVideo(
   options: CompressionOptions = {}
 ): Promise<File> {
   const {
-    maxSizeMB = 4,
-    quality = 0.7,
-    scale = 0.75,
-    fps = 24,
+    maxSizeMB = 1.5,  // Much more aggressive default
+    quality = 0.4,    // Lower quality default
+    scale = 0.6,      // More aggressive scaling
+    fps = 20,         // Lower frame rate
     onProgress
   } = options
 
@@ -141,14 +147,15 @@ export async function compressVideo(
           // Clean up
           URL.revokeObjectURL(video.src)
           
-          // If still too large, try more aggressive compression
-          if (compressedSizeMB > maxSizeMB && scale > 0.4) {
+          // If still too large, try more aggressive compression with multiple passes
+          if (compressedSizeMB > maxSizeMB && scale > 0.3) {
             console.log('⚠️ File still too large, trying more aggressive compression...')
-            compressVideo(file, {
+            console.log(`📉 Reducing scale from ${scale} to ${scale * 0.7}, quality from ${quality} to ${quality * 0.7}`)
+            compressVideo(compressedFile, {  // Use already compressed file as input
               ...options,
-              scale: scale * 0.8,
-              quality: quality * 0.8,
-              fps: Math.max(15, fps - 5)
+              scale: scale * 0.7,       // More aggressive scaling reduction
+              quality: quality * 0.7,   // More aggressive quality reduction
+              fps: Math.max(12, fps - 6) // Lower frame rate faster
             }).then(resolve).catch(reject)
           } else {
             resolve(compressedFile)
@@ -223,6 +230,31 @@ export async function compressVideo(
   })
 }
 
+// Ultra-aggressive compression for maximum size reduction
+export async function compressVideoUltra(
+  file: File,
+  options: { 
+    maxSizeMB?: number
+    onProgress?: (progress: number) => void
+  } = {}
+): Promise<File> {
+  const { maxSizeMB = 1, onProgress } = options
+  
+  console.log('🔥 ULTRA compression mode activated!')
+  
+  // For ultra compression, use extreme settings
+  const fileSizeMB = file.size / (1024 * 1024)
+  const compressionRatio = maxSizeMB / fileSizeMB
+  
+  return compressVideo(file, {
+    maxSizeMB,
+    scale: Math.max(0.25, Math.min(0.5, Math.sqrt(compressionRatio))), // Very small
+    quality: 0.25,  // Very low quality
+    fps: 15,        // Very low frame rate
+    onProgress
+  })
+}
+
 // Even simpler compression using just bitrate reduction
 export async function compressVideoSimple(
   file: File,
@@ -231,7 +263,7 @@ export async function compressVideoSimple(
     onProgress?: (progress: number) => void
   } = {}
 ): Promise<File> {
-  const { maxSizeMB = 4, onProgress } = options
+  const { maxSizeMB = 1.5, onProgress } = options
   
   // For simple compression, we'll use scale factor based on file size
   const fileSizeMB = file.size / (1024 * 1024)
@@ -241,8 +273,8 @@ export async function compressVideoSimple(
   return compressVideo(file, {
     maxSizeMB,
     scale: Math.max(0.3, Math.min(1, scale)),
-    quality: 0.6,
-    fps: 20,
+    quality: 0.4,  // Lower quality
+    fps: 18,       // Lower frame rate
     onProgress
   })
 }

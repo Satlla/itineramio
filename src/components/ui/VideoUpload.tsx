@@ -6,7 +6,7 @@ import { Button } from './Button'
 import { MediaSelector } from './MediaSelector'
 import { useNotifications } from '../../hooks/useNotifications'
 import { uploadFileInChunks } from '../../utils/chunkedUpload'
-import { compressVideo } from '../../utils/videoCompression'
+import { compressVideo, compressVideoUltra } from '../../utils/videoCompression'
 
 interface VideoUploadProps {
   value?: string
@@ -33,7 +33,7 @@ export function VideoUpload({
   onChange,
   placeholder = "Subir video VERTICAL (máx. 60 segundos)",
   className = "",
-  maxSize = 50,
+  maxSize = 200, // Increased because we compress aggressively
   maxDuration = 60,
   accept = "video/mp4,video/webm,video/quicktime",
   error = false,
@@ -290,12 +290,13 @@ export function VideoUpload({
     setVideoError(null)
     setUploadSuccess(false)
     
-    // Check if compression is needed
+    // Always compress videos for maximum size reduction
     const fileSizeMB = file.size / (1024 * 1024)
     let fileToUpload = file
     
-    // Only compress if video is larger than 10MB to avoid unnecessary processing
-    if (fileSizeMB > 10) {
+    // Compress ALL videos for maximum size reduction and performance
+    console.log('🎬 Starting aggressive compression for all videos...')
+    {
       console.log('📦 File size:', fileSizeMB.toFixed(2), 'MB - Compression needed!')
       
       try {
@@ -306,30 +307,57 @@ export function VideoUpload({
         // Show compression notification
         addNotification({
           type: 'info',
-          title: 'Comprimiendo video',
-          message: 'El video es muy grande. Comprimiendo automáticamente...',
+          title: '🗜️ Optimizando video',
+          message: 'Comprimiendo para máxima velocidad y calidad optimizada...',
           read: false
         })
         
-        // Compress the video
-        fileToUpload = await compressVideo(file, {
-          maxSizeMB: 8, // Target 8MB to leave some buffer
-          quality: 0.7,
-          scale: 0.75,
-          fps: 24,
+        // Choose compression method based on file size and duration
+        let compressionMethod = compressVideo
+        let targetSize = 1.5
+        
+        // If file is very large or we detect it's likely a long video, use ULTRA compression
+        if (fileSizeMB > 5 || file.size > 8 * 1024 * 1024) {
+          console.log('🔥 Using ULTRA compression for large file!')
+          compressionMethod = compressVideoUltra
+          targetSize = 0.8 // Even smaller target for ultra compression
+        }
+        
+        // Compress the video with AGGRESSIVE settings for maximum reduction
+        fileToUpload = await compressionMethod(file, {
+          maxSizeMB: targetSize,
           onProgress: (progress) => {
             setCompressionProgress(progress)
           }
         })
         
+        // If still too large after compression, try ultra compression as fallback
         const compressedSizeMB = fileToUpload.size / (1024 * 1024)
-        console.log('✅ Compression complete! New size:', compressedSizeMB.toFixed(2), 'MB')
+        if (compressedSizeMB > 2 && compressionMethod !== compressVideoUltra) {
+          console.log('🔥 File still large, applying ULTRA compression as fallback!')
+          addNotification({
+            type: 'info',
+            title: '🚀 Compresión adicional',
+            message: 'Aplicando compresión ultra para optimizar el tamaño...',
+            read: false
+          })
+          
+          fileToUpload = await compressVideoUltra(fileToUpload, {
+            maxSizeMB: 0.8,
+            onProgress: (progress) => {
+              setCompressionProgress(progress)
+            }
+          })
+        }
+        
+        const finalCompressedSizeMB = fileToUpload.size / (1024 * 1024)
+        console.log('✅ Compression complete! New size:', finalCompressedSizeMB.toFixed(2), 'MB')
         
         // Show success notification
         addNotification({
           type: 'info',
-          title: 'Video comprimido',
-          message: `Tamaño reducido de ${fileSizeMB.toFixed(1)}MB a ${compressedSizeMB.toFixed(1)}MB`,
+          title: '✅ Video optimizado',
+          message: `Tamaño reducido de ${fileSizeMB.toFixed(1)}MB a ${finalCompressedSizeMB.toFixed(1)}MB`,
           read: false
         })
         
@@ -719,7 +747,7 @@ export function VideoUpload({
               <>
                 <Video className="w-8 h-8 text-gray-400" />
                 <p className="text-sm text-gray-600">{placeholder}</p>
-                <p className="text-xs text-gray-500">MP4, WebM o MOV hasta {maxSize}MB (se comprime automáticamente si es necesario)</p>
+                <p className="text-xs text-gray-500">MP4, WebM o MOV hasta {maxSize}MB (se comprime automáticamente para máxima velocidad)</p>
                 
                 {/* Important requirements notice */}
                 <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -730,8 +758,8 @@ export function VideoUpload({
                   <ul className="text-xs text-blue-700 mt-1 space-y-1">
                     <li>• Video en VERTICAL (modo retrato)</li>
                     <li>• Máximo {maxDuration} segundos de duración</li>
-                    <li>• Máximo {maxSize}MB de tamaño</li>
-                    <li>• Optimizado para móviles</li>
+                    <li>• Hasta {maxSize}MB (se comprime automáticamente)</li>
+                    <li>• ⚡ Compresión ultra para archivos pequeños</li>
                   </ul>
                 </div>
                 

@@ -541,7 +541,7 @@ export function MobileStepEditor({
                           }
                         }}
                         placeholder="Subir video VERTICAL (máx. 60 segundos)"
-                        maxSize={100}
+                        maxSize={200}
                         maxDuration={60}
                         saveToLibrary={true}
                         className="mb-3"
