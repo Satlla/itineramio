@@ -33,7 +33,7 @@ export function VideoUpload({
   onChange,
   placeholder = "Subir video VERTICAL (máx. 30 segundos)",
   className = "",
-  maxSize = 100,
+  maxSize = 50,
   maxDuration = 30,
   accept = "video/mp4,video/webm,video/quicktime",
   error = false,
@@ -356,7 +356,7 @@ export function VideoUpload({
     const objectUrl = URL.createObjectURL(fileToUpload)
     setPreviewUrl(objectUrl)
     
-    // Upload to server
+    // Upload to server - use appropriate endpoint based on file size
     setUploading(true)
     setUploadProgress(0)
     setUploadStage('uploading')
@@ -364,6 +364,12 @@ export function VideoUpload({
     const formData = new FormData()
     formData.append('file', fileToUpload)
     formData.append('type', 'video')
+    
+    // Use large upload endpoint for files > 4MB
+    const finalFileSizeMB = fileToUpload.size / (1024 * 1024)
+    const uploadEndpoint = finalFileSizeMB > 4 ? '/api/upload-large' : '/api/upload'
+    
+    console.log(`📤 Using ${uploadEndpoint} for ${finalFileSizeMB.toFixed(2)}MB file`)
     
     try {
       const xhr = new XMLHttpRequest()
@@ -503,7 +509,7 @@ export function VideoUpload({
         })
       }
       
-      xhr.open('POST', '/api/upload')
+      xhr.open('POST', uploadEndpoint)
       xhr.send(formData)
       
     } catch (error) {
