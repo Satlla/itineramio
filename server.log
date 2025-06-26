@@ -1641,3 +1641,4 @@ prisma:query DELETE FROM "public"."steps" WHERE ("public"."steps"."id" = $1 AND 
 
  ✓ Starting...
  ✓ Ready in 1162ms
+[?25h

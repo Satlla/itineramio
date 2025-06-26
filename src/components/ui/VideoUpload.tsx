@@ -294,7 +294,8 @@ export function VideoUpload({
     const fileSizeMB = file.size / (1024 * 1024)
     let fileToUpload = file
     
-    if (fileSizeMB > 3) {
+    // Only compress if video is larger than 10MB to avoid unnecessary processing
+    if (fileSizeMB > 10) {
       console.log('📦 File size:', fileSizeMB.toFixed(2), 'MB - Compression needed!')
       
       try {
@@ -312,7 +313,7 @@ export function VideoUpload({
         
         // Compress the video
         fileToUpload = await compressVideo(file, {
-          maxSizeMB: 3.5, // Target 3.5MB to leave some buffer
+          maxSizeMB: 8, // Target 8MB to leave some buffer
           quality: 0.7,
           scale: 0.75,
           fps: 24,
@@ -334,9 +335,14 @@ export function VideoUpload({
         
       } catch (compressionError) {
         console.error('❌ Compression failed:', compressionError)
-        setVideoError('Error al comprimir el video. Intenta con un video más pequeño.')
-        setIsCompressing(false)
-        return
+        console.log('⚠️ Compression failed, uploading original file')
+        // Don't fail - just upload original file
+        addNotification({
+          type: 'warning',
+          title: 'Compresión falló',
+          message: 'Subiendo video original. Puede tardar más tiempo.',
+          read: false
+        })
       } finally {
         setIsCompressing(false)
       }
@@ -643,6 +649,8 @@ export function VideoUpload({
                 <p className="text-sm font-medium text-gray-700">
                   {uploadSuccess ? (
                     'Video subido correctamente ✓'
+                  ) : uploadStage === 'compressing' ? (
+                    `Comprimiendo... ${compressionProgress}%`
                   ) : uploadStage === 'processing' ? (
                     'Validando video...'
                   ) : uploadStage === 'uploading' ? (
@@ -655,22 +663,31 @@ export function VideoUpload({
                 </p>
                 
                 {!uploadSuccess && (
-                  <div className="w-full max-w-xs bg-gray-200 rounded-full h-3 mt-2 overflow-hidden shadow-inner">
+                  <div className="w-full max-w-xs bg-gray-200 rounded-full h-4 mt-2 overflow-hidden shadow-inner border">
                     <div 
-                      className={`h-3 rounded-full transition-all duration-300 ${
+                      className={`h-4 rounded-full transition-all duration-500 flex items-center justify-center ${
                         uploadStage === 'complete' 
                           ? 'bg-green-500' 
+                          : uploadStage === 'compressing'
+                          ? 'bg-orange-500'
                           : uploadStage === 'saving'
                           ? 'bg-yellow-500'
                           : 'bg-blue-500'
                       }`}
-                      style={{ width: `${uploadProgress}%` }}
-                    />
+                      style={{ width: `${uploadStage === 'compressing' ? compressionProgress : uploadProgress}%` }}
+                    >
+                      {(uploadStage === 'compressing' ? compressionProgress : uploadProgress) > 20 && (
+                        <span className="text-xs text-white font-medium px-1">
+                          {uploadStage === 'compressing' ? compressionProgress : uploadProgress}%
+                        </span>
+                      )}
+                    </div>
                   </div>
                 )}
                 
                 {uploadStage !== 'uploading' && !uploadSuccess && (
                   <p className="text-xs text-gray-500 mt-1">
+                    {uploadStage === 'compressing' && 'Reduciendo el tamaño del video para una subida más rápida...'}
                     {uploadStage === 'processing' && 'Verificando duración y formato...'}
                     {uploadStage === 'saving' && 'Añadiendo a tu biblioteca de medios...'}
                     {uploadStage === 'complete' && 'Finalizando...'}
