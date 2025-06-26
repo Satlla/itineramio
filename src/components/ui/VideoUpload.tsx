@@ -125,8 +125,17 @@ export function VideoUpload({
     return new Promise((resolve) => {
       const video = document.createElement('video')
       video.preload = 'metadata'
+      video.crossOrigin = 'anonymous'
+      
+      // Add timeout to prevent hanging on metadata loading
+      const timeoutId = setTimeout(() => {
+        console.warn('⏰ Video metadata loading timeout - accepting video anyway')
+        URL.revokeObjectURL(video.src)
+        resolve(true) // Accept video if metadata fails to load
+      }, 10000) // 10 second timeout
       
       video.onloadedmetadata = () => {
+        clearTimeout(timeoutId) // Cancel timeout since metadata loaded
         console.log('📹 Video metadata:', {
           duration: video.duration,
           width: video.videoWidth,
@@ -135,20 +144,27 @@ export function VideoUpload({
         })
         console.log('⏱️ Comparing duration:', video.duration, 'vs maxDuration:', maxDuration)
         
-        // TEMPORARILY DISABLE DURATION CHECK - ACCEPT ALL VIDEOS
-        if (video.duration > 300) { // Only reject if longer than 5 minutes (very generous)
+        // Check if duration is valid (sometimes videos don't load metadata properly)
+        if (isNaN(video.duration) || video.duration === 0) {
+          console.warn('⚠️ Could not read video duration, assuming it is OK')
+          // Don't block upload if we can't read duration
+        } else if (video.duration > 300) { // Only reject if longer than 5 minutes
           console.error('⏱️ Video extremely long:', video.duration, 'seconds')
-          setVideoError(`Video demasiado largo. Máximo 5 minutos.`)
+          setVideoError(`Video demasiado largo (${Math.round(video.duration)}s). Máximo 5 minutos.`)
           URL.revokeObjectURL(video.src)
           resolve(false)
           return
-        }
-        
-        // Show warning for long videos but don't block them
-        if (video.duration > maxDuration) {
-          console.warn('⚠️ Video longer than recommended:', video.duration, 'vs', maxDuration)
-          setVideoError(`⚠️ Video de ${Math.round(video.duration)}s (recomendado máx. ${maxDuration}s). Subiremos de todas formas.`)
-          // Don't return false - continue with upload
+        } else if (video.duration > maxDuration) {
+          // Show info but don't block
+          console.log('ℹ️ Video longer than recommended but within limits:', video.duration, 'vs', maxDuration)
+          setVideoError(`ℹ️ Video de ${Math.round(video.duration)}s detectado correctamente. ¡Perfecto para subir!`)
+          // Clear error after 3 seconds since it's just informational
+          setTimeout(() => setVideoError(null), 3000)
+        } else {
+          console.log('✅ Video duration perfect:', video.duration, 'seconds')
+          setVideoError(`✅ Video de ${Math.round(video.duration)} segundos detectado. ¡Perfecto!`)
+          // Clear success message after 2 seconds
+          setTimeout(() => setVideoError(null), 2000)
         }
 
         // Check orientation but don't block anything - just show info
@@ -173,7 +189,7 @@ export function VideoUpload({
             const thumbnail = canvas.toDataURL('image/jpeg', 0.8)
             
             setMetadata({
-              duration: video.duration,
+              duration: video.duration || 0, // Default to 0 if duration is invalid
               thumbnail,
               size: file.size,
               width: video.videoWidth,
@@ -186,10 +202,12 @@ export function VideoUpload({
       }
       
       video.onerror = (error) => {
+        clearTimeout(timeoutId)
         console.error('🚨 Video validation error:', error)
-        setVideoError('Error al procesar el video. Verifica que sea un archivo de video válido.')
+        console.log('⚠️ Video processing failed, but allowing upload anyway for compatibility')
+        setVideoError('⚠️ No se pudieron leer los metadatos del video, pero se subirá de todas formas.')
         URL.revokeObjectURL(video.src)
-        resolve(false)
+        resolve(true) // Accept video even if metadata reading fails
       }
       
       video.src = URL.createObjectURL(file)
@@ -874,13 +892,18 @@ export function VideoUpload({
       
       {videoError && (
         <div className="mt-2 space-y-2">
-          <div className="flex items-center text-sm text-red-600">
+          <div className={`flex items-center text-sm ${
+            videoError.startsWith('✅') ? 'text-green-600' : 
+            videoError.startsWith('ℹ️') ? 'text-blue-600' : 
+            videoError.startsWith('⚠️') ? 'text-orange-600' : 'text-red-600'
+          }`}>
             <AlertCircle className="w-4 h-4 mr-1" />
             {videoError}
           </div>
           
           {/* Force upload button for when validation fails */}
-          {!uploading && !uploadSuccess && videoError && (
+          {!uploading && !uploadSuccess && videoError && 
+           !videoError.startsWith('✅') && !videoError.startsWith('ℹ️') && (
             <div className="flex space-x-2">
               <Button
                 type="button"
