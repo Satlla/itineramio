@@ -39,6 +39,9 @@ export function VideoUpload({
   error = false,
   saveToLibrary = true
 }: VideoUploadProps) {
+  // Debug: Log the maxDuration prop being received
+  console.log('🎯 VideoUpload component initialized with maxDuration:', maxDuration)
+  
   const [dragActive, setDragActive] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -122,10 +125,11 @@ export function VideoUpload({
           height: video.videoHeight,
           aspectRatio: video.videoWidth / video.videoHeight
         })
+        console.log('⏱️ Comparing duration:', video.duration, 'vs maxDuration:', maxDuration)
         
         if (video.duration > maxDuration) {
-          console.log('⏱️ Video too long:', video.duration, 'seconds')
-          setVideoError(`El video debe durar máximo ${maxDuration} segundos`)
+          console.error('⏱️ Video too long:', video.duration, 'seconds, max allowed:', maxDuration)
+          setVideoError(`El video debe durar máximo ${maxDuration} segundos. Tu video dura ${Math.round(video.duration)} segundos.`)
           URL.revokeObjectURL(video.src)
           resolve(false)
           return
@@ -287,6 +291,7 @@ export function VideoUpload({
 
   const handleUpload = async (file: File) => {
     console.log('🎬 Starting video upload:', file.name, file.size, file.type)
+    console.log('📐 Upload component maxDuration:', maxDuration)
     setVideoError(null)
     setUploadSuccess(false)
     
@@ -296,93 +301,96 @@ export function VideoUpload({
     
     // Compress ALL videos for maximum size reduction and performance
     console.log('🎬 Starting aggressive compression for all videos...')
-    {
-      console.log('📦 File size:', fileSizeMB.toFixed(2), 'MB - Compression needed!')
+    console.log('📦 File size:', fileSizeMB.toFixed(2), 'MB - Compression ALWAYS enabled!')
+    
+    try {
+      setIsCompressing(true)
+      setUploadStage('compressing')
+      setCompressionProgress(0)
       
-      try {
-        setIsCompressing(true)
-        setUploadStage('compressing')
-        setCompressionProgress(0)
-        
-        // Show compression notification
+      // Show compression notification
+      addNotification({
+        type: 'info',
+        title: '🗜️ Optimizando video',
+        message: 'Comprimiendo para máxima velocidad y calidad optimizada...',
+        read: false
+      })
+      
+      // Choose compression method based on file size and duration
+      let compressionMethod = compressVideo
+      let targetSize = 1.5
+      
+      // If file is very large or we detect it's likely a long video, use ULTRA compression
+      if (fileSizeMB > 5 || file.size > 8 * 1024 * 1024) {
+        console.log('🔥 Using ULTRA compression for large file!')
+        compressionMethod = compressVideoUltra
+        targetSize = 0.8 // Even smaller target for ultra compression
+      }
+      
+      // Compress the video with AGGRESSIVE settings for maximum reduction
+      fileToUpload = await compressionMethod(file, {
+        maxSizeMB: targetSize,
+        onProgress: (progress) => {
+          setCompressionProgress(progress)
+        }
+      })
+      
+      // If still too large after compression, try ultra compression as fallback
+      const compressedSizeMB = fileToUpload.size / (1024 * 1024)
+      if (compressedSizeMB > 2 && compressionMethod !== compressVideoUltra) {
+        console.log('🔥 File still large, applying ULTRA compression as fallback!')
         addNotification({
           type: 'info',
-          title: '🗜️ Optimizando video',
-          message: 'Comprimiendo para máxima velocidad y calidad optimizada...',
+          title: '🚀 Compresión adicional',
+          message: 'Aplicando compresión ultra para optimizar el tamaño...',
           read: false
         })
         
-        // Choose compression method based on file size and duration
-        let compressionMethod = compressVideo
-        let targetSize = 1.5
-        
-        // If file is very large or we detect it's likely a long video, use ULTRA compression
-        if (fileSizeMB > 5 || file.size > 8 * 1024 * 1024) {
-          console.log('🔥 Using ULTRA compression for large file!')
-          compressionMethod = compressVideoUltra
-          targetSize = 0.8 // Even smaller target for ultra compression
-        }
-        
-        // Compress the video with AGGRESSIVE settings for maximum reduction
-        fileToUpload = await compressionMethod(file, {
-          maxSizeMB: targetSize,
+        fileToUpload = await compressVideoUltra(fileToUpload, {
+          maxSizeMB: 0.8,
           onProgress: (progress) => {
             setCompressionProgress(progress)
           }
         })
-        
-        // If still too large after compression, try ultra compression as fallback
-        const compressedSizeMB = fileToUpload.size / (1024 * 1024)
-        if (compressedSizeMB > 2 && compressionMethod !== compressVideoUltra) {
-          console.log('🔥 File still large, applying ULTRA compression as fallback!')
-          addNotification({
-            type: 'info',
-            title: '🚀 Compresión adicional',
-            message: 'Aplicando compresión ultra para optimizar el tamaño...',
-            read: false
-          })
-          
-          fileToUpload = await compressVideoUltra(fileToUpload, {
-            maxSizeMB: 0.8,
-            onProgress: (progress) => {
-              setCompressionProgress(progress)
-            }
-          })
-        }
-        
-        const finalCompressedSizeMB = fileToUpload.size / (1024 * 1024)
-        console.log('✅ Compression complete! New size:', finalCompressedSizeMB.toFixed(2), 'MB')
-        
-        // Show success notification
-        addNotification({
-          type: 'info',
-          title: '✅ Video optimizado',
-          message: `Tamaño reducido de ${fileSizeMB.toFixed(1)}MB a ${finalCompressedSizeMB.toFixed(1)}MB`,
-          read: false
-        })
-        
-      } catch (compressionError) {
-        console.error('❌ Compression failed:', compressionError)
-        console.log('⚠️ Compression failed, uploading original file')
-        // Don't fail - just upload original file
-        addNotification({
-          type: 'warning',
-          title: 'Compresión falló',
-          message: 'Subiendo video original. Puede tardar más tiempo.',
-          read: false
-        })
-      } finally {
-        setIsCompressing(false)
       }
+      
+      const finalCompressedSizeMB = fileToUpload.size / (1024 * 1024)
+      console.log('✅ Compression complete! New size:', finalCompressedSizeMB.toFixed(2), 'MB')
+      
+      // Show success notification
+      addNotification({
+        type: 'info',
+        title: '✅ Video optimizado',
+        message: `Tamaño reducido de ${fileSizeMB.toFixed(1)}MB a ${finalCompressedSizeMB.toFixed(1)}MB`,
+        read: false
+      })
+      
+    } catch (compressionError) {
+      console.error('❌ Compression failed:', compressionError)
+      console.log('⚠️ Compression failed, uploading original file')
+      // Don't fail - just upload original file
+      addNotification({
+        type: 'warning',
+        title: 'Compresión falló',
+        message: 'Subiendo video original. Puede tardar más tiempo.',
+        read: false
+      })
+    } finally {
+      setIsCompressing(false)
     }
     
-    // Validate video
+    // Start upload process immediately to show progress bar
+    setUploading(true)
+    setUploadProgress(0)
     setUploadStage('processing')
+    
+    // Validate video
     console.log('🔍 Validating video...')
     const isValid = await validateVideo(fileToUpload)
     console.log('✅ Video validation result:', isValid)
     if (!isValid) {
       console.log('❌ Video validation failed')
+      setUploading(false)
       return
     }
 
@@ -390,10 +398,9 @@ export function VideoUpload({
     const objectUrl = URL.createObjectURL(fileToUpload)
     setPreviewUrl(objectUrl)
     
-    // Upload to server - use appropriate endpoint based on file size
-    setUploading(true)
-    setUploadProgress(0)
+    // Continue with upload
     setUploadStage('uploading')
+    setUploadProgress(5) // Show some initial progress
     
     // Show upload started notification
     addNotification({
@@ -674,7 +681,7 @@ export function VideoUpload({
           onClick={() => !uploading && inputRef.current?.click()}
         >
           <div className="flex flex-col items-center justify-center space-y-2">
-            {uploading || uploadSuccess ? (
+            {(uploading || isCompressing || uploadSuccess) ? (
               <>
                 {uploadSuccess ? (
                   <CheckCircle className="w-8 h-8 text-green-500" />
@@ -698,7 +705,7 @@ export function VideoUpload({
                   )}
                 </p>
                 
-                {!uploadSuccess && (
+                {(uploading || isCompressing) && !uploadSuccess && (
                   <div className="w-full max-w-xs">
                     <div className="bg-gray-200 rounded-full h-5 mt-2 overflow-hidden shadow-inner border border-gray-300">
                       <div 
