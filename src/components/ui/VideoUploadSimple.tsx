@@ -4,6 +4,7 @@ import React, { useState, useRef } from 'react'
 import { Upload, X, Video, CheckCircle, Loader2 } from 'lucide-react'
 import { Button } from './Button'
 import { useNotifications } from '../../hooks/useNotifications'
+import { uploadFileInChunks } from '../../utils/chunkedUpload'
 
 interface VideoUploadProps {
   value?: string
@@ -30,7 +31,7 @@ export function VideoUploadSimple({
   onChange,
   placeholder = "Subir video (máx. 60 segundos)",
   className = "",
-  maxSize = 50, // 50MB limit
+  maxSize = 100, // 100MB limit with chunked upload
   maxDuration = 300, // 5 minutes max
   accept = "video/*",
   error = false,
@@ -65,6 +66,25 @@ export function VideoUploadSimple({
   }
 
   const uploadFile = async (file: File): Promise<string> => {
+    const sizeMB = file.size / (1024 * 1024)
+    
+    // Use chunked upload for files larger than 4MB
+    if (sizeMB > 4) {
+      console.log('📦 Using chunked upload for large file')
+      const result = await uploadFileInChunks({
+        file,
+        chunkSize: 2 * 1024 * 1024, // 2MB chunks to stay under Vercel limit
+        onProgress: (progress) => {
+          setUploadProgress(Math.round(progress))
+        },
+        onChunkComplete: (chunk, total) => {
+          console.log(`✅ Chunk ${chunk}/${total} uploaded`)
+        }
+      })
+      return result.url
+    }
+    
+    // Regular upload for smaller files
     const formData = new FormData()
     formData.append('file', file)
     formData.append('type', 'video')
@@ -101,11 +121,7 @@ export function VideoUploadSimple({
         reject(new Error('Network error during upload'))
       }
 
-      // Use the appropriate endpoint
-      const sizeMB = file.size / (1024 * 1024)
-      const endpoint = sizeMB > 4 ? '/api/upload-large' : '/api/upload'
-      
-      xhr.open('POST', endpoint)
+      xhr.open('POST', '/api/upload')
       xhr.send(formData)
     })
   }

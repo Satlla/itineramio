@@ -106,19 +106,20 @@ export function VideoUpload({
   const validateVideo = async (file: File): Promise<boolean> => {
     console.log('📋 Validating file:', file.name, file.type, file.size)
     
-    // Check file size - very generous limit
+    // Check file size - ACCEPT EVERYTHING under 1GB
     const sizeMB = file.size / (1024 * 1024)
     console.log('📏 File size:', sizeMB.toFixed(2), 'MB')
-    if (sizeMB > 500) { // 500MB limit - extremely generous
-      setVideoError(`Video demasiado grande (${sizeMB.toFixed(1)}MB). Máximo 500MB.`)
+    
+    // Only block truly massive files (1GB+)
+    if (sizeMB > 1000) {
+      setVideoError(`Archivo extremadamente grande (${sizeMB.toFixed(1)}MB). Máximo 1GB.`)
       return false
     }
     
-    // Show warning for large files but don't block
-    if (sizeMB > maxSize) {
-      console.warn('⚠️ File larger than recommended:', sizeMB, 'MB')
-      setVideoError(`⚠️ Archivo grande (${sizeMB.toFixed(1)}MB). Se comprimirá automáticamente.`)
-      // Don't return false - continue with upload and compression will handle it
+    // For any reasonable file size, just show positive message
+    if (sizeMB > 0.1) { // Show size info for files over 100KB
+      console.log('✅ File size acceptable:', sizeMB.toFixed(2), 'MB')
+      // Don't set any error message - just log for info
     }
 
     // Check video duration and orientation

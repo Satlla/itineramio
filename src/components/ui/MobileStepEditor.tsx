@@ -541,7 +541,7 @@ export function MobileStepEditor({
                           }
                         }}
                         placeholder="Subir video (máx. 60 segundos)"
-                        maxSize={50}
+                        maxSize={100}
                         maxDuration={60}
                         saveToLibrary={true}
                         className="mb-3"
