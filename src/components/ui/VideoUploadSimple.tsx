@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Upload, X, Video, CheckCircle, Loader2 } from 'lucide-react'
+import { Upload, X, Video, CheckCircle, Loader2, AlertCircle } from 'lucide-react'
 import { Button } from './Button'
 import { useNotifications } from '../../hooks/useNotifications'
 import { uploadFileInChunks } from '../../utils/chunkedUpload'
+import { compressVideoSimple } from '../../utils/videoCompression'
 
 interface VideoUploadProps {
   value?: string
@@ -42,6 +43,7 @@ export function VideoUploadSimple({
   const [previewUrl, setPreviewUrl] = useState<string | null>(value || null)
   const [videoError, setVideoError] = useState<string | null>(null)
   const [uploadSuccess, setUploadSuccess] = useState(false)
+  const [isCompressing, setIsCompressing] = useState(false)
   
   const inputRef = useRef<HTMLInputElement>(null)
   const { addNotification } = useNotifications()
@@ -67,21 +69,28 @@ export function VideoUploadSimple({
 
   const uploadFile = async (file: File): Promise<string> => {
     const sizeMB = file.size / (1024 * 1024)
+    console.log('📊 File size for upload:', sizeMB.toFixed(2), 'MB')
     
-    // Use chunked upload for files larger than 4MB
-    if (sizeMB > 4) {
-      console.log('📦 Using chunked upload for large file')
-      const result = await uploadFileInChunks({
-        file,
-        chunkSize: 2 * 1024 * 1024, // 2MB chunks to stay under Vercel limit
-        onProgress: (progress) => {
-          setUploadProgress(Math.round(progress))
-        },
-        onChunkComplete: (chunk, total) => {
-          console.log(`✅ Chunk ${chunk}/${total} uploaded`)
-        }
-      })
-      return result.url
+    // Use chunked upload for files larger than 3MB (lower threshold for safety)
+    if (sizeMB > 3) {
+      console.log('📦 Using chunked upload for file:', file.name, sizeMB.toFixed(2), 'MB')
+      try {
+        const result = await uploadFileInChunks({
+          file,
+          chunkSize: 2 * 1024 * 1024, // 2MB chunks to stay under Vercel limit
+          onProgress: (progress) => {
+            setUploadProgress(Math.round(progress))
+          },
+          onChunkComplete: (chunk, total) => {
+            console.log(`✅ Chunk ${chunk}/${total} uploaded`)
+          }
+        })
+        console.log('📦 Chunked upload complete:', result.url)
+        return result.url
+      } catch (error) {
+        console.error('❌ Chunked upload failed:', error)
+        throw error
+      }
     }
     
     // Regular upload for smaller files
@@ -208,16 +217,43 @@ export function VideoUploadSimple({
       return
     }
 
+    // Show preview immediately
+    const objectUrl = URL.createObjectURL(file)
+    setPreviewUrl(objectUrl)
+    
+    let fileToUpload = file
+    const sizeMB = file.size / (1024 * 1024)
+    
+    // Compress if file is large
+    if (sizeMB > 4) {
+      setIsCompressing(true)
+      setVideoError('📦 Comprimiendo video para optimizar subida...')
+      
+      try {
+        console.log('🔄 Compressing large video...')
+        fileToUpload = await compressVideoSimple(file, {
+          maxSizeMB: 3,
+          onProgress: (progress) => {
+            setUploadProgress(Math.round(progress * 0.5)) // Show 0-50% for compression
+          }
+        })
+        const compressedSizeMB = fileToUpload.size / (1024 * 1024)
+        console.log('✅ Compressed from', sizeMB.toFixed(1), 'MB to', compressedSizeMB.toFixed(1), 'MB')
+        setVideoError(null)
+      } catch (error) {
+        console.warn('⚠️ Compression failed, using original:', error)
+        // Continue with original file
+      } finally {
+        setIsCompressing(false)
+      }
+    }
+    
     setUploading(true)
     
     try {
-      // Show preview immediately
-      const objectUrl = URL.createObjectURL(file)
-      setPreviewUrl(objectUrl)
-      
       // Upload file
       console.log('📤 Starting upload...')
-      const videoUrl = await uploadFile(file)
+      const videoUrl = await uploadFile(fileToUpload)
       console.log('✅ Upload successful:', videoUrl)
       
       // Generate metadata
@@ -312,7 +348,7 @@ export function VideoUploadSimple({
           />
           
           <div className="flex flex-col items-center space-y-2">
-            {uploading ? (
+            {uploading || isCompressing ? (
               <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
             ) : (
               <Upload className="w-8 h-8 text-gray-400" />
@@ -320,7 +356,7 @@ export function VideoUploadSimple({
             
             <div>
               <p className="text-sm font-medium text-gray-700">
-                {uploading ? 'Subiendo video...' : placeholder}
+                {isCompressing ? 'Comprimiendo video...' : uploading ? 'Subiendo video...' : placeholder}
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 Máximo {maxSize}MB • Formatos: MP4, WebM, MOV
@@ -329,7 +365,7 @@ export function VideoUploadSimple({
           </div>
           
           {/* Progress Bar */}
-          {uploading && (
+          {(uploading || isCompressing) && (
             <div className="absolute bottom-2 left-2 right-2">
               <div className="bg-gray-200 rounded-full h-2">
                 <div 
@@ -337,7 +373,9 @@ export function VideoUploadSimple({
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
-              <p className="text-xs text-gray-600 mt-1">{uploadProgress}%</p>
+              <p className="text-xs text-gray-600 mt-1">
+                {isCompressing ? `Comprimiendo... ${uploadProgress}%` : `${uploadProgress}%`}
+              </p>
             </div>
           )}
         </div>
@@ -371,8 +409,10 @@ export function VideoUploadSimple({
 
       {/* Error Message */}
       {videoError && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-700">{videoError}</p>
+        <div className={`p-3 rounded-lg border ${videoError.includes('📦') ? 'bg-blue-50 border-blue-200' : 'bg-red-50 border-red-200'}`}>
+          <p className={`text-sm ${videoError.includes('📦') ? 'text-blue-700' : 'text-red-700'}`}>
+            {videoError}
+          </p>
         </div>
       )}
     </div>
