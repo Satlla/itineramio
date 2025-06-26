@@ -540,9 +540,9 @@ export function MobileStepEditor({
                             updateStep(index, { media: undefined })
                           }
                         }}
-                        placeholder="Subir video VERTICAL (máx. 30 segundos)"
+                        placeholder="Subir video VERTICAL (máx. 60 segundos)"
                         maxSize={100}
-                        maxDuration={30}
+                        maxDuration={60}
                         saveToLibrary={true}
                         className="mb-3"
                       />

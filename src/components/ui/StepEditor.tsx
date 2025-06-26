@@ -376,7 +376,7 @@ export function StepEditor({
             }}
             className="mb-3"
             maxSize={50}
-            maxDuration={30}
+            maxDuration={60}
           />
           <Input
             value={step.content[activeLanguage] || ''}
@@ -818,7 +818,7 @@ export function StepEditor({
                               }}
                               className="mb-4"
                               maxSize={50}
-                              maxDuration={30}
+                              maxDuration={60}
                             />
                             <div className="mt-4">
                               <label className="block text-sm font-medium text-gray-700 mb-2">

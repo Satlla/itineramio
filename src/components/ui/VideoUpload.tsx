@@ -31,10 +31,10 @@ interface VideoMetadata {
 export function VideoUpload({
   value,
   onChange,
-  placeholder = "Subir video VERTICAL (máx. 30 segundos)",
+  placeholder = "Subir video VERTICAL (máx. 60 segundos)",
   className = "",
   maxSize = 50,
-  maxDuration = 30,
+  maxDuration = 60,
   accept = "video/mp4,video/webm,video/quicktime",
   error = false,
   saveToLibrary = true
