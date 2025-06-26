@@ -57,6 +57,7 @@ export function VideoUpload({
   const [showCamera, setShowCamera] = useState(false)
   const [recordingTime, setRecordingTime] = useState(0)
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null)
+  const [forceUpload, setForceUpload] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const cameraRef = useRef<HTMLVideoElement>(null)
@@ -105,12 +106,19 @@ export function VideoUpload({
   const validateVideo = async (file: File): Promise<boolean> => {
     console.log('📋 Validating file:', file.name, file.type, file.size)
     
-    // Check file size
+    // Check file size - very generous limit
     const sizeMB = file.size / (1024 * 1024)
     console.log('📏 File size:', sizeMB.toFixed(2), 'MB')
-    if (sizeMB > maxSize) {
-      setVideoError(`El video debe ser menor a ${maxSize}MB`)
+    if (sizeMB > 500) { // 500MB limit - extremely generous
+      setVideoError(`Video demasiado grande (${sizeMB.toFixed(1)}MB). Máximo 500MB.`)
       return false
+    }
+    
+    // Show warning for large files but don't block
+    if (sizeMB > maxSize) {
+      console.warn('⚠️ File larger than recommended:', sizeMB, 'MB')
+      setVideoError(`⚠️ Archivo grande (${sizeMB.toFixed(1)}MB). Se comprimirá automáticamente.`)
+      // Don't return false - continue with upload and compression will handle it
     }
 
     // Check video duration and orientation
@@ -127,20 +135,29 @@ export function VideoUpload({
         })
         console.log('⏱️ Comparing duration:', video.duration, 'vs maxDuration:', maxDuration)
         
-        if (video.duration > maxDuration) {
-          console.error('⏱️ Video too long:', video.duration, 'seconds, max allowed:', maxDuration)
-          setVideoError(`El video debe durar máximo ${maxDuration} segundos. Tu video dura ${Math.round(video.duration)} segundos.`)
+        // TEMPORARILY DISABLE DURATION CHECK - ACCEPT ALL VIDEOS
+        if (video.duration > 300) { // Only reject if longer than 5 minutes (very generous)
+          console.error('⏱️ Video extremely long:', video.duration, 'seconds')
+          setVideoError(`Video demasiado largo. Máximo 5 minutos.`)
           URL.revokeObjectURL(video.src)
           resolve(false)
           return
         }
+        
+        // Show warning for long videos but don't block them
+        if (video.duration > maxDuration) {
+          console.warn('⚠️ Video longer than recommended:', video.duration, 'vs', maxDuration)
+          setVideoError(`⚠️ Video de ${Math.round(video.duration)}s (recomendado máx. ${maxDuration}s). Subiremos de todas formas.`)
+          // Don't return false - continue with upload
+        }
 
-        // Check if video is vertical (portrait mode) - temporarily relaxed
+        // Check orientation but don't block anything - just show info
         const aspectRatio = video.videoWidth / video.videoHeight
-        if (aspectRatio > 1.5) { // Allow square and slightly horizontal videos temporarily
-          console.warn('📐 Video is not vertical but allowing upload:', aspectRatio)
-          setVideoError('Para mejor experiencia móvil, recomendamos videos verticales (modo retrato)')
-          // Don't block upload, just show warning
+        if (aspectRatio > 1) { // Horizontal
+          console.log('📐 Video horizontal detectado:', aspectRatio)
+          // Don't set error, just log for info
+        } else {
+          console.log('📐 Video vertical perfecto:', aspectRatio)
         }
 
         // Generate thumbnail from first frame
@@ -384,14 +401,19 @@ export function VideoUpload({
     setUploadProgress(0)
     setUploadStage('processing')
     
-    // Validate video
-    console.log('🔍 Validating video...')
-    const isValid = await validateVideo(fileToUpload)
-    console.log('✅ Video validation result:', isValid)
-    if (!isValid) {
-      console.log('❌ Video validation failed')
-      setUploading(false)
-      return
+    // Validate video (unless force upload is enabled)
+    if (!forceUpload) {
+      console.log('🔍 Validating video...')
+      const isValid = await validateVideo(fileToUpload)
+      console.log('✅ Video validation result:', isValid)
+      if (!isValid) {
+        console.log('❌ Video validation failed - showing force upload option')
+        setUploading(false)
+        return
+      }
+    } else {
+      console.log('🚀 FORCE UPLOAD MODE - Skipping all validations!')
+      setVideoError(null) // Clear any previous errors
     }
 
     // Create preview
@@ -851,9 +873,49 @@ export function VideoUpload({
       )}
       
       {videoError && (
-        <div className="mt-2 flex items-center text-sm text-red-600">
-          <AlertCircle className="w-4 h-4 mr-1" />
-          {videoError}
+        <div className="mt-2 space-y-2">
+          <div className="flex items-center text-sm text-red-600">
+            <AlertCircle className="w-4 h-4 mr-1" />
+            {videoError}
+          </div>
+          
+          {/* Force upload button for when validation fails */}
+          {!uploading && !uploadSuccess && videoError && (
+            <div className="flex space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setForceUpload(true)
+                  setVideoError(null)
+                  // Re-trigger upload with force mode
+                  if (inputRef.current?.files?.[0]) {
+                    handleUpload(inputRef.current.files[0])
+                  }
+                }}
+                className="text-xs bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100"
+              >
+                🚀 Subir de todas formas
+              </Button>
+              
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setVideoError(null)
+                  setPreviewUrl(null)
+                  if (inputRef.current) {
+                    inputRef.current.value = ''
+                  }
+                }}
+                className="text-xs"
+              >
+                ❌ Cancelar
+              </Button>
+            </div>
+          )}
         </div>
       )}
       
