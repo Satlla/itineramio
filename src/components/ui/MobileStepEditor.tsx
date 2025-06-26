@@ -26,7 +26,7 @@ import { Button } from './Button'
 import { Card } from './Card'
 import { Input } from './Input'
 import { Badge } from './Badge'
-import { VideoUpload } from './VideoUpload'
+import { VideoUploadSimple } from './VideoUploadSimple'
 import { ImageUpload } from './ImageUpload'
 
 export interface Step {
@@ -517,21 +517,21 @@ export function MobileStepEditor({
 
                   {step.type === 'video' && (
                     <div className="space-y-3">
-                      <VideoUpload
+                      <VideoUploadSimple
                         value={step.media?.url}
                         onChange={(url, metadata) => {
-                          console.log('🎬 MobileStepEditor VideoUpload onChange:', { url, metadata })
+                          console.log('🎬 MobileStepEditor VideoUploadSimple onChange:', { url, metadata })
                           
-                          if (url && metadata) {
+                          if (url) {
                             console.log('📹 Setting video data in step:', {
                               url,
-                              thumbnail: metadata.thumbnail,
+                              thumbnail: metadata?.thumbnail,
                               title: 'Uploaded video'
                             })
                             updateStep(index, {
                               media: {
                                 url: url,
-                                thumbnail: metadata.thumbnail,
+                                thumbnail: metadata?.thumbnail || '',
                                 title: 'Uploaded video'
                               }
                             })
@@ -540,8 +540,8 @@ export function MobileStepEditor({
                             updateStep(index, { media: undefined })
                           }
                         }}
-                        placeholder="Subir video VERTICAL (máx. 60 segundos)"
-                        maxSize={200}
+                        placeholder="Subir video (máx. 60 segundos)"
+                        maxSize={50}
                         maxDuration={60}
                         saveToLibrary={true}
                         className="mb-3"

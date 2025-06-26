@@ -22,7 +22,7 @@ import { Card } from './Card'
 import { Input } from './Input'
 import { Badge } from './Badge'
 import { ImageUpload } from './ImageUpload'
-import { VideoUpload } from './VideoUpload'
+import { VideoUploadSimple } from './VideoUploadSimple'
 import { MobileStepEditor as MobileStepEditorNew } from './MobileStepEditor'
 import { MobileStepEditorSimple } from './MobileStepEditorSimple'
 
@@ -359,7 +359,7 @@ export function StepEditor({
       {step.type === 'video' && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">Video</label>
-          <VideoUpload
+          <VideoUploadSimple
             value={step.media?.url}
             onChange={(url, metadata) => {
               if (url) {
@@ -375,7 +375,7 @@ export function StepEditor({
               }
             }}
             className="mb-3"
-            maxSize={200}
+            maxSize={50}
             maxDuration={60}
           />
           <Input
@@ -801,7 +801,7 @@ export function StepEditor({
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                               Subir video
                             </label>
-                            <VideoUpload
+                            <VideoUploadSimple
                               value={steps[activeStep].media?.url}
                               onChange={(url, metadata) => {
                                 if (url) {
@@ -817,7 +817,7 @@ export function StepEditor({
                                 }
                               }}
                               className="mb-4"
-                              maxSize={200}
+                              maxSize={50}
                               maxDuration={60}
                             />
                             <div className="mt-4">
