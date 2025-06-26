@@ -391,7 +391,7 @@ export function VideoUpload({
       xhr.onload = async () => {
         if (xhr.status === 413) {
           const errorText = await xhr.responseText || '{}'
-          let errorData = {}
+          let errorData: any = {}
           try {
             errorData = JSON.parse(errorText)
           } catch {}
