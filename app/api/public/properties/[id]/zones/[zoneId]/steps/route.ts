@@ -68,6 +68,7 @@ export async function GET(
     const processedSteps = steps.map(step => {
       let mediaUrl = null
       let linkUrl = null
+      let thumbnail = null
       
       try {
         if (step.content && typeof step.content === 'object') {
@@ -78,6 +79,9 @@ export async function GET(
           if (content.linkUrl) {
             linkUrl = content.linkUrl
           }
+          if (content.thumbnail) {
+            thumbnail = content.thumbnail
+          }
         }
       } catch (error) {
         console.error('Error parsing step content:', error)
@@ -86,7 +90,8 @@ export async function GET(
       return {
         ...step,
         mediaUrl,
-        linkUrl
+        linkUrl,
+        thumbnail
       }
     })
 

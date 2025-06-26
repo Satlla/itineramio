@@ -19,6 +19,7 @@ interface ZoneStep {
   content?: string | { es: string; en?: string; fr?: string }
   mediaUrl?: string
   linkUrl?: string
+  thumbnail?: string
   estimatedTime?: number
   order: number
   status: string
@@ -346,7 +347,8 @@ export default function ZoneGuidePage({
           description: step.description || step.content,
           content: step.content,
           mediaUrl: step.mediaUrl, // Ensure mediaUrl is passed through
-          linkUrl: step.linkUrl // Ensure linkUrl is passed through
+          linkUrl: step.linkUrl, // Ensure linkUrl is passed through
+          thumbnail: step.thumbnail // Pass thumbnail for video poster
         })) : []
       }
       
@@ -858,13 +860,13 @@ export default function ZoneGuidePage({
                               controls
                               playsInline
                               preload="metadata"
+                              poster={step.thumbnail || undefined}
                               style={{
                                 maxHeight: '70vh',
                                 minHeight: '300px',
                                 aspectRatio: '9/16', // Force vertical aspect ratio
                                 objectFit: 'cover'
                               }}
-                              poster="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=700&fit=crop"
                             >
                               <source src={step.mediaUrl} type="video/mp4" />
                               <source src={step.mediaUrl} type="video/webm" />
