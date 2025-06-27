@@ -62,6 +62,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [copied, setCopied] = useState(false)
   const [showStepEditor, setShowStepEditor] = useState(false)
   const [editingZoneForSteps, setEditingZoneForSteps] = useState<Zone | null>(null)
+  const [loadingSteps, setLoadingSteps] = useState(false)
+  const [currentSteps, setCurrentSteps] = useState<Step[]>([])
   
   // Delete confirmation modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -784,6 +786,41 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
   }
 
+  const loadZoneSteps = async (zoneId: string) => {
+    setLoadingSteps(true)
+    try {
+      const response = await fetch(`/api/properties/${id}/zones/${zoneId}/steps`)
+      const result = await response.json()
+      
+      if (result.success) {
+        // Transform API steps to StepEditor format
+        const transformedSteps: Step[] = result.data.map((apiStep: any, index: number) => ({
+          id: apiStep.id,
+          type: apiStep.type?.toLowerCase() || 'text',
+          content: typeof apiStep.title === 'string' 
+            ? { es: apiStep.title } 
+            : apiStep.title || { es: '' },
+          media: apiStep.mediaUrl ? {
+            url: apiStep.mediaUrl,
+            thumbnail: apiStep.thumbnail,
+            title: apiStep.content?.es || 'Media'
+          } : undefined,
+          order: index
+        }))
+        
+        setCurrentSteps(transformedSteps)
+      } else {
+        console.error('Error loading steps:', result.error)
+        setCurrentSteps([])
+      }
+    } catch (error) {
+      console.error('Error loading zone steps:', error)
+      setCurrentSteps([])
+    } finally {
+      setLoadingSteps(false)
+    }
+  }
+
   const handleSaveSteps = async (steps: Step[]) => {
     console.log('🚨 ===== HANDLESAVESTEPS CALLED =====')
     console.log('🚨 editingZoneForSteps:', editingZoneForSteps)
@@ -1110,20 +1147,21 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                             <DropdownMenu.Content className="w-48 bg-white rounded-md border shadow-lg p-1 z-50">
                               <DropdownMenu.Item
                                 className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                                onSelect={() => handleEditZone(zone)}
-                              >
-                                <Edit className="h-4 w-4 mr-2" />
-                                Editar Zona
-                              </DropdownMenu.Item>
-                              <DropdownMenu.Item
-                                className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                                onSelect={() => {
+                                onSelect={async () => {
                                   setEditingZoneForSteps(zone)
+                                  await loadZoneSteps(zone.id)
                                   setShowStepEditor(true)
                                 }}
                               >
                                 <Edit className="h-4 w-4 mr-2" />
-                                Editar Instrucciones
+                                Editar
+                              </DropdownMenu.Item>
+                              <DropdownMenu.Item
+                                className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                                onSelect={() => handleEditZone(zone)}
+                              >
+                                <FileText className="h-4 w-4 mr-2" />
+                                Configurar
                               </DropdownMenu.Item>
                               <DropdownMenu.Item
                                 className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
@@ -1375,14 +1413,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         {showStepEditor && editingZoneForSteps && (
           <StepEditor
             zoneTitle={getZoneText(editingZoneForSteps.name)}
-            initialSteps={[]}
+            initialSteps={currentSteps}
             onSave={handleSaveSteps}
             onCancel={() => {
               setShowStepEditor(false)
               setEditingZoneForSteps(null)
+              setCurrentSteps([])
             }}
             maxVideos={5}
             currentVideoCount={0}
+            propertyId={id}
+            zoneId={editingZoneForSteps.id}
           />
         )}
       </AnimatePresence>
