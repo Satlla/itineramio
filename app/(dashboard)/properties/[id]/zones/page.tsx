@@ -523,13 +523,19 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showPredefineModal, setShowPredefineModal] = useState(false)
 
   const handleOpenMultiSelect = () => {
-    // Show essential zones modal only once when creating first zone
-    if (zones.length === 0 && !hasShownEssentialZones) {
+    console.log('🚀 handleOpenMultiSelect called')
+    console.log('🚀 zones.length:', zones.length)
+    console.log('🚀 hasShownEssentialZones:', hasShownEssentialZones)
+    
+    // Show essential zones modal when creating first zone
+    if (zones.length === 0) {
+      console.log('🚀 Showing essential zones modal')
       // Initialize all zones as selected
       setSelectedEssentialZones(new Set(essentialZones.map(z => z.id)))
       setShowEssentialZonesModal(true)
       setHasShownEssentialZones(true)
     } else {
+      console.log('🚀 Showing element selector')
       setShowElementSelector(true)
     }
   }
@@ -1515,6 +1521,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       </AnimatePresence>
 
       {/* Essential Zones Modal */}
+      {console.log('🎯 Rendering, showEssentialZonesModal:', showEssentialZonesModal)}
       <AnimatePresence>
         {showEssentialZonesModal && (
           <motion.div
@@ -1524,6 +1531,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
             onClick={() => setShowEssentialZonesModal(false)}
           >
+            {console.log('🎯 Essential zones modal is rendering!')}
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
