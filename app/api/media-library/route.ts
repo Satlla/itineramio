@@ -103,17 +103,19 @@ export async function GET(request: NextRequest) {
         })
 
         // Transform usage data
-        const usage = usageSteps.map(step => ({
-          propertyId: step.zones.property.id,
-          propertyName: typeof step.zones.property.name === 'string' 
-            ? step.zones.property.name 
-            : (step.zones.property.name as any)?.es || 'Propiedad',
-          zoneId: step.zones.id,
-          zoneName: typeof step.zones.name === 'string'
-            ? step.zones.name
-            : (step.zones.name as any)?.es || 'Zona',
-          stepId: step.id
-        }))
+        const usage = usageSteps
+          .filter(step => step.zones && step.zones.property) // Filter out steps without zone or property
+          .map(step => ({
+            propertyId: step.zones.property!.id,
+            propertyName: typeof step.zones.property!.name === 'string' 
+              ? step.zones.property!.name 
+              : (step.zones.property!.name as any)?.es || 'Propiedad',
+            zoneId: step.zones.id,
+            zoneName: typeof step.zones.name === 'string'
+              ? step.zones.name
+              : (step.zones.name as any)?.es || 'Zona',
+            stepId: step.id
+          }))
 
         return {
           id: item.id,
