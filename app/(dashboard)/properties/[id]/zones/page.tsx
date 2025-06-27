@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check } from 'lucide-react'
 import { Button } from '../../../../../src/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../../src/components/ui/Card'
 import { IconSelector, ZoneIconDisplay, useZoneIcon } from '../../../../../src/components/ui/IconSelector'
@@ -70,6 +70,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [zoneToDelete, setZoneToDelete] = useState<Zone | null>(null)
   const [isDeletingZone, setIsDeletingZone] = useState(false)
   
+  // Essential zones modal state
+  const [showEssentialZonesModal, setShowEssentialZonesModal] = useState(false)
+  const [hasShownEssentialZones, setHasShownEssentialZones] = useState(false)
+  const [selectedEssentialZones, setSelectedEssentialZones] = useState<Set<string>>(new Set())
+  
   const [isCreatingZone, setIsCreatingZone] = useState(false)
   const [isUpdatingZone, setIsUpdatingZone] = useState(false)
   const [isLoadingZones, setIsLoadingZones] = useState(true)
@@ -86,6 +91,18 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     })
   }, [params])
 
+  // Essential zones recommendation
+  const essentialZones = [
+    { id: 'check-in', name: 'Check In', icon: 'key', description: 'Instrucciones de entrada' },
+    { id: 'check-out', name: 'Check Out', icon: 'exit', description: 'Instrucciones de salida' },
+    { id: 'wifi', name: 'WiFi', icon: 'wifi', description: 'Contraseña y conexión' },
+    { id: 'parking', name: 'Parking', icon: 'car', description: 'Dónde aparcar' },
+    { id: 'cocina', name: 'Cocina', icon: 'kitchen', description: 'Uso de electrodomésticos' },
+    { id: 'aire-acondicionado', name: 'Aire Acondicionado', icon: 'air', description: 'Control de temperatura' },
+    { id: 'basura', name: 'Basura y Reciclaje', icon: 'trash', description: 'Gestión de residuos' },
+    { id: 'emergencias', name: 'Emergencias', icon: 'emergency', description: 'Contactos importantes' }
+  ]
+  
   // Get zone-specific help text
   const getZoneHelpText = (zoneName: string): string => {
     const helpTexts: Record<string, string> = {
@@ -506,7 +523,71 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showPredefineModal, setShowPredefineModal] = useState(false)
 
   const handleOpenMultiSelect = () => {
-    setShowElementSelector(true)
+    // Show essential zones modal only once when creating first zone
+    if (zones.length === 0 && !hasShownEssentialZones) {
+      // Initialize all zones as selected
+      setSelectedEssentialZones(new Set(essentialZones.map(z => z.id)))
+      setShowEssentialZonesModal(true)
+      setHasShownEssentialZones(true)
+    } else {
+      setShowElementSelector(true)
+    }
+  }
+
+  const handleCreateEssentialZones = async (selectedZoneIds: string[]) => {
+    setIsCreatingZone(true)
+    try {
+      const createdZones: Zone[] = []
+      
+      for (const zoneId of selectedZoneIds) {
+        const essentialZone = essentialZones.find(z => z.id === zoneId)
+        if (!essentialZone) continue
+        
+        const response = await fetch(`/api/properties/${id}/zones`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: { es: essentialZone.name, en: essentialZone.name },
+            description: { es: essentialZone.description, en: essentialZone.description },
+            icon: essentialZone.icon,
+            status: 'ACTIVE'
+          })
+        })
+
+        if (response.ok) {
+          const result = await response.json()
+          const newZone = {
+            id: result.data.id,
+            name: essentialZone.name,
+            iconId: essentialZone.icon,
+            order: result.data.order || 0,
+            stepsCount: 0,
+            qrUrl: `/z/${result.data.accessCode}`,
+            lastUpdated: new Date().toISOString(),
+            slug: result.data.slug
+          }
+          createdZones.push(newZone)
+        }
+      }
+
+      if (createdZones.length > 0) {
+        setZones(prevZones => [...prevZones, ...createdZones])
+        generateZoneWarnings(`${createdZones.length} zonas esenciales creadas`)
+        
+        // Open step editor for the first created zone
+        if (createdZones[0]) {
+          setEditingZoneForSteps(createdZones[0])
+          setShowStepEditor(true)
+        }
+      }
+      
+      setShowEssentialZonesModal(false)
+    } catch (error) {
+      console.error('Error creating essential zones:', error)
+      alert('Error al crear las zonas esenciales')
+    } finally {
+      setIsCreatingZone(false)
+    }
   }
 
   const handleSelectMultipleElements = async (selectedElementIds: string[]) => {
@@ -1425,6 +1506,138 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             propertyId={id}
             zoneId={editingZoneForSteps.id}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Essential Zones Modal */}
+      <AnimatePresence>
+        {showEssentialZonesModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            onClick={() => setShowEssentialZonesModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-violet-100 rounded-full mb-4">
+                  <Sparkles className="w-8 h-8 text-violet-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  Zonas Esenciales Recomendadas
+                </h2>
+                <p className="text-gray-600">
+                  Hemos detectado que estas zonas son comunes en todos los apartamentos y te sugerimos crearlas:
+                </p>
+              </div>
+
+              {/* Essential Zones List */}
+              <div className="space-y-3 mb-6">
+                {essentialZones.map((zone, index) => {
+                  const isSelected = selectedEssentialZones.has(zone.id)
+                  return (
+                    <motion.div
+                      key={zone.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                        isSelected 
+                          ? 'border-violet-500 bg-violet-50' 
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      onClick={() => {
+                        const newSelected = new Set(selectedEssentialZones)
+                        if (isSelected) {
+                          newSelected.delete(zone.id)
+                        } else {
+                          newSelected.add(zone.id)
+                        }
+                        setSelectedEssentialZones(newSelected)
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <ZoneIconDisplay iconId={zone.icon} size="sm" />
+                          <div>
+                            <h4 className="font-medium text-gray-900">{zone.name}</h4>
+                            <p className="text-sm text-gray-600">{zone.description}</p>
+                          </div>
+                        </div>
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                          isSelected 
+                            ? 'bg-violet-500 border-violet-500' 
+                            : 'border-gray-300'
+                        }`}>
+                          {isSelected && (
+                            <Check className="w-4 h-4 text-white" />
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+
+              {/* Info Box */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div className="flex gap-3">
+                  <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-blue-800">
+                    <p className="font-medium mb-1">¿Por qué estas zonas?</p>
+                    <p>Estas son las zonas que más consultan los huéspedes. Tenerlas preparadas mejorará su experiencia y reducirá las preguntas repetitivas.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowEssentialZonesModal(false)
+                    setShowElementSelector(true)
+                  }}
+                  className="flex-1"
+                >
+                  Prefiero elegir yo
+                </Button>
+                <Button
+                  onClick={() => {
+                    const selectedIds = Array.from(selectedEssentialZones)
+                    
+                    if (selectedIds.length > 0) {
+                      handleCreateEssentialZones(selectedIds)
+                    } else {
+                      setShowEssentialZonesModal(false)
+                    }
+                  }}
+                  disabled={isCreatingZone || selectedEssentialZones.size === 0}
+                  className="flex-1 bg-violet-600 hover:bg-violet-700 text-white"
+                >
+                  {isCreatingZone ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      Creando...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Crear seleccionadas
+                    </>
+                  )}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
