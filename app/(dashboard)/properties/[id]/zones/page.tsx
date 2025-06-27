@@ -572,11 +572,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
       if (createdZones.length > 0) {
         setZones(prevZones => [...prevZones, ...createdZones])
-        generateZoneWarnings(`${createdZones.length} zonas esenciales creadas`)
+        addNotification({
+          type: 'success',
+          title: 'Zonas creadas',
+          message: `${createdZones.length} zonas esenciales creadas correctamente`
+        })
         
         // Open step editor for the first created zone
         if (createdZones[0]) {
           setEditingZoneForSteps(createdZones[0])
+          await loadZoneSteps(createdZones[0].id)
           setShowStepEditor(true)
         }
       }
