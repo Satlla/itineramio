@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
             ]
           },
           include: {
-            zone: {
+            zones: {
               include: {
                 property: {
                   select: {
@@ -104,14 +104,14 @@ export async function GET(request: NextRequest) {
 
         // Transform usage data
         const usage = usageSteps.map(step => ({
-          propertyId: step.zone.property.id,
-          propertyName: typeof step.zone.property.name === 'string' 
-            ? step.zone.property.name 
-            : (step.zone.property.name as any)?.es || 'Propiedad',
-          zoneId: step.zone.id,
-          zoneName: typeof step.zone.name === 'string'
-            ? step.zone.name
-            : (step.zone.name as any)?.es || 'Zona',
+          propertyId: step.zones.property.id,
+          propertyName: typeof step.zones.property.name === 'string' 
+            ? step.zones.property.name 
+            : (step.zones.property.name as any)?.es || 'Propiedad',
+          zoneId: step.zones.id,
+          zoneName: typeof step.zones.name === 'string'
+            ? step.zones.name
+            : (step.zones.name as any)?.es || 'Zona',
           stepId: step.id
         }))
 
