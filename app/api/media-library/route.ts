@@ -67,27 +67,77 @@ export async function GET(request: NextRequest) {
 
     const total = await prisma.mediaLibrary.count({ where })
 
-    // Transform the data
-    const items = mediaItems.map(item => ({
-      id: item.id,
-      type: item.type,
-      url: item.url,
-      thumbnailUrl: item.thumbnailUrl,
-      filename: item.filename,
-      originalName: item.originalName,
-      size: item.size,
-      duration: item.duration,
-      width: item.width,
-      height: item.height,
-      usageCount: item.usageCount,
-      tags: item.tags,
-      createdAt: item.createdAt.toISOString(),
-      lastUsedAt: item.lastUsedAt?.toISOString()
-    }))
+    // For each media item, find where it's being used
+    const itemsWithUsage = await Promise.all(
+      mediaItems.map(async (item) => {
+        // Find steps that use this media URL
+        const usageSteps = await prisma.step.findMany({
+          where: {
+            OR: [
+              {
+                content: {
+                  path: ['mediaUrl'],
+                  equals: item.url
+                }
+              },
+              {
+                content: {
+                  path: ['thumbnail'],
+                  equals: item.url
+                }
+              }
+            ]
+          },
+          include: {
+            zone: {
+              include: {
+                property: {
+                  select: {
+                    id: true,
+                    name: true
+                  }
+                }
+              }
+            }
+          }
+        })
+
+        // Transform usage data
+        const usage = usageSteps.map(step => ({
+          propertyId: step.zone.property.id,
+          propertyName: typeof step.zone.property.name === 'string' 
+            ? step.zone.property.name 
+            : (step.zone.property.name as any)?.es || 'Propiedad',
+          zoneId: step.zone.id,
+          zoneName: typeof step.zone.name === 'string'
+            ? step.zone.name
+            : (step.zone.name as any)?.es || 'Zona',
+          stepId: step.id
+        }))
+
+        return {
+          id: item.id,
+          type: item.type,
+          url: item.url,
+          thumbnailUrl: item.thumbnailUrl,
+          filename: item.filename,
+          originalName: item.originalName,
+          size: item.size,
+          duration: item.duration,
+          width: item.width,
+          height: item.height,
+          usageCount: usage.length, // Update with actual usage count
+          tags: item.tags,
+          createdAt: item.createdAt.toISOString(),
+          lastUsedAt: item.lastUsedAt?.toISOString(),
+          usage: usage
+        }
+      })
+    )
 
     return NextResponse.json({
       success: true,
-      items,
+      items: itemsWithUsage,
       pagination: {
         page,
         limit,

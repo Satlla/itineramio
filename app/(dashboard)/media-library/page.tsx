@@ -32,6 +32,14 @@ import { ImageUpload } from '../../../src/components/ui/ImageUpload'
 import { Badge } from '../../../src/components/ui/Badge'
 import { useToast } from '../../../src/hooks/useToast'
 
+interface MediaUsage {
+  propertyId: string
+  propertyName: string
+  zoneId: string
+  zoneName: string
+  stepId?: string
+}
+
 interface MediaItem {
   id: string
   type: 'image' | 'video'
@@ -47,6 +55,7 @@ interface MediaItem {
   tags: string[]
   createdAt: string
   lastUsedAt?: string
+  usage?: MediaUsage[]
 }
 
 export default function MediaLibraryPage() {
@@ -58,6 +67,8 @@ export default function MediaLibraryPage() {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [uploadType, setUploadType] = useState<'image' | 'video'>('image')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [itemsToDelete, setItemsToDelete] = useState<MediaItem[]>([])
   const { toast } = useToast()
 
   useEffect(() => {
@@ -113,9 +124,15 @@ export default function MediaLibraryPage() {
     }
   }
 
-  const handleDelete = async (ids: string[]) => {
-    if (!confirm(`¿Eliminar ${ids.length} archivo(s)?`)) return
+  const handleDeleteRequest = (ids: string[]) => {
+    const itemsToDeleteArray = mediaItems.filter(item => ids.includes(item.id))
+    setItemsToDelete(itemsToDeleteArray)
+    setShowDeleteModal(true)
+  }
 
+  const confirmDelete = async () => {
+    const ids = itemsToDelete.map(item => item.id)
+    
     try {
       const response = await fetch('/api/media-library', {
         method: 'DELETE',
@@ -126,6 +143,8 @@ export default function MediaLibraryPage() {
       if (response.ok) {
         await fetchMediaItems()
         setSelectedItems(new Set())
+        setShowDeleteModal(false)
+        setItemsToDelete([])
         toast({
           title: 'Éxito',
           description: `${ids.length} archivo(s) eliminado(s)`
@@ -140,6 +159,8 @@ export default function MediaLibraryPage() {
       })
     }
   }
+
+  const handleDelete = handleDeleteRequest
 
   const copyToClipboard = (url: string) => {
     navigator.clipboard.writeText(url)
@@ -256,6 +277,25 @@ export default function MediaLibraryPage() {
             <span>{item.width}x{item.height}</span>
           )}
         </div>
+        
+        {/* Usage info */}
+        {item.usage && item.usage.length > 0 && (
+          <div className="mt-2 space-y-1">
+            <p className="text-xs font-medium text-gray-600">Usado en:</p>
+            {item.usage.slice(0, 2).map((usage, index) => (
+              <div key={index} className="text-xs text-gray-500 bg-gray-50 rounded px-2 py-1">
+                <span className="font-medium">{usage.propertyName}</span>
+                <span className="mx-1">→</span>
+                <span>{usage.zoneName}</span>
+              </div>
+            ))}
+            {item.usage.length > 2 && (
+              <p className="text-xs text-gray-400">
+                +{item.usage.length - 2} más
+              </p>
+            )}
+          </div>
+        )}
         
         {/* Actions */}
         <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -520,6 +560,102 @@ export default function MediaLibraryPage() {
                     <p>Si subes un archivo idéntico a uno existente, se reutilizará automáticamente para ahorrar espacio.</p>
                   </div>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            onClick={() => setShowDeleteModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-red-600">
+                  ⚠️ Confirmar eliminación
+                </h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-gray-700 mb-4">
+                  {itemsToDelete.length === 1 
+                    ? `¿Estás seguro de que quieres eliminar "${itemsToDelete[0]?.originalName}"?`
+                    : `¿Estás seguro de que quieres eliminar ${itemsToDelete.length} archivos?`
+                  }
+                </p>
+
+                {/* Show usage warnings */}
+                {itemsToDelete.some(item => item.usage && item.usage.length > 0) && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                    <h4 className="font-medium text-red-800 mb-2">
+                      ⚠️ Archivos en uso:
+                    </h4>
+                    <div className="space-y-3">
+                      {itemsToDelete
+                        .filter(item => item.usage && item.usage.length > 0)
+                        .map(item => (
+                          <div key={item.id} className="text-sm">
+                            <p className="font-medium text-red-700 mb-1">
+                              {item.originalName}
+                            </p>
+                            <div className="space-y-1 ml-4">
+                              {item.usage!.map((usage, index) => (
+                                <div key={index} className="text-red-600 text-xs">
+                                  📍 <span className="font-medium">{usage.propertyName}</span>
+                                  <span className="mx-1">→</span>
+                                  <span>{usage.zoneName}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))
+                      }
+                    </div>
+                    <p className="text-red-700 text-sm mt-3 font-medium">
+                      Eliminar estos archivos puede afectar el funcionamiento de las zonas mencionadas.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={confirmDelete}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {itemsToDelete.some(item => item.usage && item.usage.length > 0)
+                    ? 'Eliminar de todas formas'
+                    : 'Eliminar'
+                  }
+                </Button>
               </div>
             </motion.div>
           </motion.div>
