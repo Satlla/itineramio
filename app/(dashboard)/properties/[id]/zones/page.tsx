@@ -581,7 +581,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         addNotification({
           type: 'info',
           title: 'Zonas creadas',
-          message: `${createdZones.length} zonas esenciales creadas correctamente`
+          message: `${createdZones.length} zonas esenciales creadas correctamente`,
+          read: false
         })
         
         // Open step editor for the first created zone
