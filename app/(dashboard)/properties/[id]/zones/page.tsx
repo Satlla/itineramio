@@ -579,7 +579,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       if (createdZones.length > 0) {
         setZones(prevZones => [...prevZones, ...createdZones])
         addNotification({
-          type: 'success',
+          type: 'info',
           title: 'Zonas creadas',
           message: `${createdZones.length} zonas esenciales creadas correctamente`
         })
