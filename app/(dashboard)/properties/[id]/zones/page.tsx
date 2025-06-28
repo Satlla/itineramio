@@ -1047,6 +1047,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           <p className="text-gray-600 mt-2">
             Gestiona las diferentes zonas y sus códigos QR para facilitar la experiencia de tus huéspedes
           </p>
+          
+          {/* DEBUG INFO */}
+          <div className="mt-4 p-4 bg-yellow-100 border border-yellow-300 rounded-lg">
+            <h4 className="font-bold text-yellow-800">🔍 DEBUG INFO:</h4>
+            <p className="text-yellow-700">Zones count: {zones.length}</p>
+            <p className="text-yellow-700">Show essential modal: {showEssentialZonesModal ? 'YES' : 'NO'}</p>
+            <p className="text-yellow-700">Has shown before: {hasShownEssentialZones ? 'YES' : 'NO'}</p>
+            <p className="text-yellow-700">Selected zones: {selectedEssentialZones.size}</p>
+          </div>
         </div>
         <div className="hidden lg:flex space-x-3">
           {/* Vista Pública button */}
@@ -1160,13 +1169,25 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
                   Añade zonas con instrucciones para que tus huéspedes tengan toda la información que necesitan.
                 </p>
-                <Button
-                  onClick={handleOpenMultiSelect}
-                  className="bg-violet-600 hover:bg-violet-700"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Crear mi primera zona
-                </Button>
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => {
+                      console.log('🔥 DIRECT BUTTON CLICKED - Testing modal')
+                      setSelectedEssentialZones(new Set(essentialZones.map(z => z.id)))
+                      setShowEssentialZonesModal(true)
+                    }}
+                    className="bg-red-600 hover:bg-red-700 w-full"
+                  >
+                    🧪 TEST: Mostrar Modal Esenciales
+                  </Button>
+                  <Button
+                    onClick={handleOpenMultiSelect}
+                    className="bg-violet-600 hover:bg-violet-700 w-full"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Crear mi primera zona
+                  </Button>
+                </div>
               </Card>
             ) : (
               zones.map((zone) => (
