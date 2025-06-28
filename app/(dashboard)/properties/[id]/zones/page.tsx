@@ -25,6 +25,8 @@ import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/Animate
 import { InlineLoadingSpinner } from '../../../../../src/components/ui/InlineLoadingSpinner'
 import { DeleteConfirmationModal } from '../../../../../src/components/ui/DeleteConfirmationModal'
 import { WelcomeTemplatesModal } from '../../../../../src/components/ui/WelcomeTemplatesModal'
+import { ManualEjemploModal } from '../../../../../src/components/ui/ManualEjemploModal'
+import { crearManualEjemplo, tieneManualEjemplo, yaVioManual, marcarManualVisto } from '../../../../../src/utils/crearManualEjemplo'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
 import { getCleanZoneUrl } from '../../../../../src/lib/slug-resolver'
@@ -79,6 +81,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   // Welcome templates modal state
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
   const [hasSystemTemplates, setHasSystemTemplates] = useState(false)
+  
+  // Manual ejemplo modal state
+  const [showManualEjemploModal, setShowManualEjemploModal] = useState(false)
   
   const [isCreatingZone, setIsCreatingZone] = useState(false)
   const [isUpdatingZone, setIsUpdatingZone] = useState(false)
@@ -176,8 +181,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         const zonesResponse = await fetch(`/api/properties/${id}/zones`)
         const zonesResult = await zonesResponse.json()
         if (zonesResult.success && zonesResult.data) {
-          // Transform API data to match Zone interface
-          const transformedZones: Zone[] = zonesResult.data.map((zone: any) => {
+          let transformedZones: Zone[] = zonesResult.data.map((zone: any) => {
             // Use helper to get zone text
             const zoneName = getZoneText(zone.name)
             const zoneDescription = getZoneText(zone.description)
@@ -194,6 +198,49 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               slug: zone.slug
             }
           })
+
+          // Check if this is the first time visiting zones and there are no zones
+          const hasExistingZones = transformedZones.length > 0
+          const hasSeenManual = yaVioManual(id)
+          
+          // If no zones exist and user hasn't seen the manual, create example zones
+          if (!hasExistingZones && !hasSeenManual) {
+            console.log('🎨 Primera visita sin zonas, creando manual de ejemplo...')
+            try {
+              const manualCreated = await crearManualEjemplo(id)
+              if (manualCreated) {
+                // Refetch zones after creating the manual
+                const newZonesResponse = await fetch(`/api/properties/${id}/zones`)
+                const newZonesResult = await newZonesResponse.json()
+                if (newZonesResult.success && newZonesResult.data) {
+                  transformedZones = newZonesResult.data.map((zone: any) => {
+                    const zoneName = getZoneText(zone.name)
+                    const zoneDescription = getZoneText(zone.description)
+
+                    return {
+                      id: zone.id,
+                      name: zoneName,
+                      description: zoneDescription,
+                      iconId: zone.icon,
+                      order: zone.order || 0,
+                      stepsCount: zone.steps?.length || 0,
+                      qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
+                      lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                      slug: zone.slug
+                    }
+                  })
+                  
+                  // Show the manual example modal
+                  setTimeout(() => {
+                    setShowManualEjemploModal(true)
+                  }, 1000)
+                }
+              }
+            } catch (error) {
+              console.error('Error creando manual de ejemplo:', error)
+            }
+          }
+          
           setZones(transformedZones)
           setIsLoadingZones(false)
           
@@ -946,6 +993,28 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     } finally {
       setIsCreatingZone(false)
     }
+  }
+
+  // Manual ejemplo modal handlers
+  const handleManualEjemploAccept = () => {
+    marcarManualVisto(id)
+    setShowManualEjemploModal(false)
+  }
+
+  const handleManualEjemploClose = () => {
+    marcarManualVisto(id)
+    setShowManualEjemploModal(false)
+  }
+
+  // Welcome modal handlers
+  const handleWelcomeAccept = () => {
+    localStorage.setItem(`visited_zones_${id}`, 'true')
+    setShowWelcomeModal(false)
+  }
+
+  const handleStartFromScratch = () => {
+    localStorage.setItem(`visited_zones_${id}`, 'true')
+    setShowWelcomeModal(false)
   }
 
   const loadZoneSteps = async (zoneId: string) => {
@@ -1875,6 +1944,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
       )}
+
+      {/* Manual Ejemplo Modal */}
+      <ManualEjemploModal
+        isOpen={showManualEjemploModal}
+        onClose={handleManualEjemploClose}
+        onAccept={handleManualEjemploAccept}
+        userName={user?.name || user?.email || 'Usuario'}
+      />
 
       {/* Welcome Templates Modal */}
       <WelcomeTemplatesModal
