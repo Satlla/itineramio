@@ -93,14 +93,18 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   // Essential zones recommendation
   const essentialZones = [
-    { id: 'check-in', name: 'Check In', icon: 'key', description: 'Instrucciones de entrada' },
+    { id: 'check-in', name: 'Check In', icon: 'key', description: 'Instrucciones de entrada y llaves' },
     { id: 'check-out', name: 'Check Out', icon: 'exit', description: 'Instrucciones de salida' },
-    { id: 'wifi', name: 'WiFi', icon: 'wifi', description: 'Contraseña y conexión' },
-    { id: 'parking', name: 'Parking', icon: 'car', description: 'Dónde aparcar' },
+    { id: 'wifi', name: 'WiFi', icon: 'wifi', description: 'Contraseña y conexión a internet' },
+    { id: 'parking', name: 'Parking', icon: 'car', description: 'Dónde aparcar y acceso' },
     { id: 'cocina', name: 'Cocina', icon: 'kitchen', description: 'Uso de electrodomésticos' },
-    { id: 'aire-acondicionado', name: 'Aire Acondicionado', icon: 'air', description: 'Control de temperatura' },
-    { id: 'basura', name: 'Basura y Reciclaje', icon: 'trash', description: 'Gestión de residuos' },
-    { id: 'emergencias', name: 'Emergencias', icon: 'emergency', description: 'Contactos importantes' }
+    { id: 'climatizacion', name: 'Climatización', icon: 'thermometer', description: 'Aire acondicionado y calefacción' },
+    { id: 'limpieza', name: 'Limpieza', icon: 'cleaning', description: 'Productos y rutinas de limpieza' },
+    { id: 'normas', name: 'Normas de la Casa', icon: 'list', description: 'Reglas y convivencia' },
+    { id: 'emergencias', name: 'Emergencias', icon: 'phone', description: 'Contactos de emergencia' },
+    { id: 'transporte', name: 'Transporte', icon: 'bus', description: 'Cómo llegar y moverse' },
+    { id: 'recomendaciones', name: 'Recomendaciones', icon: 'star', description: 'Restaurantes y lugares de interés' },
+    { id: 'basura', name: 'Basura y Reciclaje', icon: 'trash', description: 'Gestión de residuos' }
   ]
   
   // Get zone-specific help text
@@ -1543,7 +1547,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       </AnimatePresence>
 
       {/* Essential Zones Modal */}
-      {console.log('🎯 Rendering, showEssentialZonesModal:', showEssentialZonesModal)}
       <AnimatePresence>
         {showEssentialZonesModal && (
           <motion.div
@@ -1553,7 +1556,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
             onClick={() => setShowEssentialZonesModal(false)}
           >
-            {console.log('🎯 Essential zones modal is rendering!')}
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -1567,11 +1569,35 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   <Sparkles className="w-8 h-8 text-violet-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Zonas Esenciales Recomendadas
+                  🎯 Zonas Esenciales para tu Apartamento
                 </h2>
-                <p className="text-gray-600">
-                  Hemos detectado que estas zonas son comunes en todos los apartamentos y te sugerimos crearlas:
+                <p className="text-gray-600 text-lg">
+                  Te recomendamos estas zonas que más consultan los huéspedes. ¡Selecciona las que necesites para empezar!
                 </p>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="flex gap-2 mb-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedEssentialZones(new Set(essentialZones.map(z => z.id)))}
+                  className="text-xs"
+                >
+                  ✅ Seleccionar todas
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedEssentialZones(new Set())}
+                  className="text-xs"
+                >
+                  ❌ Deseleccionar todas
+                </Button>
+                <div className="flex-1" />
+                <span className="text-sm text-gray-500 self-center">
+                  {selectedEssentialZones.size} de {essentialZones.length} seleccionadas
+                </span>
               </div>
 
               {/* Essential Zones List */}
@@ -1623,28 +1649,24 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Info Box */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="bg-gradient-to-r from-violet-50 to-blue-50 border border-violet-200 rounded-lg p-4 mb-6">
                 <div className="flex gap-3">
-                  <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-blue-800">
-                    <p className="font-medium mb-1">¿Por qué estas zonas?</p>
-                    <p>Estas son las zonas que más consultan los huéspedes. Tenerlas preparadas mejorará su experiencia y reducirá las preguntas repetitivas.</p>
+                  <Info className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-violet-800">
+                    <p className="font-medium mb-1">💡 ¿Por qué estas zonas son esenciales?</p>
+                    <p>Basado en miles de apartamentos, estas son las zonas que más consultan los huéspedes. Tenerlas preparadas:</p>
+                    <ul className="mt-2 space-y-1 text-xs">
+                      <li>✅ Mejora la experiencia de tus huéspedes</li>
+                      <li>✅ Reduce preguntas repetitivas</li>
+                      <li>✅ Aumenta las valoraciones positivas</li>
+                      <li>✅ Ahorra tiempo en comunicación</li>
+                    </ul>
                   </div>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowEssentialZonesModal(false)
-                    setShowElementSelector(true)
-                  }}
-                  className="flex-1"
-                >
-                  Prefiero elegir yo
-                </Button>
+              <div className="flex flex-col gap-3">
                 <Button
                   onClick={() => {
                     const selectedIds = Array.from(selectedEssentialZones)
@@ -1656,20 +1678,39 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     }
                   }}
                   disabled={isCreatingZone || selectedEssentialZones.size === 0}
-                  className="flex-1 bg-violet-600 hover:bg-violet-700 text-white"
+                  className="w-full bg-violet-600 hover:bg-violet-700 text-white font-medium py-3"
                 >
                   {isCreatingZone ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                      Creando...
+                      Creando zonas...
                     </>
                   ) : (
                     <>
                       <CheckCircle className="w-4 h-4 mr-2" />
-                      Crear seleccionadas
+                      🚀 Crear {selectedEssentialZones.size} zona{selectedEssentialZones.size !== 1 ? 's' : ''} seleccionada{selectedEssentialZones.size !== 1 ? 's' : ''}
                     </>
                   )}
                 </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowEssentialZonesModal(false)
+                      setShowElementSelector(true)
+                    }}
+                    className="flex-1"
+                  >
+                    🎨 Prefiero elegir yo
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowEssentialZonesModal(false)}
+                    className="flex-1 text-gray-500"
+                  >
+                    ❌ Cancelar
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
