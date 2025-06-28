@@ -118,15 +118,22 @@ export async function tieneManualEjemplo(propertyId: string): Promise<boolean> {
 
 // Función para marcar que el usuario ya vio el modal de bienvenida
 export function marcarManualVisto(propertyId: string) {
-  localStorage.setItem(`manual_ejemplo_visto_${propertyId}`, 'true')
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(`manual_ejemplo_visto_${propertyId}`, 'true')
+  }
 }
 
 // Función para verificar si ya vio el modal
 export function yaVioManual(propertyId: string): boolean {
-  return localStorage.getItem(`manual_ejemplo_visto_${propertyId}`) === 'true'
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem(`manual_ejemplo_visto_${propertyId}`) === 'true'
+  }
+  return false
 }
 
 // Reset para testing
 export function resetManualVisto(propertyId: string) {
-  localStorage.removeItem(`manual_ejemplo_visto_${propertyId}`)
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(`manual_ejemplo_visto_${propertyId}`)
+  }
 }
