@@ -262,7 +262,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           
           // Check if user has visited this property's zones before
           const hasVisitedKey = `visited_zones_${id}`
-          const hasVisited = typeof window !== 'undefined' ? localStorage.getItem(hasVisitedKey) : false
+          let hasVisited = false
+          try {
+            hasVisited = !!localStorage.getItem(hasVisitedKey)
+          } catch (e) {
+            // Ignore localStorage errors on server
+          }
           
           // Show welcome modal only if:
           // 1. Has system templates 
@@ -1008,15 +1013,19 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   // Welcome modal handlers
   const handleWelcomeAccept = () => {
-    if (typeof window !== 'undefined') {
+    try {
       localStorage.setItem(`visited_zones_${id}`, 'true')
+    } catch (e) {
+      // Ignore localStorage errors on server
     }
     setShowWelcomeModal(false)
   }
 
   const handleStartFromScratch = () => {
-    if (typeof window !== 'undefined') {
+    try {
       localStorage.setItem(`visited_zones_${id}`, 'true')
+    } catch (e) {
+      // Ignore localStorage errors on server
     }
     setShowWelcomeModal(false)
   }
