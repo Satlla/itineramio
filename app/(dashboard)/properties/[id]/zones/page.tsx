@@ -24,6 +24,7 @@ import { useNotifications } from '../../../../../src/hooks/useNotifications'
 import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
 import { InlineLoadingSpinner } from '../../../../../src/components/ui/InlineLoadingSpinner'
 import { DeleteConfirmationModal } from '../../../../../src/components/ui/DeleteConfirmationModal'
+import { WelcomeTemplatesModal } from '../../../../../src/components/ui/WelcomeTemplatesModal'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
 import { getCleanZoneUrl } from '../../../../../src/lib/slug-resolver'
@@ -74,6 +75,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showEssentialZonesModal, setShowEssentialZonesModal] = useState(false)
   const [hasShownEssentialZones, setHasShownEssentialZones] = useState(false)
   const [selectedEssentialZones, setSelectedEssentialZones] = useState<Set<string>>(new Set())
+  
+  // Welcome templates modal state
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false)
+  const [hasSystemTemplates, setHasSystemTemplates] = useState(false)
   
   const [isCreatingZone, setIsCreatingZone] = useState(false)
   const [isUpdatingZone, setIsUpdatingZone] = useState(false)
@@ -191,6 +196,37 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           })
           setZones(transformedZones)
           setIsLoadingZones(false)
+          
+          // Check if there are system template zones (created automatically)
+          const systemTemplateZones = transformedZones.filter(zone => 
+            zone.name.toLowerCase().includes('check in') || 
+            zone.name.toLowerCase().includes('wifi') || 
+            zone.name.toLowerCase().includes('check out') ||
+            zone.name.toLowerCase().includes('normas') ||
+            zone.name.toLowerCase().includes('llegar') ||
+            zone.name.toLowerCase().includes('aire') ||
+            zone.name.toLowerCase().includes('información') ||
+            zone.name.toLowerCase().includes('parking') ||
+            zone.name.toLowerCase().includes('transporte')
+          )
+          
+          const hasTemplates = systemTemplateZones.length > 0
+          setHasSystemTemplates(hasTemplates)
+          
+          // Check if user has visited this property's zones before
+          const hasVisitedKey = `visited_zones_${id}`
+          const hasVisited = localStorage.getItem(hasVisitedKey)
+          
+          // Show welcome modal only if:
+          // 1. Has system templates 
+          // 2. First time visiting zones for this property
+          // 3. Has zones (not empty)
+          if (hasTemplates && !hasVisited && transformedZones.length > 0) {
+            console.log('🎉 Showing welcome modal for first visit with', systemTemplateZones.length, 'template zones')
+            setTimeout(() => {
+              setShowWelcomeModal(true)
+            }, 500) // Small delay to ensure page is loaded
+          }
           
           // Generate zone warnings after zones are loaded
           setTimeout(() => {
@@ -719,6 +755,35 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleCustomZonesChoice = () => {
     setShowPredefineModal(false)
     setShowElementSelector(true)
+  }
+
+  // Handle welcome modal acceptance
+  const handleWelcomeAccept = () => {
+    // Mark this property as visited
+    const hasVisitedKey = `visited_zones_${id}`
+    localStorage.setItem(hasVisitedKey, 'true')
+    
+    setShowWelcomeModal(false)
+    
+    // Optional: Show a success notification
+    addNotification({
+      type: 'info',
+      title: '✨ Manual cargado',
+      message: 'Tu manual de ejemplo está listo. ¡Edita las zonas como necesites!',
+      read: false
+    })
+  }
+
+  // Handle starting from scratch
+  const handleStartFromScratch = () => {
+    // Mark as visited
+    const hasVisitedKey = `visited_zones_${id}`
+    localStorage.setItem(hasVisitedKey, 'true')
+    
+    setShowWelcomeModal(false)
+    
+    // Optionally delete all system template zones here
+    // For now, just close the modal
   }
 
 
@@ -1810,6 +1875,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
       )}
+
+      {/* Welcome Templates Modal */}
+      <WelcomeTemplatesModal
+        isOpen={showWelcomeModal}
+        onClose={handleStartFromScratch}
+        onAccept={handleWelcomeAccept}
+        userName={user?.name || user?.email || 'Usuario'}
+      />
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal

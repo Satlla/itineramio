@@ -3,6 +3,7 @@ import { z } from 'zod'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../../../src/lib/prisma'
 import { generateSlug, generateUniqueSlug } from '../../../src/lib/slug-utils'
+import { essentialTemplates } from '../../../src/data/essentialTemplates'
 
 const JWT_SECRET = 'itineramio-secret-key-2024'
 
@@ -156,7 +157,60 @@ export async function POST(request: NextRequest) {
     
     console.log('Property created successfully:', property.id)
     
-    // Zones will be created separately when user navigates to zones page
+    // Auto-create essential zones from templates
+    console.log('Creating essential zones from templates...')
+    try {
+      const createdZones = []
+      
+      for (const template of essentialTemplates) {
+        // Create the zone
+        const zone = await prisma.zone.create({
+          data: {
+            name: { es: template.name, en: template.name },
+            description: { es: template.description, en: template.description },
+            icon: template.icon,
+            order: template.order,
+            status: 'ACTIVE',
+            isPublished: true,
+            propertyId: property.id,
+            isSystemTemplate: true, // Mark as system template
+            viewCount: 0
+          }
+        })
+        
+        // Create steps for this zone
+        for (const stepTemplate of template.steps) {
+          await prisma.step.create({
+            data: {
+              title: stepTemplate.title,
+              description: stepTemplate.description,
+              content: {
+                type: stepTemplate.media_type,
+                text: stepTemplate.content.text,
+                mediaUrl: stepTemplate.content.mediaUrl,
+                thumbnail: stepTemplate.content.thumbnail,
+                duration: stepTemplate.content.duration
+              },
+              order: stepTemplate.order,
+              zoneId: zone.id,
+              isVisible: true,
+              templateVariables: stepTemplate.variables // Store variables for user customization
+            }
+          })
+        }
+        
+        createdZones.push({
+          id: zone.id,
+          name: template.name,
+          stepsCount: template.steps.length
+        })
+      }
+      
+      console.log(`Created ${createdZones.length} essential zones with steps`)
+    } catch (zoneError) {
+      console.error('Error creating essential zones:', zoneError)
+      // Don't fail the property creation if zones fail, just log the error
+    }
     
     return NextResponse.json({
       success: true,
