@@ -808,34 +808,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setShowElementSelector(true)
   }
 
-  // Handle welcome modal acceptance
-  const handleWelcomeAccept = () => {
-    // Mark this property as visited
-    const hasVisitedKey = `visited_zones_${id}`
-    localStorage.setItem(hasVisitedKey, 'true')
-    
-    setShowWelcomeModal(false)
-    
-    // Optional: Show a success notification
-    addNotification({
-      type: 'info',
-      title: '✨ Manual cargado',
-      message: 'Tu manual de ejemplo está listo. ¡Edita las zonas como necesites!',
-      read: false
-    })
-  }
-
-  // Handle starting from scratch
-  const handleStartFromScratch = () => {
-    // Mark as visited
-    const hasVisitedKey = `visited_zones_${id}`
-    localStorage.setItem(hasVisitedKey, 'true')
-    
-    setShowWelcomeModal(false)
-    
-    // Optionally delete all system template zones here
-    // For now, just close the modal
-  }
 
 
   const handleSelectMultipleZones = async (zoneIds: string[]) => {
@@ -1035,7 +1007,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       const result = await response.json()
       
       if (result.success) {
-        // Transform API steps to StepEditor format
         const transformedSteps: Step[] = result.data.map((apiStep: any, index: number) => ({
           id: apiStep.id,
           type: apiStep.type?.toLowerCase() || 'text',
