@@ -68,8 +68,8 @@ export const manualEjemploZones: ManualZone[] = [
         title: '🚪 Cómo acceder al apartamento',
         description: 'Proceso de entrada con código',
         content: {
-          type: 'text',
-          text: '🔢 **Proceso súper fácil:**\n\n1️⃣ Introduce tu código en el teclado numérico\n2️⃣ Espera el pitido de confirmación\n3️⃣ Gira el pomo cuando veas la luz verde\n4️⃣ ¡Bienvenido a casa!\n\n🔒 La cerradura se bloquea automáticamente al cerrar\n\n🎥 **Video demostrativo disponible**\nSolicita a tu anfitrión el video paso a paso',
+          type: 'video',
+          text: '🔢 **Proceso súper fácil:**\n\n1️⃣ Introduce tu código en el teclado numérico\n2️⃣ Espera el pitido de confirmación\n3️⃣ Gira el pomo cuando veas la luz verde\n4️⃣ ¡Bienvenido a casa!\n\n🔒 La cerradura se bloquea automáticamente al cerrar',
           mediaUrl: '/templates/videos/check-in.mp4',
           duration: 4
         },

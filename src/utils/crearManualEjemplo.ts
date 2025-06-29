@@ -48,10 +48,11 @@ export async function crearManualEjemplo(propertyId: string): Promise<boolean> {
           body: JSON.stringify({
             title: step.title,
             description: step.description,
-            type: step.content.type?.toUpperCase() || 'TEXT', // La API espera type en mayúsculas
-            content: step.content.text || step.description, // Enviar como string directo
-            mediaUrl: step.content.mediaUrl,
-            linkUrl: step.content.linkUrl,
+            type: step.content.type?.toUpperCase() || 'TEXT',
+            content: step.content.text || step.description,
+            // Solo enviar mediaUrl si es un step de tipo video o image
+            ...(step.content.type === 'video' || step.content.type === 'image' ? { mediaUrl: step.content.mediaUrl } : {}),
+            ...(step.content.type === 'link' ? { linkUrl: step.content.linkUrl } : {}),
             order: step.order,
             status: 'PUBLISHED'
           })
