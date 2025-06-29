@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '../../../../../src/lib/prisma'
 import { generateSlug, generateUniqueSlug } from '../../../../../src/lib/slug-utils'
 import { requireAuth } from '../../../../../src/lib/auth'
 

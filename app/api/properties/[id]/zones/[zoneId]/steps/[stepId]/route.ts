@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '../../../../../../../../src/lib/prisma'
 import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = 'itineramio-secret-key-2024'

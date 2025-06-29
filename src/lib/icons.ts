@@ -1,4 +1,4 @@
-import { IconCategory } from '@/types'
+import { IconCategory } from '../types'
 
 export const iconCategories: Record<string, IconCategory> = {
   access: {

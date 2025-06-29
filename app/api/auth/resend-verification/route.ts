@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { EmailVerificationService } from '@/lib/auth-email'
+import { prisma } from '../../../../src/lib/prisma'
+import { EmailVerificationService } from '../../../../src/lib/auth-email'
 import { z } from 'zod'
 
 const resendSchema = z.object({
