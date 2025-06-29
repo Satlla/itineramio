@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '../../../../../src/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Implement requireAdmin(request) when auth is ready
+    // Require admin authentication
+    const authResult = await requireAdmin(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
     
     const searchParams = request.nextUrl.searchParams;
     const format = searchParams.get('format') || 'csv'; // csv, json, xlsx

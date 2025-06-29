@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { generateSlug, generateUniqueSlug } from '../../../../../src/lib/slug-utils'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = 'itineramio-secret-key-2024'
+import { requireAuth } from '../../../../../src/lib/auth'
 
 // GET /api/properties/[id]/zones - Get all zones for a property
 export async function GET(
@@ -14,18 +12,11 @@ export async function GET(
     const propertyId = (await params).id
 
     // Check authentication
-    const token = request.cookies.get('auth-token')?.value
-    if (!token) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    const authResult = await requireAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
     }
-
-    let userId: string
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
-      userId = decoded.userId
-    } catch (error) {
-      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
-    }
+    const userId = authResult.userId
 
     // Set JWT claims for RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
@@ -90,18 +81,11 @@ export async function POST(
     const body = await request.json()
 
     // Check authentication
-    const token = request.cookies.get('auth-token')?.value
-    if (!token) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    const authResult = await requireAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
     }
-
-    let userId: string
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
-      userId = decoded.userId
-    } catch (error) {
-      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
-    }
+    const userId = authResult.userId
 
     // Set JWT claims for RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`

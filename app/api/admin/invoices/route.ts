@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../src/lib/prisma';
+import { requireAdmin } from '../../../../src/lib/auth';
 
 // Generate invoice number format: INV-YYYY-XXXX
 async function generateInvoiceNumber() {
@@ -28,7 +29,11 @@ async function generateInvoiceNumber() {
 
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Implement requireAdmin(request) when auth is ready
+    // Require admin authentication
+    const authResult = await requireAdmin(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
     
     const searchParams = request.nextUrl.searchParams;
     const search = searchParams.get('search');
@@ -114,7 +119,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Implement requireAdmin(request) when auth is ready
+    // Require admin authentication
+    const authResult = await requireAdmin(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
     
     const { 
       userId,

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../../src/lib/prisma';
+import { requireAdmin } from '../../../../../src/lib/auth';
 import bcrypt from 'bcryptjs';
 
 export async function PATCH(
@@ -7,7 +8,11 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // TODO: Implement requireAdmin(request) when auth is ready
+    // Require admin authentication
+    const authResult = await requireAdmin(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
     
     const { id: userId } = await params;
     const { 
@@ -207,7 +212,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // TODO: Implement requireAdmin(request) when auth is ready
+    // Require admin authentication
+    const authResult = await requireAdmin(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
     
     const { id: userId } = await params;
 

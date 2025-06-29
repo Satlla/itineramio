@@ -4,23 +4,36 @@ const nextConfig = {
   images: {
     domains: ['k1f4x7ksxbn13s8z.public.blob.vercel-storage.com'],
   },
-  // Add headers to prevent aggressive caching of HTML
+  // Strategic caching headers
   async headers() {
     return [
       {
-        source: '/:path*',
+        // Cache static assets aggressively
+        source: '/uploads/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // Cache API routes for a short time
+        source: '/api/:path*',
         headers: [
           {
             key: 'Cache-Control',
             value: 'no-cache, no-store, must-revalidate',
           },
+        ],
+      },
+      {
+        // Light caching for pages
+        source: '/((?!api|uploads).*)',
+        headers: [
           {
-            key: 'Pragma',
-            value: 'no-cache',
-          },
-          {
-            key: 'Expires',
-            value: '0',
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
           },
         ],
       },

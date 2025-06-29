@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
 import { prisma } from '../../../../src/lib/prisma'
-
-const JWT_SECRET = 'itineramio-secret-key-2024'
+import { signToken } from '../../../../src/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,11 +53,11 @@ export async function POST(request: NextRequest) {
       }, { status: 403 })
     }
 
-    const token = jwt.sign(
-      { userId: user.id },
-      JWT_SECRET as string,
-      { expiresIn: '24h' }
-    )
+    const token = signToken({
+      userId: user.id,
+      email: user.email,
+      role: 'HOST'
+    })
 
     const userResponse = {
       id: user.id,
@@ -81,9 +79,6 @@ export async function POST(request: NextRequest) {
       path: '/'
     })
 
-    console.log('Login successful for user:', user.email)
-    console.log('Token created:', token.substring(0, 20) + '...')
-    console.log('Cookie secure setting:', true)
     return response
   } catch (error) {
     console.error('Login error:', error)

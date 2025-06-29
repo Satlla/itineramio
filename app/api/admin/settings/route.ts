@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../src/lib/prisma';
+import { requireAdmin } from '../../../../src/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Implement requireAdmin(request) when auth is ready
+    // Require admin authentication
+    const authResult = await requireAdmin(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
     
     // Get all system settings from the database
     const settings = await prisma.systemSetting.findMany({
@@ -57,7 +62,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Implement requireAdmin(request) when auth is ready
+    // Require admin authentication
+    const authResult = await requireAdmin(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
     
     const settings = await request.json();
 

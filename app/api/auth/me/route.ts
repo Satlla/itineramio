@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
 import { prisma } from '../../../../src/lib/prisma'
-
-const JWT_SECRET = 'itineramio-secret-key-2024'
+import { verifyToken } from '../../../../src/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
     const token = request.cookies.get('auth-token')?.value
-    console.log('Auth check - token exists:', !!token)
 
     if (!token) {
       return NextResponse.json({
@@ -16,8 +13,7 @@ export async function GET(request: NextRequest) {
       }, { status: 401 })
     }
 
-    // Verify JWT token
-    const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string }
+    const decoded = verifyToken(token)
     
     // Set JWT claims for PostgreSQL RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${decoded.userId}, true)`
@@ -34,11 +30,9 @@ export async function GET(request: NextRequest) {
     })
 
     if (!user) {
-      console.log('User not found for id:', decoded.userId)
       return NextResponse.json({ error: 'User not found' }, { status: 401 })
     }
 
-    console.log('Auth successful for user:', user.email)
     return NextResponse.json({ user })
   } catch (error) {
     console.error('Auth verification error:', error)

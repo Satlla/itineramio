@@ -1,5 +1,17 @@
 # Itineramio Web App
 
+## 🔧 Environment Setup
+
+Copy the example environment file and configure it:
+```bash
+cp .env.example .env.local
+```
+
+Then edit `.env.local` with your actual values:
+- `JWT_SECRET`: Generate a secure random string (minimum 32 characters)
+- `DATABASE_URL`: Your PostgreSQL connection string
+- `RESEND_API_KEY`: Your Resend email API key
+
 ## 🚀 Quick Start
 
 ### Prerequisites

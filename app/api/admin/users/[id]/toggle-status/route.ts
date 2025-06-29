@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../../../src/lib/prisma';
+import { requireAdmin } from '../../../../../../src/lib/auth';
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // TODO: Implement requireAdmin(request) when auth is ready
+    // Require admin authentication
+    const authResult = await requireAdmin(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
     
     const { isActive } = await request.json();
     const { id: userId } = await params;

@@ -17,7 +17,6 @@ import { MobileZoneToast } from '../../../../../src/components/ui/MobileZoneToas
 import { cn } from '../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
 import { zoneTemplates, zoneCategories, ZoneTemplate } from '../../../../../src/data/zoneTemplates'
-// import { ZoneIcon } from '../../../../../src/data/zoneIconsNew'
 import { InspirationZone } from '../../../../../src/data/zoneInspiration'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
 import { useNotifications } from '../../../../../src/hooks/useNotifications'
@@ -44,8 +43,6 @@ interface Zone {
   lastUpdated: string
   slug?: string
 }
-
-// Remove mock data - now using real API data
 
 export default function PropertyZonesPage({ params }: { params: Promise<{ id: string }> }) {
   const [id, setId] = useState<string>('')
@@ -96,19 +93,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     iconId: ''
   })
 
-  // Client-side mounting effect
   useEffect(() => {
     setIsClient(true)
   }, [])
 
-  // Unwrap params Promise
   useEffect(() => {
     params.then(({ id: paramId }) => {
       setId(paramId)
     })
   }, [params])
 
-  // Essential zones recommendation
   const essentialZones = [
     { id: 'check-in', name: 'Check In', icon: 'key', description: 'Instrucciones de entrada y llaves' },
     { id: 'check-out', name: 'Check Out', icon: 'exit', description: 'Instrucciones de salida' },
@@ -1016,10 +1010,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setShowManualEjemploModal(false)
   }
 
-  // Welcome modal handlers
   const handleWelcomeAccept = () => {
     setShowWelcomeModal(false)
-    // Set visited flag in useEffect to avoid SSR issues
     setTimeout(() => {
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(`visited_zones_${id}`, 'true')
@@ -1029,7 +1021,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   const handleStartFromScratch = () => {
     setShowWelcomeModal(false)
-    // Set visited flag in useEffect to avoid SSR issues
     setTimeout(() => {
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(`visited_zones_${id}`, 'true')

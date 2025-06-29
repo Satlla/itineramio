@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '../../../../src/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Implement requireAdmin(request) when auth is ready
+    // Require admin authentication
+    const authResult = await requireAdmin(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
     
     const searchParams = request.nextUrl.searchParams;
     const timeframe = searchParams.get('timeframe') || '30d'; // 7d, 30d, 90d, 1y
@@ -355,6 +360,12 @@ export async function GET(request: NextRequest) {
 // POST endpoint for tracking events
 export async function POST(request: NextRequest) {
   try {
+    // Require admin authentication
+    const authResult = await requireAdmin(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
+    
     const { event, data } = await request.json();
     
     // Log different types of events
