@@ -1578,7 +1578,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         )}
       </AnimatePresence>
 
-      {/* Icon Selector Modal */}
       <AnimatePresence>
         {showIconSelector && (
           <motion.div
@@ -1605,7 +1604,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         )}
       </AnimatePresence>
 
-      {/* QR Code Modal */}
       <AnimatePresence>
         {showQRModal && selectedZoneForQR && (
           <motion.div
@@ -1801,7 +1799,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 })}
               </div>
 
-              {/* Info Box */}
               <div className="bg-gradient-to-r from-violet-50 to-blue-50 border border-violet-200 rounded-lg p-4 mb-6">
                 <div className="flex gap-3">
                   <Info className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
@@ -1818,7 +1815,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="flex flex-col gap-3">
                 <Button
                   onClick={() => {
@@ -1870,7 +1866,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         )}
       </AnimatePresence>
 
-      {/* Floating button for mobile */}
       <div className="lg:hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
         {zones.length === 0 ? (
           <Button
@@ -1891,7 +1886,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         )}
       </div>
 
-      {/* Predefined Zones Choice Modal */}
       <AnimatePresence>
         {showPredefineModal && (
           <motion.div
@@ -1949,13 +1943,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         )}
       </AnimatePresence>
 
-      {/* Mobile Zone Toast */}
       <MobileZoneToast
         existingZoneNames={zones.map(z => getZoneText(z.name))}
         onCreateZone={handleCreateZoneFromTemplate}
       />
 
-      {/* Loading Spinner when creating zones */}
       {isCreatingZone && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-2xl p-8 shadow-2xl">
@@ -1964,7 +1956,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      {/* Manual Ejemplo Modal */}
       <ManualEjemploModal
         isOpen={showManualEjemploModal}
         onClose={handleManualEjemploClose}
@@ -1972,7 +1963,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         userName={user?.name || user?.email || 'Usuario'}
       />
 
-      {/* Welcome Templates Modal */}
       <WelcomeTemplatesModal
         isOpen={showWelcomeModal}
         onClose={handleStartFromScratch}
@@ -1980,7 +1970,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         userName={user?.name || user?.email || 'Usuario'}
       />
 
-      {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={showDeleteModal}
         onClose={handleCancelDelete}
