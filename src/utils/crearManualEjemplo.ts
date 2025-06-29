@@ -48,21 +48,14 @@ export async function crearManualEjemplo(propertyId: string): Promise<boolean> {
           body: JSON.stringify({
             title: step.title,
             description: step.description,
+            type: step.content.type?.toUpperCase() || 'TEXT', // La API espera type en mayúsculas
             content: {
-              type: step.content.type,
-              text: step.content.text,
-              mediaUrl: step.content.mediaUrl,
-              thumbnail: step.content.thumbnail,
-              duration: step.content.duration,
-              linkUrl: step.content.linkUrl,
-              linkText: step.content.linkText,
-              discountCode: step.content.discountCode,
-              wifiData: step.content.wifiData,
-              checklistItems: step.content.checklistItems
+              es: step.content.text || step.description
             },
+            mediaUrl: step.content.mediaUrl,
+            linkUrl: step.content.linkUrl,
             order: step.order,
-            isVisible: true,
-            variables: step.variables // Para que sepan qué pueden personalizar
+            status: 'PUBLISHED'
           })
         })
 
