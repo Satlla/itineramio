@@ -7,7 +7,6 @@ export interface EssentialTemplate {
   order: number
   category: 'arrival' | 'living' | 'departure' | 'services' | 'local'
   steps: EssentialTemplateStep[]
-  isSystemTemplate: true
 }
 
 export interface EssentialTemplateStep {

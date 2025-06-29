@@ -150,6 +150,9 @@ export async function POST(request: NextRequest) {
       
       for (const template of essentialTemplates) {
         // Create the zone
+        const accessCode = Math.random().toString(36).substring(2, 8).toUpperCase()
+        const qrCode = `https://itineramio.com/z/${accessCode}`
+        
         const zone = await prisma.zone.create({
           data: {
             name: { es: template.name, en: template.name },
@@ -159,7 +162,8 @@ export async function POST(request: NextRequest) {
             status: 'ACTIVE',
             isPublished: true,
             propertyId: property.id,
-            isSystemTemplate: true, // Mark as system template
+            qrCode: qrCode,
+            accessCode: accessCode,
             viewCount: 0
           }
         })
@@ -168,19 +172,17 @@ export async function POST(request: NextRequest) {
         for (const stepTemplate of template.steps) {
           await prisma.step.create({
             data: {
-              title: stepTemplate.title,
-              description: stepTemplate.description,
+              type: stepTemplate.media_type,
+              title: { es: stepTemplate.title, en: stepTemplate.title },
               content: {
-                type: stepTemplate.media_type,
-                text: stepTemplate.content.text,
+                text: stepTemplate.description,
                 mediaUrl: stepTemplate.content.mediaUrl,
                 thumbnail: stepTemplate.content.thumbnail,
                 duration: stepTemplate.content.duration
               },
               order: stepTemplate.order,
               zoneId: zone.id,
-              isVisible: true,
-              templateVariables: stepTemplate.variables // Store variables for user customization
+              isPublished: true
             }
           })
         }
