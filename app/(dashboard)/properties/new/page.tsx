@@ -266,7 +266,7 @@ function NewPropertyPageContent() {
         value && value !== '' && value !== 0
       )
       
-      if (hasFormData && !isSubmitting) {
+      if (hasFormData && !isSubmitting && !submissionSuccess) {
         e.preventDefault()
         e.returnValue = '¿Estás seguro de que quieres salir? Los datos se guardarán automáticamente.'
         return e.returnValue
@@ -275,10 +275,14 @@ function NewPropertyPageContent() {
 
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
-  }, [watchedValues, isSubmitting])
+  }, [watchedValues, isSubmitting, submissionSuccess])
+
+  // Track if submission was successful
+  const [submissionSuccess, setSubmissionSuccess] = useState(false)
 
   // Clear saved data when form is successfully submitted
   const handleSuccessfulSubmit = () => {
+    setSubmissionSuccess(true)
     clearSavedData()
     // If editing from main page, go back to main, otherwise go to properties
     const targetPath = isEditing ? '/main' : '/properties'
