@@ -84,6 +84,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   
   // Manual ejemplo modal state
   const [showManualEjemploModal, setShowManualEjemploModal] = useState(false)
+  const [isClient, setIsClient] = useState(false)
   
   const [isCreatingZone, setIsCreatingZone] = useState(false)
   const [isUpdatingZone, setIsUpdatingZone] = useState(false)
@@ -93,6 +94,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     description: '',
     iconId: ''
   })
+
+  // Client-side mounting effect
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   // Unwrap params Promise
   useEffect(() => {
@@ -199,12 +205,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             }
           })
 
-          // Check if this is the first time visiting zones and there are no zones
+          // Check if this is the first time visiting zones and there are no zones (only on client)
           const hasExistingZones = transformedZones.length > 0
-          const hasSeenManual = yaVioManual(id)
+          const hasSeenManual = isClient ? yaVioManual(id) : true // Default to true on server to prevent creation
           
-          // If no zones exist and user hasn't seen the manual, create example zones
-          if (!hasExistingZones && !hasSeenManual) {
+          // If no zones exist and user hasn't seen the manual, create example zones (only on client)
+          if (isClient && !hasExistingZones && !hasSeenManual) {
             console.log('🎨 Primera visita sin zonas, creando manual de ejemplo...')
             try {
               const manualCreated = await crearManualEjemplo(id)
@@ -260,13 +266,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           const hasTemplates = systemTemplateZones.length > 0
           setHasSystemTemplates(hasTemplates)
           
-          // Check if user has visited this property's zones before
+          // Check if user has visited this property's zones before (only on client)
           const hasVisitedKey = `visited_zones_${id}`
           let hasVisited = false
-          try {
-            hasVisited = !!localStorage.getItem(hasVisitedKey)
-          } catch (e) {
-            // Ignore localStorage errors on server
+          if (isClient && typeof window !== 'undefined') {
+            hasVisited = !!window.localStorage.getItem(hasVisitedKey)
           }
           
           // Show welcome modal only if:
@@ -343,7 +347,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
 
     fetchData()
-  }, [id, addNotification])
+  }, [id, addNotification, isClient])
 
   const handleCreateZone = async () => {
     if (!formData.name || !formData.iconId) return
@@ -1013,21 +1017,23 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   // Welcome modal handlers
   const handleWelcomeAccept = () => {
-    try {
-      localStorage.setItem(`visited_zones_${id}`, 'true')
-    } catch (e) {
-      // Ignore localStorage errors on server
-    }
     setShowWelcomeModal(false)
+    // Set visited flag in useEffect to avoid SSR issues
+    setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(`visited_zones_${id}`, 'true')
+      }
+    }, 0)
   }
 
   const handleStartFromScratch = () => {
-    try {
-      localStorage.setItem(`visited_zones_${id}`, 'true')
-    } catch (e) {
-      // Ignore localStorage errors on server
-    }
     setShowWelcomeModal(false)
+    // Set visited flag in useEffect to avoid SSR issues
+    setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(`visited_zones_${id}`, 'true')
+      }
+    }, 0)
   }
 
   const loadZoneSteps = async (zoneId: string) => {
