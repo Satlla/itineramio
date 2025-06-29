@@ -85,6 +85,7 @@ function NewPropertyPageContent() {
     timestamp: Date | null
     hasData: boolean
   }>({ data: null, timestamp: null, hasData: false })
+  const [submissionSuccess, setSubmissionSuccess] = useState(false)
 
   const {
     register,
@@ -276,9 +277,6 @@ function NewPropertyPageContent() {
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [watchedValues, isSubmitting, submissionSuccess])
-
-  // Track if submission was successful
-  const [submissionSuccess, setSubmissionSuccess] = useState(false)
 
   // Clear saved data when form is successfully submitted
   const handleSuccessfulSubmit = () => {
