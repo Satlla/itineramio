@@ -71,7 +71,6 @@ export const manualEjemploZones: ManualZone[] = [
           type: 'video',
           text: '🔢 **Proceso súper fácil:**\n\n1️⃣ Introduce tu código en el teclado numérico\n2️⃣ Espera el pitido de confirmación\n3️⃣ Gira el pomo cuando veas la luz verde\n4️⃣ ¡Bienvenido a casa!\n\n🔒 La cerradura se bloquea automáticamente al cerrar',
           mediaUrl: '/templates/videos/check-in.mp4',
-          thumbnail: '/templates/images/check-in-thumb.jpg',
           duration: 4
         },
         variables: []

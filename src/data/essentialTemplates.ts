@@ -40,12 +40,12 @@ export const essentialTemplates: EssentialTemplate[] = [
         title: '🛬 Cómo llegar al apartamento',
         description: 'Ruta completa desde aeropuerto o estación',
         media_type: 'image',
-        media_url: '/templates/images/checkin_complete_guide.png',
-        thumbnail_url: '/templates/images/checkin_complete_guide.png',
+        media_url: '',
+        thumbnail_url: '',
         content: {
           text: '✈️ Desde el aeropuerto:\n• Toma el autobús {transport_line}\n• Baja en la parada {stop_name}\n• Camina {walking_time} minutos hasta el edificio\n\n🚂 Desde la estación:\n• {train_instructions}\n\n📍 Dirección exacta: {property_address}',
-          mediaUrl: '/templates/images/checkin_complete_guide.png',
-          thumbnail: '/templates/images/checkin_complete_guide.png'
+          mediaUrl: '',
+          thumbnail: ''
         },
         order: 1,
         variables: ['{transport_line}', '{stop_name}', '{walking_time}', '{train_instructions}', '{property_address}']
@@ -55,12 +55,12 @@ export const essentialTemplates: EssentialTemplate[] = [
         title: '🔐 Acceso con cerradura electrónica',
         description: 'Cómo usar la cerradura digital del apartamento',
         media_type: 'video',
-        media_url: '/templates/videos/door_lock_electronic.mp4',
-        thumbnail_url: '/templates/images/door_lock_thumb.jpg',
+        media_url: '/templates/videos/check-in.mp4',
+        thumbnail_url: '',
         content: {
           text: '1️⃣ Acércate a la puerta del apartamento\n2️⃣ Introduce el código: {door_code}\n3️⃣ Presiona cada número (se iluminarán)\n4️⃣ Espera la luz verde de confirmación\n5️⃣ La puerta se desbloqueará automáticamente',
-          mediaUrl: '/templates/videos/door_lock_electronic.mp4',
-          thumbnail: '/templates/images/door_lock_thumb.jpg',
+          mediaUrl: '/templates/videos/check-in.mp4',
+          thumbnail: '',
           duration: 4
         },
         order: 2,

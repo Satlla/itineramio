@@ -680,6 +680,32 @@ function PropertiesPageContent() {
     router.push(`/properties/new?edit=${propertyId}`)
   }
 
+  const handleDeleteProperty = async (propertyId: string) => {
+    const property = properties.find(p => p.id === propertyId)
+    if (!property) return
+
+    const propertyName = typeof property.name === 'string' ? property.name : property.name?.es || 'esta propiedad'
+    
+    if (confirm(`¿Estás seguro de que quieres eliminar "${propertyName}"? Esta acción no se puede deshacer.`)) {
+      try {
+        const response = await fetch(`/api/properties/${propertyId}`, {
+          method: 'DELETE'
+        })
+
+        if (!response.ok) {
+          throw new Error('Error al eliminar la propiedad')
+        }
+
+        // Actualizar la lista local
+        setProperties(prev => prev.filter(p => p.id !== propertyId))
+
+      } catch (error) {
+        console.error('Error deleting property:', error)
+        alert('Error al eliminar la propiedad. Por favor, inténtalo de nuevo.')
+      }
+    }
+  }
+
   const handleToggleProperty = async (propertyId: string) => {
     try {
       // Actualizar localmente primero para feedback inmediato
@@ -1194,6 +1220,14 @@ function PropertiesPageContent() {
                                     Vista Pública
                                   </DropdownMenu.Item>
                                 )}
+                                <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
+                                <DropdownMenu.Item
+                                  className="flex items-center px-2 py-2 text-sm text-red-600 hover:bg-red-50 rounded cursor-pointer"
+                                  onSelect={() => handleDeleteProperty(property.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Eliminar
+                                </DropdownMenu.Item>
                               </DropdownMenu.Content>
                             </DropdownMenu.Portal>
                           </DropdownMenu.Root>
