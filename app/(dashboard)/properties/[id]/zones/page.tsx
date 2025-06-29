@@ -27,6 +27,7 @@ import { DeleteConfirmationModal } from '../../../../../src/components/ui/Delete
 import { WelcomeTemplatesModal } from '../../../../../src/components/ui/WelcomeTemplatesModal'
 import { ManualEjemploModal } from '../../../../../src/components/ui/ManualEjemploModal'
 import { crearManualEjemplo, tieneManualEjemplo, yaVioManual, marcarManualVisto } from '../../../../../src/utils/crearManualEjemplo'
+import { agregarStepsAZonasExistentes } from '../../../../../src/utils/agregarStepsManualEjemplo'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
 import { getCleanZoneUrl } from '../../../../../src/lib/slug-resolver'
@@ -1213,6 +1214,20 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             <p className="text-yellow-700">Show essential modal: {showEssentialZonesModal ? 'YES' : 'NO'}</p>
             <p className="text-yellow-700">Has shown before: {hasShownEssentialZones ? 'YES' : 'NO'}</p>
             <p className="text-yellow-700">Selected zones: {selectedEssentialZones.size}</p>
+            <Button
+              onClick={async () => {
+                console.log('🚀 Agregando steps a zonas existentes...')
+                const result = await agregarStepsAZonasExistentes(id)
+                if (result) {
+                  window.location.reload()
+                } else {
+                  alert('Error al agregar steps')
+                }
+              }}
+              className="mt-2 bg-green-600 hover:bg-green-700 text-white"
+            >
+              🔧 Agregar Steps del Manual Ejemplo
+            </Button>
           </div>
         </div>
         <div className="hidden lg:flex space-x-3">
