@@ -36,61 +36,67 @@ export const manualEjemploZones: ManualZone[] = [
   {
     id: 'ejemplo-checkin',
     name: 'Check In',
-    description: '✨ Ejemplo de llegada y entrada perfecta',
+    description: '🔐 Entrada segura al apartamento',
     icon: 'key',
     order: 1,
     steps: [
       {
-        id: 'checkin-direccion',
+        id: 'checkin-codigo-personal',
         order: 1,
-        title: '📍 Llegada a la propiedad',
-        description: 'Cómo llegar a tu apartamento',
+        title: '🔢 Tu código de acceso',
+        description: 'Recibirás tu código personalizado',
         content: {
           type: 'text',
-          text: '🚶‍♂️ **Tu destino:**\n\n📍 Dirígete hacia la Calle {direccion} número {numero} en {ciudad}\n\n🚌 **Desde el aeropuerto:**\n• Toma el autobús C6 hasta "Puerta del Mar"\n• Son 25 minutos de trayecto\n• Camina 5 minutos hasta el edificio\n\n🚕 **En taxi:** 15 minutos desde el aeropuerto'
+          text: '🔐 **Tu código es dinámico y personal**\n\nTe lo enviaremos una vez que nuestro equipo termine de preparar tu apartamento (limpieza, desinfección y revisión completa).\n\n⏱️ **Validez:** Solo durante tu estancia\n🚫 **Caducidad:** Se desactiva automáticamente a las 11:00h del día de salida\n\n🔒 **Máxima seguridad:** Solo tú y nosotros conocemos el código'
         },
-        variables: ['{direccion}', '{numero}', '{ciudad}']
+        variables: []
       },
       {
-        id: 'checkin-puerta',
+        id: 'checkin-horario',
         order: 2,
-        title: '🏠 Localiza tu apartamento',
-        description: 'Encuentra la puerta correcta',
+        title: '⏰ Horario de entrada',
+        description: 'Entrada a partir de las 16:00h',
         content: {
-          type: 'image',
-          text: '👀 **Busca este número en la puerta:**\n\nTu apartamento está en el {piso}º piso. El número debe estar visible en la puerta principal.',
-          mediaUrl: '/templates/images/numero-puerta-ejemplo.jpg',
-          thumbnail: '/templates/images/numero-puerta-ejemplo.jpg'
+          type: 'text',
+          text: '🕐 **Check-in disponible desde las 16:00h**\n\nSi necesitas entrar antes, contáctanos para verificar disponibilidad.\n\n📋 **¿Por qué este horario?**\n• Tiempo para limpieza profesional\n• Desinfección completa\n• Revisión de todos los servicios\n• Preparación perfecta para tu llegada'
         },
-        variables: ['{piso}']
+        variables: []
       },
       {
-        id: 'checkin-codigo',
+        id: 'checkin-proceso',
         order: 3,
-        title: '🔐 Acceso con código de seguridad',
-        description: 'Abre la puerta con tu código personal',
+        title: '🚪 Cómo acceder al apartamento',
+        description: 'Proceso de entrada con código',
         content: {
           type: 'video',
-          text: '🔢 **Tu código de acceso:** {codigo_acceso}\n\n1️⃣ Presiona cada número en la cerradura\n2️⃣ Espera la luz verde ✅\n3️⃣ La puerta se abrirá automáticamente\n\n🔒 **Importante:** La puerta se bloquea automáticamente al cerrar',
-          mediaUrl: '/templates/videos/codigo-puerta-ejemplo.mp4',
-          thumbnail: '/templates/images/codigo-puerta-thumb.jpg',
+          text: '🔢 **Proceso súper fácil:**\n\n1️⃣ Introduce tu código en el teclado numérico\n2️⃣ Espera el pitido de confirmación\n3️⃣ Gira el pomo cuando veas la luz verde\n4️⃣ ¡Bienvenido a casa!\n\n🔒 La cerradura se bloquea automáticamente al cerrar',
+          mediaUrl: '/templates/videos/check-in.mp4',
+          thumbnail: '/templates/images/check-in-thumb.jpg',
           duration: 4
         },
-        variables: ['{codigo_acceso}']
+        variables: []
       },
       {
-        id: 'checkin-bienvenida',
+        id: 'checkin-soporte',
         order: 4,
-        title: '🎉 ¡Bienvenido a casa!',
-        description: 'Tu hogar temporal está listo',
+        title: '🆘 ¿Problemas con el acceso?',
+        description: 'Soporte inmediato disponible',
         content: {
-          type: 'video',
-          text: '🏡 **¡Ya estás en casa!**\n\n✨ Todo está preparado para tu estancia:\n• Dormitorios: {dormitorios}\n• Baños: {banos}\n• Capacidad: {huespedes} personas\n• WiFi súper rápido incluido\n\n📱 Explora las siguientes secciones para conocer todos los servicios',
-          mediaUrl: '/templates/videos/bienvenida-apartamento.mp4',
-          thumbnail: '/templates/images/bienvenida-thumb.jpg',
-          duration: 4
+          type: 'text',
+          text: '📞 **Contacta con Alex: +34 XXX XXX XXX**\n\n🔍 **Describe exactamente qué ocurre:**\n• ¿La cerradura pita?\n• ¿No da ninguna señal?\n• ¿Hay una luz roja encendida?\n\n⚡ **Respuesta inmediata**\nEsta información nos ayuda a resolver el problema rápidamente y darte acceso sin demoras.'
         },
-        variables: ['{dormitorios}', '{banos}', '{huespedes}']
+        variables: []
+      },
+      {
+        id: 'checkin-seguridad',
+        order: 5,
+        title: '🔒 Sistema sin llaves físicas',
+        description: 'Mayor seguridad para ti',
+        content: {
+          type: 'text',
+          text: '🔐 **Máxima seguridad y comodidad**\n\n✅ **Sin llaves físicas que perder**\n✅ **Solo tú y nosotros conocemos el código**\n✅ **Desactivación automática al finalizar**\n✅ **Sin preocupaciones por devolución**\n\n🛡️ **Tu tranquilidad es nuestra prioridad**\nSistema 100% autónomo y seguro'
+        },
+        variables: []
       }
     ]
   },
