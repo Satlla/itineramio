@@ -49,9 +49,7 @@ export async function crearManualEjemplo(propertyId: string): Promise<boolean> {
             title: step.title,
             description: step.description,
             type: step.content.type?.toUpperCase() || 'TEXT', // La API espera type en mayúsculas
-            content: {
-              es: step.content.text || step.description
-            },
+            content: step.content.text || step.description, // Enviar como string directo
             mediaUrl: step.content.mediaUrl,
             linkUrl: step.content.linkUrl,
             order: step.order,

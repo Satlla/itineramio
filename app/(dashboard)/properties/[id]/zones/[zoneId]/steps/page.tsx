@@ -96,7 +96,9 @@ const fetchStepsData = async (propertyId: string, zoneId: string) => {
     const result = await response.json()
     
     if (result.success) {
+      console.log('🔍 Raw steps from API:', result.data)
       return result.data.map((step: any, index: number) => {
+        console.log(`📝 Processing step ${index}:`, step)
         // Extract media information from content if it exists
         let media = undefined
         let cleanContent = step.content || { es: '', en: '' }
