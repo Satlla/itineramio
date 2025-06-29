@@ -34,7 +34,6 @@ export const essentialTemplates: EssentialTemplate[] = [
     icon: 'key',
     order: 1,
     category: 'arrival',
-    isSystemTemplate: true,
     steps: [
       {
         id: 'checkin-arrival',
@@ -92,7 +91,6 @@ export const essentialTemplates: EssentialTemplate[] = [
     icon: 'wifi',
     order: 2,
     category: 'living',
-    isSystemTemplate: true,
     steps: [
       {
         id: 'wifi-visual-guide',
@@ -134,7 +132,6 @@ export const essentialTemplates: EssentialTemplate[] = [
     icon: 'exit',
     order: 3,
     category: 'departure',
-    isSystemTemplate: true,
     steps: [
       {
         id: 'checkout-cleaning',
@@ -174,7 +171,6 @@ export const essentialTemplates: EssentialTemplate[] = [
     icon: 'list',
     order: 4,
     category: 'living',
-    isSystemTemplate: true,
     steps: [
       {
         id: 'rules-basic',
@@ -198,7 +194,6 @@ export const essentialTemplates: EssentialTemplate[] = [
     icon: 'map-pin',
     order: 5,
     category: 'arrival',
-    isSystemTemplate: true,
     steps: [
       {
         id: 'directions-transport',
@@ -225,7 +220,6 @@ export const essentialTemplates: EssentialTemplate[] = [
     icon: 'thermometer',
     order: 6,
     category: 'living',
-    isSystemTemplate: true,
     steps: [
       {
         id: 'ac-usage',
@@ -252,7 +246,6 @@ export const essentialTemplates: EssentialTemplate[] = [
     icon: 'info',
     order: 7,
     category: 'local',
-    isSystemTemplate: true,
     steps: [
       {
         id: 'city-attractions',
@@ -276,7 +269,6 @@ export const essentialTemplates: EssentialTemplate[] = [
     icon: 'car',
     order: 8,
     category: 'arrival',
-    isSystemTemplate: true,
     steps: [
       {
         id: 'parking-location',
@@ -303,7 +295,6 @@ export const essentialTemplates: EssentialTemplate[] = [
     icon: 'bus',
     order: 9,
     category: 'local',
-    isSystemTemplate: true,
     steps: [
       {
         id: 'transport-info',
@@ -327,7 +318,6 @@ export const essentialTemplates: EssentialTemplate[] = [
     icon: 'kitchen',
     order: 10,
     category: 'living',
-    isSystemTemplate: true,
     steps: [
       {
         id: 'kitchen-cooktop',
