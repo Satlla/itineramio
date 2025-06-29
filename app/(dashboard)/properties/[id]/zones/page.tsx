@@ -26,6 +26,7 @@ import { DeleteConfirmationModal } from '../../../../../src/components/ui/Delete
 import { WelcomeTemplatesModal } from '../../../../../src/components/ui/WelcomeTemplatesModal'
 import { ManualEjemploModal } from '../../../../../src/components/ui/ManualEjemploModal'
 import { crearManualEjemplo, tieneManualEjemplo, yaVioManual, marcarManualVisto } from '../../../../../src/utils/crearManualEjemplo'
+import { crearManualSimple } from '../../../../../src/utils/crearManualSimple'
 import { agregarStepsAZonasExistentes } from '../../../../../src/utils/agregarStepsManualEjemplo'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
@@ -208,7 +209,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           if (isClient && !hasExistingZones && !hasSeenManual) {
             console.log('🎨 Primera visita sin zonas, creando manual de ejemplo...')
             try {
-              const manualCreated = await crearManualEjemplo(id)
+              const manualCreated = await crearManualSimple(id)
               if (manualCreated) {
                 // Refetch zones after creating the manual
                 const newZonesResponse = await fetch(`/api/properties/${id}/zones`)
