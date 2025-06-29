@@ -496,7 +496,7 @@ function NewPropertyPageContent() {
                       maxSize={10}
                     />
                     <p className="mt-1 text-xs text-gray-500">
-                      Esta será la imagen principal que verán los huéspedes
+                      Esta será la imagen principal de tu propiedad en el dashboard. Se optimizará automáticamente.
                     </p>
                   </div>
 

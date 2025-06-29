@@ -20,7 +20,7 @@ interface ImageUploadProps {
 export function ImageUpload({
   value,
   onChange,
-  placeholder = "Subir imagen VERTICAL",
+  placeholder = "Subir imagen",
   className = "",
   variant = 'property',
   maxSize = 5,
@@ -90,19 +90,58 @@ export function ImageUpload({
     }
   }
 
-  const validateImageOrientation = (file: File): Promise<boolean> => {
+  const compressImage = (file: File): Promise<File> => {
     return new Promise((resolve) => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
       const img = new Image()
+      
       img.onload = () => {
-        const aspectRatio = img.width / img.height
-        // Check if image is vertical (portrait mode)
-        resolve(aspectRatio < 1)
+        // Set max dimensions for dashboard display (small size)
+        const maxWidth = 400
+        const maxHeight = 300
+        
+        let { width, height } = img
+        
+        // Calculate new dimensions maintaining aspect ratio
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width
+            width = maxWidth
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height
+            height = maxHeight
+          }
+        }
+        
+        canvas.width = width
+        canvas.height = height
+        
+        // Draw and compress
+        ctx?.drawImage(img, 0, 0, width, height)
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            })
+            resolve(compressedFile)
+          } else {
+            resolve(file)
+          }
+        }, 'image/jpeg', 0.7) // 70% quality for small file size
+        
         URL.revokeObjectURL(img.src)
       }
+      
       img.onerror = () => {
-        resolve(false)
+        resolve(file)
         URL.revokeObjectURL(img.src)
       }
+      
       img.src = URL.createObjectURL(file)
     })
   }
@@ -120,15 +159,6 @@ export function ImageUpload({
       return
     }
 
-    // Validate image orientation (vertical only for property images)
-    if (variant === 'property') {
-      const isVertical = await validateImageOrientation(file)
-      if (!isVertical) {
-        alert('La imagen debe estar en orientación vertical (modo retrato) para optimizar la visualización en móviles.')
-        return
-      }
-    }
-
     setUploading(true)
 
     try {
@@ -137,9 +167,12 @@ export function ImageUpload({
         URL.revokeObjectURL(previewUrl)
       }
       
+      // Compress image for property uploads to save space
+      const finalFile = variant === 'property' ? await compressImage(file) : file
+      
       // Upload file to server
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', finalFile)
       
       const response = await fetch('/api/upload', {
         method: 'POST',
