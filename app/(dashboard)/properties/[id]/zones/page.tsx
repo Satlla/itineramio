@@ -201,21 +201,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           })
 
           // Manual creation removed - users create zones manually
-          const hasExistingZones = transformedZones.length > 0
-                    const zoneDescription = getZoneText(zone.description)
-
-                    return {
-                      id: zone.id,
-                      name: zoneName,
-                      description: zoneDescription,
-                      iconId: zone.icon,
-                      order: zone.order || 0,
-                      stepsCount: zone.steps?.length || 0,
-                      qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
-                      lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-                      slug: zone.slug
-                    }
-                  })
           
           setZones(transformedZones)
           setIsLoadingZones(false)
