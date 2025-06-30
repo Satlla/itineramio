@@ -30,16 +30,19 @@ export async function crearManualSimple(propertyId: string): Promise<boolean> {
 
       // 2. Crear steps
       for (const step of zona.steps) {
+        const stepData = {
+          title: step.title,
+          type: step.type,
+          content: step.content,
+          mediaUrl: step.mediaUrl,
+          order: step.order
+        }
+        console.log(`  📤 Enviando step:`, stepData)
+        
         const stepRes = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: step.title,
-            type: step.type,
-            content: step.content,
-            mediaUrl: step.mediaUrl,
-            order: step.order
-          })
+          body: JSON.stringify(stepData)
         })
 
         if (!stepRes.ok) {

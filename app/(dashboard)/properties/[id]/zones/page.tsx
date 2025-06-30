@@ -27,6 +27,7 @@ import { WelcomeTemplatesModal } from '../../../../../src/components/ui/WelcomeT
 import { ManualEjemploModal } from '../../../../../src/components/ui/ManualEjemploModal'
 import { crearManualEjemplo, tieneManualEjemplo, yaVioManual, marcarManualVisto } from '../../../../../src/utils/crearManualEjemplo'
 import { crearManualSimple } from '../../../../../src/utils/crearManualSimple'
+import { recrearManualSimple } from '../../../../../src/utils/recrearManualSimple'
 import { agregarStepsAZonasExistentes } from '../../../../../src/utils/agregarStepsManualEjemplo'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'

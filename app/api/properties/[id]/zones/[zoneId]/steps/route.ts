@@ -219,7 +219,21 @@ export async function POST(
     }
 
     // Prepare content with media URLs
-    let stepContent = typeof content === 'string' ? { es: content } : (content || { es: description || '' })
+    let stepContent
+    
+    if (typeof content === 'string' && content.trim() !== '') {
+      // Si content es un string no vacío, úsalo
+      stepContent = { es: content }
+    } else if (content && typeof content === 'object') {
+      // Si content es un objeto, úsalo tal cual
+      stepContent = content
+    } else if (description && typeof description === 'string') {
+      // Si no hay content pero hay description, usa description
+      stepContent = { es: description }
+    } else {
+      // Por defecto, string vacío
+      stepContent = { es: '' }
+    }
     
     // Add mediaUrl and linkUrl to content if provided
     if (mediaUrl) {
