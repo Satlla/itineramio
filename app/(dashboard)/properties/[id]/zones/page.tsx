@@ -24,7 +24,7 @@ import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/Animate
 import { InlineLoadingSpinner } from '../../../../../src/components/ui/InlineLoadingSpinner'
 import { DeleteConfirmationModal } from '../../../../../src/components/ui/DeleteConfirmationModal'
 import { WelcomeTemplatesModal } from '../../../../../src/components/ui/WelcomeTemplatesModal'
-import { ManualEjemploModal } from '../../../../../src/components/ui/ManualEjemploModal'
+// ManualEjemploModal removed
 // Manual creation utilities removed - users create zones manually
 import { recrearManualSimple } from '../../../../../src/utils/recrearManualSimple'
 import { agregarStepsAZonasExistentes } from '../../../../../src/utils/agregarStepsManualEjemplo'
@@ -81,8 +81,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
   const [hasSystemTemplates, setHasSystemTemplates] = useState(false)
   
-  // Manual ejemplo modal state
-  const [showManualEjemploModal, setShowManualEjemploModal] = useState(false)
+  // Manual creation removed
   const [isClient, setIsClient] = useState(false)
   
   const [isCreatingZone, setIsCreatingZone] = useState(false)
@@ -201,22 +200,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             }
           })
 
-          // Check if this is the first time visiting zones and there are no zones (only on client)
+          // Manual creation removed - users create zones manually
           const hasExistingZones = transformedZones.length > 0
-          const hasSeenManual = isClient ? yaVioManual(id) : true // Default to true on server to prevent creation
-          
-          // If no zones exist and user hasn't seen the manual, create example zones (only on client)
-          if (isClient && !hasExistingZones && !hasSeenManual) {
-            console.log('🎨 Primera visita sin zonas, creando manual de ejemplo...')
-            try {
-              const manualCreated = await crearManualSimple(id)
-              if (manualCreated) {
-                // Refetch zones after creating the manual
-                const newZonesResponse = await fetch(`/api/properties/${id}/zones`)
-                const newZonesResult = await newZonesResponse.json()
-                if (newZonesResult.success && newZonesResult.data) {
-                  transformedZones = newZonesResult.data.map((zone: any) => {
-                    const zoneName = getZoneText(zone.name)
                     const zoneDescription = getZoneText(zone.description)
 
                     return {
@@ -231,17 +216,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                       slug: zone.slug
                     }
                   })
-                  
-                  // Show the manual example modal
-                  setTimeout(() => {
-                    setShowManualEjemploModal(true)
-                  }, 1000)
-                }
-              }
-            } catch (error) {
-              console.error('Error creando manual de ejemplo:', error)
-            }
-          }
           
           setZones(transformedZones)
           setIsLoadingZones(false)
@@ -972,16 +946,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  // Manual ejemplo modal handlers
-  const handleManualEjemploAccept = () => {
-    marcarManualVisto(id)
-    setShowManualEjemploModal(false)
-  }
-
-  const handleManualEjemploClose = () => {
-    marcarManualVisto(id)
-    setShowManualEjemploModal(false)
-  }
+  // Manual functions removed
 
   const handleWelcomeAccept = () => {
     setShowWelcomeModal(false)
@@ -1934,12 +1899,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      <ManualEjemploModal
-        isOpen={showManualEjemploModal}
-        onClose={handleManualEjemploClose}
-        onAccept={handleManualEjemploAccept}
-        userName={user?.name || user?.email || 'Usuario'}
-      />
+      {/* Manual creation removed */}
 
       <WelcomeTemplatesModal
         isOpen={showWelcomeModal}
