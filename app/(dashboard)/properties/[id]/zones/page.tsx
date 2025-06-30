@@ -25,7 +25,8 @@ import { InlineLoadingSpinner } from '../../../../../src/components/ui/InlineLoa
 import { DeleteConfirmationModal } from '../../../../../src/components/ui/DeleteConfirmationModal'
 import { WelcomeTemplatesModal } from '../../../../../src/components/ui/WelcomeTemplatesModal'
 // ManualEjemploModal removed
-// Manual creation utilities removed - users create zones manually
+import { crearZonasEsenciales, borrarTodasLasZonas } from '../../../../../src/utils/crearZonasEsenciales'
+import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
 import { recrearManualSimple } from '../../../../../src/utils/recrearManualSimple'
 import { agregarStepsAZonasExistentes } from '../../../../../src/utils/agregarStepsManualEjemplo'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
@@ -81,7 +82,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
   const [hasSystemTemplates, setHasSystemTemplates] = useState(false)
   
-  // Manual creation removed
+  // Zonas esenciales modal state
+  const [showZonasEsencialesModal, setShowZonasEsencialesModal] = useState(false)
+  const [hasCreatedEssentialZones, setHasCreatedEssentialZones] = useState(false)
   const [isClient, setIsClient] = useState(false)
   
   const [isCreatingZone, setIsCreatingZone] = useState(false)
@@ -200,7 +203,49 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             }
           })
 
-          // Manual creation removed - users create zones manually
+          // Check if this is first visit and create essential zones
+          const hasExistingZones = transformedZones.length > 0
+          const hasVisitedKey = `visited_zones_${id}`
+          const hasVisited = isClient && typeof window !== 'undefined' ? 
+            !!window.localStorage.getItem(hasVisitedKey) : true
+
+          // If no zones and first visit, create essential zones
+          if (isClient && !hasExistingZones && !hasVisited) {
+            console.log('🏠 Primera visita - creando zonas esenciales...')
+            try {
+              const success = await crearZonasEsenciales(id)
+              if (success) {
+                setHasCreatedEssentialZones(true)
+                // Refetch zones
+                const newResponse = await fetch(`/api/properties/${id}/zones`)
+                const newResult = await newResponse.json()
+                if (newResult.success) {
+                  const newZones = newResult.data.map((zone: any) => {
+                    const zoneName = getZoneText(zone.name)
+                    const zoneDescription = getZoneText(zone.description)
+                    return {
+                      id: zone.id,
+                      name: zoneName,
+                      description: zoneDescription,
+                      iconId: zone.icon,
+                      order: zone.order || 0,
+                      stepsCount: zone.steps?.length || 0,
+                      qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
+                      lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                      slug: zone.slug
+                    }
+                  })
+                  setZones(newZones)
+                  // Show modal after creating zones
+                  setTimeout(() => {
+                    setShowZonasEsencialesModal(true)
+                  }, 1000)
+                }
+              }
+            } catch (error) {
+              console.error('Error creando zonas esenciales:', error)
+            }
+          }
           
           setZones(transformedZones)
           setIsLoadingZones(false)
@@ -931,7 +976,42 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  // Manual functions removed
+  // Zonas esenciales modal handlers
+  const handleKeepEssentialZones = () => {
+    setShowZonasEsencialesModal(false)
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(`visited_zones_${id}`, 'true')
+    }
+    addNotification({
+      type: 'success',
+      title: 'Zonas creadas',
+      message: 'Completa las zonas con información de tu apartamento'
+    })
+  }
+
+  const handleDeleteEssentialZones = async () => {
+    try {
+      setShowZonasEsencialesModal(false)
+      const success = await borrarTodasLasZonas(id)
+      if (success) {
+        setZones([])
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(`visited_zones_${id}`, 'true')
+        }
+        addNotification({
+          type: 'success',
+          title: 'Zonas eliminadas',
+          message: 'Puedes crear las zonas que necesites'
+        })
+      }
+    } catch (error) {
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'No se pudieron eliminar las zonas'
+      })
+    }
+  }
 
   const handleWelcomeAccept = () => {
     setShowWelcomeModal(false)
@@ -1884,7 +1964,18 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      {/* Manual creation removed */}
+      <ZonasEsencialesModal
+        isOpen={showZonasEsencialesModal}
+        onClose={() => {
+          setShowZonasEsencialesModal(false)
+          if (typeof window !== 'undefined') {
+            window.localStorage.setItem(`visited_zones_${id}`, 'true')
+          }
+        }}
+        onKeepZones={handleKeepEssentialZones}
+        onDeleteZones={handleDeleteEssentialZones}
+        userName={user?.name || user?.email || 'Usuario'}
+      />
 
       <WelcomeTemplatesModal
         isOpen={showWelcomeModal}
