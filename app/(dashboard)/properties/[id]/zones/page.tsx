@@ -978,7 +978,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     addNotification({
       type: 'info',
       title: 'Zonas creadas',
-      message: 'Completa las zonas con información de tu apartamento'
+      message: 'Completa las zonas con información de tu apartamento',
+      read: false
     })
   }
 
@@ -994,14 +995,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         addNotification({
           type: 'info',
           title: 'Zonas eliminadas',
-          message: 'Puedes crear las zonas que necesites'
+          message: 'Puedes crear las zonas que necesites',
+          read: false
         })
       }
     } catch (error) {
       addNotification({
         type: 'error',
         title: 'Error',
-        message: 'No se pudieron eliminar las zonas'
+        message: 'No se pudieron eliminar las zonas',
+        read: false
       })
     }
   }
@@ -1192,29 +1195,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           <p className="text-gray-600 mt-2">
             Gestiona las diferentes zonas y sus códigos QR para facilitar la experiencia de tus huéspedes
           </p>
-          
-          {/* DEBUG INFO */}
-          <div className="mt-4 p-4 bg-yellow-100 border border-yellow-300 rounded-lg">
-            <h4 className="font-bold text-yellow-800">🔍 DEBUG INFO:</h4>
-            <p className="text-yellow-700">Zones count: {zones.length}</p>
-            <p className="text-yellow-700">Show essential modal: {showEssentialZonesModal ? 'YES' : 'NO'}</p>
-            <p className="text-yellow-700">Has shown before: {hasShownEssentialZones ? 'YES' : 'NO'}</p>
-            <p className="text-yellow-700">Selected zones: {selectedEssentialZones.size}</p>
-            <Button
-              onClick={async () => {
-                console.log('🚀 Agregando steps a zonas existentes...')
-                const result = await agregarStepsAZonasExistentes(id)
-                if (result) {
-                  window.location.reload()
-                } else {
-                  alert('Error al agregar steps')
-                }
-              }}
-              className="mt-2 bg-green-600 hover:bg-green-700 text-white"
-            >
-              🔧 Agregar Steps del Manual Ejemplo
-            </Button>
-          </div>
         </div>
         <div className="hidden lg:flex space-x-3">
           {/* Vista Pública button */}
