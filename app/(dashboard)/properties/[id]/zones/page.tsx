@@ -25,8 +25,7 @@ import { InlineLoadingSpinner } from '../../../../../src/components/ui/InlineLoa
 import { DeleteConfirmationModal } from '../../../../../src/components/ui/DeleteConfirmationModal'
 import { WelcomeTemplatesModal } from '../../../../../src/components/ui/WelcomeTemplatesModal'
 import { ManualEjemploModal } from '../../../../../src/components/ui/ManualEjemploModal'
-import { crearManualEjemplo, tieneManualEjemplo, yaVioManual, marcarManualVisto } from '../../../../../src/utils/crearManualEjemplo'
-import { crearManualSimple } from '../../../../../src/utils/crearManualSimple'
+// Manual creation utilities removed - users create zones manually
 import { recrearManualSimple } from '../../../../../src/utils/recrearManualSimple'
 import { agregarStepsAZonasExistentes } from '../../../../../src/utils/agregarStepsManualEjemplo'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
