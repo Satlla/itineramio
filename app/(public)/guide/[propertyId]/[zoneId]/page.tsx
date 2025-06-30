@@ -341,15 +341,24 @@ export default function ZoneGuidePage({
       // Combine zone data with steps
       const zoneWithSteps = {
         ...zoneResult.data,
-        steps: stepsResult.success ? stepsResult.data.map((step: any) => ({
-          ...step,
-          title: step.title || { es: `Paso ${step.order}`, en: `Step ${step.order}` },
-          description: step.description || step.content,
-          content: step.content,
-          mediaUrl: step.mediaUrl, // Ensure mediaUrl is passed through
-          linkUrl: step.linkUrl, // Ensure linkUrl is passed through
-          thumbnail: step.thumbnail // Pass thumbnail for video poster
-        })) : []
+        steps: stepsResult.success ? stepsResult.data.map((step: any) => {
+          console.log('🔍 Frontend step:', {
+            title: step.title,
+            type: step.type,
+            hasContent: !!step.content,
+            contentEs: step.content?.es,
+            mediaUrl: step.mediaUrl
+          })
+          return {
+            ...step,
+            title: step.title || { es: `Paso ${step.order}`, en: `Step ${step.order}` },
+            description: step.description || step.content,
+            content: step.content,
+            mediaUrl: step.mediaUrl,
+            linkUrl: step.linkUrl,
+            thumbnail: step.thumbnail
+          }
+        }) : []
       }
       
       setZone(zoneWithSteps)
