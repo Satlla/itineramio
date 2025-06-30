@@ -64,15 +64,18 @@ export async function GET(
       }
     })
 
-    // Process steps to extract mediaUrl from content JSON
+    // Process steps to extract mediaUrl from content JSON and normalize content format
     const processedSteps = steps.map(step => {
       let mediaUrl = null
       let linkUrl = null
       let thumbnail = null
+      let normalizedContent = step.content
       
       try {
         if (step.content && typeof step.content === 'object') {
           const content = step.content as any
+          
+          // Extract media URLs
           if (content.mediaUrl) {
             mediaUrl = content.mediaUrl
           }
@@ -82,6 +85,15 @@ export async function GET(
           if (content.thumbnail) {
             thumbnail = content.thumbnail
           }
+          
+          // Normalize content format for frontend
+          if (content.text && !content.es) {
+            // If content has 'text' but no 'es', move text to es
+            normalizedContent = {
+              ...content,
+              es: content.text
+            }
+          }
         }
       } catch (error) {
         console.error('Error parsing step content:', error)
@@ -89,6 +101,7 @@ export async function GET(
 
       return {
         ...step,
+        content: normalizedContent,
         mediaUrl,
         linkUrl,
         thumbnail
