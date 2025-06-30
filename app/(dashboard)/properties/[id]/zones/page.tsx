@@ -265,13 +265,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           const hasTemplates = systemTemplateZones.length > 0
           setHasSystemTemplates(hasTemplates)
           
-          // Check if welcome modal should be shown (reuse hasVisited from above)
-          
+          // Check if welcome modal should be shown
           // Show welcome modal only if:
           // 1. Has system templates 
-          // 2. First time visiting zones for this property
-          // 3. Has zones (not empty)
-          if (hasTemplates && !hasVisited && transformedZones.length > 0) {
+          // 2. Has zones (not empty)
+          // 3. NOT the first visit where we created essential zones
+          if (hasTemplates && transformedZones.length > 0 && !hasCreatedEssentialZones) {
             console.log('🎉 Showing welcome modal for first visit with', systemTemplateZones.length, 'template zones')
             setTimeout(() => {
               setShowWelcomeModal(true)
