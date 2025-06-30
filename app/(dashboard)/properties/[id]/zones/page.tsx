@@ -976,7 +976,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       window.localStorage.setItem(`visited_zones_${id}`, 'true')
     }
     addNotification({
-      type: 'success',
+      type: 'info',
       title: 'Zonas creadas',
       message: 'Completa las zonas con información de tu apartamento'
     })
@@ -992,7 +992,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           window.localStorage.setItem(`visited_zones_${id}`, 'true')
         }
         addNotification({
-          type: 'success',
+          type: 'info',
           title: 'Zonas eliminadas',
           message: 'Puedes crear las zonas que necesites'
         })
