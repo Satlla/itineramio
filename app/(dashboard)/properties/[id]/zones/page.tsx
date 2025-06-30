@@ -27,8 +27,7 @@ import { WelcomeTemplatesModal } from '../../../../../src/components/ui/WelcomeT
 // ManualEjemploModal removed
 import { crearZonasEsenciales, borrarTodasLasZonas } from '../../../../../src/utils/crearZonasEsenciales'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
-import { recrearManualSimple } from '../../../../../src/utils/recrearManualSimple'
-import { agregarStepsAZonasExistentes } from '../../../../../src/utils/agregarStepsManualEjemplo'
+// Removed unused imports
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
 import { getCleanZoneUrl } from '../../../../../src/lib/slug-resolver'
@@ -266,12 +265,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           const hasTemplates = systemTemplateZones.length > 0
           setHasSystemTemplates(hasTemplates)
           
-          // Check if user has visited this property's zones before (only on client)
-          const hasVisitedKey = `visited_zones_${id}`
-          let hasVisited = false
-          if (isClient && typeof window !== 'undefined') {
-            hasVisited = !!window.localStorage.getItem(hasVisitedKey)
-          }
+          // Check if welcome modal should be shown (reuse hasVisited from above)
           
           // Show welcome modal only if:
           // 1. Has system templates 
