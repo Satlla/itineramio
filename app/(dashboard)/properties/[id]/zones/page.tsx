@@ -202,55 +202,21 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             }
           })
 
-          // Check if this is the VERY FIRST TIME the user visits ANY property zones page
+          // Check if property has no zones and show modal (only first time for this property)
           const hasExistingZones = transformedZones.length > 0
-          const globalFirstVisitKey = `user_${user?.id || 'guest'}_has_seen_zones_welcome`
-          const hasSeenWelcome = isClient && typeof window !== 'undefined' ? 
-            !!window.localStorage.getItem(globalFirstVisitKey) : true
-
-          // Auto-create essential zones ONLY for properties with no zones
-          if (isClient && !hasExistingZones) {
-            console.log('🏠 Property has no zones - creating essential zones...')
-            try {
-              const success = await crearZonasEsenciales(id)
-              if (success) {
-                setHasCreatedEssentialZones(true)
-                // Refetch zones
-                const newResponse = await fetch(`/api/properties/${id}/zones`)
-                const newResult = await newResponse.json()
-                if (newResult.success) {
-                  const newZones = newResult.data.map((zone: any) => {
-                    const zoneName = getZoneText(zone.name)
-                    const zoneDescription = getZoneText(zone.description)
-                    return {
-                      id: zone.id,
-                      name: zoneName,
-                      description: zoneDescription,
-                      iconId: zone.icon,
-                      order: zone.order || 0,
-                      stepsCount: zone.steps?.length || 0,
-                      qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
-                      lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-                      slug: zone.slug
-                    }
-                  })
-                  setZones(newZones)
-                  
-                  // Show modal ONLY if this is the user's first time seeing ANY zones page
-                  if (!hasSeenWelcome) {
-                    setTimeout(() => {
-                      setShowZonasEsencialesModal(true)
-                      // Mark as seen globally for this user
-                      if (typeof window !== 'undefined') {
-                        window.localStorage.setItem(globalFirstVisitKey, 'true')
-                      }
-                    }, 1000)
-                  }
-                }
+          const propertyModalKey = `property_${id}_modal_shown`
+          const hasShownModalForThisProperty = isClient && typeof window !== 'undefined' ? 
+            !!window.localStorage.getItem(propertyModalKey) : false
+          
+          if (isClient && !hasExistingZones && !hasShownModalForThisProperty) {
+            // Property has no zones and we haven't shown the modal yet - show it
+            setTimeout(() => {
+              setShowZonasEsencialesModal(true)
+              // Mark that we've shown the modal for this property
+              if (typeof window !== 'undefined') {
+                window.localStorage.setItem(propertyModalKey, 'true')
               }
-            } catch (error) {
-              console.error('Error creando zonas esenciales:', error)
-            }
+            }, 500)
           }
           
           setZones(transformedZones)
@@ -962,37 +928,60 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   // Zonas esenciales modal handlers
-  const handleKeepEssentialZones = () => {
-    setShowZonasEsencialesModal(false)
-    addNotification({
-      type: 'info',
-      title: 'Zonas creadas',
-      message: 'Completa las zonas con información de tu apartamento',
-      read: false
-    })
-  }
-
-  const handleDeleteEssentialZones = async () => {
+  const handleKeepEssentialZones = async () => {
+    // User wants the essential zones - create them now
     try {
-      setShowZonasEsencialesModal(false)
-      const success = await borrarTodasLasZonas(id)
+      const success = await crearZonasEsenciales(id)
       if (success) {
-        setZones([])
-        addNotification({
-          type: 'info',
-          title: 'Zonas eliminadas',
-          message: 'Puedes crear las zonas que necesites',
-          read: false
-        })
+        // Refetch zones
+        const newResponse = await fetch(`/api/properties/${id}/zones`)
+        const newResult = await newResponse.json()
+        if (newResult.success) {
+          const newZones = newResult.data.map((zone: any) => {
+            const zoneName = getZoneText(zone.name)
+            const zoneDescription = getZoneText(zone.description)
+            return {
+              id: zone.id,
+              name: zoneName,
+              description: zoneDescription,
+              iconId: zone.icon,
+              order: zone.order || 0,
+              stepsCount: zone.steps?.length || 0,
+              qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
+              lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+              slug: zone.slug
+            }
+          })
+          setZones(newZones)
+          setShowZonasEsencialesModal(false)
+          addNotification({
+            type: 'info',
+            title: 'Zonas creadas',
+            message: 'Completa las zonas con información de tu apartamento',
+            read: false
+          })
+        }
       }
     } catch (error) {
+      console.error('Error creando zonas esenciales:', error)
       addNotification({
         type: 'error',
         title: 'Error',
-        message: 'No se pudieron eliminar las zonas',
+        message: 'No se pudieron crear las zonas',
         read: false
       })
     }
+  }
+
+  const handleDeleteEssentialZones = () => {
+    // User wants to start from scratch - just close modal, don't create anything
+    setShowZonasEsencialesModal(false)
+    addNotification({
+      type: 'info',
+      title: 'Manual vacío',
+      message: 'Puedes crear las zonas que necesites desde cero',
+      read: false
+    })
   }
 
   const handleWelcomeAccept = () => {
