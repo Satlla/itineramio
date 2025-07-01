@@ -202,15 +202,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             }
           })
 
-          // Check if this is first visit and create essential zones
+          // Check if this is the VERY FIRST TIME the user visits ANY property zones page
           const hasExistingZones = transformedZones.length > 0
-          const hasVisitedKey = `visited_zones_first_time`
-          const hasVisited = isClient && typeof window !== 'undefined' ? 
-            !!window.localStorage.getItem(hasVisitedKey) : true
+          const globalFirstVisitKey = `user_${user?.id || 'guest'}_has_seen_zones_welcome`
+          const hasSeenWelcome = isClient && typeof window !== 'undefined' ? 
+            !!window.localStorage.getItem(globalFirstVisitKey) : true
 
-          // If no zones and first visit, create essential zones
-          if (isClient && !hasExistingZones && !hasVisited) {
-            console.log('🏠 Primera visita - creando zonas esenciales...')
+          // Auto-create essential zones ONLY for properties with no zones
+          if (isClient && !hasExistingZones) {
+            console.log('🏠 Property has no zones - creating essential zones...')
             try {
               const success = await crearZonasEsenciales(id)
               if (success) {
@@ -235,14 +235,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     }
                   })
                   setZones(newZones)
-                  // Mark as visited to prevent recreating zones on refresh
-                  if (typeof window !== 'undefined') {
-                    window.localStorage.setItem(hasVisitedKey, 'true')
+                  
+                  // Show modal ONLY if this is the user's first time seeing ANY zones page
+                  if (!hasSeenWelcome) {
+                    setTimeout(() => {
+                      setShowZonasEsencialesModal(true)
+                      // Mark as seen globally for this user
+                      if (typeof window !== 'undefined') {
+                        window.localStorage.setItem(globalFirstVisitKey, 'true')
+                      }
+                    }, 1000)
                   }
-                  // Show modal after creating zones
-                  setTimeout(() => {
-                    setShowZonasEsencialesModal(true)
-                  }, 1000)
                 }
               }
             } catch (error) {
@@ -269,17 +272,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           const hasTemplates = systemTemplateZones.length > 0
           setHasSystemTemplates(hasTemplates)
           
-          // Check if welcome modal should be shown
-          // Show welcome modal only if:
-          // 1. Has system templates 
-          // 2. Has zones (not empty)
-          // 3. NOT the first visit where we created essential zones
-          if (hasTemplates && transformedZones.length > 0 && !hasCreatedEssentialZones) {
-            console.log('🎉 Showing welcome modal for first visit with', systemTemplateZones.length, 'template zones')
-            setTimeout(() => {
-              setShowWelcomeModal(true)
-            }, 500) // Small delay to ensure page is loaded
-          }
+          // REMOVED: No longer showing welcome modal for existing zones
+          // The modal should only appear when zones are auto-created
           
           // Generate zone warnings after zones are loaded
           setTimeout(() => {
@@ -970,9 +964,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   // Zonas esenciales modal handlers
   const handleKeepEssentialZones = () => {
     setShowZonasEsencialesModal(false)
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('visited_zones_first_time', 'true')
-    }
     addNotification({
       type: 'info',
       title: 'Zonas creadas',
@@ -987,9 +978,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       const success = await borrarTodasLasZonas(id)
       if (success) {
         setZones([])
-        if (typeof window !== 'undefined') {
-          window.localStorage.setItem('visited_zones_first_time', 'true')
-        }
         addNotification({
           type: 'info',
           title: 'Zonas eliminadas',
@@ -1009,20 +997,25 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   const handleWelcomeAccept = () => {
     setShowWelcomeModal(false)
-    setTimeout(() => {
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem('visited_zones_first_time', 'true')
-      }
-    }, 0)
   }
 
-  const handleStartFromScratch = () => {
+  const handleStartFromScratch = async () => {
     setShowWelcomeModal(false)
-    setTimeout(() => {
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem('visited_zones_first_time', 'true')
+    // User wants to start from scratch - delete all zones
+    try {
+      const success = await borrarTodasLasZonas(id)
+      if (success) {
+        setZones([])
+        addNotification({
+          type: 'info',
+          title: 'Zonas eliminadas',
+          message: 'Puedes crear las zonas que necesites desde cero',
+          read: false
+        })
       }
-    }, 0)
+    } catch (error) {
+      console.error('Error deleting zones:', error)
+    }
   }
 
   const loadZoneSteps = async (zoneId: string) => {
@@ -1937,12 +1930,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
       <ZonasEsencialesModal
         isOpen={showZonasEsencialesModal}
-        onClose={() => {
-          setShowZonasEsencialesModal(false)
-          if (typeof window !== 'undefined') {
-            window.localStorage.setItem('visited_zones_first_time', 'true')
-          }
-        }}
+        onClose={() => setShowZonasEsencialesModal(false)}
         onKeepZones={handleKeepEssentialZones}
         onDeleteZones={handleDeleteEssentialZones}
         userName={user?.name || user?.email || 'Usuario'}
