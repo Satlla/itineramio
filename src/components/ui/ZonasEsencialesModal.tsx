@@ -3,7 +3,7 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from './Button'
-import { Home, Wifi, LogOut, Phone, X, Sparkles, Trash2 } from 'lucide-react'
+import { Home, Wifi, LogOut, Phone, X, Sparkles, Trash2, Key, MapPin, List, Car, Thermometer, Bus, Star } from 'lucide-react'
 
 interface ZonasEsencialesModalProps {
   isOpen: boolean
@@ -15,20 +15,31 @@ interface ZonasEsencialesModalProps {
 }
 
 const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
-  key: Home,
+  key: Key,
   wifi: Wifi,
-  logout: LogOut,
-  phone: Phone
+  exit: LogOut,
+  'map-pin': MapPin,
+  list: List,
+  car: Car,
+  thermometer: Thermometer,
+  phone: Phone,
+  bus: Bus,
+  star: Star,
+  trash: Trash2
 }
 
 const zonesInfo = [
   { name: 'Check In', icon: 'key', description: 'Proceso de entrada' },
   { name: 'WiFi', icon: 'wifi', description: 'Conexión a internet' },
-  { name: 'Check Out', icon: 'logout', description: 'Proceso de salida' },
-  { name: 'Cómo Llegar', icon: 'key', description: 'Direcciones y ubicación' },
-  { name: 'Normas de la Casa', icon: 'key', description: 'Reglas y políticas' },
-  { name: 'Parking', icon: 'key', description: 'Información de aparcamiento' },
-  { name: '+6 zonas más...', icon: 'key', description: 'Climatización, cocina, emergencias...' }
+  { name: 'Check Out', icon: 'exit', description: 'Proceso de salida' },
+  { name: 'Cómo Llegar', icon: 'map-pin', description: 'Direcciones y ubicación' },
+  { name: 'Normas de la Casa', icon: 'list', description: 'Reglas y políticas' },
+  { name: 'Parking', icon: 'car', description: 'Información de aparcamiento' },
+  { name: 'Climatización', icon: 'thermometer', description: 'Aire y calefacción' },
+  { name: 'Emergencias', icon: 'phone', description: 'Teléfonos importantes' },
+  { name: 'Transporte', icon: 'bus', description: 'Metro y autobuses' },
+  { name: 'Recomendaciones', icon: 'star', description: 'Lugares de interés' },
+  { name: 'Basura', icon: 'trash', description: 'Reciclaje y residuos' }
 ]
 
 export function ZonasEsencialesModal({
@@ -47,14 +58,14 @@ export function ZonasEsencialesModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto"
         onClick={onClose}
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-xl p-6 max-w-md w-full"
+          className="bg-white rounded-xl p-6 w-full max-w-6xl lg:max-w-5xl max-h-[95vh] overflow-y-auto my-4"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -70,22 +81,22 @@ export function ZonasEsencialesModal({
             </p>
           </div>
 
-          {/* Zones Created */}
+          {/* Zones Created - Responsive Grid */}
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold text-gray-900 mb-3 text-center">
+            <h3 className="font-semibold text-gray-900 mb-4 text-center">
               Zonas que se crearán para ti:
             </h3>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {zonesInfo.map((zone) => {
                 const IconComponent = iconMap[zone.icon]
                 return (
-                  <div key={zone.name} className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                  <div key={zone.name} className="flex items-center space-x-3 p-2 bg-white rounded-lg">
+                    <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       <IconComponent className="w-4 h-4 text-violet-600" />
                     </div>
-                    <div>
-                      <div className="font-medium text-sm">{zone.name}</div>
-                      <div className="text-xs text-gray-500">{zone.description}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-sm text-gray-900 truncate">{zone.name}</div>
+                      <div className="text-xs text-gray-500 truncate">{zone.description}</div>
                     </div>
                   </div>
                 )
@@ -100,12 +111,12 @@ export function ZonasEsencialesModal({
             </p>
           </div>
 
-          {/* Actions */}
-          <div className="space-y-3">
+          {/* Actions - Responsive Layout */}
+          <div className="flex flex-col md:flex-row gap-3">
             <Button
               onClick={onKeepZones}
               disabled={isLoading}
-              className="w-full bg-violet-600 hover:bg-violet-700"
+              className="flex-1 bg-violet-600 hover:bg-violet-700 h-12"
             >
               {isLoading ? (
                 <>
@@ -121,7 +132,7 @@ export function ZonasEsencialesModal({
               onClick={onDeleteZones}
               disabled={isLoading}
               variant="outline"
-              className="w-full border-gray-200 text-gray-600 hover:bg-gray-50"
+              className="flex-1 border-gray-200 text-gray-600 hover:bg-gray-50 h-12"
             >
               No gracias, prefiero crear todo yo
             </Button>

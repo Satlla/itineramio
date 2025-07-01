@@ -1,4 +1,4 @@
-// Zonas esenciales expandidas para apartamentos
+// Zonas esenciales expandidas para apartamentos (sin cocina)
 export const zonasEsenciales = [
   {
     name: 'Check In',
@@ -15,7 +15,7 @@ export const zonasEsenciales = [
   {
     name: 'Check Out',
     description: 'Instrucciones para la salida',
-    icon: 'logout',
+    icon: 'exit',
     order: 3
   },
   {
@@ -43,34 +43,28 @@ export const zonasEsenciales = [
     order: 7
   },
   {
-    name: 'Cocina',
-    description: 'Uso de electrodomésticos y cocina',
-    icon: 'kitchen',
-    order: 8
-  },
-  {
     name: 'Teléfonos de Emergencia',
     description: 'Contactos importantes y anfitrión',
     icon: 'phone',
-    order: 9
+    order: 8
   },
   {
     name: 'Transporte Público',
     description: 'Metro, autobús y opciones de movilidad',
     icon: 'bus',
-    order: 10
+    order: 9
   },
   {
     name: 'Recomendaciones',
     description: 'Restaurantes, tiendas y lugares de interés',
     icon: 'star',
-    order: 11
+    order: 10
   },
   {
     name: 'Basura y Reciclaje',
     description: 'Cómo y dónde desechar la basura',
     icon: 'trash',
-    order: 12
+    order: 11
   }
 ]
 
