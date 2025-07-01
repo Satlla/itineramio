@@ -11,6 +11,7 @@ interface ZonasEsencialesModalProps {
   onKeepZones: () => void
   onDeleteZones: () => void
   userName: string
+  isLoading?: boolean
 }
 
 const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
@@ -21,10 +22,13 @@ const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = 
 }
 
 const zonesInfo = [
-  { name: 'Check In', icon: 'key', description: 'Acceso y entrada' },
+  { name: 'Check In', icon: 'key', description: 'Proceso de entrada' },
   { name: 'WiFi', icon: 'wifi', description: 'Conexión a internet' },
   { name: 'Check Out', icon: 'logout', description: 'Proceso de salida' },
-  { name: 'Contacto', icon: 'phone', description: 'Información de contacto' }
+  { name: 'Cómo Llegar', icon: 'key', description: 'Direcciones y ubicación' },
+  { name: 'Normas de la Casa', icon: 'key', description: 'Reglas y políticas' },
+  { name: 'Parking', icon: 'key', description: 'Información de aparcamiento' },
+  { name: '+6 zonas más...', icon: 'key', description: 'Climatización, cocina, emergencias...' }
 ]
 
 export function ZonasEsencialesModal({
@@ -32,7 +36,8 @@ export function ZonasEsencialesModal({
   onClose,
   onKeepZones,
   onDeleteZones,
-  userName
+  userName,
+  isLoading = false
 }: ZonasEsencialesModalProps) {
   if (!isOpen) return null
 
@@ -61,14 +66,14 @@ export function ZonasEsencialesModal({
               ¡Hola {userName}! 👋
             </h2>
             <p className="text-gray-600">
-              Hemos creado <strong>4 zonas esenciales</strong> que todos los apartamentos necesitan
+              Te sugerimos utilizar nuestra <strong>plantilla de zonas esenciales</strong> para completar tu manual digital
             </p>
           </div>
 
           {/* Zones Created */}
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <h3 className="font-semibold text-gray-900 mb-3 text-center">
-              Zonas creadas para ti:
+              Zonas que se crearán para ti:
             </h3>
             <div className="space-y-3">
               {zonesInfo.map((zone) => {
@@ -99,18 +104,26 @@ export function ZonasEsencialesModal({
           <div className="space-y-3">
             <Button
               onClick={onKeepZones}
+              disabled={isLoading}
               className="w-full bg-violet-600 hover:bg-violet-700"
             >
-              ✨ Perfecto, las completo yo
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  Creando tu manual...
+                </>
+              ) : (
+                <>✨ ¡Sí! Crear mi manual con plantilla</>
+              )}
             </Button>
             
             <Button
               onClick={onDeleteZones}
+              disabled={isLoading}
               variant="outline"
-              className="w-full border-red-200 text-red-600 hover:bg-red-50"
+              className="w-full border-gray-200 text-gray-600 hover:bg-gray-50"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Prefiero empezar de cero
+              No gracias, prefiero crear todo yo
             </Button>
           </div>
 

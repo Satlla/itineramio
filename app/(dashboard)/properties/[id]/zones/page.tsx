@@ -929,7 +929,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   // Zonas esenciales modal handlers
   const handleKeepEssentialZones = async () => {
-    // User wants the essential zones - create them now
+    // User wants the essential zones - create them now with loading state
+    setIsCreatingZone(true)
     try {
       const success = await crearZonasEsenciales(id)
       if (success) {
@@ -956,8 +957,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           setShowZonasEsencialesModal(false)
           addNotification({
             type: 'info',
-            title: 'Zonas creadas',
-            message: 'Completa las zonas con información de tu apartamento',
+            title: 'Manual creado',
+            message: `Se han creado ${newZones.length} zonas esenciales. ¡Completa la información!`,
             read: false
           })
         }
@@ -967,9 +968,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       addNotification({
         type: 'error',
         title: 'Error',
-        message: 'No se pudieron crear las zonas',
+        message: 'No se pudieron crear las zonas esenciales',
         read: false
       })
+    } finally {
+      setIsCreatingZone(false)
     }
   }
 
@@ -1923,6 +1926,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         onKeepZones={handleKeepEssentialZones}
         onDeleteZones={handleDeleteEssentialZones}
         userName={user?.name || user?.email || 'Usuario'}
+        isLoading={isCreatingZone}
       />
 
       <WelcomeTemplatesModal
