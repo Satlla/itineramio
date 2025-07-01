@@ -192,6 +192,71 @@ export async function PUT(
   }
 }
 
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const body = await request.json()
+    
+    // Get authenticated user
+    const authResult = await requireAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
+    const userId = authResult.userId
+    
+    // Set JWT claims for PostgreSQL RLS policies
+    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    
+    // Simple validation for status update
+    if (body.status && !['DRAFT', 'ACTIVE', 'INACTIVE'].includes(body.status)) {
+      return NextResponse.json({
+        success: false,
+        error: 'Estado inválido'
+      }, { status: 400 })
+    }
+    
+    // Find property
+    const property = await prisma.property.findFirst({
+      where: {
+        id,
+        hostId: userId
+      }
+    })
+    
+    if (!property) {
+      return NextResponse.json({
+        success: false,
+        error: 'Propiedad no encontrada'
+      }, { status: 404 })
+    }
+    
+    // Update property
+    const updatedProperty = await prisma.property.update({
+      where: { id },
+      data: {
+        ...body,
+        updatedAt: new Date()
+      }
+    })
+    
+    return NextResponse.json({
+      success: true,
+      data: updatedProperty
+    })
+    
+  } catch (error) {
+    console.error('Error updating property:', error)
+    
+    return NextResponse.json({
+      success: false,
+      error: 'Error interno del servidor'
+    }, { status: 500 })
+  }
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

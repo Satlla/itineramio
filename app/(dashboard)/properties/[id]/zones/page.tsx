@@ -2,7 +2,26 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical } from 'lucide-react'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import {
+  CSS,
+} from '@dnd-kit/utilities'
 import { Button } from '../../../../../src/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../../src/components/ui/Card'
 import { IconSelector, ZoneIconDisplay, useZoneIcon } from '../../../../../src/components/ui/IconSelector'
@@ -24,6 +43,7 @@ import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/Animate
 import { InlineLoadingSpinner } from '../../../../../src/components/ui/InlineLoadingSpinner'
 import { DeleteConfirmationModal } from '../../../../../src/components/ui/DeleteConfirmationModal'
 import { WelcomeTemplatesModal } from '../../../../../src/components/ui/WelcomeTemplatesModal'
+import { DeletePropertyModal } from '../../../../../src/components/ui/DeletePropertyModal'
 // ManualEjemploModal removed
 import { crearZonasEsenciales, borrarTodasLasZonas } from '../../../../../src/utils/crearZonasEsenciales'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
@@ -53,6 +73,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [zones, setZones] = useState<Zone[]>([])
   const [propertyName, setPropertyName] = useState<string>('')
   const [propertySlug, setPropertySlug] = useState<string>('')
+  const [propertyType, setPropertyType] = useState<string>('')
+  const [propertyLocation, setPropertyLocation] = useState<string>('')
+  const [propertyStatus, setPropertyStatus] = useState<string>('DRAFT')
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [editingZone, setEditingZone] = useState<Zone | null>(null)
   const [showIconSelector, setShowIconSelector] = useState(false)
@@ -71,6 +94,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [zoneToDelete, setZoneToDelete] = useState<Zone | null>(null)
   const [isDeletingZone, setIsDeletingZone] = useState(false)
+  
+  // Delete property modal state
+  const [showDeletePropertyModal, setShowDeletePropertyModal] = useState(false)
+  const [isDeletingProperty, setIsDeletingProperty] = useState(false)
   
   // Essential zones modal state
   const [showEssentialZonesModal, setShowEssentialZonesModal] = useState(false)
@@ -94,6 +121,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     description: '',
     iconId: ''
   })
+  const [isReordering, setIsReordering] = useState(false)
+  
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   useEffect(() => {
     setIsClient(true)
@@ -178,6 +213,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         if (propResult.success && propResult.data) {
           setPropertyName(propResult.data.name)
           setPropertySlug(propResult.data.slug || '')
+          setPropertyType(propResult.data.type || 'APARTMENT')
+          setPropertyLocation(`${propResult.data.city}, ${propResult.data.state}`)
+          setPropertyStatus(propResult.data.status || 'DRAFT')
         }
 
         // Fetch zones
@@ -955,12 +993,27 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           })
           setZones(newZones)
           setShowZonasEsencialesModal(false)
+          
+          // Add notification about zones created
           addNotification({
             type: 'info',
             title: 'Manual creado',
             message: `Se han creado ${newZones.length} zonas esenciales. ¡Completa la información!`,
             read: false
           })
+          
+          // Add notification about inactive property if it's in DRAFT status
+          if (propertyStatus === 'DRAFT') {
+            setTimeout(() => {
+              addNotification({
+                type: 'warning',
+                title: '⚠️ Propiedad Inactiva',
+                message: 'Tu propiedad está inactiva. Los huéspedes no podrán verla hasta que la actives. Completa las zonas y actívala cuando esté lista.',
+                read: false,
+                propertyId: id
+              })
+            }, 1000) // Delay to show after the first notification
+          }
         }
       }
     } catch (error) {
@@ -1144,22 +1197,250 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   const handleDeleteProperty = async () => {
-    if (confirm('¿Estás seguro de que quieres eliminar esta propiedad? Esta acción no se puede deshacer.')) {
+    setIsDeletingProperty(true)
+    try {
+      const response = await fetch(`/api/properties/${id}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        addNotification({
+          type: 'info',
+          title: 'Propiedad eliminada',
+          message: `"${propertyName}" ha sido eliminada permanentemente`,
+          read: false
+        })
+        router.push('/properties')
+      } else {
+        const result = await response.json()
+        addNotification({
+          type: 'error',
+          title: 'Error al eliminar',
+          message: result.error || 'No se pudo eliminar la propiedad',
+          read: false
+        })
+        setShowDeletePropertyModal(false)
+      }
+    } catch (error) {
+      console.error('Error deleting property:', error)
+      addNotification({
+        type: 'error',
+        title: 'Error de conexión',
+        message: 'No se pudo conectar con el servidor',
+        read: false
+      })
+      setShowDeletePropertyModal(false)
+    } finally {
+      setIsDeletingProperty(false)
+    }
+  }
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (active.id !== over?.id) {
+      const oldIndex = zones.findIndex((zone) => zone.id === active.id)
+      const newIndex = zones.findIndex((zone) => zone.id === over?.id)
+      
+      const newZones = arrayMove(zones, oldIndex, newIndex)
+      
+      // Update local state immediately for smooth UI
+      setZones(newZones)
+      
+      // Update orders in the backend
+      setIsReordering(true)
       try {
-        const response = await fetch(`/api/properties/${id}`, {
-          method: 'DELETE'
+        const zonesWithNewOrder = newZones.map((zone, index) => ({
+          id: zone.id,
+          order: index + 1
+        }))
+        
+        const response = await fetch(`/api/properties/${id}/zones/order`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ zones: zonesWithNewOrder })
         })
         
-        if (response.ok) {
-          router.push('/properties')
+        if (!response.ok) {
+          // Revert changes if API call fails
+          setZones(zones)
+          addNotification({
+            type: 'error',
+            title: 'Error',
+            message: 'No se pudo actualizar el orden de las zonas',
+            read: false
+          })
         } else {
-          alert('Error al eliminar la propiedad')
+          addNotification({
+            type: 'info',
+            title: 'Orden actualizado',
+            message: 'El orden de las zonas se ha actualizado correctamente',
+            read: false
+          })
         }
       } catch (error) {
-        console.error('Error deleting property:', error)
-        alert('Error al eliminar la propiedad')
+        console.error('Error updating zone order:', error)
+        // Revert changes if there's an error
+        setZones(zones)
+        addNotification({
+          type: 'error',
+          title: 'Error',
+          message: 'Error al actualizar el orden de las zonas',
+          read: false
+        })
+      } finally {
+        setIsReordering(false)
       }
     }
+  }
+
+  // Sortable Zone Item Component
+  function SortableZoneItem({ zone }: { zone: Zone }) {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: zone.id })
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    }
+
+    return (
+      <motion.div
+        ref={setNodeRef}
+        style={style}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: isDragging ? 0.5 : 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        transition={{ duration: 0.2 }}
+      >
+        <Card 
+          className={`hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300 ${
+            isDragging ? 'shadow-xl ring-2 ring-violet-400 z-50' : ''
+          }`}
+          onClick={() => {
+            // Debug logging
+            console.log('🔍 Zone click debug:', {
+              zoneName: zone.name,
+              zoneSlug: zone.slug,
+              propertySlug: propertySlug,
+              hasSlug: !!(zone.slug && propertySlug)
+            })
+            
+            // Use slug if available, fallback to ID
+            if (zone.slug && propertySlug) {
+              console.log('🚀 Using clean URL:', `/properties/${propertySlug}/${zone.slug}`)
+              router.push(`/properties/${propertySlug}/${zone.slug}`)
+            } else {
+              console.log('🚀 Using ID URL:', `/properties/${id}/zones/${zone.id}`)
+              router.push(`/properties/${id}/zones/${zone.id}`)
+            }
+          }}
+        >
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              {/* Drag handle */}
+              <div className="flex items-center space-x-4 flex-1">
+                <div
+                  {...attributes}
+                  {...listeners}
+                  className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <GripVertical className="w-4 h-4 text-gray-400" />
+                </div>
+                
+                <ZoneIconDisplay iconId={zone.iconId} size="md" />
+                
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{getZoneText(zone.name)}</h3>
+                  
+                  <div className="flex items-center space-x-6 text-sm text-gray-600">
+                    <div className="flex items-center">
+                      <Edit className="w-3 h-3 mr-1 text-gray-400" />
+                      <span className="font-medium">{zone.stepsCount}</span>
+                      <span className="ml-1">steps</span>
+                    </div>
+                    
+                    <div className="flex items-center">
+                      <span className="text-gray-500">Actualizado:</span>
+                      <span className="ml-1 font-medium">{zone.lastUpdated}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Section - Menu */}
+              <div className="flex items-center ml-4" onClick={(e) => e.stopPropagation()}>
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Portal>
+                    <DropdownMenu.Content className="w-48 bg-white rounded-md border shadow-lg p-1 z-50">
+                      <DropdownMenu.Item
+                        className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                        onSelect={async () => {
+                          setEditingZoneForSteps(zone)
+                          await loadZoneSteps(zone.id)
+                          setShowStepEditor(true)
+                        }}
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Editar
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                        onSelect={() => handleEditZone(zone)}
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        Configurar
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                        onSelect={() => handleCopyURL(zone)}
+                      >
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copiar URL
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                        onSelect={() => handleShowQR(zone)}
+                      >
+                        <QrCode className="h-4 w-4 mr-2" />
+                        Ver Código QR
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Separator className="my-1 h-px bg-gray-200" />
+                      <DropdownMenu.Item
+                        className="flex items-center px-3 py-2 text-sm hover:bg-red-100 text-red-600 rounded cursor-pointer"
+                        onSelect={() => handleDeleteZone(zone)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Eliminar
+                      </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Portal>
+                </DropdownMenu.Root>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    )
   }
 
   // Show loading spinner when loading zones
@@ -1169,6 +1450,61 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="max-w-7xl mx-auto p-6">
+      {/* Inactive Property Banner */}
+      {propertyStatus === 'DRAFT' && (
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0">
+              <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-amber-800 mb-1">
+                Propiedad Inactiva - No visible para huéspedes
+              </h3>
+              <p className="text-sm text-amber-700 mb-2">
+                Esta propiedad está actualmente inactiva. Los huéspedes no podrán acceder a los manuales hasta que la actives.
+              </p>
+              <p className="text-sm text-amber-700">
+                <strong>Recomendación:</strong> Completa todas las zonas con sus instrucciones antes de activar la propiedad para ofrecer la mejor experiencia a tus huéspedes.
+              </p>
+            </div>
+            <Button
+              onClick={async () => {
+                try {
+                  const response = await fetch(`/api/properties/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'ACTIVE' })
+                  })
+                  
+                  if (response.ok) {
+                    setPropertyStatus('ACTIVE')
+                    addNotification({
+                      type: 'success',
+                      title: '✅ Propiedad Activada',
+                      message: 'Tu propiedad ya está visible para los huéspedes',
+                      read: false
+                    })
+                  }
+                } catch (error) {
+                  console.error('Error activating property:', error)
+                  addNotification({
+                    type: 'error',
+                    title: 'Error',
+                    message: 'No se pudo activar la propiedad',
+                    read: false
+                  })
+                }
+              }}
+              size="sm"
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              Activar Propiedad
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -1191,6 +1527,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           >
             <ExternalLink className="w-5 h-5 mr-2" />
             Vista Pública
+          </Button>
+          
+          {/* Delete Property button */}
+          <Button
+            onClick={() => setShowDeletePropertyModal(true)}
+            variant="outline"
+            className="border-red-500 text-red-600 hover:bg-red-50"
+          >
+            <Trash2 className="w-5 h-5 mr-2" />
+            Eliminar Propiedad
           </Button>
         </div>
       </div>
@@ -1312,123 +1658,21 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 </div>
               </Card>
             ) : (
-              zones.map((zone) => (
-              <motion.div
-                key={zone.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.2 }}
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
               >
-                <Card 
-                  className="hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300"
-                  onClick={() => {
-                    // Debug logging
-                    console.log('🔍 Zone click debug:', {
-                      zoneName: zone.name,
-                      zoneSlug: zone.slug,
-                      propertySlug: propertySlug,
-                      hasSlug: !!(zone.slug && propertySlug)
-                    })
-                    
-                    // Use slug if available, fallback to ID
-                    if (zone.slug && propertySlug) {
-                      console.log('🚀 Using clean URL:', `/properties/${propertySlug}/${zone.slug}`)
-                      router.push(`/properties/${propertySlug}/${zone.slug}`)
-                    } else {
-                      console.log('🚀 Using ID URL:', `/properties/${id}/zones/${zone.id}`)
-                      router.push(`/properties/${id}/zones/${zone.id}`)
-                    }
-                  }}
+                <SortableContext 
+                  items={zones.map(zone => zone.id)}
+                  strategy={verticalListSortingStrategy}
                 >
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      {/* Left Section - Zone Info (Compact) */}
-                      <div className="flex items-center space-x-4 flex-1">
-                        <ZoneIconDisplay iconId={zone.iconId} size="md" />
-                        
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-1">{getZoneText(zone.name)}</h3>
-                          
-                          <div className="flex items-center space-x-6 text-sm text-gray-600">
-                            <div className="flex items-center">
-                              <Edit className="w-3 h-3 mr-1 text-gray-400" />
-                              <span className="font-medium">{zone.stepsCount}</span>
-                              <span className="ml-1">steps</span>
-                            </div>
-                            
-                            <div className="flex items-center">
-                              <span className="text-gray-500">Actualizado:</span>
-                              <span className="ml-1 font-medium">{zone.lastUpdated}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right Section - Menu */}
-                      <div className="flex items-center ml-4" onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenu.Root>
-                          <DropdownMenu.Trigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenu.Trigger>
-                          <DropdownMenu.Portal>
-                            <DropdownMenu.Content className="w-48 bg-white rounded-md border shadow-lg p-1 z-50">
-                              <DropdownMenu.Item
-                                className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                                onSelect={async () => {
-                                  setEditingZoneForSteps(zone)
-                                  await loadZoneSteps(zone.id)
-                                  setShowStepEditor(true)
-                                }}
-                              >
-                                <Edit className="h-4 w-4 mr-2" />
-                                Editar
-                              </DropdownMenu.Item>
-                              <DropdownMenu.Item
-                                className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                                onSelect={() => handleEditZone(zone)}
-                              >
-                                <FileText className="h-4 w-4 mr-2" />
-                                Configurar
-                              </DropdownMenu.Item>
-                              <DropdownMenu.Item
-                                className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                                onSelect={() => handleCopyURL(zone)}
-                              >
-                                <Copy className="h-4 w-4 mr-2" />
-                                Copiar URL
-                              </DropdownMenu.Item>
-                              <DropdownMenu.Item
-                                className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                                onSelect={() => handleShowQR(zone)}
-                              >
-                                <QrCode className="h-4 w-4 mr-2" />
-                                Ver Código QR
-                              </DropdownMenu.Item>
-                              <DropdownMenu.Separator className="my-1 h-px bg-gray-200" />
-                              <DropdownMenu.Item
-                                className="flex items-center px-3 py-2 text-sm hover:bg-red-100 text-red-600 rounded cursor-pointer"
-                                onSelect={() => handleDeleteZone(zone)}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Eliminar
-                              </DropdownMenu.Item>
-                            </DropdownMenu.Content>
-                          </DropdownMenu.Portal>
-                        </DropdownMenu.Root>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))
+                  {zones.map((zone) => (
+                    <SortableZoneItem key={zone.id} zone={zone} />
+                  ))}
+                </SortableContext>
+              </DndContext>
+            )
             )}
           </AnimatePresence>
         </div>
@@ -1951,6 +2195,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           'Toda la configuración de la zona'
         ] : []}
         isLoading={isDeletingZone}
+      />
+
+      <DeletePropertyModal
+        isOpen={showDeletePropertyModal}
+        onClose={() => setShowDeletePropertyModal(false)}
+        onConfirm={handleDeleteProperty}
+        propertyName={propertyName}
+        propertyType={propertyType}
+        propertyLocation={propertyLocation}
+        zonesCount={zones.length}
+        isDeleting={isDeletingProperty}
       />
 
     </div>
