@@ -2,20 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '../../../src/lib/prisma'
 import { generateSlug, generateUniqueSlug } from '../../../src/lib/slug-utils'
-import { essentialTemplates } from '../../../src/data/essentialTemplates'
 import { requireAuth } from '../../../src/lib/auth'
 
 // Validation schema for property creation
-// Common zones that can be offered to users
-const COMMON_ZONES = [
-  { name: 'WiFi', iconId: 'wifi', description: 'Contraseña y conexión a internet', order: 1 },
-  { name: 'Check-in', iconId: 'door', description: 'Proceso de entrada y llaves', order: 2 },
-  { name: 'Check-out', iconId: 'exit', description: 'Proceso de salida', order: 3 },
-  { name: 'Información General', iconId: 'info', description: 'Normas y datos importantes', order: 4 },
-  { name: 'Parking', iconId: 'car', description: 'Dónde aparcar y cómo acceder', order: 5 },
-  { name: 'Teléfonos de interés', iconId: 'phone', description: 'Emergencias y contactos útiles', order: 6 }
-]
-
 const createPropertySchema = z.object({
   name: z.string().min(3).max(100),
   description: z.string().min(10).max(1000),
@@ -143,62 +132,7 @@ export async function POST(request: NextRequest) {
     
     console.log('Property created successfully:', property.id)
     
-    // Auto-create essential zones from templates
-    console.log('Creating essential zones from templates...')
-    try {
-      const createdZones = []
-      
-      for (const template of essentialTemplates) {
-        // Create the zone
-        const accessCode = Math.random().toString(36).substring(2, 8).toUpperCase()
-        const qrCode = `https://itineramio.com/z/${accessCode}`
-        
-        const zone = await prisma.zone.create({
-          data: {
-            name: { es: template.name, en: template.name },
-            description: { es: template.description, en: template.description },
-            icon: template.icon,
-            order: template.order,
-            status: 'ACTIVE',
-            isPublished: true,
-            propertyId: property.id,
-            qrCode: qrCode,
-            accessCode: accessCode,
-            viewCount: 0
-          }
-        })
-        
-        // Create steps for this zone
-        for (const stepTemplate of template.steps) {
-          await prisma.step.create({
-            data: {
-              type: stepTemplate.media_type,
-              title: { es: stepTemplate.title, en: stepTemplate.title },
-              content: {
-                text: stepTemplate.description,
-                mediaUrl: stepTemplate.content.mediaUrl,
-                thumbnail: stepTemplate.content.thumbnail,
-                duration: stepTemplate.content.duration
-              },
-              order: stepTemplate.order,
-              zoneId: zone.id,
-              isPublished: true
-            }
-          })
-        }
-        
-        createdZones.push({
-          id: zone.id,
-          name: template.name,
-          stepsCount: template.steps.length
-        })
-      }
-      
-      console.log(`Created ${createdZones.length} essential zones with steps`)
-    } catch (zoneError) {
-      console.error('Error creating essential zones:', zoneError)
-      // Don't fail the property creation if zones fail, just log the error
-    }
+    // NO longer auto-creating zones - they are created on demand via modal
     
     return NextResponse.json({
       success: true,
