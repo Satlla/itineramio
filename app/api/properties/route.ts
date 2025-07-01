@@ -58,24 +58,40 @@ export async function POST(request: NextRequest) {
     console.log('Validated data:', validatedData)
     console.log('User ID:', userId)
     
-    // Generate unique slug for the property
+    // Generate unique slug efficiently (no need to fetch all properties)
     const baseSlug = generateSlug(validatedData.name)
     console.log('Generated base slug:', baseSlug)
     
-    let existingSlugs: string[] = []
-    try {
-      const existingProperties = await prisma.property.findMany({
-        where: { slug: { not: null } },
-        select: { slug: true }
-      })
-      existingSlugs = existingProperties.map(r => r.slug).filter(Boolean) as string[]
-      console.log('Found existing slugs:', existingSlugs.length)
-    } catch (dbError) {
-      console.error('Error fetching existing slugs:', dbError)
-      throw new Error('Database connection error')
+    let uniqueSlug = baseSlug
+    let slugSuffix = 0
+    
+    // Efficient slug generation - only check specific slugs
+    while (true) {
+      try {
+        const testSlug = slugSuffix === 0 ? baseSlug : `${baseSlug}-${slugSuffix}`
+        const existing = await prisma.property.findUnique({
+          where: { slug: testSlug },
+          select: { id: true }
+        })
+        
+        if (!existing) {
+          uniqueSlug = testSlug
+          break
+        }
+        
+        slugSuffix++
+        if (slugSuffix > 100) {
+          throw new Error('Unable to generate unique slug after 100 attempts')
+        }
+      } catch (dbError: any) {
+        if (dbError.message.includes('Unable to generate unique slug')) {
+          throw dbError
+        }
+        console.error('Error checking slug uniqueness:', dbError)
+        throw new Error('Database connection error')
+      }
     }
     
-    const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
     console.log('Generated unique slug:', uniqueSlug)
     
     // Create property in database
