@@ -204,7 +204,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
           // Check if this is first visit and create essential zones
           const hasExistingZones = transformedZones.length > 0
-          const hasVisitedKey = `visited_zones_${id}`
+          const hasVisitedKey = `visited_zones_first_time`
           const hasVisited = isClient && typeof window !== 'undefined' ? 
             !!window.localStorage.getItem(hasVisitedKey) : true
 
@@ -971,7 +971,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleKeepEssentialZones = () => {
     setShowZonasEsencialesModal(false)
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem(`visited_zones_${id}`, 'true')
+      window.localStorage.setItem('visited_zones_first_time', 'true')
     }
     addNotification({
       type: 'info',
@@ -988,7 +988,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       if (success) {
         setZones([])
         if (typeof window !== 'undefined') {
-          window.localStorage.setItem(`visited_zones_${id}`, 'true')
+          window.localStorage.setItem('visited_zones_first_time', 'true')
         }
         addNotification({
           type: 'info',
@@ -1011,7 +1011,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setShowWelcomeModal(false)
     setTimeout(() => {
       if (typeof window !== 'undefined') {
-        window.localStorage.setItem(`visited_zones_${id}`, 'true')
+        window.localStorage.setItem('visited_zones_first_time', 'true')
       }
     }, 0)
   }
@@ -1020,7 +1020,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setShowWelcomeModal(false)
     setTimeout(() => {
       if (typeof window !== 'undefined') {
-        window.localStorage.setItem(`visited_zones_${id}`, 'true')
+        window.localStorage.setItem('visited_zones_first_time', 'true')
       }
     }, 0)
   }
@@ -1940,7 +1940,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         onClose={() => {
           setShowZonasEsencialesModal(false)
           if (typeof window !== 'undefined') {
-            window.localStorage.setItem(`visited_zones_${id}`, 'true')
+            window.localStorage.setItem('visited_zones_first_time', 'true')
           }
         }}
         onKeepZones={handleKeepEssentialZones}
