@@ -235,6 +235,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     }
                   })
                   setZones(newZones)
+                  // Mark as visited to prevent recreating zones on refresh
+                  if (typeof window !== 'undefined') {
+                    window.localStorage.setItem(hasVisitedKey, 'true')
+                  }
                   // Show modal after creating zones
                   setTimeout(() => {
                     setShowZonasEsencialesModal(true)
