@@ -69,40 +69,24 @@ export async function POST(request: NextRequest) {
     console.log('Validated data:', validatedData)
     console.log('User ID:', userId)
     
-    // Generate unique slug for the property (optimized)
+    // Generate unique slug for the property
     const baseSlug = generateSlug(validatedData.name)
     console.log('Generated base slug:', baseSlug)
     
-    // Check slug uniqueness efficiently using database constraints
-    let uniqueSlug = baseSlug
-    let slugSuffix = 0
-    
-    while (true) {
-      try {
-        const testSlug = slugSuffix === 0 ? baseSlug : `${baseSlug}-${slugSuffix}`
-        const existing = await prisma.property.findUnique({
-          where: { slug: testSlug },
-          select: { id: true }
-        })
-        
-        if (!existing) {
-          uniqueSlug = testSlug
-          break
-        }
-        
-        slugSuffix++
-        if (slugSuffix > 100) {
-          throw new Error('Unable to generate unique slug')
-        }
-      } catch (dbError: any) {
-        if (dbError.message === 'Unable to generate unique slug') {
-          throw dbError
-        }
-        console.error('Error checking slug uniqueness:', dbError)
-        throw new Error('Database connection error')
-      }
+    let existingSlugs: string[] = []
+    try {
+      const existingProperties = await prisma.property.findMany({
+        where: { slug: { not: null } },
+        select: { slug: true }
+      })
+      existingSlugs = existingProperties.map(r => r.slug).filter(Boolean) as string[]
+      console.log('Found existing slugs:', existingSlugs.length)
+    } catch (dbError) {
+      console.error('Error fetching existing slugs:', dbError)
+      throw new Error('Database connection error')
     }
     
+    const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
     console.log('Generated unique slug:', uniqueSlug)
     
     // Create property in database
@@ -159,39 +143,35 @@ export async function POST(request: NextRequest) {
     
     console.log('Property created successfully:', property.id)
     
-    // Auto-create essential zones from templates (optimized with transaction)
+    // Auto-create essential zones from templates
     console.log('Creating essential zones from templates...')
     try {
-      await prisma.$transaction(async (tx) => {
-        // Prepare zones data for batch creation
-        const zonesData = essentialTemplates.map((template) => {
-          const accessCode = Math.random().toString(36).substring(2, 8).toUpperCase()
-          return {
+      const createdZones = []
+      
+      for (const template of essentialTemplates) {
+        // Create the zone
+        const accessCode = Math.random().toString(36).substring(2, 8).toUpperCase()
+        const qrCode = `https://itineramio.com/z/${accessCode}`
+        
+        const zone = await prisma.zone.create({
+          data: {
             name: { es: template.name, en: template.name },
             description: { es: template.description, en: template.description },
             icon: template.icon,
             order: template.order,
-            status: 'ACTIVE' as const,
+            status: 'ACTIVE',
             isPublished: true,
             propertyId: property.id,
-            qrCode: `https://itineramio.com/z/${accessCode}`,
+            qrCode: qrCode,
             accessCode: accessCode,
-            viewCount: 0,
-            slug: `${uniqueSlug}-${generateSlug(template.name)}`
+            viewCount: 0
           }
         })
         
-        // Create all zones in batch
-        const createdZones = await Promise.all(
-          zonesData.map((zoneData) => tx.zone.create({ data: zoneData }))
-        )
-        
-        // Prepare steps data for batch creation
-        const allStepsData: any[] = []
-        createdZones.forEach((zone, zoneIndex) => {
-          const template = essentialTemplates[zoneIndex]
-          template.steps.forEach((stepTemplate) => {
-            allStepsData.push({
+        // Create steps for this zone
+        for (const stepTemplate of template.steps) {
+          await prisma.step.create({
+            data: {
               type: stepTemplate.media_type,
               title: { es: stepTemplate.title, en: stepTemplate.title },
               content: {
@@ -203,21 +183,18 @@ export async function POST(request: NextRequest) {
               order: stepTemplate.order,
               zoneId: zone.id,
               isPublished: true
-            })
+            }
           })
-        })
-        
-        // Create all steps in batches of 50 to avoid query limits
-        const batchSize = 50
-        for (let i = 0; i < allStepsData.length; i += batchSize) {
-          const batch = allStepsData.slice(i, i + batchSize)
-          await Promise.all(
-            batch.map((stepData) => tx.step.create({ data: stepData }))
-          )
         }
         
-        console.log(`Created ${createdZones.length} essential zones with ${allStepsData.length} steps`)
-      })
+        createdZones.push({
+          id: zone.id,
+          name: template.name,
+          stepsCount: template.steps.length
+        })
+      }
+      
+      console.log(`Created ${createdZones.length} essential zones with steps`)
     } catch (zoneError) {
       console.error('Error creating essential zones:', zoneError)
       // Don't fail the property creation if zones fail, just log the error
