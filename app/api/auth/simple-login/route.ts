@@ -19,7 +19,9 @@ export async function POST(request: NextRequest) {
         email: true,
         password: true,
         emailVerified: true,
-        status: true
+        status: true,
+        avatar: true,
+        phone: true
       }
     })
 
@@ -68,9 +70,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Create token
+    const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
     const token = jwt.sign(
       { userId: user.id, email: user.email },
-      'itineramio-secret-key-2024',
+      JWT_SECRET,
       { expiresIn: '7d' }
     )
 
@@ -80,17 +83,21 @@ export async function POST(request: NextRequest) {
       user: {
         id: user.id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        avatar: user.avatar,
+        phone: user.phone
       },
       token
     })
 
-    // Set cookie - simple configuration
+    // Set cookie with production-ready configuration
     response.cookies.set({
       name: 'auth-token',
       value: token,
       path: '/',
-      maxAge: 60 * 60 * 24 * 7 // 7 days
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
     })
 
     return response
