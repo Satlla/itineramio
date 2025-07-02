@@ -90,13 +90,12 @@ export async function POST(request: NextRequest) {
       token
     })
 
-    // Set cookie with production-ready configuration
-    response.cookies.set({
-      name: 'auth-token',
-      value: token,
+    // Set cookie with simple configuration that works in production
+    response.cookies.set('auth-token', token, {
       path: '/',
       maxAge: 60 * 60 * 24 * 7, // 7 days
-      secure: process.env.NODE_ENV === 'production',
+      httpOnly: false, // Allow JavaScript access
+      secure: true, // Always secure in production
       sameSite: 'lax'
     })
 
