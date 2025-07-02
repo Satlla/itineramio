@@ -46,6 +46,7 @@ import { resolveProperty, resolveZone } from '../../../../../../src/lib/slug-res
 import { isCuid } from '../../../../../../src/lib/slug-utils'
 import { getZoneIcon as getExtendedZoneIcon, getZoneIconByName } from '../../../../../../src/data/zoneIconsExtended'
 import { ZoneSuggestionsModal } from '../../../../../../src/components/ui/ZoneSuggestionsModal'
+import { EditZoneModal } from '../../../../../../src/components/ui/EditZoneModal'
 
 interface Step {
   id: string
@@ -92,6 +93,7 @@ export default function ZoneDetailPage() {
   const [isEditingExisting, setIsEditingExisting] = useState(false)
   const [editingStepId, setEditingStepId] = useState<string | null>(null)
   const [showSuggestionsModal, setShowSuggestionsModal] = useState(false)
+  const [showEditZoneModal, setShowEditZoneModal] = useState(false)
 
   useEffect(() => {
     console.log('🎯 ZoneDetailPage mounted with:', { propertyId, zoneId })
@@ -216,7 +218,7 @@ export default function ZoneDetailPage() {
   }
 
   const handleEditZone = () => {
-    router.push(`/properties/${propertyId}/zones/${zoneId}/edit`)
+    setShowEditZoneModal(true)
   }
 
   const handleSaveSteps = async (steps: any[]) => {
@@ -758,6 +760,50 @@ export default function ZoneDetailPage() {
               </div>
             </div>
           )}
+
+          {/* Mobile Quick Actions */}
+          <div className="px-4 pb-6">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Acciones Rápidas</h3>
+              <div className="space-y-3">
+                <Button 
+                  onClick={handleAddStep}
+                  variant="outline" 
+                  className="w-full justify-start h-12 text-left"
+                >
+                  <Plus className="w-5 h-5 mr-3 flex-shrink-0" />
+                  <div>
+                    <div className="font-medium">Nuevo Paso</div>
+                    <div className="text-xs text-gray-500">Añadir instrucción</div>
+                  </div>
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start h-12 text-left"
+                  onClick={() => alert('Funcionalidad próximamente')}
+                >
+                  <Eye className="w-5 h-5 mr-3 flex-shrink-0" />
+                  <div>
+                    <div className="font-medium">Vista Previa</div>
+                    <div className="text-xs text-gray-500">Ver como huésped</div>
+                  </div>
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start h-12 text-left"
+                  onClick={handleEditZone}
+                >
+                  <Settings className="w-5 h-5 mr-3 flex-shrink-0" />
+                  <div>
+                    <div className="font-medium">Configurar Zona</div>
+                    <div className="text-xs text-gray-500">Editar información</div>
+                  </div>
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -995,6 +1041,15 @@ export default function ZoneDetailPage() {
           zoneName={getZoneText(zone.name, '')}
         />
       )}
+
+      {/* Edit Zone Modal */}
+      <EditZoneModal
+        isOpen={showEditZoneModal}
+        onClose={() => setShowEditZoneModal(false)}
+        zone={zone}
+        propertyId={propertyId}
+        onSuccess={fetchZoneData}
+      />
     </div>
   )
 }
