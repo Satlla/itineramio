@@ -38,6 +38,7 @@ import { createPropertySlug } from '../../../src/lib/slugs'
 import { LoadingSpinner } from '../../../src/components/ui/LoadingSpinner'
 import { AnimatedLoadingSpinner } from '../../../src/components/ui/AnimatedLoadingSpinner'
 import { InlineLoadingSpinner } from '../../../src/components/ui/InlineLoadingSpinner'
+import { useNotifications } from '../../../src/hooks/useNotifications'
 
 interface Property {
   id: string
@@ -589,6 +590,7 @@ const calculateAggregateStats = (properties: Property[]) => {
 function PropertiesPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { generateZoneWarnings } = useNotifications()
   const [properties, setProperties] = useState<Property[]>([])
   const [propertySets, setPropertySets] = useState<PropertySet[]>([])
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null)
@@ -642,6 +644,11 @@ function PropertiesPageContent() {
       if (result.success && result.data) {
         console.log('Setting properties:', result.data.length, 'properties found')
         setProperties(result.data)
+        
+        // Generate notifications for each property
+        setTimeout(() => {
+          generatePropertyNotifications(result.data)
+        }, 1000)
       } else {
         throw new Error('Respuesta del API inválida')
       }
@@ -663,6 +670,30 @@ function PropertiesPageContent() {
       }
     } catch (err) {
       console.error('Error fetching property sets:', err)
+    }
+  }
+
+  const generatePropertyNotifications = async (properties: Property[]) => {
+    console.log('🔔 Generating notifications for', properties.length, 'properties')
+    
+    for (const property of properties) {
+      try {
+        // Fetch zones for each property
+        const zonesResponse = await fetch(`/api/properties/${property.id}/zones`)
+        const zonesResult = await zonesResponse.json()
+        
+        if (zonesResponse.ok && zonesResult.success && zonesResult.data) {
+          const zones = zonesResult.data
+          const propertyName = typeof property.name === 'string' 
+            ? property.name 
+            : property.name.es || property.name.en || 'Propiedad'
+          
+          console.log(`🔔 Generating warnings for property: ${propertyName} (${zones.length} zones)`)
+          generateZoneWarnings(property.id, zones, propertyName)
+        }
+      } catch (error) {
+        console.error(`Error fetching zones for property ${property.id}:`, error)
+      }
     }
   }
 

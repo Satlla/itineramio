@@ -13,7 +13,7 @@ export interface Notification {
 export interface ZoneWarning {
   zoneId: string
   zoneName: string
-  type: 'inactive' | 'no_visits' | 'empty' | 'error'
+  type: 'inactive' | 'no_visits' | 'empty' | 'error' | 'incomplete_steps' | 'missing_translation' | 'missing_french' | 'missing_essential'
   message: string
   propertyId: string
 }
@@ -24,5 +24,5 @@ export type NotificationContext = {
   markAsRead: (id: string) => void
   markAllAsRead: () => void
   addNotification: (notification: Omit<Notification, 'id' | 'createdAt'>) => void
-  generateZoneWarnings: (propertyId: string, zones: any[]) => void
+  generateZoneWarnings: (propertyId: string, zones: any[], propertyName?: string) => void
 }
