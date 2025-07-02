@@ -580,8 +580,15 @@ export default function ZoneDetailPage() {
         {/* Zone Info Section */}
         <div className="bg-white border-b border-gray-200 p-4">
           <div className="text-center mb-4">
-            <div className={`w-16 h-16 rounded-xl mx-auto mb-3 flex items-center justify-center text-3xl ${zone.color || 'bg-gray-100'}`}>
-              {zone.icon}
+            <div className={`w-16 h-16 rounded-xl mx-auto mb-3 flex items-center justify-center ${zone.color || 'bg-gray-100'}`}>
+              {(() => {
+                const IconComponent = getZoneIcon(zone.icon, getZoneText(zone.name, ''))
+                return IconComponent ? (
+                  <IconComponent className="w-8 h-8 text-gray-700" />
+                ) : (
+                  <span className="text-3xl">{zone.icon}</span>
+                )
+              })()}
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-2">
               {getZoneText(zone.name, 'Zona')}
@@ -615,9 +622,27 @@ export default function ZoneDetailPage() {
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 No hay pasos aún
               </h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-sm mb-6">
                 Crea el primer paso para guiar a tus huéspedes
               </p>
+              <div className="flex items-center justify-center gap-3">
+                <Button onClick={handleAddStep} className="bg-violet-600 hover:bg-violet-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Crear Primer Paso
+                </Button>
+                <Button
+                  onClick={() => setShowSuggestionsModal(true)}
+                  variant="outline"
+                  className="relative group"
+                  title="Ver sugerencias para esta zona"
+                >
+                  <Lightbulb className="w-4 h-4 text-amber-500 group-hover:text-amber-600" />
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                  </span>
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="relative">

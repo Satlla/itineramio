@@ -182,12 +182,14 @@ export function getZoneIcon(emoji: string): LucideIcon {
 }
 
 // Common zone types with their default icons
-export const commonZoneIcons = {
+export const commonZoneIcons: { [key: string]: LucideIcon } = {
   'wifi': Wifi,
   'checkin': DoorOpen,
   'checkout': DoorClosed,
   'check-in': DoorOpen,
   'check-out': DoorClosed,
+  'check in': DoorOpen,
+  'check out': DoorClosed,
   'keys': Key,
   'parking': Car,
   'info': Info,
@@ -214,7 +216,6 @@ export const commonZoneIcons = {
   'arrival': MapPin,
   'salida': DoorClosed,
   'departure': DoorClosed,
-  'normas': AlertTriangle,
   'reglas': AlertTriangle,
   'kitchen': Utensils,
   'cocina': Utensils,
@@ -235,7 +236,6 @@ export const commonZoneIcons = {
   'pool': Waves,
   'piscina': Waves,
   'rules': AlertTriangle,
-  'emergency': Phone,
   'emergencia': Phone,
   'contacts': Phone,
   'contactos': Phone,
@@ -335,18 +335,49 @@ export const commonZoneIcons = {
   'otro': Info,
   'otros': Info,
   'more': ChevronRight,
-  'mas': ChevronRight
+  'mas': ChevronRight,
+  // Additional essential zones
+  'emergencias': AlertTriangle,
+  'emergency': AlertTriangle,
+  'normas': AlertTriangle,
+  'reglas casa': AlertTriangle,
+  'recomendaciones': Star,
+  'recommendations': Star,
+  'llegar': MapPin,
+  'como llegar': MapPin,
+  'directions': MapPin,
+  'house rules': AlertTriangle,
+  'housrules': AlertTriangle,
+  'telefonos': Phone,
+  'telefonos emergencia': Phone,
+  'emergency phones': Phone
 }
 
 // Function to get icon by zone name
 export function getZoneIconByName(name: string): LucideIcon {
-  const normalized = name.toLowerCase().replace(/[^a-z]/g, '')
+  const normalizedName = name.toLowerCase().trim()
   
-  // Check common zone names first
+  // First try exact match (preserving spaces)
+  if (commonZoneIcons[normalizedName]) {
+    return commonZoneIcons[normalizedName]
+  }
+  
+  // Then try without spaces
+  const normalizedNoSpaces = normalizedName.replace(/[^a-z]/g, '')
+  if (commonZoneIcons[normalizedNoSpaces]) {
+    return commonZoneIcons[normalizedNoSpaces]
+  }
+  
+  // Check if the name contains any of our keywords
   for (const [key, icon] of Object.entries(commonZoneIcons)) {
-    if (normalized.includes(key)) {
+    if (normalizedName.includes(key) || normalizedNoSpaces.includes(key.replace(/[^a-z]/g, ''))) {
       return icon
     }
+  }
+  
+  // Default to DoorOpen for check-in like zones
+  if (normalizedName.includes('check') || normalizedName.includes('entrada') || normalizedName.includes('llegada')) {
+    return DoorOpen
   }
   
   // Default to Home icon

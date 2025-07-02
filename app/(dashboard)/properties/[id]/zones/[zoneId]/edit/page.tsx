@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../../../../../../s
 import { Input } from '../../../../../../../src/components/ui/Input'
 import { IconSelector, ZoneIconDisplay } from '../../../../../../../src/components/ui/IconSelector'
 import { AnimatedLoadingSpinner } from '../../../../../../../src/components/ui/AnimatedLoadingSpinner'
-import { resolveProperty, resolveZone } from '../../../../../../../src/lib/slug-resolver'
 import { getZoneIcon as getExtendedZoneIcon, getZoneIconByName } from '../../../../../../../src/data/zoneIconsExtended'
 import { Home } from 'lucide-react'
 
@@ -56,20 +55,24 @@ export default function EditZonePage() {
       setLoading(true)
       console.log('🔍 Fetching zone data for:', { propertyId, zoneId })
       
-      // Use the slug resolver to get the zone
-      const resolvedZone = await resolveZone(propertyId, zoneId)
-      
-      if (resolvedZone) {
-        setZone(resolvedZone)
-        setFormData({
-          name: getZoneText(resolvedZone.name),
-          description: getZoneText(resolvedZone.description),
-          icon: resolvedZone.icon || '',
-          color: resolvedZone.color || 'bg-gray-100',
-          status: resolvedZone.status || 'ACTIVE'
-        })
-      } else {
-        console.error('Zone not found')
+      // Fetch zone data directly from API
+      const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}`)
+      if (response.ok) {
+        const result = await response.json()
+        const zoneData = result.data
+        
+        if (zoneData) {
+          setZone(zoneData)
+          setFormData({
+            name: getZoneText(zoneData.name),
+            description: '',
+            icon: zoneData.icon || '',
+            color: 'bg-gray-100',
+            status: 'ACTIVE'
+          })
+        } else {
+          console.error('Zone not found')
+        }
       }
     } catch (error) {
       console.error('Error fetching zone:', error)
@@ -116,10 +119,7 @@ export default function EditZonePage() {
         },
         body: JSON.stringify({
           name: formData.name,
-          description: formData.description,
-          icon: formData.icon,
-          color: formData.color,
-          status: formData.status
+          icon: formData.icon
         })
       })
 
@@ -212,7 +212,7 @@ export default function EditZonePage() {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle>Información Básica</CardTitle>
+                <CardTitle>Editar Zona</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Zone Name */}
@@ -228,18 +228,6 @@ export default function EditZonePage() {
                   />
                 </div>
 
-                {/* Zone Description */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Descripción (opcional)
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Breve descripción de qué incluye esta zona..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none h-20"
-                  />
-                </div>
 
                 {/* Zone Icon */}
                 <div>
@@ -279,21 +267,6 @@ export default function EditZonePage() {
                   </div>
                 </div>
 
-                {/* Zone Status */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Estado de la zona
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as Zone['status'] }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                  >
-                    <option value="ACTIVE">Activa</option>
-                    <option value="DRAFT">Borrador</option>
-                    <option value="ARCHIVED">Archivada</option>
-                  </select>
-                </div>
               </CardContent>
             </Card>
           </div>
@@ -323,22 +296,6 @@ export default function EditZonePage() {
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     {formData.name || 'Nombre de la zona'}
                   </h3>
-                  {formData.description && (
-                    <p className="text-sm text-gray-600">
-                      {formData.description}
-                    </p>
-                  )}
-                  <div className="mt-4">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                      formData.status === 'ACTIVE' 
-                        ? 'bg-green-100 text-green-800'
-                        : formData.status === 'DRAFT'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {formData.status === 'ACTIVE' ? 'Activa' : formData.status === 'DRAFT' ? 'Borrador' : 'Archivada'}
-                    </span>
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -367,9 +324,8 @@ export default function EditZonePage() {
             </div>
             <div className="overflow-y-auto max-h-[60vh]">
               <IconSelector
-                selectedIcon={formData.icon}
-                onIconSelect={handleIconSelect}
-                showPreview={false}
+                selectedIconId={formData.icon}
+                onSelect={handleIconSelect}
               />
             </div>
           </motion.div>
