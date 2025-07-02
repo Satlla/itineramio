@@ -51,6 +51,16 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    console.log('🏠 Properties found for user:', userId, 'count:', properties.length)
+    if (properties.length > 0) {
+      console.log('🏠 First property:', {
+        id: properties[0].id,
+        name: properties[0].name,
+        type: properties[0].type,
+        status: properties[0].status
+      })
+    }
+
     // Calculate aggregated stats
     let totalViews = 0
     let totalZonesViewed = 0
@@ -172,62 +182,66 @@ export async function GET(request: NextRequest) {
 
     const monthlyViews = monthlyStats.reduce((sum, stat) => sum + stat._count.id, 0)
 
+    const responseData = {
+      stats: {
+        totalProperties: properties.length,
+        totalViews,
+        activeManuals,
+        avgRating: Math.round(avgRating * 10) / 10,
+        zonesViewed: totalZonesViewed,
+        timeSavedMinutes: totalTimeSavedMinutes,
+        monthlyViews
+      },
+      topProperties,
+      allProperties: properties.map(property => ({
+        id: property.id,
+        name: typeof property.name === 'string' 
+          ? property.name 
+          : (property.name as any)?.es || (property.name as any)?.en || 'Property',
+        slug: property.slug,
+        description: typeof property.description === 'string' 
+          ? property.description 
+          : (property.description as any)?.es || (property.description as any)?.en || '',
+        type: property.type,
+        city: typeof property.city === 'string'
+          ? property.city
+          : (property.city as any)?.es || (property.city as any)?.en || '',
+        state: typeof property.state === 'string'
+          ? property.state  
+          : (property.state as any)?.es || (property.state as any)?.en || '',
+        bedrooms: property.bedrooms,
+        bathrooms: property.bathrooms,
+        maxGuests: property.maxGuests,
+        status: property.status,
+        zonesCount: property.zones.length,
+        totalViews: property.analytics?.totalViews || 0,
+        avgRating: property.analytics?.overallRating || 0,
+        profileImage: property.profileImage,
+        propertySetId: property.propertySetId,
+        createdAt: property.createdAt.toISOString(),
+        updatedAt: property.updatedAt.toISOString()
+      })),
+      recentActivity: recentEvents.map(event => ({
+        id: event.id,
+        type: event.type,
+        propertyName: typeof event.property.name === 'string' 
+          ? event.property.name 
+          : (event.property.name as any)?.es || (event.property.name as any)?.en || 'Property',
+        zoneName: event.zone?.name ? 
+          (typeof event.zone.name === 'string' 
+            ? event.zone.name 
+            : (event.zone.name as any)?.es || (event.zone.name as any)?.en || 'Zone')
+          : null,
+        timestamp: event.timestamp,
+        metadata: event.metadata
+      }))
+    }
+
+    console.log('📊 Sending response with allProperties count:', responseData.allProperties.length)
+
     return NextResponse.json({
       success: true,
-      data: {
-        stats: {
-          totalProperties: properties.length,
-          totalViews,
-          activeManuals,
-          avgRating: Math.round(avgRating * 10) / 10,
-          zonesViewed: totalZonesViewed,
-          timeSavedMinutes: totalTimeSavedMinutes,
-          monthlyViews
-        },
-        topProperties,
-        allProperties: properties.map(property => ({
-          id: property.id,
-          name: typeof property.name === 'string' 
-            ? property.name 
-            : (property.name as any)?.es || (property.name as any)?.en || 'Property',
-          slug: property.slug,
-          description: typeof property.description === 'string' 
-            ? property.description 
-            : (property.description as any)?.es || (property.description as any)?.en || '',
-          type: property.type,
-          city: typeof property.city === 'string'
-            ? property.city
-            : (property.city as any)?.es || (property.city as any)?.en || '',
-          state: typeof property.state === 'string'
-            ? property.state  
-            : (property.state as any)?.es || (property.state as any)?.en || '',
-          bedrooms: property.bedrooms,
-          bathrooms: property.bathrooms,
-          maxGuests: property.maxGuests,
-          status: property.status,
-          zonesCount: property.zones.length,
-          totalViews: property.analytics?.totalViews || 0,
-          avgRating: property.analytics?.overallRating || 0,
-          profileImage: property.profileImage,
-          propertySetId: property.propertySetId,
-          createdAt: property.createdAt.toISOString(),
-          updatedAt: property.updatedAt.toISOString()
-        })),
-        recentActivity: recentEvents.map(event => ({
-          id: event.id,
-          type: event.type,
-          propertyName: typeof event.property.name === 'string' 
-            ? event.property.name 
-            : (event.property.name as any)?.es || (event.property.name as any)?.en || 'Property',
-          zoneName: event.zone?.name ? 
-            (typeof event.zone.name === 'string' 
-              ? event.zone.name 
-              : (event.zone.name as any)?.es || (event.zone.name as any)?.en || 'Zone')
-            : null,
-          timestamp: event.timestamp,
-          metadata: event.metadata
-        }))
-      }
+      data: responseData
     })
 
   } catch (error) {
