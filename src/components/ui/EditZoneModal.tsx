@@ -36,6 +36,7 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
 
   useEffect(() => {
     if (zone) {
+      console.log('🔧 Initializing modal with zone:', { name: zone.name, icon: zone.icon })
       setFormData({
         name: getZoneText(zone.name),
         icon: zone.icon || ''
@@ -74,6 +75,8 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
     try {
       setSaving(true)
       
+      console.log('💾 Saving zone with data:', { name: formData.name, icon: formData.icon })
+      
       const response = await fetch(`/api/properties/${propertyId}/zones/${zone.id}`, {
         method: 'PUT',
         headers: {
@@ -86,9 +89,11 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
       })
 
       if (response.ok) {
+        console.log('✅ Zone saved successfully')
         onSuccess?.()
         onClose()
       } else {
+        console.error('❌ Error response:', response.status)
         alert('Error al guardar los cambios')
       }
     } catch (error) {
@@ -100,6 +105,7 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
   }
 
   const handleIconSelect = (iconId: string) => {
+    console.log('🎨 Icon selected:', iconId)
     setFormData(prev => ({ ...prev, icon: iconId }))
     setShowIconSelector(false)
   }

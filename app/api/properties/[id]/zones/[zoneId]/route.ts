@@ -180,13 +180,17 @@ export async function PUT(
       )
     }
 
-    // Check if zone exists and belongs to the property
-    const existingZone = await prisma.zone.findFirst({
+    // Check if zone exists and belongs to the property (using startsWith like in GET)
+    const existingZones = await prisma.zone.findMany({
       where: {
-        id: zoneId,
+        id: {
+          startsWith: zoneId
+        },
         propertyId: propertyId
       }
     })
+
+    const existingZone = existingZones[0]
 
     if (!existingZone) {
       return NextResponse.json(
@@ -198,6 +202,8 @@ export async function PUT(
       )
     }
 
+    console.log('💾 Updating zone with data:', body)
+
     // Transform iconId to icon if provided
     const updateData = { ...body }
     if (updateData.iconId) {
@@ -205,9 +211,11 @@ export async function PUT(
       delete updateData.iconId
     }
 
-    // Update the zone
+    console.log('💾 Final update data:', updateData)
+
+    // Update the zone using the actual zone ID
     const zone = await prisma.zone.update({
-      where: { id: zoneId },
+      where: { id: existingZone.id },
       data: {
         ...updateData,
         updatedAt: new Date()
@@ -278,13 +286,17 @@ export async function DELETE(
       )
     }
 
-    // Check if zone exists and belongs to the property
-    const existingZone = await prisma.zone.findFirst({
+    // Check if zone exists and belongs to the property (using startsWith like in GET)
+    const existingZones = await prisma.zone.findMany({
       where: {
-        id: zoneId,
+        id: {
+          startsWith: zoneId
+        },
         propertyId: propertyId
       }
     })
+
+    const existingZone = existingZones[0]
 
     if (!existingZone) {
       return NextResponse.json(
@@ -296,14 +308,14 @@ export async function DELETE(
       )
     }
 
-    // Delete all steps (cascade delete)
+    // Delete all steps (cascade delete) using actual zone ID
     await prisma.step.deleteMany({
-      where: { zoneId: zoneId }
+      where: { zoneId: existingZone.id }
     })
 
-    // Delete the zone
+    // Delete the zone using actual zone ID
     await prisma.zone.delete({
-      where: { id: zoneId }
+      where: { id: existingZone.id }
     })
 
     return NextResponse.json({
