@@ -174,6 +174,11 @@ export async function GET(request: NextRequest) {
           name: typeof property.name === 'string' 
             ? property.name 
             : (property.name as any)?.es || (property.name as any)?.en || 'Property',
+          slug: property.slug,
+          description: typeof property.description === 'string' 
+            ? property.description 
+            : (property.description as any)?.es || (property.description as any)?.en || '',
+          type: property.type,
           city: typeof property.city === 'string'
             ? property.city
             : (property.city as any)?.es || (property.city as any)?.en || '',
@@ -186,8 +191,11 @@ export async function GET(request: NextRequest) {
           status: property.status,
           zonesCount: property.zones.length,
           totalViews: property.analytics?.totalViews || 0,
+          avgRating: property.analytics?.overallRating || 0,
           profileImage: property.profileImage,
-          propertySetId: property.propertySetId
+          propertySetId: property.propertySetId,
+          createdAt: property.createdAt.toISOString(),
+          updatedAt: property.updatedAt.toISOString()
         })),
         recentActivity: recentEvents.map(event => ({
           id: event.id,
