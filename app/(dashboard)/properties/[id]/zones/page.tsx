@@ -1480,7 +1480,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   if (response.ok) {
                     setPropertyStatus('ACTIVE')
                     addNotification({
-                      type: 'success',
+                      type: 'info',
                       title: '✅ Propiedad Activada',
                       message: 'Tu propiedad ya está visible para los huéspedes',
                       read: false
