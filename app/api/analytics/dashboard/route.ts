@@ -21,7 +21,13 @@ export async function GET(request: NextRequest) {
         analytics: true,
         zones: {
           include: {
-            analytics: true
+            analytics: true,
+            _count: {
+              select: {
+                ratings: true,
+                steps: true
+              }
+            }
           }
         }
       }
