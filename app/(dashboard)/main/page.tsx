@@ -23,7 +23,8 @@ import {
   X,
   Building2,
   CheckCircle,
-  MessageCircle
+  MessageCircle,
+  Timer
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -84,7 +85,9 @@ export default function DashboardPage(): JSX.Element {
     totalViews: 0,
     activeManuals: 0,
     avgRating: 0,
-    zonesViewed: 0
+    zonesViewed: 0,
+    timeSavedMinutes: 0,
+    monthlyViews: 0
   })
   const router = useRouter()
   const { user } = useAuth()
@@ -153,51 +156,38 @@ export default function DashboardPage(): JSX.Element {
     setRecentActivity(prev => [activity, ...prev.slice(0, 9)]) // Keep only last 10 activities
   }, [])
 
-  // Fetch properties data
-  const fetchPropertiesData = useCallback(async () => {
+  // Fetch analytics data
+  const fetchAnalyticsData = useCallback(async () => {
     try {
       setLoading(true)
       
-      // Fetch properties
-      const propertiesResponse = await fetch('/api/properties')
-      const propertiesResult = await propertiesResponse.json()
+      // Fetch real analytics data
+      const analyticsResponse = await fetch('/api/analytics/dashboard')
+      const analyticsResult = await analyticsResponse.json()
       
-      // Fetch property sets
+      // Fetch property sets for navigation
       const propertySetsResponse = await fetch('/api/property-sets')
       const propertySetsResult = await propertySetsResponse.json()
       
-      if (propertiesResponse.ok && propertiesResult.data) {
-        setProperties(propertiesResult.data)
-        
-        // Calculate stats from properties only
-        const allProperties = propertiesResult.data || []
-        
-        const totalViews = allProperties.reduce((sum: number, p: Property) => sum + (p.totalViews || 0), 0)
-        const activeManuals = allProperties.reduce((sum: number, p: Property) => sum + (p.zonesCount || 0), 0)
-        const avgRating = allProperties.length > 0 ? allProperties.reduce((sum: number, p: Property) => sum + (p.avgRating || 0), 0) / allProperties.length : 0
-        
-        setStats({
-          totalProperties: allProperties.length,
-          totalViews: totalViews,
-          activeManuals: activeManuals,
-          avgRating: parseFloat(avgRating.toFixed(1)),
-          zonesViewed: 0 // TODO: Implement real data from API
-        })
+      if (analyticsResponse.ok && analyticsResult.data) {
+        setStats(analyticsResult.data.stats)
+        setProperties(analyticsResult.data.topProperties || [])
+        setRecentActivity(analyticsResult.data.recentActivity || [])
       }
 
       if (propertySetsResponse.ok && propertySetsResult.data) {
         setPropertySets(propertySetsResult.data)
       }
     } catch (error) {
-      console.error('Error fetching data:', error)
+      console.error('Error fetching analytics data:', error)
     } finally {
       setLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    fetchPropertiesData()
-  }, [fetchPropertiesData])
+    fetchAnalyticsData()
+  }, [fetchAnalyticsData])
 
   // Simulate real-time activity updates
   useEffect(() => {
@@ -392,7 +382,10 @@ export default function DashboardPage(): JSX.Element {
           >
             <Card>
               <CardContent className="p-3 sm:p-6">
-                <div className="flex items-center">
+                <button
+                  onClick={() => router.push('/properties')}
+                  className="flex items-center w-full text-left"
+                >
                   <Home className="h-6 w-6 sm:h-8 sm:w-8 text-violet-600" />
                   <div className="ml-3 sm:ml-4">
                     <p className="text-xs sm:text-sm font-medium text-gray-600">Propiedades</p>
@@ -400,13 +393,16 @@ export default function DashboardPage(): JSX.Element {
                       {stats.totalProperties}
                     </p>
                   </div>
-                </div>
+                </button>
               </CardContent>
             </Card>
 
             <Card>
               <CardContent className="p-3 sm:p-6">
-                <div className="flex items-center">
+                <button
+                  onClick={() => router.push('/analytics')}
+                  className="flex items-center w-full text-left"
+                >
                   <Eye className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
                   <div className="ml-3 sm:ml-4">
                     <p className="text-xs sm:text-sm font-medium text-gray-600">Visualizaciones</p>
@@ -414,23 +410,22 @@ export default function DashboardPage(): JSX.Element {
                       {stats.totalViews}
                     </p>
                   </div>
-                </div>
+                </button>
               </CardContent>
             </Card>
 
-            {/* Actividad Reciente card */}
+            {/* Minutos Ahorrados card */}
             <Card>
               <CardContent className="p-3 sm:p-6">
-                <button
-                  onClick={() => setShowHistoryModal(true)}
-                  className="flex items-center w-full text-left"
-                >
-                  <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
+                <div className="flex items-center">
+                  <Timer className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
                   <div className="ml-3 sm:ml-4">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">Actividad Reciente</p>
-                    <p className="text-xl sm:text-2xl font-bold text-gray-900">{recentActivity.length}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Minutos Ahorrados</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900">
+                      {stats.timeSavedMinutes || 0}
+                    </p>
                   </div>
-                </button>
+                </div>
               </CardContent>
             </Card>
 

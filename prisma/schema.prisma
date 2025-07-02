@@ -43,6 +43,7 @@ model User {
   createdUsers         User[]                 @relation("UserCreatedBy")
   creator              User?                  @relation("UserCreatedBy", fields: [createdBy], references: [id])
   adminLogs            AdminActivityLog[]
+  trackingEvents       TrackingEvent[]        @relation("UserTrackingEvents")
 
   @@map("users")
 }
@@ -121,6 +122,7 @@ model Property {
   propertySet         PropertySet?       @relation(fields: [propertySetId], references: [id])
   analytics           PropertyAnalytics?
   zones               Zone[]
+  trackingEvents      TrackingEvent[]
 
   @@index([slug])
   @@map("properties")
@@ -155,6 +157,8 @@ model Zone {
   steps               Step[]
   comments            ZoneComment[]
   ratings             ZoneRating[]
+  trackingEvents      TrackingEvent[]
+  analytics           ZoneAnalytics?
   buildings           buildings?     @relation(fields: [buildingId], references: [id], onDelete: Cascade)
   organizations       organizations? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   property            Property?      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
@@ -295,6 +299,47 @@ model DailyStats {
   @@unique([propertyId, date])
   @@index([propertyId, date])
   @@map("daily_stats")
+}
+
+model TrackingEvent {
+  id         String   @id @default(cuid())
+  type       String   // STEP_VIEWED, ZONE_COMPLETED, ZONE_RATED, PROPERTY_VIEWED, etc.
+  propertyId String
+  zoneId     String?
+  stepId     String?
+  userId     String?
+  sessionId  String?
+  metadata   Json?    // Flexible field for additional data
+  timestamp  DateTime @default(now())
+  userAgent  String?
+  ipAddress  String?
+  duration   Int?     // Duration in seconds for completed actions
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  zone       Zone?    @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  user       User?    @relation("UserTrackingEvents", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([propertyId, type, timestamp])
+  @@index([zoneId, type, timestamp])
+  @@index([sessionId, timestamp])
+  @@map("tracking_events")
+}
+
+model ZoneAnalytics {
+  id                   String   @id @default(cuid())
+  zoneId               String   @unique
+  totalViews           Int      @default(0)
+  uniqueVisitors       Int      @default(0)
+  avgTimeSpent         Int      @default(0) // in seconds
+  completionRate       Float    @default(0) // percentage
+  avgStepsCompleted    Float    @default(0)
+  totalCompletions     Int      @default(0)
+  avgRating            Float    @default(0)
+  totalRatings         Int      @default(0)
+  timeSavedMinutes     Int      @default(0) // estimated time saved for users
+  lastCalculatedAt     DateTime @default(now())
+  zone                 Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@map("zone_analytics")
 }
 
 model buildings {
