@@ -164,8 +164,8 @@ export async function GET(request: NextRequest) {
         profileImage: property.profileImage
       }))
 
-    // Get monthly analytics for trends
-    const monthlyStats = await prisma.trackingEvent.groupBy({
+    // Get monthly analytics for trends only if there are properties
+    const monthlyStats = properties.length > 0 ? await prisma.trackingEvent.groupBy({
       by: ['propertyId'],
       where: {
         propertyId: {
@@ -178,7 +178,7 @@ export async function GET(request: NextRequest) {
       _count: {
         id: true
       }
-    })
+    }) : []
 
     const monthlyViews = monthlyStats.reduce((sum, stat) => sum + stat._count.id, 0)
 
