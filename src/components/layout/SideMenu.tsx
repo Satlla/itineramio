@@ -72,20 +72,20 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
     },
     {
       icon: <Settings className="w-5 h-5" />,
-      label: "Perfil",
-      href: "/profile",
+      label: "Configuración",
+      href: "/account",
       description: "Editar tu perfil y preferencias"
     },
     {
       icon: <CreditCard className="w-5 h-5" />,
       label: "Facturación",
-      href: "/billing",
+      href: "/account",
       description: "Gestiona tu suscripción y pagos"
     },
     {
       icon: <BookOpen className="w-5 h-5" />,
       label: "Recursos para anfitriones",
-      href: "/resources",
+      href: "/help",
       description: "Guías y mejores prácticas"
     },
     {
