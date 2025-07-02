@@ -17,7 +17,23 @@ export async function GET(request: NextRequest) {
     // Get user's properties with minimal includes to avoid timeout
     const properties = await prisma.property.findMany({
       where: { hostId: userId },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        type: true,
+        city: true,
+        state: true,
+        bedrooms: true,
+        bathrooms: true,
+        maxGuests: true,
+        status: true,
+        isPublished: true,
+        profileImage: true,
+        propertySetId: true,
+        createdAt: true,
+        updatedAt: true,
         analytics: true,
         zones: {
           select: {
