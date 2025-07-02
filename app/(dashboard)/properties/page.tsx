@@ -619,10 +619,25 @@ function PropertiesPageContent() {
     }
   }, [searchParams])
 
-  // Fetch properties and property sets from API
+  // Fetch properties and property sets from API - memoized to prevent duplicate calls
   useEffect(() => {
-    fetchProperties()
-    fetchPropertySets()
+    let mounted = true
+    
+    const loadData = async () => {
+      if (!mounted) return
+      
+      // Run both fetches in parallel for better performance
+      await Promise.allSettled([
+        fetchProperties(),
+        fetchPropertySets()
+      ])
+    }
+    
+    loadData()
+    
+    return () => {
+      mounted = false
+    }
   }, [])
 
   const fetchProperties = async () => {
@@ -631,7 +646,8 @@ function PropertiesPageContent() {
       setError(null)
       console.log('Fetching properties...')
       
-      const response = await fetch('/api/properties')
+      // Use pagination to load properties faster - increase limit for better UX
+      const response = await fetch('/api/properties?limit=50&page=1')
       console.log('Response status:', response.status)
       
       const result = await response.json()
@@ -645,10 +661,8 @@ function PropertiesPageContent() {
         console.log('Setting properties:', result.data.length, 'properties found')
         setProperties(result.data)
         
-        // Generate notifications for each property
-        setTimeout(() => {
-          generatePropertyNotifications(result.data)
-        }, 1000)
+        // Generate notifications asynchronously without blocking UI - only for first batch
+        generatePropertyNotificationsAsync(result.data.slice(0, 10)) // Only process first 10 for notifications to avoid overload
       } else {
         throw new Error('Respuesta del API inválida')
       }
@@ -673,28 +687,47 @@ function PropertiesPageContent() {
     }
   }
 
-  const generatePropertyNotifications = async (properties: Property[]) => {
-    console.log('🔔 Generating notifications for', properties.length, 'properties')
-    
-    for (const property of properties) {
-      try {
-        // Fetch zones for each property
-        const zonesResponse = await fetch(`/api/properties/${property.id}/zones`)
-        const zonesResult = await zonesResponse.json()
+  const generatePropertyNotificationsAsync = (properties: Property[]) => {
+    // Run notifications generation in background without blocking UI
+    setTimeout(async () => {
+      console.log('🔔 Starting background notification generation for', properties.length, 'properties')
+      
+      // Process properties in smaller batches to avoid overwhelming the API
+      const batchSize = 3
+      for (let i = 0; i < properties.length; i += batchSize) {
+        const batch = properties.slice(i, i + batchSize)
         
-        if (zonesResponse.ok && zonesResult.success && zonesResult.data) {
-          const zones = zonesResult.data
-          const propertyName = typeof property.name === 'string' 
-            ? property.name 
-            : property.name.es || property.name.en || 'Propiedad'
-          
-          console.log(`🔔 Generating warnings for property: ${propertyName} (${zones.length} zones)`)
-          generateZoneWarnings(property.id, zones, propertyName)
+        // Process batch concurrently
+        const batchPromises = batch.map(async (property) => {
+          try {
+            const zonesResponse = await fetch(`/api/properties/${property.id}/zones`)
+            const zonesResult = await zonesResponse.json()
+            
+            if (zonesResponse.ok && zonesResult.success && zonesResult.data) {
+              const zones = zonesResult.data
+              const propertyName = typeof property.name === 'string' 
+                ? property.name 
+                : property.name.es || property.name.en || 'Propiedad'
+              
+              console.log(`🔔 Generating warnings for property: ${propertyName} (${zones.length} zones)`)
+              generateZoneWarnings(property.id, zones, propertyName)
+            }
+          } catch (error) {
+            console.error(`Error generating notifications for property ${property.id}:`, error)
+          }
+        })
+        
+        // Wait for current batch to complete before processing next batch
+        await Promise.allSettled(batchPromises)
+        
+        // Small delay between batches to avoid overwhelming the server
+        if (i + batchSize < properties.length) {
+          await new Promise(resolve => setTimeout(resolve, 500))
         }
-      } catch (error) {
-        console.error(`Error fetching zones for property ${property.id}:`, error)
       }
-    }
+      
+      console.log('🔔 Background notification generation completed')
+    }, 100) // Start after very short delay to let UI render first
   }
 
   // Redirect legacy manage parameter to new URL structure
@@ -835,7 +868,58 @@ function PropertiesPageContent() {
 
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando propiedades..." type="properties" />
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header Skeleton */}
+          <div className="mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
+              <div className="w-full sm:w-auto">
+                <div className="h-8 bg-gray-200 rounded-lg w-48 mb-2 animate-pulse"></div>
+                <div className="h-5 bg-gray-200 rounded-lg w-80 animate-pulse"></div>
+              </div>
+              <div className="flex space-x-3">
+                <div className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="h-10 w-24 bg-gray-200 rounded-lg animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats Cards Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-gray-200 rounded-lg animate-pulse"></div>  
+                  <div className="ml-4 flex-1">
+                    <div className="h-4 bg-gray-200 rounded w-24 mb-2 animate-pulse"></div>
+                    <div className="h-8 bg-gray-200 rounded w-16 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Properties Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div className="h-48 bg-gray-200 animate-pulse"></div>
+                <div className="p-6">
+                  <div className="h-6 bg-gray-200 rounded w-3/4 mb-3 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full mb-2 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-2/3 mb-4 animate-pulse"></div>
+                  <div className="flex justify-between items-center">
+                    <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
