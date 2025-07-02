@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../../../src/lib/prisma'
 
-const JWT_SECRET = 'itineramio-secret-key-2024'
+const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
 
 export async function GET(request: NextRequest) {
   try {
