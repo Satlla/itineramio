@@ -33,7 +33,8 @@ import {
   ToggleRight,
   Users,
   Info,
-  ChevronRight
+  ChevronRight,
+  Lightbulb
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
@@ -44,6 +45,7 @@ import { AnimatedLoadingSpinner } from '../../../../../../src/components/ui/Anim
 import { resolveProperty, resolveZone } from '../../../../../../src/lib/slug-resolver'
 import { isCuid } from '../../../../../../src/lib/slug-utils'
 import { getZoneIcon as getExtendedZoneIcon, getZoneIconByName } from '../../../../../../src/data/zoneIconsExtended'
+import { ZoneSuggestionsModal } from '../../../../../../src/components/ui/ZoneSuggestionsModal'
 
 interface Step {
   id: string
@@ -89,6 +91,7 @@ export default function ZoneDetailPage() {
   const [showStepEditor, setShowStepEditor] = useState(false)
   const [isEditingExisting, setIsEditingExisting] = useState(false)
   const [editingStepId, setEditingStepId] = useState<string | null>(null)
+  const [showSuggestionsModal, setShowSuggestionsModal] = useState(false)
 
   useEffect(() => {
     console.log('🎯 ZoneDetailPage mounted with:', { propertyId, zoneId })
@@ -757,10 +760,24 @@ export default function ZoneDetailPage() {
               <p className="text-gray-600 mb-6">
                 Crea pasos con instrucciones para guiar a tus huéspedes
               </p>
-              <Button onClick={handleAddStep}>
-                <Plus className="w-4 h-4 mr-2" />
-                Crear Primer Paso
-              </Button>
+              <div className="flex items-center justify-center gap-3">
+                <Button onClick={handleAddStep}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Crear Primer Paso
+                </Button>
+                <Button
+                  onClick={() => setShowSuggestionsModal(true)}
+                  variant="outline"
+                  className="relative group"
+                  title="Ver sugerencias para esta zona"
+                >
+                  <Lightbulb className="w-4 h-4 text-amber-500 group-hover:text-amber-600" />
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                  </span>
+                </Button>
+              </div>
             </Card>
           ) : (
             <div className="space-y-3">
@@ -942,6 +959,15 @@ export default function ZoneDetailPage() {
           editingStepId={editingStepId}
           propertyId={propertyId}
           zoneId={zoneId}
+        />
+      )}
+
+      {/* Zone Suggestions Modal */}
+      {zone && (
+        <ZoneSuggestionsModal
+          isOpen={showSuggestionsModal}
+          onClose={() => setShowSuggestionsModal(false)}
+          zoneName={getZoneText(zone.name, '')}
         />
       )}
     </div>
