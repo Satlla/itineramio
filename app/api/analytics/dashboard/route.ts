@@ -101,17 +101,30 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Get top performing properties
+    // Get top performing properties (or all if less than 5)
     const topProperties = properties
-      .filter(p => p.analytics)
       .sort((a, b) => (b.analytics?.totalViews || 0) - (a.analytics?.totalViews || 0))
-      .slice(0, 5)
+      .slice(0, Math.min(5, properties.length))
       .map(property => ({
         id: property.id,
-        name: property.name,
+        name: typeof property.name === 'string' 
+          ? property.name 
+          : (property.name as any)?.es || (property.name as any)?.en || 'Property',
         views: property.analytics?.totalViews || 0,
         rating: property.analytics?.overallRating || 0,
-        zonesCount: property.zones.length
+        zonesCount: property.zones.length,
+        city: typeof property.city === 'string'
+          ? property.city
+          : (property.city as any)?.es || (property.city as any)?.en || '',
+        state: typeof property.state === 'string'
+          ? property.state  
+          : (property.state as any)?.es || (property.state as any)?.en || '',
+        bedrooms: property.bedrooms,
+        bathrooms: property.bathrooms,
+        maxGuests: property.maxGuests,
+        status: property.status,
+        totalViews: property.analytics?.totalViews || 0,
+        profileImage: property.profileImage
       }))
 
     // Get monthly analytics for trends
@@ -145,6 +158,26 @@ export async function GET(request: NextRequest) {
           monthlyViews
         },
         topProperties,
+        allProperties: properties.map(property => ({
+          id: property.id,
+          name: typeof property.name === 'string' 
+            ? property.name 
+            : (property.name as any)?.es || (property.name as any)?.en || 'Property',
+          city: typeof property.city === 'string'
+            ? property.city
+            : (property.city as any)?.es || (property.city as any)?.en || '',
+          state: typeof property.state === 'string'
+            ? property.state  
+            : (property.state as any)?.es || (property.state as any)?.en || '',
+          bedrooms: property.bedrooms,
+          bathrooms: property.bathrooms,
+          maxGuests: property.maxGuests,
+          status: property.status,
+          zonesCount: property.zones.length,
+          totalViews: property.analytics?.totalViews || 0,
+          profileImage: property.profileImage,
+          propertySetId: property.propertySetId
+        })),
         recentActivity: recentEvents.map(event => ({
           id: event.id,
           type: event.type,

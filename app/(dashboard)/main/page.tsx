@@ -171,7 +171,7 @@ export default function DashboardPage(): JSX.Element {
       
       if (analyticsResponse.ok && analyticsResult.data) {
         setStats(analyticsResult.data.stats)
-        setProperties(analyticsResult.data.topProperties || [])
+        setProperties(analyticsResult.data.allProperties || analyticsResult.data.topProperties || [])
         setRecentActivity(analyticsResult.data.recentActivity || [])
       }
 
