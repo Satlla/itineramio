@@ -14,38 +14,14 @@ export async function GET(request: NextRequest) {
     // Set JWT claims for PostgreSQL RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
 
-    // Get user's properties with minimal includes to avoid timeout
+    // Get user's properties with simple query
     const properties = await prisma.property.findMany({
       where: { hostId: userId },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        type: true,
-        city: true,
-        state: true,
-        bedrooms: true,
-        bathrooms: true,
-        maxGuests: true,
-        status: true,
-        isPublished: true,
-        profileImage: true,
-        propertySetId: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
         analytics: true,
         zones: {
-          select: {
-            id: true,
-            name: true,
-            analytics: true,
-            _count: {
-              select: {
-                ratings: true,
-                steps: true
-              }
-            }
+          include: {
+            analytics: true
           }
         }
       }
@@ -195,25 +171,17 @@ export async function GET(request: NextRequest) {
       topProperties,
       allProperties: properties.map(property => ({
         id: property.id,
-        name: typeof property.name === 'string' 
-          ? property.name 
-          : (property.name as any)?.es || (property.name as any)?.en || 'Property',
+        name: property.name || 'Property',
         slug: property.slug,
-        description: typeof property.description === 'string' 
-          ? property.description 
-          : (property.description as any)?.es || (property.description as any)?.en || '',
+        description: property.description || '',
         type: property.type,
-        city: typeof property.city === 'string'
-          ? property.city
-          : (property.city as any)?.es || (property.city as any)?.en || '',
-        state: typeof property.state === 'string'
-          ? property.state  
-          : (property.state as any)?.es || (property.state as any)?.en || '',
+        city: property.city || '',
+        state: property.state || '',
         bedrooms: property.bedrooms,
         bathrooms: property.bathrooms,
         maxGuests: property.maxGuests,
         status: property.status,
-        zonesCount: property.zones.length,
+        zonesCount: property.zones?.length || 0,
         totalViews: property.analytics?.totalViews || 0,
         avgRating: property.analytics?.overallRating || 0,
         profileImage: property.profileImage,
