@@ -14,17 +14,19 @@ export async function GET(request: NextRequest) {
     // Set JWT claims for PostgreSQL RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
 
-    // Get user's properties
+    // Get user's properties with minimal includes to avoid timeout
     const properties = await prisma.property.findMany({
       where: { hostId: userId },
       include: {
         analytics: true,
         zones: {
-          include: {
+          select: {
+            id: true,
+            name: true,
             analytics: true,
-            ratings: true,
             _count: {
               select: {
+                ratings: true,
                 steps: true
               }
             }
@@ -59,11 +61,15 @@ export async function GET(request: NextRequest) {
           totalTimeSavedMinutes += zone.analytics.timeSavedMinutes
         }
 
-        // Process ratings
-        zone.ratings.forEach(rating => {
-          totalRatings++
-          totalRatingSum += rating.overallRating
-        })
+        // Add ratings count
+        if (zone._count?.ratings) {
+          totalRatings += zone._count.ratings
+        }
+        
+        // Add average rating from analytics
+        if (zone.analytics?.avgRating && zone.analytics.totalRatings > 0) {
+          totalRatingSum += zone.analytics.avgRating * zone.analytics.totalRatings
+        }
       })
     })
 
@@ -74,7 +80,8 @@ export async function GET(request: NextRequest) {
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-    const recentEvents = await prisma.trackingEvent.findMany({
+    // Get recent events only if there are properties
+    const recentEvents = properties.length > 0 ? await prisma.trackingEvent.findMany({
       where: {
         propertyId: {
           in: properties.map(p => p.id)
@@ -87,7 +94,11 @@ export async function GET(request: NextRequest) {
         timestamp: 'desc'
       },
       take: 10,
-      include: {
+      select: {
+        id: true,
+        type: true,
+        timestamp: true,
+        metadata: true,
         property: {
           select: {
             name: true
@@ -99,7 +110,7 @@ export async function GET(request: NextRequest) {
           }
         }
       }
-    })
+    }) : []
 
     // Get top performing properties (or all if less than 5)
     const topProperties = properties
