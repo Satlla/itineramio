@@ -41,7 +41,7 @@ const nextConfig = {
   },
   // Generate build ID based on timestamp to force new deployments
   generateBuildId: async () => {
-    return new Date().getTime().toString()
+    return `build-${new Date().getTime()}`
   },
 }
 
