@@ -23,7 +23,9 @@ export async function POST(request: NextRequest) {
         email: true,
         password: true,
         emailVerified: true,
-        status: true
+        status: true,
+        avatar: true,
+        phone: true
       }
     })
 
