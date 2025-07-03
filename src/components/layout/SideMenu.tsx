@@ -41,7 +41,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
   const menuItems = [
     {
       icon: <Home className="w-5 h-5" />,
-      label: t('menu.myProperties'),
+      label: "Mis Propiedades",
       href: "/properties",
       description: "Gestionar propiedades y conjuntos",
       mobileOnly: true
@@ -59,44 +59,44 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
           )}
         </div>
       ),
-      label: t('menu.notifications'),
+      label: "Notificaciones",
       onClick: () => setShowNotifications(true),
       description: `${unreadCount} notificaciones sin leer`,
       badge: unreadCount
     },
     {
       icon: <User className="w-5 h-5" />,
-      label: t('menu.account'),
+      label: "Cuenta",
       href: "/account",
       description: "Información personal y configuración"
     },
     {
       icon: <Settings className="w-5 h-5" />,
-      label: t('menu.settings'),
+      label: "Configuración",
       href: "/account",
       description: "Editar tu perfil y preferencias"
     },
     {
       icon: <CreditCard className="w-5 h-5" />,
-      label: t('menu.billing'),
+      label: "Facturación",
       href: "/account",
       description: "Gestiona tu suscripción y pagos"
     },
     {
       icon: <BookOpen className="w-5 h-5" />,
-      label: t('menu.hostResources'),
+      label: "Recursos del Host",
       href: "/help",
       description: "Guías y mejores prácticas"
     },
     {
       icon: <HelpCircle className="w-5 h-5" />,
-      label: t('menu.help'),
+      label: "Ayuda",
       href: "/help",
       description: "Centro de ayuda y soporte"
     },
     {
       icon: <Shield className="w-5 h-5" />,
-      label: t('menu.privacy'),
+      label: "Privacidad",
       href: "/privacy",
       description: "Configuración de privacidad"
     }
@@ -224,7 +224,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <div className="flex items-center space-x-3 mb-4">
                   <Globe className="w-5 h-5 text-gray-500" />
-                  <span className="font-medium text-gray-900">{t('menu.language')}</span>
+                  <span className="font-medium text-gray-900">Idioma</span>
                 </div>
                 <div className="pl-8">
                   <LanguageSwitcher />
@@ -252,7 +252,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
                 >
                   <LogOut className="w-5 h-5 text-gray-500 group-hover:text-red-600 transition-colors" />
                   <span className="font-medium text-gray-900 group-hover:text-red-600 transition-colors">
-                    {t('menu.logout')}
+                    Cerrar sesión
                   </span>
                 </motion.button>
               </div>

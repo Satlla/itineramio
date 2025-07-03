@@ -12,11 +12,11 @@ export function DashboardFooter() {
   const currentYear = new Date().getFullYear()
 
   const footerLinks = [
-    { label: t('footer.help'), href: '/help' },
-    { label: t('footer.privacy'), href: '/privacy' },
-    { label: t('footer.terms'), href: '/terms' },
-    { label: t('footer.cookies'), href: '/cookies' },
-    { label: t('footer.contact'), href: '/contact' },
+    { label: 'Ayuda', href: '/help' },
+    { label: 'Privacidad', href: '/privacy' },
+    { label: 'Términos', href: '/terms' },
+    { label: 'Cookies', href: '/cookies' },
+    { label: 'Contacto', href: '/contact' },
   ]
 
   return (
@@ -40,7 +40,7 @@ export function DashboardFooter() {
             </div>
             <span className="text-gray-400 text-sm">•</span>
             <p className="text-sm text-gray-500">
-              © {currentYear} Itineramio. {t('footer.allRightsReserved')}
+              © {currentYear} Itineramio. Todos los derechos reservados.
             </p>
           </motion.div>
 
@@ -71,7 +71,7 @@ export function DashboardFooter() {
           >
             <div className="flex items-center space-x-2 text-sm text-gray-500">
               <Globe className="w-4 h-4" />
-              <span>{t('footer.language')}:</span>
+              <span>Idioma:</span>
             </div>
             <LanguageSwitcher />
           </motion.div>
@@ -85,9 +85,9 @@ export function DashboardFooter() {
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <p className="text-xs text-gray-400 flex items-center justify-center space-x-1">
-            <span>{t('footer.madeWith')}</span>
+            <span>Hecho con</span>
             <Heart className="w-3 h-3 text-red-400" />
-            <span>{t('footer.forHosts')}</span>
+            <span>para anfitriones de todo el mundo</span>
           </p>
         </motion.div>
       </div>

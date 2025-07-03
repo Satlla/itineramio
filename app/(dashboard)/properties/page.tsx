@@ -1540,9 +1540,9 @@ function PropertiesPageContent() {
                                 {propertySet.type === 'HOTEL' && 'Hotel'}
                                 {propertySet.type === 'BUILDING' && 'Edificio'}
                                 {propertySet.type === 'COMPLEX' && 'Complejo'}
-                                {propertySet.type === 'RESORT' && t('properties.resort')}
-                                {propertySet.type === 'HOSTEL' && t('properties.hostel')}
-                                {propertySet.type === 'APARTHOTEL' && t('properties.aparthotel')}
+                                {propertySet.type === 'RESORT' && 'Resort'}
+                                {propertySet.type === 'HOSTEL' && 'Hostel'}
+                                {propertySet.type === 'APARTHOTEL' && 'Aparthotel'}
                               </p>
                               
                               <div className="flex items-center justify-between">
@@ -1570,7 +1570,7 @@ function PropertiesPageContent() {
                                     ? 'bg-yellow-100 text-yellow-800' 
                                     : 'bg-green-100 text-green-800'
                                 }`}>
-                                  {propertySet.status === 'DRAFT' ? t('properties.draft') : t('properties.active')}
+                                  {propertySet.status === 'DRAFT' ? 'Borrador' : 'Activo'}
                                 </span>
                               </div>
                             </div>

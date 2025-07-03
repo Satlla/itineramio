@@ -11,13 +11,23 @@ export async function GET() {
         status: true,
         isPublished: true,
         publishedAt: true,
-        zonesCount: true
+        zones: {
+          select: {
+            id: true
+          }
+        }
       }
     })
 
+    const propertiesWithZoneCount = properties.map(p => ({
+      ...p,
+      zonesCount: p.zones.length,
+      zones: undefined // Remove zones array from response
+    }))
+
     return NextResponse.json({
       success: true,
-      properties: properties,
+      properties: propertiesWithZoneCount,
       summary: {
         total: properties.length,
         active: properties.filter(p => p.status === 'ACTIVE').length,
