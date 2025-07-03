@@ -1079,22 +1079,6 @@ function PropertiesPageContent() {
           </Card>
         </div>
 
-        {/* Search Bar - Only show when more than 5 properties */}
-        {activeTab === 'properties' && properties.filter(property => !property.propertySetId).length > 5 && (
-          <div className="mb-6">
-            <div className="relative max-w-md">
-              <Input
-                type="text"
-                placeholder="Buscar propiedades por nombre, ciudad o estado..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            </div>
-          </div>
-        )}
-
         {/* Loading, Error, and Content */}
         {loading ? (
           <Card className="p-12 text-center">
@@ -1222,6 +1206,21 @@ function PropertiesPageContent() {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
               {/* Properties List - Takes 3 columns on desktop */}
               <div className="lg:col-span-3 space-y-4">
+                {/* Search Bar - Only show when more than 5 properties */}
+                {properties.filter(property => !property.propertySetId).length > 5 && (
+                  <div className="mb-6">
+                    <div className="relative max-w-md">
+                      <Input
+                        type="text"
+                        placeholder="Buscar propiedades por nombre, ciudad o estado..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 pr-4"
+                      />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    </div>
+                  </div>
+                )}
                 {(() => {
                   const filteredProperties = properties
                     .filter(property => !property.propertySetId)
