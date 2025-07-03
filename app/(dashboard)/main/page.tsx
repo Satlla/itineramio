@@ -162,8 +162,12 @@ export default function DashboardPage(): JSX.Element {
       setLoading(true)
       
       // Fetch properties with simple endpoint
-      const propertiesResponse = await fetch('/api/properties-simple')
+      const propertiesResponse = await fetch('/api/properties-simple', {
+        credentials: 'include'
+      })
       const propertiesResult = await propertiesResponse.json()
+      
+      console.log('Properties response:', propertiesResponse.status, propertiesResult)
       
       if (propertiesResponse.ok && propertiesResult.properties) {
         setProperties(propertiesResult.properties)
