@@ -17,9 +17,9 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = 'd
   const currentConfig = LANGUAGE_CONFIG[currentLanguage as keyof typeof LANGUAGE_CONFIG]
   
   const handleLanguageChange = async (language: string) => {
-    console.log('Changing language to:', language)
     await changeLanguage(language)
-    console.log('Language changed, current:', i18n.language)
+    // Force component re-render
+    window.location.reload()
   }
   
   if (variant === 'footer') {
