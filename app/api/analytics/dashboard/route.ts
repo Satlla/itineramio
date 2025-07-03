@@ -88,37 +88,8 @@ export async function GET(request: NextRequest) {
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-    // Get recent events only if there are properties
-    const recentEvents = properties.length > 0 ? await prisma.trackingEvent.findMany({
-      where: {
-        propertyId: {
-          in: properties.map(p => p.id)
-        },
-        timestamp: {
-          gte: thirtyDaysAgo
-        }
-      },
-      orderBy: {
-        timestamp: 'desc'
-      },
-      take: 10,
-      select: {
-        id: true,
-        type: true,
-        timestamp: true,
-        metadata: true,
-        property: {
-          select: {
-            name: true
-          }
-        },
-        zone: {
-          select: {
-            name: true
-          }
-        }
-      }
-    }) : []
+    // Skip recent events for now to avoid complexity
+    const recentEvents: any[] = []
 
     // Get top performing properties (or all if less than 5)
     const topProperties = properties
@@ -146,23 +117,8 @@ export async function GET(request: NextRequest) {
         profileImage: property.profileImage
       }))
 
-    // Get monthly analytics for trends only if there are properties
-    const monthlyStats = properties.length > 0 ? await prisma.trackingEvent.groupBy({
-      by: ['propertyId'],
-      where: {
-        propertyId: {
-          in: properties.map(p => p.id)
-        },
-        timestamp: {
-          gte: thirtyDaysAgo
-        }
-      },
-      _count: {
-        id: true
-      }
-    }) : []
-
-    const monthlyViews = monthlyStats.reduce((sum, stat) => sum + stat._count.id, 0)
+    // Skip monthly stats for now
+    const monthlyViews = 0
 
     const responseData = {
       stats: {
@@ -195,20 +151,7 @@ export async function GET(request: NextRequest) {
         createdAt: property.createdAt.toISOString(),
         updatedAt: property.updatedAt.toISOString()
       })),
-      recentActivity: recentEvents.map(event => ({
-        id: event.id,
-        type: event.type,
-        propertyName: typeof event.property.name === 'string' 
-          ? event.property.name 
-          : (event.property.name as any)?.es || (event.property.name as any)?.en || 'Property',
-        zoneName: event.zone?.name ? 
-          (typeof event.zone.name === 'string' 
-            ? event.zone.name 
-            : (event.zone.name as any)?.es || (event.zone.name as any)?.en || 'Zone')
-          : null,
-        timestamp: event.timestamp,
-        metadata: event.metadata
-      }))
+      recentActivity: []
     }
 
     console.log('📊 Sending response with allProperties count:', responseData.allProperties.length)
