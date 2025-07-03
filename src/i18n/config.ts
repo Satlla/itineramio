@@ -299,12 +299,20 @@ export const detectUserLocale = (): UserLocale => {
   }
 }
 
+// Get saved language or default
+const getSavedLanguage = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('itineramio-language') || DEFAULT_LANGUAGE
+  }
+  return DEFAULT_LANGUAGE
+}
+
 // Inicializar i18next
 i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: DEFAULT_LANGUAGE,
+    lng: getSavedLanguage(),
     fallbackLng: FALLBACK_LANGUAGE,
     defaultNS: 'common',
     
@@ -314,7 +322,10 @@ i18n
 
     react: {
       useSuspense: false
-    }
+    },
+    
+    // Add debug mode to see what's happening
+    debug: process.env.NODE_ENV === 'development'
   })
 
 export default i18n

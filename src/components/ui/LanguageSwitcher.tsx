@@ -4,6 +4,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocale } from '../../hooks/useLocale'
 import { LANGUAGE_CONFIG } from '../../i18n/config'
+import i18n from '../../i18n/config'
 
 interface LanguageSwitcherProps {
   variant?: 'default' | 'footer'
@@ -16,7 +17,9 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = 'd
   const currentConfig = LANGUAGE_CONFIG[currentLanguage as keyof typeof LANGUAGE_CONFIG]
   
   const handleLanguageChange = async (language: string) => {
+    console.log('Changing language to:', language)
     await changeLanguage(language)
+    console.log('Language changed, current:', i18n.language)
   }
   
   if (variant === 'footer') {
