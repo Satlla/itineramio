@@ -255,7 +255,7 @@ export default function DashboardPage(): JSX.Element {
           // Show success notification
           const notification = document.createElement('div')
           notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50'
-          notification.textContent = t('share.linkCopied')
+          notification.textContent = 'Enlace copiado'
           document.body.appendChild(notification)
           setTimeout(() => {
             document.body.removeChild(notification)
@@ -271,7 +271,7 @@ export default function DashboardPage(): JSX.Element {
           
           const notification = document.createElement('div')
           notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50'
-          notification.textContent = t('share.linkCopied')
+          notification.textContent = 'Enlace copiado'
           document.body.appendChild(notification)
           setTimeout(() => {
             document.body.removeChild(notification)
@@ -740,7 +740,7 @@ export default function DashboardPage(): JSX.Element {
                       </svg>
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900">
-                      {t('properties.propertySets')} ({loading ? '...' : propertySets.length})
+                      Conjuntos de Propiedades ({loading ? '...' : propertySets.length})
                     </h2>
                   </div>
                 </div>
