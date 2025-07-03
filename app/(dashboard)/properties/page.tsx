@@ -958,22 +958,6 @@ function PropertiesPageContent() {
 
         </div>
 
-        {/* Search Bar - Only show when more than 5 properties */}
-        {activeTab === 'properties' && properties.filter(property => !property.propertySetId).length > 5 && (
-          <div className="mb-6">
-            <div className="relative max-w-md">
-              <Input
-                type="text"
-                placeholder="Buscar propiedades por nombre, ciudad o estado..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            </div>
-          </div>
-        )}
-
         {/* Time Savings Stats Cards */}
         {(() => {
           const currentProperties = activeTab === 'properties' 
@@ -1094,6 +1078,22 @@ function PropertiesPageContent() {
             </div>
           </Card>
         </div>
+
+        {/* Search Bar - Only show when more than 5 properties */}
+        {activeTab === 'properties' && properties.filter(property => !property.propertySetId).length > 5 && (
+          <div className="mb-6">
+            <div className="relative max-w-md">
+              <Input
+                type="text"
+                placeholder="Buscar propiedades por nombre, ciudad o estado..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4"
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            </div>
+          </div>
+        )}
 
         {/* Loading, Error, and Content */}
         {loading ? (
