@@ -402,10 +402,10 @@ export default function DashboardPage(): JSX.Element {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  {t('dashboard.greeting')}, {user?.name?.split(' ')[0] || 'Usuario'} 👋
+                  Hola, {user?.name?.split(' ')[0] || 'Usuario'} 👋
                 </h1>
                 <p className="text-gray-600 mt-2">
-                  {t('dashboard.dashboardSummary')}
+                  Aquí tienes un resumen de tus propiedades y manuales
                 </p>
               </div>
             </div>
@@ -426,7 +426,7 @@ export default function DashboardPage(): JSX.Element {
                 >
                   <Home className="h-6 w-6 sm:h-8 sm:w-8 text-violet-600" />
                   <div className="ml-3 sm:ml-4">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">{t('dashboard.properties')}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Mis Propiedades</p>
                     <p className="text-xl sm:text-2xl font-bold text-gray-900">
                       {stats.totalProperties}
                     </p>
@@ -443,7 +443,7 @@ export default function DashboardPage(): JSX.Element {
                 >
                   <Eye className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
                   <div className="ml-3 sm:ml-4">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">{t('dashboard.totalViews')}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Visualizaciones totales</p>
                     <p className="text-xl sm:text-2xl font-bold text-gray-900">
                       {stats.totalViews}
                     </p>
@@ -458,7 +458,7 @@ export default function DashboardPage(): JSX.Element {
                 <div className="flex items-center">
                   <Timer className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
                   <div className="ml-3 sm:ml-4">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">{t('dashboard.timeSaved')}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Minutos ahorrados</p>
                     <p className="text-xl sm:text-2xl font-bold text-gray-900">
                       {stats.timeSavedMinutes || 0}
                     </p>
@@ -508,13 +508,13 @@ export default function DashboardPage(): JSX.Element {
                     </svg>
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900">
-                    {t('dashboard.properties')} ({loading ? '...' : properties.length})
+                    Mis Propiedades ({loading ? '...' : properties.length})
                   </h2>
                 </div>
                 <Button asChild size="sm" className="bg-violet-600 hover:bg-violet-700">
                   <Link href="/properties/new">
                     <Plus className="w-4 h-4 mr-2" />
-                    {t('dashboard.addProperty')}
+                    Añadir propiedad
                   </Link>
                 </Button>
               </div>
@@ -545,15 +545,15 @@ export default function DashboardPage(): JSX.Element {
                   <CardContent>
                     <Home className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      {t('dashboard.noProperties')}
+                      No tienes propiedades aún
                     </h3>
                     <p className="text-gray-600 mb-4">
-                      {t('dashboard.createFirst')}
+                      Crea tu primera propiedad
                     </p>
                     <Button asChild className="bg-violet-600 hover:bg-violet-700">
                       <Link href="/properties/new">
                         <Plus className="w-4 h-4 mr-2" />
-                        {t('dashboard.createFirst')}
+                        Crea tu primera propiedad
                       </Link>
                     </Button>
                   </CardContent>
@@ -585,7 +585,7 @@ export default function DashboardPage(): JSX.Element {
                                   handleEditProperty(property.id)
                                 }}
                               >
-                                {t('dashboard.edit')}
+                                Editar
                               </div>
                             </div>
                           </div>
@@ -659,21 +659,21 @@ export default function DashboardPage(): JSX.Element {
                                       onClick={() => handlePropertyAction('edit', property.id)}
                                     >
                                       <Edit className="mr-2 h-4 w-4" />
-                                      {t('dashboard.edit')}
+                                      Editar
                                     </DropdownMenu.Item>
                                     <DropdownMenu.Item 
                                       className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                       onClick={() => router.push(`/properties/${property.id}/zones`)}
                                     >
                                       <Building2 className="mr-2 h-4 w-4" />
-                                      {t('dashboard.manage')}
+                                      Gestionar
                                     </DropdownMenu.Item>
                                     <DropdownMenu.Item 
                                       className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                       onClick={() => handlePropertyAction('share', property.id)}
                                     >
                                       <Share2 className="mr-2 h-4 w-4" />
-                                      {t('dashboard.share')}
+                                      Compartir
                                     </DropdownMenu.Item>
                                     {property.status === 'ACTIVE' && (
                                       <DropdownMenu.Item 
@@ -690,7 +690,7 @@ export default function DashboardPage(): JSX.Element {
                                       onClick={() => handlePropertyAction('delete', property.id)}
                                     >
                                       <Trash2 className="mr-2 h-4 w-4" />
-                                      {t('dashboard.delete')}
+                                      Eliminar
                                     </DropdownMenu.Item>
                                   </DropdownMenu.Content>
                                 </DropdownMenu.Portal>
@@ -709,7 +709,7 @@ export default function DashboardPage(): JSX.Element {
                 <div className="mt-6 text-center">
                   <Button asChild variant="outline" className="w-full sm:w-auto">
                     <Link href="/properties">
-                      {t('dashboard.viewAllProperties')}
+                      Ver todas las propiedades
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>
                   </Button>
@@ -755,10 +755,10 @@ export default function DashboardPage(): JSX.Element {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-blue-800 mb-1">
-                        {t('dashboard.whatArePropertySets')}
+                        ¿Qué son los Conjuntos de Propiedades?
                       </h3>
                       <p className="text-sm text-blue-700">
-                        {t('dashboard.propertySetDescription')}
+                        Los conjuntos agrupan propiedades que pertenecen a un mismo edificio, hotel, complejo o resort. Ideal para gestionar múltiples apartamentos en un mismo lugar con información compartida.
                       </p>
                     </div>
                   </div>
@@ -806,21 +806,21 @@ export default function DashboardPage(): JSX.Element {
                                     onClick={() => handlePropertySetAction('edit', propertySet.id)}
                                   >
                                     <Edit className="mr-2 h-4 w-4" />
-                                    {t('dashboard.edit')}
+                                    Editar
                                   </DropdownMenu.Item>
                                   <DropdownMenu.Item 
                                     className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                     onClick={() => handlePropertySetAction('manage', propertySet.id)}
                                   >
                                     <Building2 className="mr-2 h-4 w-4" />
-                                    {t('dashboard.manage')}
+                                    Gestionar
                                   </DropdownMenu.Item>
                                   <DropdownMenu.Item 
                                     className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                     onClick={() => handlePropertySetAction('share', propertySet.id)}
                                   >
                                     <Share2 className="mr-2 h-4 w-4" />
-                                    {t('dashboard.share')}
+                                    Compartir
                                   </DropdownMenu.Item>
                                 </DropdownMenu.Content>
                               </DropdownMenu.Portal>
@@ -867,7 +867,7 @@ export default function DashboardPage(): JSX.Element {
                             className="w-full"
                             onClick={() => router.push(`/properties/groups/${propertySet.id}`)}
                           >
-                            {t('dashboard.manage')}
+                            Gestionar
                             <ArrowRight className="w-4 h-4 ml-2" />
                           </Button>
                         </div>
@@ -883,7 +883,7 @@ export default function DashboardPage(): JSX.Element {
                     className="w-full sm:w-auto"
                     onClick={() => router.push('/properties/groups')}
                   >
-                    {t('dashboard.viewAllSets')}
+                    Ver todos los conjuntos
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
@@ -900,7 +900,7 @@ export default function DashboardPage(): JSX.Element {
             >
               <div className="flex items-center space-x-3 mb-6">
                 <TrendingUp className="w-6 h-6 text-orange-600" />
-                <h2 className="text-xl font-bold text-gray-900">{t('dashboard.recentActivity')}</h2>
+                <h2 className="text-xl font-bold text-gray-900">Actividad Reciente</h2>
               </div>
               
               <div className="space-y-4">
