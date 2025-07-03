@@ -71,6 +71,30 @@ declare module 'i18next' {
           viewAll: string
           addProperty: string
         }
+        navbar: {
+          menu: string
+          profile: string
+          notifications: string
+        }
+        notifications: {
+          title: string
+          markAllRead: string
+          noNotifications: string
+          missingZone: string
+          incompleteZone: string
+          missingTranslation: string
+        }
+        zones: {
+          zones: string
+          addZone: string
+          editZone: string
+          deleteZone: string
+        }
+        share: {
+          copyLink: string
+          linkCopied: string
+          shareProperty: string
+        }
       }
       auth: {
         login: {

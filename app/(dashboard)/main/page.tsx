@@ -251,7 +251,32 @@ export default function DashboardPage(): JSX.Element {
         break
       case 'share':
         const shareUrl = `${window.location.origin}/guide/${propertyId}`
-        navigator.clipboard.writeText(shareUrl)
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          // Show success notification
+          const notification = document.createElement('div')
+          notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50'
+          notification.textContent = t('share.linkCopied')
+          document.body.appendChild(notification)
+          setTimeout(() => {
+            document.body.removeChild(notification)
+          }, 3000)
+        }).catch(() => {
+          // Fallback for older browsers
+          const textArea = document.createElement('textarea')
+          textArea.value = shareUrl
+          document.body.appendChild(textArea)
+          textArea.select()
+          document.execCommand('copy')
+          document.body.removeChild(textArea)
+          
+          const notification = document.createElement('div')
+          notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50'
+          notification.textContent = t('share.linkCopied')
+          document.body.appendChild(notification)
+          setTimeout(() => {
+            document.body.removeChild(notification)
+          }, 3000)
+        })
         break
       case 'public':
         window.open(`/guide/${propertyId}`, '_blank')

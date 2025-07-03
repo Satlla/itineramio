@@ -70,6 +70,30 @@ const resources = {
         quickActions: "Acciones rápidas",
         viewAll: "Ver todas",
         addProperty: "Añadir propiedad"
+      },
+      navbar: {
+        menu: "Menú",
+        profile: "Perfil",
+        notifications: "Notificaciones"
+      },
+      notifications: {
+        title: "Notificaciones",
+        markAllRead: "Marcar todas como leídas",
+        noNotifications: "No hay notificaciones",
+        missingZone: "Zona faltante",
+        incompleteZone: "Zona incompleta",
+        missingTranslation: "Traducción faltante"
+      },
+      zones: {
+        zones: "Zonas",
+        addZone: "Añadir zona",
+        editZone: "Editar zona",
+        deleteZone: "Eliminar zona"
+      },
+      share: {
+        copyLink: "Copiar enlace",
+        linkCopied: "Enlace copiado",
+        shareProperty: "Compartir propiedad"
       }
     },
     auth: {
@@ -149,6 +173,30 @@ const resources = {
         quickActions: "Quick actions",
         viewAll: "View all",
         addProperty: "Add property"
+      },
+      navbar: {
+        menu: "Menu",
+        profile: "Profile",
+        notifications: "Notifications"
+      },
+      notifications: {
+        title: "Notifications",
+        markAllRead: "Mark all as read",
+        noNotifications: "No notifications",
+        missingZone: "Missing zone",
+        incompleteZone: "Incomplete zone",
+        missingTranslation: "Missing translation"
+      },
+      zones: {
+        zones: "Zones",
+        addZone: "Add zone",
+        editZone: "Edit zone",
+        deleteZone: "Delete zone"
+      },
+      share: {
+        copyLink: "Copy link",
+        linkCopied: "Link copied",
+        shareProperty: "Share property"
       }
     },
     auth: {
@@ -228,6 +276,30 @@ const resources = {
         quickActions: "Actions rapides",
         viewAll: "Voir tout",
         addProperty: "Ajouter une propriété"
+      },
+      navbar: {
+        menu: "Menu",
+        profile: "Profil",
+        notifications: "Notifications"
+      },
+      notifications: {
+        title: "Notifications",
+        markAllRead: "Marquer tout comme lu",
+        noNotifications: "Aucune notification",
+        missingZone: "Zone manquante",
+        incompleteZone: "Zone incomplète",
+        missingTranslation: "Traduction manquante"
+      },
+      zones: {
+        zones: "Zones",
+        addZone: "Ajouter une zone",
+        editZone: "Modifier la zone",
+        deleteZone: "Supprimer la zone"
+      },
+      share: {
+        copyLink: "Copier le lien",
+        linkCopied: "Lien copié",
+        shareProperty: "Partager la propriété"
       }
     },
     auth: {
