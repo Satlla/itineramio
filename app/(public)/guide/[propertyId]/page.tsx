@@ -477,8 +477,17 @@ export default function PropertyGuidePage() {
   const fetchPropertyData = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/public/properties/${propertyId}`)
-      const result = await response.json()
+      
+      // Try by slug first (for URLs generated with createPropertySlug)
+      let response = await fetch(`/api/public/properties/by-slug/${propertyId}`)
+      let result = await response.json()
+      
+      // If not found by slug, try by ID (for backward compatibility)
+      if (!response.ok && response.status === 404) {
+        console.log('Property not found by slug, trying by ID...')
+        response = await fetch(`/api/public/properties/${propertyId}`)
+        result = await response.json()
+      }
       
       if (!response.ok) {
         throw new Error(result.error || 'Manual no encontrado')

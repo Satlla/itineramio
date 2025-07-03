@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useSearchParams } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { 
   ArrowLeft, 
   Home, 
@@ -69,6 +70,7 @@ const propertyTypes = [
 ] as const
 
 function NewPropertyPageContent() {
+  const { t } = useTranslation('common')
   const router = useRouter()
   const searchParams = useSearchParams()
   const editId = searchParams.get('edit')

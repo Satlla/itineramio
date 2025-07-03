@@ -317,11 +317,22 @@ export default function ZoneGuidePage({
     try {
       setLoading(true)
       
-      // Fetch both zone data and steps using public APIs
+      // First resolve the property ID from slug if needed
+      const resolveResponse = await fetch(`/api/public/resolve-property/${pId}`)
+      const resolveResult = await resolveResponse.json()
+      
+      if (!resolveResponse.ok) {
+        throw new Error(resolveResult.error || 'Propiedad no encontrada')
+      }
+      
+      const actualPropertyId = resolveResult.data.id
+      console.log('🔍 Resolved property ID:', actualPropertyId, 'from:', pId)
+      
+      // Fetch both zone data and steps using public APIs with resolved ID
       const [zoneResponse, stepsResponse, propertyResponse] = await Promise.all([
-        fetch(`/api/public/properties/${pId}/zones/${zId}`),
-        fetch(`/api/public/properties/${pId}/zones/${zId}/steps`),
-        fetch(`/api/public/properties/${pId}`)
+        fetch(`/api/public/properties/${actualPropertyId}/zones/${zId}`),
+        fetch(`/api/public/properties/${actualPropertyId}/zones/${zId}/steps`),
+        fetch(`/api/public/properties/${actualPropertyId}`)
       ])
       
       const [zoneResult, stepsResult, propertyResult] = await Promise.all([

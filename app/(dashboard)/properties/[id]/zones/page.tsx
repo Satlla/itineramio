@@ -210,13 +210,27 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         // Fetch property info
         const propResponse = await fetch(`/api/properties/${id}`)
         const propResult = await propResponse.json()
-        if (propResult.success && propResult.data) {
-          setPropertyName(propResult.data.name)
-          setPropertySlug(propResult.data.slug || '')
-          setPropertyType(propResult.data.type || 'APARTMENT')
-          setPropertyLocation(`${propResult.data.city}, ${propResult.data.state}`)
-          setPropertyStatus(propResult.data.status || 'DRAFT')
+        
+        // Check if property exists
+        if (!propResponse.ok || !propResult.success || !propResult.data) {
+          console.error('Property not found:', id)
+          addNotification({
+            type: 'error',
+            title: 'Propiedad no encontrada',
+            message: 'La propiedad que intentas acceder no existe o ha sido eliminada',
+            read: false
+          })
+          // Redirect to properties list
+          router.push('/properties')
+          return
         }
+        
+        // Set property data
+        setPropertyName(propResult.data.name)
+        setPropertySlug(propResult.data.slug || '')
+        setPropertyType(propResult.data.type || 'APARTMENT')
+        setPropertyLocation(`${propResult.data.city}, ${propResult.data.state}`)
+        setPropertyStatus(propResult.data.status || 'DRAFT')
 
         // Fetch zones
         const zonesResponse = await fetch(`/api/properties/${id}/zones`)
@@ -342,7 +356,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
 
     fetchData()
-  }, [id, addNotification, isClient])
+  }, [id, addNotification, isClient, router])
 
   const handleCreateZone = async () => {
     if (!formData.name || !formData.iconId) return

@@ -41,7 +41,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
   const menuItems = [
     {
       icon: <Home className="w-5 h-5" />,
-      label: "Mis Propiedades",
+      label: t('menu.myProperties'),
       href: "/properties",
       description: "Gestionar propiedades y conjuntos",
       mobileOnly: true
@@ -59,44 +59,44 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
           )}
         </div>
       ),
-      label: "Notificaciones",
+      label: t('menu.notifications'),
       onClick: () => setShowNotifications(true),
       description: `${unreadCount} notificaciones sin leer`,
       badge: unreadCount
     },
     {
       icon: <User className="w-5 h-5" />,
-      label: "Cuenta",
+      label: t('menu.account'),
       href: "/account",
       description: "Información personal y configuración"
     },
     {
       icon: <Settings className="w-5 h-5" />,
-      label: "Configuración",
+      label: t('menu.settings'),
       href: "/account",
       description: "Editar tu perfil y preferencias"
     },
     {
       icon: <CreditCard className="w-5 h-5" />,
-      label: "Facturación",
+      label: t('menu.billing'),
       href: "/account",
       description: "Gestiona tu suscripción y pagos"
     },
     {
       icon: <BookOpen className="w-5 h-5" />,
-      label: "Recursos para anfitriones",
+      label: t('menu.hostResources'),
       href: "/help",
       description: "Guías y mejores prácticas"
     },
     {
       icon: <HelpCircle className="w-5 h-5" />,
-      label: "Recibe Ayuda",
+      label: t('menu.help'),
       href: "/help",
       description: "Centro de ayuda y soporte"
     },
     {
       icon: <Shield className="w-5 h-5" />,
-      label: "Privacidad y seguridad",
+      label: t('menu.privacy'),
       href: "/privacy",
       description: "Configuración de privacidad"
     }
@@ -130,7 +130,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
             <div className="p-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-xl font-semibold text-gray-900">Menú</h2>
+                <h2 className="text-xl font-semibold text-gray-900">{t('navbar.menu')}</h2>
                 <button
                   onClick={onClose}
                   className="p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -224,7 +224,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <div className="flex items-center space-x-3 mb-4">
                   <Globe className="w-5 h-5 text-gray-500" />
-                  <span className="font-medium text-gray-900">Cambiar idioma</span>
+                  <span className="font-medium text-gray-900">{t('menu.language')}</span>
                 </div>
                 <div className="pl-8">
                   <LanguageSwitcher />
@@ -252,7 +252,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
                 >
                   <LogOut className="w-5 h-5 text-gray-500 group-hover:text-red-600 transition-colors" />
                   <span className="font-medium text-gray-900 group-hover:text-red-600 transition-colors">
-                    Cerrar sesión
+                    {t('menu.logout')}
                   </span>
                 </motion.button>
               </div>

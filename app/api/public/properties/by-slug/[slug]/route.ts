@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../../src/lib/prisma'
+import { prisma } from '../../../../../../src/lib/prisma'
+import { createPropertySlug } from '../../../../../../src/lib/slugs'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { id } = await params
-    console.log('🔍 Public Property endpoint - received ID:', id)
+    const { slug } = await params
+    console.log('🔍 Public Property by slug endpoint - received slug:', slug)
     
-    // Find property by exact ID match only
-    let property = await prisma.property.findFirst({
+    // Get all published properties and find the one with matching slug
+    const properties = await prisma.property.findMany({
       where: {
-        id: id,
         isPublished: true // Only published properties
       },
       include: {
@@ -40,8 +40,21 @@ export async function GET(
         }
       }
     })
+
+    console.log('🔍 Found', properties.length, 'published properties')
     
-    console.log('🔍 Public Property found:', !!property)
+    // Find property with matching slug
+    let property = null
+    for (const prop of properties) {
+      const propertySlug = createPropertySlug(prop)
+      console.log('🔍 Comparing slug:', propertySlug, 'with:', slug)
+      if (propertySlug === slug) {
+        property = prop
+        break
+      }
+    }
+    
+    console.log('🔍 Property found by slug:', !!property)
     if (property) {
       console.log('🔍 Property details:', { 
         id: property.id, 
@@ -102,7 +115,7 @@ export async function GET(
       data: result
     })
   } catch (error) {
-    console.error('Error fetching public property:', error)
+    console.error('Error fetching public property by slug:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al obtener la propiedad'

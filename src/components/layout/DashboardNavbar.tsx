@@ -65,28 +65,28 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
                 href="/main"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Panel Principal
+                {t('navbar.mainPanel')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
                 href="/properties"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Mis Propiedades
+                {t('navbar.myProperties')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
                 href="/properties/new"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Nueva Propiedad
+                {t('navbar.newProperty')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
                 href="/media-library"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Biblioteca de Medios
+                {t('navbar.mediaLibrary')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
             </div>
