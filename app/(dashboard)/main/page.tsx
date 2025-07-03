@@ -161,25 +161,32 @@ export default function DashboardPage(): JSX.Element {
     try {
       setLoading(true)
       
-      // Fetch real analytics data
-      const analyticsResponse = await fetch('/api/analytics/dashboard')
-      const analyticsResult = await analyticsResponse.json()
+      // Fetch properties with simple endpoint
+      const propertiesResponse = await fetch('/api/properties-simple')
+      const propertiesResult = await propertiesResponse.json()
+      
+      if (propertiesResponse.ok && propertiesResult.properties) {
+        setProperties(propertiesResult.properties)
+        setStats({
+          totalProperties: propertiesResult.properties.length,
+          totalViews: 0,
+          activeManuals: propertiesResult.properties.filter((p: any) => p.status === 'ACTIVE').length,
+          avgRating: 0,
+          zonesViewed: 0,
+          timeSavedMinutes: 0,
+          monthlyViews: 0
+        })
+      }
       
       // Fetch property sets for navigation
       const propertySetsResponse = await fetch('/api/property-sets')
       const propertySetsResult = await propertySetsResponse.json()
       
-      if (analyticsResponse.ok && analyticsResult.data) {
-        setStats(analyticsResult.data.stats)
-        setProperties(analyticsResult.data.allProperties || analyticsResult.data.topProperties || [])
-        setRecentActivity(analyticsResult.data.recentActivity || [])
-      }
-
       if (propertySetsResponse.ok && propertySetsResult.data) {
         setPropertySets(propertySetsResult.data)
       }
     } catch (error) {
-      console.error('Error fetching analytics data:', error)
+      console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }
