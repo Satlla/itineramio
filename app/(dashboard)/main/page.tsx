@@ -35,6 +35,7 @@ import { DashboardFooter } from '../../../src/components/layout/DashboardFooter'
 import { useAuth } from '../../../src/providers/AuthProvider'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { getZonesSlugUrl } from '../../../src/components/navigation/slug-link'
+import { useTranslation } from 'react-i18next'
 
 interface Property {
   id: string
@@ -74,6 +75,7 @@ interface PropertySet {
 }
 
 export default function DashboardPage(): JSX.Element {
+  const { t } = useTranslation('common')
   const [selectedTimeframe, setSelectedTimeframe] = useState('30d')
   const [properties, setProperties] = useState<Property[]>([])
   const [propertySets, setPropertySets] = useState<PropertySet[]>([])
@@ -416,7 +418,7 @@ export default function DashboardPage(): JSX.Element {
                 >
                   <Eye className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
                   <div className="ml-3 sm:ml-4">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">Visualizaciones</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">{t('dashboard.totalViews')}</p>
                     <p className="text-xl sm:text-2xl font-bold text-gray-900">
                       {stats.totalViews}
                     </p>
@@ -431,7 +433,7 @@ export default function DashboardPage(): JSX.Element {
                 <div className="flex items-center">
                   <Timer className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
                   <div className="ml-3 sm:ml-4">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">Minutos Ahorrados</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">{t('dashboard.timeSaved')}</p>
                     <p className="text-xl sm:text-2xl font-bold text-gray-900">
                       {stats.timeSavedMinutes || 0}
                     </p>
@@ -481,13 +483,13 @@ export default function DashboardPage(): JSX.Element {
                     </svg>
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900">
-                    Mis Propiedades ({loading ? '...' : properties.length})
+                    {t('dashboard.properties')} ({loading ? '...' : properties.length})
                   </h2>
                 </div>
                 <Button asChild size="sm" className="bg-violet-600 hover:bg-violet-700">
                   <Link href="/properties/new">
                     <Plus className="w-4 h-4 mr-2" />
-                    Nueva Propiedad
+                    {t('dashboard.addProperty')}
                   </Link>
                 </Button>
               </div>
@@ -518,15 +520,15 @@ export default function DashboardPage(): JSX.Element {
                   <CardContent>
                     <Home className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      No tienes propiedades aún
+                      {t('dashboard.noProperties')}
                     </h3>
                     <p className="text-gray-600 mb-4">
-                      Comienza creando tu primera propiedad para gestionar sus manuales
+                      {t('dashboard.createFirst')}
                     </p>
                     <Button asChild className="bg-violet-600 hover:bg-violet-700">
                       <Link href="/properties/new">
                         <Plus className="w-4 h-4 mr-2" />
-                        Crear Primera Propiedad
+                        {t('dashboard.createFirst')}
                       </Link>
                     </Button>
                   </CardContent>

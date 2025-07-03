@@ -55,6 +55,21 @@ const resources = {
       auth: {
         login: "Iniciar sesión",
         register: "Registrarse"
+      },
+      dashboard: {
+        title: "Mi Panel",
+        welcome: "Bienvenido",
+        totalProperties: "Total de propiedades",
+        totalViews: "Visualizaciones totales",
+        activeManuals: "Manuales activos",
+        avgRating: "Calificación promedio",
+        timeSaved: "Minutos ahorrados",
+        properties: "Mis Propiedades",
+        noProperties: "No tienes propiedades aún",
+        createFirst: "Crea tu primera propiedad",
+        quickActions: "Acciones rápidas",
+        viewAll: "Ver todas",
+        addProperty: "Añadir propiedad"
       }
     },
     auth: {
@@ -119,6 +134,21 @@ const resources = {
       auth: {
         login: "Sign in",
         register: "Sign up"
+      },
+      dashboard: {
+        title: "My Dashboard",
+        welcome: "Welcome",
+        totalProperties: "Total properties",
+        totalViews: "Total views",
+        activeManuals: "Active manuals",
+        avgRating: "Average rating",
+        timeSaved: "Minutes saved",
+        properties: "My Properties",
+        noProperties: "You don't have any properties yet",
+        createFirst: "Create your first property",
+        quickActions: "Quick actions",
+        viewAll: "View all",
+        addProperty: "Add property"
       }
     },
     auth: {
@@ -183,6 +213,21 @@ const resources = {
       auth: {
         login: "Se connecter",
         register: "S'inscrire"
+      },
+      dashboard: {
+        title: "Mon tableau de bord",
+        welcome: "Bienvenue",
+        totalProperties: "Total des propriétés",
+        totalViews: "Vues totales",
+        activeManuals: "Manuels actifs",
+        avgRating: "Note moyenne",
+        timeSaved: "Minutes économisées",
+        properties: "Mes propriétés",
+        noProperties: "Vous n'avez pas encore de propriétés",
+        createFirst: "Créez votre première propriété",
+        quickActions: "Actions rapides",
+        viewAll: "Voir tout",
+        addProperty: "Ajouter une propriété"
       }
     },
     auth: {
