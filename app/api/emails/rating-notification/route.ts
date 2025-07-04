@@ -1,20 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 
 export async function POST(request: NextRequest) {
   try {
     const { to, hostName, propertyName, rating, comment, ratingId } = await request.json()
 
-    // Create transporter (you'll need to configure this with your email service)
-    const transporter = nodemailer.createTransporter({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    })
+    // Initialize Resend with API key
+    const resend = new Resend(process.env.RESEND_API_KEY)
 
     const stars = '⭐'.repeat(rating)
     const propertyUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/properties`
@@ -95,8 +87,8 @@ export async function POST(request: NextRequest) {
     </html>
     `
 
-    await transporter.sendMail({
-      from: `"Itineramio" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+    await resend.emails.send({
+      from: 'Itineramio <noreply@itineramio.com>',
       to,
       subject: `🌟 Nueva evaluación recibida para ${propertyName}`,
       html: emailHtml

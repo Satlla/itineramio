@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
     // Get guest info from IP and user agent for identification
     const guestIp = request.headers.get('x-forwarded-for') || 
                    request.headers.get('x-real-ip') || 
-                   request.ip || 
                    'unknown'
     const userAgent = request.headers.get('user-agent') || 'unknown'
     

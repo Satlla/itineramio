@@ -76,7 +76,7 @@ export default function RatingReviewPage() {
 
       if (response.ok && result.success) {
         addNotification({
-          type: 'success',
+          type: 'info',
           title: action === 'approve' ? 'Evaluación aprobada' : 'Evaluación rechazada',
           message: result.message,
           read: false

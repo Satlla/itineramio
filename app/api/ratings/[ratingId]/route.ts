@@ -6,10 +6,10 @@ const JWT_SECRET = 'itineramio-secret-key-2024'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { ratingId: string } }
+  { params }: { params: Promise<{ ratingId: string }> }
 ) {
   try {
-    const { ratingId } = params
+    const { ratingId } = await params
 
     // Get user from JWT token
     const token = request.cookies.get('auth-token')?.value
@@ -61,10 +61,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { ratingId: string } }
+  { params }: { params: Promise<{ ratingId: string }> }
 ) {
   try {
-    const { ratingId } = params
+    const { ratingId } = await params
     const { action } = await request.json()
 
     // Get user from JWT token
