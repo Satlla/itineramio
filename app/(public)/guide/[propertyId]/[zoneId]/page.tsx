@@ -555,7 +555,7 @@ export default function ZoneGuidePage({
     return (
       <div className="min-h-screen bg-gray-50">
         <header className="bg-white border-b border-gray-200">
-          <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="max-w-3xl mx-auto px-4 py-4">
             <Link href={`/guide/${propertyId}`}>
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -565,7 +565,7 @@ export default function ZoneGuidePage({
           </div>
         </header>
         
-        <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="max-w-3xl mx-auto px-4 py-8">
           <Card className="p-12 text-center">
             <div className={`w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4 text-4xl ${
               zone.color || 'bg-gray-100'
@@ -592,7 +592,7 @@ export default function ZoneGuidePage({
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+        <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link href={`/guide/${zone.propertyId}`}>
@@ -664,7 +664,7 @@ export default function ZoneGuidePage({
       </header>
 
       {/* Main Content - Dynamic Vertical Timeline */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-3xl mx-auto px-4 py-8">
         <div className="relative">
           {/* Timeline Steps */}
           {sortedSteps.map((step, index) => (

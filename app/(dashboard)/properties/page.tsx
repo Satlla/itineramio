@@ -681,14 +681,22 @@ function PropertiesPageContent() {
 
   const fetchPropertySets = async () => {
     try {
+      console.log('🔄 Fetching property sets...')
       const response = await fetch('/api/property-sets')
       const result = await response.json()
       
-      if (response.ok && result.data) {
+      console.log('📦 Property sets response:', { status: response.status, success: result.success, count: result.data?.length })
+      
+      if (response.ok && result.success && result.data) {
         setPropertySets(result.data)
+        console.log('✅ Property sets loaded:', result.data.length)
+      } else {
+        console.error('❌ Failed to fetch property sets:', result.error || 'Unknown error')
+        setPropertySets([])
       }
     } catch (err) {
-      console.error('Error fetching property sets:', err)
+      console.error('❌ Error fetching property sets:', err)
+      setPropertySets([])
     }
   }
 

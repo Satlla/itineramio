@@ -453,6 +453,9 @@ export default function PropertyGuidePage() {
   const [ratings, setRatings] = useState<any[]>([])
   const [showCompletionReward, setShowCompletionReward] = useState(false)
   const [showPublicRatingModal, setShowPublicRatingModal] = useState(false)
+  const [selectedRating, setSelectedRating] = useState(0)
+  const [ratingComment, setRatingComment] = useState('')
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false)
 
   useEffect(() => {
     fetchPropertyData()
@@ -592,7 +595,7 @@ export default function PropertyGuidePage() {
     <div className="min-h-screen bg-white">
       {/* Airbnb-style Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Button 
               onClick={() => router.back()}
@@ -629,7 +632,7 @@ export default function PropertyGuidePage() {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Property Header - Airbnb Style */}
         <div className="mb-8">
           {/* Property Title and Rating */}
@@ -1399,12 +1402,24 @@ export default function PropertyGuidePage() {
                   {[1, 2, 3, 4, 5].map((rating) => (
                     <button
                       key={rating}
+                      onClick={() => setSelectedRating(rating)}
                       className="p-1 hover:scale-110 transition-transform"
                     >
-                      <Star className="w-8 h-8 text-gray-300 hover:text-yellow-400 fill-current" />
+                      <Star 
+                        className={`w-8 h-8 transition-colors ${
+                          rating <= selectedRating 
+                            ? 'text-yellow-400 fill-current' 
+                            : 'text-gray-300 hover:text-yellow-400'
+                        }`} 
+                      />
                     </button>
                   ))}
                 </div>
+                {selectedRating > 0 && (
+                  <p className="text-center text-sm text-gray-600 mt-2">
+                    Has seleccionado {selectedRating} estrella{selectedRating !== 1 ? 's' : ''}
+                  </p>
+                )}
               </div>
 
               {/* Comment */}
@@ -1413,6 +1428,8 @@ export default function PropertyGuidePage() {
                   Comentario público (opcional)
                 </label>
                 <textarea
+                  value={ratingComment}
+                  onChange={(e) => setRatingComment(e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                   rows={3}
                   placeholder="Comparte tu experiencia para ayudar a otros huéspedes..."
@@ -1430,14 +1447,54 @@ export default function PropertyGuidePage() {
                 </Button>
                 <Button
                   className="flex-1 bg-green-600 hover:bg-green-700"
-                  onClick={() => {
-                    // Save public rating
-                    localStorage.setItem(`property-${propertyId}-public-rating`, 'true')
-                    setShowPublicRatingModal(false)
-                    // TODO: Send to API
+                  disabled={selectedRating === 0 || isSubmittingRating}
+                  onClick={async () => {
+                    if (selectedRating === 0) return
+                    
+                    setIsSubmittingRating(true)
+                    try {
+                      const response = await fetch('/api/public/ratings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          propertyId,
+                          rating: selectedRating,
+                          comment: ratingComment.trim(),
+                          timestamp: new Date().toISOString()
+                        })
+                      })
+                      
+                      const result = await response.json()
+                      
+                      if (response.ok && result.success) {
+                        localStorage.setItem(`property-${propertyId}-public-rating`, 'true')
+                        setShowPublicRatingModal(false)
+                        setSelectedRating(0)
+                        setRatingComment('')
+                        alert('¡Gracias por tu evaluación! El propietario la revisará antes de publicarla.')
+                      } else {
+                        throw new Error(result.error || 'Error al enviar la evaluación')
+                      }
+                    } catch (error) {
+                      console.error('Error submitting rating:', error)
+                      alert('Error al enviar la evaluación. Por favor, inténtalo de nuevo.')
+                    } finally {
+                      setIsSubmittingRating(false)
+                    }
                   }}
                 >
-                  Publicar Evaluación
+                  {isSubmittingRating ? (
+                    <div className="flex items-center">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                      />
+                      Enviando...
+                    </div>
+                  ) : (
+                    'Publicar Evaluación'
+                  )}
                 </Button>
               </div>
             </div>
