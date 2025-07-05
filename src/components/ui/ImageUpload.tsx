@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Upload, X, Camera, User, FolderOpen } from 'lucide-react'
 import { Button } from './Button'
 import { MediaSelector } from './MediaSelector'
+import { DuplicateMediaModal } from './DuplicateMediaModal'
 
 interface ImageUploadProps {
   value?: string
@@ -32,6 +33,9 @@ export function ImageUpload({
   const [uploading, setUploading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [showMediaSelector, setShowMediaSelector] = useState(false)
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false)
+  const [duplicateMediaInfo, setDuplicateMediaInfo] = useState<any>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const isProfile = variant === 'profile'
@@ -146,6 +150,60 @@ export function ImageUpload({
     })
   }
 
+  const uploadFile = async (file: File, skipDuplicateCheck = false) => {
+    try {
+      // Clean up previous blob URL if exists
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl)
+      }
+      
+      // Compress image for property uploads to save space
+      const finalFile = variant === 'property' ? await compressImage(file) : file
+      
+      // Upload file to server
+      const formData = new FormData()
+      formData.append('file', finalFile)
+      if (skipDuplicateCheck) {
+        formData.append('skipDuplicateCheck', 'true')
+      }
+      
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+      
+      if (!response.ok) {
+        throw new Error('Error uploading file')
+      }
+      
+      const result = await response.json()
+      
+      // Handle duplicate detection
+      if (result.duplicate) {
+        setDuplicateMediaInfo(result.existingMedia)
+        setPendingFile(file)
+        setShowDuplicateModal(true)
+        setUploading(false)
+        return
+      }
+      
+      if (result.success) {
+        const imageUrl = result.url
+        
+        // No need to save to media library separately - already done in upload endpoint
+        setPreviewUrl(imageUrl)
+        onChange(imageUrl)
+      } else {
+        throw new Error(result.error || 'Upload failed')
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      alert('Error al subir la imagen. Por favor, inténtalo de nuevo.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const handleFile = async (file: File) => {
     // Validate file size
     if (file.size > maxSize * 1024 * 1024) {
@@ -160,68 +218,41 @@ export function ImageUpload({
     }
 
     setUploading(true)
+    await uploadFile(file, false)
+  }
 
-    try {
-      // Clean up previous blob URL if exists
-      if (previewUrl && previewUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(previewUrl)
-      }
+  const handleUseExisting = () => {
+    if (duplicateMediaInfo) {
+      setPreviewUrl(duplicateMediaInfo.url)
+      onChange(duplicateMediaInfo.url)
       
-      // Compress image for property uploads to save space
-      const finalFile = variant === 'property' ? await compressImage(file) : file
-      
-      // Upload file to server
-      const formData = new FormData()
-      formData.append('file', finalFile)
-      
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      })
-      
-      if (!response.ok) {
-        throw new Error('Error uploading file')
-      }
-      
-      const result = await response.json()
-      
-      if (result.success) {
-        const imageUrl = result.url
-        
-        // Save to media library if enabled
-        if (saveToLibrary) {
-          try {
-            await fetch('/api/media-library', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                url: imageUrl,
-                type: 'image',
-                metadata: {
-                  filename: result.filename,
-                  originalName: file.name,
-                  mimeType: file.type,
-                  size: file.size
-                }
-              })
-            })
-          } catch (error) {
-            console.warn('Failed to save to media library:', error)
-            // Don't fail the upload if library save fails
-          }
-        }
-        
-        setPreviewUrl(imageUrl)
-        onChange(imageUrl)
-      } else {
-        throw new Error(result.error || 'Upload failed')
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error)
-      alert('Error al subir la imagen. Por favor, inténtalo de nuevo.')
-    } finally {
-      setUploading(false)
+      // Update usage count for existing media
+      fetch(`/api/media-library/${duplicateMediaInfo.id}/use`, {
+        method: 'PATCH'
+      }).catch(error => console.error('Error updating usage count:', error))
     }
+    
+    setShowDuplicateModal(false)
+    setDuplicateMediaInfo(null)
+    setPendingFile(null)
+  }
+
+  const handleUploadNew = async () => {
+    if (pendingFile) {
+      setShowDuplicateModal(false)
+      setUploading(true)
+      await uploadFile(pendingFile, true) // Skip duplicate check
+    }
+    
+    setDuplicateMediaInfo(null)
+    setPendingFile(null)
+  }
+
+  const handleCloseDuplicateModal = () => {
+    setShowDuplicateModal(false)
+    setDuplicateMediaInfo(null)
+    setPendingFile(null)
+    setUploading(false)
   }
 
   const onButtonClick = () => {
@@ -374,6 +405,16 @@ export function ImageUpload({
         isOpen={showMediaSelector}
         onSelect={handleSelectFromLibrary}
         onClose={() => setShowMediaSelector(false)}
+      />
+
+      {/* Duplicate Media Modal */}
+      <DuplicateMediaModal
+        isOpen={showDuplicateModal}
+        onClose={handleCloseDuplicateModal}
+        onUseExisting={handleUseExisting}
+        onUploadNew={handleUploadNew}
+        existingMedia={duplicateMediaInfo}
+        uploadingFileName={pendingFile?.name || ''}
       />
     </div>
   )

@@ -241,7 +241,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             const zoneName = getZoneText(zone.name)
             const zoneDescription = getZoneText(zone.description)
 
-            return {
+            const transformedZone = {
               id: zone.id,
               name: zoneName,
               description: zoneDescription,
@@ -252,6 +252,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
               slug: zone.slug
             }
+
+            console.log('🔄 Transformed zone on load:', {
+              id: zone.id,
+              name: zoneName,
+              originalIcon: zone.icon,
+              transformedIconId: transformedZone.iconId
+            })
+
+            return transformedZone
           })
 
           // Check if property has no zones and show modal (only first time for this property)
@@ -420,6 +429,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleUpdateZone = async () => {
     if (!editingZone || !formData.name || !formData.iconId) return
 
+    console.log('🔄 Updating zone with data:', {
+      name: formData.name,
+      description: formData.description,
+      iconId: formData.iconId,
+      editingZone: editingZone.id
+    })
+
     setIsUpdatingZone(true)
     try {
       const response = await fetch(`/api/properties/${id}/zones/${editingZone.id}`, {
@@ -430,7 +446,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         body: JSON.stringify({
           name: formData.name,
           description: formData.description || '',
-          icon: formData.iconId,
+          iconId: formData.iconId,
           color: 'bg-gray-100',
           status: 'ACTIVE'
         })
@@ -439,6 +455,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       const result = await response.json()
 
       if (response.ok && result.success) {
+        console.log('✅ Zone updated successfully, API response:', result.data)
+        
         setZones(zones.map(zone => 
           zone.id === editingZone.id 
             ? {
@@ -450,6 +468,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               }
             : zone
         ))
+
+        console.log('✅ Local zones state updated')
 
         setEditingZone(null)
         setFormData({ name: '', description: '', iconId: '' })

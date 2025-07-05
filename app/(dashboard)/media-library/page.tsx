@@ -607,33 +607,73 @@ export default function MediaLibraryPage() {
                 {/* Show usage warnings */}
                 {itemsToDelete.some(item => item.usage && item.usage.length > 0) && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                    <h4 className="font-medium text-red-800 mb-2">
-                      ⚠️ Archivos en uso:
-                    </h4>
-                    <div className="space-y-3">
+                    <div className="flex items-start space-x-3 mb-3">
+                      <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <X className="w-5 h-5 text-red-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-red-800 mb-1">
+                          ¡Archivos en uso detectados!
+                        </h4>
+                        <p className="text-sm text-red-700">
+                          {itemsToDelete.filter(item => item.usage && item.usage.length > 0).length} 
+                          {' '}archivo{itemsToDelete.filter(item => item.usage && item.usage.length > 0).length === 1 ? '' : 's'} 
+                          {' '}de {itemsToDelete.length} están siendo usados en propiedades activas.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3 mb-4">
                       {itemsToDelete
                         .filter(item => item.usage && item.usage.length > 0)
-                        .map(item => (
-                          <div key={item.id} className="text-sm">
-                            <p className="font-medium text-red-700 mb-1">
-                              {item.originalName}
-                            </p>
-                            <div className="space-y-1 ml-4">
-                              {item.usage!.map((usage, index) => (
-                                <div key={index} className="text-red-600 text-xs">
-                                  📍 <span className="font-medium">{usage.propertyName}</span>
-                                  <span className="mx-1">→</span>
-                                  <span>{usage.zoneName}</span>
-                                </div>
-                              ))}
+                        .map(item => {
+                          const uniqueProperties = new Set(item.usage!.map(u => u.propertyName))
+                          return (
+                            <div key={item.id} className="bg-white border border-red-200 rounded-lg p-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <p className="font-medium text-red-800 text-sm truncate">
+                                  {item.originalName}
+                                </p>
+                                <Badge variant="destructive" className="text-xs">
+                                  {item.usage!.length} uso{item.usage!.length === 1 ? '' : 's'}
+                                </Badge>
+                              </div>
+                              
+                              <div className="text-xs text-red-600 mb-2">
+                                <strong>Usado en {uniqueProperties.size} propiedad{uniqueProperties.size === 1 ? '' : 'es'}:</strong>
+                              </div>
+                              
+                              <div className="space-y-1 max-h-20 overflow-y-auto">
+                                {item.usage!.map((usage, index) => (
+                                  <div key={index} className="flex items-center text-xs text-red-700 bg-red-50 rounded px-2 py-1">
+                                    <HardDrive className="w-3 h-3 mr-1 flex-shrink-0" />
+                                    <span className="font-medium truncate">{usage.propertyName}</span>
+                                    <span className="mx-1 text-red-400">→</span>
+                                    <span className="truncate">{usage.zoneName}</span>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        ))
+                          )
+                        })
                       }
                     </div>
-                    <p className="text-red-700 text-sm mt-3 font-medium">
-                      Eliminar estos archivos puede afectar el funcionamiento de las zonas mencionadas.
-                    </p>
+                    
+                    <div className="bg-red-100 border border-red-300 rounded-lg p-3">
+                      <div className="flex items-start space-x-2">
+                        <Info className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-red-800 text-sm font-medium mb-1">
+                            ⚠️ Impacto de la eliminación:
+                          </p>
+                          <ul className="text-red-700 text-xs space-y-1">
+                            <li>• Las zonas mencionadas pueden dejar de mostrar estos medios</li>
+                            <li>• Los pasos afectados quedarán sin contenido multimedia</li>
+                            <li>• Los huéspedes no podrán ver las imágenes/videos en las guías</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

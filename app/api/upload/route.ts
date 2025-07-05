@@ -1,6 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
 import { v4 as uuidv4 } from 'uuid'
+import { createHash } from 'crypto'
+import { prisma } from '../../../src/lib/prisma'
+import jwt from 'jsonwebtoken'
+
+const JWT_SECRET = 'itineramio-secret-key-2024'
+
+// Function to get media usage information
+async function getMediaUsage(mediaUrl: string) {
+  try {
+    // Search for steps that use this media URL
+    const steps = await prisma.step.findMany({
+      where: {
+        content: {
+          path: ['mediaUrl'],
+          equals: mediaUrl
+        }
+      },
+      include: {
+        zone: {
+          include: {
+            property: {
+              select: {
+                id: true,
+                name: true
+              }
+            }
+          }
+        }
+      }
+    })
+
+    return steps.map(step => ({
+      propertyId: step.zone.property.id,
+      propertyName: step.zone.property.name,
+      zoneId: step.zone.id,
+      zoneName: step.zone.name,
+      stepId: step.id
+    }))
+  } catch (error) {
+    console.error('Error getting media usage:', error)
+    return []
+  }
+}
 
 // Route configuration for large file uploads
 export const maxDuration = 30 // 30 seconds timeout
@@ -10,8 +53,24 @@ export const runtime = 'nodejs' // Use Node.js runtime
 export async function POST(request: NextRequest) {
   try {
     console.log('🔥 Upload endpoint called')
+    
+    // Check authentication
+    const token = request.cookies.get('auth-token')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    let userId: string
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+      userId = decoded.userId
+    } catch (error) {
+      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
+    }
+    
     const data = await request.formData()
     const file: File | null = data.get('file') as unknown as File
+    const skipDuplicateCheck = data.get('skipDuplicateCheck') === 'true'
 
     if (!file) {
       console.log('❌ No file provided')
@@ -30,10 +89,58 @@ export async function POST(request: NextRequest) {
       }, { status: 413 })
     }
 
+    // Generate file hash for duplicate detection
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+    const fileHash = createHash('sha256').update(buffer).digest('hex')
+    
+    console.log(`🔍 Generated file hash: ${fileHash}`)
+
+    // Check for duplicates unless explicitly skipped
+    if (!skipDuplicateCheck) {
+      const existingMedia = await prisma.mediaLibrary.findFirst({
+        where: {
+          userId: userId,
+          hash: fileHash
+        },
+        include: {
+          user: {
+            select: { name: true }
+          }
+        }
+      })
+
+      if (existingMedia) {
+        console.log('🔄 Duplicate file detected:', existingMedia.originalName)
+        
+        // Get usage information for this media
+        const usageInfo = await getMediaUsage(existingMedia.url)
+        
+        return NextResponse.json({
+          duplicate: true,
+          existingMedia: {
+            id: existingMedia.id,
+            url: existingMedia.url,
+            thumbnailUrl: existingMedia.thumbnailUrl,
+            filename: existingMedia.filename,
+            originalName: existingMedia.originalName,
+            type: existingMedia.type,
+            size: existingMedia.size,
+            createdAt: existingMedia.createdAt,
+            usageCount: existingMedia.usageCount,
+            usageInfo: usageInfo
+          },
+          message: "Este archivo ya existe en tu biblioteca de medios. ¿Quieres usar el archivo existente o subir una nueva copia?"
+        })
+      }
+    }
+
     // Generate unique filename
     const uniqueFilename = `${uuidv4()}-${file.name}`
     console.log('📝 Generated filename:', uniqueFilename)
 
+    let fileUrl: string
+    
     // For local development, use filesystem with better error handling
     if (process.env.NODE_ENV === 'development') {
       console.log('💻 Development mode: saving to filesystem')
@@ -41,8 +148,6 @@ export async function POST(request: NextRequest) {
       const { join } = await import('path')
       
       try {
-        const bytes = await file.arrayBuffer()
-        const buffer = Buffer.from(bytes)
         const uploadDir = join(process.cwd(), 'public', 'uploads')
         
         console.log('📂 Upload directory:', uploadDir)
@@ -60,11 +165,7 @@ export async function POST(request: NextRequest) {
         await writeFile(path, buffer)
         console.log('✅ File written successfully')
         
-        return NextResponse.json({ 
-          success: true,
-          url: `/uploads/${uniqueFilename}`,
-          filename: uniqueFilename
-        })
+        fileUrl = `/uploads/${uniqueFilename}`
       } catch (devError) {
         console.error('❌ Development upload error:', devError)
         return NextResponse.json(
@@ -72,29 +173,58 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         )
       }
+    } else {
+      // For production, use Vercel Blob
+      console.log('🔧 Checking Vercel Blob configuration...')
+      const blobToken = process.env.BLOB_READ_WRITE_TOKEN
+      if (!blobToken) {
+        console.error('❌ BLOB_READ_WRITE_TOKEN environment variable is not set')
+        return NextResponse.json(
+          { error: "Blob storage not configured" },
+          { status: 500 }
+        )
+      }
+      console.log('✅ Blob token found, proceeding with upload')
+
+      const blob = await put(uniqueFilename, file, {
+        access: 'public',
+        token: blobToken,
+      })
+      
+      fileUrl = blob.url
     }
 
-    // For production, use Vercel Blob
-    console.log('🔧 Checking Vercel Blob configuration...')
-    const blobToken = process.env.BLOB_READ_WRITE_TOKEN
-    if (!blobToken) {
-      console.error('❌ BLOB_READ_WRITE_TOKEN environment variable is not set')
-      return NextResponse.json(
-        { error: "Blob storage not configured" },
-        { status: 500 }
-      )
-    }
-    console.log('✅ Blob token found, proceeding with upload')
+    // Save to media library with hash
+    try {
+      const mediaType = file.type.startsWith('image/') ? 'image' : 'video'
+      
+      const mediaLibraryItem = await prisma.mediaLibrary.create({
+        data: {
+          userId: userId,
+          type: mediaType,
+          url: fileUrl,
+          filename: uniqueFilename,
+          originalName: file.name,
+          mimeType: file.type,
+          size: file.size,
+          hash: fileHash,
+          usageCount: 1,
+          isPublic: false,
+          lastUsedAt: new Date()
+        }
+      })
 
-    const blob = await put(uniqueFilename, file, {
-      access: 'public',
-      token: blobToken,
-    })
+      console.log('✅ File saved to media library:', mediaLibraryItem.id)
+    } catch (mediaError) {
+      console.error('⚠️ Error saving to media library:', mediaError)
+      // Continue anyway, the file was uploaded successfully
+    }
 
     return NextResponse.json({ 
       success: true,
-      url: blob.url,
-      filename: uniqueFilename
+      url: fileUrl,
+      filename: uniqueFilename,
+      hash: fileHash
     })
   } catch (error) {
     console.error('Error uploading file:', error)
