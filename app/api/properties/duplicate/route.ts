@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
       copyCompleteProperty, 
       selectedZones, 
       assignToSet, 
-      propertySetId 
+      propertySetId,
+      autoPublish 
     } = body
 
     // Validate input
@@ -120,14 +121,15 @@ export async function POST(request: NextRequest) {
           maxGuests: originalProperty.maxGuests,
           squareMeters: originalProperty.squareMeters,
           defaultLanguages: originalProperty.defaultLanguages as any,
-          isPublished: false, // New properties start as draft
+          isPublished: autoPublish !== undefined ? autoPublish : originalProperty.isPublished, // Use autoPublish if provided, otherwise inherit from original
           profileImage: shareMedia ? originalProperty.profileImage : null,
           hostContactName: originalProperty.hostContactName,
           hostContactPhone: originalProperty.hostContactPhone,
           hostContactEmail: originalProperty.hostContactEmail,
           hostContactLanguage: originalProperty.hostContactLanguage,
           hostContactPhoto: shareMedia ? originalProperty.hostContactPhoto : null,
-          status: 'DRAFT'
+          status: autoPublish !== undefined ? (autoPublish ? 'ACTIVE' : 'DRAFT') : (originalProperty.status || 'DRAFT'),
+          publishedAt: (autoPublish !== undefined ? autoPublish : originalProperty.isPublished) ? (originalProperty.publishedAt || new Date()) : null
         }
       })
 
@@ -149,7 +151,7 @@ export async function POST(request: NextRequest) {
             icon: originalZone.icon,
             color: originalZone.color,
             order: originalZone.order,
-            isPublished: false,
+            isPublished: autoPublish !== undefined ? autoPublish : originalZone.isPublished,
             qrCode: `${newProperty.id}-${originalZone.order}-${Date.now()}`, // Generate new QR code
             accessCode: `${newProperty.id.slice(-6)}${originalZone.order}` // Generate new access code
           }
@@ -169,7 +171,7 @@ export async function POST(request: NextRequest) {
               },
               type: originalStep.type,
               order: originalStep.order,
-              isPublished: false
+              isPublished: autoPublish !== undefined ? autoPublish : originalStep.isPublished
             }
           })
         }

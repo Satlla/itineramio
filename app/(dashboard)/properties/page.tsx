@@ -622,6 +622,7 @@ function PropertiesPageContent() {
   const [selectedZones, setSelectedZones] = useState<string[]>([])
   const [assignToSet, setAssignToSet] = useState(false)
   const [selectedPropertySet, setSelectedPropertySet] = useState<string>('')
+  const [autoPublish, setAutoPublish] = useState<boolean>(false)
   const [isDuplicating, setIsDuplicating] = useState(false)
 
   // Handle URL parameters on mount
@@ -915,6 +916,7 @@ function PropertiesPageContent() {
     setSelectedZones([])
     setAssignToSet(false)
     setSelectedPropertySet('')
+    setAutoPublish(false)
     setIsDuplicating(false)
   }
 
@@ -935,7 +937,8 @@ function PropertiesPageContent() {
           copyCompleteProperty,
           selectedZones: copyCompleteProperty ? [] : selectedZones,
           assignToSet,
-          propertySetId: assignToSet ? selectedPropertySet : null
+          propertySetId: assignToSet ? selectedPropertySet : null,
+          autoPublish
         })
       })
 
@@ -2146,6 +2149,26 @@ function PropertiesPageContent() {
                         ))}
                       </select>
                     )}
+                  </div>
+
+                  {/* Auto-publish option */}
+                  <div>
+                    <label className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        checked={autoPublish}
+                        onChange={(e) => setAutoPublish(e.target.checked)}
+                        className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
+                      />
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">
+                          Publicar automáticamente
+                        </span>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Las nuevas propiedades se publicarán inmediatamente para ser visibles en la vista pública
+                        </p>
+                      </div>
+                    </label>
                   </div>
                 </div>
               </div>
