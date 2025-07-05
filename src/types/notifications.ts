@@ -1,13 +1,21 @@
 export interface Notification {
   id: string
-  type: 'warning' | 'error' | 'info'
+  type: 'warning' | 'error' | 'info' | 'review' | 'success'
   title: string
   message: string
   propertyId?: string
   zoneId?: string
+  reviewId?: string
   createdAt: Date
   read: boolean
   actionUrl?: string
+  metadata?: {
+    rating?: number
+    isPublic?: boolean
+    hasComment?: boolean
+    reviewType?: 'zone' | 'property'
+    userName?: string
+  }
 }
 
 export interface ZoneWarning {

@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from './Button'
-import { AlertTriangle, X, Trash2, Type, Building, MapPin } from 'lucide-react'
+import { AlertTriangle, X, Trash2, Type, Building, MapPin, Eye, Star, QrCode, Image, FileText, Users, Calendar, BarChart } from 'lucide-react'
 import { Input } from './Input'
 
 interface DeletePropertyModalProps {
@@ -14,6 +14,12 @@ interface DeletePropertyModalProps {
   propertyType: string
   propertyLocation: string
   zonesCount: number
+  totalSteps?: number
+  totalViews?: number
+  totalRatings?: number
+  mediaCount?: number
+  createdDate?: string
+  isPublished?: boolean
   isDeleting?: boolean
 }
 
@@ -25,6 +31,12 @@ export function DeletePropertyModal({
   propertyType,
   propertyLocation,
   zonesCount,
+  totalSteps = 0,
+  totalViews = 0,
+  totalRatings = 0,
+  mediaCount = 0,
+  createdDate,
+  isPublished = false,
   isDeleting = false
 }: DeletePropertyModalProps) {
   const [confirmationText, setConfirmationText] = useState('')
@@ -100,7 +112,9 @@ export function DeletePropertyModal({
                     <Building className="w-4 h-4 text-gray-500" />
                     <div>
                       <div className="font-medium text-gray-900">{propertyName}</div>
-                      <div className="text-sm text-gray-500">{propertyType}</div>
+                      <div className="text-sm text-gray-500">
+                        {propertyType} • {isPublished ? '🟢 Publicada' : '🔶 Borrador'}
+                      </div>
                     </div>
                   </div>
                   
@@ -108,25 +122,120 @@ export function DeletePropertyModal({
                     <MapPin className="w-4 h-4 text-gray-500" />
                     <div className="text-sm text-gray-700">{propertyLocation}</div>
                   </div>
+
+                  {createdDate && (
+                    <div className="flex items-center gap-3">
+                      <Calendar className="w-4 h-4 text-gray-500" />
+                      <div className="text-sm text-gray-700">
+                        Creada el {new Date(createdDate).toLocaleDateString('es-ES', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Quick stats */}
+                <div className="mt-4 pt-3 border-t border-gray-200">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-3 h-3 text-gray-400" />
+                      <span className="text-gray-600">{totalViews} vistas</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="w-3 h-3 text-gray-400" />
+                      <span className="text-gray-600">{totalRatings} valoraciones</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* What will be deleted */}
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <h4 className="font-medium text-red-800 mb-2">⚡ Se eliminará permanentemente:</h4>
-                <ul className="text-sm text-red-700 space-y-1">
-                  <li>• {zonesCount} zona{zonesCount !== 1 ? 's' : ''} con todas sus instrucciones</li>
-                  <li>• Todos los códigos QR y enlaces públicos</li>
-                  <li>• Historial de visualizaciones y analytics</li>
-                  <li>• Todas las imágenes y archivos subidos</li>
-                  <li>• Configuración completa de la propiedad</li>
-                </ul>
+                <h4 className="font-medium text-red-800 mb-3 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  Se eliminará permanentemente:
+                </h4>
+                
+                <div className="space-y-3 text-sm text-red-700">
+                  {/* Content */}
+                  <div className="flex items-start gap-2">
+                    <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <div className="font-medium">Contenido y zonas</div>
+                      <div className="text-xs text-red-600">
+                        {zonesCount} zona{zonesCount !== 1 ? 's' : ''} • {totalSteps} paso{totalSteps !== 1 ? 's' : ''} de instrucciones
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Media */}
+                  {mediaCount > 0 && (
+                    <div className="flex items-start gap-2">
+                      <Image className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <div className="font-medium">Archivos multimedia</div>
+                        <div className="text-xs text-red-600">
+                          {mediaCount} imagen{mediaCount !== 1 ? 'es' : ''}/video{mediaCount !== 1 ? 's' : ''} subido{mediaCount !== 1 ? 's' : ''}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* QR Codes */}
+                  <div className="flex items-start gap-2">
+                    <QrCode className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <div className="font-medium">Códigos QR y enlaces</div>
+                      <div className="text-xs text-red-600">
+                        {zonesCount} código{zonesCount !== 1 ? 's' : ''} QR • Enlaces públicos únicos
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Analytics */}
+                  {(totalViews > 0 || totalRatings > 0) && (
+                    <div className="flex items-start gap-2">
+                      <BarChart className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <div className="font-medium">Historial y analíticas</div>
+                        <div className="text-xs text-red-600">
+                          {totalViews} vista{totalViews !== 1 ? 's' : ''} • {totalRatings} valoración{totalRatings !== 1 ? 'es' : ''}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Guest access */}
+                  {isPublished && (
+                    <div className="flex items-start gap-2">
+                      <Users className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <div className="font-medium">Acceso de huéspedes</div>
+                        <div className="text-xs text-red-600">
+                          Los huéspedes perderán acceso inmediatamente
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-                <p className="text-sm text-amber-800">
-                  <strong>⚠️ Esta acción no se puede deshacer.</strong> Una vez eliminada, no podrás recuperar ninguna información de esta propiedad.
-                </p>
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-amber-800">
+                    <p className="font-medium mb-1">⚠️ Esta acción no se puede deshacer</p>
+                    <p>Una vez eliminada, no podrás recuperar ninguna información de esta propiedad. Todos los datos se perderán permanentemente.</p>
+                    {isPublished && (
+                      <p className="mt-2 font-medium text-amber-900">
+                        ⚡ Los huéspedes perderán acceso inmediatamente al manual digital.
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Actions */}
@@ -164,9 +273,26 @@ export function DeletePropertyModal({
               </div>
 
               {/* Property reminder */}
-              <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                <div className="text-sm text-gray-600">Eliminando:</div>
-                <div className="font-medium text-gray-900">{propertyName}</div>
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <div className="text-sm text-gray-600 mb-2">Eliminando permanentemente:</div>
+                <div className="font-medium text-gray-900 mb-2">{propertyName}</div>
+                <div className="text-xs text-gray-500 flex flex-wrap gap-2">
+                  <span>{zonesCount} zona{zonesCount !== 1 ? 's' : ''}</span>
+                  <span>•</span>
+                  <span>{totalSteps} paso{totalSteps !== 1 ? 's' : ''}</span>
+                  {mediaCount > 0 && (
+                    <>
+                      <span>•</span>
+                      <span>{mediaCount} archivo{mediaCount !== 1 ? 's' : ''}</span>
+                    </>
+                  )}
+                  {totalViews > 0 && (
+                    <>
+                      <span>•</span>
+                      <span>{totalViews} vista{totalViews !== 1 ? 's' : ''}</span>
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Confirmation text */}
@@ -206,10 +332,18 @@ export function DeletePropertyModal({
 
               {/* Final warning */}
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <p className="text-sm text-red-800 text-center">
-                  <strong>⚠️ ÚLTIMA ADVERTENCIA:</strong><br />
-                  Esta acción eliminará permanentemente "{propertyName}" y todo su contenido.
-                </p>
+                <div className="text-center">
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mb-3">
+                    <AlertTriangle className="w-6 h-6 text-red-600" />
+                  </div>
+                  <p className="text-sm text-red-800">
+                    <strong>⚠️ ÚLTIMA ADVERTENCIA</strong><br />
+                    Esta acción eliminará permanentemente <strong>"{propertyName}"</strong> y todo su contenido.
+                  </p>
+                  <p className="text-xs text-red-700 mt-2">
+                    {zonesCount} zona{zonesCount !== 1 ? 's' : ''} • {totalSteps} paso{totalSteps !== 1 ? 's' : ''} • Datos irrecuperables
+                  </p>
+                </div>
               </div>
 
               {/* Actions */}

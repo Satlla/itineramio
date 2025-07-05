@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bell, X, ArrowLeft, AlertTriangle, AlertCircle, Info, ExternalLink, CheckCircle } from 'lucide-react'
+import { Bell, X, ArrowLeft, AlertTriangle, AlertCircle, Info, ExternalLink, CheckCircle, Star, MessageCircle } from 'lucide-react'
 import { Notification } from '../../types/notifications'
 import { Button } from './Button'
 
@@ -33,6 +33,10 @@ export function NotificationCenter({
         return <AlertCircle className="w-5 h-5 text-red-600" />
       case 'info':
         return <Info className="w-5 h-5 text-blue-600" />
+      case 'review':
+        return <Star className="w-5 h-5 text-yellow-600" />
+      case 'success':
+        return <CheckCircle className="w-5 h-5 text-green-600" />
       default:
         return <Bell className="w-5 h-5 text-gray-600" />
     }
@@ -166,6 +170,44 @@ export function NotificationCenter({
                               <p className="text-sm text-gray-700 mb-2">
                                 {notification.message}
                               </p>
+                              
+                              {/* Review-specific details */}
+                              {notification.type === 'review' && notification.metadata && (
+                                <div className="mb-2 p-2 bg-yellow-50 rounded-lg border border-yellow-200">
+                                  <div className="flex items-center gap-2 text-xs text-yellow-800">
+                                    <div className="flex items-center gap-1">
+                                      {Array.from({ length: 5 }, (_, i) => (
+                                        <Star
+                                          key={i}
+                                          className={`w-3 h-3 ${
+                                            i < (notification.metadata.rating || 0)
+                                              ? 'fill-yellow-400 text-yellow-400'
+                                              : 'text-gray-300'
+                                          }`}
+                                        />
+                                      ))}
+                                      <span className="font-medium ml-1">
+                                        {notification.metadata.rating}/5
+                                      </span>
+                                    </div>
+                                    <span>•</span>
+                                    <span className={`px-1.5 py-0.5 rounded-full text-xs ${
+                                      notification.metadata.isPublic
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-gray-100 text-gray-600'
+                                    }`}>
+                                      {notification.metadata.isPublic ? 'Pública' : 'Privada'}
+                                    </span>
+                                    {notification.metadata.hasComment && (
+                                      <>
+                                        <span>•</span>
+                                        <MessageCircle className="w-3 h-3" />
+                                        <span>Con comentario</span>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
                               <div className="flex items-center justify-between">
                                 <span className="text-xs text-gray-500">
                                   {formatTime(notification.createdAt)}

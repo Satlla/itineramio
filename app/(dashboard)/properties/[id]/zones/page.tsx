@@ -1530,6 +1530,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </p>
         </div>
         <div className="hidden lg:flex space-x-3">
+          {/* Reviews button */}
+          <Button
+            onClick={() => router.push(`/properties/${id}/reviews`)}
+            variant="outline"
+            className="border-blue-500 text-blue-600 hover:bg-blue-50"
+          >
+            <Star className="w-5 h-5 mr-2" />
+            Reseñas
+          </Button>
+          
           {/* Vista Pública button */}
           <Button
             onClick={() => {
@@ -1652,16 +1662,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   Añade zonas con instrucciones para que tus huéspedes tengan toda la información que necesitan.
                 </p>
                 <div className="space-y-3">
-                  <Button
-                    onClick={() => {
-                      console.log('🔥 DIRECT BUTTON CLICKED - Testing modal')
-                      setSelectedEssentialZones(new Set(essentialZones.map(z => z.id)))
-                      setShowEssentialZonesModal(true)
-                    }}
-                    className="bg-red-600 hover:bg-red-700 w-full"
-                  >
-                    🧪 TEST: Mostrar Modal Esenciales
-                  </Button>
                   <Button
                     onClick={handleOpenMultiSelect}
                     className="bg-violet-600 hover:bg-violet-700 w-full"
@@ -2218,6 +2218,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         propertyType={propertyType}
         propertyLocation={propertyLocation}
         zonesCount={zones.length}
+        totalSteps={zones.reduce((acc, zone) => acc + zone.stepsCount, 0)}
+        totalViews={0} // TODO: Add property analytics
+        totalRatings={0} // TODO: Add property ratings
+        mediaCount={0} // TODO: Calculate media count
+        createdDate={undefined} // TODO: Add property creation date
+        isPublished={propertyStatus === 'ACTIVE'}
         isDeleting={isDeletingProperty}
       />
 
