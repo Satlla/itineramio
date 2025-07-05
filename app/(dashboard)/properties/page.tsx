@@ -69,6 +69,11 @@ interface Property {
     id: string
     name: string
   } | null
+  zones?: Array<{
+    id: string
+    name: string | { es: string; en?: string; fr?: string }
+    order: number
+  }>
 }
 
 // Helper function to get text from multilingual objects
@@ -607,6 +612,17 @@ function PropertiesPageContent() {
   const [recommendationModalOpen, setRecommendationModalOpen] = useState(false)
   const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  
+  // Duplicate property modal states
+  const [duplicateModalOpen, setDuplicateModalOpen] = useState(false)
+  const [propertyToDuplicate, setPropertyToDuplicate] = useState<Property | null>(null)
+  const [duplicateCount, setDuplicateCount] = useState(1)
+  const [shareMedia, setShareMedia] = useState(true)
+  const [copyCompleteProperty, setCopyCompleteProperty] = useState(true)
+  const [selectedZones, setSelectedZones] = useState<string[]>([])
+  const [assignToSet, setAssignToSet] = useState(false)
+  const [selectedPropertySet, setSelectedPropertySet] = useState<string>('')
+  const [isDuplicating, setIsDuplicating] = useState(false)
 
   // Handle URL parameters on mount
   useEffect(() => {
@@ -877,6 +893,72 @@ function PropertiesPageContent() {
     setShareModalOpen(false)
     setShareProperty(null)
     setCopied(false)
+  }
+
+  const handleDuplicateProperty = (property: Property) => {
+    setPropertyToDuplicate(property)
+    setDuplicateModalOpen(true)
+    setDuplicateCount(1)
+    setShareMedia(true)
+    setCopyCompleteProperty(true)
+    setSelectedZones([])
+    setAssignToSet(false)
+    setSelectedPropertySet('')
+  }
+
+  const closeDuplicateModal = () => {
+    setDuplicateModalOpen(false)
+    setPropertyToDuplicate(null)
+    setDuplicateCount(1)
+    setShareMedia(true)
+    setCopyCompleteProperty(true)
+    setSelectedZones([])
+    setAssignToSet(false)
+    setSelectedPropertySet('')
+    setIsDuplicating(false)
+  }
+
+  const handleDuplicateSubmit = async () => {
+    if (!propertyToDuplicate || duplicateCount < 1) return
+
+    setIsDuplicating(true)
+    try {
+      const response = await fetch('/api/properties/duplicate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          propertyId: propertyToDuplicate.id,
+          count: duplicateCount,
+          shareMedia,
+          copyCompleteProperty,
+          selectedZones: copyCompleteProperty ? [] : selectedZones,
+          assignToSet,
+          propertySetId: assignToSet ? selectedPropertySet : null
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al duplicar la propiedad')
+      }
+
+      // Refresh properties list
+      await fetchProperties()
+      
+      closeDuplicateModal()
+      
+      // Show success message
+      alert(`¡${duplicateCount} ${duplicateCount === 1 ? 'propiedad creada' : 'propiedades creadas'} exitosamente!`)
+      
+    } catch (error) {
+      console.error('Error duplicating property:', error)
+      alert(`Error al duplicar la propiedad: ${error instanceof Error ? error.message : 'Error desconocido'}`)
+    } finally {
+      setIsDuplicating(false)
+    }
   }
 
 
@@ -1389,6 +1471,13 @@ function PropertiesPageContent() {
                                     Vista pública
                                   </DropdownMenu.Item>
                                 )}
+                                <DropdownMenu.Item
+                                  className="flex items-center px-2 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                                  onSelect={() => handleDuplicateProperty(property)}
+                                >
+                                  <Copy className="h-4 w-4 mr-2" />
+                                  Duplicar
+                                </DropdownMenu.Item>
                                 <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
                                 <DropdownMenu.Item
                                   className="flex items-center px-2 py-2 text-sm text-red-600 hover:bg-red-50 rounded cursor-pointer"
@@ -1860,6 +1949,231 @@ function PropertiesPageContent() {
                       Ir a la sección
                     </Button>
                   )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Duplicate Property Modal */}
+        {duplicateModalOpen && propertyToDuplicate && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={closeDuplicateModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Duplicar Propiedad
+                </h3>
+                <button
+                  onClick={closeDuplicateModal}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                {/* Property Info */}
+                <div className="flex items-center space-x-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                  <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                    {propertyToDuplicate.profileImage ? (
+                      <img 
+                        src={propertyToDuplicate.profileImage} 
+                        alt={getText(propertyToDuplicate.name, 'Propiedad')}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
+                        <Home className="w-6 h-6 text-white" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-lg font-semibold text-gray-900 truncate">
+                      {getText(propertyToDuplicate.name, 'Propiedad')}
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      {getText(propertyToDuplicate.city, '')}, {getText(propertyToDuplicate.state, '')}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Number of duplicates */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ¿Cuántas propiedades quieres crear?
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={duplicateCount}
+                      onChange={(e) => setDuplicateCount(parseInt(e.target.value) || 1)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Se crearán como: {getText(propertyToDuplicate.name, 'Propiedad')} 2, {getText(propertyToDuplicate.name, 'Propiedad')} 3, etc.
+                    </p>
+                  </div>
+
+                  {/* Share media */}
+                  <div>
+                    <label className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        checked={shareMedia}
+                        onChange={(e) => setShareMedia(e.target.checked)}
+                        className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
+                      />
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">
+                          Compartir medios (imágenes y videos)
+                        </span>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Las nuevas propiedades usarán las mismas imágenes y videos que la original
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+
+                  {/* Copy complete property or select zones */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      ¿Qué quieres copiar?
+                    </label>
+                    <div className="space-y-3">
+                      <label className="flex items-center space-x-3">
+                        <input
+                          type="radio"
+                          name="copyType"
+                          checked={copyCompleteProperty}
+                          onChange={() => setCopyCompleteProperty(true)}
+                          className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300"
+                        />
+                        <div>
+                          <span className="text-sm font-medium text-gray-700">
+                            Propiedad completa
+                          </span>
+                          <p className="text-xs text-gray-500">
+                            Copiar todas las zonas y pasos de la propiedad
+                          </p>
+                        </div>
+                      </label>
+                      <label className="flex items-center space-x-3">
+                        <input
+                          type="radio"
+                          name="copyType"
+                          checked={!copyCompleteProperty}
+                          onChange={() => setCopyCompleteProperty(false)}
+                          className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300"
+                        />
+                        <div>
+                          <span className="text-sm font-medium text-gray-700">
+                            Solo zonas específicas
+                          </span>
+                          <p className="text-xs text-gray-500">
+                            Seleccionar qué zonas copiar
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+
+                    {/* Zone selection (only if not copying complete property) */}
+                    {!copyCompleteProperty && propertyToDuplicate.zones && (
+                      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <p className="text-sm font-medium text-gray-700 mb-2">Seleccionar zonas:</p>
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {propertyToDuplicate.zones.map((zone: any) => (
+                            <label key={zone.id} className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                checked={selectedZones.includes(zone.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedZones([...selectedZones, zone.id])
+                                  } else {
+                                    setSelectedZones(selectedZones.filter(id => id !== zone.id))
+                                  }
+                                }}
+                                className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
+                              />
+                              <span className="text-sm text-gray-700">
+                                {getText(zone.name, 'Zona')}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Assign to property set */}
+                  <div>
+                    <label className="flex items-center space-x-3 mb-3">
+                      <input
+                        type="checkbox"
+                        checked={assignToSet}
+                        onChange={(e) => setAssignToSet(e.target.checked)}
+                        className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm font-medium text-gray-700">
+                        Asignar a un conjunto de propiedades
+                      </span>
+                    </label>
+
+                    {assignToSet && (
+                      <select
+                        value={selectedPropertySet}
+                        onChange={(e) => setSelectedPropertySet(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                      >
+                        <option value="">Seleccionar conjunto...</option>
+                        {propertySets.map((set) => (
+                          <option key={set.id} value={set.id}>
+                            {set.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="px-6 py-4 bg-gray-50 rounded-b-2xl">
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    onClick={closeDuplicateModal}
+                    variant="outline"
+                    disabled={isDuplicating}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={handleDuplicateSubmit}
+                    className="bg-violet-600 hover:bg-violet-700"
+                    disabled={isDuplicating || duplicateCount < 1 || (!copyCompleteProperty && selectedZones.length === 0)}
+                  >
+                    {isDuplicating ? (
+                      <>
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                        Duplicando...
+                      </>
+                    ) : (
+                      `Crear ${duplicateCount} ${duplicateCount === 1 ? 'propiedad' : 'propiedades'}`
+                    )}
+                  </Button>
                 </div>
               </div>
             </motion.div>
