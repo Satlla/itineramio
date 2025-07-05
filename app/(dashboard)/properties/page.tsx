@@ -14,6 +14,7 @@ import {
   Share2,
   Bell,
   AlertCircle,
+  AlertTriangle,
   Users,
   Copy,
   Check,
@@ -626,6 +627,21 @@ function PropertiesPageContent() {
   const [selectedPropertySet, setSelectedPropertySet] = useState<string>('')
   const [autoPublish, setAutoPublish] = useState<boolean>(false)
   const [isDuplicating, setIsDuplicating] = useState(false)
+  
+  // Reviews modal states
+  const [reviewsModalOpen, setReviewsModalOpen] = useState(false)
+  const [selectedPropertyForReviews, setSelectedPropertyForReviews] = useState<Property | null>(null)
+  const [propertyReviews, setPropertyReviews] = useState<any[]>([])
+  const [loadingReviews, setLoadingReviews] = useState(false)
+  
+  // Delete property modal states
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+  
+  // Success modal states
+  const [successModalOpen, setSuccessModalOpen] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
 
   // Handle URL parameters on mount
   useEffect(() => {
@@ -802,30 +818,47 @@ function PropertiesPageContent() {
     router.push(`/properties/new?edit=${propertyId}`)
   }
 
-  const handleDeleteProperty = async (propertyId: string) => {
+  const handleDeleteProperty = (propertyId: string) => {
     const property = properties.find(p => p.id === propertyId)
     if (!property) return
 
-    const propertyName = typeof property.name === 'string' ? property.name : property.name?.es || 'esta propiedad'
-    
-    if (confirm(`¿Estás seguro de que quieres eliminar "${propertyName}"? Esta acción no se puede deshacer.`)) {
-      try {
-        const response = await fetch(`/api/properties/${propertyId}`, {
-          method: 'DELETE'
-        })
+    setPropertyToDelete(property)
+    setDeleteModalOpen(true)
+  }
 
-        if (!response.ok) {
-          throw new Error('Error al eliminar la propiedad')
-        }
+  const confirmDeleteProperty = async () => {
+    if (!propertyToDelete) return
 
-        // Actualizar la lista local
-        setProperties(prev => prev.filter(p => p.id !== propertyId))
+    setIsDeleting(true)
+    try {
+      const response = await fetch(`/api/properties/${propertyToDelete.id}`, {
+        method: 'DELETE'
+      })
 
-      } catch (error) {
-        console.error('Error deleting property:', error)
-        alert('Error al eliminar la propiedad. Por favor, inténtalo de nuevo.')
+      if (!response.ok) {
+        throw new Error('Error al eliminar la propiedad')
       }
+
+      // Actualizar la lista local
+      setProperties(prev => prev.filter(p => p.id !== propertyToDelete.id))
+      
+      // Close modal and reset state
+      setDeleteModalOpen(false)
+      setPropertyToDelete(null)
+      
+    } catch (error) {
+      console.error('Error deleting property:', error)
+      setSuccessMessage('Error al eliminar la propiedad. Por favor, inténtalo de nuevo.')
+      setSuccessModalOpen(true)
+    } finally {
+      setIsDeleting(false)
     }
+  }
+
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false)
+    setPropertyToDelete(null)
+    setIsDeleting(false)
   }
 
   const handleToggleProperty = async (propertyId: string) => {
@@ -995,16 +1028,71 @@ function PropertiesPageContent() {
       closeDuplicateModal()
       
       // Show success message
-      alert(`¡${duplicateCount} ${duplicateCount === 1 ? 'propiedad creada' : 'propiedades creadas'} exitosamente!`)
+      setSuccessMessage(`¡${duplicateCount} ${duplicateCount === 1 ? 'propiedad creada' : 'propiedades creadas'} exitosamente!`)
+      setSuccessModalOpen(true)
       
     } catch (error) {
       console.error('Error duplicating property:', error)
-      alert(`Error al duplicar la propiedad: ${error instanceof Error ? error.message : 'Error desconocido'}`)
+      setSuccessMessage(`Error al duplicar la propiedad: ${error instanceof Error ? error.message : 'Error desconocido'}`)
+      setSuccessModalOpen(true)
     } finally {
       setIsDuplicating(false)
     }
   }
 
+  const handleViewReviews = async (propertyId: string) => {
+    const property = properties.find(p => p.id === propertyId)
+    if (!property) return
+
+    setSelectedPropertyForReviews(property)
+    setReviewsModalOpen(true)
+    setLoadingReviews(true)
+
+    try {
+      const response = await fetch(`/api/properties/${propertyId}/reviews`)
+      if (response.ok) {
+        const result = await response.json()
+        setPropertyReviews(result.reviews || [])
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error)
+      setPropertyReviews([])
+    } finally {
+      setLoadingReviews(false)
+    }
+  }
+
+  const closeReviewsModal = () => {
+    setReviewsModalOpen(false)
+    setSelectedPropertyForReviews(null)
+    setPropertyReviews([])
+    setLoadingReviews(false)
+  }
+
+  const handleToggleReviewPublic = async (reviewId: string, isPublic: boolean) => {
+    try {
+      const response = await fetch(`/api/reviews/${reviewId}/toggle-public`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isPublic: !isPublic })
+      })
+
+      if (response.ok) {
+        // Update the review in the local state
+        setPropertyReviews(prev => 
+          prev.map(review => 
+            review.id === reviewId 
+              ? { ...review, isPublic: !isPublic }
+              : review
+          )
+        )
+      }
+    } catch (error) {
+      console.error('Error toggling review visibility:', error)
+    }
+  }
 
   if (loading) {
     return (
@@ -1388,7 +1476,7 @@ function PropertiesPageContent() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="hover:shadow-lg transition-shadow">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push(getFriendlyUrl(property))}>
                   <CardContent className="p-6">
                     <div className="flex space-x-4">
                       {/* Property Image */}
@@ -1407,7 +1495,10 @@ function PropertiesPageContent() {
                           )}
                           <div 
                             className="mt-2 text-center text-xs text-violet-600 underline cursor-pointer hover:text-violet-800"
-                            onClick={() => handleEditProperty(property.id)}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleEditProperty(property.id)
+                            }}
                           >
                             Editar
                           </div>
@@ -1470,7 +1561,7 @@ function PropertiesPageContent() {
                                   <span className="text-sm text-gray-600">
                                     {property.status === 'ACTIVE' ? 'Activa' : 'Inactiva'}
                                   </span>
-                                  <label className="relative inline-flex items-center cursor-pointer">
+                                  <label className="relative inline-flex items-center cursor-pointer" onClick={(e) => e.stopPropagation()}>
                                     <input
                                       type="checkbox"
                                       checked={property.status === 'ACTIVE'}
@@ -1486,7 +1577,7 @@ function PropertiesPageContent() {
                           
                           <DropdownMenu.Root>
                             <DropdownMenu.Trigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 ml-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 ml-2" onClick={(e) => e.stopPropagation()}>
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenu.Trigger>
@@ -1494,10 +1585,10 @@ function PropertiesPageContent() {
                               <DropdownMenu.Content className="w-56 bg-white rounded-md border shadow-lg p-1 z-50">
                                 <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                  onSelect={() => handleEditProperty(property.id)}
+                                  onSelect={() => handleViewReviews(property.id)}
                                 >
-                                  <Edit className="h-4 w-4 mr-2" />
-                                  Editar
+                                  <Star className="h-4 w-4 mr-2" />
+                                  Reseñas
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
@@ -2226,6 +2317,389 @@ function PropertiesPageContent() {
                       </>
                     ) : (
                       `Crear ${duplicateCount} ${duplicateCount === 1 ? 'propiedad' : 'propiedades'}`
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Reviews Modal */}
+        {reviewsModalOpen && selectedPropertyForReviews && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={closeReviewsModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    Reseñas de {getText(selectedPropertyForReviews.name, 'Propiedad')}
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Gestiona las reseñas de los huéspedes
+                  </p>
+                </div>
+                <button
+                  onClick={closeReviewsModal}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                {loadingReviews ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
+                    <span className="ml-3 text-gray-600">Cargando reseñas...</span>
+                  </div>
+                ) : propertyReviews.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Star className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <h4 className="text-lg font-medium text-gray-900 mb-2">
+                      Sin reseñas aún
+                    </h4>
+                    <p className="text-gray-600">
+                      Los huéspedes aún no han dejado reseñas para esta propiedad
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {propertyReviews.map((review) => (
+                      <div key={review.id} className="border rounded-lg p-4 hover:shadow-sm transition-shadow">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="flex items-center">
+                              {Array.from({ length: 5 }, (_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-5 h-5 ${
+                                    i < review.rating
+                                      ? 'fill-yellow-400 text-yellow-400'
+                                      : 'text-gray-300'
+                                  }`}
+                                />
+                              ))}
+                              <span className="ml-2 text-sm font-medium text-gray-900">
+                                {review.rating}/5
+                              </span>
+                            </div>
+                            <span className="text-sm text-gray-600">
+                              por {review.userName}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              review.isPublic
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-gray-100 text-gray-600'
+                            }`}>
+                              {review.isPublic ? 'Pública' : 'Privada'}
+                            </span>
+                            <Button
+                              size="sm"
+                              variant={review.isPublic ? "outline" : "default"}
+                              onClick={() => handleToggleReviewPublic(review.id, review.isPublic)}
+                              className={review.isPublic 
+                                ? "text-gray-600 hover:text-gray-800" 
+                                : "bg-green-600 hover:bg-green-700 text-white"
+                              }
+                            >
+                              {review.isPublic ? 'Hacer privada' : 'Hacer pública'}
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        {review.comment && (
+                          <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                            <p className="text-gray-700 text-sm leading-relaxed">
+                              "{review.comment}"
+                            </p>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <span>
+                            {review.reviewType === 'zone' ? 'Reseña de zona' : 'Reseña general'}
+                          </span>
+                          <span>
+                            {new Date(review.createdAt).toLocaleDateString('es-ES', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="px-6 py-4 bg-gray-50 rounded-b-2xl">
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-600">
+                    {propertyReviews.length > 0 && (
+                      <span>
+                        {propertyReviews.filter(r => r.isPublic).length} de {propertyReviews.length} reseñas públicas
+                      </span>
+                    )}
+                  </div>
+                  <Button
+                    onClick={closeReviewsModal}
+                    variant="outline"
+                  >
+                    Cerrar
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Delete Property Modal */}
+        {deleteModalOpen && propertyToDelete && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={closeDeleteModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <AlertTriangle className="w-6 h-6 text-red-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Eliminar Propiedad
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Esta acción no se puede deshacer
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={closeDeleteModal}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              {/* Modal Content - Scrollable */}
+              <div className="p-6 overflow-y-auto flex-1">
+                {/* Property Info */}
+                <div className="flex items-center space-x-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                  <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                    {propertyToDelete.profileImage ? (
+                      <img 
+                        src={propertyToDelete.profileImage} 
+                        alt={getText(propertyToDelete.name, 'Propiedad')}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
+                        <Home className="w-6 h-6 text-white" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-lg font-semibold text-gray-900 truncate">
+                      {getText(propertyToDelete.name, 'Propiedad')}
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      {getText(propertyToDelete.city, '')}, {getText(propertyToDelete.state, '')}
+                    </p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="text-xs text-gray-500">
+                        {propertyToDelete.zonesCount || 0} zonas configuradas
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Warning Message */}
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start space-x-3">
+                    <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h5 className="font-medium text-red-800 mb-1">
+                        ¿Estás seguro de que quieres eliminar esta propiedad?
+                      </h5>
+                      <p className="text-sm text-red-700 leading-relaxed">
+                        Se eliminarán <strong>permanentemente</strong> todos los datos asociados:
+                      </p>
+                      <ul className="text-sm text-red-700 mt-2 space-y-1">
+                        <li>• Todas las zonas y sus instrucciones</li>
+                        <li>• Códigos QR y enlaces de acceso</li>
+                        <li>• Estadísticas y análisis</li>
+                        <li>• Reseñas y comentarios</li>
+                        <li>• Historial de actividad</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Confirmation Input */}
+                <div className="mb-6">
+                  <p className="text-sm text-gray-700 mb-3">
+                    Para confirmar, escribe <strong>"ELIMINAR"</strong> en el campo de abajo:
+                  </p>
+                  <input
+                    type="text"
+                    placeholder="Escribe ELIMINAR para confirmar"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                    id="deleteConfirmation"
+                  />
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex-shrink-0">
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    onClick={closeDeleteModal}
+                    variant="outline"
+                    disabled={isDeleting}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const input = document.getElementById('deleteConfirmation') as HTMLInputElement
+                      if (input?.value === 'ELIMINAR') {
+                        confirmDeleteProperty()
+                      } else {
+                        setSuccessMessage('Debes escribir "ELIMINAR" para confirmar')
+                        setSuccessModalOpen(true)
+                      }
+                    }}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? (
+                      <>
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                        Eliminando...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Eliminar Propiedad
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Success/Error Modal */}
+        {successModalOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={() => setSuccessModalOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    successMessage.toLowerCase().includes('error') 
+                      ? 'bg-red-100' 
+                      : 'bg-green-100'
+                  }`}>
+                    {successMessage.toLowerCase().includes('error') ? (
+                      <AlertTriangle className="w-6 h-6 text-red-600" />
+                    ) : (
+                      <CheckCircle className="w-6 h-6 text-green-600" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {successMessage.toLowerCase().includes('error') ? 'Error' : '¡Éxito!'}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {successMessage.toLowerCase().includes('error') 
+                        ? 'Ha ocurrido un problema' 
+                        : 'Operación completada correctamente'
+                      }
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSuccessModalOpen(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 overflow-y-auto flex-1">
+                <div className={`p-4 rounded-lg ${
+                  successMessage.toLowerCase().includes('error') 
+                    ? 'bg-red-50 border border-red-200' 
+                    : 'bg-green-50 border border-green-200'
+                }`}>
+                  <p className={`text-sm leading-relaxed ${
+                    successMessage.toLowerCase().includes('error') 
+                      ? 'text-red-700' 
+                      : 'text-green-700'
+                  }`}>
+                    {successMessage}
+                  </p>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex-shrink-0">
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => setSuccessModalOpen(false)}
+                    className={`${
+                      successMessage.toLowerCase().includes('error') 
+                        ? 'bg-red-600 hover:bg-red-700' 
+                        : 'bg-green-600 hover:bg-green-700'
+                    } text-white`}
+                  >
+                    {successMessage.toLowerCase().includes('error') ? (
+                      <>
+                        <AlertTriangle className="w-4 h-4 mr-2" />
+                        Entendido
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Continuar
+                      </>
                     )}
                   </Button>
                 </div>

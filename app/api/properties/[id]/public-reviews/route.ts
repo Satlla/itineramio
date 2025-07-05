@@ -41,18 +41,16 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: {
-        reviews: reviews.map(review => ({
-          id: review.id,
-          rating: review.rating,
-          comment: review.comment,
-          userName: review.userName,
-          createdAt: review.createdAt,
-          reviewType: review.reviewType,
-          zone: review.zone
-        })),
-        stats
-      }
+      reviews: reviews.map(review => ({
+        id: review.id,
+        rating: review.rating,
+        comment: review.comment,
+        userName: review.userName,
+        createdAt: review.createdAt,
+        reviewType: review.reviewType,
+        zone: review.zone
+      })),
+      stats
     })
     
   } catch (error) {

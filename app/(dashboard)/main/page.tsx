@@ -662,21 +662,30 @@ export default function DashboardPage(): JSX.Element {
                                   <DropdownMenu.Content className="w-56 bg-white rounded-md shadow-lg border border-gray-200 p-1">
                                     <DropdownMenu.Item 
                                       className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                      onClick={() => handlePropertyAction('edit', property.id)}
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handlePropertyAction('edit', property.id)
+                                      }}
                                     >
                                       <Edit className="mr-2 h-4 w-4" />
                                       Editar
                                     </DropdownMenu.Item>
                                     <DropdownMenu.Item 
                                       className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                      onClick={() => router.push(`/properties/${property.id}/zones`)}
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        router.push(`/properties/${property.id}/zones`)
+                                      }}
                                     >
                                       <Building2 className="mr-2 h-4 w-4" />
                                       Gestionar propiedad
                                     </DropdownMenu.Item>
                                     <DropdownMenu.Item 
                                       className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                      onClick={() => handlePropertyAction('duplicate', property)}
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handlePropertyAction('duplicate', property)
+                                      }}
                                     >
                                       <Copy className="mr-2 h-4 w-4" />
                                       Duplicar
@@ -684,7 +693,10 @@ export default function DashboardPage(): JSX.Element {
                                     {property.status === 'ACTIVE' && (
                                       <DropdownMenu.Item 
                                         className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                        onClick={() => handlePropertyAction('public', property.id)}
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handlePropertyAction('public', property.id)
+                                        }}
                                       >
                                         <ExternalLink className="mr-2 h-4 w-4" />
                                         Vista pública
@@ -693,7 +705,10 @@ export default function DashboardPage(): JSX.Element {
                                     <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
                                     <DropdownMenu.Item 
                                       className="flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded cursor-pointer"
-                                      onClick={() => handlePropertyAction('delete', property.id)}
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handlePropertyAction('delete', property.id)
+                                      }}
                                     >
                                       <Trash2 className="mr-2 h-4 w-4" />
                                       Eliminar

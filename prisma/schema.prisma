@@ -24,27 +24,25 @@ model User {
   updatedAt            DateTime               @updatedAt
   lastLoginAt          DateTime?
   avatar               String?
-  // New admin fields
-  isAdmin              Boolean                @default(false)
-  isActive             Boolean                @default(true)
   companyName          String?
-  notes                String? // Internal admin notes
-  createdBy            String? // Admin who created this user
+  createdBy            String?
+  isActive             Boolean                @default(true)
+  isAdmin              Boolean                @default(false)
+  notes                String?
+  adminLogs            AdminActivityLog[]
   assignedErrorReports ErrorReport[]          @relation("ErrorReportAssignee")
+  invoices             Invoice[]
+  mediaItems           MediaLibrary[]
   organization_members organization_members[]
   properties           Property[]
   propertySets         PropertySet[]
-  inspirationState     UserInspirationState?
-  moderatedComments    ZoneComment[]          @relation("CommentModerator")
-  mediaItems           MediaLibrary[]
-  notifications        Notification[]
-  // Admin relations
-  subscriptions        UserSubscription[]
-  invoices             Invoice[]
-  createdUsers         User[]                 @relation("UserCreatedBy")
-  creator              User?                  @relation("UserCreatedBy", fields: [createdBy], references: [id])
-  adminLogs            AdminActivityLog[]
   trackingEvents       TrackingEvent[]        @relation("UserTrackingEvents")
+  inspirationState     UserInspirationState?
+  subscriptions        UserSubscription[]
+  creator              User?                  @relation("UserCreatedBy", fields: [createdBy], references: [id])
+  createdUsers         User[]                 @relation("UserCreatedBy")
+  moderatedComments    ZoneComment[]          @relation("CommentModerator")
+  notifications        Notification[]
 
   @@map("users")
 }
@@ -122,8 +120,8 @@ model Property {
   organizations       organizations?     @relation(fields: [organizationId], references: [id])
   propertySet         PropertySet?       @relation(fields: [propertySetId], references: [id])
   analytics           PropertyAnalytics?
-  zones               Zone[]
   trackingEvents      TrackingEvent[]
+  zones               Zone[]
   propertyRatings     PropertyRating[]
   reviews             Review[]
 
@@ -132,7 +130,7 @@ model Property {
 }
 
 model Zone {
-  id                  String         @id @default(cuid())
+  id                  String          @id @default(cuid())
   propertyId          String?
   organizationId      String?
   buildingId          String?
@@ -140,32 +138,32 @@ model Zone {
   description         Json?
   icon                String
   color               String?
-  order               Int            @default(0)
-  qrCode              String         @unique
-  accessCode          String         @unique
-  whatsappEnabled     Boolean        @default(true)
-  errorReportsEnabled Boolean        @default(true)
-  commentsEnabled     Boolean        @default(true)
-  ratingsEnabled      Boolean        @default(true)
-  status              String         @default("DRAFT")
-  isPublished         Boolean        @default(false)
-  viewCount           Int            @default(0)
+  order               Int             @default(0)
+  qrCode              String          @unique
+  accessCode          String          @unique
+  whatsappEnabled     Boolean         @default(true)
+  errorReportsEnabled Boolean         @default(true)
+  commentsEnabled     Boolean         @default(true)
+  ratingsEnabled      Boolean         @default(true)
+  status              String          @default("DRAFT")
+  isPublished         Boolean         @default(false)
+  viewCount           Int             @default(0)
   lastViewedAt        DateTime?
-  avgRating           Float          @default(0)
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
+  avgRating           Float           @default(0)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
   publishedAt         DateTime?
   slug                String?
   errorReports        ErrorReport[]
   steps               Step[]
-  comments            ZoneComment[]
-  ratings             ZoneRating[]
   trackingEvents      TrackingEvent[]
   analytics           ZoneAnalytics?
+  comments            ZoneComment[]
+  ratings             ZoneRating[]
   reviews             Review[]
-  buildings           buildings?     @relation(fields: [buildingId], references: [id], onDelete: Cascade)
-  organizations       organizations? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  property            Property?      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  buildings           buildings?      @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  organizations       organizations?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  property            Property?       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@unique([propertyId, slug])
   @@index([propertyId, status])
@@ -307,20 +305,20 @@ model DailyStats {
 
 model TrackingEvent {
   id         String   @id @default(cuid())
-  type       String   // STEP_VIEWED, ZONE_COMPLETED, ZONE_RATED, PROPERTY_VIEWED, etc.
+  type       String
   propertyId String
   zoneId     String?
   stepId     String?
   userId     String?
   sessionId  String?
-  metadata   Json?    // Flexible field for additional data
+  metadata   Json?
   timestamp  DateTime @default(now())
   userAgent  String?
   ipAddress  String?
-  duration   Int?     // Duration in seconds for completed actions
+  duration   Int?
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user       User?    @relation("UserTrackingEvents", fields: [userId], references: [id])
   zone       Zone?    @relation(fields: [zoneId], references: [id], onDelete: Cascade)
-  user       User?    @relation("UserTrackingEvents", fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([propertyId, type, timestamp])
   @@index([zoneId, type, timestamp])
@@ -329,19 +327,19 @@ model TrackingEvent {
 }
 
 model ZoneAnalytics {
-  id                   String   @id @default(cuid())
-  zoneId               String   @unique
-  totalViews           Int      @default(0)
-  uniqueVisitors       Int      @default(0)
-  avgTimeSpent         Int      @default(0) // in seconds
-  completionRate       Float    @default(0) // percentage
-  avgStepsCompleted    Float    @default(0)
-  totalCompletions     Int      @default(0)
-  avgRating            Float    @default(0)
-  totalRatings         Int      @default(0)
-  timeSavedMinutes     Int      @default(0) // estimated time saved for users
-  lastCalculatedAt     DateTime @default(now())
-  zone                 Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  id                String   @id @default(cuid())
+  zoneId            String   @unique
+  totalViews        Int      @default(0)
+  uniqueVisitors    Int      @default(0)
+  avgTimeSpent      Int      @default(0)
+  completionRate    Float    @default(0)
+  avgStepsCompleted Float    @default(0)
+  totalCompletions  Int      @default(0)
+  avgRating         Float    @default(0)
+  totalRatings      Int      @default(0)
+  timeSavedMinutes  Int      @default(0)
+  lastCalculatedAt  DateTime @default(now())
+  zone              Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
 
   @@map("zone_analytics")
 }
@@ -412,42 +410,40 @@ model UserInspirationState {
   @@map("user_inspiration_states")
 }
 
-// New Admin System Models
-
 model SubscriptionPlan {
-  id                  String             @id @default(cuid())
-  name                String
-  description         String?
-  priceMonthly        Decimal            @map("price_monthly")
-  priceYearly         Decimal?           @map("price_yearly")
-  aiMessagesIncluded  Int                @default(0) @map("ai_messages_included")
-  maxProperties       Int                @default(1) @map("max_properties")
-  features            Json               @default("[]") // ["ai_chatbot", "analytics", "whatsapp_notifications"]
-  isActive            Boolean            @default(true) @map("is_active")
-  createdAt           DateTime           @default(now()) @map("created_at")
-  updatedAt           DateTime           @updatedAt @map("updated_at")
-  subscriptions       UserSubscription[]
+  id                 String             @id @default(cuid())
+  name               String
+  description        String?
+  priceMonthly       Decimal            @map("price_monthly")
+  priceYearly        Decimal?           @map("price_yearly")
+  aiMessagesIncluded Int                @default(0) @map("ai_messages_included")
+  maxProperties      Int                @default(1) @map("max_properties")
+  features           Json               @default("[]")
+  isActive           Boolean            @default(true) @map("is_active")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+  subscriptions      UserSubscription[]
 
   @@map("subscription_plans")
 }
 
 model UserSubscription {
-  id                 String          @id @default(cuid())
-  userId             String          @map("user_id")
-  planId             String          @map("plan_id")
-  status             String // 'active', 'cancelled', 'suspended', 'pending'
-  customPrice        Decimal?        @map("custom_price")
-  discountPercentage Decimal?        @default(0) @map("discount_percentage")
-  discountReason     String?         @map("discount_reason")
-  startDate          DateTime        @map("start_date")
-  endDate            DateTime?       @map("end_date")
-  notes              String? // Internal notes
-  createdBy          String?         @map("created_by")
-  createdAt          DateTime        @default(now()) @map("created_at")
-  updatedAt          DateTime        @updatedAt @map("updated_at")
-  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan               SubscriptionPlan @relation(fields: [planId], references: [id])
+  id                 String           @id @default(cuid())
+  userId             String           @map("user_id")
+  planId             String           @map("plan_id")
+  status             String
+  customPrice        Decimal?         @map("custom_price")
+  discountPercentage Decimal?         @default(0) @map("discount_percentage")
+  discountReason     String?          @map("discount_reason")
+  startDate          DateTime         @map("start_date")
+  endDate            DateTime?        @map("end_date")
+  notes              String?
+  createdBy          String?          @map("created_by")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
   invoices           Invoice[]
+  plan               SubscriptionPlan @relation(fields: [planId], references: [id])
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_subscriptions")
 }
@@ -456,12 +452,12 @@ model Invoice {
   id               String            @id @default(cuid())
   userId           String            @map("user_id")
   subscriptionId   String?           @map("subscription_id")
-  invoiceNumber    String            @unique @map("invoice_number") // AUTO: INV-2024-001
+  invoiceNumber    String            @unique @map("invoice_number")
   amount           Decimal
   discountAmount   Decimal           @default(0) @map("discount_amount")
   finalAmount      Decimal           @map("final_amount")
-  status           String // 'pending', 'paid', 'overdue', 'cancelled'
-  paymentMethod    String?           @map("payment_method") // 'transfer', 'card', 'cash', 'other'
+  status           String
+  paymentMethod    String?           @map("payment_method")
   paymentReference String?           @map("payment_reference")
   dueDate          DateTime          @map("due_date")
   paidDate         DateTime?         @map("paid_date")
@@ -469,8 +465,8 @@ model Invoice {
   createdBy        String?           @map("created_by")
   createdAt        DateTime          @default(now()) @map("created_at")
   updatedAt        DateTime          @updatedAt @map("updated_at")
-  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   subscription     UserSubscription? @relation(fields: [subscriptionId], references: [id])
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("invoices")
 }
@@ -478,11 +474,11 @@ model Invoice {
 model AdminActivityLog {
   id          String   @id @default(cuid())
   adminUserId String   @map("admin_user_id")
-  action      String // 'user_created', 'plan_changed', 'invoice_generated'
-  targetType  String?  @map("target_type") // 'user', 'property', 'invoice', 'plan'
+  action      String
+  targetType  String?  @map("target_type")
   targetId    String?  @map("target_id")
   description String?
-  metadata    Json?    @default("{}") // Additional data
+  metadata    Json?    @default("{}")
   createdAt   DateTime @default(now()) @map("created_at")
   admin       User     @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
 
@@ -494,7 +490,7 @@ model SystemSetting {
   id          String   @id @default(cuid())
   key         String   @unique
   value       String
-  type        String   @default("string") // 'string', 'number', 'boolean', 'json'
+  type        String   @default("string")
   description String?
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -503,27 +499,27 @@ model SystemSetting {
 }
 
 model MediaLibrary {
-  id              String   @id @default(cuid())
-  userId          String
-  type            String   // 'image', 'video'
-  url             String
-  thumbnailUrl    String?
-  filename        String
-  originalName    String
-  mimeType        String
-  size            Int      // in bytes
-  duration        Int?     // in seconds for videos
-  width           Int?
-  height          Int?
-  hash            String   // MD5 hash for duplicate detection
-  tags            String[] @default([])
-  usageCount      Int      @default(0)
-  isPublic        Boolean  @default(false)
-  metadata        Json?    // Additional metadata (codecs, bitrate, etc)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  lastUsedAt      DateTime?
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String    @id @default(cuid())
+  userId       String
+  type         String
+  url          String
+  thumbnailUrl String?
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  duration     Int?
+  width        Int?
+  height       Int?
+  hash         String
+  tags         String[]  @default([])
+  usageCount   Int       @default(0)
+  isPublic     Boolean   @default(false)
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastUsedAt   DateTime?
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, hash])
   @@index([userId, type])

@@ -1553,15 +1553,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             Vista Pública
           </Button>
           
-          {/* Delete Property button */}
-          <Button
-            onClick={() => setShowDeletePropertyModal(true)}
-            variant="outline"
-            className="border-red-500 text-red-600 hover:bg-red-50"
-          >
-            <Trash2 className="w-5 h-5 mr-2" />
-            Eliminar Propiedad
-          </Button>
         </div>
       </div>
 

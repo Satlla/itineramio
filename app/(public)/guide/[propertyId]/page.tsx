@@ -456,9 +456,13 @@ export default function PropertyGuidePage() {
   const [selectedRating, setSelectedRating] = useState(0)
   const [ratingComment, setRatingComment] = useState('')
   const [isSubmittingRating, setIsSubmittingRating] = useState(false)
+  const [publicReviews, setPublicReviews] = useState<any[]>([])
+  const [reviewsStats, setReviewsStats] = useState<any>(null)
+  const [loadingReviews, setLoadingReviews] = useState(false)
 
   useEffect(() => {
     fetchPropertyData()
+    fetchPublicReviews()
   }, [propertyId])
 
   // Check progress and show warning or completion reward
@@ -502,6 +506,25 @@ export default function PropertyGuidePage() {
       setProperty(null)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchPublicReviews = async () => {
+    try {
+      setLoadingReviews(true)
+      const response = await fetch(`/api/properties/${propertyId}/public-reviews`)
+      
+      if (response.ok) {
+        const result = await response.json()
+        setPublicReviews(result.reviews || [])
+        setReviewsStats(result.stats || null)
+      }
+    } catch (error) {
+      console.error('Error fetching public reviews:', error)
+      setPublicReviews([])
+      setReviewsStats(null)
+    } finally {
+      setLoadingReviews(false)
     }
   }
 
@@ -641,18 +664,24 @@ export default function PropertyGuidePage() {
               {getText(property.name, language, 'Propiedad')}
             </h1>
             <div className="flex items-center space-x-4 text-sm">
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-1 bg-violet-50 px-3 py-1 rounded-full">
-                  <Star className="w-4 h-4 text-violet-600 fill-current" />
-                  <span className="font-medium text-violet-700">4.9</span>
-                  <span className="text-violet-500">·</span>
-                  <button 
-                    onClick={() => setShowRatingsModal(true)}
-                    className="text-violet-600 hover:text-violet-800 font-medium"
-                  >
-                    12 valoraciones públicas
-                  </button>
+              {reviewsStats && publicReviews.length > 0 && (
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 bg-violet-50 px-3 py-1 rounded-full">
+                    <Star className="w-4 h-4 text-violet-600 fill-current" />
+                    <span className="font-medium text-violet-700">
+                      {reviewsStats.averageRating ? reviewsStats.averageRating.toFixed(1) : '0.0'}
+                    </span>
+                    <span className="text-violet-500">·</span>
+                    <button 
+                      onClick={() => setShowRatingsModal(true)}
+                      className="text-violet-600 hover:text-violet-800 font-medium"
+                    >
+                      {publicReviews.length} {publicReviews.length === 1 ? 'valoración pública' : 'valoraciones públicas'}
+                    </button>
+                  </div>
                 </div>
+              )}
+              <div className="flex items-center space-x-2">
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                   <CheckCircle className="w-3 h-3 mr-1" />
                   Manual 100% completado
@@ -1255,95 +1284,109 @@ export default function PropertyGuidePage() {
             {/* Modal Content */}
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               {/* Overall Rating */}
-              <div className="flex items-center space-x-4 mb-6 p-4 bg-violet-50 rounded-lg">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-violet-700">4.9</div>
-                  <div className="flex items-center justify-center space-x-1 mb-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star key={star} className="w-4 h-4 text-violet-600 fill-current" />
-                    ))}
-                  </div>
-                  <div className="text-sm text-violet-600">12 valoraciones</div>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 mb-2">Distribución de valoraciones</h4>
-                  {[5, 4, 3, 2, 1].map((rating) => (
-                    <div key={rating} className="flex items-center space-x-2 mb-1">
-                      <span className="text-sm text-gray-600 w-3">{rating}</span>
-                      <Star className="w-3 h-3 text-gray-400" />
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-violet-600 h-2 rounded-full" 
-                          style={{ width: rating === 5 ? '80%' : rating === 4 ? '15%' : '5%' }}
-                        />
-                      </div>
-                      <span className="text-sm text-gray-600 w-6">
-                        {rating === 5 ? '10' : rating === 4 ? '2' : '0'}
-                      </span>
+              {reviewsStats && (
+                <div className="flex items-center space-x-4 mb-6 p-4 bg-violet-50 rounded-lg">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-violet-700">
+                      {reviewsStats.averageRating ? reviewsStats.averageRating.toFixed(1) : '0.0'}
                     </div>
-                  ))}
+                    <div className="flex items-center justify-center space-x-1 mb-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star 
+                          key={star} 
+                          className={`w-4 h-4 ${
+                            star <= Math.round(reviewsStats.averageRating || 0)
+                              ? 'text-violet-600 fill-current'
+                              : 'text-gray-300'
+                          }`} 
+                        />
+                      ))}
+                    </div>
+                    <div className="text-sm text-violet-600">
+                      {publicReviews.length} {publicReviews.length === 1 ? 'valoración' : 'valoraciones'}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900 mb-2">Distribución de valoraciones</h4>
+                    {[5, 4, 3, 2, 1].map((rating) => {
+                      const count = reviewsStats.ratingDistribution?.[rating] || 0
+                      const percentage = publicReviews.length > 0 ? (count / publicReviews.length) * 100 : 0
+                      return (
+                        <div key={rating} className="flex items-center space-x-2 mb-1">
+                          <span className="text-sm text-gray-600 w-3">{rating}</span>
+                          <Star className="w-3 h-3 text-gray-400" />
+                          <div className="flex-1 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-violet-600 h-2 rounded-full" 
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                          <span className="text-sm text-gray-600 w-6">{count}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Individual Reviews */}
               <div className="space-y-4">
-                {[
-                  {
-                    id: 1,
-                    name: "María González",
-                    rating: 5,
-                    date: "Hace 2 días",
-                    comment: "Increíble apartamento! El manual digital fue súper útil, especialmente la información sobre el WiFi y la cocina. Todo estaba muy claro y bien explicado.",
-                    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face"
-                  },
-                  {
-                    id: 2,
-                    name: "Carlos Ruiz",
-                    rating: 5,
-                    date: "Hace 1 semana",
-                    comment: "El manual nos salvó mucho tiempo. La información sobre el parking y cómo usar la lavadora fue perfecta. Muy recomendado!",
-                    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
-                  },
-                  {
-                    id: 3,
-                    name: "Ana López",
-                    rating: 4,
-                    date: "Hace 2 semanas",
-                    comment: "Muy buena experiencia en general. El apartamento estaba limpio y el manual digital muy completo. Solo faltó un poco más de información sobre transporte público.",
-                    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face"
-                  }
-                ].map((review) => (
-                  <div key={review.id} className="border-b border-gray-100 pb-4 last:border-b-0">
-                    <div className="flex items-start space-x-3">
-                      <img 
-                        src={review.avatar} 
-                        alt={review.name}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <h5 className="font-medium text-gray-900">{review.name}</h5>
-                          <span className="text-sm text-gray-500">{review.date}</span>
+                {loadingReviews ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin w-6 h-6 border-2 border-violet-600 border-t-transparent rounded-full mx-auto mb-2"></div>
+                    <p className="text-gray-600 text-sm">Cargando reseñas...</p>
+                  </div>
+                ) : publicReviews.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Star className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <h4 className="font-medium text-gray-900 mb-2">No hay reseñas públicas aún</h4>
+                    <p className="text-gray-600 text-sm">Sé el primero en dejar una valoración pública</p>
+                  </div>
+                ) : (
+                  publicReviews.map((review) => (
+                    <div key={review.id} className="border-b border-gray-100 pb-4 last:border-b-0">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
+                          <span className="text-violet-600 font-medium text-sm">
+                            {review.userName.charAt(0).toUpperCase()}
+                          </span>
                         </div>
-                        <div className="flex items-center space-x-1 mb-2">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star 
-                              key={star} 
-                              className={`w-3 h-3 ${
-                                star <= review.rating 
-                                  ? 'text-violet-600 fill-current' 
-                                  : 'text-gray-300'
-                              }`} 
-                            />
-                          ))}
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <h5 className="font-medium text-gray-900">{review.userName}</h5>
+                            <span className="text-sm text-gray-500">
+                              {new Date(review.createdAt).toLocaleDateString('es-ES', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-1 mb-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star 
+                                key={star} 
+                                className={`w-3 h-3 ${
+                                  star <= review.rating 
+                                    ? 'text-violet-600 fill-current' 
+                                    : 'text-gray-300'
+                                }`} 
+                              />
+                            ))}
+                          </div>
+                          {review.comment && (
+                            <p className="text-gray-700 text-sm leading-relaxed">
+                              "{review.comment}"
+                            </p>
+                          )}
+                          <div className="mt-2 text-xs text-gray-500">
+                            {review.reviewType === 'zone' ? 'Reseña de zona específica' : 'Reseña general de la propiedad'}
+                          </div>
                         </div>
-                        <p className="text-gray-700 text-sm leading-relaxed">
-                          {review.comment}
-                        </p>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </motion.div>
