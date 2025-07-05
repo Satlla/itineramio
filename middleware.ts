@@ -58,7 +58,7 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
   // This allows us to keep existing route handlers while supporting clean URLs
   
   // Skip reserved routes
-  const reservedPropertyRoutes = ['new', 'slug']
+  const reservedPropertyRoutes = ['new', 'slug', 'groups']
   
   // Pattern: /properties/[slug] -> /properties/[id]
   const propertyMatch = pathname.match(/^\/properties\/([^\/]+)$/)
