@@ -3,7 +3,11 @@ import { NextRequest, NextResponse } from 'next/server'
 const protectedRoutes: string[] = [
   '/main',
   '/properties', 
-  '/property-sets'
+  '/property-sets',
+  '/admin',
+  '/analytics',
+  '/account',
+  '/media-library'
 ]
 
 const authRoutes = [

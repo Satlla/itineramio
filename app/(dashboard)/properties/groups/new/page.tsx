@@ -216,8 +216,9 @@ function NewPropertySetPageContent() {
       
       console.log(`Conjunto ${isEditing ? 'actualizado' : 'creado'} exitosamente:`, result.data)
       
-      // Clear saved data and redirect
-      handleSuccessfulSubmit()
+      // Clear saved data and redirect to the new property set
+      clearSavedData()
+      router.push(`/properties/groups/${result.data.id}`)
     } catch (error) {
       console.error(`Error ${isEditing ? 'actualizando' : 'creando'} conjunto:`, error)
       alert(`Error al ${isEditing ? 'actualizar' : 'crear'} el conjunto. Por favor, inténtalo de nuevo.`)

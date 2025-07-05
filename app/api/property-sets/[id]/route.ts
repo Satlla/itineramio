@@ -52,7 +52,14 @@ export async function GET(
       totalViews: propertySet.properties.reduce((sum, p) => sum + (p.analytics?.totalViews || 0), 0),
       avgRating: propertySet.properties.length > 0 
         ? propertySet.properties.reduce((sum, p) => sum + (p.analytics?.overallRating || 0), 0) / propertySet.properties.length 
-        : 0
+        : 0,
+      totalZones: propertySet.properties.reduce((sum, p) => sum + (p.zones?.length || 0), 0),
+      properties: propertySet.properties.map(p => ({
+        ...p,
+        zonesCount: p.zones?.length || 0,
+        totalViews: p.analytics?.totalViews || 0,
+        avgRating: p.analytics?.overallRating || 0
+      }))
     }
     
     return NextResponse.json({

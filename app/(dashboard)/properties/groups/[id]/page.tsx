@@ -88,7 +88,7 @@ export default function PropertySetDetailPage() {
         setPropertySet(result.data)
       } else {
         console.error('Property set not found')
-        router.push('/properties')
+        router.push('/main')
       }
     } catch (error) {
       console.error('Error fetching property set:', error)
@@ -98,16 +98,40 @@ export default function PropertySetDetailPage() {
     }
   }
 
-  const handlePropertyAction = (action: string, propertyId: string) => {
+  const handlePropertyAction = async (action: string, propertyId: string) => {
     switch (action) {
       case 'edit':
         router.push(`/properties/${propertyId}`)
         break
       case 'share':
+        // First ensure the property is published
+        const property = propertySet?.properties.find(p => p.id === propertyId)
+        if (property && property.status !== 'ACTIVE') {
+          try {
+            await fetch(`/api/properties/${propertyId}/publish`, {
+              method: 'POST'
+            })
+          } catch (error) {
+            console.error('Error publishing property:', error)
+          }
+        }
         const shareUrl = `${window.location.origin}/guide/${propertyId}`
         navigator.clipboard.writeText(shareUrl)
+        // Show a success message
+        alert('Enlace copiado al portapapeles')
         break
       case 'public':
+        // First ensure the property is published
+        const prop = propertySet?.properties.find(p => p.id === propertyId)
+        if (prop && prop.status !== 'ACTIVE') {
+          try {
+            await fetch(`/api/properties/${propertyId}/publish`, {
+              method: 'POST'
+            })
+          } catch (error) {
+            console.error('Error publishing property:', error)
+          }
+        }
         window.open(`/guide/${propertyId}`, '_blank')
         break
       default:
@@ -149,11 +173,11 @@ export default function PropertySetDetailPage() {
             <div className="flex items-center mb-6">
               <Button
                 variant="ghost"
-                onClick={() => router.push('/properties')}
+                onClick={() => router.push('/properties/groups')}
                 className="mr-4"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver a Propiedades
+                Volver
               </Button>
             </div>
 
@@ -328,15 +352,13 @@ export default function PropertySetDetailPage() {
                                 <Share2 className="mr-2 h-4 w-4" />
                                 Compartir
                               </DropdownMenu.Item>
-                              {property.status === 'ACTIVE' && (
-                                <DropdownMenu.Item 
-                                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                  onClick={() => handlePropertyAction('public', property.id)}
-                                >
-                                  <ExternalLink className="mr-2 h-4 w-4" />
-                                  Vista pública
-                                </DropdownMenu.Item>
-                              )}
+                              <DropdownMenu.Item 
+                                className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                                onClick={() => handlePropertyAction('public', property.id)}
+                              >
+                                <ExternalLink className="mr-2 h-4 w-4" />
+                                Vista pública
+                              </DropdownMenu.Item>
                             </DropdownMenu.Content>
                           </DropdownMenu.Portal>
                         </DropdownMenu.Root>
@@ -353,7 +375,7 @@ export default function PropertySetDetailPage() {
                             <MapPin className="h-4 w-4 mr-1" />
                             <span>{property.zonesCount} zonas</span>
                           </div>
-                          {property.totalViews && (
+                          {property.totalViews !== undefined && (
                             <div className="flex items-center text-gray-600">
                               <Eye className="h-4 w-4 mr-1" />
                               <span>{property.totalViews}</span>
@@ -370,7 +392,7 @@ export default function PropertySetDetailPage() {
                           {property.status === 'ACTIVE' ? 'Activa' : 'Inactiva'}
                         </Badge>
                         
-                        {property.avgRating && property.avgRating > 0 && (
+                        {property.avgRating !== undefined && property.avgRating > 0 && (
                           <div className="flex items-center text-sm text-gray-600">
                             <Star className="w-4 h-4 text-yellow-500 mr-1" />
                             <span>{property.avgRating.toFixed(1)}</span>
