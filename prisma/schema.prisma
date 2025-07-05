@@ -125,6 +125,7 @@ model Property {
   zones               Zone[]
   trackingEvents      TrackingEvent[]
   propertyRatings     PropertyRating[]
+  reviews             Review[]
 
   @@index([slug])
   @@map("properties")
@@ -161,6 +162,7 @@ model Zone {
   ratings             ZoneRating[]
   trackingEvents      TrackingEvent[]
   analytics           ZoneAnalytics?
+  reviews             Review[]
   buildings           buildings?     @relation(fields: [buildingId], references: [id], onDelete: Cascade)
   organizations       organizations? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   property            Property?      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
@@ -560,4 +562,25 @@ model Notification {
   @@index([userId, read])
   @@index([createdAt])
   @@map("notifications")
+}
+
+model Review {
+  id         String    @id @default(cuid())
+  propertyId String
+  zoneId     String?   // Optional - for zone-specific reviews
+  rating     Int       // 1-5 stars
+  comment    String?   // Optional comment
+  userName   String    @default("Usuario anónimo")
+  userEmail  String?   // Optional
+  reviewType String    // 'zone' or 'property'
+  isPublic   Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  zone       Zone?     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, isPublic])
+  @@index([zoneId, isPublic])
+  @@index([createdAt])
+  @@map("reviews")
 }

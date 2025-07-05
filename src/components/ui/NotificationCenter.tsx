@@ -180,25 +180,25 @@ export function NotificationCenter({
                                         <Star
                                           key={i}
                                           className={`w-3 h-3 ${
-                                            i < (notification.metadata.rating || 0)
+                                            i < (notification.metadata?.rating || 0)
                                               ? 'fill-yellow-400 text-yellow-400'
                                               : 'text-gray-300'
                                           }`}
                                         />
                                       ))}
                                       <span className="font-medium ml-1">
-                                        {notification.metadata.rating}/5
+                                        {notification.metadata?.rating || 0}/5
                                       </span>
                                     </div>
                                     <span>•</span>
                                     <span className={`px-1.5 py-0.5 rounded-full text-xs ${
-                                      notification.metadata.isPublic
+                                      notification.metadata?.isPublic
                                         ? 'bg-green-100 text-green-700'
                                         : 'bg-gray-100 text-gray-600'
                                     }`}>
-                                      {notification.metadata.isPublic ? 'Pública' : 'Privada'}
+                                      {notification.metadata?.isPublic ? 'Pública' : 'Privada'}
                                     </span>
-                                    {notification.metadata.hasComment && (
+                                    {notification.metadata?.hasComment && (
                                       <>
                                         <span>•</span>
                                         <MessageCircle className="w-3 h-3" />

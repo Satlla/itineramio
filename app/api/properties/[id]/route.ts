@@ -79,6 +79,16 @@ export async function GET(
       zones = await prisma.zone.findMany({
         where: {
           propertyId: actualPropertyId
+        },
+        include: {
+          _count: {
+            select: {
+              steps: true
+            }
+          }
+        },
+        orderBy: {
+          order: 'asc'
         }
       })
     } catch (zoneError) {
@@ -101,7 +111,7 @@ export async function GET(
       avgRating: property.analytics?.overallRating || 0,
       zones: zones.map(zone => ({
         ...zone,
-        stepsCount: 0 // Will add steps count later
+        stepsCount: zone._count.steps
       }))
     }
     

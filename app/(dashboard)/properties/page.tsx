@@ -8,6 +8,7 @@ import {
   MapPin, 
   Eye, 
   Star, 
+  Edit, 
   Edit2, 
   Trash2, 
   Share2,
@@ -28,6 +29,7 @@ import {
   Clock,
   Timer,
   MessageCircle,
+  ExternalLink,
   Search
 } from 'lucide-react'
 import { Button } from '../../../src/components/ui/Button'
@@ -629,6 +631,7 @@ function PropertiesPageContent() {
   useEffect(() => {
     const tab = searchParams.get('tab')
     const manageSetId = searchParams.get('manage')
+    const duplicateId = searchParams.get('duplicate')
     
     if (tab === 'sets') {
       setActiveTab('sets')
@@ -639,7 +642,32 @@ function PropertiesPageContent() {
       setActiveTab('sets')
       // We'll select the property set after it's loaded
     }
-  }, [searchParams])
+    
+    if (duplicateId) {
+      // Find and open duplicate modal for the specified property
+      const findAndDuplicateProperty = async () => {
+        // Wait a bit for properties to load if they haven't yet
+        let attempts = 0
+        const maxAttempts = 10
+        
+        const checkForProperty = () => {
+          const property = properties.find(p => p.id === duplicateId)
+          if (property) {
+            handleDuplicateProperty(property)
+            // Remove the duplicate parameter from URL
+            router.replace('/properties', { scroll: false })
+          } else if (attempts < maxAttempts) {
+            attempts++
+            setTimeout(checkForProperty, 100)
+          }
+        }
+        
+        checkForProperty()
+      }
+      
+      findAndDuplicateProperty()
+    }
+  }, [searchParams, properties, router])
 
   // Fetch properties and property sets from API - memoized to prevent duplicate calls
   useEffect(() => {
@@ -896,7 +924,7 @@ function PropertiesPageContent() {
     setCopied(false)
   }
 
-  const handleDuplicateProperty = (property: Property) => {
+  const handleDuplicateProperty = async (property: Property) => {
     setPropertyToDuplicate(property)
     setDuplicateModalOpen(true)
     setDuplicateCount(1)
@@ -905,6 +933,19 @@ function PropertiesPageContent() {
     setSelectedZones([])
     setAssignToSet(false)
     setSelectedPropertySet('')
+    
+    // Fetch complete property data including zones
+    try {
+      const response = await fetch(`/api/properties/${property.id}`)
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success && result.data) {
+          setPropertyToDuplicate(result.data)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching property zones:', error)
+    }
   }
 
   const closeDuplicateModal = () => {
@@ -1450,40 +1491,40 @@ function PropertiesPageContent() {
                               </Button>
                             </DropdownMenu.Trigger>
                             <DropdownMenu.Portal>
-                              <DropdownMenu.Content className="w-48 bg-white rounded-md border shadow-lg p-1 z-50">
+                              <DropdownMenu.Content className="w-56 bg-white rounded-md border shadow-lg p-1 z-50">
                                 <DropdownMenu.Item
-                                  className="flex items-center px-2 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                   onSelect={() => handleEditProperty(property.id)}
                                 >
-                                  <Edit2 className="h-4 w-4 mr-2" />
+                                  <Edit className="h-4 w-4 mr-2" />
                                   Editar
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item
-                                  className="flex items-center px-2 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                                  onSelect={() => handleShareProperty(property.id)}
+                                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                                  onSelect={() => router.push(getFriendlyUrl(property))}
                                 >
-                                  <Share2 className="h-4 w-4 mr-2" />
-                                  Compartir
+                                  <Building2 className="h-4 w-4 mr-2" />
+                                  Gestionar propiedad
                                 </DropdownMenu.Item>
-                                {property.status === 'ACTIVE' && (
-                                  <DropdownMenu.Item
-                                    className="flex items-center px-2 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                                    onSelect={() => handleViewManual(property.id)}
-                                  >
-                                    <Eye className="h-4 w-4 mr-2" />
-                                    Vista pública
-                                  </DropdownMenu.Item>
-                                )}
                                 <DropdownMenu.Item
-                                  className="flex items-center px-2 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                   onSelect={() => handleDuplicateProperty(property)}
                                 >
                                   <Copy className="h-4 w-4 mr-2" />
                                   Duplicar
                                 </DropdownMenu.Item>
+                                {property.status === 'ACTIVE' && (
+                                  <DropdownMenu.Item
+                                    className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                                    onSelect={() => handleViewManual(property.id)}
+                                  >
+                                    <ExternalLink className="h-4 w-4 mr-2" />
+                                    Vista pública
+                                  </DropdownMenu.Item>
+                                )}
                                 <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
                                 <DropdownMenu.Item
-                                  className="flex items-center px-2 py-2 text-sm text-red-600 hover:bg-red-50 rounded cursor-pointer"
+                                  className="flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded cursor-pointer"
                                   onSelect={() => handleDeleteProperty(property.id)}
                                 >
                                   <Trash2 className="h-4 w-4 mr-2" />
@@ -1494,16 +1535,6 @@ function PropertiesPageContent() {
                           </DropdownMenu.Root>
                         </div>
 
-                        <div className="mt-4 pt-4 border-t border-gray-200">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                            onClick={() => router.push(getFriendlyUrl(property))}
-                          >
-                            Gestionar
-                          </Button>
-                        </div>
                       </div>
                     </div>
                   </CardContent>

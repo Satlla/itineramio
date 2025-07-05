@@ -244,7 +244,9 @@ export default function DashboardPage(): JSX.Element {
     return () => clearInterval(interval)
   }, [addNewActivity])
 
-  const handlePropertyAction = (action: string, propertyId: string) => {
+  const handlePropertyAction = (action: string, propertyIdOrObject: string | any) => {
+    const propertyId = typeof propertyIdOrObject === 'string' ? propertyIdOrObject : propertyIdOrObject.id
+    
     switch (action) {
       case 'edit':
         router.push(`/properties/new?edit=${propertyId}`)
@@ -280,6 +282,10 @@ export default function DashboardPage(): JSX.Element {
         break
       case 'public':
         window.open(`/guide/${propertyId}`, '_blank')
+        break
+      case 'duplicate':
+        // Redirect to properties page with duplicate action
+        router.push(`/properties?duplicate=${propertyId}`)
         break
       case 'delete':
         handleDeleteProperty(propertyId)
@@ -666,14 +672,14 @@ export default function DashboardPage(): JSX.Element {
                                       onClick={() => router.push(`/properties/${property.id}/zones`)}
                                     >
                                       <Building2 className="mr-2 h-4 w-4" />
-                                      Gestionar
+                                      Gestionar propiedad
                                     </DropdownMenu.Item>
                                     <DropdownMenu.Item 
                                       className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                      onClick={() => handlePropertyAction('share', property.id)}
+                                      onClick={() => handlePropertyAction('duplicate', property)}
                                     >
-                                      <Share2 className="mr-2 h-4 w-4" />
-                                      Compartir
+                                      <Copy className="mr-2 h-4 w-4" />
+                                      Duplicar
                                     </DropdownMenu.Item>
                                     {property.status === 'ACTIVE' && (
                                       <DropdownMenu.Item 
