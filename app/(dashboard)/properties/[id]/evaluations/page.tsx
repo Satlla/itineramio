@@ -23,7 +23,7 @@ import { ZoneIconDisplay } from '../../../../../src/components/ui/IconSelector'
 import { useRouter } from 'next/navigation'
 import { useParams } from 'next/navigation'
 
-interface Review {
+interface Evaluation {
   id: string
   rating: number
   comment?: string
@@ -40,8 +40,8 @@ interface Review {
   }
 }
 
-interface ReviewStats {
-  totalReviews: number
+interface EvaluationStats {
+  totalEvaluations: number
   averageRating: number
   ratingDistribution: {
     5: number
@@ -50,25 +50,25 @@ interface ReviewStats {
     2: number
     1: number
   }
-  publicReviews: number
-  privateReviews: number
-  recentActivity: Review[]
+  publicEvaluations: number
+  privateEvaluations: number
+  recentActivity: Evaluation[]
 }
 
-export default function PropertyReviewsPage() {
+export default function PropertyEvaluationsPage() {
   const router = useRouter()
   const params = useParams()
   const propertyId = params.id as string
   
-  const [reviews, setReviews] = useState<Review[]>([])
-  const [stats, setStats] = useState<ReviewStats | null>(null)
+  const [evaluations, setEvaluations] = useState<Evaluation[]>([])
+  const [stats, setStats] = useState<EvaluationStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [propertyName, setPropertyName] = useState<string>('')
   const [filterType, setFilterType] = useState<'all' | 'zone' | 'property' | 'public' | 'private'>('all')
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'rating-high' | 'rating-low'>('newest')
 
   useEffect(() => {
-    fetchReviewsData()
+    fetchEvaluationsData()
     fetchPropertyInfo()
   }, [propertyId])
 
@@ -84,25 +84,25 @@ export default function PropertyReviewsPage() {
     }
   }
 
-  const fetchReviewsData = async () => {
+  const fetchEvaluationsData = async () => {
     try {
-      const response = await fetch(`/api/properties/${propertyId}/reviews`)
+      const response = await fetch(`/api/properties/${propertyId}/evaluations`)
       const result = await response.json()
       
       if (result.success) {
-        setReviews(result.data.reviews)
+        setEvaluations(result.data.evaluations)
         setStats(result.data.stats)
       }
     } catch (error) {
-      console.error('Error fetching reviews:', error)
+      console.error('Error fetching evaluations:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleTogglePublic = async (reviewId: string) => {
+  const handleTogglePublic = async (evaluationId: string) => {
     try {
-      const response = await fetch(`/api/reviews/${reviewId}/toggle-public`, {
+      const response = await fetch(`/api/evaluations/${evaluationId}/toggle-public`, {
         method: 'PATCH'
       })
       
@@ -110,45 +110,45 @@ export default function PropertyReviewsPage() {
       
       if (result.success) {
         // Update local state
-        setReviews(reviews.map(review => 
-          review.id === reviewId 
-            ? { ...review, isPublic: !review.isPublic }
-            : review
+        setEvaluations(evaluations.map(evaluation => 
+          evaluation.id === evaluationId 
+            ? { ...evaluation, isPublic: !evaluation.isPublic }
+            : evaluation
         ))
         
         // Update stats
         if (stats) {
-          const review = reviews.find(r => r.id === reviewId)
-          if (review) {
+          const evaluation = evaluations.find(e => e.id === evaluationId)
+          if (evaluation) {
             setStats({
               ...stats,
-              publicReviews: review.isPublic ? stats.publicReviews - 1 : stats.publicReviews + 1,
-              privateReviews: review.isPublic ? stats.privateReviews + 1 : stats.privateReviews - 1
+              publicEvaluations: evaluation.isPublic ? stats.publicEvaluations - 1 : stats.publicEvaluations + 1,
+              privateEvaluations: evaluation.isPublic ? stats.privateEvaluations + 1 : stats.privateEvaluations - 1
             })
           }
         }
       }
     } catch (error) {
-      console.error('Error toggling review visibility:', error)
+      console.error('Error toggling evaluation visibility:', error)
     }
   }
 
-  const filteredAndSortedReviews = () => {
-    let filtered = reviews
+  const filteredAndSortedEvaluations = () => {
+    let filtered = evaluations
 
     // Apply filters
     switch (filterType) {
       case 'zone':
-        filtered = reviews.filter(r => r.reviewType === 'zone')
+        filtered = evaluations.filter(e => e.reviewType === 'zone')
         break
       case 'property':
-        filtered = reviews.filter(r => r.reviewType === 'property')
+        filtered = evaluations.filter(e => e.reviewType === 'property')
         break
       case 'public':
-        filtered = reviews.filter(r => r.isPublic)
+        filtered = evaluations.filter(e => e.isPublic)
         break
       case 'private':
-        filtered = reviews.filter(r => !r.isPublic)
+        filtered = evaluations.filter(e => !e.isPublic)
         break
     }
 
@@ -231,10 +231,10 @@ export default function PropertyReviewsPage() {
         </div>
         
         <h1 className="text-3xl font-bold text-gray-900">
-          Reseñas de {propertyName}
+          Evaluaciones de {propertyName}
         </h1>
         <p className="text-gray-600 mt-2">
-          Gestiona las reseñas y valoraciones de tu propiedad
+          Gestiona las evaluaciones y valoraciones de tu propiedad
         </p>
       </div>
 
@@ -263,8 +263,8 @@ export default function PropertyReviewsPage() {
               <div className="flex items-center">
                 <MessageCircle className="h-8 w-8 text-blue-500" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Reseñas</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalReviews}</p>
+                  <p className="text-sm font-medium text-gray-600">Total Evaluaciones</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalEvaluations}</p>
                 </div>
               </div>
             </CardContent>
@@ -276,7 +276,7 @@ export default function PropertyReviewsPage() {
                 <Eye className="h-8 w-8 text-green-500" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Públicas</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.publicReviews}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.publicEvaluations}</p>
                 </div>
               </div>
             </CardContent>
@@ -288,7 +288,7 @@ export default function PropertyReviewsPage() {
                 <EyeOff className="h-8 w-8 text-gray-500" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Privadas</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.privateReviews}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.privateEvaluations}</p>
                 </div>
               </div>
             </CardContent>
@@ -317,8 +317,8 @@ export default function PropertyReviewsPage() {
                     <div
                       className="bg-yellow-400 h-2 rounded-full transition-all duration-300"
                       style={{
-                        width: stats.totalReviews > 0 
-                          ? `${(stats.ratingDistribution[rating as keyof typeof stats.ratingDistribution] / stats.totalReviews) * 100}%`
+                        width: stats.totalEvaluations > 0 
+                          ? `${(stats.ratingDistribution[rating as keyof typeof stats.ratingDistribution] / stats.totalEvaluations) * 100}%`
                           : '0%'
                       }}
                     />
@@ -364,25 +364,25 @@ export default function PropertyReviewsPage() {
         </select>
       </div>
 
-      {/* Reviews List */}
+      {/* Evaluations List */}
       <div className="space-y-4">
-        {filteredAndSortedReviews().length === 0 ? (
+        {filteredAndSortedEvaluations().length === 0 ? (
           <Card className="p-8 text-center">
             <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No hay reseñas {filterType !== 'all' && `${filterType}s`}
+              No hay evaluaciones {filterType !== 'all' && `${filterType}s`}
             </h3>
             <p className="text-gray-600">
               {filterType === 'all' 
-                ? 'Aún no has recibido ninguna reseña para esta propiedad.'
-                : `No tienes reseñas ${filterType}s para esta propiedad.`
+                ? 'Aún no has recibido ninguna evaluación para esta propiedad.'
+                : `No tienes evaluaciones ${filterType}s para esta propiedad.`
               }
             </p>
           </Card>
         ) : (
-          filteredAndSortedReviews().map((review) => (
+          filteredAndSortedEvaluations().map((evaluation) => (
             <motion.div
-              key={review.id}
+              key={evaluation.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
@@ -392,32 +392,32 @@ export default function PropertyReviewsPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
-                        {review.zone && (
+                        {evaluation.zone && (
                           <div className="flex items-center gap-2">
-                            <ZoneIconDisplay iconId={review.zone.icon} size="sm" />
+                            <ZoneIconDisplay iconId={evaluation.zone.icon} size="sm" />
                             <span className="text-sm font-medium text-gray-600">
-                              {review.zone.name}
+                              {evaluation.zone.name}
                             </span>
                           </div>
                         )}
                         
-                        {review.reviewType === 'property' && (
+                        {evaluation.reviewType === 'property' && (
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
                               <Star className="w-3 h-3 text-purple-600" />
                             </div>
                             <span className="text-sm font-medium text-gray-600">
-                              Reseña General
+                              Evaluación General
                             </span>
                           </div>
                         )}
 
                         <div className="flex items-center gap-1">
-                          {renderStars(review.rating)}
+                          {renderStars(evaluation.rating)}
                         </div>
 
                         <div className="flex items-center gap-2">
-                          {review.isPublic ? (
+                          {evaluation.isPublic ? (
                             <div className="flex items-center gap-1 text-green-600">
                               <Eye className="w-4 h-4" />
                               <span className="text-xs font-medium">Pública</span>
@@ -433,16 +433,16 @@ export default function PropertyReviewsPage() {
 
                       <div className="mb-3">
                         <p className="text-sm text-gray-600 mb-1">
-                          Por <span className="font-medium">{review.userName}</span>
+                          Por <span className="font-medium">{evaluation.userName}</span>
                         </p>
                         <p className="text-xs text-gray-500">
-                          {formatDate(review.createdAt)}
+                          {formatDate(evaluation.createdAt)}
                         </p>
                       </div>
 
-                      {review.comment && (
+                      {evaluation.comment && (
                         <p className="text-gray-800 text-sm leading-relaxed">
-                          "{review.comment}"
+                          "{evaluation.comment}"
                         </p>
                       )}
                     </div>
@@ -451,14 +451,14 @@ export default function PropertyReviewsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleTogglePublic(review.id)}
+                        onClick={() => handleTogglePublic(evaluation.id)}
                         className={`flex items-center gap-2 ${
-                          review.isPublic 
+                          evaluation.isPublic 
                             ? 'border-green-500 text-green-600 hover:bg-green-50' 
                             : 'border-gray-300 text-gray-600 hover:bg-gray-50'
                         }`}
                       >
-                        {review.isPublic ? (
+                        {evaluation.isPublic ? (
                           <>
                             <Eye className="w-4 h-4" />
                             Ocultar

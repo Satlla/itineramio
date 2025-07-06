@@ -33,7 +33,7 @@ export function NotificationCenter({
         return <AlertCircle className="w-5 h-5 text-red-600" />
       case 'info':
         return <Info className="w-5 h-5 text-blue-600" />
-      case 'review':
+      case 'evaluation':
         return <Star className="w-5 h-5 text-yellow-600" />
       case 'success':
         return <CheckCircle className="w-5 h-5 text-green-600" />
@@ -171,8 +171,8 @@ export function NotificationCenter({
                                 {notification.message}
                               </p>
                               
-                              {/* Review-specific details */}
-                              {notification.type === 'review' && notification.metadata && (
+                              {/* Evaluation-specific details */}
+                              {notification.type === 'evaluation' && notification.metadata && (
                                 <div className="mb-2 p-2 bg-yellow-50 rounded-lg border border-yellow-200">
                                   <div className="flex items-center gap-2 text-xs text-yellow-800">
                                     <div className="flex items-center gap-1">

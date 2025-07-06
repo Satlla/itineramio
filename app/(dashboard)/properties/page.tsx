@@ -628,11 +628,11 @@ function PropertiesPageContent() {
   const [autoPublish, setAutoPublish] = useState<boolean>(false)
   const [isDuplicating, setIsDuplicating] = useState(false)
   
-  // Reviews modal states
-  const [reviewsModalOpen, setReviewsModalOpen] = useState(false)
-  const [selectedPropertyForReviews, setSelectedPropertyForReviews] = useState<Property | null>(null)
-  const [propertyReviews, setPropertyReviews] = useState<any[]>([])
-  const [loadingReviews, setLoadingReviews] = useState(false)
+  // Evaluations modal states
+  const [evaluationsModalOpen, setEvaluationsModalOpen] = useState(false)
+  const [selectedPropertyForEvaluations, setSelectedPropertyForEvaluations] = useState<Property | null>(null)
+  const [propertyEvaluations, setPropertyEvaluations] = useState<any[]>([])
+  const [loadingEvaluations, setLoadingEvaluations] = useState(false)
   
   // Delete property modal states
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -1040,38 +1040,38 @@ function PropertiesPageContent() {
     }
   }
 
-  const handleViewReviews = async (propertyId: string) => {
+  const handleViewEvaluations = async (propertyId: string) => {
     const property = properties.find(p => p.id === propertyId)
     if (!property) return
 
-    setSelectedPropertyForReviews(property)
-    setReviewsModalOpen(true)
-    setLoadingReviews(true)
+    setSelectedPropertyForEvaluations(property)
+    setEvaluationsModalOpen(true)
+    setLoadingEvaluations(true)
 
     try {
-      const response = await fetch(`/api/properties/${propertyId}/reviews`)
+      const response = await fetch(`/api/properties/${propertyId}/evaluations`)
       if (response.ok) {
         const result = await response.json()
-        setPropertyReviews(result.reviews || [])
+        setPropertyEvaluations(result.evaluations || [])
       }
     } catch (error) {
-      console.error('Error fetching reviews:', error)
-      setPropertyReviews([])
+      console.error('Error fetching evaluations:', error)
+      setPropertyEvaluations([])
     } finally {
-      setLoadingReviews(false)
+      setLoadingEvaluations(false)
     }
   }
 
-  const closeReviewsModal = () => {
-    setReviewsModalOpen(false)
-    setSelectedPropertyForReviews(null)
-    setPropertyReviews([])
-    setLoadingReviews(false)
+  const closeEvaluationsModal = () => {
+    setEvaluationsModalOpen(false)
+    setSelectedPropertyForEvaluations(null)
+    setPropertyEvaluations([])
+    setLoadingEvaluations(false)
   }
 
-  const handleToggleReviewPublic = async (reviewId: string, isPublic: boolean) => {
+  const handleToggleEvaluationPublic = async (evaluationId: string, isPublic: boolean) => {
     try {
-      const response = await fetch(`/api/reviews/${reviewId}/toggle-public`, {
+      const response = await fetch(`/api/evaluations/${evaluationId}/toggle-public`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -1080,17 +1080,17 @@ function PropertiesPageContent() {
       })
 
       if (response.ok) {
-        // Update the review in the local state
-        setPropertyReviews(prev => 
-          prev.map(review => 
-            review.id === reviewId 
-              ? { ...review, isPublic: !isPublic }
-              : review
+        // Update the evaluation in the local state
+        setPropertyEvaluations(prev => 
+          prev.map(evaluation => 
+            evaluation.id === evaluationId 
+              ? { ...evaluation, isPublic: !isPublic }
+              : evaluation
           )
         )
       }
     } catch (error) {
-      console.error('Error toggling review visibility:', error)
+      console.error('Error toggling evaluation visibility:', error)
     }
   }
 
@@ -1585,10 +1585,10 @@ function PropertiesPageContent() {
                               <DropdownMenu.Content className="w-56 bg-white rounded-md border shadow-lg p-1 z-50">
                                 <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                  onSelect={() => handleViewReviews(property.id)}
+                                  onSelect={() => handleViewEvaluations(property.id)}
                                 >
                                   <Star className="h-4 w-4 mr-2" />
-                                  Reseñas
+                                  Evaluaciones
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
@@ -2325,11 +2325,11 @@ function PropertiesPageContent() {
           </div>
         )}
 
-        {/* Reviews Modal */}
-        {reviewsModalOpen && selectedPropertyForReviews && (
+        {/* Evaluations Modal */}
+        {evaluationsModalOpen && selectedPropertyForEvaluations && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            onClick={closeReviewsModal}
+            onClick={closeEvaluationsModal}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -2342,14 +2342,14 @@ function PropertiesPageContent() {
               <div className="flex items-center justify-between p-6 border-b border-gray-100">
                 <div>
                   <h3 className="text-xl font-semibold text-gray-900">
-                    Reseñas de {getText(selectedPropertyForReviews.name, 'Propiedad')}
+                    Evaluaciones de {getText(selectedPropertyForEvaluations.name, 'Propiedad')}
                   </h3>
                   <p className="text-sm text-gray-600 mt-1">
-                    Gestiona las reseñas de los huéspedes
+                    Gestiona las evaluaciones de los huéspedes
                   </p>
                 </div>
                 <button
-                  onClick={closeReviewsModal}
+                  onClick={closeEvaluationsModal}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                 >
                   <X className="w-5 h-5 text-gray-500" />
@@ -2358,25 +2358,25 @@ function PropertiesPageContent() {
 
               {/* Modal Content */}
               <div className="p-6 overflow-y-auto max-h-[60vh]">
-                {loadingReviews ? (
+                {loadingEvaluations ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
-                    <span className="ml-3 text-gray-600">Cargando reseñas...</span>
+                    <span className="ml-3 text-gray-600">Cargando evaluaciones...</span>
                   </div>
-                ) : propertyReviews.length === 0 ? (
+                ) : propertyEvaluations.length === 0 ? (
                   <div className="text-center py-12">
                     <Star className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                     <h4 className="text-lg font-medium text-gray-900 mb-2">
-                      Sin reseñas aún
+                      Sin evaluaciones aún
                     </h4>
                     <p className="text-gray-600">
-                      Los huéspedes aún no han dejado reseñas para esta propiedad
+                      Los huéspedes aún no han dejado evaluaciones para esta propiedad
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {propertyReviews.map((review) => (
-                      <div key={review.id} className="border rounded-lg p-4 hover:shadow-sm transition-shadow">
+                    {propertyEvaluations.map((evaluation) => (
+                      <div key={evaluation.id} className="border rounded-lg p-4 hover:shadow-sm transition-shadow">
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center space-x-3">
                             <div className="flex items-center">
@@ -2384,56 +2384,56 @@ function PropertiesPageContent() {
                                 <Star
                                   key={i}
                                   className={`w-5 h-5 ${
-                                    i < review.rating
+                                    i < evaluation.rating
                                       ? 'fill-yellow-400 text-yellow-400'
                                       : 'text-gray-300'
                                   }`}
                                 />
                               ))}
                               <span className="ml-2 text-sm font-medium text-gray-900">
-                                {review.rating}/5
+                                {evaluation.rating}/5
                               </span>
                             </div>
                             <span className="text-sm text-gray-600">
-                              por {review.userName}
+                              por {evaluation.userName}
                             </span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              review.isPublic
+                              evaluation.isPublic
                                 ? 'bg-green-100 text-green-800'
                                 : 'bg-gray-100 text-gray-600'
                             }`}>
-                              {review.isPublic ? 'Pública' : 'Privada'}
+                              {evaluation.isPublic ? 'Pública' : 'Privada'}
                             </span>
                             <Button
                               size="sm"
-                              variant={review.isPublic ? "outline" : "default"}
-                              onClick={() => handleToggleReviewPublic(review.id, review.isPublic)}
-                              className={review.isPublic 
+                              variant={evaluation.isPublic ? "outline" : "default"}
+                              onClick={() => handleToggleEvaluationPublic(evaluation.id, evaluation.isPublic)}
+                              className={evaluation.isPublic 
                                 ? "text-gray-600 hover:text-gray-800" 
                                 : "bg-green-600 hover:bg-green-700 text-white"
                               }
                             >
-                              {review.isPublic ? 'Hacer privada' : 'Hacer pública'}
+                              {evaluation.isPublic ? 'Hacer privada' : 'Hacer pública'}
                             </Button>
                           </div>
                         </div>
                         
-                        {review.comment && (
+                        {evaluation.comment && (
                           <div className="bg-gray-50 rounded-lg p-3 mb-3">
                             <p className="text-gray-700 text-sm leading-relaxed">
-                              "{review.comment}"
+                              "{evaluation.comment}"
                             </p>
                           </div>
                         )}
                         
                         <div className="flex items-center justify-between text-xs text-gray-500">
                           <span>
-                            {review.reviewType === 'zone' ? 'Reseña de zona' : 'Reseña general'}
+                            {evaluation.reviewType === 'zone' ? 'Evaluación de zona' : 'Evaluación general'}
                           </span>
                           <span>
-                            {new Date(review.createdAt).toLocaleDateString('es-ES', {
+                            {new Date(evaluation.createdAt).toLocaleDateString('es-ES', {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric',
@@ -2452,14 +2452,14 @@ function PropertiesPageContent() {
               <div className="px-6 py-4 bg-gray-50 rounded-b-2xl">
                 <div className="flex justify-between items-center">
                   <div className="text-sm text-gray-600">
-                    {propertyReviews.length > 0 && (
+                    {propertyEvaluations.length > 0 && (
                       <span>
-                        {propertyReviews.filter(r => r.isPublic).length} de {propertyReviews.length} reseñas públicas
+                        {propertyEvaluations.filter(e => e.isPublic).length} de {propertyEvaluations.length} evaluaciones públicas
                       </span>
                     )}
                   </div>
                   <Button
-                    onClick={closeReviewsModal}
+                    onClick={closeEvaluationsModal}
                     variant="outline"
                   >
                     Cerrar

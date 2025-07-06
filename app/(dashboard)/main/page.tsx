@@ -114,8 +114,8 @@ export default function DashboardPage(): JSX.Element {
     },
     { 
       id: '3', 
-      type: 'rating', 
-      message: 'Un usuario ha evaluado con 5 estrellas la zona WiFi de Villa Sunset', 
+      type: 'evaluation', 
+      message: 'Un usuario ha dejado una evaluación de 5 estrellas en la zona WiFi de Villa Sunset', 
       time: 'hace 2 horas',
       avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face'
     },
@@ -157,6 +157,27 @@ export default function DashboardPage(): JSX.Element {
   const addNewActivity = useCallback((activity: any) => {
     setRecentActivity(prev => [activity, ...prev.slice(0, 9)]) // Keep only last 10 activities
   }, [])
+
+  // Fetch recent activity
+  const fetchRecentActivity = useCallback(async () => {
+    try {
+      const response = await fetch('/api/dashboard/recent-activity', {
+        credentials: 'include'
+      })
+      const result = await response.json()
+      
+      if (response.ok && result.success) {
+        // Mix real evaluations with some sample activities for a richer feed
+        const mixedActivity = [
+          ...result.activity,
+          ...recentActivity.filter(a => a.type !== 'evaluation').slice(0, 5)
+        ].slice(0, 10)
+        setRecentActivity(mixedActivity)
+      }
+    } catch (error) {
+      console.error('Error fetching recent activity:', error)
+    }
+  }, [recentActivity])
 
   // Fetch analytics data
   const fetchAnalyticsData = useCallback(async () => {
@@ -200,7 +221,8 @@ export default function DashboardPage(): JSX.Element {
 
   useEffect(() => {
     fetchAnalyticsData()
-  }, [fetchAnalyticsData])
+    fetchRecentActivity()
+  }, [fetchAnalyticsData, fetchRecentActivity])
 
   // Simulate real-time activity updates
   useEffect(() => {
@@ -934,6 +956,7 @@ export default function DashboardPage(): JSX.Element {
                     ) : (
                       <div className="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center">
                         {activity.type === 'completed' && <CheckCircle className="h-4 w-4 text-green-500" />}
+                        {activity.type === 'evaluation' && <Star className="h-4 w-4 text-yellow-500" />}
                         {activity.type === 'rating' && <Star className="h-4 w-4 text-yellow-500" />}
                         {activity.type === 'step' && <Eye className="h-4 w-4 text-blue-500" />}
                         {activity.type === 'comment' && <MessageCircle className="h-4 w-4 text-purple-500" />}

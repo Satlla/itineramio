@@ -19,12 +19,12 @@ export async function POST(request: NextRequest) {
     if (!propertyId || !rating || rating < 1 || rating > 5) {
       return NextResponse.json({
         success: false,
-        error: 'Datos de reseña inválidos'
+        error: 'Datos de evaluación inválidos'
       }, { status: 400 })
     }
 
-    // Check if user already reviewed this zone/property
-    const existingReview = await prisma.review.findFirst({
+    // Check if user already evaluated this zone/property
+    const existingEvaluation = await prisma.review.findFirst({
       where: {
         propertyId,
         zoneId: zoneId || null,
@@ -33,10 +33,10 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    if (existingReview) {
-      // Update existing review
-      const updatedReview = await prisma.review.update({
-        where: { id: existingReview.id },
+    if (existingEvaluation) {
+      // Update existing evaluation
+      const updatedEvaluation = await prisma.review.update({
+        where: { id: existingEvaluation.id },
         data: {
           rating,
           comment: comment || null,
@@ -59,17 +59,17 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      // Send notification to property owner about updated review
-      await sendReviewNotification(updatedReview, 'updated')
+      // Send notification to property owner about updated evaluation
+      await sendEvaluationNotification(updatedEvaluation, 'updated')
 
       return NextResponse.json({
         success: true,
-        data: updatedReview,
-        message: 'Reseña actualizada correctamente'
+        data: updatedEvaluation,
+        message: 'Evaluación actualizada correctamente'
       })
     } else {
-      // Create new review
-      const newReview = await prisma.review.create({
+      // Create new evaluation
+      const newEvaluation = await prisma.review.create({
         data: {
           propertyId,
           zoneId: zoneId || null,
@@ -97,44 +97,44 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      // Send notification to property owner about new review
-      await sendReviewNotification(newReview, 'created')
+      // Send notification to property owner about new evaluation
+      await sendEvaluationNotification(newEvaluation, 'created')
 
       return NextResponse.json({
         success: true,
-        data: newReview,
-        message: 'Reseña creada correctamente'
+        data: newEvaluation,
+        message: 'Evaluación creada correctamente'
       })
     }
     
   } catch (error) {
-    console.error('Error creating/updating review:', error)
+    console.error('Error creating/updating evaluation:', error)
     return NextResponse.json({
       success: false,
-      error: 'Error al procesar la reseña'
+      error: 'Error al procesar la evaluación'
     }, { status: 500 })
   }
 }
 
 // Helper function to send notifications to property owner
-async function sendReviewNotification(review: any, action: 'created' | 'updated') {
+async function sendEvaluationNotification(evaluation: any, action: 'created' | 'updated') {
   try {
     const notificationData = {
-      userId: review.property.hostId,
-      type: 'review' as const,
-      title: action === 'created' ? 'Nueva reseña recibida' : 'Reseña actualizada',
-      message: review.zoneId 
-        ? `${review.userName} ha ${action === 'created' ? 'dejado' : 'actualizado'} una reseña (${review.rating}★) en la zona "${review.zone?.name}" de ${review.property.name}`
-        : `${review.userName} ha ${action === 'created' ? 'dejado' : 'actualizado'} una reseña general (${review.rating}★) de ${review.property.name}`,
+      userId: evaluation.property.hostId,
+      type: 'evaluation',
+      title: action === 'created' ? 'Nueva evaluación recibida' : 'Evaluación actualizada',
+      message: evaluation.zoneId 
+        ? `${evaluation.userName} ha ${action === 'created' ? 'dejado' : 'actualizado'} una evaluación (${evaluation.rating}★) en la zona "${evaluation.zone?.name}" de ${evaluation.property.name}`
+        : `${evaluation.userName} ha ${action === 'created' ? 'dejado' : 'actualizado'} una evaluación general (${evaluation.rating}★) de ${evaluation.property.name}`,
       read: false,
-      propertyId: review.propertyId,
-      zoneId: review.zoneId,
-      reviewId: review.id,
-      actionUrl: `/properties/${review.propertyId}/reviews`,
-      metadata: {
-        rating: review.rating,
-        isPublic: review.isPublic,
-        hasComment: !!review.comment
+      data: {
+        propertyId: evaluation.propertyId,
+        zoneId: evaluation.zoneId,
+        evaluationId: evaluation.id,
+        actionUrl: `/properties/${evaluation.propertyId}/evaluations`,
+        rating: evaluation.rating,
+        isPublic: evaluation.isPublic,
+        hasComment: !!evaluation.comment
       }
     }
 
@@ -143,8 +143,8 @@ async function sendReviewNotification(review: any, action: 'created' | 'updated'
       data: notificationData
     })
 
-    console.log(`✅ Review notification sent to host: ${review.property.hostId}`)
+    console.log(`✅ Evaluation notification sent to host: ${evaluation.property.hostId}`)
   } catch (error) {
-    console.error('Error sending review notification:', error)
+    console.error('Error sending evaluation notification:', error)
   }
 }

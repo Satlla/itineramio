@@ -456,13 +456,13 @@ export default function PropertyGuidePage() {
   const [selectedRating, setSelectedRating] = useState(0)
   const [ratingComment, setRatingComment] = useState('')
   const [isSubmittingRating, setIsSubmittingRating] = useState(false)
-  const [publicReviews, setPublicReviews] = useState<any[]>([])
-  const [reviewsStats, setReviewsStats] = useState<any>(null)
-  const [loadingReviews, setLoadingReviews] = useState(false)
+  const [publicEvaluations, setPublicEvaluations] = useState<any[]>([])
+  const [evaluationsStats, setEvaluationsStats] = useState<any>(null)
+  const [loadingEvaluations, setLoadingEvaluations] = useState(false)
 
   useEffect(() => {
     fetchPropertyData()
-    fetchPublicReviews()
+    // fetchPublicEvaluations will be called from fetchPropertyData if needed
   }, [propertyId])
 
   // Check progress and show warning or completion reward
@@ -501,6 +501,11 @@ export default function PropertyGuidePage() {
       }
       
       setProperty(result.data)
+      
+      // Now that we have the property data, fetch evaluations using the actual property ID
+      if (result.data?.id) {
+        await fetchPublicEvaluationsWithId(result.data.id)
+      }
     } catch (error) {
       console.error('Error fetching property:', error)
       setProperty(null)
@@ -509,23 +514,34 @@ export default function PropertyGuidePage() {
     }
   }
 
-  const fetchPublicReviews = async () => {
+  const fetchPublicEvaluationsWithId = async (actualPropertyId: string) => {
     try {
-      setLoadingReviews(true)
-      const response = await fetch(`/api/properties/${propertyId}/public-reviews`)
+      setLoadingEvaluations(true)
+      const response = await fetch(`/api/properties/${actualPropertyId}/public-evaluations`)
       
       if (response.ok) {
         const result = await response.json()
-        setPublicReviews(result.reviews || [])
-        setReviewsStats(result.stats || null)
+        setPublicEvaluations(result.evaluations || [])
+        setEvaluationsStats(result.stats || null)
       }
     } catch (error) {
-      console.error('Error fetching public reviews:', error)
-      setPublicReviews([])
-      setReviewsStats(null)
+      console.error('Error fetching public evaluations:', error)
+      setPublicEvaluations([])
+      setEvaluationsStats(null)
     } finally {
-      setLoadingReviews(false)
+      setLoadingEvaluations(false)
     }
+  }
+
+  const fetchPublicEvaluations = async () => {
+    // If we already have property data, use its ID
+    if (property?.id) {
+      await fetchPublicEvaluationsWithId(property.id)
+    } else if (propertyId.startsWith('cm')) {
+      // Direct ID, use it
+      await fetchPublicEvaluationsWithId(propertyId)
+    }
+    // If it's a slug and we don't have property data yet, this will be called after fetchPropertyData
   }
 
   const submitSuggestion = async () => {
@@ -664,19 +680,19 @@ export default function PropertyGuidePage() {
               {getText(property.name, language, 'Propiedad')}
             </h1>
             <div className="flex items-center space-x-4 text-sm">
-              {reviewsStats && publicReviews.length > 0 && (
+              {evaluationsStats && publicEvaluations.length > 0 && (
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1 bg-violet-50 px-3 py-1 rounded-full">
                     <Star className="w-4 h-4 text-violet-600 fill-current" />
                     <span className="font-medium text-violet-700">
-                      {reviewsStats.averageRating ? reviewsStats.averageRating.toFixed(1) : '0.0'}
+                      {evaluationsStats.averageRating ? evaluationsStats.averageRating.toFixed(1) : '0.0'}
                     </span>
                     <span className="text-violet-500">·</span>
                     <button 
                       onClick={() => setShowRatingsModal(true)}
                       className="text-violet-600 hover:text-violet-800 font-medium"
                     >
-                      {publicReviews.length} {publicReviews.length === 1 ? 'valoración pública' : 'valoraciones públicas'}
+                      {publicEvaluations.length} {publicEvaluations.length === 1 ? 'evaluación pública' : 'evaluaciones públicas'}
                     </button>
                   </div>
                 </div>
@@ -1284,18 +1300,18 @@ export default function PropertyGuidePage() {
             {/* Modal Content */}
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               {/* Overall Rating */}
-              {reviewsStats && (
+              {evaluationsStats && (
                 <div className="flex items-center space-x-4 mb-6 p-4 bg-violet-50 rounded-lg">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-violet-700">
-                      {reviewsStats.averageRating ? reviewsStats.averageRating.toFixed(1) : '0.0'}
+                      {evaluationsStats.averageRating ? evaluationsStats.averageRating.toFixed(1) : '0.0'}
                     </div>
                     <div className="flex items-center justify-center space-x-1 mb-1">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star 
                           key={star} 
                           className={`w-4 h-4 ${
-                            star <= Math.round(reviewsStats.averageRating || 0)
+                            star <= Math.round(evaluationsStats.averageRating || 0)
                               ? 'text-violet-600 fill-current'
                               : 'text-gray-300'
                           }`} 
@@ -1303,14 +1319,14 @@ export default function PropertyGuidePage() {
                       ))}
                     </div>
                     <div className="text-sm text-violet-600">
-                      {publicReviews.length} {publicReviews.length === 1 ? 'valoración' : 'valoraciones'}
+                      {publicEvaluations.length} {publicEvaluations.length === 1 ? 'evaluación' : 'evaluaciones'}
                     </div>
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-900 mb-2">Distribución de valoraciones</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">Distribución de evaluaciones</h4>
                     {[5, 4, 3, 2, 1].map((rating) => {
-                      const count = reviewsStats.ratingDistribution?.[rating] || 0
-                      const percentage = publicReviews.length > 0 ? (count / publicReviews.length) * 100 : 0
+                      const count = evaluationsStats.ratingDistribution?.[rating] || 0
+                      const percentage = publicEvaluations.length > 0 ? (count / publicEvaluations.length) * 100 : 0
                       return (
                         <div key={rating} className="flex items-center space-x-2 mb-1">
                           <span className="text-sm text-gray-600 w-3">{rating}</span>
@@ -1331,31 +1347,31 @@ export default function PropertyGuidePage() {
 
               {/* Individual Reviews */}
               <div className="space-y-4">
-                {loadingReviews ? (
+                {loadingEvaluations ? (
                   <div className="text-center py-8">
                     <div className="animate-spin w-6 h-6 border-2 border-violet-600 border-t-transparent rounded-full mx-auto mb-2"></div>
-                    <p className="text-gray-600 text-sm">Cargando reseñas...</p>
+                    <p className="text-gray-600 text-sm">Cargando evaluaciones...</p>
                   </div>
-                ) : publicReviews.length === 0 ? (
+                ) : publicEvaluations.length === 0 ? (
                   <div className="text-center py-8">
                     <Star className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                    <h4 className="font-medium text-gray-900 mb-2">No hay reseñas públicas aún</h4>
-                    <p className="text-gray-600 text-sm">Sé el primero en dejar una valoración pública</p>
+                    <h4 className="font-medium text-gray-900 mb-2">No hay evaluaciones públicas aún</h4>
+                    <p className="text-gray-600 text-sm">Sé el primero en dejar una evaluación pública</p>
                   </div>
                 ) : (
-                  publicReviews.map((review) => (
-                    <div key={review.id} className="border-b border-gray-100 pb-4 last:border-b-0">
+                  publicEvaluations.map((evaluation) => (
+                    <div key={evaluation.id} className="border-b border-gray-100 pb-4 last:border-b-0">
                       <div className="flex items-start space-x-3">
                         <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
                           <span className="text-violet-600 font-medium text-sm">
-                            {review.userName.charAt(0).toUpperCase()}
+                            {evaluation.userName.charAt(0).toUpperCase()}
                           </span>
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-1">
-                            <h5 className="font-medium text-gray-900">{review.userName}</h5>
+                            <h5 className="font-medium text-gray-900">{evaluation.userName}</h5>
                             <span className="text-sm text-gray-500">
-                              {new Date(review.createdAt).toLocaleDateString('es-ES', {
+                              {new Date(evaluation.createdAt).toLocaleDateString('es-ES', {
                                 year: 'numeric',
                                 month: 'short',
                                 day: 'numeric'
@@ -1367,20 +1383,20 @@ export default function PropertyGuidePage() {
                               <Star 
                                 key={star} 
                                 className={`w-3 h-3 ${
-                                  star <= review.rating 
+                                  star <= evaluation.rating 
                                     ? 'text-violet-600 fill-current' 
                                     : 'text-gray-300'
                                 }`} 
                               />
                             ))}
                           </div>
-                          {review.comment && (
+                          {evaluation.comment && (
                             <p className="text-gray-700 text-sm leading-relaxed">
-                              "{review.comment}"
+                              "{evaluation.comment}"
                             </p>
                           )}
                           <div className="mt-2 text-xs text-gray-500">
-                            {review.reviewType === 'zone' ? 'Reseña de zona específica' : 'Reseña general de la propiedad'}
+                            {evaluation.reviewType === 'zone' ? 'Evaluación de zona específica' : 'Evaluación general de la propiedad'}
                           </div>
                         </div>
                       </div>
@@ -1496,14 +1512,17 @@ export default function PropertyGuidePage() {
                     
                     setIsSubmittingRating(true)
                     try {
-                      const response = await fetch('/api/public/ratings', {
+                      const response = await fetch('/api/evaluations/create', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                          propertyId,
+                          propertyId: property?.id || propertyId,
                           rating: selectedRating,
-                          comment: ratingComment.trim(),
-                          timestamp: new Date().toISOString()
+                          comment: ratingComment.trim() || null,
+                          userName: 'Usuario anónimo',
+                          userEmail: null,
+                          reviewType: 'property',
+                          isPublic: false // Property reviews start private
                         })
                       })
                       

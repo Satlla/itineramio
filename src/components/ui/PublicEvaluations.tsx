@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { Star, MessageCircle, User, Calendar } from 'lucide-react'
 import { Card, CardContent } from './Card'
 
-interface PublicReview {
+interface PublicEvaluation {
   id: string
   rating: number
   comment?: string
@@ -18,47 +18,47 @@ interface PublicReview {
   }
 }
 
-interface PublicReviewsProps {
+interface PublicEvaluationsProps {
   propertyId: string
-  zoneId?: string // If provided, show only reviews for this zone
-  maxReviews?: number
+  zoneId?: string // If provided, show only evaluations for this zone
+  maxEvaluations?: number
   showTitle?: boolean
   className?: string
 }
 
-export function PublicReviews({
+export function PublicEvaluations({
   propertyId,
   zoneId,
-  maxReviews = 10,
+  maxEvaluations = 10,
   showTitle = true,
   className = ''
-}: PublicReviewsProps) {
-  const [reviews, setReviews] = useState<PublicReview[]>([])
+}: PublicEvaluationsProps) {
+  const [evaluations, setEvaluations] = useState<PublicEvaluation[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState<{
     averageRating: number
-    totalReviews: number
+    totalEvaluations: number
   } | null>(null)
 
   useEffect(() => {
-    fetchPublicReviews()
+    fetchPublicEvaluations()
   }, [propertyId, zoneId])
 
-  const fetchPublicReviews = async () => {
+  const fetchPublicEvaluations = async () => {
     try {
       const url = zoneId 
-        ? `/api/zones/${zoneId}/public-reviews`
-        : `/api/properties/${propertyId}/public-reviews`
+        ? `/api/zones/${zoneId}/public-evaluations`
+        : `/api/properties/${propertyId}/public-evaluations`
       
       const response = await fetch(url)
       const result = await response.json()
       
       if (result.success) {
-        setReviews(result.data.reviews.slice(0, maxReviews))
+        setEvaluations(result.data.evaluations.slice(0, maxEvaluations))
         setStats(result.data.stats)
       }
     } catch (error) {
-      console.error('Error fetching public reviews:', error)
+      console.error('Error fetching public evaluations:', error)
     } finally {
       setLoading(false)
     }
@@ -107,8 +107,8 @@ export function PublicReviews({
     )
   }
 
-  if (reviews.length === 0) {
-    return null // Don't show anything if no public reviews
+  if (evaluations.length === 0) {
+    return null // Don't show anything if no public evaluations
   }
 
   return (
@@ -118,7 +118,7 @@ export function PublicReviews({
           <div className="flex items-center gap-3 mb-2">
             <MessageCircle className="w-5 h-5 text-violet-600" />
             <h3 className="text-lg font-semibold text-gray-900">
-              {zoneId ? 'Opiniones de esta zona' : 'Opiniones de huéspedes'}
+              {zoneId ? 'Evaluaciones de esta zona' : 'Evaluaciones de huéspedes'}
             </h3>
           </div>
           
@@ -132,7 +132,7 @@ export function PublicReviews({
               </div>
               <span>•</span>
               <span>
-                {stats.totalReviews} opinión{stats.totalReviews !== 1 ? 'es' : ''}
+                {stats.totalEvaluations} evaluación{stats.totalEvaluations !== 1 ? 'es' : ''}
               </span>
             </div>
           )}
@@ -140,9 +140,9 @@ export function PublicReviews({
       )}
 
       <div className="space-y-4">
-        {reviews.map((review, index) => (
+        {evaluations.map((evaluation, index) => (
           <motion.div
-            key={review.id}
+            key={evaluation.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
@@ -156,30 +156,30 @@ export function PublicReviews({
                     </div>
                     <div>
                       <p className="font-medium text-gray-900 text-sm">
-                        {review.userName}
+                        {evaluation.userName}
                       </p>
                       <div className="flex items-center gap-2 text-xs text-gray-500">
                         <Calendar className="w-3 h-3" />
-                        {formatDate(review.createdAt)}
+                        {formatDate(evaluation.createdAt)}
                       </div>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-1">
-                    {renderStars(review.rating)}
+                    {renderStars(evaluation.rating)}
                   </div>
                 </div>
 
-                {review.comment && (
+                {evaluation.comment && (
                   <p className="text-gray-700 text-sm leading-relaxed">
-                    "{review.comment}"
+                    "{evaluation.comment}"
                   </p>
                 )}
 
-                {!zoneId && review.zone && (
+                {!zoneId && evaluation.zone && (
                   <div className="mt-3 pt-3 border-t border-gray-100">
                     <p className="text-xs text-gray-500">
-                      Opinión sobre: <span className="font-medium">{review.zone.name}</span>
+                      Evaluación sobre: <span className="font-medium">{evaluation.zone.name}</span>
                     </p>
                   </div>
                 )}
@@ -189,10 +189,10 @@ export function PublicReviews({
         ))}
       </div>
 
-      {reviews.length >= maxReviews && (
+      {evaluations.length >= maxEvaluations && (
         <div className="text-center mt-6">
           <p className="text-sm text-gray-500">
-            Mostrando las {maxReviews} opiniones más recientes
+            Mostrando las {maxEvaluations} evaluaciones más recientes
           </p>
         </div>
       )}

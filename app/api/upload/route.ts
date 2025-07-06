@@ -19,7 +19,7 @@ async function getMediaUsage(mediaUrl: string) {
         }
       },
       include: {
-        zone: {
+        zones: {
           include: {
             property: {
               select: {
@@ -33,10 +33,10 @@ async function getMediaUsage(mediaUrl: string) {
     })
 
     return steps.map(step => ({
-      propertyId: step.zone.property.id,
-      propertyName: step.zone.property.name,
-      zoneId: step.zone.id,
-      zoneName: step.zone.name,
+      propertyId: step.zones.property?.id || '',
+      propertyName: step.zones.property?.name || 'Propiedad',
+      zoneId: step.zones.id,
+      zoneName: step.zones.name,
       stepId: step.id
     }))
   } catch (error) {

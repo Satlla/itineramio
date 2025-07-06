@@ -63,7 +63,7 @@ export function ZoneRatingWidget({
     setIsSubmitting(true)
     
     try {
-      const response = await fetch('/api/reviews/create', {
+      const response = await fetch('/api/evaluations/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

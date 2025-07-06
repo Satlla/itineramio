@@ -1,11 +1,11 @@
 export interface Notification {
   id: string
-  type: 'warning' | 'error' | 'info' | 'review' | 'success'
+  type: 'warning' | 'error' | 'info' | 'evaluation' | 'success'
   title: string
   message: string
   propertyId?: string
   zoneId?: string
-  reviewId?: string
+  evaluationId?: string
   createdAt: Date
   read: boolean
   actionUrl?: string
@@ -13,7 +13,7 @@ export interface Notification {
     rating?: number
     isPublic?: boolean
     hasComment?: boolean
-    reviewType?: 'zone' | 'property'
+    evaluationType?: 'zone' | 'property'
     userName?: string
   }
 }

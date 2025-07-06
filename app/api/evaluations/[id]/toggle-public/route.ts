@@ -20,8 +20,8 @@ export async function PATCH(
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const userId = decoded.userId
 
-    // Get the review and verify ownership
-    const review = await prisma.review.findFirst({
+    // Get the evaluation and verify ownership
+    const evaluation = await prisma.review.findFirst({
       where: { id },
       include: {
         property: {
@@ -33,41 +33,41 @@ export async function PATCH(
       }
     })
 
-    if (!review) {
+    if (!evaluation) {
       return NextResponse.json({
         success: false,
-        error: 'Reseña no encontrada'
+        error: 'Evaluación no encontrada'
       }, { status: 404 })
     }
 
     // Verify that the user owns the property
-    if (review.property.hostId !== userId) {
+    if (evaluation.property.hostId !== userId) {
       return NextResponse.json({
         success: false,
-        error: 'No tienes permisos para modificar esta reseña'
+        error: 'No tienes permisos para modificar esta evaluación'
       }, { status: 403 })
     }
 
     // Toggle public status
-    const updatedReview = await prisma.review.update({
+    const updatedEvaluation = await prisma.review.update({
       where: { id },
       data: {
-        isPublic: !review.isPublic,
+        isPublic: !evaluation.isPublic,
         updatedAt: new Date()
       }
     })
 
     return NextResponse.json({
       success: true,
-      data: updatedReview,
-      message: `Reseña ${updatedReview.isPublic ? 'publicada' : 'marcada como privada'} correctamente`
+      data: updatedEvaluation,
+      message: `Evaluación ${updatedEvaluation.isPublic ? 'publicada' : 'marcada como privada'} correctamente`
     })
     
   } catch (error) {
-    console.error('Error toggling review visibility:', error)
+    console.error('Error toggling evaluation visibility:', error)
     return NextResponse.json({
       success: false,
-      error: 'Error al cambiar la visibilidad de la reseña'
+      error: 'Error al cambiar la visibilidad de la evaluación'
     }, { status: 500 })
   }
 }
