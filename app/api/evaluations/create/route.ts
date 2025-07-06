@@ -4,6 +4,8 @@ import { prisma } from '../../../../src/lib/prisma'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    console.log('📥 Evaluation request body:', body)
+    
     const { 
       propertyId, 
       zoneId, 
@@ -17,11 +19,14 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!propertyId || !rating || rating < 1 || rating > 5) {
+      console.log('❌ Validation failed:', { propertyId, rating })
       return NextResponse.json({
         success: false,
         error: 'Datos de evaluación inválidos'
       }, { status: 400 })
     }
+
+    console.log('✅ Validation passed, creating evaluation...')
 
     // Check if user already evaluated this zone/property
     const existingEvaluation = await prisma.review.findFirst({
@@ -69,6 +74,17 @@ export async function POST(request: NextRequest) {
       })
     } else {
       // Create new evaluation
+      console.log('📝 Creating new evaluation with data:', {
+        propertyId,
+        zoneId: zoneId || null,
+        rating,
+        comment: comment || null,
+        userEmail: userEmail || null,
+        userName: userName || 'Usuario anónimo',
+        reviewType,
+        isPublic
+      })
+      
       const newEvaluation = await prisma.review.create({
         data: {
           propertyId,
@@ -97,6 +113,8 @@ export async function POST(request: NextRequest) {
         }
       })
 
+      console.log('✅ Evaluation created successfully:', newEvaluation.id)
+
       // Send notification to property owner about new evaluation
       await sendEvaluationNotification(newEvaluation, 'created')
 
@@ -119,6 +137,13 @@ export async function POST(request: NextRequest) {
 // Helper function to send notifications to property owner
 async function sendEvaluationNotification(evaluation: any, action: 'created' | 'updated') {
   try {
+    console.log('📧 Sending notification for evaluation:', evaluation.id)
+    
+    if (!evaluation.property?.hostId) {
+      console.log('❌ No hostId found, skipping notification')
+      return
+    }
+    
     const notificationData = {
       userId: evaluation.property.hostId,
       type: 'evaluation',
@@ -138,6 +163,8 @@ async function sendEvaluationNotification(evaluation: any, action: 'created' | '
       }
     }
 
+    console.log('📧 Creating notification with data:', notificationData)
+
     // Create notification in database
     await prisma.notification.create({
       data: notificationData
@@ -145,6 +172,7 @@ async function sendEvaluationNotification(evaluation: any, action: 'created' | '
 
     console.log(`✅ Evaluation notification sent to host: ${evaluation.property.hostId}`)
   } catch (error) {
-    console.error('Error sending evaluation notification:', error)
+    console.error('❌ Error sending evaluation notification:', error)
+    // Don't throw the error, just log it so the main operation continues
   }
 }
