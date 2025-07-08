@@ -16,6 +16,8 @@ interface PublicEvaluation {
     name: string
     icon: string
   }
+  hostResponse?: string
+  hostRespondedAt?: string
 }
 
 interface PublicEvaluationsProps {
@@ -174,6 +176,25 @@ export function PublicEvaluations({
                   <p className="text-gray-700 text-sm leading-relaxed">
                     "{evaluation.comment}"
                   </p>
+                )}
+
+                {evaluation.hostResponse && (
+                  <div className="mt-3 p-3 bg-violet-50 border-l-4 border-violet-400 rounded-r-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-5 h-5 bg-violet-500 rounded-full flex items-center justify-center">
+                        <User className="w-3 h-3 text-white" />
+                      </div>
+                      <p className="text-xs font-medium text-violet-700">Respuesta del anfitrión</p>
+                      {evaluation.hostRespondedAt && (
+                        <span className="text-xs text-violet-500">
+                          • {formatDate(evaluation.hostRespondedAt)}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-violet-900 leading-relaxed">
+                      "{evaluation.hostResponse}"
+                    </p>
+                  </div>
                 )}
 
                 {!zoneId && evaluation.zone && (

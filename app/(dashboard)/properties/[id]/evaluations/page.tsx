@@ -31,6 +31,9 @@ interface Evaluation {
   userEmail?: string
   reviewType: 'zone' | 'property'
   isPublic: boolean
+  isApproved: boolean
+  hostResponse?: string
+  hostRespondedAt?: string
   createdAt: string
   updatedAt: string
   zone?: {

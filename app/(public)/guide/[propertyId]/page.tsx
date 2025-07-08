@@ -456,6 +456,8 @@ export default function PropertyGuidePage() {
   const [selectedRating, setSelectedRating] = useState(0)
   const [ratingComment, setRatingComment] = useState('')
   const [isSubmittingRating, setIsSubmittingRating] = useState(false)
+  const [userNameForRating, setUserNameForRating] = useState('')
+  const [userEmailForRating, setUserEmailForRating] = useState('')
   const [publicEvaluations, setPublicEvaluations] = useState<any[]>([])
   const [evaluationsStats, setEvaluationsStats] = useState<any>(null)
   const [loadingEvaluations, setLoadingEvaluations] = useState(false)
@@ -1481,6 +1483,36 @@ export default function PropertyGuidePage() {
                 )}
               </div>
 
+              {/* User Info - Required for public reviews */}
+              <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tu nombre <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={userNameForRating}
+                    onChange={(e) => setUserNameForRating(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                    placeholder="Tu nombre completo"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tu correo electrónico <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={userEmailForRating}
+                    onChange={(e) => setUserEmailForRating(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                    placeholder="tu@email.com"
+                    required
+                  />
+                </div>
+              </div>
+
               {/* Comment */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1506,9 +1538,9 @@ export default function PropertyGuidePage() {
                 </Button>
                 <Button
                   className="flex-1 bg-green-600 hover:bg-green-700"
-                  disabled={selectedRating === 0 || isSubmittingRating}
+                  disabled={selectedRating === 0 || isSubmittingRating || !userNameForRating.trim() || !userEmailForRating.trim()}
                   onClick={async () => {
-                    if (selectedRating === 0) return
+                    if (selectedRating === 0 || !userNameForRating.trim() || !userEmailForRating.trim()) return
                     
                     setIsSubmittingRating(true)
                     try {
@@ -1519,10 +1551,10 @@ export default function PropertyGuidePage() {
                           propertyId: property?.id || propertyId,
                           rating: selectedRating,
                           comment: ratingComment.trim() || null,
-                          userName: 'Usuario anónimo',
-                          userEmail: null,
+                          userName: userNameForRating.trim(),
+                          userEmail: userEmailForRating.trim(),
                           reviewType: 'property',
-                          isPublic: false // Property reviews start private
+                          isPublic: true // Public reviews requested by user
                         })
                       })
                       
@@ -1533,6 +1565,8 @@ export default function PropertyGuidePage() {
                         setShowPublicRatingModal(false)
                         setSelectedRating(0)
                         setRatingComment('')
+                        setUserNameForRating('')
+                        setUserEmailForRating('')
                         alert('¡Gracias por tu evaluación! El propietario la revisará antes de publicarla.')
                       } else {
                         throw new Error(result.error || 'Error al enviar la evaluación')

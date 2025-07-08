@@ -561,22 +561,27 @@ model Notification {
 }
 
 model Review {
-  id         String    @id @default(cuid())
-  propertyId String
-  zoneId     String?   // Optional - for zone-specific reviews
-  rating     Int       // 1-5 stars
-  comment    String?   // Optional comment
-  userName   String    @default("Usuario anónimo")
-  userEmail  String?   // Optional
-  reviewType String    // 'zone' or 'property'
-  isPublic   Boolean   @default(false)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  zone       Zone?     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  id              String    @id @default(cuid())
+  propertyId      String
+  zoneId          String?   // Optional - for zone-specific reviews
+  rating          Int       // 1-5 stars
+  comment         String?   // Optional comment
+  userName        String    @default("Usuario anónimo")
+  userEmail       String?   // Optional
+  reviewType      String    // 'zone' or 'property'
+  isPublic        Boolean   @default(false)
+  isApproved      Boolean   @default(false) // Host approval for public reviews
+  hostResponse    String?   // Host response to the review
+  hostRespondedAt DateTime? // When host responded
+  emailSent       Boolean   @default(false) // Track if email notification was sent
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  zone            Zone?     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
 
   @@index([propertyId, isPublic])
   @@index([zoneId, isPublic])
   @@index([createdAt])
+  @@index([isApproved, isPublic])
   @@map("reviews")
 }

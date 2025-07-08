@@ -8,11 +8,12 @@ export async function GET(
   try {
     const { id } = await params
     
-    // Get all public evaluations for this property
+    // Get all approved public evaluations for this property
     const evaluations = await prisma.review.findMany({
       where: {
         propertyId: id,
         isPublic: true,
+        isApproved: true, // Only show approved evaluations
         comment: {
           not: null // Only include evaluations with comments for public display
         }
@@ -48,7 +49,9 @@ export async function GET(
         userName: evaluation.userName,
         createdAt: evaluation.createdAt,
         reviewType: evaluation.reviewType,
-        zone: evaluation.zone
+        zone: evaluation.zone,
+        hostResponse: evaluation.hostResponse,
+        hostRespondedAt: evaluation.hostRespondedAt
       })),
       stats
     })
