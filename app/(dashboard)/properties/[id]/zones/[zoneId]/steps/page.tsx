@@ -783,7 +783,7 @@ export default function ZoneStepsPage({
                   >
                     {/* Step Number Outside - Violet Style */}
                     <div className="absolute left-0 top-6">
-                      <div className="w-12 h-12 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-lg font-bold text-white shadow-lg relative z-10 border-3 border-white">
+                      <div className="w-12 h-12 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-lg font-bold text-white shadow-lg relative z-10 border-4 border-white">
                         {index + 1}
                       </div>
                     </div>
