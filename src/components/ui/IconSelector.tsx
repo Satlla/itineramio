@@ -33,7 +33,7 @@ export function IconSelector({ selectedIconId, onSelect, onClose, className }: I
   ).map(categoryId => {
     const category = ZONE_ICONS.find(icon => icon.category.id === categoryId)?.category
     return category
-  }).filter(Boolean)
+  }).filter((category): category is NonNullable<typeof category> => Boolean(category))
 
   const categories = [
     { id: 'all', name: 'Todos', color: 'bg-gray-100 text-gray-800 border-gray-200' },
