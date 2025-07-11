@@ -79,12 +79,12 @@ export async function POST(request: NextRequest) {
 
     console.log(`📁 File details: ${file.name}, size: ${file.size}, type: ${file.type}`)
 
-    // Validate file size (50MB max - increased for video uploads)
-    if (file.size > 50 * 1024 * 1024) {
+    // Validate file size (100MB max for better quality)
+    if (file.size > 100 * 1024 * 1024) {
       console.log('❌ File too large:', file.size)
       return NextResponse.json({ 
-        error: "Archivo demasiado grande. Máximo 50MB. Intenta comprimir el video o usar menor calidad.", 
-        maxSize: "50MB",
+        error: "Archivo demasiado grande. Máximo 100MB.", 
+        maxSize: "100MB",
         currentSize: `${(file.size / (1024 * 1024)).toFixed(1)}MB`
       }, { status: 413 })
     }

@@ -15,9 +15,9 @@ function calculateBitrate(durationSeconds: number, targetSizeMB: number): number
   const targetSizeBits = targetSizeMB * 8 * 1024 * 1024 * 0.8
   const calculatedBitrate = Math.floor(targetSizeBits / durationSeconds)
   
-  // Cap the bitrate to ensure ultra-small files
-  const maxBitrate = 250000 // 250kbps max for tiny files
-  const minBitrate = 50000  // 50kbps minimum for watchable quality
+  // Cap the bitrate for better quality
+  const maxBitrate = 1500000 // 1.5Mbps max for good quality
+  const minBitrate = 500000  // 500kbps minimum for decent quality
   
   return Math.max(minBitrate, Math.min(maxBitrate, calculatedBitrate))
 }
@@ -28,10 +28,10 @@ export async function compressVideo(
   options: CompressionOptions = {}
 ): Promise<File> {
   const {
-    maxSizeMB = 1.5,  // Much more aggressive default
-    quality = 0.4,    // Lower quality default
-    scale = 0.6,      // More aggressive scaling
-    fps = 20,         // Lower frame rate
+    maxSizeMB = 8,    // Allow larger files for better quality
+    quality = 0.8,    // Higher quality default
+    scale = 0.85,     // Less aggressive scaling
+    fps = 24,         // Better frame rate
     onProgress
   } = options
 
@@ -272,9 +272,9 @@ export async function compressVideoSimple(
   
   return compressVideo(file, {
     maxSizeMB,
-    scale: Math.max(0.3, Math.min(1, scale)),
-    quality: 0.4,  // Lower quality
-    fps: 18,       // Lower frame rate
+    scale: Math.max(0.7, Math.min(1, scale)), // Better scaling
+    quality: 0.75, // Higher quality
+    fps: 24,       // Better frame rate
     onProgress
   })
 }

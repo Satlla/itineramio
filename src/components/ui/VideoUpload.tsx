@@ -354,13 +354,13 @@ export function VideoUpload({
       
       // Choose compression method based on file size and duration
       let compressionMethod = compressVideo
-      let targetSize = 1.5
+      let targetSize = 12 // Increased for better quality
       
-      // If file is very large or we detect it's likely a long video, use ULTRA compression
-      if (fileSizeMB > 5 || file.size > 8 * 1024 * 1024) {
-        console.log('🔥 Using ULTRA compression for large file!')
-        compressionMethod = compressVideoUltra
-        targetSize = 0.8 // Even smaller target for ultra compression
+      // If file is very large, use more compression but still maintain quality
+      if (fileSizeMB > 20) {
+        console.log('🔥 Using more compression for large file!')
+        compressionMethod = compressVideoSimple
+        targetSize = 8 // Still reasonable quality
       }
       
       // Compress the video with AGGRESSIVE settings for maximum reduction
@@ -371,19 +371,19 @@ export function VideoUpload({
         }
       })
       
-      // If still too large after compression, try ultra compression as fallback
+      // If still too large after compression, apply moderate additional compression
       const compressedSizeMB = fileToUpload.size / (1024 * 1024)
-      if (compressedSizeMB > 2 && compressionMethod !== compressVideoUltra) {
-        console.log('🔥 File still large, applying ULTRA compression as fallback!')
+      if (compressedSizeMB > 15 && compressionMethod !== compressVideoSimple) {
+        console.log('🔥 File still large, applying additional compression!')
         addNotification({
           type: 'info',
           title: '🚀 Compresión adicional',
-          message: 'Aplicando compresión ultra para optimizar el tamaño...',
+          message: 'Aplicando compresión adicional manteniendo calidad...',
           read: false
         })
         
-        fileToUpload = await compressVideoUltra(fileToUpload, {
-          maxSizeMB: 0.8,
+        fileToUpload = await compressVideoSimple(fileToUpload, {
+          maxSizeMB: 10, // Much more reasonable
           onProgress: (progress) => {
             setCompressionProgress(progress)
           }
