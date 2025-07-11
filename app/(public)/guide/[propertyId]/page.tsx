@@ -355,6 +355,7 @@ export default function PropertyGuidePage() {
   const [publicEvaluations, setPublicEvaluations] = useState<any[]>([])
   const [evaluationsStats, setEvaluationsStats] = useState<any>(null)
   const [loadingEvaluations, setLoadingEvaluations] = useState(false)
+  const [isPreview, setIsPreview] = useState(false)
 
   useEffect(() => {
     fetchPropertyData()
@@ -380,23 +381,29 @@ export default function PropertyGuidePage() {
   const fetchPropertyData = async () => {
     try {
       setLoading(true)
+      console.log('🔍 Fetching property data for:', propertyId)
       
       // Try by slug first (for URLs generated with createPropertySlug)
       let response = await fetch(`/api/public/properties/by-slug/${propertyId}`)
       let result = await response.json()
+      console.log('📡 By-slug response:', response.status, result)
       
       // If not found by slug, try by ID (for backward compatibility)
       if (!response.ok && response.status === 404) {
-        console.log('Property not found by slug, trying by ID...')
+        console.log('🔄 Property not found by slug, trying by ID...')
         response = await fetch(`/api/public/properties/${propertyId}`)
         result = await response.json()
+        console.log('📡 By-ID response:', response.status, result)
       }
       
       if (!response.ok) {
+        console.error('❌ Both API calls failed:', result)
         throw new Error(result.error || 'Manual no encontrado')
       }
       
+      console.log('✅ Property found:', result.data?.name || 'No name')
       setProperty(result.data)
+      setIsPreview(result.isPreview || false)
       
       // Now that we have the property data, fetch evaluations using the actual property ID
       if (result.data?.id) {
@@ -572,9 +579,17 @@ export default function PropertyGuidePage() {
         <div className="mb-8">
           {/* Property Title and Rating */}
           <div className="mb-6">
-            <h1 className="text-3xl font-semibold text-gray-900 mb-2">
-              {getText(property.name, language, 'Propiedad')}
-            </h1>
+            <div className="flex items-center space-x-3 mb-2">
+              <h1 className="text-3xl font-semibold text-gray-900">
+                {getText(property.name, language, 'Propiedad')}
+              </h1>
+              {isPreview && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800 border border-orange-200">
+                  <Eye className="w-4 h-4 mr-1" />
+                  Vista Previa
+                </span>
+              )}
+            </div>
             <div className="flex items-center space-x-4 text-sm">
               {evaluationsStats && publicEvaluations.length > 0 && (
                 <div className="flex items-center space-x-2">

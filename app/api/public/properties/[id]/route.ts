@@ -9,7 +9,7 @@ export async function GET(
     const { id } = await params
     console.log('🔍 Public Property endpoint - received ID:', id)
     
-    // Find property by exact ID match only
+    // Find property by exact ID match - try published first, then any property
     let property = await prisma.property.findFirst({
       where: {
         id: id,
@@ -41,7 +41,32 @@ export async function GET(
       }
     })
     
-    console.log('🔍 Public Property found:', !!property)
+    console.log('🔍 Published property found:', !!property)
+    
+    // If no published property found, try to find any property (for preview purposes)
+    if (!property) {
+      console.log('🔄 No published property found, trying any property...')
+      property = await prisma.property.findFirst({
+        where: {
+          id: id // Any property with this ID
+        },
+        include: {
+          zones: {
+            include: {
+              steps: {
+                orderBy: {
+                  order: 'asc'
+                }
+              }
+            },
+            orderBy: {
+              order: 'asc'
+            }
+          }
+        }
+      })
+    }
+    
     if (property) {
       console.log('🔍 Property details:', { 
         id: property.id, 
@@ -54,7 +79,7 @@ export async function GET(
     if (!property) {
       return NextResponse.json({
         success: false,
-        error: 'Propiedad no encontrada o no publicada'
+        error: 'Propiedad no encontrada'
       }, { status: 404 })
     }
 
@@ -94,12 +119,14 @@ export async function GET(
 
     const result = {
       ...property,
-      zones: processedZones
+      zones: processedZones,
+      isPreview: !property.isPublished // Flag to indicate if this is a preview
     }
     
     return NextResponse.json({
       success: true,
-      data: result
+      data: result,
+      isPreview: !property.isPublished
     })
   } catch (error) {
     console.error('Error fetching public property:', error)
