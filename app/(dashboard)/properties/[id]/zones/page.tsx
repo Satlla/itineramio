@@ -1567,44 +1567,25 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             Reseñas
           </Button>
           
-          {/* Publish button - Always show for now */}
+          {/* Publish button - Simple version */}
           <Button
-            onClick={async () => {
-              try {
-                console.log('🚀 Intentando publicar propiedad:', id)
-                const response = await fetch(`/api/properties/${id}/publish`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' }
-                })
-                const result = await response.json()
-                console.log('📊 Resultado:', result)
-                
+            onClick={() => {
+              alert('Botón clickeado! Publicando...')
+              fetch(`/api/properties/${id}/publish`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+              })
+              .then(response => response.json())
+              .then(result => {
+                alert('Resultado: ' + JSON.stringify(result))
                 if (result.success) {
-                  setPropertyStatus('ACTIVE')
-                  setIsPropertyPublished(true)
-                  addNotification({
-                    type: 'success',
-                    title: 'Propiedad publicada',
-                    message: 'Tu propiedad ya está disponible públicamente',
-                    read: false
-                  })
-                } else {
-                  addNotification({
-                    type: 'error',
-                    title: 'Error al publicar',
-                    message: result.error || 'No se pudo publicar la propiedad',
-                    read: false
-                  })
+                  alert('¡Propiedad publicada! Ahora la URL debería funcionar.')
+                  window.location.reload()
                 }
-              } catch (error) {
-                console.error('❌ Error al publicar:', error)
-                addNotification({
-                  type: 'error',
-                  title: 'Error al publicar',
-                  message: 'Error de conexión',
-                  read: false
-                })
-              }
+              })
+              .catch(error => {
+                alert('Error: ' + error.message)
+              })
             }}
             className="bg-violet-600 hover:bg-violet-700 text-white"
           >
@@ -1655,39 +1636,25 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </Button>
         </div>
         
-        {/* Mobile Publish button - Always show for now */}
+        {/* Mobile Publish button - Simple version */}
         <Button
-            onClick={async () => {
-              try {
-                const response = await fetch(`/api/properties/${id}/publish`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' }
-                })
-                const result = await response.json()
+            onClick={() => {
+              alert('Botón móvil clickeado! Publicando...')
+              fetch(`/api/properties/${id}/publish`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+              })
+              .then(response => response.json())
+              .then(result => {
+                alert('Resultado: ' + JSON.stringify(result))
                 if (result.success) {
-                  setPropertyStatus('ACTIVE')
-                  addNotification({
-                    type: 'success',
-                    title: 'Propiedad publicada',
-                    message: 'Tu propiedad ya está disponible públicamente',
-                    read: false
-                  })
-                } else {
-                  addNotification({
-                    type: 'error',
-                    title: 'Error al publicar',
-                    message: result.error || 'No se pudo publicar la propiedad',
-                    read: false
-                  })
+                  alert('¡Propiedad publicada! Ahora la URL debería funcionar.')
+                  window.location.reload()
                 }
-              } catch (error) {
-                addNotification({
-                  type: 'error',
-                  title: 'Error al publicar',
-                  message: 'Error de conexión',
-                  read: false
-                })
-              }
+              })
+              .catch(error => {
+                alert('Error: ' + error.message)
+              })
             }}
             size="sm"
             className="w-full bg-violet-600 hover:bg-violet-700 text-white"
