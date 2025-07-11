@@ -49,10 +49,9 @@ export default function PublishManagerPage() {
     try {
       setPublishing(propertyId)
       
-      const response = await fetch('/api/publish/property', {
+      const response = await fetch(`/api/properties/${propertyId}/publish`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ propertyId })
+        headers: { 'Content-Type': 'application/json' }
       })
       
       const result = await response.json()

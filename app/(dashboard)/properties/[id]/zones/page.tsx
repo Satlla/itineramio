@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Globe } from 'lucide-react'
 import {
   DndContext,
   closestCenter,
@@ -1564,6 +1564,48 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             Reseñas
           </Button>
           
+          {/* Publish button */}
+          {propertyStatus !== 'ACTIVE' && (
+            <Button
+              onClick={async () => {
+                try {
+                  const response = await fetch(`/api/properties/${id}/publish`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                  })
+                  const result = await response.json()
+                  if (result.success) {
+                    setPropertyStatus('ACTIVE')
+                    addNotification({
+                      type: 'success',
+                      title: 'Propiedad publicada',
+                      message: 'Tu propiedad ya está disponible públicamente',
+                      read: false
+                    })
+                  } else {
+                    addNotification({
+                      type: 'error',
+                      title: 'Error al publicar',
+                      message: result.error || 'No se pudo publicar la propiedad',
+                      read: false
+                    })
+                  }
+                } catch (error) {
+                  addNotification({
+                    type: 'error',
+                    title: 'Error al publicar',
+                    message: 'Error de conexión',
+                    read: false
+                  })
+                }
+              }}
+              className="bg-violet-600 hover:bg-violet-700 text-white"
+            >
+              <Globe className="w-5 h-5 mr-2" />
+              Publicar Propiedad
+            </Button>
+          )}
+          
           {/* Vista Pública button */}
           <Button
             onClick={() => {
@@ -1581,29 +1623,74 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* Mobile Action Buttons */}
-      <div className="lg:hidden flex gap-2 mb-4">
-        <Button
-          onClick={() => setShowReviewsModal(true)}
-          variant="outline"
-          size="sm"
-          className="flex-1 border-blue-500 text-blue-600 hover:bg-blue-50"
-        >
-          <Star className="w-4 h-4 mr-1" />
-          Reseñas
-        </Button>
+      <div className="lg:hidden space-y-2 mb-4">
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setShowReviewsModal(true)}
+            variant="outline"
+            size="sm"
+            className="flex-1 border-blue-500 text-blue-600 hover:bg-blue-50"
+          >
+            <Star className="w-4 h-4 mr-1" />
+            Reseñas
+          </Button>
+          
+          <Button
+            onClick={() => {
+              const publicUrl = `${window.location.origin}/guide/${id}`
+              window.open(publicUrl, '_blank')
+            }}
+            variant="outline"
+            size="sm"
+            className="flex-1 border-green-500 text-green-600 hover:bg-green-50"
+          >
+            <ExternalLink className="w-4 h-4 mr-1" />
+            Vista Pública
+          </Button>
+        </div>
         
-        <Button
-          onClick={() => {
-            const publicUrl = `${window.location.origin}/guide/${id}`
-            window.open(publicUrl, '_blank')
-          }}
-          variant="outline"
-          size="sm"
-          className="flex-1 border-green-500 text-green-600 hover:bg-green-50"
-        >
-          <ExternalLink className="w-4 h-4 mr-1" />
-          Vista Pública
-        </Button>
+        {/* Mobile Publish button */}
+        {propertyStatus !== 'ACTIVE' && (
+          <Button
+            onClick={async () => {
+              try {
+                const response = await fetch(`/api/properties/${id}/publish`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' }
+                })
+                const result = await response.json()
+                if (result.success) {
+                  setPropertyStatus('ACTIVE')
+                  addNotification({
+                    type: 'success',
+                    title: 'Propiedad publicada',
+                    message: 'Tu propiedad ya está disponible públicamente',
+                    read: false
+                  })
+                } else {
+                  addNotification({
+                    type: 'error',
+                    title: 'Error al publicar',
+                    message: result.error || 'No se pudo publicar la propiedad',
+                    read: false
+                  })
+                }
+              } catch (error) {
+                addNotification({
+                  type: 'error',
+                  title: 'Error al publicar',
+                  message: 'Error de conexión',
+                  read: false
+                })
+              }
+            }}
+            size="sm"
+            className="w-full bg-violet-600 hover:bg-violet-700 text-white"
+          >
+            <Globe className="w-4 h-4 mr-1" />
+            Publicar Propiedad
+          </Button>
+        )}
       </div>
 
       {/* Stats Cards */}
