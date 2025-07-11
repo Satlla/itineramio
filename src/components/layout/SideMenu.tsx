@@ -77,6 +77,12 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
       description: "Editar tu perfil y preferencias"
     },
     {
+      icon: <Bell className="w-5 h-5" />,
+      label: "Notificaciones",
+      href: "/settings/notifications",
+      description: "Configurar preferencias de notificaciones"
+    },
+    {
       icon: <CreditCard className="w-5 h-5" />,
       label: "Facturación",
       href: "/account",

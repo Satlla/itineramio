@@ -138,33 +138,74 @@ async function sendEvaluationNotification(evaluation: any, action: 'created' | '
     if (!evaluation.property?.hostId) {
       return
     }
-    
-    const notificationData = {
-      userId: evaluation.property.hostId,
-      type: 'evaluation',
-      title: action === 'created' ? 'Nueva evaluación recibida' : 'Evaluación actualizada',
-      message: evaluation.zoneId 
-        ? `${evaluation.userName} ha ${action === 'created' ? 'dejado' : 'actualizado'} una evaluación (${evaluation.rating}★) en la zona "${evaluation.zone?.name}" de ${evaluation.property.name}`
-        : `${evaluation.userName} ha ${action === 'created' ? 'dejado' : 'actualizado'} una evaluación general (${evaluation.rating}★) de ${evaluation.property.name}`,
-      read: false,
-      data: {
-        propertyId: evaluation.propertyId,
-        zoneId: evaluation.zoneId,
-        evaluationId: evaluation.id,
-        actionUrl: `/properties/${evaluation.propertyId}/evaluations`,
-        rating: evaluation.rating,
-        isPublic: evaluation.isPublic,
-        hasComment: !!evaluation.comment
+
+    // Get user with notification preferences
+    const user = await prisma.user.findUnique({
+      where: { id: evaluation.property.hostId },
+      include: { notificationPrefs: true }
+    })
+
+    if (!user) return
+
+    // Create in-app notification (if enabled)
+    const prefs = user.notificationPrefs
+    if (!prefs || prefs.inAppEvaluations) {
+      const notificationData = {
+        userId: evaluation.property.hostId,
+        type: 'evaluation',
+        title: action === 'created' ? 'Nueva evaluación recibida' : 'Evaluación actualizada',
+        message: evaluation.zoneId 
+          ? `${evaluation.userName} ha ${action === 'created' ? 'dejado' : 'actualizado'} una evaluación (${evaluation.rating}★) en la zona "${evaluation.zone?.name}" de ${evaluation.property.name}`
+          : `${evaluation.userName} ha ${action === 'created' ? 'dejado' : 'actualizado'} una evaluación general (${evaluation.rating}★) de ${evaluation.property.name}`,
+        read: false,
+        data: {
+          propertyId: evaluation.propertyId,
+          zoneId: evaluation.zoneId,
+          evaluationId: evaluation.id,
+          actionUrl: `/properties/${evaluation.propertyId}/evaluations`,
+          rating: evaluation.rating,
+          isPublic: evaluation.isPublic,
+          hasComment: !!evaluation.comment
+        }
       }
+
+      await prisma.notification.create({
+        data: notificationData
+      })
     }
 
-    // Create notification in database
-    await prisma.notification.create({
-      data: notificationData
-    })
+    // Send email notification (if enabled)
+    if (!prefs || prefs.emailEvaluations) {
+      await sendEvaluationEmail(evaluation, user)
+    }
   } catch (error) {
     console.error('Error sending evaluation notification:', error)
-    // Don't throw the error, just log it so the main operation continues
+  }
+}
+
+// Helper function to send email notifications for evaluations
+async function sendEvaluationEmail(evaluation: any, user: any) {
+  try {
+    const emailData = {
+      to: user.email,
+      hostName: user.name,
+      propertyName: evaluation.property.name,
+      propertyId: evaluation.propertyId,
+      guestName: evaluation.userName,
+      guestEmail: evaluation.userEmail,
+      zoneName: evaluation.zone?.name,
+      rating: evaluation.rating,
+      comment: evaluation.comment,
+      evaluationType: evaluation.reviewType
+    }
+
+    await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/emails/evaluation-notification`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(emailData)
+    })
+  } catch (error) {
+    console.error('Error sending evaluation email:', error)
   }
 }
 
