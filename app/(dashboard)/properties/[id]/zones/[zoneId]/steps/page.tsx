@@ -767,7 +767,7 @@ export default function ZoneStepsPage({
           {steps.length > 0 ? (
             <div className="relative">
               {/* Timeline Line */}
-              <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-gray-300"></div>
+              <div className="absolute left-6 top-6 bottom-6 w-1 bg-gray-200 rounded-full"></div>
               
               <Reorder.Group
                 axis="y"
@@ -781,9 +781,9 @@ export default function ZoneStepsPage({
                     value={step}
                     className="relative"
                   >
-                    {/* Step Number Outside */}
+                    {/* Step Number Outside - Violet Style */}
                     <div className="absolute left-0 top-6">
-                      <div className="w-12 h-12 bg-white border-4 border-gray-900 rounded-full flex items-center justify-center text-xl font-black text-gray-900 shadow-xl relative z-10">
+                      <div className="w-12 h-12 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-lg font-bold text-white shadow-lg relative z-10 border-3 border-white">
                         {index + 1}
                       </div>
                     </div>
