@@ -63,8 +63,7 @@ export async function POST(request: NextRequest) {
       await prisma.step.updateMany({
         where: { zoneId: zone.id },
         data: {
-          isPublished: true,
-          publishedAt: new Date()
+          isPublished: true
         }
       })
       publishedStepsCount += zone.steps.length

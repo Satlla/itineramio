@@ -75,8 +75,7 @@ async function fixSpecificProperty() {
         await prisma.step.updateMany({
           where: { zoneId: zone.id },
           data: {
-            isPublished: true,
-            publishedAt: new Date()
+            isPublished: true
           }
         })
         
