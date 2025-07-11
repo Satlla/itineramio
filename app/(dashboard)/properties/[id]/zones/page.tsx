@@ -117,6 +117,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   // Reviews modal state
   const [showReviewsModal, setShowReviewsModal] = useState(false)
   
+  // Publish confirmation modal state
+  const [showPublishConfirmModal, setShowPublishConfirmModal] = useState(false)
+  
   // Published state
   const [isPropertyPublished, setIsPropertyPublished] = useState(true)
   
@@ -1550,23 +1553,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           {/* Publish button - Only show if not published */}
           {propertyStatus !== 'ACTIVE' && !isPropertyPublished && (
             <Button
-              onClick={() => {
-                fetch(`/api/properties/${id}/publish`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' }
-                })
-                .then(response => response.json())
-                .then(result => {
-                  if (result.success) {
-                    alert('Propiedad publicada con éxito!')
-                    setPropertyStatus('ACTIVE')
-                    setIsPropertyPublished(true)
-                  }
-                })
-                .catch(error => {
-                  alert('Error al publicar la propiedad')
-                })
-              }}
+              onClick={() => setShowPublishConfirmModal(true)}
               className="bg-violet-600 hover:bg-violet-700 text-white"
             >
               <Globe className="w-5 h-5 mr-2" />
@@ -1620,23 +1607,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         {/* Mobile Publish button - Only show if not published */}
         {propertyStatus !== 'ACTIVE' && !isPropertyPublished && (
           <Button
-              onClick={() => {
-                fetch(`/api/properties/${id}/publish`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' }
-                })
-                .then(response => response.json())
-                .then(result => {
-                  if (result.success) {
-                    alert('Propiedad publicada con éxito!')
-                    setPropertyStatus('ACTIVE')
-                    setIsPropertyPublished(true)
-                  }
-                })
-                .catch(error => {
-                  alert('Error al publicar la propiedad')
-                })
-              }}
+              onClick={() => setShowPublishConfirmModal(true)}
               size="sm"
               className="w-full bg-violet-600 hover:bg-violet-700 text-white"
             >
@@ -2314,6 +2285,118 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         propertyId={id}
         propertyName={propertyName}
       />
+
+      {/* Publish Confirmation Modal */}
+      <AnimatePresence>
+        {showPublishConfirmModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowPublishConfirmModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {(() => {
+                const zonesWithContent = zones.filter(zone => zone.stepsCount && zone.stepsCount > 0)
+                const isRecommendedToPublish = zonesWithContent.length >= 5
+                
+                return (
+                  <>
+                    <div className="text-center mb-6">
+                      <div className={`w-16 h-16 ${isRecommendedToPublish ? 'bg-green-100' : 'bg-orange-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                        {isRecommendedToPublish ? (
+                          <CheckCircle className="w-8 h-8 text-green-600" />
+                        ) : (
+                          <AlertTriangle className="w-8 h-8 text-orange-600" />
+                        )}
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        {isRecommendedToPublish ? '¡Listo para publicar!' : '¿Estás seguro de publicar?'}
+                      </h3>
+                      <p className="text-gray-600">
+                        {isRecommendedToPublish 
+                          ? 'Tu manual tiene suficiente contenido para ofrecer una excelente experiencia.'
+                          : 'Tu manual tiene pocas zonas completas. Te recomendamos añadir más contenido.'
+                        }
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                      <h4 className="font-semibold text-gray-900 mb-3">Estado de tu manual:</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600">Zonas creadas:</span>
+                          <span className="font-medium">{zones.length}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600">Zonas con contenido:</span>
+                          <span className={`font-medium ${zonesWithContent.length >= 5 ? 'text-green-600' : 'text-orange-600'}`}>
+                            {zonesWithContent.length}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600">Recomendado mínimo:</span>
+                          <span className="font-medium text-blue-600">5 zonas</span>
+                        </div>
+                      </div>
+                      
+                      {!isRecommendedToPublish && (
+                        <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                          <p className="text-sm text-orange-800">
+                            <strong>💡 Sugerencia:</strong> Añade más contenido a tus zonas para que tu manual sea más atractivo y útil para los huéspedes.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex gap-3">
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowPublishConfirmModal(false)}
+                        className="flex-1"
+                      >
+                        {isRecommendedToPublish ? 'Cancelar' : 'Continuar editando'}
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setShowPublishConfirmModal(false)
+                          // Perform the actual publish
+                          fetch(`/api/properties/${id}/publish`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                          })
+                          .then(response => response.json())
+                          .then(result => {
+                            if (result.success) {
+                              alert('Propiedad publicada con éxito!')
+                              setPropertyStatus('ACTIVE')
+                              setIsPropertyPublished(true)
+                            }
+                          })
+                          .catch(error => {
+                            alert('Error al publicar la propiedad')
+                          })
+                        }}
+                        className={`flex-1 ${isRecommendedToPublish ? 'bg-green-600 hover:bg-green-700' : 'bg-orange-600 hover:bg-orange-700'} text-white`}
+                      >
+                        <Globe className="w-4 h-4 mr-2" />
+                        {isRecommendedToPublish ? 'Publicar ahora' : 'Publicar de todas formas'}
+                      </Button>
+                    </div>
+                  </>
+                )
+              })()}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   )
