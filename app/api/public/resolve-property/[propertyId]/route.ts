@@ -4,16 +4,16 @@ import { createPropertySlug } from '../../../../../src/lib/slugs'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slugOrId: string }> }
+  { params }: { params: Promise<{ propertyId: string }> }
 ) {
   try {
-    const { slugOrId } = await params
-    console.log('🔍 Resolving property:', slugOrId)
+    const { propertyId } = await params
+    console.log('🔍 Resolving property:', propertyId)
     
     // First try direct ID lookup for published properties
     let property = await prisma.property.findFirst({
       where: {
-        id: slugOrId,
+        id: propertyId,
         isPublished: true
       },
       select: {
@@ -28,7 +28,7 @@ export async function GET(
     if (!property) {
       property = await prisma.property.findFirst({
         where: {
-          id: slugOrId
+          id: propertyId
         },
         select: {
           id: true,
@@ -79,7 +79,7 @@ export async function GET(
     // Find property with matching slug
     for (const prop of properties) {
       const propertySlug = createPropertySlug(prop)
-      if (propertySlug === slugOrId) {
+      if (propertySlug === propertyId) {
         console.log('🔍 Found by slug:', prop.id, 'slug:', propertySlug)
         return NextResponse.json({
           success: true,

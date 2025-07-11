@@ -7,30 +7,51 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+    console.log('🔍 Fetching public evaluations for property:', id)
+    
+    // Check if property exists first
+    const property = await prisma.property.findUnique({
+      where: { id },
+      select: { id: true, name: true }
+    })
+    
+    if (!property) {
+      console.log('❌ Property not found:', id)
+      return NextResponse.json({
+        success: false,
+        error: 'Propiedad no encontrada'
+      }, { status: 404 })
+    }
     
     // Get all approved public evaluations for this property
-    const evaluations = await prisma.review.findMany({
-      where: {
-        propertyId: id,
-        isPublic: true,
-        isApproved: true, // Only show approved evaluations
-        comment: {
-          not: null // Only include evaluations with comments for public display
-        }
-      },
-      include: {
-        zone: {
-          select: {
-            id: true,
-            name: true,
-            icon: true
+    let evaluations = []
+    try {
+      evaluations = await prisma.review.findMany({
+        where: {
+          propertyId: id,
+          isPublic: true,
+          isApproved: true, // Only show approved evaluations
+          comment: {
+            not: null // Only include evaluations with comments for public display
           }
+        },
+        include: {
+          zone: {
+            select: {
+              id: true,
+              name: true,
+              icon: true
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    })
+      })
+    } catch (reviewError) {
+      console.log('⚠️ Review table not found or accessible, returning empty evaluations')
+      evaluations = []
+    }
 
     // Calculate statistics for public evaluations only
     const stats = {
