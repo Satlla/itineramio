@@ -1391,6 +1391,18 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                       <Edit className="w-3 h-3 mr-1 text-gray-400" />
                       <span className="font-medium">{zone.stepsCount}</span>
                       <span className="ml-1">steps</span>
+                      {/* Completion Status Indicator */}
+                      {zone.stepsCount > 0 ? (
+                        <div className="ml-2 flex items-center">
+                          <CheckCircle className="w-3 h-3 text-green-500" />
+                          <span className="ml-1 text-xs text-green-600 font-medium">Completada</span>
+                        </div>
+                      ) : (
+                        <div className="ml-2 flex items-center">
+                          <AlertTriangle className="w-3 h-3 text-amber-500" />
+                          <span className="ml-1 text-xs text-amber-600 font-medium">Sin contenido</span>
+                        </div>
+                      )}
                     </div>
                     
                     <div className="flex items-center">
