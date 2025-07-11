@@ -117,6 +117,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   // Reviews modal state
   const [showReviewsModal, setShowReviewsModal] = useState(false)
   
+  // Published state
+  const [isPropertyPublished, setIsPropertyPublished] = useState(true)
+  
   const [isCreatingZone, setIsCreatingZone] = useState(false)
   const [isUpdatingZone, setIsUpdatingZone] = useState(false)
   const [isLoadingZones, setIsLoadingZones] = useState(true)
@@ -1564,47 +1567,50 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             Reseñas
           </Button>
           
-          {/* Publish button */}
-          {propertyStatus !== 'ACTIVE' && (
-            <Button
-              onClick={async () => {
-                try {
-                  const response = await fetch(`/api/properties/${id}/publish`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
+          {/* Publish button - Always show for now */}
+          <Button
+            onClick={async () => {
+              try {
+                console.log('🚀 Intentando publicar propiedad:', id)
+                const response = await fetch(`/api/properties/${id}/publish`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' }
+                })
+                const result = await response.json()
+                console.log('📊 Resultado:', result)
+                
+                if (result.success) {
+                  setPropertyStatus('ACTIVE')
+                  setIsPropertyPublished(true)
+                  addNotification({
+                    type: 'success',
+                    title: 'Propiedad publicada',
+                    message: 'Tu propiedad ya está disponible públicamente',
+                    read: false
                   })
-                  const result = await response.json()
-                  if (result.success) {
-                    setPropertyStatus('ACTIVE')
-                    addNotification({
-                      type: 'success',
-                      title: 'Propiedad publicada',
-                      message: 'Tu propiedad ya está disponible públicamente',
-                      read: false
-                    })
-                  } else {
-                    addNotification({
-                      type: 'error',
-                      title: 'Error al publicar',
-                      message: result.error || 'No se pudo publicar la propiedad',
-                      read: false
-                    })
-                  }
-                } catch (error) {
+                } else {
                   addNotification({
                     type: 'error',
                     title: 'Error al publicar',
-                    message: 'Error de conexión',
+                    message: result.error || 'No se pudo publicar la propiedad',
                     read: false
                   })
                 }
-              }}
-              className="bg-violet-600 hover:bg-violet-700 text-white"
-            >
-              <Globe className="w-5 h-5 mr-2" />
-              Publicar Propiedad
-            </Button>
-          )}
+              } catch (error) {
+                console.error('❌ Error al publicar:', error)
+                addNotification({
+                  type: 'error',
+                  title: 'Error al publicar',
+                  message: 'Error de conexión',
+                  read: false
+                })
+              }
+            }}
+            className="bg-violet-600 hover:bg-violet-700 text-white"
+          >
+            <Globe className="w-5 h-5 mr-2" />
+            Publicar Propiedad
+          </Button>
           
           {/* Vista Pública button */}
           <Button
@@ -1649,9 +1655,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </Button>
         </div>
         
-        {/* Mobile Publish button */}
-        {propertyStatus !== 'ACTIVE' && (
-          <Button
+        {/* Mobile Publish button - Always show for now */}
+        <Button
             onClick={async () => {
               try {
                 const response = await fetch(`/api/properties/${id}/publish`, {
@@ -1690,7 +1695,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             <Globe className="w-4 h-4 mr-1" />
             Publicar Propiedad
           </Button>
-        )}
       </div>
 
       {/* Stats Cards */}
