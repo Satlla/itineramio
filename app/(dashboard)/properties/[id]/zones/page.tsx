@@ -47,6 +47,7 @@ import { DeletePropertyModal } from '../../../../../src/components/ui/DeleteProp
 // ManualEjemploModal removed
 import { crearZonasEsenciales, borrarTodasLasZonas } from '../../../../../src/utils/crearZonasEsenciales'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
+import ReviewsModal from '../../../../../src/components/ui/ReviewsModal'
 // Removed unused imports
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
@@ -112,6 +113,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showZonasEsencialesModal, setShowZonasEsencialesModal] = useState(false)
   const [hasCreatedEssentialZones, setHasCreatedEssentialZones] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  
+  // Reviews modal state
+  const [showReviewsModal, setShowReviewsModal] = useState(false)
   
   const [isCreatingZone, setIsCreatingZone] = useState(false)
   const [isUpdatingZone, setIsUpdatingZone] = useState(false)
@@ -1552,7 +1556,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         <div className="hidden lg:flex space-x-3">
           {/* Reviews button */}
           <Button
-            onClick={() => router.push(`/properties/${id}/reviews`)}
+            onClick={() => setShowReviewsModal(true)}
             variant="outline"
             className="border-blue-500 text-blue-600 hover:bg-blue-50"
           >
@@ -1574,6 +1578,32 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </Button>
           
         </div>
+      </div>
+
+      {/* Mobile Action Buttons */}
+      <div className="lg:hidden flex gap-2 mb-4">
+        <Button
+          onClick={() => setShowReviewsModal(true)}
+          variant="outline"
+          size="sm"
+          className="flex-1 border-blue-500 text-blue-600 hover:bg-blue-50"
+        >
+          <Star className="w-4 h-4 mr-1" />
+          Reseñas
+        </Button>
+        
+        <Button
+          onClick={() => {
+            const publicUrl = `${window.location.origin}/guide/${id}`
+            window.open(publicUrl, '_blank')
+          }}
+          variant="outline"
+          size="sm"
+          className="flex-1 border-green-500 text-green-600 hover:bg-green-50"
+        >
+          <ExternalLink className="w-4 h-4 mr-1" />
+          Vista Pública
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -2236,6 +2266,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         createdDate={undefined} // TODO: Add property creation date
         isPublished={propertyStatus === 'ACTIVE'}
         isDeleting={isDeletingProperty}
+      />
+
+      <ReviewsModal
+        isOpen={showReviewsModal}
+        onClose={() => setShowReviewsModal(false)}
+        propertyId={id}
+        propertyName={propertyName}
       />
 
     </div>

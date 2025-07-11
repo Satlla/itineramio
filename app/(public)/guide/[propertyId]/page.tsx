@@ -1597,6 +1597,75 @@ export default function PropertyGuidePage() {
           </motion.div>
         </motion.div>
       )}
+
+      {/* Completion Reward Modal */}
+      {showCompletionReward && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white rounded-xl max-w-md w-full p-6"
+          >
+            <div className="text-center">
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-12 h-12 text-green-600" />
+              </div>
+              
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                ¡Felicidades! 🎉
+              </h3>
+              
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                Has completado todo el manual de {getText(property?.name, language, 'la propiedad')}. 
+                ¿Te gustaría ayudar a otros huéspedes compartiendo tu experiencia?
+              </p>
+
+              <div className="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <Star className="w-5 h-5 text-violet-600 mt-0.5" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-violet-800 mb-1">
+                      Tu evaluación será pública (opcional)
+                    </p>
+                    <p className="text-xs text-violet-600">
+                      Puedes incluir tu nombre para ayudar a futuros huéspedes a conocer mejor este alojamiento.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowCompletionReward(false)
+                    localStorage.setItem(`property-${propertyId}-public-rating`, 'true')
+                  }}
+                  className="flex-1"
+                >
+                  Ahora no
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowCompletionReward(false)
+                    setShowPublicRatingModal(true)
+                  }}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                >
+                  <Star className="w-4 h-4 mr-2" />
+                  Evaluar
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   )
 }
