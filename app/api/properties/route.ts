@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
         
         // Default values
         status: 'DRAFT',
-        isPublished: false,
+        isPublished: true,
         
         // Associate with authenticated user
         hostId: userId,
