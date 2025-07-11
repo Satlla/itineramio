@@ -78,9 +78,15 @@ export default function ReviewsModal({
       const response = await fetch(`/api/properties/${propertyId}/evaluations`)
       const result = await response.json()
       
-      if (result.success) {
-        setReviews(result.evaluations || [])
-        setStats(result.stats || null)
+      if (result.success && result.data) {
+        setReviews(result.data.evaluations || [])
+        setStats({
+          total: result.data.stats.totalEvaluations,
+          averageRating: result.data.stats.averageRating,
+          publicCount: result.data.stats.publicEvaluations,
+          zoneReviews: result.data.evaluations.filter((r: Review) => r.reviewType === 'zone').length,
+          propertyReviews: result.data.evaluations.filter((r: Review) => r.reviewType === 'property').length
+        })
       }
     } catch (error) {
       console.error('Error fetching reviews:', error)

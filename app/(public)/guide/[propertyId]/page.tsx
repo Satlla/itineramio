@@ -471,7 +471,7 @@ export default function PropertyGuidePage() {
 
   const scrollCarousel = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
-      const scrollAmount = 280 // Width of card + gap
+      const scrollAmount = 276 // Width of card (260px) + gap (16px)
       const newPosition = direction === 'left' 
         ? Math.max(0, carouselScrollPosition - scrollAmount)
         : carouselScrollPosition + scrollAmount
@@ -865,14 +865,14 @@ export default function PropertyGuidePage() {
             </div>
           ) : (
             <>
-              {/* Mobile Horizontal Scroll */}
+              {/* Mobile Horizontal Scroll - 2 Rows */}
               <div className="lg:hidden relative">
                 <div 
                   ref={carouselRef}
                   className="overflow-x-auto scrollbar-hide pb-4"
                   onScroll={(e) => setCarouselScrollPosition(e.currentTarget.scrollLeft)}
                 >
-                  <div className="flex space-x-4 px-1">
+                  <div className="grid grid-rows-2 grid-flow-col gap-4 px-1" style={{ gridAutoColumns: '260px' }}>
                     {property.zones
                       .sort((a, b) => a.order - b.order)
                       .map((zone, index) => (
@@ -880,22 +880,21 @@ export default function PropertyGuidePage() {
                           key={zone.id}
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.3, delay: index * 0.1 }}
-                          className="flex-shrink-0 w-64"
+                          transition={{ duration: 0.3, delay: index * 0.05 }}
                         >
                           <div 
-                            className="bg-gradient-to-br from-white to-violet-50 border border-violet-100 rounded-xl p-4 cursor-pointer hover:shadow-lg hover:border-violet-200 transition-all duration-200 h-32 flex flex-col justify-between"
+                            className="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-md hover:border-gray-300 transition-all duration-200 h-32 flex flex-col justify-between"
                             onClick={() => handleZoneClick(zone.id)}
                           >
                             <div className="flex items-start space-x-3 flex-1">
-                              <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
-                                {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5 text-violet-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-5 h-5 text-violet-600")}
+                              <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5 text-gray-700") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-5 h-5 text-gray-700")}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <h4 className="font-medium text-gray-900 truncate mb-1">
                                   {getText(zone.name, language, t('zone', language))}
                                 </h4>
-                                <p className="text-sm text-gray-500 line-clamp-2">
+                                <p className="text-sm text-gray-600 line-clamp-2">
                                   {getText(zone.description, language, '').substring(0, 60)}...
                                 </p>
                               </div>
@@ -947,11 +946,11 @@ export default function PropertyGuidePage() {
                       transition={{ duration: 0.3, delay: index * 0.1 }}
                     >
                       <div 
-                        className="flex items-start space-x-4 p-5 bg-gradient-to-r from-white to-violet-50 border border-violet-100 rounded-xl cursor-pointer hover:shadow-lg hover:border-violet-200 transition-all duration-200"
+                        className="flex items-start space-x-4 p-5 bg-white border border-gray-200 rounded-lg cursor-pointer hover:shadow-md hover:border-gray-300 transition-all duration-200"
                         onClick={() => handleZoneClick(zone.id)}
                       >
-                        <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
-                          {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5 text-violet-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-5 h-5 text-violet-600")}
+                        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                          {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5 text-gray-700") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-5 h-5 text-gray-700")}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-1">
@@ -977,83 +976,70 @@ export default function PropertyGuidePage() {
           )}
         </div>
 
-        {/* Guest Reviews Section */}
-        <div className="border-b border-gray-200 pb-8 mb-8">
-          <div className="flex items-center space-x-2 mb-6">
-            <Star className="w-5 h-5 text-violet-600 fill-current" />
-            <h3 className="text-xl font-semibold text-gray-900">
-              Comentarios de huéspedes
-            </h3>
-            <span className="px-3 py-1 bg-violet-100 text-violet-700 text-sm font-medium rounded-full">
-              4.9 · 12 valoraciones
-            </span>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"></div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-medium text-gray-900">María</span>
-                    <span className="text-gray-500 text-sm">· December 2024</span>
-                  </div>
-                  <p className="text-gray-700 text-sm">
-                    "El manual digital fue súper útil, todo muy bien explicado paso a paso. ¡Genial!"
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"></div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-medium text-gray-900">David</span>
-                    <span className="text-gray-500 text-sm">· November 2024</span>
-                  </div>
-                  <p className="text-gray-700 text-sm">
-                    "Amazing property guide! Made our check-in seamless and answered all our questions."
-                  </p>
-                </div>
-              </div>
+        {/* Public Evaluations Section - Show real evaluations */}
+        {publicEvaluations.length > 0 && (
+          <div className="border-b border-gray-200 pb-8 mb-8">
+            <div className="flex items-center space-x-2 mb-6">
+              <Star className="w-5 h-5 text-violet-600 fill-current" />
+              <h3 className="text-xl font-semibold text-gray-900">
+                Evaluaciones de huéspedes
+              </h3>
+              <span className="px-3 py-1 bg-violet-100 text-violet-700 text-sm font-medium rounded-full">
+                {evaluationsStats?.averageRating ? evaluationsStats.averageRating.toFixed(1) : '0.0'} · {publicEvaluations.length} {publicEvaluations.length === 1 ? 'evaluación' : 'evaluaciones'}
+              </span>
             </div>
             
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"></div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-medium text-gray-900">Sarah</span>
-                    <span className="text-gray-500 text-sm">· November 2024</span>
+            <div className="grid md:grid-cols-2 gap-6">
+              {publicEvaluations.slice(0, 4).map((evaluation) => (
+                <div key={evaluation.id} className="flex items-start space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                    <span className="text-gray-600 font-medium">
+                      {evaluation.userName.charAt(0).toUpperCase()}
+                    </span>
                   </div>
-                  <p className="text-gray-700 text-sm">
-                    "Love this digital approach! So much better than traditional check-in processes."
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"></div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-medium text-gray-900">Jean</span>
-                    <span className="text-gray-500 text-sm">· October 2024</span>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <span className="font-medium text-gray-900">{evaluation.userName}</span>
+                      <span className="text-gray-500 text-sm">
+                        · {new Date(evaluation.createdAt).toLocaleDateString('es-ES', { 
+                            month: 'long', 
+                            year: 'numeric' 
+                          })}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-1 mb-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star 
+                          key={star} 
+                          className={`w-3 h-3 ${
+                            star <= evaluation.rating 
+                              ? 'text-violet-600 fill-current' 
+                              : 'text-gray-300'
+                          }`} 
+                        />
+                      ))}
+                    </div>
+                    {evaluation.comment && (
+                      <p className="text-gray-700 text-sm">
+                        "{evaluation.comment}"
+                      </p>
+                    )}
                   </div>
-                  <p className="text-gray-700 text-sm">
-                    "Guide numérique très pratique ! J'ai pu tout comprendre facilement."
-                  </p>
                 </div>
-              </div>
+              ))}
             </div>
+            
+            {publicEvaluations.length > 4 && (
+              <Button 
+                variant="outline" 
+                className="mt-6 border-violet-200 text-violet-700 hover:bg-violet-50"
+                onClick={() => setShowRatingsModal(true)}
+              >
+                Ver todas las evaluaciones ({publicEvaluations.length})
+              </Button>
+            )}
           </div>
-          
-          <Button 
-            variant="outline" 
-            className="mt-6 border-violet-200 text-violet-700 hover:bg-violet-50"
-          >
-            Ver todas las valoraciones
-          </Button>
-        </div>
+        )}
 
         {/* Footer */}
         <div className="text-center py-8 border-t border-gray-200">
@@ -1182,7 +1168,7 @@ export default function PropertyGuidePage() {
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h3 className="text-xl font-semibold text-gray-900">
-                Valoraciones Públicas
+                Evaluaciones Públicas
               </h3>
               <button
                 onClick={() => setShowRatingsModal(false)}

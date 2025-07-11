@@ -341,27 +341,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 }
               })
               
-              // Add some demo notifications
-              if (transformedZones.length > 2) {
-                addNotification({
-                  type: 'error',
-                  title: `${propResult.data?.name || 'Propiedad'} - Error reportado`,
-                  message: `Un huésped reportó que el código WiFi no funciona en la zona "${getZoneText(transformedZones[0].name)}"`,
-                  propertyId: id,
-                  zoneId: transformedZones[0].id,
-                  read: false,
-                  actionUrl: `/properties/${id}/zones/${transformedZones[0].id}/steps`
-                })
-              }
-              
-              // Success notification
-              addNotification({
-                type: 'info',
-                title: `${propResult.data?.name || 'Propiedad'} - ¡Bienvenido!`,
-                message: 'Tu manual digital está listo. Revisa las notificaciones para optimizarlo',
-                propertyId: id,
-                read: false
-              })
+              // Remove demo notifications - only real notifications from now on
             }
           }, 1000)
         }
@@ -1564,7 +1544,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             className="border-blue-500 text-blue-600 hover:bg-blue-50"
           >
             <Star className="w-5 h-5 mr-2" />
-            Reseñas
+            Evaluaciones
           </Button>
           
           {/* Publish button - Only show if not published */}
@@ -1620,7 +1600,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             className="flex-1 border-blue-500 text-blue-600 hover:bg-blue-50"
           >
             <Star className="w-4 h-4 mr-1" />
-            Reseñas
+            Evaluaciones
           </Button>
           
           <Button
