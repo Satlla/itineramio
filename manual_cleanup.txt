@@ -1,0 +1,14 @@
+MANUAL CLEANUP REQUIRED:
+
+Execute these commands to fix the build error:
+
+rm -rf app/api/public/resolve-property/\[propertyId\]
+rm -f URGENT_DELETE_DIRECTORY.md
+rm -f temp_delete_me.txt
+rm -f remove_conflicting_route.sh
+rm -f manual_cleanup.txt
+
+Then test the build:
+npm run build
+
+The conflicting directory `app/api/public/resolve-property/[propertyId]/` must be deleted to resolve the Next.js dynamic route conflict with `[slugOrId]`.
