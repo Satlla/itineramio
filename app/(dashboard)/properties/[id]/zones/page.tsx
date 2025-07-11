@@ -1567,31 +1567,32 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             Reseñas
           </Button>
           
-          {/* Publish button - Simple version */}
-          <Button
-            onClick={() => {
-              alert('Botón clickeado! Publicando...')
-              fetch(`/api/properties/${id}/publish`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-              })
-              .then(response => response.json())
-              .then(result => {
-                alert('Resultado: ' + JSON.stringify(result))
-                if (result.success) {
-                  alert('¡Propiedad publicada! Ahora la URL debería funcionar.')
-                  window.location.reload()
-                }
-              })
-              .catch(error => {
-                alert('Error: ' + error.message)
-              })
-            }}
-            className="bg-violet-600 hover:bg-violet-700 text-white"
-          >
-            <Globe className="w-5 h-5 mr-2" />
-            Publicar Propiedad
-          </Button>
+          {/* Publish button - Only show if not published */}
+          {propertyStatus !== 'ACTIVE' && !isPropertyPublished && (
+            <Button
+              onClick={() => {
+                fetch(`/api/properties/${id}/publish`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(result => {
+                  if (result.success) {
+                    alert('Propiedad publicada con éxito!')
+                    setPropertyStatus('ACTIVE')
+                    setIsPropertyPublished(true)
+                  }
+                })
+                .catch(error => {
+                  alert('Error al publicar la propiedad')
+                })
+              }}
+              className="bg-violet-600 hover:bg-violet-700 text-white"
+            >
+              <Globe className="w-5 h-5 mr-2" />
+              Publicar Propiedad
+            </Button>
+          )}
           
           {/* Vista Pública button */}
           <Button
@@ -1636,32 +1637,33 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </Button>
         </div>
         
-        {/* Mobile Publish button - Simple version */}
-        <Button
-            onClick={() => {
-              alert('Botón móvil clickeado! Publicando...')
-              fetch(`/api/properties/${id}/publish`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-              })
-              .then(response => response.json())
-              .then(result => {
-                alert('Resultado: ' + JSON.stringify(result))
-                if (result.success) {
-                  alert('¡Propiedad publicada! Ahora la URL debería funcionar.')
-                  window.location.reload()
-                }
-              })
-              .catch(error => {
-                alert('Error: ' + error.message)
-              })
-            }}
-            size="sm"
-            className="w-full bg-violet-600 hover:bg-violet-700 text-white"
-          >
-            <Globe className="w-4 h-4 mr-1" />
-            Publicar Propiedad
-          </Button>
+        {/* Mobile Publish button - Only show if not published */}
+        {propertyStatus !== 'ACTIVE' && !isPropertyPublished && (
+          <Button
+              onClick={() => {
+                fetch(`/api/properties/${id}/publish`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(result => {
+                  if (result.success) {
+                    alert('Propiedad publicada con éxito!')
+                    setPropertyStatus('ACTIVE')
+                    setIsPropertyPublished(true)
+                  }
+                })
+                .catch(error => {
+                  alert('Error al publicar la propiedad')
+                })
+              }}
+              size="sm"
+              className="w-full bg-violet-600 hover:bg-violet-700 text-white"
+            >
+              <Globe className="w-4 h-4 mr-1" />
+              Publicar Propiedad
+            </Button>
+        )}
       </div>
 
       {/* Stats Cards */}

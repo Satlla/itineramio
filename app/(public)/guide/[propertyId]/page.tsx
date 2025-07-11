@@ -673,7 +673,7 @@ export default function PropertyGuidePage() {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Property Header - Airbnb Style */}
         <div className="mb-8">
           {/* Property Title and Rating */}
@@ -820,23 +820,22 @@ export default function PropertyGuidePage() {
                   </Button>
 
                   {/* Emergency Block */}
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                    <div className="flex items-center space-x-3 justify-center">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-3 justify-center mb-2">
                       <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
                         <Shield className="w-3 h-3 text-red-600" />
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium text-red-700">
-                          {t('emergencies247', language)}
-                        </span>
-                        <span className="text-red-400">·</span>
-                        <a 
-                          href={`tel:${property.hostContactPhone}`}
-                          className="text-sm text-red-600 hover:text-red-700 font-medium"
-                        >
-                          {property.hostContactPhone}
-                        </a>
-                      </div>
+                      <span className="text-sm font-medium text-red-700">
+                        {t('emergencies247', language)}
+                      </span>
+                    </div>
+                    <div className="text-center">
+                      <a 
+                        href={`tel:${property.hostContactPhone}`}
+                        className="text-sm text-red-600 hover:text-red-700 font-medium block"
+                      >
+                        {property.hostContactPhone}
+                      </a>
                     </div>
                   </div>
                 </Card>
@@ -1043,7 +1042,7 @@ export default function PropertyGuidePage() {
               </div>
 
               {/* Desktop Grid */}
-              <div className="hidden lg:grid grid-cols-2 gap-4">
+              <div className="hidden lg:grid grid-cols-3 gap-4">
                 {property.zones
                   .sort((a, b) => a.order - b.order)
                   .map((zone, index) => (
