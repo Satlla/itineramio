@@ -24,7 +24,7 @@ export async function GET(
     }
     
     // Get all approved public evaluations for this property
-    let evaluations = []
+    let evaluations: any[] = []
     try {
       evaluations = await prisma.review.findMany({
         where: {
