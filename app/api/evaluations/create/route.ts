@@ -111,11 +111,6 @@ export async function POST(request: NextRequest) {
       // Send notification to property owner about new evaluation
       await sendEvaluationNotification(newEvaluation, 'created')
 
-      // Send email notification for zone evaluations (they affect overall property rating)
-      if (reviewType === 'zone' && !newEvaluation.emailSent) {
-        await sendZoneEvaluationEmail(newEvaluation)
-      }
-
       return NextResponse.json({
         success: true,
         data: newEvaluation,
@@ -209,58 +204,3 @@ async function sendEvaluationEmail(evaluation: any, user: any) {
   }
 }
 
-// Helper function to send email notifications for zone evaluations
-async function sendZoneEvaluationEmail(evaluation: any) {
-  try {
-    if (!evaluation.property?.hostContactEmail || !evaluation.zone) {
-      return
-    }
-
-    // Get host information
-    const host = await prisma.property.findFirst({
-      where: { id: evaluation.propertyId },
-      select: {
-        hostContactName: true,
-        hostContactEmail: true,
-        name: true
-      }
-    })
-
-    if (!host?.hostContactEmail) {
-      return
-    }
-
-    // Send email notification
-    const emailData = {
-      to: host.hostContactEmail,
-      hostName: host.hostContactName || 'Anfitrión',
-      propertyName: host.name,
-      propertyId: evaluation.propertyId,
-      guestName: evaluation.userName,
-      guestEmail: evaluation.userEmail,
-      zoneName: evaluation.zone.name,
-      rating: evaluation.rating,
-      comment: evaluation.comment,
-      evaluationId: evaluation.id
-    }
-
-    const emailResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/emails/zone-evaluation-notification`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(emailData)
-    })
-
-    if (emailResponse.ok) {
-      // Mark email as sent
-      await prisma.review.update({
-        where: { id: evaluation.id },
-        data: { emailSent: true }
-      })
-    }
-
-    console.log(`✅ Zone evaluation email sent to: ${host.hostContactEmail}`)
-  } catch (error) {
-    console.error('Error sending zone evaluation email:', error)
-    // Don't throw the error, just log it so the main operation continues
-  }
-}

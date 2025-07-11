@@ -85,9 +85,17 @@ export async function POST(request: NextRequest) {
             </div>
           </div>
           
+          <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 6px; margin-top: 20px;">
+            <p style="margin: 0; font-size: 14px; color: #856404;">
+              ℹ️ <strong>Configuración de notificaciones:</strong> Puedes desactivar estos emails en cualquier momento desde 
+              <a href="${process.env.NEXTAUTH_URL}/settings/notifications" style="color: #6c63ff; text-decoration: underline;">
+                Configuración → Notificaciones
+              </a> en tu dashboard.
+            </p>
+          </div>
+          
           <div style="text-align: center; margin-top: 20px; color: #6c757d; font-size: 12px;">
             <p>Este email fue enviado por Itineramio</p>
-            <p>Puedes configurar tus preferencias de notificación en tu <a href="${process.env.NEXTAUTH_URL}/settings/notifications" style="color: #6c63ff;">panel de configuración</a></p>
           </div>
         </body>
       </html>
