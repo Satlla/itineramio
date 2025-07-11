@@ -6,7 +6,7 @@ import { Button } from './Button'
 import { MediaSelector } from './MediaSelector'
 import { useNotifications } from '../../hooks/useNotifications'
 import { uploadFileInChunks } from '../../utils/chunkedUpload'
-import { compressVideo, compressVideoUltra } from '../../utils/videoCompression'
+import { compressVideo, compressVideoUltra, compressVideoSimple } from '../../utils/videoCompression'
 
 interface VideoUploadProps {
   value?: string
