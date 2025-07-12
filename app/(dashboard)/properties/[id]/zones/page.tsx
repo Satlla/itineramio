@@ -371,7 +371,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         body: JSON.stringify({
           name: formData.name,
           description: formData.description || 'Nueva zona personalizada',
-          icon: formData.iconId,
+          icon: formData.iconId,           // API expects 'icon', we send formData.iconId
           color: 'bg-gray-100',
           status: 'ACTIVE'
         })
@@ -437,7 +437,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         body: JSON.stringify({
           name: formData.name,
           description: formData.description || '',
-          iconId: formData.iconId,
+          icon: formData.iconId,           // Fixed: API expects 'icon' not 'iconId'
           color: 'bg-gray-100',
           status: 'ACTIVE'
         })
@@ -669,8 +669,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name: { es: essentialZone.name, en: essentialZone.name },
-            description: { es: essentialZone.description, en: essentialZone.description },
+            name: essentialZone.name,           // Fixed: send as string like working method
+            description: essentialZone.description,  // Fixed: send as string like working method
             icon: essentialZone.icon,
             status: 'ACTIVE'
           })
