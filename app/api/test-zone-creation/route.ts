@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const propertyId = searchParams.get('propertyId') || 'cmd01rd660003jr047ahyxxqt'
@@ -23,7 +23,8 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Cookie': request.headers.get('Cookie') || ''
+        'Cookie': request.headers.get('Cookie') || '',
+        'Authorization': request.headers.get('Authorization') || ''
       },
       body: JSON.stringify(testZoneData)
     })

@@ -79,13 +79,23 @@ export async function POST(
   try {
     const propertyId = (await params).id
     const body = await request.json()
+    
+    console.log('🚀 Zone creation started for property:', propertyId)
+    console.log('🚀 Request headers:', {
+      cookie: request.headers.get('Cookie') ? 'Present' : 'Missing',
+      auth: request.headers.get('Authorization') ? 'Present' : 'Missing',
+      contentType: request.headers.get('Content-Type')
+    })
 
     // Check authentication
+    console.log('🔐 Checking authentication...')
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
+      console.log('❌ Authentication failed')
       return authResult
     }
     const userId = authResult.userId
+    console.log('✅ User authenticated:', userId)
 
     // Set JWT claims for RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
