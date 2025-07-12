@@ -187,9 +187,34 @@ export async function POST(
     // Ensure description is not empty (required by database)
     const finalDescription = description && description.trim() ? description.trim() : 'Descripción de la zona'
 
-    // Generate unique codes
-    const qrCode = `qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    const accessCode = `ac_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    // Generate truly unique codes
+    let qrCode: string
+    let accessCode: string
+    let attempts = 0
+    
+    do {
+      attempts++
+      const timestamp = Date.now()
+      const randomSuffix = Math.random().toString(36).substr(2, 12) + Math.random().toString(36).substr(2, 6)
+      qrCode = `qr_${timestamp}_${randomSuffix}_${attempts}`
+      accessCode = `ac_${timestamp}_${randomSuffix}_${attempts}_${Math.random().toString(36).substr(2, 4)}`
+      
+      // Check if codes already exist
+      const existingCodes = await prisma.zone.findFirst({
+        where: {
+          OR: [
+            { qrCode },
+            { accessCode }
+          ]
+        }
+      })
+      
+      if (!existingCodes) break
+      console.log(`⚠️ Code collision attempt ${attempts}, retrying...`)
+      
+    } while (attempts < 5)
+    
+    console.log('🔑 Generated unique codes:', { qrCode, accessCode, attempts })
 
     // Generate unique slug for the zone within this property (temporarily disabled)
     // const baseSlug = generateSlug(name.trim())
@@ -233,12 +258,30 @@ export async function POST(
     }, { status: 201 })
 
   } catch (error) {
-    console.error('Error creating zone:', error)
+    console.error('❌ Error creating zone:', error)
+    
+    // Check if it's a Prisma constraint error
+    if (error && typeof error === 'object' && 'code' in error) {
+      const prismaError = error as any
+      if (prismaError.code === 'P2002') {
+        console.error('❌ Unique constraint violation:', prismaError.meta)
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Error de restricción única en la base de datos',
+            details: `Constraint violation: ${prismaError.meta?.target?.join(', ') || 'unknown field'}`
+          },
+          { status: 400 }
+        )
+      }
+    }
+    
     return NextResponse.json(
       { 
         success: false, 
         error: 'Error al crear la zona',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        errorType: error && typeof error === 'object' && 'code' in error ? (error as any).code : 'unknown'
       },
       { status: 500 }
     )
