@@ -140,7 +140,6 @@ const translations = {
     contactWhatsApp: 'Contactar por WhatsApp',
     sendEmail: 'Enviar email',
     call: 'Llamar',
-    emergencies247: 'Emergencias 24/7',
     share: 'Compartir',
     progressWarningTitle: '¡Has visto solo el {progress}% del manual!',
     progressWarningDesc: 'Para tener una estancia sin dudas, te recomendamos revisar todas las secciones. Esto te ayudará a conocer todos los servicios y evitar inconvenientes durante tu viaje.',
@@ -191,7 +190,6 @@ const translations = {
     contactWhatsApp: 'Contact via WhatsApp',
     sendEmail: 'Send email',
     call: 'Call',
-    emergencies247: '24/7 Emergencies',
     share: 'Share',
     progressWarningTitle: 'You have only seen {progress}% of the manual!',
     progressWarningDesc: 'For a worry-free stay, we recommend reviewing all sections. This will help you know all the services and avoid inconveniences during your trip.',
@@ -242,7 +240,6 @@ const translations = {
     contactWhatsApp: 'Contacter via WhatsApp',
     sendEmail: 'Envoyer un email',
     call: 'Appeler',
-    emergencies247: 'Urgences 24h/24',
     share: 'Partager',
     progressWarningTitle: 'Vous n\'avez vu que {progress}% du manuel !',
     progressWarningDesc: 'Pour un séjour sans souci, nous recommandons de consulter toutes les sections. Cela vous aidera à connaître tous les services et à éviter les désagréments pendant votre voyage.',
@@ -728,25 +725,6 @@ export default function PropertyGuidePage() {
                     {t('contactWhatsApp', language)}
                   </Button>
 
-                  {/* Emergency Block */}
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <div className="flex items-center space-x-3 justify-center mb-2">
-                      <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Shield className="w-3 h-3 text-red-600" />
-                      </div>
-                      <span className="text-sm font-medium text-red-700">
-                        {t('emergencies247', language)}
-                      </span>
-                    </div>
-                    <div className="text-center">
-                      <a 
-                        href={`tel:${property.hostContactPhone}`}
-                        className="text-sm text-red-600 hover:text-red-700 font-medium block"
-                      >
-                        {property.hostContactPhone}
-                      </a>
-                    </div>
-                  </div>
                 </Card>
               </div>
             </div>

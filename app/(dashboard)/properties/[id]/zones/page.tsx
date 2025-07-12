@@ -241,6 +241,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setPropertyType(propResult.data.type || 'APARTMENT')
         setPropertyLocation(`${propResult.data.city}, ${propResult.data.state}`)
         setPropertyStatus(propResult.data.status || 'DRAFT')
+        setIsPropertyPublished(propResult.data.isPublished || false)
 
         // Fetch zones
         const zonesResponse = await fetch(`/api/properties/${id}/zones`)
@@ -1487,7 +1488,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   return (
     <div className="max-w-7xl mx-auto p-6">
       {/* Inactive Property Banner */}
-      {propertyStatus === 'DRAFT' && (
+      {(propertyStatus === 'DRAFT' || !isPropertyPublished) && (
         <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
@@ -1507,20 +1508,24 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             <Button
               onClick={async () => {
                 try {
-                  const response = await fetch(`/api/properties/${id}`, {
+                  const response = await fetch(`/api/properties/${id}/toggle`, {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'ACTIVE' })
+                    headers: { 'Content-Type': 'application/json' }
                   })
                   
-                  if (response.ok) {
+                  const result = await response.json()
+                  
+                  if (response.ok && result.success) {
                     setPropertyStatus('ACTIVE')
+                    setIsPropertyPublished(true)
                     addNotification({
                       type: 'info',
                       title: '✅ Propiedad Activada',
                       message: 'Tu propiedad ya está visible para los huéspedes',
                       read: false
                     })
+                  } else {
+                    throw new Error(result.error || 'Error al activar la propiedad')
                   }
                 } catch (error) {
                   console.error('Error activating property:', error)
