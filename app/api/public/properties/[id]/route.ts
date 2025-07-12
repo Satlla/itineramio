@@ -43,29 +43,8 @@ export async function GET(
     
     console.log('🔍 Published property found:', !!property)
     
-    // If no published property found, try to find any property (for preview purposes)
-    if (!property) {
-      console.log('🔄 No published property found, trying any property...')
-      property = await prisma.property.findFirst({
-        where: {
-          id: id // Any property with this ID
-        },
-        include: {
-          zones: {
-            include: {
-              steps: {
-                orderBy: {
-                  order: 'asc'
-                }
-              }
-            },
-            orderBy: {
-              order: 'asc'
-            }
-          }
-        }
-      })
-    }
+    // Only published properties should be accessible publicly
+    // Removed fallback search for unpublished properties
     
     if (property) {
       console.log('🔍 Property details:', { 
@@ -120,13 +99,13 @@ export async function GET(
     const result = {
       ...property,
       zones: processedZones,
-      isPreview: !property.isPublished // Flag to indicate if this is a preview
+      isPreview: false // Always false since we only return published properties
     }
     
     return NextResponse.json({
       success: true,
       data: result,
-      isPreview: !property.isPublished
+      isPreview: false
     })
   } catch (error) {
     console.error('Error fetching public property:', error)

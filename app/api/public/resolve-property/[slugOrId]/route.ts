@@ -10,11 +10,11 @@ export async function GET(
     const { slugOrId } = await params
     console.log('🔍 Resolving property:', slugOrId)
     
-    // First try direct ID lookup for published properties
+    // Only lookup published properties for public access
     let property = await prisma.property.findFirst({
       where: {
         id: slugOrId,
-        isPublished: true
+        isPublished: true  // ONLY published properties should be accessible publicly
       },
       select: {
         id: true,
@@ -23,21 +23,6 @@ export async function GET(
         isPublished: true
       }
     })
-    
-    // If not found in published, try any property
-    if (!property) {
-      property = await prisma.property.findFirst({
-        where: {
-          id: slugOrId
-        },
-        select: {
-          id: true,
-          name: true,
-          city: true,
-          isPublished: true
-        }
-      })
-    }
     
     if (property) {
       console.log('🔍 Found by ID:', property.id, 'published:', property.isPublished)
