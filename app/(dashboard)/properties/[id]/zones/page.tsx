@@ -770,11 +770,28 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           }
           createdZones.push(newZone)
         } else {
-          console.error(`Error creating zone "${getZoneText(element.name)}":`, result.error)
+          console.error(`Error creating zone "${getZoneText(element.name)}":`, result)
+          
+          // Debug the failed creation
+          try {
+            const debugResponse = await fetch('/api/debug-manual-zone-creation', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                propertyId: id,
+                zoneData: zoneData
+              })
+            })
+            const debugResult = await debugResponse.json()
+            console.log('🔍 Debug result for failed zone creation:', debugResult)
+          } catch (debugError) {
+            console.log('🔍 Debug endpoint failed:', debugError)
+          }
+          
           addNotification({
             type: 'error',
             title: 'Error al crear zona',
-            message: `No se pudo crear la zona "${getZoneText(element.name)}": ${result.error}`,
+            message: `No se pudo crear la zona "${getZoneText(element.name)}": ${result.error || 'Error desconocido'}`,
             read: false
           })
         }

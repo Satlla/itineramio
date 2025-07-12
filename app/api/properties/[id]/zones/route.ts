@@ -20,12 +20,23 @@ export async function GET(
 
     // Set JWT claims for RLS policies
     console.log('🔓 Setting RLS context for userId:', userId)
-    const rlsResult = await prisma.$queryRaw`SELECT set_config('app.current_user_id', ${userId}, true) as config_result`
-    console.log('🔓 RLS context set result:', rlsResult)
+    console.log('🔓 Property data:', { id: propertyForAuth?.id || 'Not found', hostId: propertyForAuth?.hostId || 'Not found' })
     
-    // Verify RLS context
-    const currentUserCheck = await prisma.$queryRaw`SELECT current_setting('app.current_user_id', true) as current_user`
-    console.log('🔓 Current RLS user:', currentUserCheck)
+    try {
+      const rlsResult = await prisma.$queryRaw`SELECT set_config('app.current_user_id', ${userId}, true) as config_result`
+      console.log('🔓 RLS context set result:', rlsResult)
+      
+      // Verify RLS context
+      const currentUserCheck = await prisma.$queryRaw`SELECT current_setting('app.current_user_id', true) as current_user`
+      console.log('🔓 Current RLS user:', currentUserCheck)
+    } catch (rlsError) {
+      console.error('🔓 RLS setup error:', rlsError)
+      return NextResponse.json({
+        success: false,
+        error: 'Error configuring security context',
+        details: rlsError instanceof Error ? rlsError.message : 'Unknown RLS error'
+      }, { status: 500 })
+    }
 
     // Verify user owns the property
     const property = await prisma.property.findFirst({
@@ -107,12 +118,23 @@ export async function POST(
 
     // Set JWT claims for RLS policies
     console.log('🔓 Setting RLS context for userId:', userId)
-    const rlsResult = await prisma.$queryRaw`SELECT set_config('app.current_user_id', ${userId}, true) as config_result`
-    console.log('🔓 RLS context set result:', rlsResult)
+    console.log('🔓 Property data:', { id: propertyForAuth?.id || 'Not found', hostId: propertyForAuth?.hostId || 'Not found' })
     
-    // Verify RLS context
-    const currentUserCheck = await prisma.$queryRaw`SELECT current_setting('app.current_user_id', true) as current_user`
-    console.log('🔓 Current RLS user:', currentUserCheck)
+    try {
+      const rlsResult = await prisma.$queryRaw`SELECT set_config('app.current_user_id', ${userId}, true) as config_result`
+      console.log('🔓 RLS context set result:', rlsResult)
+      
+      // Verify RLS context
+      const currentUserCheck = await prisma.$queryRaw`SELECT current_setting('app.current_user_id', true) as current_user`
+      console.log('🔓 Current RLS user:', currentUserCheck)
+    } catch (rlsError) {
+      console.error('🔓 RLS setup error:', rlsError)
+      return NextResponse.json({
+        success: false,
+        error: 'Error configuring security context',
+        details: rlsError instanceof Error ? rlsError.message : 'Unknown RLS error'
+      }, { status: 500 })
+    }
 
     // Log the received data for debugging
     console.log('🔍 Zone creation request:', JSON.stringify(body, null, 2))
@@ -227,6 +249,21 @@ export async function POST(
     } while (attempts < 5)
     
     console.log('🔑 Generated unique codes:', { qrCode, accessCode, attempts })
+
+    // Log final data before creation
+    const finalZoneData = {
+      propertyId,
+      name: { es: name.trim() },
+      description: { es: finalDescription },
+      icon: icon.trim(),
+      color: color || 'bg-gray-100',
+      order: zoneOrder,
+      status: status || 'ACTIVE',
+      isPublished: property.isPublished,
+      qrCode,
+      accessCode
+    }
+    console.log('🚀 Final zone data for creation:', JSON.stringify(finalZoneData, null, 2))
 
     // Generate unique slug for the zone within this property (temporarily disabled)
     // const baseSlug = generateSlug(name.trim())
