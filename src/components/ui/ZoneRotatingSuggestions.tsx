@@ -28,12 +28,28 @@ export function ZoneRotatingSuggestions({
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(0)
 
+  // Normalize zone names for comparison (remove spaces, hyphens, convert to lowercase)
+  const normalizeZoneName = (name: string) => {
+    return name.toLowerCase()
+      .replace(/[\s-_]+/g, '')
+      .replace(/[áàäâ]/g, 'a')
+      .replace(/[éèëê]/g, 'e')
+      .replace(/[íìïî]/g, 'i')
+      .replace(/[óòöô]/g, 'o')
+      .replace(/[úùüû]/g, 'u')
+      .replace(/ñ/g, 'n')
+  }
+
   // Filter out zones that already exist
-  const availableZones = zoneTemplates.filter(template => 
-    !existingZoneNames.some(existing => 
-      existing.toLowerCase() === template.name.toLowerCase()
-    )
-  )
+  const availableZones = zoneTemplates.filter(template => {
+    const templateNormalized = normalizeZoneName(template.name)
+    return !existingZoneNames.some(existing => {
+      const existingNormalized = normalizeZoneName(existing)
+      return existingNormalized === templateNormalized ||
+             existingNormalized.includes(templateNormalized) ||
+             templateNormalized.includes(existingNormalized)
+    })
+  })
 
   // Auto-rotate through zones
   useEffect(() => {

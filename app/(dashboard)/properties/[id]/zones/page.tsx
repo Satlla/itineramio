@@ -750,6 +750,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             lastUpdated: new Date().toISOString().split('T')[0]
           }
           createdZones.push(newZone)
+        } else {
+          console.error(`Error creating zone "${getZoneText(element.name)}":`, result.error)
+          addNotification({
+            type: 'error',
+            title: 'Error al crear zona',
+            message: `No se pudo crear la zona "${getZoneText(element.name)}": ${result.error}`,
+            read: false
+          })
         }
       }
 
@@ -769,15 +777,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     // Get essential zones that don't exist yet
     const existingZoneNames = zones.map(z => getZoneText(z.name).toLowerCase())
     const commonZones = [
-      { name: 'WiFi', iconId: 'wifi', description: 'Contraseña y conexión a internet' },
-      { name: 'Check-in', iconId: 'door', description: 'Proceso de entrada y llaves' },
-      { name: 'Check-out', iconId: 'exit', description: 'Proceso de salida' },
-      { name: 'Cómo llegar', iconId: 'map-pin', description: 'Indicaciones para llegar al alojamiento' },
-      { name: 'Información Básica', iconId: 'info', description: 'Información esencial del alojamiento' },
-      { name: 'Climatización', iconId: 'thermometer', description: 'Aire acondicionado y calefacción' },
-      { name: 'Aparcamiento', iconId: 'car', description: 'Dónde aparcar y cómo acceder' },
-      { name: 'Normas', iconId: 'list', description: 'Normas de la casa y convivencia' },
-      { name: 'Teléfonos de interés', iconId: 'phone', description: 'Emergencias y contactos útiles' }
+      { name: 'WiFi', icon: 'wifi', description: 'Contraseña y conexión a internet' },
+      { name: 'Check-in', icon: 'door', description: 'Proceso de entrada y llaves' },
+      { name: 'Check-out', icon: 'exit', description: 'Proceso de salida' },
+      { name: 'Cómo llegar', icon: 'map-pin', description: 'Indicaciones para llegar al alojamiento' },
+      { name: 'Información Básica', icon: 'info', description: 'Información esencial del alojamiento' },
+      { name: 'Climatización', icon: 'thermometer', description: 'Aire acondicionado y calefacción' },
+      { name: 'Aparcamiento', icon: 'car', description: 'Dónde aparcar y cómo acceder' },
+      { name: 'Normas', icon: 'list', description: 'Normas de la casa y convivencia' },
+      { name: 'Teléfonos de interés', icon: 'phone', description: 'Emergencias y contactos útiles' }
     ].filter(zone => !existingZoneNames.includes(zone.name.toLowerCase()))
 
     try {
@@ -792,7 +800,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           body: JSON.stringify({
             name: zoneData.name,
             description: zoneData.description,
-            icon: zoneData.iconId,
+            icon: zoneData.icon,
             color: 'bg-gray-100',
             status: 'ACTIVE'
           })
@@ -805,13 +813,21 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             id: result.data.id,
             name: zoneData.name,
             description: zoneData.description,
-            iconId: zoneData.iconId,
+            iconId: zoneData.icon,
             order: result.data.order,
             stepsCount: 0,
             qrUrl: `https://itineramio.com/guide/${id}/${result.data.id}`,
             lastUpdated: new Date().toISOString().split('T')[0]
           }
           createdZones.push(newZone)
+        } else {
+          console.error(`Error creating zone "${zoneData.name}":`, result.error)
+          addNotification({
+            type: 'error',
+            title: 'Error al crear zona',
+            message: `No se pudo crear la zona "${zoneData.name}": ${result.error}`,
+            read: false
+          })
         }
       }
 

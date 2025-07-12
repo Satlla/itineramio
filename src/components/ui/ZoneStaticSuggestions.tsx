@@ -24,22 +24,42 @@ export function ZoneStaticSuggestions({
 }: ZoneStaticSuggestionsProps) {
   const [showModal, setShowModal] = useState(false)
 
+  // Normalize zone names for comparison (remove spaces, hyphens, convert to lowercase)
+  const normalizeZoneName = (name: string) => {
+    return name.toLowerCase()
+      .replace(/[\s-_]+/g, '')
+      .replace(/[áàäâ]/g, 'a')
+      .replace(/[éèëê]/g, 'e')
+      .replace(/[íìïî]/g, 'i')
+      .replace(/[óòöô]/g, 'o')
+      .replace(/[úùüû]/g, 'u')
+      .replace(/ñ/g, 'n')
+  }
+
   // Filter out zones that already exist and get most popular ones
   const availableZones = zoneTemplates
-    .filter(template => 
-      !existingZoneNames.some(existing => 
-        existing.toLowerCase() === template.name.toLowerCase()
-      )
-    )
+    .filter(template => {
+      const templateNormalized = normalizeZoneName(template.name)
+      return !existingZoneNames.some(existing => {
+        const existingNormalized = normalizeZoneName(existing)
+        return existingNormalized === templateNormalized ||
+               existingNormalized.includes(templateNormalized) ||
+               templateNormalized.includes(existingNormalized)
+      })
+    })
     .sort((a, b) => b.popularity - a.popularity)
 
   // Check if all essential zones are completed
   const essentialZones = zoneTemplates.filter(z => z.category === 'essential')
-  const hasAllEssentialZones = essentialZones.every(essential =>
-    existingZoneNames.some(existing => 
-      existing.toLowerCase() === essential.name.toLowerCase()
-    )
-  )
+  const hasAllEssentialZones = essentialZones.every(essential => {
+    const essentialNormalized = normalizeZoneName(essential.name)
+    return existingZoneNames.some(existing => {
+      const existingNormalized = normalizeZoneName(existing)
+      return existingNormalized === essentialNormalized ||
+             existingNormalized.includes(essentialNormalized) ||
+             essentialNormalized.includes(existingNormalized)
+    })
+  })
 
   // If all essential zones are completed, show congratulations banner
   if (hasAllEssentialZones) {
