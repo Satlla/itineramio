@@ -19,7 +19,13 @@ export async function GET(
     const userId = authResult.userId
 
     // Set JWT claims for RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    console.log('🔓 Setting RLS context for userId:', userId)
+    const rlsResult = await prisma.$queryRaw`SELECT set_config('app.current_user_id', ${userId}, true) as config_result`
+    console.log('🔓 RLS context set result:', rlsResult)
+    
+    // Verify RLS context
+    const currentUserCheck = await prisma.$queryRaw`SELECT current_setting('app.current_user_id', true) as current_user`
+    console.log('🔓 Current RLS user:', currentUserCheck)
 
     // Verify user owns the property
     const property = await prisma.property.findFirst({
@@ -100,7 +106,13 @@ export async function POST(
     console.log('✅ Using userId:', userId)
 
     // Set JWT claims for RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    console.log('🔓 Setting RLS context for userId:', userId)
+    const rlsResult = await prisma.$queryRaw`SELECT set_config('app.current_user_id', ${userId}, true) as config_result`
+    console.log('🔓 RLS context set result:', rlsResult)
+    
+    // Verify RLS context
+    const currentUserCheck = await prisma.$queryRaw`SELECT current_setting('app.current_user_id', true) as current_user`
+    console.log('🔓 Current RLS user:', currentUserCheck)
 
     // Log the received data for debugging
     console.log('🔍 Zone creation request:', JSON.stringify(body, null, 2))
