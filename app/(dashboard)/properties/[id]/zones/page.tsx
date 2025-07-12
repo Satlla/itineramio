@@ -722,18 +722,37 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         const element = apartmentElements.find(e => e.id === elementId)
         if (!element) continue
 
+        // Debug the data being sent
+        const zoneData = {
+          name: getZoneText(element.name),
+          description: getZoneText(element.description),
+          icon: element.icon,
+          color: 'bg-gray-100',
+          status: 'ACTIVE'
+        }
+        
+        console.log('🔍 About to create zone with data:', zoneData)
+        console.log('🔍 Element data:', element)
+        
+        // First send to debug endpoint
+        try {
+          const debugResponse = await fetch('/api/debug-zone-creation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(zoneData)
+          })
+          const debugResult = await debugResponse.json()
+          console.log('🔍 Debug result:', debugResult)
+        } catch (debugError) {
+          console.log('🔍 Debug endpoint failed:', debugError)
+        }
+
         const response = await fetch(`/api/properties/${id}/zones`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            name: getZoneText(element.name),
-            description: getZoneText(element.description),
-            icon: element.icon,
-            color: 'bg-gray-100',
-            status: 'ACTIVE'
-          })
+          body: JSON.stringify(zoneData)
         })
 
         const result = await response.json()

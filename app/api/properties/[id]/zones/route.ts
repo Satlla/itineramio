@@ -90,11 +90,22 @@ export async function POST(
     // Set JWT claims for RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
 
+    // Log the received data for debugging
+    console.log('🔍 Zone creation request:', JSON.stringify(body, null, 2))
+    console.log('🔍 Field types:', {
+      name: typeof body.name,
+      description: typeof body.description,
+      icon: typeof body.icon,
+      color: typeof body.color,
+      status: typeof body.status
+    })
+
     // Validate required fields
     const { name, description, icon, color, order, status } = body
 
     if (!name || !icon) {
-      console.log('Validation failed - missing name or icon')
+      console.log('❌ Validation failed - missing name or icon')
+      console.log('❌ Received values:', { name, icon, description, color, status })
       return NextResponse.json(
         { 
           success: false, 
