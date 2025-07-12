@@ -117,7 +117,7 @@ export async function POST(
 
     // Set JWT claims for RLS policies
     console.log('🔓 Setting RLS context for userId:', userId)
-    console.log('🔓 Property data:', { id: propertyForAuth?.id || 'Not found', hostId: propertyForAuth?.hostId || 'Not found' })
+    console.log('🔓 Property data:', { propertyId, hostId: propertyForAuth?.hostId || 'Not found' })
     
     try {
       const rlsResult = await prisma.$queryRaw`SELECT set_config('app.current_user_id', ${userId}, true) as config_result`
