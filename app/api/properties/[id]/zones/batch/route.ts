@@ -69,6 +69,7 @@ export async function POST(
             color: zoneData.color,
             order: currentOrder++,
             status: zoneData.status,
+            isPublished: property.isPublished, // Inherit from parent property
             qrCode: `qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             accessCode: `ac_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
           }

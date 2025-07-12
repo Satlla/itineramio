@@ -46,6 +46,36 @@ export async function PATCH(
       }
     })
 
+    // También actualizar todas las zonas
+    await prisma.zone.updateMany({
+      where: {
+        propertyId: existingProperty.id
+      },
+      data: {
+        isPublished: newIsPublished
+      }
+    })
+    
+    // Obtener todos los IDs de zonas para actualizar sus steps
+    const zones = await prisma.zone.findMany({
+      where: { propertyId: existingProperty.id },
+      select: { id: true }
+    })
+    
+    const zoneIds = zones.map(z => z.id)
+    
+    // Actualizar todos los steps
+    if (zoneIds.length > 0) {
+      await prisma.step.updateMany({
+        where: {
+          zoneId: { in: zoneIds }
+        },
+        data: {
+          isPublished: newIsPublished
+        }
+      })
+    }
+
     return NextResponse.json({
       success: true,
       data: updatedProperty,

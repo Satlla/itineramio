@@ -322,8 +322,10 @@ const isZoneViewed = (zoneId: string) => {
 
 // Helper function to calculate progress
 const calculateProgress = (zones: Zone[]) => {
-  const viewedZones = zones.filter(zone => isZoneViewed(zone.id)).length
-  return zones.length > 0 ? Math.round((viewedZones / zones.length) * 100) : 0
+  // Only count zones with content (same filter as the display)
+  const publishedZones = zones.filter(zone => zone.stepsCount && zone.stepsCount > 0)
+  const viewedZones = publishedZones.filter(zone => isZoneViewed(zone.id)).length
+  return publishedZones.length > 0 ? Math.round((viewedZones / publishedZones.length) * 100) : 0
 }
 
 export default function PropertyGuidePage() {

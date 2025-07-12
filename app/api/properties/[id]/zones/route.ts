@@ -251,7 +251,7 @@ export async function POST(
         color: color || 'bg-gray-100',
         order: zoneOrder,
         status: status || 'ACTIVE',
-        isPublished: true,
+        isPublished: property.isPublished, // Inherit from parent property
         qrCode,
         accessCode
       },
