@@ -89,14 +89,14 @@ export async function POST(
 
     // TEMPORARY: Skip authentication completely for debugging
     console.log('🔐 Skipping authentication for debugging...')
-    const property = await prisma.property.findUnique({
+    const propertyForAuth = await prisma.property.findUnique({
       where: { id: propertyId },
       select: { hostId: true }
     })
-    if (!property) {
+    if (!propertyForAuth) {
       return NextResponse.json({ success: false, error: 'Propiedad no encontrada' }, { status: 404 })
     }
-    const userId = property.hostId
+    const userId = propertyForAuth.hostId
     console.log('✅ Using userId:', userId)
 
     // Set JWT claims for RLS policies
@@ -149,11 +149,10 @@ export async function POST(
       )
     }
 
-    // Check if property exists and user owns it
+    // Get property with zones (for debugging, skip ownership check)
     const property = await prisma.property.findFirst({
       where: { 
-        id: propertyId,
-        hostId: userId
+        id: propertyId
       },
       include: {
         zones: true
@@ -164,7 +163,7 @@ export async function POST(
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Propiedad no encontrada o no autorizada' 
+          error: 'Propiedad no encontrada' 
         },
         { status: 404 }
       )
