@@ -6,6 +6,17 @@ import { Bell, X, ArrowLeft, AlertTriangle, AlertCircle, Info, ExternalLink, Che
 import { Notification } from '../../types/notifications'
 import { Button } from './Button'
 
+// Helper function to safely get text from multilingual objects
+const getTextSafely = (value: any): string => {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value && typeof value === 'object') {
+    return value.es || value.en || value.fr || String(value)
+  }
+  return String(value || '')
+}
+
 interface NotificationCenterProps {
   isOpen: boolean
   onClose: () => void
@@ -155,7 +166,7 @@ export function NotificationCenter({
                             <div className="flex-1">
                               <div className="flex items-center justify-between mb-1">
                                 <h4 className="text-sm font-medium text-gray-900">
-                                  {notification.title}
+                                  {getTextSafely(notification.title)}
                                 </h4>
                                 <button
                                   onClick={(e) => {
@@ -168,7 +179,7 @@ export function NotificationCenter({
                                 </button>
                               </div>
                               <p className="text-sm text-gray-700 mb-2">
-                                {notification.message}
+                                {getTextSafely(notification.message)}
                               </p>
                               
                               {/* Evaluation-specific details */}
