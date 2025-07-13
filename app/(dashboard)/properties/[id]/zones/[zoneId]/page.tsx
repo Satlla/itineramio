@@ -148,8 +148,8 @@ export default function ZoneDetailPage() {
       }
       
       const zoneData = result.data || result
-      console.log('📊 Zone loaded:', zoneData.name, 'with', zoneData.steps?.length || 0, 'steps')
-      console.log('📊 RAW zone data:', zoneData)
+      const zoneName = typeof zoneData.name === 'string' ? zoneData.name : (zoneData.name as any)?.es || 'Zone'
+      console.log('📊 Zone loaded:', zoneName, 'with', zoneData.steps?.length || 0, 'steps')
       
       if (zoneData.steps) {
         console.log('📊 Steps data:', zoneData.steps.map((s: any) => ({ 
@@ -173,9 +173,7 @@ export default function ZoneDetailPage() {
         })
       }
       
-      console.log('📊 About to call setZone with:', zoneData)
       setZone(zoneData)
-      console.log('📊 setZone called')
     } catch (error) {
       console.error('❌ Error fetching zone:', error)
       // Don't navigate away, let user see the error

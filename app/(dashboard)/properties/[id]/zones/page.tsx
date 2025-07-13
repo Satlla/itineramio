@@ -1362,7 +1362,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           onClick={() => {
             // Debug logging
             console.log('🔍 Zone click debug:', {
-              zoneName: zone.name,
+              zoneName: typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zone',
               zoneSlug: zone.slug,
               propertySlug: propertySlug,
               hasSlug: !!(zone.slug && propertySlug)

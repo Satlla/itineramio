@@ -36,7 +36,7 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
 
   useEffect(() => {
     if (zone) {
-      console.log('🔧 Initializing modal with zone:', { name: zone.name, icon: zone.icon })
+      console.log('🔧 Initializing modal with zone:', { name: getZoneText(zone.name), icon: zone.icon })
       setFormData({
         name: getZoneText(zone.name),
         icon: zone.icon || ''

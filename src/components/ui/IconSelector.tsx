@@ -194,13 +194,6 @@ interface ZoneIconDisplayProps {
 }
 
 export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisplayProps) {
-  // Debug logging
-  console.log('🎨 ZoneIconDisplay rendering:', {
-    iconId,
-    size,
-    className
-  })
-  
   // Use new Airbnb-style icons first
   const AirbnbIcon = iconId && Object.prototype.hasOwnProperty.call(zoneIconMapping, iconId) 
     ? zoneIconMapping[iconId as keyof typeof zoneIconMapping] 
@@ -211,15 +204,6 @@ export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisp
   
   // Try extended icon system if we have an iconId
   const ExtendedIconComponent = iconId ? getExtendedZoneIcon(iconId) : null
-  
-  // Debug which icon system is being used
-  console.log('🎨 Icon resolution result:', {
-    iconId,
-    hasAirbnbIcon: !!AirbnbIcon,
-    hasMainIcon: !!icon,
-    hasExtendedIcon: !!ExtendedIconComponent,
-    mainIconName: icon?.name
-  })
   
   // If no icon found anywhere, show default
   if (!AirbnbIcon && !icon && !ExtendedIconComponent) {
