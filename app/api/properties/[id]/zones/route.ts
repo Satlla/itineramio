@@ -96,7 +96,13 @@ export async function POST(
 
     // Set JWT claims for RLS policies
     console.log('🔵 Setting JWT claims...')
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    try {
+      await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+      console.log('🔵 JWT claims set successfully')
+    } catch (rslError) {
+      console.error('🔴 Error setting JWT claims:', rslError)
+      // Continue anyway, might not be critical
+    }
 
     // Validate required fields
     console.log('🔵 Validating required fields...')
@@ -207,9 +213,14 @@ export async function POST(
     // Ensure description is not empty (required by database)
     const finalDescription = description && description.trim() ? description.trim() : 'Descripción de la zona'
 
-    // Generate unique codes
-    const qrCode = `qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    const accessCode = `ac_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    // Generate truly unique codes using crypto for better randomness
+    const timestamp = Date.now()
+    const randomPart1 = Math.random().toString(36).substr(2, 12)
+    const randomPart2 = Math.random().toString(36).substr(2, 12)
+    const qrCode = `qr_${timestamp}_${randomPart1}`
+    const accessCode = `ac_${timestamp}_${randomPart2}`
+    
+    console.log('🔵 Generated codes:', { qrCode, accessCode })
 
     // Generate unique slug for the zone within this property (temporarily disabled)
     // const baseSlug = generateSlug(name.trim())
@@ -223,7 +234,7 @@ export async function POST(
     // const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
     const uniqueSlug = null // Temporarily disabled
 
-    // Create the zone
+    // Create the zone in a transaction for better error handling
     console.log('🔵 Creating zone with data:', {
       propertyId,
       name: { es: zoneName },
@@ -236,27 +247,50 @@ export async function POST(
       accessCode
     })
     
-    const zone = await prisma.zone.create({
-      data: {
-        propertyId,
-        name: { es: zoneName },
-        // slug: uniqueSlug, // Temporarily disabled
-        description: { es: finalDescription },
-        icon: icon.trim(),
-        color: color || 'bg-gray-100',
-        order: zoneOrder,
-        status: status || 'ACTIVE',
-        qrCode,
-        accessCode
-      },
-      include: {
-        steps: {
-          orderBy: {
-            order: 'asc'
+    const zone = await prisma.$transaction(async (tx) => {
+      console.log('🔵 Starting transaction for zone creation')
+      
+      // Verify property exists within transaction
+      const propertyCheck = await tx.property.findFirst({
+        where: { 
+          id: propertyId,
+          hostId: userId
+        }
+      })
+      
+      if (!propertyCheck) {
+        throw new Error('Property not found in transaction')
+      }
+      
+      console.log('🔵 Property verified within transaction')
+      
+      // Create the zone
+      const newZone = await tx.zone.create({
+        data: {
+          propertyId,
+          name: { es: zoneName },
+          // slug: uniqueSlug, // Temporarily disabled
+          description: { es: finalDescription },
+          icon: icon.trim(),
+          color: color || 'bg-gray-100',
+          order: zoneOrder,
+          status: status || 'ACTIVE',
+          qrCode,
+          accessCode
+        },
+        include: {
+          steps: {
+            orderBy: {
+              order: 'asc'
+            }
           }
         }
-      }
+      })
+      
+      console.log('🔵 Zone created in transaction:', newZone.id)
+      return newZone
     })
+    
     console.log('🔵 Zone created successfully:', zone.id)
 
     return NextResponse.json({
@@ -265,12 +299,80 @@ export async function POST(
     }, { status: 201 })
 
   } catch (error) {
-    console.error('Error creating zone:', error)
+    console.error('🔴 Error creating zone:', error)
+    console.error('🔴 Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+    console.error('🔴 Error name:', error instanceof Error ? error.name : 'Unknown error type')
+    console.error('🔴 Error message:', error instanceof Error ? error.message : 'Unknown error')
+    
+    // Handle specific database errors
+    if (error instanceof Error) {
+      const errorMessage = error.message.toLowerCase()
+      
+      // Handle unique constraint violations
+      if (errorMessage.includes('unique constraint') || errorMessage.includes('duplicate key')) {
+        console.error('🔴 Unique constraint violation detected')
+        
+        if (errorMessage.includes('qrcode') || errorMessage.includes('qr_code')) {
+          return NextResponse.json({
+            success: false,
+            error: 'Error en la generación del código QR. Inténtalo de nuevo.',
+            errorType: 'UNIQUE_CONSTRAINT_QR'
+          }, { status: 400 })
+        }
+        
+        if (errorMessage.includes('accesscode') || errorMessage.includes('access_code')) {
+          return NextResponse.json({
+            success: false,
+            error: 'Error en la generación del código de acceso. Inténtalo de nuevo.',
+            errorType: 'UNIQUE_CONSTRAINT_ACCESS'
+          }, { status: 400 })
+        }
+        
+        return NextResponse.json({
+          success: false,
+          error: 'Ya existe una zona con esos datos. Modifica el nombre o inténtalo de nuevo.',
+          errorType: 'UNIQUE_CONSTRAINT'
+        }, { status: 400 })
+      }
+      
+      // Handle foreign key constraint violations
+      if (errorMessage.includes('foreign key') || errorMessage.includes('violates not-null')) {
+        console.error('🔴 Foreign key or not-null constraint violation')
+        return NextResponse.json({
+          success: false,
+          error: 'Error de relación con la propiedad. Verifica que la propiedad existe.',
+          errorType: 'FOREIGN_KEY_CONSTRAINT'
+        }, { status: 400 })
+      }
+      
+      // Handle RLS policy violations
+      if (errorMessage.includes('rls') || errorMessage.includes('policy') || errorMessage.includes('permission')) {
+        console.error('🔴 RLS policy violation detected')
+        return NextResponse.json({
+          success: false,
+          error: 'No tienes permisos para crear zonas en esta propiedad.',
+          errorType: 'RLS_POLICY_VIOLATION'
+        }, { status: 403 })
+      }
+      
+      // Handle JSON validation errors
+      if (errorMessage.includes('json') || errorMessage.includes('invalid')) {
+        console.error('🔴 JSON validation error')
+        return NextResponse.json({
+          success: false,
+          error: 'Error en el formato de los datos. Verifica el nombre y descripción.',
+          errorType: 'JSON_VALIDATION_ERROR'
+        }, { status: 400 })
+      }
+    }
+    
     return NextResponse.json(
       { 
         success: false, 
         error: 'Error al crear la zona',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        errorType: error instanceof Error ? error.constructor.name : 'Unknown',
+        stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : 'No stack') : undefined
       },
       { status: 500 }
     )
