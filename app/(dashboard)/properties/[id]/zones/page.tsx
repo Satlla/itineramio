@@ -586,8 +586,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setZones([...zones, newZone])
         setShowElementSelector(false)
         
-        // Navigate to the new zone
-        router.push(`/properties/${id}/zones/${result.data.zoneId}/steps`)
+        // Stay on zones page after creating zone
+        console.log('✅ Zone created successfully, staying on zones page')
       } else {
         console.error('Error applying template:', result.error)
       }
