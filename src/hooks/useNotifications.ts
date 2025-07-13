@@ -39,13 +39,10 @@ export function useNotifications() {
   }, [notifications])
 
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'createdAt'>) => {
-    const newNotification: Notification = {
-      ...notification,
-      id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      createdAt: new Date(),
-    }
-    
-    setNotifications(prev => [newNotification, ...prev])
+    // COMPLETELY DISABLED to fix React error #31
+    // All notification creation is temporarily disabled until object rendering issue is resolved
+    console.log('🚫 Notification creation disabled to prevent React error #31:', notification)
+    return
   }, [])
 
   const markAsRead = useCallback((id: string) => {
