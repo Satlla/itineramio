@@ -151,6 +151,7 @@ export function ImageUpload({
   }
 
   const uploadFile = async (file: File, skipDuplicateCheck = false) => {
+    console.log('🚀 ImageUpload: Starting upload for file:', file.name, 'variant:', variant)
     try {
       // Clean up previous blob URL if exists
       if (previewUrl && previewUrl.startsWith('blob:')) {
@@ -189,11 +190,14 @@ export function ImageUpload({
       
       if (result.success) {
         const imageUrl = result.url
+        console.log('✅ ImageUpload: Upload successful, URL:', imageUrl)
         
         // No need to save to media library separately - already done in upload endpoint
         setPreviewUrl(imageUrl)
         onChange(imageUrl)
+        console.log('✅ ImageUpload: onChange called with URL:', imageUrl)
       } else {
+        console.error('❌ ImageUpload: Upload failed:', result.error)
         throw new Error(result.error || 'Upload failed')
       }
     } catch (error) {
@@ -205,18 +209,23 @@ export function ImageUpload({
   }
 
   const handleFile = async (file: File) => {
+    console.log('📁 ImageUpload: handleFile called with:', file.name, file.type, file.size)
+    
     // Validate file size
     if (file.size > maxSize * 1024 * 1024) {
+      console.error('❌ ImageUpload: File too large:', file.size, 'max:', maxSize * 1024 * 1024)
       alert(`El archivo es demasiado grande. Máximo ${maxSize}MB.`)
       return
     }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
+      console.error('❌ ImageUpload: Invalid file type:', file.type)
       alert('Solo se permiten archivos de imagen.')
       return
     }
 
+    console.log('✅ ImageUpload: File validation passed, starting upload')
     setUploading(true)
     await uploadFile(file, false)
   }
@@ -305,12 +314,9 @@ export function ImageUpload({
                 e.currentTarget.style.display = 'none'
               }
             }}
-            onLoad={() => {
+            onLoad={(e) => {
               // Image loaded successfully, make sure it's visible
-              const img = document.querySelector('img[alt="Preview"]') as HTMLImageElement
-              if (img) {
-                img.style.display = 'block'
-              }
+              e.currentTarget.style.display = 'block'
             }}
           />
           
