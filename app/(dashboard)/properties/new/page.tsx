@@ -30,6 +30,14 @@ import { useFormPersistence } from '../../../../src/hooks/useFormPersistence'
 // PropertyType as string literal type
 type PropertyType = 'APARTMENT' | 'HOUSE' | 'ROOM' | 'VILLA'
 
+// Helper function to safely get error message
+const getErrorMessage = (error: any): string => {
+  if (!error?.message) return ''
+  if (typeof error.message === 'string') return error.message
+  if (typeof error.message === 'object' && error.message.es) return error.message.es
+  return String(error.message)
+}
+
 // Validation schema
 const createPropertySchema = z.object({
   name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').max(100, 'Máximo 100 caracteres'),
@@ -438,7 +446,7 @@ function NewPropertyPageContent() {
                       error={!!errors.name}
                     />
                     {errors.name && (
-                      <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.name)}</p>
                     )}
                   </div>
 
@@ -456,7 +464,7 @@ function NewPropertyPageContent() {
                       }`}
                     />
                     {errors.description && (
-                      <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
+                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.description)}</p>
                     )}
                   </div>
 
@@ -519,7 +527,7 @@ function NewPropertyPageContent() {
                         error={!!errors.bedrooms}
                       />
                       {errors.bedrooms && (
-                        <p className="mt-1 text-sm text-red-600">{errors.bedrooms.message}</p>
+                        <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.bedrooms)}</p>
                       )}
                     </div>
                   </div>
@@ -538,7 +546,7 @@ function NewPropertyPageContent() {
                         error={!!errors.bathrooms}
                       />
                       {errors.bathrooms && (
-                        <p className="mt-1 text-sm text-red-600">{errors.bathrooms.message}</p>
+                        <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.bathrooms)}</p>
                       )}
                     </div>
                   </div>
@@ -557,7 +565,7 @@ function NewPropertyPageContent() {
                         error={!!errors.maxGuests}
                       />
                       {errors.maxGuests && (
-                        <p className="mt-1 text-sm text-red-600">{errors.maxGuests.message}</p>
+                        <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.maxGuests)}</p>
                       )}
                     </div>
                   </div>
@@ -577,7 +585,7 @@ function NewPropertyPageContent() {
                         error={!!errors.squareMeters}
                       />
                       {errors.squareMeters && (
-                        <p className="mt-1 text-sm text-red-600">{errors.squareMeters.message}</p>
+                        <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.squareMeters)}</p>
                       )}
                     </div>
                   </div>
@@ -645,7 +653,7 @@ function NewPropertyPageContent() {
                       error={!!errors.street}
                     />
                     {errors.street && (
-                      <p className="mt-1 text-sm text-red-600">{errors.street.message}</p>
+                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.street)}</p>
                     )}
                     <p className="mt-1 text-xs text-gray-500">
                       Incluye calle, número, piso y puerta si corresponde
@@ -663,7 +671,7 @@ function NewPropertyPageContent() {
                       error={!!errors.city}
                     />
                     {errors.city && (
-                      <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
+                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.city)}</p>
                     )}
                   </div>
 
@@ -678,7 +686,7 @@ function NewPropertyPageContent() {
                       error={!!errors.state}
                     />
                     {errors.state && (
-                      <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
+                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.state)}</p>
                     )}
                   </div>
 
@@ -694,7 +702,7 @@ function NewPropertyPageContent() {
                       error={!!errors.postalCode}
                     />
                     {errors.postalCode && (
-                      <p className="mt-1 text-sm text-red-600">{errors.postalCode.message}</p>
+                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.postalCode)}</p>
                     )}
                   </div>
 
@@ -709,7 +717,7 @@ function NewPropertyPageContent() {
                       error={!!errors.country}
                     />
                     {errors.country && (
-                      <p className="mt-1 text-sm text-red-600">{errors.country.message}</p>
+                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.country)}</p>
                     )}
                   </div>
                 </div>
@@ -803,7 +811,7 @@ function NewPropertyPageContent() {
                       error={!!errors.hostContactName}
                     />
                     {errors.hostContactName && (
-                      <p className="mt-1 text-sm text-red-600">{errors.hostContactName.message}</p>
+                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.hostContactName)}</p>
                     )}
                   </div>
 
@@ -819,7 +827,7 @@ function NewPropertyPageContent() {
                       error={!!errors.hostContactPhone}
                     />
                     {errors.hostContactPhone && (
-                      <p className="mt-1 text-sm text-red-600">{errors.hostContactPhone.message}</p>
+                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.hostContactPhone)}</p>
                     )}
                     <p className="mt-1 text-xs text-gray-500">
                       Los huéspedes podrán contactarte via WhatsApp
@@ -839,7 +847,7 @@ function NewPropertyPageContent() {
                       error={!!errors.hostContactEmail}
                     />
                     {errors.hostContactEmail && (
-                      <p className="mt-1 text-sm text-red-600">{errors.hostContactEmail.message}</p>
+                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.hostContactEmail)}</p>
                     )}
                   </div>
 
