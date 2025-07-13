@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Upload, X, Video, CheckCircle, Loader2, AlertCircle } from 'lucide-react'
 import { Button } from './Button'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -47,6 +47,17 @@ export function VideoUploadSimple({
   
   const inputRef = useRef<HTMLInputElement>(null)
   const { addNotification } = useNotifications()
+
+  // Sync with value prop changes
+  useEffect(() => {
+    if (value !== previewUrl) {
+      console.log('🔄 VideoUpload: value prop changed from', previewUrl, 'to', value)
+      setPreviewUrl(value || null)
+      if (value) {
+        setUploadSuccess(true) // Mark as uploaded if we have a value
+      }
+    }
+  }, [value, previewUrl])
 
   const validateFile = (file: File): boolean => {
     // Check file type
@@ -217,9 +228,11 @@ export function VideoUploadSimple({
       return
     }
 
-    // Show preview immediately
+    // Show preview immediately (but only if we don't already have a real URL)
     const objectUrl = URL.createObjectURL(file)
-    setPreviewUrl(objectUrl)
+    if (!value || value.startsWith('blob:')) {
+      setPreviewUrl(objectUrl)
+    }
     
     let fileToUpload = file
     const sizeMB = file.size / (1024 * 1024)
@@ -262,10 +275,12 @@ export function VideoUploadSimple({
       
       // Success!
       setUploadSuccess(true)
+      
+      // Clean up blob URL and replace with actual URL
+      URL.revokeObjectURL(objectUrl)
       setPreviewUrl(videoUrl) // Replace blob URL with actual URL
       
-      // Clean up blob URL
-      URL.revokeObjectURL(objectUrl)
+      console.log('🎯 Video upload complete, calling onChange with:', videoUrl)
       
       // Notify parent
       onChange(videoUrl, metadata)
@@ -389,6 +404,14 @@ export function VideoUploadSimple({
             controls
             className="w-full max-h-64 rounded-lg bg-black"
             style={{ aspectRatio: '16/9' }}
+            onError={() => {
+              console.warn('❌ Video failed to load:', previewUrl)
+              if (previewUrl.startsWith('blob:')) {
+                console.warn('❌ Broken blob URL detected, clearing preview')
+                setPreviewUrl(null)
+                setVideoError('Video preview failed to load')
+              }
+            }}
           />
           
           <button

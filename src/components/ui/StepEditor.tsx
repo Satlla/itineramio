@@ -196,9 +196,12 @@ export function StepEditor({
   }
 
   const updateStep = (stepId: string, updates: Partial<Step>) => {
-    setSteps(steps.map(step => 
+    console.log('🔄 updateStep called:', stepId, updates)
+    const updatedSteps = steps.map(step => 
       step.id === stepId ? { ...step, ...updates } : step
-    ))
+    )
+    console.log('🔄 Updated steps:', updatedSteps)
+    setSteps(updatedSteps)
   }
 
   const updateStepContent = (stepId: string, language: 'es' | 'en' | 'fr', content: string) => {
@@ -368,6 +371,7 @@ export function StepEditor({
           <VideoUploadSimple
             value={step.media?.url}
             onChange={(url, metadata) => {
+              console.log('📹 Video onChange called:', { stepId: step.id, url, metadata })
               if (url) {
                 updateStep(step.id, {
                   media: {
@@ -421,6 +425,7 @@ export function StepEditor({
                 e.preventDefault()
                 console.log('💾 Desktop Save button clicked')
                 console.log('💾 Steps to save:', steps)
+                console.log('💾 Steps with media:', steps.filter(s => s.media?.url))
                 onSave(steps)
               }}
               className="bg-gray-900 hover:bg-gray-800 text-white"
@@ -810,6 +815,7 @@ export function StepEditor({
                             <VideoUploadSimple
                               value={steps[activeStep].media?.url}
                               onChange={(url, metadata) => {
+                                console.log('📹 Mobile Video onChange called:', { stepId: steps[activeStep].id, url, metadata })
                                 if (url) {
                                   updateStep(steps[activeStep].id, {
                                     media: {
