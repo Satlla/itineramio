@@ -774,8 +774,14 @@ function NewPropertyPageContent() {
                       Foto de perfil de contacto
                     </label>
                     <ImageUpload
-                      value={watchedValues.hostContactPhoto}
-                      onChange={(imageUrl) => setValue('hostContactPhoto', imageUrl || undefined)}
+                      value={(() => {
+                        console.log('🖼️ Host image value:', watchedValues.hostContactPhoto, typeof watchedValues.hostContactPhoto)
+                        return watchedValues.hostContactPhoto
+                      })()}
+                      onChange={(imageUrl) => {
+                        console.log('🖼️ Host image onChange called with:', imageUrl)
+                        setValue('hostContactPhoto', imageUrl || undefined)
+                      }}
                       placeholder="Subir foto de perfil"
                       variant="profile"
                       maxSize={5}
