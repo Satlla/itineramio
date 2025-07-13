@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Upload, X, Video, CheckCircle, Loader2, AlertCircle } from 'lucide-react'
 import { Button } from './Button'
-import { useNotifications } from '../../hooks/useNotifications'
 import { uploadFileInChunks } from '../../utils/chunkedUpload'
 import { compressVideoSimple } from '../../utils/videoCompression'
 
@@ -46,7 +45,6 @@ export function VideoUploadSimple({
   const [isCompressing, setIsCompressing] = useState(false)
   
   const inputRef = useRef<HTMLInputElement>(null)
-  const { addNotification } = useNotifications()
 
   // Sync with value prop changes
   useEffect(() => {
@@ -285,13 +283,8 @@ export function VideoUploadSimple({
       // Notify parent
       onChange(videoUrl, metadata)
       
-      // Show success notification
-      addNotification({
-        type: 'info',
-        title: '✅ Video subido',
-        message: 'El video se ha subido correctamente',
-        read: false
-      })
+      // Video uploaded successfully - log for debugging
+      console.log('✅ Video upload notification: Video subido correctamente')
       
     } catch (error) {
       console.error('❌ Upload failed:', error)
