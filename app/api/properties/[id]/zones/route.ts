@@ -77,24 +77,34 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    console.log('🔵 POST /api/properties/[id]/zones - Starting')
     const propertyId = (await params).id
+    console.log('🔵 Property ID:', propertyId)
+    
     const body = await request.json()
+    console.log('🔵 Request body:', JSON.stringify(body, null, 2))
 
     // Check authentication
+    console.log('🔵 Checking authentication...')
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
+      console.log('🔴 Authentication failed')
       return authResult
     }
     const userId = authResult.userId
+    console.log('🔵 User ID:', userId)
 
     // Set JWT claims for RLS policies
+    console.log('🔵 Setting JWT claims...')
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
 
     // Validate required fields
+    console.log('🔵 Validating required fields...')
     const { name, description, icon, color, order, status } = body
+    console.log('🔵 Extracted fields:', { name, description, icon, color, order, status })
 
     if (!name || !icon) {
-      console.log('Validation failed - missing name or icon')
+      console.log('🔴 Validation failed - missing name or icon')
       return NextResponse.json(
         { 
           success: false, 
@@ -144,6 +154,7 @@ export async function POST(
     }
 
     // Check if property exists and user owns it
+    console.log('🔵 Checking property ownership...')
     const property = await prisma.property.findFirst({
       where: { 
         id: propertyId,
@@ -153,6 +164,7 @@ export async function POST(
         zones: true
       }
     })
+    console.log('🔵 Property found:', !!property)
 
     if (!property) {
       return NextResponse.json(
@@ -212,6 +224,18 @@ export async function POST(
     const uniqueSlug = null // Temporarily disabled
 
     // Create the zone
+    console.log('🔵 Creating zone with data:', {
+      propertyId,
+      name: { es: zoneName },
+      description: { es: finalDescription },
+      icon: icon.trim(),
+      color: color || 'bg-gray-100',
+      order: zoneOrder,
+      status: status || 'ACTIVE',
+      qrCode,
+      accessCode
+    })
+    
     const zone = await prisma.zone.create({
       data: {
         propertyId,
@@ -233,6 +257,7 @@ export async function POST(
         }
       }
     })
+    console.log('🔵 Zone created successfully:', zone.id)
 
     return NextResponse.json({
       success: true,
