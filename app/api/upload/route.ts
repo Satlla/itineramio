@@ -5,7 +5,7 @@ import { createHash } from 'crypto'
 import { prisma } from '../../../src/lib/prisma'
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = 'itineramio-secret-key-2024'
+const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
 
 // Function to get media usage information
 async function getMediaUsage(mediaUrl: string) {

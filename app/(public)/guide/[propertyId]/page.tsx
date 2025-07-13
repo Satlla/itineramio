@@ -819,26 +819,7 @@ export default function PropertyGuidePage() {
                     {t('contactWhatsApp', language)}
                   </Button>
 
-                  {/* Emergency Block */}
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                    <div className="flex items-center space-x-3 justify-center">
-                      <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Shield className="w-3 h-3 text-red-600" />
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium text-red-700">
-                          {t('emergencies247', language)}
-                        </span>
-                        <span className="text-red-400">·</span>
-                        <a 
-                          href={`tel:${property.hostContactPhone}`}
-                          className="text-sm text-red-600 hover:text-red-700 font-medium"
-                        >
-                          {property.hostContactPhone}
-                        </a>
-                      </div>
-                    </div>
-                  </div>
+                  {/* Emergency Block - REMOVED */}
                 </Card>
               </div>
             </div>

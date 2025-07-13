@@ -167,17 +167,13 @@ export default function DashboardPage(): JSX.Element {
       const result = await response.json()
       
       if (response.ok && result.success) {
-        // Mix real evaluations with some sample activities for a richer feed
-        const mixedActivity = [
-          ...result.activity,
-          ...recentActivity.filter(a => a.type !== 'evaluation').slice(0, 5)
-        ].slice(0, 10)
-        setRecentActivity(mixedActivity)
+        // Just use the real evaluations from API
+        setRecentActivity(result.activity.slice(0, 10))
       }
     } catch (error) {
       console.error('Error fetching recent activity:', error)
     }
-  }, [recentActivity])
+  }, [])
 
   // Fetch analytics data
   const fetchAnalyticsData = useCallback(async () => {
