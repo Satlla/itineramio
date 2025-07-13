@@ -15,6 +15,9 @@ export interface Notification {
     hasComment?: boolean
     evaluationType?: 'zone' | 'property'
     userName?: string
+    propertyId?: string
+    zoneId?: string
+    type?: string
   }
 }
 

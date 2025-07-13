@@ -39,9 +39,8 @@ export function useNotifications() {
   }, [notifications])
 
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'createdAt'>) => {
-    // COMPLETELY DISABLED to fix React error #31
-    // All notification creation is temporarily disabled until object rendering issue is resolved
-    console.log('🚫 Notification creation disabled to prevent React error #31:', notification)
+    // EMERGENCY DISABLED - React error #31 persists even with safety measures
+    console.log('🚫 Notifications completely disabled to prevent React error #31:', notification)
     return
   }, [])
 
@@ -58,11 +57,10 @@ export function useNotifications() {
   }, [])
 
   const generateZoneWarnings = useCallback((propertyId: string, zones: any[], propertyName?: string) => {
-    // TEMPORARILY DISABLED to fix React error #31
-    // This function was causing objects with {es} keys to be rendered as React children
-    console.log('⚠️ Zone warnings generation temporarily disabled to prevent React error #31')
+    // EMERGENCY DISABLED - React error #31 persists
+    console.log('🚫 Zone warnings completely disabled to prevent React error #31')
     return
-  }, [notifications, addNotification])
+  }, [addNotification])
 
   const unreadCount = notifications.filter(n => !n.read).length
 

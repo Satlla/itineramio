@@ -5,6 +5,17 @@ import { createHash } from 'crypto'
 import { prisma } from '../../../src/lib/prisma'
 import jwt from 'jsonwebtoken'
 
+// Helper function to safely extract text from multilingual objects
+function getTextSafely(value: any, fallback: string = '') {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (value && typeof value === 'object') {
+    return value.es || value.en || value.fr || fallback
+  }
+  return fallback
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
 
 // Function to get media usage information
@@ -34,9 +45,9 @@ async function getMediaUsage(mediaUrl: string) {
 
     return steps.map(step => ({
       propertyId: step.zones.property?.id || '',
-      propertyName: step.zones.property?.name || 'Propiedad',
+      propertyName: getTextSafely(step.zones.property?.name, 'Propiedad'),
       zoneId: step.zones.id,
-      zoneName: step.zones.name,
+      zoneName: getTextSafely(step.zones.name, 'Zona'),
       stepId: step.id
     }))
   } catch (error) {
