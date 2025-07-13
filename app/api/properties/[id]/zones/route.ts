@@ -104,12 +104,29 @@ export async function POST(
       )
     }
 
-    if (typeof name !== 'string' || name.trim().length === 0) {
-      console.log('Validation failed - invalid name')
+    // Normalize name - accept both string and translation object
+    let zoneName: string
+    if (typeof name === 'string') {
+      zoneName = name.trim()
+    } else if (name && typeof name === 'object' && (name.es || name.en || name.fr)) {
+      zoneName = name.es || name.en || name.fr || ''
+    } else {
+      console.log('Validation failed - invalid name type')
       return NextResponse.json(
         { 
           success: false, 
-          error: 'El nombre debe ser una cadena de texto válida' 
+          error: 'El nombre debe ser una cadena de texto válida o un objeto de traducción' 
+        },
+        { status: 400 }
+      )
+    }
+
+    if (zoneName.length === 0) {
+      console.log('Validation failed - empty name')
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'El nombre no puede estar vacío' 
         },
         { status: 400 }
       )
@@ -149,15 +166,15 @@ export async function POST(
 
     // Check if zone with same name already exists
     const existingZone = property.zones.find(zone => {
-      const zoneName = typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || ''
-      return zoneName.toLowerCase() === name.toLowerCase()
+      const existingZoneName = typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || ''
+      return existingZoneName.toLowerCase() === zoneName.toLowerCase()
     })
 
     if (existingZone) {
       return NextResponse.json(
         { 
           success: false, 
-          error: `Ya existe una zona llamada "${name}" en esta propiedad` 
+          error: `Ya existe una zona llamada "${zoneName}" en esta propiedad` 
         },
         { status: 400 }
       )
@@ -198,7 +215,7 @@ export async function POST(
     const zone = await prisma.zone.create({
       data: {
         propertyId,
-        name: { es: name.trim() },
+        name: { es: zoneName },
         // slug: uniqueSlug, // Temporarily disabled
         description: { es: finalDescription },
         icon: icon.trim(),
