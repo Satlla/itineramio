@@ -727,8 +727,9 @@ function PropertiesPageContent() {
         console.log('Setting properties:', result.data.length, 'properties found')
         setProperties(result.data)
         
-        // Generate notifications asynchronously without blocking UI - only for first batch
-        generatePropertyNotificationsAsync(result.data.slice(0, 10)) // Only process first 10 for notifications to avoid overload
+        // EMERGENCY DISABLED - Background notification generation causes performance issues
+        // generatePropertyNotificationsAsync(result.data.slice(0, 10)) // Only process first 10 for notifications to avoid overload
+        console.log('🚫 Background notification generation disabled to improve performance')
       } else {
         throw new Error('Respuesta del API inválida')
       }

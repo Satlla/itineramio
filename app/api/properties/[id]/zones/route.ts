@@ -222,17 +222,21 @@ export async function POST(
     
     console.log('🔵 Generated codes:', { qrCode, accessCode })
 
-    // Generate unique slug for the zone within this property (temporarily disabled)
-    // const baseSlug = generateSlug(name.trim())
-    // const existingSlugs = await prisma.zone.findMany({
-    //   where: { 
-    //     propertyId,
-    //     slug: { not: null }
-    //   },
-    //   select: { slug: true }
-    // }).then(results => results.map(r => r.slug).filter(Boolean) as string[])
-    // const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
-    const uniqueSlug = null // Temporarily disabled
+    // Generate unique slug for the zone within this property
+    const baseSlug = generateSlug(zoneName)
+    console.log('🔵 Generated base slug:', baseSlug)
+    
+    const existingSlugs = await prisma.zone.findMany({
+      where: { 
+        propertyId,
+        slug: { not: null }
+      },
+      select: { slug: true }
+    }).then(results => results.map(r => r.slug).filter(Boolean) as string[])
+    
+    console.log('🔵 Existing slugs:', existingSlugs)
+    const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
+    console.log('🔵 Generated unique slug:', uniqueSlug)
 
     // Create the zone in a transaction for better error handling
     console.log('🔵 Creating zone with data:', {
@@ -269,7 +273,7 @@ export async function POST(
         data: {
           propertyId,
           name: { es: zoneName },
-          // slug: uniqueSlug, // Temporarily disabled
+          slug: uniqueSlug,
           description: { es: finalDescription },
           icon: icon.trim(),
           color: color || 'bg-gray-100',
