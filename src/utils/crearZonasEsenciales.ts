@@ -90,6 +90,30 @@ export async function crearZonasEsenciales(propertyId: string): Promise<boolean>
         continue
       }
       
+      // First try debug endpoint
+      const debugResponse = await fetch(`/api/properties/${propertyId}/zones/debug`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: zona.name,
+          description: zona.description,
+          icon: zona.icon,
+          order: zona.order,
+          status: 'ACTIVE',
+          isPublished: true
+        })
+      })
+      
+      if (debugResponse.ok) {
+        const debugData = await debugResponse.json()
+        console.log(`🔍 Debug for zone "${zona.name}":`, debugData)
+        
+        if (!debugData.success) {
+          console.error(`❌ Debug errors for "${zona.name}":`, debugData.errors)
+        }
+      }
+      
+      // Now try actual creation
       const response = await fetch(`/api/properties/${propertyId}/zones`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,7 +128,16 @@ export async function crearZonasEsenciales(propertyId: string): Promise<boolean>
       })
 
       if (!response.ok) {
-        console.error('Error creando zona:', await response.text())
+        const errorText = await response.text()
+        console.error(`❌ Error creando zona "${zona.name}":`, response.status, errorText)
+        
+        // Try to parse as JSON for more details
+        try {
+          const errorData = JSON.parse(errorText)
+          console.error('Error details:', errorData)
+        } catch (e) {
+          // Not JSON, just log the text
+        }
         continue
       }
 

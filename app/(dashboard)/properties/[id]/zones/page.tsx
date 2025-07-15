@@ -46,6 +46,7 @@ import { WelcomeTemplatesModal } from '../../../../../src/components/ui/WelcomeT
 import { DeletePropertyModal } from '../../../../../src/components/ui/DeletePropertyModal'
 // ManualEjemploModal removed
 import { crearZonasEsenciales, borrarTodasLasZonas } from '../../../../../src/utils/crearZonasEsenciales'
+import { ZoneCreationDebug } from '../../../../../src/components/debug/ZoneCreationDebug'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
 // Removed unused imports
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
@@ -2237,6 +2238,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         isPublished={propertyStatus === 'ACTIVE'}
         isDeleting={isDeletingProperty}
       />
+
+      {/* Temporary debug component */}
+      <ZoneCreationDebug propertyId={id} />
 
     </div>
   )

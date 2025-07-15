@@ -223,20 +223,29 @@ export async function POST(
     console.log('🔵 Generated codes:', { qrCode, accessCode })
 
     // Generate unique slug for the zone within this property
-    const baseSlug = generateSlug(zoneName)
-    console.log('🔵 Generated base slug:', baseSlug)
-    
-    const existingSlugs = await prisma.zone.findMany({
-      where: { 
-        propertyId,
-        slug: { not: null }
-      },
-      select: { slug: true }
-    }).then(results => results.map(r => r.slug).filter(Boolean) as string[])
-    
-    console.log('🔵 Existing slugs:', existingSlugs)
-    const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
-    console.log('🔵 Generated unique slug:', uniqueSlug)
+    let uniqueSlug: string
+    try {
+      console.log('🔵 Generating slug for zone name:', zoneName)
+      const baseSlug = generateSlug(zoneName)
+      console.log('🔵 Generated base slug:', baseSlug)
+      
+      const existingSlugs = await prisma.zone.findMany({
+        where: { 
+          propertyId,
+          slug: { not: null }
+        },
+        select: { slug: true }
+      }).then(results => results.map(r => r.slug).filter(Boolean) as string[])
+      
+      console.log('🔵 Existing slugs:', existingSlugs)
+      uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
+      console.log('🔵 Generated unique slug:', uniqueSlug)
+    } catch (slugError) {
+      console.error('🔴 Error generating slug:', slugError)
+      // Fallback to a simple slug
+      uniqueSlug = `zone-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      console.log('🔵 Using fallback slug:', uniqueSlug)
+    }
 
     // Create the zone in a transaction for better error handling
     console.log('🔵 Creating zone with data:', {
