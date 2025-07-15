@@ -35,11 +35,12 @@ export function ZoneCreationDebug({ propertyId }: { propertyId: string }) {
       setResults(prev => [...prev, { test: 'Debug endpoint', status: test2.status, result: test2Result }])
       
       // Test 3: Try the real endpoint
+      const timestamp = Date.now()
       const test3 = await fetch(`/api/properties/${propertyId}/zones`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: 'Real Test Zone',
+          name: `Real Test Zone ${timestamp}`,
           description: 'Real test',
           icon: 'key',
           order: 2,
