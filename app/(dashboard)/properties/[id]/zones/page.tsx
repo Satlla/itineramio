@@ -1520,13 +1520,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           className={`hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300 h-full ${
             isDragging ? 'shadow-xl ring-2 ring-violet-400 z-50' : ''
           }`}
-          onClick={() => {
-            // Use slug if available, fallback to ID
-            if (zone.slug && propertySlug) {
-              router.push(`/properties/${propertySlug}/${zone.slug}`)
-            } else {
-              router.push(`/properties/${id}/zones/${zone.id}`)
-            }
+          onClick={async () => {
+            // En móvil, ir directamente al editor de pasos
+            setEditingZoneForSteps(zone)
+            await loadZoneSteps(zone.id)
+            setShowStepEditor(true)
           }}
         >
           <CardContent className="p-3">
@@ -1556,17 +1554,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     </DropdownMenu.Trigger>
                     <DropdownMenu.Portal>
                       <DropdownMenu.Content className="w-48 bg-white rounded-md border shadow-lg p-1 z-50">
-                        <DropdownMenu.Item
-                          className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                          onSelect={async () => {
-                            setEditingZoneForSteps(zone)
-                            await loadZoneSteps(zone.id)
-                            setShowStepEditor(true)
-                          }}
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Editar
-                        </DropdownMenu.Item>
                         <DropdownMenu.Item
                           className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                           onSelect={() => handleEditZone(zone)}
@@ -1697,90 +1684,89 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             Gestiona las diferentes zonas y sus códigos QR para facilitar la experiencia de tus huéspedes
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          {/* Mobile buttons */}
-          <div className="flex gap-2 sm:hidden">
-            <Button
-              onClick={() => router.push(`/properties/${id}/reviews`)}
-              variant="outline"
-              className="border-blue-500 text-blue-600 hover:bg-blue-50 flex-1"
-            >
-              <Star className="w-4 h-4 mr-1" />
-              Reseñas
-            </Button>
-            
-            <Button
-              onClick={() => {
-                const publicUrl = `${window.location.origin}/guide/${id}`
-                window.open(publicUrl, '_blank')
-              }}
-              variant="outline"
-              className="border-green-500 text-green-600 hover:bg-green-50 flex-1"
-            >
-              <ExternalLink className="w-4 h-4 mr-1" />
-              Vista Pública
-            </Button>
-          </div>
-          
+        <div className="hidden lg:flex space-x-3">
           {/* Desktop buttons */}
-          <div className="hidden sm:flex space-x-3">
-            <Button
-              onClick={() => router.push(`/properties/${id}/reviews`)}
-              variant="outline"
-              className="border-blue-500 text-blue-600 hover:bg-blue-50"
-            >
-              <Star className="w-5 h-5 mr-2" />
-              Reseñas
-            </Button>
-            
-            <Button
-              onClick={() => {
-                const publicUrl = `${window.location.origin}/guide/${id}`
-                window.open(publicUrl, '_blank')
-              }}
-              variant="outline"
-              className="border-green-500 text-green-600 hover:bg-green-50 flex items-center"
-            >
-              <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
-              <span className="hidden sm:inline">Vista Pública</span>
-            </Button>
-          </div>
+          <Button
+            onClick={() => router.push(`/properties/${id}/reviews`)}
+            variant="outline"
+            className="border-blue-500 text-blue-600 hover:bg-blue-50"
+          >
+            <Star className="w-5 h-5 mr-2" />
+            Reseñas
+          </Button>
+          
+          <Button
+            onClick={() => {
+              const publicUrl = `${window.location.origin}/guide/${id}`
+              window.open(publicUrl, '_blank')
+            }}
+            variant="outline"
+            className="border-green-500 text-green-600 hover:bg-green-50 flex items-center"
+          >
+            <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
+            <span className="hidden sm:inline">Vista Pública</span>
+          </Button>
         </div>
       </div>
 
+      {/* Mobile buttons - below text */}
+      <div className="lg:hidden flex flex-col gap-2 mb-6">
+        <Button
+          onClick={() => router.push(`/properties/${id}/reviews`)}
+          variant="outline"
+          className="border-blue-500 text-blue-600 hover:bg-blue-50 w-full"
+        >
+          <Star className="w-4 h-4 mr-2" />
+          Reseñas
+        </Button>
+        
+        <Button
+          onClick={() => {
+            const publicUrl = `${window.location.origin}/guide/${id}`
+            window.open(publicUrl, '_blank')
+          }}
+          variant="outline"
+          className="border-green-500 text-green-600 hover:bg-green-50 w-full"
+        >
+          <ExternalLink className="w-4 h-4 mr-2" />
+          Vista Pública
+        </Button>
+      </div>
+      </div>
+
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 md:p-6">
             <div className="flex items-center">
-              <MapPin className="h-8 w-8 text-violet-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Zonas</p>
-                <p className="text-2xl font-bold text-gray-900">{zones.length}</p>
+              <MapPin className="h-6 w-6 md:h-8 md:w-8 text-violet-600" />
+              <div className="ml-2 md:ml-4">
+                <p className="text-xs md:text-sm font-medium text-gray-600">Total Zonas</p>
+                <p className="text-lg md:text-2xl font-bold text-gray-900">{zones.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 md:p-6">
             <div className="flex items-center">
-              <QrCode className="h-8 w-8 text-blue-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">QR Codes</p>
-                <p className="text-2xl font-bold text-gray-900">{zones.length}</p>
+              <QrCode className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
+              <div className="ml-2 md:ml-4">
+                <p className="text-xs md:text-sm font-medium text-gray-600">QR Codes</p>
+                <p className="text-lg md:text-2xl font-bold text-gray-900">{zones.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 md:p-6">
             <div className="flex items-center">
-              <Edit className="h-8 w-8 text-green-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Steps</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <Edit className="h-6 w-6 md:h-8 md:w-8 text-green-600" />
+              <div className="ml-2 md:ml-4">
+                <p className="text-xs md:text-sm font-medium text-gray-600">Total Steps</p>
+                <p className="text-lg md:text-2xl font-bold text-gray-900">
                   {zones.reduce((acc, zone) => acc + zone.stepsCount, 0)}
                 </p>
               </div>
@@ -1789,14 +1775,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 md:p-6">
             <div className="flex items-center">
-              <div className="h-8 w-8 bg-orange-100 rounded-full flex items-center justify-center">
-                <div className="h-4 w-4 bg-orange-600 rounded-full"></div>
+              <div className="h-6 w-6 md:h-8 md:w-8 bg-orange-100 rounded-full flex items-center justify-center">
+                <div className="h-3 w-3 md:h-4 md:w-4 bg-orange-600 rounded-full"></div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Última Act.</p>
-                <p className="text-lg font-semibold text-gray-900">Hoy</p>
+              <div className="ml-2 md:ml-4">
+                <p className="text-xs md:text-sm font-medium text-gray-600">Última Act.</p>
+                <p className="text-sm md:text-lg font-semibold text-gray-900">Hoy</p>
               </div>
             </div>
           </CardContent>
@@ -1871,10 +1857,26 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     ))}
                   </div>
                   
-                  <div className="lg:hidden grid grid-cols-2 gap-3">
-                    {zones.map((zone) => (
-                      <SortableZoneItemMobile key={zone.id} zone={zone} />
-                    ))}
+                  <div className="lg:hidden">
+                    {/* Mobile: 2 rows with 2 columns each = 4 zones visible at once */}
+                    <div className="grid grid-cols-2 grid-rows-2 gap-3 h-80">
+                      {zones.slice(0, 4).map((zone) => (
+                        <SortableZoneItemMobile key={zone.id} zone={zone} />
+                      ))}
+                    </div>
+                    
+                    {/* If more than 4 zones, show them in additional 2x2 grids */}
+                    {zones.length > 4 && (
+                      <div className="mt-6 space-y-6">
+                        {Array.from({ length: Math.ceil((zones.length - 4) / 4) }, (_, index) => (
+                          <div key={index} className="grid grid-cols-2 grid-rows-2 gap-3 h-80">
+                            {zones.slice(4 + index * 4, 8 + index * 4).map((zone) => (
+                              <SortableZoneItemMobile key={zone.id} zone={zone} />
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </SortableContext>
               </DndContext>
