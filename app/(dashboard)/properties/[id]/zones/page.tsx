@@ -1732,7 +1732,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           Vista Pública
         </Button>
       </div>
-      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
