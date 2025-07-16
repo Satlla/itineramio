@@ -723,6 +723,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   const handleSelectMultipleElements = async (selectedElementIds: string[]) => {
+    console.log('🎯 handleSelectMultipleElements called with:', selectedElementIds)
+    console.log('🎯 Number of elements selected:', selectedElementIds.length)
+    
+    if (selectedElementIds.length === 0) {
+      console.warn('⚠️ No elements selected')
+      setShowElementSelector(false)
+      return
+    }
+    
     setIsCreatingZone(true)
     try {
       const { apartmentElements } = await import('../../../../../src/data/apartmentElements')
@@ -2239,8 +2248,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         isDeleting={isDeletingProperty}
       />
 
-      {/* Temporary debug component */}
-      <ZoneCreationDebug propertyId={id} />
 
     </div>
   )
