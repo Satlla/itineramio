@@ -1491,6 +1491,140 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     )
   }
 
+  // Mobile Zone Item Component for 2x2 grid
+  function SortableZoneItemMobile({ zone }: { zone: Zone }) {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: zone.id })
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    }
+
+    return (
+      <motion.div
+        ref={setNodeRef}
+        style={style}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: isDragging ? 0.5 : 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        transition={{ duration: 0.2 }}
+      >
+        <Card 
+          className={`hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300 h-full ${
+            isDragging ? 'shadow-xl ring-2 ring-violet-400 z-50' : ''
+          }`}
+          onClick={() => {
+            // Use slug if available, fallback to ID
+            if (zone.slug && propertySlug) {
+              router.push(`/properties/${propertySlug}/${zone.slug}`)
+            } else {
+              router.push(`/properties/${id}/zones/${zone.id}`)
+            }
+          }}
+        >
+          <CardContent className="p-3">
+            <div className="flex flex-col h-full">
+              {/* Header with drag handle and menu */}
+              <div className="flex items-center justify-between mb-3">
+                <div
+                  {...attributes}
+                  {...listeners}
+                  className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <GripVertical className="w-3 h-3 text-gray-400" />
+                </div>
+                
+                <div className="flex items-center ml-2" onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MoreVertical className="h-3 w-3" />
+                      </Button>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Portal>
+                      <DropdownMenu.Content className="w-48 bg-white rounded-md border shadow-lg p-1 z-50">
+                        <DropdownMenu.Item
+                          className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                          onSelect={async () => {
+                            setEditingZoneForSteps(zone)
+                            await loadZoneSteps(zone.id)
+                            setShowStepEditor(true)
+                          }}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Editar
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item
+                          className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                          onSelect={() => handleEditZone(zone)}
+                        >
+                          <FileText className="h-4 w-4 mr-2" />
+                          Configurar
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item
+                          className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                          onSelect={() => handleCopyURL(zone)}
+                        >
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copiar URL
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item
+                          className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                          onSelect={() => handleShowQR(zone)}
+                        >
+                          <QrCode className="h-4 w-4 mr-2" />
+                          Ver Código QR
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Separator className="my-1 h-px bg-gray-200" />
+                        <DropdownMenu.Item
+                          className="flex items-center px-3 py-2 text-sm hover:bg-red-100 text-red-600 rounded cursor-pointer"
+                          onSelect={() => handleDeleteZone(zone)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Eliminar
+                        </DropdownMenu.Item>
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Portal>
+                  </DropdownMenu.Root>
+                </div>
+              </div>
+
+              {/* Zone content */}
+              <div className="flex flex-col items-center text-center flex-1">
+                <div className="mb-2">
+                  <ZoneIconDisplay iconId={zone.iconId} size="lg" />
+                </div>
+                
+                <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2">
+                  {getZoneText(zone.name)}
+                </h3>
+                
+                <div className="flex items-center justify-center text-xs text-gray-600 mt-auto">
+                  <Edit className="w-3 h-3 mr-1 text-gray-400" />
+                  <span className="font-medium">{zone.stepsCount}</span>
+                  <span className="ml-1">steps</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    )
+  }
+
   // Show loading spinner when loading zones
   if (isLoadingZones) {
     return <AnimatedLoadingSpinner text="Cargando zonas..." type="zones" />
@@ -1563,30 +1697,54 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             Gestiona las diferentes zonas y sus códigos QR para facilitar la experiencia de tus huéspedes
           </p>
         </div>
-        <div className="hidden lg:flex space-x-3">
-          {/* Reviews button */}
-          <Button
-            onClick={() => router.push(`/properties/${id}/reviews`)}
-            variant="outline"
-            className="border-blue-500 text-blue-600 hover:bg-blue-50"
-          >
-            <Star className="w-5 h-5 mr-2" />
-            Reseñas
-          </Button>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          {/* Mobile buttons */}
+          <div className="flex gap-2 sm:hidden">
+            <Button
+              onClick={() => router.push(`/properties/${id}/reviews`)}
+              variant="outline"
+              className="border-blue-500 text-blue-600 hover:bg-blue-50 flex-1"
+            >
+              <Star className="w-4 h-4 mr-1" />
+              Reseñas
+            </Button>
+            
+            <Button
+              onClick={() => {
+                const publicUrl = `${window.location.origin}/guide/${id}`
+                window.open(publicUrl, '_blank')
+              }}
+              variant="outline"
+              className="border-green-500 text-green-600 hover:bg-green-50 flex-1"
+            >
+              <ExternalLink className="w-4 h-4 mr-1" />
+              Vista Pública
+            </Button>
+          </div>
           
-          {/* Vista Pública button */}
-          <Button
-            onClick={() => {
-              const publicUrl = `${window.location.origin}/guide/${id}`
-              window.open(publicUrl, '_blank')
-            }}
-            variant="outline"
-            className="border-green-500 text-green-600 hover:bg-green-50"
-          >
-            <ExternalLink className="w-5 h-5 mr-2" />
-            Vista Pública
-          </Button>
-          
+          {/* Desktop buttons */}
+          <div className="hidden sm:flex space-x-3">
+            <Button
+              onClick={() => router.push(`/properties/${id}/reviews`)}
+              variant="outline"
+              className="border-blue-500 text-blue-600 hover:bg-blue-50"
+            >
+              <Star className="w-5 h-5 mr-2" />
+              Reseñas
+            </Button>
+            
+            <Button
+              onClick={() => {
+                const publicUrl = `${window.location.origin}/guide/${id}`
+                window.open(publicUrl, '_blank')
+              }}
+              variant="outline"
+              className="border-green-500 text-green-600 hover:bg-green-50 flex items-center"
+            >
+              <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
+              <span className="hidden sm:inline">Vista Pública</span>
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -1706,9 +1864,18 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   items={zones.map(zone => zone.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {zones.map((zone) => (
-                    <SortableZoneItem key={zone.id} zone={zone} />
-                  ))}
+                  {/* Desktop: vertical list, Mobile: 2x2 grid */}
+                  <div className="hidden lg:block space-y-4">
+                    {zones.map((zone) => (
+                      <SortableZoneItem key={zone.id} zone={zone} />
+                    ))}
+                  </div>
+                  
+                  <div className="lg:hidden grid grid-cols-2 gap-3">
+                    {zones.map((zone) => (
+                      <SortableZoneItemMobile key={zone.id} zone={zone} />
+                    ))}
+                  </div>
                 </SortableContext>
               </DndContext>
             )}

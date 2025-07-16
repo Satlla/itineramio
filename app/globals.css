@@ -2,6 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile-first responsive styles */
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Prevent horizontal scroll on mobile */
+.antialiased {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Fix for mobile viewport */
+@media (max-width: 768px) {
+  html, body {
+    font-size: 16px; /* Prevent zoom on input focus */
+  }
+  
+  * {
+    max-width: 100vw;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -115,5 +145,13 @@
   
   .gradient-hero {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  /* Line clamp utility */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 }

@@ -42,18 +42,18 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+        <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Logo */}
             <motion.div
               className="flex items-center space-x-2"
               whileHover={{ scale: 1.05 }}
             >
-              <Link href="/main" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-white" />
+              <Link href="/main" className="flex items-center space-x-1 sm:space-x-2">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent hidden xs:block">
                   Itineramio
                 </span>
               </Link>
@@ -92,7 +92,7 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
             </div>
 
             {/* Right Side - User Profile & Menu */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {/* User Avatar */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
@@ -102,7 +102,7 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
               >
                 <Link 
                   href="/account"
-                  className="block w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                  className="block w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
                 >
                   {user?.avatar ? (
                     <img 
@@ -111,16 +111,16 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
                       className="w-full h-full rounded-full object-cover"
                     />
                   ) : (
-                    <User className="w-5 h-5" />
+                    <User className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </Link>
                 {unreadCount > 0 && (
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center border-2 border-white shadow-lg"
+                    className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full flex items-center justify-center border-2 border-white shadow-lg"
                   >
-                    <span className="text-white text-xs font-bold">
+                    <span className="text-white text-[10px] sm:text-xs font-bold">
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                   </motion.div>
@@ -130,7 +130,7 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
               {/* Menu Button */}
               <motion.button
                 onClick={() => setIsMenuOpen(true)}
-                className="p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors shadow-sm border border-gray-200"
+                className="p-1.5 sm:p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors shadow-sm border border-gray-200"
                 whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
