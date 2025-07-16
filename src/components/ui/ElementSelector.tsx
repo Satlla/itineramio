@@ -51,17 +51,26 @@ export function ElementSelector({
   })
 
   const handleToggleElement = (elementId: string) => {
-    setSelectedElements(prev => 
-      prev.includes(elementId) 
+    console.log('🔄 Toggling element:', elementId)
+    setSelectedElements(prev => {
+      const newSelection = prev.includes(elementId) 
         ? prev.filter(id => id !== elementId)
         : [...prev, elementId]
-    )
+      console.log('📋 New selection:', newSelection)
+      return newSelection
+    })
   }
 
   const handleAddElements = () => {
+    console.log('🎯 ElementSelector handleAddElements called')
+    console.log('🎯 Selected elements:', selectedElements)
+    
     if (selectedElements.length > 0) {
+      console.log('🚀 Calling onSelectElements with:', selectedElements)
       onSelectElements(selectedElements)
       onClose()
+    } else {
+      console.warn('⚠️ No elements selected in ElementSelector')
     }
   }
 
