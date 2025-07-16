@@ -79,6 +79,7 @@ export async function POST(
     const body = await request.json()
     
     console.log('🔴 INDIVIDUAL ZONE CREATION -> REDIRECTING TO BATCH API')
+    console.log('🔴 Original body:', JSON.stringify(body, null, 2))
     
     // Forward auth headers
     const headers: Record<string, string> = {
@@ -88,35 +89,51 @@ export async function POST(
     const authHeader = request.headers.get('authorization')
     if (authHeader) {
       headers['Authorization'] = authHeader
+      console.log('🔴 Auth header present:', !!authHeader)
     }
     
     const cookie = request.headers.get('cookie')
     if (cookie) {
       headers['Cookie'] = cookie
+      console.log('🔴 Cookie present:', !!cookie)
     }
+    
+    const batchPayload = {
+      zones: [{
+        name: body.name,
+        description: body.description || 'Descripción de la zona',
+        icon: body.icon,
+        color: body.color || 'bg-gray-100',
+        status: body.status || 'ACTIVE'
+      }]
+    }
+    
+    console.log('🔴 Batch payload:', JSON.stringify(batchPayload, null, 2))
     
     // Redirect to batch API
     const batchResponse = await fetch(`${request.nextUrl.origin}/api/properties/${propertyId}/zones/batch`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({
-        zones: [{
-          name: body.name,
-          description: body.description || 'Descripción de la zona',
-          icon: body.icon,
-          color: body.color || 'bg-gray-100',
-          status: body.status || 'ACTIVE'
-        }]
-      })
+      body: JSON.stringify(batchPayload)
     })
     
     if (!batchResponse.ok) {
       const errorText = await batchResponse.text()
-      console.error('🔴 Batch redirect failed:', errorText)
+      console.error('🔴 Batch redirect failed with status:', batchResponse.status)
+      console.error('🔴 Batch error details:', errorText)
+      
+      let errorDetails
+      try {
+        errorDetails = JSON.parse(errorText)
+      } catch {
+        errorDetails = { text: errorText }
+      }
+      
       return NextResponse.json({
         success: false,
-        error: 'Error al crear la zona via batch',
-        details: errorText
+        error: `Error al crear la zona via batch (${batchResponse.status})`,
+        details: errorDetails,
+        batchStatus: batchResponse.status
       }, { status: batchResponse.status })
     }
     
