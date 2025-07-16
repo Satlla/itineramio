@@ -953,73 +953,41 @@ export default function PropertyGuidePage() {
             </div>
           ) : (
             <>
-              {/* Mobile Horizontal Scroll */}
-              <div className="lg:hidden relative">
-                <div 
-                  ref={carouselRef}
-                  className="overflow-x-auto scrollbar-hide pb-4"
-                  onScroll={(e) => setCarouselScrollPosition(e.currentTarget.scrollLeft)}
-                >
-                  <div className="flex space-x-4 px-1">
-                    {property.zones
-                      .sort((a, b) => a.order - b.order)
-                      .map((zone, index) => (
-                        <motion.div
-                          key={zone.id}
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.3, delay: index * 0.1 }}
-                          className="flex-shrink-0 w-64"
+              {/* Mobile 2 Rows Grid */}
+              <div className="lg:hidden">
+                <div className="grid grid-cols-2 gap-3">
+                  {property.zones
+                    .sort((a, b) => a.order - b.order)
+                    .map((zone, index) => (
+                      <motion.div
+                        key={zone.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                      >
+                        <div 
+                          className="bg-gradient-to-br from-white to-violet-50 border border-violet-100 rounded-xl p-3 cursor-pointer hover:shadow-lg hover:border-violet-200 transition-all duration-200 h-28 flex flex-col"
+                          onClick={() => handleZoneClick(zone.id)}
                         >
-                          <div 
-                            className="bg-gradient-to-br from-white to-violet-50 border border-violet-100 rounded-xl p-4 cursor-pointer hover:shadow-lg hover:border-violet-200 transition-all duration-200 h-32 flex flex-col justify-between"
-                            onClick={() => handleZoneClick(zone.id)}
-                          >
-                            <div className="flex items-start space-x-3 flex-1">
-                              <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
-                                {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5 text-violet-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-5 h-5 text-violet-600")}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-gray-900 truncate mb-1">
-                                  {getText(zone.name, language, t('zone', language))}
-                                </h4>
-                                <p className="text-sm text-gray-500 line-clamp-2">
-                                  {getText(zone.description, language, '').substring(0, 60)}...
-                                </p>
-                              </div>
+                          <div className="flex items-center justify-center mb-2">
+                            <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                              {zone.icon ? getZoneIcon(zone.icon, "w-4 h-4 text-violet-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-4 h-4 text-violet-600")}
                             </div>
+                          </div>
+                          <div className="text-center flex-1">
+                            <h4 className="font-medium text-gray-900 text-xs mb-1 line-clamp-2 break-words">
+                              {getText(zone.name, language, t('zone', language))}
+                            </h4>
                             {isZoneViewed(zone.id) && (
-                              <div className="flex justify-end">
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                  <CheckCircle className="w-3 h-3 mr-1" />
-                                  {t('viewed', language)}
-                                </span>
-                              </div>
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                {t('viewed', language)}
+                              </span>
                             )}
                           </div>
-                        </motion.div>
-                      ))}
-                  </div>
-                </div>
-                
-                {/* Carousel Controls */}
-                <div className="flex justify-end mt-2 mr-2">
-                  <div className="flex items-center space-x-2">
-                    <button 
-                      onClick={() => scrollCarousel('left')}
-                      className="p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                      disabled={carouselScrollPosition === 0}
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => scrollCarousel('right')}
-                      className="p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                    <span className="text-xs ml-1 text-gray-400">{t('swipe', language)}</span>
-                  </div>
+                        </div>
+                      </motion.div>
+                    ))}
                 </div>
               </div>
 
