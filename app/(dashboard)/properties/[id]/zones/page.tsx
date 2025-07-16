@@ -106,7 +106,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   
   // Welcome info banner state
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false)
-  const [hasSystemTemplates, setHasSystemTemplates] = useState(false)
   
   // Zonas esenciales modal state
   const [showZonasEsencialesModal, setShowZonasEsencialesModal] = useState(false)
@@ -352,24 +351,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             }
           }
           
-          // Check if there are system template zones (created automatically)
-          const systemTemplateZones = transformedZones.filter(zone => 
-            zone.name.toLowerCase().includes('check in') || 
-            zone.name.toLowerCase().includes('wifi') || 
-            zone.name.toLowerCase().includes('check out') ||
-            zone.name.toLowerCase().includes('normas') ||
-            zone.name.toLowerCase().includes('llegar') ||
-            zone.name.toLowerCase().includes('aire') ||
-            zone.name.toLowerCase().includes('información') ||
-            zone.name.toLowerCase().includes('parking') ||
-            zone.name.toLowerCase().includes('transporte')
-          )
-          
-          const hasTemplates = systemTemplateZones.length > 0
-          setHasSystemTemplates(hasTemplates)
-          
           // REMOVED: No longer showing welcome modal for existing zones
-          // The modal should only appear when zones are auto-created
+          // System template detection and modal logic removed
           
           // Generate zone warnings after zones are loaded
           setTimeout(() => {
@@ -1168,28 +1151,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     })
   }
 
-  const handleWelcomeAccept = () => {
-    setShowWelcomeModal(false)
-  }
-
-  const handleStartFromScratch = async () => {
-    setShowWelcomeModal(false)
-    // User wants to start from scratch - delete all zones
-    try {
-      const success = await borrarTodasLasZonas(id)
-      if (success) {
-        setZones([])
-        addNotification({
-          type: 'info',
-          title: 'Zonas eliminadas',
-          message: 'Puedes crear las zonas que necesites desde cero',
-          read: false
-        })
-      }
-    } catch (error) {
-      console.error('Error deleting zones:', error)
-    }
-  }
 
   const loadZoneSteps = async (zoneId: string) => {
     setLoadingSteps(true)
