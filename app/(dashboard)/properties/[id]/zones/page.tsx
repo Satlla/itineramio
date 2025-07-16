@@ -46,7 +46,7 @@ import { WelcomeTemplatesModal } from '../../../../../src/components/ui/WelcomeT
 import { DeletePropertyModal } from '../../../../../src/components/ui/DeletePropertyModal'
 // ManualEjemploModal removed
 import { crearZonasEsenciales, borrarTodasLasZonas } from '../../../../../src/utils/crearZonasEsenciales'
-import { ZoneCreationDebug } from '../../../../../src/components/debug/ZoneCreationDebug'
+import { createBatchZones } from '../../../../../src/utils/createBatchZones'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
 // Removed unused imports
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
@@ -725,6 +725,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleSelectMultipleElements = async (selectedElementIds: string[]) => {
     console.log('🎯 handleSelectMultipleElements called with:', selectedElementIds)
     console.log('🎯 Number of elements selected:', selectedElementIds.length)
+    console.log('🎯 Current zones count:', zones.length)
     
     if (selectedElementIds.length === 0) {
       console.warn('⚠️ No elements selected')
@@ -733,6 +734,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
     
     setIsCreatingZone(true)
+    
+    // ALWAYS use batch API for reliability
+    console.log('🚀 ALWAYS using BATCH API for reliability')
     try {
       const { apartmentElements } = await import('../../../../../src/data/apartmentElements')
       const createdZones: Zone[] = []

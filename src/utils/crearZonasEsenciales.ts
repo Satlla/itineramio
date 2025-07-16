@@ -90,40 +90,19 @@ export async function crearZonasEsenciales(propertyId: string): Promise<boolean>
         continue
       }
       
-      // First try debug endpoint
-      const debugResponse = await fetch(`/api/properties/${propertyId}/zones/debug`, {
+      // Use batch API ALWAYS for reliability
+      console.log(`🚀 Creating zone "${zona.name}" via BATCH API`)
+      const response = await fetch(`/api/properties/${propertyId}/zones/batch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: zona.name,
-          description: zona.description,
-          icon: zona.icon,
-          order: zona.order,
-          status: 'ACTIVE',
-          isPublished: true
-        })
-      })
-      
-      if (debugResponse.ok) {
-        const debugData = await debugResponse.json()
-        console.log(`🔍 Debug for zone "${zona.name}":`, debugData)
-        
-        if (!debugData.success) {
-          console.error(`❌ Debug errors for "${zona.name}":`, debugData.errors)
-        }
-      }
-      
-      // Now try actual creation
-      const response = await fetch(`/api/properties/${propertyId}/zones`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: zona.name,
-          description: zona.description,
-          icon: zona.icon,
-          order: zona.order,
-          status: 'ACTIVE',
-          isPublished: true
+          zones: [{
+            name: zona.name,
+            description: zona.description,
+            icon: zona.icon,
+            color: 'bg-gray-100',
+            status: 'ACTIVE'
+          }]
         })
       })
 
@@ -142,7 +121,11 @@ export async function crearZonasEsenciales(propertyId: string): Promise<boolean>
       }
 
       const result = await response.json()
-      console.log(`✅ Zona "${zona.name}" creada:`, result.data.id)
+      if (result.success && result.data?.zones?.length > 0) {
+        console.log(`✅ Zona "${zona.name}" creada via batch:`, result.data.zones[0].id)
+      } else {
+        console.error(`❌ Batch result failed for "${zona.name}":`, result)
+      }
     }
 
     return true
