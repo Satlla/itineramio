@@ -593,33 +593,15 @@ export default function ZoneGuidePage({
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-3xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link href={`/guide/${zone.propertyId}`}>
-                <Button variant="ghost" size="sm">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  {t('backToProperty', language)}
-                </Button>
-              </Link>
-              <div className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-white ${
-                  zone.color || 'bg-gradient-to-br from-violet-500 to-purple-600'
-                }`}>
-                  {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5") : <MapPin className="w-5 h-5" />}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h1 className="font-semibold text-gray-900">{getText(zone.name, language, 'Zona')}</h1>
-                    {isZoneViewed() && (
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                        {t('viewed', language)}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600">{getText(property.name, language, 'Propiedad')}</p>
-                </div>
-              </div>
-            </div>
+          {/* First row - Back button and controls */}
+          <div className="flex items-center justify-between mb-3">
+            <Link href={`/guide/${zone.propertyId}`}>
+              <Button variant="ghost" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">{t('backToProperty', language)}</span>
+                <span className="sm:hidden">Volver</span>
+              </Button>
+            </Link>
             
             <div className="flex items-center space-x-2">
               {/* Language Selector */}
@@ -628,9 +610,9 @@ export default function ZoneGuidePage({
                 onChange={(e) => setLanguage(e.target.value)}
                 className="px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-transparent"
               >
-                <option value="es">🇪🇸 ES</option>
-                <option value="en">🇬🇧 EN</option>
-                <option value="fr">🇫🇷 FR</option>
+                <option value="es">🇪🇸</option>
+                <option value="en">🇬🇧</option>
+                <option value="fr">🇫🇷</option>
               </select>
               
               <Button
@@ -639,9 +621,29 @@ export default function ZoneGuidePage({
                 onClick={() => setShowHostModal(true)}
                 className="text-blue-600 border-blue-200 hover:bg-blue-50"
               >
-                <Phone className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Contacto</span>
+                <Phone className="w-4 h-4" />
+                <span className="hidden sm:inline ml-2">Contacto</span>
               </Button>
+            </div>
+          </div>
+
+          {/* Second row - Zone info */}
+          <div className="flex items-center space-x-3">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${
+              zone.color || 'bg-gradient-to-br from-violet-500 to-purple-600'
+            }`}>
+              {zone.icon ? getZoneIcon(zone.icon, "w-6 h-6") : <MapPin className="w-6 h-6" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h1 className="font-bold text-lg text-gray-900 truncate">{getText(zone.name, language, 'Zona')}</h1>
+                {isZoneViewed() && (
+                  <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full whitespace-nowrap">
+                    {t('viewed', language)}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-gray-600 truncate">{getText(property.name, language, 'Propiedad')}</p>
             </div>
           </div>
           
