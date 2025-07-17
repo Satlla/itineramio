@@ -160,7 +160,7 @@ export function CopyZoneToPropertyModal({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-hidden"
+        className="bg-white rounded-lg shadow-xl w-full max-w-2xl h-[600px] flex flex-col"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
@@ -181,7 +181,7 @@ export function CopyZoneToPropertyModal({
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="flex-1 overflow-y-auto p-6">
           {/* Search bar (only show if > 5 properties) */}
           {showSearchBar && (
             <div className="mb-4">
@@ -215,7 +215,7 @@ export function CopyZoneToPropertyModal({
           ) : (
             <>
               {/* Properties list */}
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="space-y-3 max-h-80 overflow-y-auto border rounded-lg p-2">
                 {filteredProperties.length === 0 ? (
                   <div className="text-center py-8">
                     <Home className="h-12 w-12 text-gray-300 mx-auto mb-3" />
@@ -271,44 +271,61 @@ export function CopyZoneToPropertyModal({
                 )}
               </div>
 
-              {/* Selected count */}
-              {selectedPropertyIds.size > 0 && (
-                <div className="mt-4 p-3 bg-violet-50 rounded-md">
-                  <p className="text-sm text-violet-700">
-                    {selectedPropertyIds.size} propiedad{selectedPropertyIds.size !== 1 ? 'es' : ''} seleccionada{selectedPropertyIds.size !== 1 ? 's' : ''}
-                  </p>
-                </div>
-              )}
             </>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end space-x-3 p-6 border-t bg-gray-50">
-          <Button
-            variant="outline"
-            onClick={handleClose}
-            disabled={isCopying}
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={handleCopyZone}
-            disabled={selectedPropertyIds.size === 0 || isCopying || isLoading}
-            className="bg-violet-600 hover:bg-violet-700"
-          >
-            {isCopying ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Copiando...
-              </>
+        <div className="flex-shrink-0 flex items-center justify-between p-6 border-t bg-gray-50">
+          {/* Selected count info */}
+          <div className="text-sm text-gray-600">
+            {selectedPropertyIds.size > 0 ? (
+              <span className="font-medium text-violet-700">
+                {selectedPropertyIds.size} propiedad{selectedPropertyIds.size !== 1 ? 'es' : ''} seleccionada{selectedPropertyIds.size !== 1 ? 's' : ''}
+              </span>
             ) : (
-              <>
-                <Copy className="h-4 w-4 mr-2" />
-                Copiar Zona ({selectedPropertyIds.size})
-              </>
+              <span>Selecciona al menos una propiedad</span>
             )}
-          </Button>
+          </div>
+          
+          {/* Buttons */}
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="outline"
+              onClick={handleClose}
+              disabled={isCopying}
+              className="min-w-[100px]"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleCopyZone}
+              disabled={selectedPropertyIds.size === 0 || isCopying || isLoading}
+              className={cn(
+                "font-medium min-w-[150px] px-6 py-2",
+                selectedPropertyIds.size === 0 || isCopying || isLoading
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-violet-600 hover:bg-violet-700 text-white shadow-lg hover:shadow-xl transition-all"
+              )}
+            >
+              {isCopying ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Copiando...
+                </>
+              ) : selectedPropertyIds.size === 0 ? (
+                <>
+                  <Copy className="h-4 w-4 mr-2" />
+                  Selecciona propiedades
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copiar a {selectedPropertyIds.size} propiedad{selectedPropertyIds.size !== 1 ? 'es' : ''}
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </motion.div>
     </div>
