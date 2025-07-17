@@ -1437,14 +1437,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               hasSlug: !!(zone.slug && propertySlug)
             })
             
-            // Use slug if available, fallback to ID
-            if (zone.slug && propertySlug) {
-              console.log('🚀 Using clean URL:', `/properties/${propertySlug}/${zone.slug}`)
-              router.push(`/properties/${propertySlug}/${zone.slug}`)
-            } else {
-              console.log('🚀 Using ID URL:', `/properties/${id}/zones/${zone.id}`)
-              router.push(`/properties/${id}/zones/${zone.id}`)
-            }
+            // Always use ID-based URLs for reliability
+            console.log('🚀 Navigating to zone:', `/properties/${id}/zones/${zone.id}`)
+            router.push(`/properties/${id}/zones/${zone.id}`)
           }}
         >
           <CardContent className="p-4">
