@@ -1437,9 +1437,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               hasSlug: !!(zone.slug && propertySlug)
             })
             
-            // Always use ID-based URLs for reliability
-            console.log('🚀 Navigating to zone:', `/properties/${id}/zones/${zone.id}`)
-            router.push(`/properties/${id}/zones/${zone.id}`)
+            // Go directly to zone steps editor
+            console.log('🚀 Opening steps editor for zone:', zone.id)
+            setEditingZoneForSteps(zone)
+            loadZoneSteps(zone.id).then(() => {
+              setShowStepEditor(true)
+            })
           }}
         >
           <CardContent className="p-4">
