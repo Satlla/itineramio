@@ -47,6 +47,7 @@ import { DeletePropertyModal } from '../../../../../src/components/ui/DeleteProp
 import { crearZonasEsenciales, borrarTodasLasZonas } from '../../../../../src/utils/crearZonasEsenciales'
 import { createBatchZones } from '../../../../../src/utils/createBatchZones'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
+import { CopyZoneToPropertyModal } from '../../../../../src/components/ui/CopyZoneToPropertyModal'
 // Removed unused imports
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
@@ -98,6 +99,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   // Delete property modal state
   const [showDeletePropertyModal, setShowDeletePropertyModal] = useState(false)
   const [isDeletingProperty, setIsDeletingProperty] = useState(false)
+  
+  // Copy zone modal state
+  const [showCopyZoneModal, setShowCopyZoneModal] = useState(false)
+  const [zoneToCopy, setZoneToCopy] = useState<Zone | null>(null)
   
   // Essential zones modal state
   const [showEssentialZonesModal, setShowEssentialZonesModal] = useState(false)
@@ -588,6 +593,39 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleShowQR = (zone: Zone) => {
     setSelectedZoneForQR(zone)
     setShowQRModal(true)
+  }
+
+  const handleCopyZone = (zone: Zone) => {
+    setZoneToCopy(zone)
+    setShowCopyZoneModal(true)
+  }
+
+  const handleCopyComplete = (successCount: number, failedCount: number) => {
+    setShowCopyZoneModal(false)
+    setZoneToCopy(null)
+    
+    if (successCount > 0 && failedCount === 0) {
+      addNotification({
+        type: 'success',
+        title: 'Zona copiada',
+        message: `Zona copiada exitosamente a ${successCount} propiedad${successCount !== 1 ? 'es' : ''}`,
+        read: false
+      })
+    } else if (successCount > 0 && failedCount > 0) {
+      addNotification({
+        type: 'warning',
+        title: 'Copia parcial',
+        message: `Zona copiada a ${successCount} propiedades, ${failedCount} fallaron`,
+        read: false
+      })
+    } else if (failedCount > 0) {
+      addNotification({
+        type: 'error',
+        title: 'Error al copiar',
+        message: `Error al copiar la zona a ${failedCount} propiedad${failedCount !== 1 ? 'es' : ''}`,
+        read: false
+      })
+    }
   }
 
   const resetForm = () => {
@@ -1494,6 +1532,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                         <QrCode className="h-4 w-4 mr-2" />
                         Ver Código QR
                       </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                        onSelect={() => handleCopyZone(zone)}
+                      >
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copiar zona
+                      </DropdownMenu.Item>
                       <DropdownMenu.Separator className="my-1 h-px bg-gray-200" />
                       <DropdownMenu.Item
                         className="flex items-center px-3 py-2 text-sm hover:bg-red-100 text-red-600 rounded cursor-pointer"
@@ -1596,6 +1641,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                         >
                           <QrCode className="h-4 w-4 mr-2" />
                           Ver Código QR
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item
+                          className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                          onSelect={() => handleCopyZone(zone)}
+                        >
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copiar zona
                         </DropdownMenu.Item>
                         <DropdownMenu.Separator className="my-1 h-px bg-gray-200" />
                         <DropdownMenu.Item
@@ -1786,59 +1838,47 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
-        <Card>
-          <CardContent className="p-3 md:p-6">
+      <Card className="mb-8">
+        <CardContent className="p-4 sm:p-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <div className="flex items-center">
-              <MapPin className="h-6 w-6 md:h-8 md:w-8 text-violet-600" />
-              <div className="ml-2 md:ml-4">
-                <p className="text-xs md:text-sm font-medium text-gray-600">Total Zonas</p>
-                <p className="text-lg md:text-2xl font-bold text-gray-900">{zones.length}</p>
+              <MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-violet-600 flex-shrink-0" />
+              <div className="ml-3 sm:ml-4 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Zonas</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{zones.length}</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-3 md:p-6">
+            
             <div className="flex items-center">
-              <QrCode className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
-              <div className="ml-2 md:ml-4">
-                <p className="text-xs md:text-sm font-medium text-gray-600">QR Codes</p>
-                <p className="text-lg md:text-2xl font-bold text-gray-900">{zones.length}</p>
+              <QrCode className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
+              <div className="ml-3 sm:ml-4 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">QR Codes</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{zones.length}</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-3 md:p-6">
+            
             <div className="flex items-center">
-              <Edit className="h-6 w-6 md:h-8 md:w-8 text-green-600" />
-              <div className="ml-2 md:ml-4">
-                <p className="text-xs md:text-sm font-medium text-gray-600">Total Steps</p>
-                <p className="text-lg md:text-2xl font-bold text-gray-900">
+              <Edit className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 flex-shrink-0" />
+              <div className="ml-3 sm:ml-4 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Steps</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">
                   {zones.reduce((acc, zone) => acc + zone.stepsCount, 0)}
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-3 md:p-6">
+            
             <div className="flex items-center">
-              <div className="h-6 w-6 md:h-8 md:w-8 bg-orange-100 rounded-full flex items-center justify-center">
-                <div className="h-3 w-3 md:h-4 md:w-4 bg-orange-600 rounded-full"></div>
+              <div className="h-6 w-6 sm:h-8 sm:w-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="h-3 w-3 sm:h-4 sm:w-4 bg-orange-600 rounded-full"></div>
               </div>
-              <div className="ml-2 md:ml-4">
-                <p className="text-xs md:text-sm font-medium text-gray-600">Última Act.</p>
-                <p className="text-sm md:text-lg font-semibold text-gray-900">Hoy</p>
+              <div className="ml-3 sm:ml-4 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Última Act.</p>
+                <p className="text-sm sm:text-lg font-semibold text-gray-900 truncate">Hoy</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Main Content Layout */}
       <div className="grid lg:grid-cols-3 gap-8">
@@ -2465,6 +2505,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         isDeleting={isDeletingProperty}
       />
 
+      <CopyZoneToPropertyModal
+        isOpen={showCopyZoneModal}
+        onClose={() => {
+          setShowCopyZoneModal(false)
+          setZoneToCopy(null)
+        }}
+        zoneName={zoneToCopy ? getZoneText(zoneToCopy.name) : ''}
+        zoneId={zoneToCopy?.id || ''}
+        currentPropertyId={id}
+        onCopyComplete={handleCopyComplete}
+      />
 
     </div>
   )

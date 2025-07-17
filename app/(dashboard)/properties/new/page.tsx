@@ -317,10 +317,10 @@ function NewPropertyPageContent() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           {/* Back button - always at top */}
           <div className="mb-4">
             <Link href="/properties">
@@ -333,10 +333,10 @@ function NewPropertyPageContent() {
           
           {/* Title and subtitle */}
           <div className="mb-4">
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               {isEditing ? 'Editar Propiedad' : 'Nueva Propiedad'}
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">
               {isEditing 
                 ? 'Actualiza la información de tu propiedad'
                 : 'Crea una nueva propiedad para gestionar sus manuales digitales'
@@ -389,15 +389,15 @@ function NewPropertyPageContent() {
         )}
 
         {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center space-x-8">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center justify-center space-x-2 sm:space-x-8">
             {[1, 2, 3].map((step) => (
               <div
                 key={step}
                 className={`flex items-center ${step < 3 ? 'flex-1' : ''}`}
               >
                 <div className={`
-                  w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
+                  w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0
                   ${currentStep >= step 
                     ? 'bg-violet-600 text-white' 
                     : 'bg-gray-200 text-gray-600'
@@ -405,14 +405,19 @@ function NewPropertyPageContent() {
                 `}>
                   {step}
                 </div>
-                <div className="ml-2 text-sm font-medium">
+                <div className="ml-2 text-xs sm:text-sm font-medium hidden sm:block">
                   {step === 1 && 'Información Básica'}
+                  {step === 2 && 'Ubicación'}
+                  {step === 3 && 'Contacto'}
+                </div>
+                <div className="ml-2 text-xs font-medium block sm:hidden">
+                  {step === 1 && 'Básica'}
                   {step === 2 && 'Ubicación'}
                   {step === 3 && 'Contacto'}
                 </div>
                 {step < 3 && (
                   <div className={`
-                    flex-1 h-1 mx-4
+                    flex-1 h-1 mx-2 sm:mx-4
                     ${currentStep > step ? 'bg-violet-600' : 'bg-gray-200'}
                   `} />
                 )}
@@ -421,7 +426,7 @@ function NewPropertyPageContent() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
           {/* Step 1: Información Básica */}
           {currentStep === 1 && (
             <motion.div
@@ -429,12 +434,12 @@ function NewPropertyPageContent() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <Card className="p-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              <Card className="p-4 sm:p-6 lg:p-8">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
                   Información Básica
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   {/* Nombre */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -442,11 +447,11 @@ function NewPropertyPageContent() {
                     </label>
                     <Input
                       {...register('name')}
-                      placeholder="Ej: Acogedor apartamento en el centro"
+                      placeholder="Ej: Apartamento en el centro"
                       error={!!errors.name}
                     />
                     {errors.name && (
-                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.name)}</p>
+                      <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.name)}</p>
                     )}
                   </div>
 
@@ -458,13 +463,13 @@ function NewPropertyPageContent() {
                     <textarea
                       {...register('description')}
                       rows={4}
-                      placeholder="Describe tu propiedad, sus características principales y qué la hace especial..."
-                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 ${
+                      placeholder="Describe tu propiedad y sus características principales..."
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 resize-none ${
                         errors.description ? 'border-red-300' : ''
                       }`}
                     />
                     {errors.description && (
-                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.description)}</p>
+                      <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.description)}</p>
                     )}
                   </div>
 
@@ -527,7 +532,7 @@ function NewPropertyPageContent() {
                         error={!!errors.bedrooms}
                       />
                       {errors.bedrooms && (
-                        <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.bedrooms)}</p>
+                        <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.bedrooms)}</p>
                       )}
                     </div>
                   </div>
@@ -546,7 +551,7 @@ function NewPropertyPageContent() {
                         error={!!errors.bathrooms}
                       />
                       {errors.bathrooms && (
-                        <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.bathrooms)}</p>
+                        <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.bathrooms)}</p>
                       )}
                     </div>
                   </div>
@@ -565,7 +570,7 @@ function NewPropertyPageContent() {
                         error={!!errors.maxGuests}
                       />
                       {errors.maxGuests && (
-                        <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.maxGuests)}</p>
+                        <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.maxGuests)}</p>
                       )}
                     </div>
                   </div>
@@ -585,7 +590,7 @@ function NewPropertyPageContent() {
                         error={!!errors.squareMeters}
                       />
                       {errors.squareMeters && (
-                        <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.squareMeters)}</p>
+                        <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.squareMeters)}</p>
                       )}
                     </div>
                   </div>
@@ -630,8 +635,8 @@ function NewPropertyPageContent() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <Card className="p-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              <Card className="p-4 sm:p-6 lg:p-8">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
                   Ubicación
                 </h2>
 
@@ -641,7 +646,7 @@ function NewPropertyPageContent() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   {/* Dirección */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -653,7 +658,7 @@ function NewPropertyPageContent() {
                       error={!!errors.street}
                     />
                     {errors.street && (
-                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.street)}</p>
+                      <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.street)}</p>
                     )}
                     <p className="mt-1 text-xs text-gray-500">
                       Incluye calle, número, piso y puerta si corresponde
@@ -671,7 +676,7 @@ function NewPropertyPageContent() {
                       error={!!errors.city}
                     />
                     {errors.city && (
-                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.city)}</p>
+                      <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.city)}</p>
                     )}
                   </div>
 
@@ -686,7 +691,7 @@ function NewPropertyPageContent() {
                       error={!!errors.state}
                     />
                     {errors.state && (
-                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.state)}</p>
+                      <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.state)}</p>
                     )}
                   </div>
 
@@ -702,7 +707,7 @@ function NewPropertyPageContent() {
                       error={!!errors.postalCode}
                     />
                     {errors.postalCode && (
-                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.postalCode)}</p>
+                      <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.postalCode)}</p>
                     )}
                   </div>
 
@@ -717,7 +722,7 @@ function NewPropertyPageContent() {
                       error={!!errors.country}
                     />
                     {errors.country && (
-                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.country)}</p>
+                      <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.country)}</p>
                     )}
                   </div>
                 </div>
@@ -764,8 +769,8 @@ function NewPropertyPageContent() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <Card className="p-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              <Card className="p-4 sm:p-6 lg:p-8">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
                   Información de Contacto
                 </h2>
                 
@@ -775,7 +780,7 @@ function NewPropertyPageContent() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   {/* Foto de perfil */}
                   <div className="md:col-span-2 flex flex-col items-center">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -811,7 +816,7 @@ function NewPropertyPageContent() {
                       error={!!errors.hostContactName}
                     />
                     {errors.hostContactName && (
-                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.hostContactName)}</p>
+                      <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.hostContactName)}</p>
                     )}
                   </div>
 
@@ -827,7 +832,7 @@ function NewPropertyPageContent() {
                       error={!!errors.hostContactPhone}
                     />
                     {errors.hostContactPhone && (
-                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.hostContactPhone)}</p>
+                      <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.hostContactPhone)}</p>
                     )}
                     <p className="mt-1 text-xs text-gray-500">
                       Los huéspedes podrán contactarte via WhatsApp
@@ -847,7 +852,7 @@ function NewPropertyPageContent() {
                       error={!!errors.hostContactEmail}
                     />
                     {errors.hostContactEmail && (
-                      <p className="mt-1 text-sm text-red-600">{getErrorMessage(errors.hostContactEmail)}</p>
+                      <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.hostContactEmail)}</p>
                     )}
                   </div>
 
@@ -858,7 +863,7 @@ function NewPropertyPageContent() {
                     </label>
                     <select
                       {...register('hostContactLanguage')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm sm:text-base"
                     >
                       <option value="es">Español</option>
                       <option value="en">English</option>
