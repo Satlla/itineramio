@@ -69,6 +69,11 @@ import {
   MessageSquare,
   Bell,
   FileText,
+  ChefHat,
+  ShowerHead,
+  Microwave,
+  Snowflake,
+  Wind,
   LucideIcon
 } from 'lucide-react'
 
@@ -181,22 +186,49 @@ export function getZoneIcon(emoji: string): LucideIcon {
   return extendedZoneIconMap[emoji] || Home
 }
 
-// Common zone types with their default icons
+// Common zone types with their default icons - IMPROVED MAPPING
 export const commonZoneIcons: { [key: string]: LucideIcon } = {
-  'wifi': Wifi,
-  'checkin': DoorOpen,
-  'checkout': DoorClosed,
-  'check-in': DoorOpen,
-  'check-out': DoorClosed,
-  'check in': DoorOpen,
-  'check out': DoorClosed,
+  // Check-in / Check-out (más específicos)
+  'check in': Key,
+  'check-in': Key,
+  'checkin': Key,
+  'entrada': Key,
+  'llegada': Key,
+  'arrival': Key,
+  'acceso': Key,
+  'llaves': Key,
   'keys': Key,
-  'parking': Car,
+  
+  'check out': DoorClosed,
+  'check-out': DoorClosed,
+  'checkout': DoorClosed,
+  'salida': DoorClosed,
+  'departure': DoorClosed,
+  
+  // WiFi / Internet
+  'wifi': Wifi,
+  'wi-fi': Wifi,
+  'internet': Wifi,
+  'conexion': Wifi,
+  'conexión': Wifi,
+  'password': Wifi,
+  'contraseña': Wifi,
+  
+  // Parking específico
+  'parking': ParkingCircle,
+  'aparcamiento': ParkingCircle,
+  'garaje': ParkingCircle,
+  'garage': ParkingCircle,
+  'coche': Car,
+  'auto': Car,
+  'vehiculo': Car,
+  
+  // Información básica
   'info': Info,
   'information': Info,
   'informacion': Info,
-  'basica': FileText,
-  'basic': FileText,
+  'basica': Info,
+  'basic': Info,
   'apartamento': Home,
   'apartment': Home,
   'documento': FileText,
@@ -212,21 +244,35 @@ export const commonZoneIcons: { [key: string]: LucideIcon } = {
   'important': AlertCircle,
   'bienvenida': Heart,
   'welcome': Heart,
-  'llegada': MapPin,
-  'arrival': MapPin,
-  'salida': DoorClosed,
-  'departure': DoorClosed,
-  'reglas': AlertTriangle,
-  'kitchen': Utensils,
-  'cocina': Utensils,
-  'bathroom': Bath,
-  'baño': Bath,
+  // Cocina con icono específico
+  'kitchen': ChefHat,
+  'cocina': ChefHat,
+  'comida': Utensils,
+  'food': Utensils,
+  'restaurante': Utensils,
+  'electrodomesticos': Microwave,
+  
+  // Baño con icono específico  
+  'bathroom': ShowerHead,
+  'baño': ShowerHead,
+  'aseo': Bath,
+  'ducha': ShowerHead,
+  'shower': ShowerHead,
+  'wc': Bath,
+  
+  // Dormitorio
   'bedroom': Bed,
   'dormitorio': Bed,
   'habitacion': Bed,
+  'habitación': Bed,
+  'room': Bed,
+  'cuarto': Bed,
+  
+  // Sala de estar
   'living': Sofa,
   'livingroom': Sofa,
   'salon': Sofa,
+  'sala': Sofa,
   'terrace': Sun,
   'terraza': Sun,
   'balcon': Sun,
@@ -235,7 +281,6 @@ export const commonZoneIcons: { [key: string]: LucideIcon } = {
   'jardin': TreePine,
   'pool': Waves,
   'piscina': Waves,
-  'rules': AlertTriangle,
   'emergencia': Phone,
   'contacts': Phone,
   'contactos': Phone,
@@ -257,12 +302,17 @@ export const commonZoneIcons: { [key: string]: LucideIcon } = {
   'laundry': Package,
   'lavanderia': Package,
   'lavadora': Package,
+  // Climatización con iconos más específicos
   'heating': Thermometer,
   'calefaccion': Thermometer,
-  'ac': Thermometer,
-  'aire': Thermometer,
-  'acondicionado': Thermometer,
-  'climatizacion': Thermometer,
+  'calefacción': Thermometer,
+  'ac': Snowflake,
+  'aire': Snowflake,
+  'aire acondicionado': Snowflake,
+  'acondicionado': Snowflake,
+  'climatizacion': Wind,
+  'climatización': Wind,
+  'clima': Wind,
   'tv': Tv,
   'television': Tv,
   'entretenimiento': Tv,
@@ -288,7 +338,6 @@ export const commonZoneIcons: { [key: string]: LucideIcon } = {
   'spa': Heart,
   'relajacion': Heart,
   'restaurant': Utensils,
-  'restaurante': Utensils,
   'bar': Wine,
   'bebidas': Wine,
   'shop': ShoppingBag,
@@ -336,48 +385,85 @@ export const commonZoneIcons: { [key: string]: LucideIcon } = {
   'otros': Info,
   'more': ChevronRight,
   'mas': ChevronRight,
-  // Additional essential zones
-  'emergencias': AlertTriangle,
-  'emergency': AlertTriangle,
-  'normas': AlertTriangle,
-  'reglas casa': AlertTriangle,
+  // Emergencias con iconos más específicos
+  'emergencias': Phone,
+  'emergency': Phone,
+  'emergency contacts': Phone,
+  'contactos emergencia': Phone,
+  'telefonos emergencia': Phone,
+  'emergency phones': Phone,
+  
+  // Normas con icono de lista
+  'normas': FileText,
+  'normas casa': FileText,
+  'normas de la casa': FileText,
+  'house rules': FileText,
+  'reglas': FileText,
+  'reglas casa': FileText,
+  'rules': FileText,
   'recomendaciones': Star,
   'recommendations': Star,
   'llegar': MapPin,
   'como llegar': MapPin,
   'directions': MapPin,
-  'house rules': AlertTriangle,
   'housrules': AlertTriangle,
-  'telefonos': Phone,
-  'telefonos emergencia': Phone,
-  'emergency phones': Phone
+  'telefonos': Phone
 }
 
-// Function to get icon by zone name
+// Function to get icon by zone name - IMPROVED VERSION
 export function getZoneIconByName(name: string): LucideIcon {
   const normalizedName = name.toLowerCase().trim()
   
-  // First try exact match (preserving spaces)
+  // First try exact match (preserving spaces and special characters)
   if (commonZoneIcons[normalizedName]) {
     return commonZoneIcons[normalizedName]
   }
   
-  // Then try without spaces
-  const normalizedNoSpaces = normalizedName.replace(/[^a-z]/g, '')
-  if (commonZoneIcons[normalizedNoSpaces]) {
-    return commonZoneIcons[normalizedNoSpaces]
-  }
+  // Try exact match but with common variations
+  const variations = [
+    normalizedName,
+    normalizedName.replace(/[áàäâ]/g, 'a').replace(/[éèëê]/g, 'e').replace(/[íìïî]/g, 'i').replace(/[óòöô]/g, 'o').replace(/[úùüû]/g, 'u').replace(/ñ/g, 'n'),
+    normalizedName.replace(/\s+/g, ''),
+    normalizedName.replace(/\s+/g, '-'),
+    normalizedName.replace(/-/g, ' ')
+  ]
   
-  // Check if the name contains any of our keywords
-  for (const [key, icon] of Object.entries(commonZoneIcons)) {
-    if (normalizedName.includes(key) || normalizedNoSpaces.includes(key.replace(/[^a-z]/g, ''))) {
-      return icon
+  for (const variation of variations) {
+    if (commonZoneIcons[variation]) {
+      return commonZoneIcons[variation]
     }
   }
   
-  // Default to DoorOpen for check-in like zones
-  if (normalizedName.includes('check') || normalizedName.includes('entrada') || normalizedName.includes('llegada')) {
-    return DoorOpen
+  // Smart matching - check if the name contains specific keywords (order matters)
+  const smartMatches = [
+    // Most specific first
+    { keywords: ['check in', 'checkin', 'entrada', 'llegada', 'llaves', 'acceso'], icon: Key },
+    { keywords: ['check out', 'checkout', 'salida'], icon: DoorClosed },
+    { keywords: ['wifi', 'internet', 'conexion', 'contraseña'], icon: Wifi },
+    { keywords: ['parking', 'aparcamiento', 'garaje'], icon: ParkingCircle },
+    { keywords: ['cocina', 'kitchen'], icon: ChefHat },
+    { keywords: ['baño', 'bathroom', 'ducha', 'shower'], icon: ShowerHead },
+    { keywords: ['aire', 'climatizacion', 'ac'], icon: Snowflake },
+    { keywords: ['calefaccion', 'heating'], icon: Thermometer },
+    { keywords: ['emergencias', 'emergency'], icon: Phone },
+    { keywords: ['normas', 'rules', 'reglas'], icon: FileText },
+    { keywords: ['dormitorio', 'bedroom', 'habitacion'], icon: Bed },
+    { keywords: ['salon', 'living', 'sala'], icon: Sofa },
+    { keywords: ['basura', 'trash'], icon: Trash2 },
+    { keywords: ['lavadora', 'laundry'], icon: Package },
+    { keywords: ['transporte', 'transport'], icon: Bus },
+    { keywords: ['recomendaciones', 'recommendations'], icon: Star }
+  ]
+  
+  for (const match of smartMatches) {
+    if (match.keywords.some(keyword => normalizedName.includes(keyword))) {
+      return match.icon
+    }
+  }
+  
+  // Default to Info for informational zones
+  if (normalizedName.includes('info') || normalizedName.includes('informacion') || normalizedName.includes('importante')) {
+    return Info
   }
   
   // Default to Home icon

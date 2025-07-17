@@ -39,6 +39,7 @@ import { Button } from '../../../../src/components/ui/Button'
 import { Card } from '../../../../src/components/ui/Card'
 import { ZoneIconDisplay } from '../../../../src/components/ui/IconSelector'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
+import { getZoneIconByName } from '../../../../src/data/zoneIconsExtended'
 
 interface Property {
   id: string
@@ -70,146 +71,15 @@ interface Zone {
   status: string
 }
 
-// Zone icon mapping with Airbnb-style minimal icons
+// Zone icon mapping using centralized system
 const getZoneIcon = (iconName: string, className: string = "w-6 h-6") => {
   if (!iconName) {
     return <Home className={className} />
   }
   
-  const iconKey = iconName.toLowerCase().trim()
-  
-  // Extended icon mapping
-  const iconMap: { [key: string]: JSX.Element } = {
-    // WiFi / Internet
-    'wifi': <Wifi className={className} />,
-    'wi-fi': <Wifi className={className} />,
-    'internet': <Wifi className={className} />,
-    'conexion': <Wifi className={className} />,
-    'conexión': <Wifi className={className} />,
-    
-    // Electricity / Utilities
-    'zap': <Zap className={className} />,
-    'electricidad': <Zap className={className} />,
-    'luz': <Zap className={className} />,
-    'energia': <Zap className={className} />,
-    'energía': <Zap className={className} />,
-    'utilities': <Zap className={className} />,
-    
-    // Parking / Transport
-    'car': <Car className={className} />,
-    'parking': <Car className={className} />,
-    'aparcamiento': <Car className={className} />,
-    'garaje': <Car className={className} />,
-    'garage': <Car className={className} />,
-    'coche': <Car className={className} />,
-    'auto': <Car className={className} />,
-    'transporte': <Car className={className} />,
-    'transport': <Car className={className} />,
-    
-    // Kitchen
-    'kitchen': <Utensils className={className} />,
-    'cocina': <Utensils className={className} />,
-    'comida': <Utensils className={className} />,
-    'food': <Utensils className={className} />,
-    'restaurante': <Utensils className={className} />,
-    
-    // Bedroom
-    'bed': <Bed className={className} />,
-    'dormitorio': <Bed className={className} />,
-    'habitacion': <Bed className={className} />,
-    'habitación': <Bed className={className} />,
-    'bedroom': <Bed className={className} />,
-    'room': <Bed className={className} />,
-    'cuarto': <Bed className={className} />,
-    
-    // Bathroom
-    'bath': <Bath className={className} />,
-    'baño': <Bath className={className} />,
-    'bathroom': <Bath className={className} />,
-    'aseo': <Bath className={className} />,
-    'ducha': <Bath className={className} />,
-    'shower': <Bath className={className} />,
-    
-    // Security / Emergency
-    'security': <Shield className={className} />,
-    'seguridad': <Shield className={className} />,
-    'emergencias': <Shield className={className} />,
-    'emergencia': <Shield className={className} />,
-    'emergency': <Shield className={className} />,
-    'alarma': <Shield className={className} />,
-    'alarm': <Shield className={className} />,
-    
-    // Entertainment
-    'tv': <Tv className={className} />,
-    'television': <Tv className={className} />,
-    'televisión': <Tv className={className} />,
-    'entertainment': <Tv className={className} />,
-    'entretenimiento': <Tv className={className} />,
-    'ocio': <Tv className={className} />,
-    
-    // Coffee / Breakfast
-    'coffee': <Coffee className={className} />,
-    'cafe': <Coffee className={className} />,
-    'café': <Coffee className={className} />,
-    'desayuno': <Coffee className={className} />,
-    'breakfast': <Coffee className={className} />,
-    'comedor': <Coffee className={className} />,
-    
-    // Location
-    'location': <MapPin className={className} />,
-    'ubicacion': <MapPin className={className} />,
-    'ubicación': <MapPin className={className} />,
-    'direccion': <MapPin className={className} />,
-    'dirección': <MapPin className={className} />,
-    'mapa': <MapPin className={className} />,
-    'map': <MapPin className={className} />,
-    
-    // Check-in / Check-out
-    'checkin': <CheckCircle className={className} />,
-    'check-in': <CheckCircle className={className} />,
-    'entrada': <CheckCircle className={className} />,
-    'llegada': <CheckCircle className={className} />,
-    'arrival': <CheckCircle className={className} />,
-    'checkout': <ArrowRight className={className} />,
-    'check-out': <ArrowRight className={className} />,
-    'salida': <ArrowRight className={className} />,
-    'departure': <ArrowRight className={className} />,
-    
-    // General Home
-    'casa': <Home className={className} />,
-    'house': <Home className={className} />,
-    'home': <Home className={className} />,
-    'hogar': <Home className={className} />,
-    'vivienda': <Home className={className} />,
-    'apartamento': <Home className={className} />,
-    'apartment': <Home className={className} />,
-    'piso': <Home className={className} />,
-    
-    // Default fallbacks for common zone names
-    'normas': <Shield className={className} />,
-    'rules': <Shield className={className} />,
-    'instrucciones': <CheckCircle className={className} />,
-    'instructions': <CheckCircle className={className} />,
-    'servicios': <Star className={className} />,
-    'services': <Star className={className} />,
-    'amenities': <Star className={className} />,
-    'comodidades': <Star className={className} />
-  }
-  
-  // Try to find exact match
-  if (iconMap[iconKey]) {
-    return iconMap[iconKey]
-  }
-  
-  // Try to find partial match
-  for (const [key, icon] of Object.entries(iconMap)) {
-    if (iconKey.includes(key) || key.includes(iconKey)) {
-      return icon
-    }
-  }
-  
-  // Default icon
-  return <Home className={className} />
+  // Use the improved icon mapping system from extended icons
+  const IconComponent = getZoneIconByName(iconName)
+  return <IconComponent className={className} />
 }
 
 // Helper function to get text from multilingual objects

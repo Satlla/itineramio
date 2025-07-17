@@ -194,19 +194,11 @@ interface ZoneIconDisplayProps {
 }
 
 export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisplayProps) {
-  // Use new Airbnb-style icons first
-  const AirbnbIcon = iconId && Object.prototype.hasOwnProperty.call(zoneIconMapping, iconId) 
-    ? zoneIconMapping[iconId as keyof typeof zoneIconMapping] 
-    : null
+  // Try to get icon by name using improved mapping
+  const IconComponent = iconId ? getZoneIconByName(iconId) : null
   
-  // Fallback to existing icon system
-  const icon = useZoneIcon(iconId)
-  
-  // Try extended icon system if we have an iconId
-  const ExtendedIconComponent = iconId ? getExtendedZoneIcon(iconId) : null
-  
-  // If no icon found anywhere, show default
-  if (!AirbnbIcon && !icon && !ExtendedIconComponent) {
+  // If no icon found, show default
+  if (!IconComponent) {
     return (
       <div className={cn(
         "rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center",
@@ -215,66 +207,26 @@ export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisp
         size === 'lg' && "w-16 h-16",
         className
       )}>
-        <div className="text-gray-400 text-xs">?</div>
-      </div>
-    )
-  }
-  
-  // Use Airbnb-style icon if available
-  if (AirbnbIcon) {
-    return (
-      <div className={cn(
-        "rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center shadow-sm border border-gray-200/50",
-        size === 'sm' && "w-8 h-8",
-        size === 'md' && "w-12 h-12",
-        size === 'lg' && "w-16 h-16", 
-        className
-      )}>
         <div className={cn(
-          "text-gray-700",
-          size === 'sm' && "w-4 h-4",
-          size === 'md' && "w-6 h-6",
-          size === 'lg' && "w-8 h-8"
-        )}>
-          {AirbnbIcon}
-        </div>
+          "text-gray-400 font-medium",
+          size === 'sm' && "text-xs",
+          size === 'md' && "text-sm",
+          size === 'lg' && "text-base"
+        )}>?</div>
       </div>
     )
   }
-
-  // Use extended icon system if available
-  if (ExtendedIconComponent) {
-    return (
-      <div className={cn(
-        "rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center shadow-sm border border-gray-200/50",
-        size === 'sm' && "w-8 h-8",
-        size === 'md' && "w-12 h-12",
-        size === 'lg' && "w-16 h-16", 
-        className
-      )}>
-        <ExtendedIconComponent className={cn(
-          "text-gray-700",
-          size === 'sm' && "w-4 h-4",
-          size === 'md' && "w-6 h-6",
-          size === 'lg' && "w-8 h-8"
-        )} />
-      </div>
-    )
-  }
-
-  // Fallback to existing icon
-  const IconComponent = icon!.icon
   
   return (
     <div className={cn(
-      "rounded-lg bg-gray-50 flex items-center justify-center",
+      "rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 flex items-center justify-center shadow-sm border border-violet-200/50",
       size === 'sm' && "w-8 h-8",
       size === 'md' && "w-12 h-12",
       size === 'lg' && "w-16 h-16", 
       className
     )}>
       <IconComponent className={cn(
-        "text-gray-700",
+        "text-violet-600",
         size === 'sm' && "w-4 h-4",
         size === 'md' && "w-6 h-6",
         size === 'lg' && "w-8 h-8"
