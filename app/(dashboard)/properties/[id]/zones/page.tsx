@@ -1098,40 +1098,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  const handleDeleteEssentialZones = async () => {
-    // User doesn't want the zones that were created - delete them
-    setIsCreatingZone(true)
-    try {
-      // Delete all zones that were created
-      for (const zone of zones) {
-        await fetch(`/api/properties/${id}/zones/${zone.id}`, {
-          method: 'DELETE'
-        })
-      }
-      
-      // Clear zones from state
-      setZones([])
-      setShowZonasEsencialesModal(false)
-      setHasCreatedEssentialZones(false)
-      
-      addNotification({
-        type: 'info',
-        title: 'Manual vacío',
-        message: 'Las zonas han sido eliminadas. Puedes crear las zonas que necesites desde cero.',
-        read: false
-      })
-    } catch (error) {
-      console.error('Error deleting zones:', error)
-      addNotification({
-        type: 'error',
-        title: 'Error',
-        message: 'No se pudieron eliminar todas las zonas. Inténtalo de nuevo.',
-        read: false
-      })
-    } finally {
-      setIsCreatingZone(false)
-    }
-  }
 
 
   const loadZoneSteps = async (zoneId: string) => {
@@ -2432,7 +2398,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         isOpen={showZonasEsencialesModal}
         onClose={() => setShowZonasEsencialesModal(false)}
         onKeepZones={handleKeepEssentialZones}
-        onDeleteZones={handleDeleteEssentialZones}
         userName={user?.name || user?.email || 'Usuario'}
         isLoading={isCreatingZone}
       />

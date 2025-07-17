@@ -9,7 +9,6 @@ interface ZonasEsencialesModalProps {
   isOpen: boolean
   onClose: () => void
   onKeepZones: () => void
-  onDeleteZones: () => void
   userName: string
   isLoading?: boolean
 }
@@ -46,7 +45,6 @@ export function ZonasEsencialesModal({
   isOpen,
   onClose,
   onKeepZones,
-  onDeleteZones,
   userName,
   isLoading = false
 }: ZonasEsencialesModalProps) {
@@ -153,12 +151,12 @@ export function ZonasEsencialesModal({
             </div>
           </div>
 
-          {/* Actions - Responsive Layout */}
-          <div className="flex flex-col md:flex-row gap-3">
+          {/* Actions - Single Button */}
+          <div className="flex justify-center">
             <Button
               onClick={onKeepZones}
               disabled={isLoading}
-              className="flex-1 bg-violet-600 hover:bg-violet-700 h-12"
+              className="w-full max-w-md bg-violet-600 hover:bg-violet-700 h-12 text-lg font-semibold"
             >
               {isLoading ? (
                 <>
@@ -166,17 +164,8 @@ export function ZonasEsencialesModal({
                   Creando zonas esenciales...
                 </>
               ) : (
-                <>✨ ¡Perfecto! Empezar con estas zonas</>
+                <>✨ ¡Perfecto! Empezar con mi manual</>
               )}
-            </Button>
-            
-            <Button
-              onClick={onDeleteZones}
-              disabled={isLoading}
-              variant="outline"
-              className="flex-1 border-gray-200 text-gray-600 hover:bg-gray-50 h-12"
-            >
-              {isLoading ? 'Eliminando...' : 'No, prefiero empezar desde cero'}
             </Button>
           </div>
 
