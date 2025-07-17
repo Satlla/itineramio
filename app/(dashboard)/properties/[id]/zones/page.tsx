@@ -1219,30 +1219,28 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       const transformedSteps = steps.map((step, index) => {
         console.log(`📝 Processing step ${index}:`, step)
         
-        // Prepare content object
-        let contentData: any = step.content || {}
+        // Create base API step
+        const apiStep: any = {
+          type: step.type?.toUpperCase() || 'TEXT',
+          title: step.content, // Use content as title for API
+          content: step.content || {},
+          order: index + 1
+        }
         
-        // If step has media, include mediaUrl in content
+        // Add media URL directly to step (not in content)
         if (step.media?.url) {
-          console.log(`🎬 Step ${index} has media, adding to content:`, {
+          console.log(`🎬 Step ${index} has media:`, {
             url: step.media.url,
             thumbnail: step.media.thumbnail,
             title: step.media.title
           })
-          contentData = {
-            ...contentData,
-            mediaUrl: step.media.url,
-            thumbnail: step.media.thumbnail,
-            title: step.media.title
+          apiStep.mediaUrl = step.media.url
+          if (step.media.thumbnail) {
+            apiStep.thumbnail = step.media.thumbnail
           }
-        }
-        
-        const apiStep = {
-          type: step.type?.toLowerCase() || 'text',
-          title: step.content, // Use content as title for API
-          content: contentData,
-          order: index + 1,
-          status: 'ACTIVE'
+          if (step.media.title) {
+            apiStep.mediaTitle = step.media.title
+          }
         }
         
         console.log(`✅ Step ${index} transformed for API:`, apiStep)
