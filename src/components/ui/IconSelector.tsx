@@ -194,8 +194,38 @@ interface ZoneIconDisplayProps {
 }
 
 export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisplayProps) {
-  // Try to get icon by name using improved mapping
-  const IconComponent = iconId ? getZoneIconByName(iconId) : null
+  // First try to get icon by direct iconId mapping
+  let IconComponent = null
+  
+  if (iconId) {
+    // Direct iconId mapping (for commonly used iconIds)
+    const iconIdMapping: { [key: string]: any } = {
+      'wifi': getZoneIconByName('wifi'),
+      'key': getZoneIconByName('check in'),
+      'exit': getZoneIconByName('check out'),
+      'door': getZoneIconByName('check in'),
+      'car': getZoneIconByName('parking'),
+      'kitchen': getZoneIconByName('cocina'),
+      'thermometer': getZoneIconByName('climatizacion'),
+      'phone': getZoneIconByName('emergencias'),
+      'map-pin': getZoneIconByName('llegar'),
+      'info': getZoneIconByName('info'),
+      'home': getZoneIconByName('casa'),
+      'bath': getZoneIconByName('baño'),
+      'bed': getZoneIconByName('habitacion'),
+      'tv': getZoneIconByName('television'),
+      'washing': getZoneIconByName('lavadora'),
+      'wind': getZoneIconByName('aire')
+    }
+    
+    // Try direct iconId mapping first
+    IconComponent = iconIdMapping[iconId]
+    
+    // If not found, try by zone name
+    if (!IconComponent) {
+      IconComponent = getZoneIconByName(iconId)
+    }
+  }
   
   // If no icon found, show default
   if (!IconComponent) {
