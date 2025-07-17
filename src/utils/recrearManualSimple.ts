@@ -1,4 +1,5 @@
 import { manualEjemploSimple } from '../data/manualEjemploSimple'
+import { createBatchZones } from './createBatchZones'
 
 // Función para borrar zonas de ejemplo existentes
 async function borrarZonasEjemplo(propertyId: string): Promise<void> {
@@ -38,31 +39,50 @@ export async function recrearManualSimple(propertyId: string): Promise<boolean> 
     // Pequeña pausa para asegurar que se borraron
     await new Promise(resolve => setTimeout(resolve, 500))
     
-    // 2. Crear nuevas zonas
-    for (const zona of manualEjemploSimple) {
-      const zoneRes = await fetch(`/api/properties/${propertyId}/zones`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: zona.name,
-          description: zona.description,
-          icon: zona.icon,
-          order: zona.order,
-          status: 'ACTIVE',
-          isPublished: true
-        })
-      })
+    // 2. Crear nuevas zonas usando batch API
+    const zonesToCreate = manualEjemploSimple.map(zona => ({
+      name: zona.name,
+      description: zona.description,
+      icon: zona.icon,
+      status: 'ACTIVE'
+    }))
 
-      if (!zoneRes.ok) {
-        console.error('Error creando zona:', await zoneRes.text())
+    console.log('🚀 Using BATCH API for manual simple recreation')
+    const success = await createBatchZones(propertyId, zonesToCreate)
+    
+    if (!success) {
+      console.error('❌ Error creando zonas del manual simple')
+      return false
+    }
+
+    // Get the created zones to add steps
+    const zonesResponse = await fetch(`/api/properties/${propertyId}/zones`)
+    const zonesResult = await zonesResponse.json()
+    
+    if (!zonesResult.success || !zonesResult.data) {
+      console.error('❌ Error obteniendo zonas creadas')
+      return false
+    }
+
+    const createdZones = zonesResult.data
+
+    // 3. Add steps to each zone
+    for (const zona of manualEjemploSimple) {
+      // Find the created zone by name
+      const createdZone = createdZones.find((z: any) => {
+        const zoneName = typeof z.name === 'string' ? z.name : z.name?.es || z.name?.en || ''
+        return zoneName.toLowerCase() === zona.name.toLowerCase()
+      })
+      
+      if (!createdZone) {
+        console.error(`❌ No se encontró la zona creada: ${zona.name}`)
         continue
       }
-
-      const zoneData = await zoneRes.json()
-      const zoneId = zoneData.data.id
+      
+      const zoneId = createdZone.id
       console.log(`✅ Zona ${zona.name} creada:`, zoneId)
 
-      // 3. Crear steps con descripción adicional
+      // 4. Crear steps con descripción adicional
       for (const step of zona.steps) {
         // Para steps de tipo TEXT, asegurar que tengan descripción
         const stepData = {

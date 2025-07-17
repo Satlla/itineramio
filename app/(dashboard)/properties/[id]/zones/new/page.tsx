@@ -16,6 +16,7 @@ import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { Button } from '../../../../../../src/components/ui/Button'
 import { Input } from '../../../../../../src/components/ui/Input'
 import { Card } from '../../../../../../src/components/ui/Card'
+import { createBatchZones } from '../../../../../../src/utils/createBatchZones'
 // No need to import IconSelector, we'll use inline emoji selector
 
 // Zone validation schema
@@ -118,25 +119,21 @@ export default function NewZonePage() {
     setIsSubmitting(true)
     
     try {
-      const response = await fetch(`/api/properties/${propertyId}/zones`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...data,
-          status: 'ACTIVE'
-        })
-      })
+      const zoneData = {
+        name: data.name,
+        description: data.description,
+        icon: data.icon,
+        status: 'ACTIVE'
+      }
       
-      const result = await response.json()
+      const success = await createBatchZones(propertyId, [zoneData])
       
-      if (!response.ok) {
-        throw new Error(result.error || 'Error al crear la zona')
+      if (!success) {
+        throw new Error('Error al crear la zona')
       }
       
       // Redirect to the property edit page
-      router.push(`/properties/${propertyId}`)
+      router.push(`/properties/${propertyId}/zones`)
     } catch (error) {
       console.error('Error creating zone:', error)
       alert('Error al crear la zona. Por favor, inténtalo de nuevo.')

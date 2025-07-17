@@ -415,41 +415,29 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
     setIsCreatingZone(true)
     try {
-      const response = await fetch(`/api/properties/${id}/zones`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          description: formData.description || 'Nueva zona personalizada',
-          icon: formData.iconId,
-          color: 'bg-gray-100',
-          status: 'ACTIVE'
-        })
-      })
+      const zoneData = {
+        name: formData.name,
+        description: formData.description || 'Nueva zona personalizada',
+        icon: formData.iconId,
+        color: 'bg-gray-100',
+        status: 'ACTIVE'
+      }
 
-      const result = await response.json()
+      const success = await createBatchZones(id, [zoneData])
 
-      if (response.ok && result.success) {
-        const newZone: Zone = {
-          id: result.data.id,
-          name: formData.name,
-          description: formData.description,
-          iconId: formData.iconId,
-          order: result.data.order,
-          stepsCount: 0,
-          qrUrl: `https://itineramio.com/guide/${id}/${result.data.id}`,
-          lastUpdated: new Date().toISOString().split('T')[0]
+      if (success) {
+        // Refresh zones list
+        const zonesResponse = await fetch(`/api/properties/${id}/zones`)
+        const zonesResult = await zonesResponse.json()
+        if (zonesResult.success) {
+          setZones(zonesResult.data)
         }
-
-        setZones([...zones, newZone])
+        
         setFormData({ name: '', description: '', iconId: '' })
         setShowCreateForm(false)
         setShowIconSelector(false)
       } else {
-        console.error('Error creating zone:', result.error)
-        alert(result.error || 'Error al crear la zona')
+        alert('Error al crear la zona')
       }
     } catch (error) {
       console.error('Error creating zone:', error)
@@ -658,41 +646,28 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   const handleUseTemplate = async (zoneTemplate: ZoneTemplate) => {
     try {
-      const response = await fetch(`/api/properties/${id}/zones`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: getZoneText(zoneTemplate.name),
-          description: getZoneText(zoneTemplate.description, 'Descripción de la zona'),
-          icon: zoneTemplate.icon,
-          color: 'bg-gray-100',
-          status: 'ACTIVE'
-        })
-      })
+      const zoneData = {
+        name: getZoneText(zoneTemplate.name),
+        description: getZoneText(zoneTemplate.description, 'Descripción de la zona'),
+        icon: zoneTemplate.icon,
+        color: 'bg-gray-100',
+        status: 'ACTIVE'
+      }
 
-      const result = await response.json()
+      const success = await createBatchZones(id, [zoneData])
 
-      if (response.ok && result.success) {
-        // Update local state with the new zone
-        const newZone: Zone = {
-          id: result.data.id,
-          name: getZoneText(zoneTemplate.name),
-          description: getZoneText(zoneTemplate.description),
-          iconId: zoneTemplate.icon,
-          order: result.data.order,
-          stepsCount: 0,
-          qrUrl: `https://itineramio.com/guide/${id}/${result.data.id}`,
-          lastUpdated: new Date().toISOString().split('T')[0]
+      if (success) {
+        // Refresh zones list
+        const zonesResponse = await fetch(`/api/properties/${id}/zones`)
+        const zonesResult = await zonesResponse.json()
+        if (zonesResult.success) {
+          setZones(zonesResult.data)
         }
-
-        setZones([...zones, newZone])
+        
         setShowInspirationModal(false)
         setSelectedInspirationZone(null)
       } else {
-        console.error('Error creating zone:', result.error)
-        alert(result.error || 'Error al crear la zona')
+        alert('Error al crear la zona')
       }
     } catch (error) {
       console.error('Error creating zone:', error)
@@ -723,54 +698,77 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleCreateEssentialZones = async (selectedZoneIds: string[]) => {
     setIsCreatingZone(true)
     try {
-      const createdZones: Zone[] = []
-      
-      for (const zoneId of selectedZoneIds) {
+      // Prepare zones data for batch creation
+      const zonesToCreate = selectedZoneIds.map(zoneId => {
         const essentialZone = essentialZones.find(z => z.id === zoneId)
-        if (!essentialZone) continue
+        if (!essentialZone) return null
         
-        const response = await fetch(`/api/properties/${id}/zones`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: { es: essentialZone.name, en: essentialZone.name },
-            description: { es: essentialZone.description, en: essentialZone.description },
-            icon: essentialZone.icon,
-            status: 'ACTIVE'
-          })
-        })
-
-        if (response.ok) {
-          const result = await response.json()
-          const newZone = {
-            id: result.data.id,
-            name: essentialZone.name,
-            iconId: essentialZone.icon,
-            order: result.data.order || 0,
-            stepsCount: 0,
-            qrUrl: `/z/${result.data.accessCode}`,
-            lastUpdated: new Date().toISOString(),
-            slug: result.data.slug
-          }
-          createdZones.push(newZone)
+        return {
+          name: { es: essentialZone.name, en: essentialZone.name },
+          description: { es: essentialZone.description, en: essentialZone.description },
+          icon: essentialZone.icon,
+          status: 'ACTIVE'
         }
+      }).filter(Boolean)
+
+      if (zonesToCreate.length === 0) {
+        setShowEssentialZonesModal(false)
+        setIsCreatingZone(false)
+        return
       }
 
-      if (createdZones.length > 0) {
-        setZones(prevZones => [...prevZones, ...createdZones])
+      // Use batch API for reliability
+      console.log('🚀 Using BATCH API for essential zones creation')
+      const success = await createBatchZones(id, zonesToCreate)
+      
+      if (success) {
+        // Refetch zones to get the created ones
+        const zonesResponse = await fetch(`/api/properties/${id}/zones`)
+        const zonesResult = await zonesResponse.json()
+        
+        if (zonesResult.success && zonesResult.data) {
+          const transformedZones: Zone[] = zonesResult.data.map((zone: any) => {
+            const zoneName = getZoneText(zone.name)
+            const zoneDescription = getZoneText(zone.description)
+            return {
+              id: zone.id,
+              name: zoneName,
+              description: zoneDescription,
+              iconId: zone.icon,
+              order: zone.order || 0,
+              stepsCount: zone.steps?.length || 0,
+              qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
+              lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+              slug: zone.slug
+            }
+          })
+          
+          setZones(transformedZones)
+          addNotification({
+            type: 'success',
+            title: 'Zonas creadas',
+            message: `${zonesToCreate.length} zonas esenciales creadas correctamente`,
+            read: false
+          })
+        }
+      } else {
         addNotification({
-          type: 'info',
-          title: 'Zonas creadas',
-          message: `${createdZones.length} zonas esenciales creadas correctamente`,
+          type: 'error',
+          title: 'Error',
+          message: 'No se pudieron crear las zonas esenciales',
           read: false
         })
-        
       }
       
       setShowEssentialZonesModal(false)
     } catch (error) {
       console.error('Error creating essential zones:', error)
-      alert('Error al crear las zonas esenciales')
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Error al crear las zonas esenciales',
+        read: false
+      })
     } finally {
       setIsCreatingZone(false)
     }
@@ -797,48 +795,77 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     console.log('🚀 ALWAYS using BATCH API for reliability')
     try {
       const { apartmentElements } = await import('../../../../../src/data/apartmentElements')
-      const createdZones: Zone[] = []
       
-      for (const elementId of selectedElementIds) {
+      // Prepare zones data for batch creation
+      const zonesToCreate = selectedElementIds.map(elementId => {
         const element = apartmentElements.find(e => e.id === elementId)
-        if (!element) continue
-
-        const response = await fetch(`/api/properties/${id}/zones`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            name: getZoneText(element.name),
-            description: getZoneText(element.description),
-            icon: element.icon,
-            color: 'bg-gray-100',
-            status: 'ACTIVE'
-          })
-        })
-
-        const result = await response.json()
-
-        if (response.ok && result.success) {
-          const newZone: Zone = {
-            id: result.data.id,
-            name: getZoneText(element.name),
-            description: getZoneText(element.description),
-            iconId: element.icon,
-            order: result.data.order,
-            stepsCount: 0,
-            qrUrl: `https://itineramio.com/guide/${id}/${result.data.id}`,
-            lastUpdated: new Date().toISOString().split('T')[0]
-          }
-          createdZones.push(newZone)
+        if (!element) return null
+        
+        return {
+          name: getZoneText(element.name),
+          description: getZoneText(element.description),
+          icon: element.icon,
+          status: 'ACTIVE'
         }
+      }).filter(Boolean)
+
+      if (zonesToCreate.length === 0) {
+        setShowElementSelector(false)
+        setIsCreatingZone(false)
+        return
       }
 
-      setZones([...zones, ...createdZones])
+      // Use batch API for reliability
+      const success = await createBatchZones(id, zonesToCreate)
+      
+      if (success) {
+        // Refetch zones to get the created ones
+        const zonesResponse = await fetch(`/api/properties/${id}/zones`)
+        const zonesResult = await zonesResponse.json()
+        
+        if (zonesResult.success && zonesResult.data) {
+          const transformedZones: Zone[] = zonesResult.data.map((zone: any) => {
+            const zoneName = getZoneText(zone.name)
+            const zoneDescription = getZoneText(zone.description)
+            return {
+              id: zone.id,
+              name: zoneName,
+              description: zoneDescription,
+              iconId: zone.icon,
+              order: zone.order || 0,
+              stepsCount: zone.steps?.length || 0,
+              qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
+              lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+              slug: zone.slug
+            }
+          })
+          
+          setZones(transformedZones)
+          addNotification({
+            type: 'success',
+            title: 'Zonas creadas',
+            message: `${zonesToCreate.length} zonas creadas correctamente`,
+            read: false
+          })
+        }
+      } else {
+        addNotification({
+          type: 'error',
+          title: 'Error',
+          message: 'No se pudieron crear las zonas',
+          read: false
+        })
+      }
+
       setShowElementSelector(false)
     } catch (error) {
       console.error('Error creating zones:', error)
-      alert('Error al crear los elementos')
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Error al crear los elementos',
+        read: false
+      })
     } finally {
       setIsCreatingZone(false)
     }
@@ -846,6 +873,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   const handlePredefinedZonesChoice = async () => {
     setShowPredefineModal(false)
+    setIsCreatingZone(true)
     
     // Get essential zones that don't exist yet
     const existingZoneNames = zones.map(z => getZoneText(z.name).toLowerCase())
@@ -862,44 +890,77 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     ].filter(zone => !existingZoneNames.includes(zone.name.toLowerCase()))
 
     try {
-      const createdZones: Zone[] = []
-      
-      for (const zoneData of commonZones) {
-        const response = await fetch(`/api/properties/${id}/zones`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            name: zoneData.name,
-            description: zoneData.description,
-            icon: zoneData.iconId,
-            color: 'bg-gray-100',
-            status: 'ACTIVE'
-          })
+      if (commonZones.length === 0) {
+        addNotification({
+          type: 'info',
+          title: 'Sin zonas nuevas',
+          message: 'Ya tienes todas las zonas predefinidas',
+          read: false
         })
-
-        const result = await response.json()
-
-        if (response.ok && result.success) {
-          const newZone: Zone = {
-            id: result.data.id,
-            name: zoneData.name,
-            description: zoneData.description,
-            iconId: zoneData.iconId,
-            order: result.data.order,
-            stepsCount: 0,
-            qrUrl: `https://itineramio.com/guide/${id}/${result.data.id}`,
-            lastUpdated: new Date().toISOString().split('T')[0]
-          }
-          createdZones.push(newZone)
-        }
+        setIsCreatingZone(false)
+        return
       }
 
-      setZones([...zones, ...createdZones])
+      // Prepare zones data for batch creation
+      const zonesToCreate = commonZones.map(zoneData => ({
+        name: zoneData.name,
+        description: zoneData.description,
+        icon: zoneData.iconId,
+        status: 'ACTIVE'
+      }))
+
+      // Use batch API for reliability
+      console.log('🚀 Using BATCH API for predefined zones')
+      const success = await createBatchZones(id, zonesToCreate)
+      
+      if (success) {
+        // Refetch zones to get the created ones
+        const zonesResponse = await fetch(`/api/properties/${id}/zones`)
+        const zonesResult = await zonesResponse.json()
+        
+        if (zonesResult.success && zonesResult.data) {
+          const transformedZones: Zone[] = zonesResult.data.map((zone: any) => {
+            const zoneName = getZoneText(zone.name)
+            const zoneDescription = getZoneText(zone.description)
+            return {
+              id: zone.id,
+              name: zoneName,
+              description: zoneDescription,
+              iconId: zone.icon,
+              order: zone.order || 0,
+              stepsCount: zone.steps?.length || 0,
+              qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
+              lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+              slug: zone.slug
+            }
+          })
+          
+          setZones(transformedZones)
+          addNotification({
+            type: 'success',
+            title: 'Zonas creadas',
+            message: `${commonZones.length} zonas predefinidas creadas correctamente`,
+            read: false
+          })
+        }
+      } else {
+        addNotification({
+          type: 'error',
+          title: 'Error',
+          message: 'No se pudieron crear las zonas predefinidas',
+          read: false
+        })
+      }
     } catch (error) {
       console.error('Error creating predefined zones:', error)
-      alert('Error al crear las zonas predefinidas')
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Error al crear las zonas predefinidas',
+        read: false
+      })
+    } finally {
+      setIsCreatingZone(false)
     }
   }
 
@@ -913,49 +974,34 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleSelectMultipleZones = async (zoneIds: string[]) => {
     setIsCreatingZone(true)
     try {
-      // Create zones from templates via API
-      const createdZones: Zone[] = []
-      
-      for (const templateId of zoneIds) {
+      // Create zones from templates via batch API
+      const zonesToCreate = zoneIds.map(templateId => {
         const template = zoneTemplates.find(t => t.id === templateId)
-        if (!template) continue
+        if (!template) return null
         
-        const response = await fetch(`/api/properties/${id}/zones`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            name: getZoneText(template.name),
-            description: getZoneText(template.description),
-            icon: template.icon,
-            color: 'bg-gray-100',
-            status: 'ACTIVE'
-          })
-        })
-
-        const result = await response.json()
-
-        if (response.ok && result.success) {
-          const newZone: Zone = {
-            id: result.data.id,
-            name: getZoneText(template.name),
-            description: getZoneText(template.description),
-            iconId: template.icon,
-            order: result.data.order,
-            stepsCount: 0,
-            qrUrl: `https://itineramio.com/guide/${id}/${result.data.id}`,
-            lastUpdated: new Date().toISOString().split('T')[0]
-          }
-          createdZones.push(newZone)
-        } else {
-          console.error('Error creating zone:', result.error)
+        return {
+          name: getZoneText(template.name),
+          description: getZoneText(template.description),
+          icon: template.icon,
+          color: 'bg-gray-100',
+          status: 'ACTIVE'
         }
-      }
+      }).filter(zone => zone !== null)
 
-      // Update local state with created zones
-      setZones([...zones, ...createdZones])
-      setShowElementSelector(false)
+      const success = await createBatchZones(id, zonesToCreate)
+
+      if (success) {
+        // Refresh zones list
+        const zonesResponse = await fetch(`/api/properties/${id}/zones`)
+        const zonesResult = await zonesResponse.json()
+        if (zonesResult.success) {
+          setZones(zonesResult.data)
+        }
+        
+        setShowElementSelector(false)
+      } else {
+        alert('Error al crear las zonas')
+      }
     } catch (error) {
       console.error('Error creating multiple zones:', error)
       alert('Error al crear las zonas')
@@ -978,42 +1024,33 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleCreateZoneFromInspiration = async (inspiration: InspirationZone) => {
     setIsCreatingZone(true)
     try {
-      const response = await fetch(`/api/properties/${id}/zones`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: getZoneText(inspiration.name),
-          description: getZoneText(inspiration.description),
-          icon: inspiration.icon,
-          color: 'bg-gray-100',
-          status: 'ACTIVE'
-        })
-      })
+      const zoneData = {
+        name: getZoneText(inspiration.name),
+        description: getZoneText(inspiration.description),
+        icon: inspiration.icon,
+        color: 'bg-gray-100',
+        status: 'ACTIVE'
+      }
 
-      const result = await response.json()
+      const success = await createBatchZones(id, [zoneData])
 
-      if (response.ok && result.success) {
-        const newZone: Zone = {
-          id: result.data.id,
-          name: getZoneText(inspiration.name),
-          description: getZoneText(inspiration.description),
-          iconId: inspiration.icon,
-          order: result.data.order,
-          stepsCount: 0,
-          qrUrl: `https://itineramio.com/guide/${id}/${result.data.id}`,
-          lastUpdated: new Date().toISOString().split('T')[0]
+      if (success) {
+        // Refresh zones list
+        const zonesResponse = await fetch(`/api/properties/${id}/zones`)
+        const zonesResult = await zonesResponse.json()
+        if (zonesResult.success) {
+          const newZones = zonesResult.data
+          setZones(newZones)
+          
+          // Find the newly created zone and open step editor
+          const newZone = newZones.find((zone: Zone) => zone.name === getZoneText(inspiration.name))
+          if (newZone) {
+            setEditingZoneForSteps(newZone)
+            setShowStepEditor(true)
+          }
         }
-
-        setZones([...zones, newZone])
-        
-        // Open step editor for the new zone
-        setEditingZoneForSteps(newZone)
-        setShowStepEditor(true)
       } else {
-        console.error('Error creating zone from inspiration:', result.error)
-        alert(result.error || 'Error al crear la zona')
+        alert('Error al crear la zona')
       }
     } catch (error) {
       console.error('Error creating zone from inspiration:', error)
@@ -1026,42 +1063,33 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleCreateZoneFromTemplate = async (template: ZoneTemplate) => {
     setIsCreatingZone(true)
     try {
-      const response = await fetch(`/api/properties/${id}/zones`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: template.name,
-          description: template.description,
-          icon: template.icon,
-          color: 'bg-gray-100',
-          status: 'ACTIVE'
-        })
-      })
+      const zoneData = {
+        name: template.name,
+        description: template.description,
+        icon: template.icon,
+        color: 'bg-gray-100',
+        status: 'ACTIVE'
+      }
 
-      const result = await response.json()
+      const success = await createBatchZones(id, [zoneData])
 
-      if (response.ok && result.success) {
-        const newZone: Zone = {
-          id: result.data.id,
-          name: template.name,
-          description: template.description,
-          iconId: template.icon,
-          order: result.data.order,
-          stepsCount: 0,
-          qrUrl: `https://itineramio.com/guide/${id}/${result.data.id}`,
-          lastUpdated: new Date().toISOString().split('T')[0]
+      if (success) {
+        // Refresh zones list
+        const zonesResponse = await fetch(`/api/properties/${id}/zones`)
+        const zonesResult = await zonesResponse.json()
+        if (zonesResult.success) {
+          const newZones = zonesResult.data
+          setZones(newZones)
+          
+          // Find the newly created zone and open step editor
+          const newZone = newZones.find((zone: Zone) => zone.name === template.name)
+          if (newZone) {
+            setEditingZoneForSteps(newZone)
+            setShowStepEditor(true)
+          }
         }
-
-        setZones([...zones, newZone])
-        
-        // Open step editor for the new zone
-        setEditingZoneForSteps(newZone)
-        setShowStepEditor(true)
       } else {
-        console.error('Error creating zone from template:', result.error)
-        alert(result.error || 'Error al crear la zona')
+        alert('Error al crear la zona')
       }
     } catch (error) {
       console.error('Error creating zone from template:', error)

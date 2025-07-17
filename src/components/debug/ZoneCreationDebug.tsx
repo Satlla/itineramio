@@ -34,17 +34,18 @@ export function ZoneCreationDebug({ propertyId }: { propertyId: string }) {
       const test2Result = await test2.json()
       setResults(prev => [...prev, { test: 'Debug endpoint', status: test2.status, result: test2Result }])
       
-      // Test 3: Try the real endpoint
+      // Test 3: Try the batch endpoint instead
       const timestamp = Date.now()
-      const test3 = await fetch(`/api/properties/${propertyId}/zones`, {
+      const test3 = await fetch(`/api/properties/${propertyId}/zones/batch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: `Real Test Zone ${timestamp}`,
-          description: 'Real test',
-          icon: 'key',
-          order: 2,
-          status: 'ACTIVE'
+          zones: [{
+            name: `Real Test Zone ${timestamp}`,
+            description: 'Real test',
+            icon: 'key',
+            status: 'ACTIVE'
+          }]
         })
       })
       const test3Text = await test3.text()
@@ -54,7 +55,7 @@ export function ZoneCreationDebug({ propertyId }: { propertyId: string }) {
       } catch {
         test3Result = { text: test3Text }
       }
-      setResults(prev => [...prev, { test: 'Real endpoint', status: test3.status, result: test3Result }])
+      setResults(prev => [...prev, { test: 'Real batch endpoint', status: test3.status, result: test3Result }])
       
     } catch (error) {
       setResults(prev => [...prev, { test: 'Error', error: String(error) }])

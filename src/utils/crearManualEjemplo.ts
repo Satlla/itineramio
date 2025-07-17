@@ -1,4 +1,5 @@
 import { manualEjemploZones, type ManualZone, type ManualStep } from '../data/manualEjemplo'
+import { createBatchZones } from './createBatchZones'
 
 // Función para crear las zonas del manual de ejemplo
 export async function crearManualEjemplo(propertyId: string): Promise<boolean> {
@@ -7,35 +8,48 @@ export async function crearManualEjemplo(propertyId: string): Promise<boolean> {
     
     let zonasCreadas = 0
     
+    // Prepare zones data for batch creation
+    const zonesToCreate = manualEjemploZones.map(zona => ({
+      name: zona.name,
+      description: zona.description,
+      icon: zona.icon,
+      status: 'DRAFT' // Empezar como borrador para que puedan editarlo
+    }))
+
+    // Use batch API for reliability
+    console.log('🚀 Using BATCH API for manual ejemplo creation')
+    const success = await createBatchZones(propertyId, zonesToCreate)
+    
+    if (!success) {
+      console.error('❌ Error creando zonas del manual de ejemplo')
+      return false
+    }
+
+    // Get the created zones to add steps
+    const zonesResponse = await fetch(`/api/properties/${propertyId}/zones`)
+    const zonesResult = await zonesResponse.json()
+    
+    if (!zonesResult.success || !zonesResult.data) {
+      console.error('❌ Error obteniendo zonas creadas')
+      return false
+    }
+
+    const createdZones = zonesResult.data
+    
+    // Add steps to each zone
     for (const zona of manualEjemploZones) {
-      // Crear la zona
-      const zoneResponse = await fetch(`/api/properties/${propertyId}/zones`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: zona.name,
-          description: zona.description,
-          icon: zona.icon,
-          order: zona.order,
-          status: 'DRAFT', // Empezar como borrador para que puedan editarlo
-          isExample: true // Marcar como ejemplo
-        })
+      // Find the created zone by name
+      const createdZone = createdZones.find((z: any) => {
+        const zoneName = typeof z.name === 'string' ? z.name : z.name?.es || z.name?.en || ''
+        return zoneName.toLowerCase() === zona.name.toLowerCase()
       })
-
-      if (!zoneResponse.ok) {
-        console.error(`Error creando zona ${zona.name}:`, await zoneResponse.text())
+      
+      if (!createdZone) {
+        console.error(`❌ No se encontró la zona creada: ${zona.name}`)
         continue
       }
-
-      const zoneResult = await zoneResponse.json()
-      if (!zoneResult.success) {
-        console.error(`Error en respuesta de zona ${zona.name}:`, zoneResult.error)
-        continue
-      }
-
-      const zoneId = zoneResult.data.id
+      
+      const zoneId = createdZone.id
       console.log(`✅ Zona "${zona.name}" creada con ID:`, zoneId)
 
       // Crear los pasos de esta zona

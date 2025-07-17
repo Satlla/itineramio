@@ -1,34 +1,54 @@
 import { manualEjemploSimple } from '../data/manualEjemploSimple'
+import { createBatchZones } from './createBatchZones'
 
 export async function crearManualSimple(propertyId: string): Promise<boolean> {
   try {
     console.log('🚀 Creando manual simple para:', propertyId)
     
-    for (const zona of manualEjemploSimple) {
-      // 1. Crear zona
-      const zoneRes = await fetch(`/api/properties/${propertyId}/zones`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: zona.name,
-          description: zona.description,
-          icon: zona.icon,
-          order: zona.order,
-          status: 'ACTIVE',
-          isPublished: true
-        })
-      })
+    // 1. Crear zonas usando batch API
+    const zonesToCreate = manualEjemploSimple.map(zona => ({
+      name: zona.name,
+      description: zona.description,
+      icon: zona.icon,
+      status: 'ACTIVE'
+    }))
 
-      if (!zoneRes.ok) {
-        console.error('Error creando zona:', await zoneRes.text())
+    console.log('🚀 Using BATCH API for manual simple creation')
+    const success = await createBatchZones(propertyId, zonesToCreate)
+    
+    if (!success) {
+      console.error('❌ Error creando zonas del manual simple')
+      return false
+    }
+
+    // Get the created zones to add steps
+    const zonesResponse = await fetch(`/api/properties/${propertyId}/zones`)
+    const zonesResult = await zonesResponse.json()
+    
+    if (!zonesResult.success || !zonesResult.data) {
+      console.error('❌ Error obteniendo zonas creadas')
+      return false
+    }
+
+    const createdZones = zonesResult.data
+
+    // 2. Add steps to each zone
+    for (const zona of manualEjemploSimple) {
+      // Find the created zone by name
+      const createdZone = createdZones.find((z: any) => {
+        const zoneName = typeof z.name === 'string' ? z.name : z.name?.es || z.name?.en || ''
+        return zoneName.toLowerCase() === zona.name.toLowerCase()
+      })
+      
+      if (!createdZone) {
+        console.error(`❌ No se encontró la zona creada: ${zona.name}`)
         continue
       }
-
-      const zoneData = await zoneRes.json()
-      const zoneId = zoneData.data.id
+      
+      const zoneId = createdZone.id
       console.log(`✅ Zona ${zona.name} creada:`, zoneId)
 
-      // 2. Crear steps
+      // 3. Crear steps
       for (const step of zona.steps) {
         const stepRes = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
           method: 'POST',

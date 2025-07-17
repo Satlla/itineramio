@@ -1,3 +1,5 @@
+import { createBatchZones } from './createBatchZones'
+
 // Crear solo las 4 zonas básicas sin contenido
 export async function crearZonasBasicas(propertyId: string): Promise<boolean> {
   const zonas = [
@@ -8,15 +10,19 @@ export async function crearZonasBasicas(propertyId: string): Promise<boolean> {
   ]
 
   try {
-    for (const zona of zonas) {
-      await fetch(`/api/properties/${propertyId}/zones`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(zona)
-      })
-    }
-    return true
+    // Use batch API for reliability
+    console.log('🚀 Using BATCH API for basic zones creation')
+    const zonesToCreate = zonas.map(zona => ({
+      name: zona.name,
+      description: zona.description,
+      icon: zona.icon,
+      status: 'ACTIVE'
+    }))
+    
+    const success = await createBatchZones(propertyId, zonesToCreate)
+    return success
   } catch (error) {
+    console.error('❌ Error creating basic zones:', error)
     return false
   }
 }
