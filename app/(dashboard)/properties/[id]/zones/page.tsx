@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb } from 'lucide-react'
 import {
   DndContext,
   closestCenter,
@@ -1690,7 +1690,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto p-6 pb-24 lg:pb-6">
       {/* Inactive Property Banner */}
       {propertyStatus === 'DRAFT' && (
         <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
@@ -1986,7 +1986,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
       {/* Zone Static Suggestions Section - Mobile Only */}
       {user && zones.length > 0 && (
-        <div className="mt-12 lg:hidden">
+        <div id="mobile-suggestions" className="mt-12 lg:hidden pb-24">
           <ZoneStaticSuggestions
             existingZoneNames={zones.map(z => getZoneText(z.name))}
             onCreateZone={handleCreateZoneFromTemplate}
@@ -2368,24 +2368,43 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         )}
       </AnimatePresence>
 
-      <div className="lg:hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
-        {zones.length === 0 ? (
-          <Button
-            onClick={handleOpenMultiSelect}
-            className="bg-violet-600 hover:bg-violet-700 shadow-lg rounded-full px-6 py-3"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Crear Zona
-          </Button>
-        ) : (
-          <Button
-            onClick={() => setShowElementSelector(true)}
-            className="bg-violet-600 hover:bg-violet-700 shadow-lg rounded-full px-6 py-3"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Añadir Elementos
-          </Button>
-        )}
+      {/* Mobile Fixed Bottom Navbar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
+        <div className="p-4">
+          {zones.length === 0 ? (
+            <Button
+              onClick={handleOpenMultiSelect}
+              className="bg-violet-600 hover:bg-violet-700 w-full"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Crear Zona
+            </Button>
+          ) : (
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowElementSelector(true)}
+                className="bg-violet-600 hover:bg-violet-700 flex-1"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Añadir Elementos
+              </Button>
+              <Button
+                onClick={() => {
+                  // Scroll to suggestions section
+                  const suggestionsSection = document.querySelector('#mobile-suggestions')
+                  if (suggestionsSection) {
+                    suggestionsSection.scrollIntoView({ behavior: 'smooth' })
+                  }
+                }}
+                variant="outline"
+                className="w-12 h-12 p-0"
+                title="Ver sugerencias"
+              >
+                <Lightbulb className="w-5 h-5" />
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       <AnimatePresence>
