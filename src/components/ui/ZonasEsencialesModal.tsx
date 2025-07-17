@@ -76,15 +76,15 @@ export function ZonasEsencialesModal({
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               ¡Hola {userName}! 👋
             </h2>
-            <p className="text-gray-600">
-              Te sugerimos utilizar nuestra <strong>plantilla de zonas esenciales</strong> para completar tu manual digital
+            <p className="text-gray-600 text-lg">
+              Estamos creando tu <strong>manual digital inteligente</strong> con las zonas esenciales que todo huésped necesita
             </p>
           </div>
 
           {/* Zones Created - Responsive Grid */}
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <h3 className="font-semibold text-gray-900 mb-4 text-center">
-              Zonas que se crearán para ti:
+              🚀 Zonas esenciales que estamos creando:
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {zonesInfo.map((zone) => {
@@ -104,11 +104,53 @@ export function ZonasEsencialesModal({
             </div>
           </div>
 
-          {/* Information */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <p className="text-sm text-blue-800">
-              <strong>💡 Estas zonas están vacías</strong> - solo tienes que completarlas con la información específica de tu apartamento.
-            </p>
+          {/* Features Information */}
+          <div className="mb-6">
+            <h3 className="font-semibold text-gray-900 mb-4 text-center">
+              ¿Qué puedes hacer en cada zona?
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Content Types */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h4 className="font-semibold text-green-800 mb-2">📝 Tipos de Contenido</h4>
+                <ul className="text-sm text-green-700 space-y-1">
+                  <li>• <strong>Texto</strong> con instrucciones paso a paso</li>
+                  <li>• <strong>Fotos</strong> para mostrar ubicaciones y dispositivos</li>
+                  <li>• <strong>Videos</strong> con explicaciones detalladas</li>
+                  <li>• <strong>Enlaces externos</strong> a recursos útiles</li>
+                </ul>
+              </div>
+              
+              {/* Sharing Options */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-800 mb-2">🚀 Funcionalidades</h4>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  <li>• <strong>Códigos QR</strong> únicos para cada zona</li>
+                  <li>• <strong>Enlaces públicos</strong> para compartir</li>
+                  <li>• <strong>Vista móvil</strong> optimizada para huéspedes</li>
+                  <li>• <strong>Traducciones</strong> automáticas disponibles</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Start Info */}
+          <div className="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-6">
+            <h4 className="font-semibold text-violet-800 mb-2">🎯 Pasos siguientes:</h4>
+            <div className="text-sm text-violet-700 grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="flex items-center space-x-2">
+                <span className="w-6 h-6 bg-violet-200 text-violet-800 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                <span>Completa cada zona con información específica</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="w-6 h-6 bg-violet-200 text-violet-800 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                <span>Activa tu manual cuando esté listo</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="w-6 h-6 bg-violet-200 text-violet-800 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                <span>Comparte con tus huéspedes</span>
+              </div>
+            </div>
           </div>
 
           {/* Actions - Responsive Layout */}
@@ -121,10 +163,10 @@ export function ZonasEsencialesModal({
               {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                  Creando tu manual...
+                  Creando zonas esenciales...
                 </>
               ) : (
-                <>✨ ¡Sí! Crear mi manual con plantilla</>
+                <>✨ ¡Perfecto! Empezar con estas zonas</>
               )}
             </Button>
             
@@ -134,7 +176,7 @@ export function ZonasEsencialesModal({
               variant="outline"
               className="flex-1 border-gray-200 text-gray-600 hover:bg-gray-50 h-12"
             >
-              No gracias, prefiero crear todo yo
+              {isLoading ? 'Eliminando...' : 'No, prefiero empezar desde cero'}
             </Button>
           </div>
 

@@ -104,8 +104,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [hasShownEssentialZones, setHasShownEssentialZones] = useState(false)
   const [selectedEssentialZones, setSelectedEssentialZones] = useState<Set<string>>(new Set())
   
-  // Welcome info banner state
-  const [showWelcomeBanner, setShowWelcomeBanner] = useState(false)
+  // Welcome modal state for essential zones (first time users)
   
   // Zonas esenciales modal state
   const [showZonasEsencialesModal, setShowZonasEsencialesModal] = useState(false)
@@ -284,72 +283,64 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             !!window.localStorage.getItem(propertyZonesKey) : false
           
           if (isClient && !hasExistingZones && !hasCreatedZonesForThisProperty) {
-            // Property has no zones and we haven't created them yet - create them automatically
-            setTimeout(async () => {
-              try {
-                const success = await crearZonasEsenciales(id)
-                if (success) {
-                  // Mark that we've created zones for this property
-                  if (typeof window !== 'undefined') {
-                    window.localStorage.setItem(propertyZonesKey, 'true')
-                  }
-                  
-                  // Refetch zones to show them
-                  const newResponse = await fetch(`/api/properties/${id}/zones`)
-                  const newResult = await newResponse.json()
-                  if (newResult.success) {
-                    const newZones = newResult.data.map((zone: any) => {
-                      const zoneName = getZoneText(zone.name)
-                      const zoneDescription = getZoneText(zone.description)
-                      return {
-                        id: zone.id,
-                        name: zoneName,
-                        description: zoneDescription,
-                        iconId: zone.icon,
-                        order: zone.order || 0,
-                        stepsCount: zone.steps?.length || 0,
-                        qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
-                        lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-                        slug: zone.slug
-                      }
-                    })
-                    setZones(newZones)
-                    
-                    // Show welcome banner for first time visitors
-                    const propertyWelcomeKey = `property_${id}_welcome_shown`
-                    const hasShownWelcome = typeof window !== 'undefined' ? 
-                      !!window.localStorage.getItem(propertyWelcomeKey) : false
-                    
-                    if (!hasShownWelcome) {
-                      setShowWelcomeBanner(true)
-                      if (typeof window !== 'undefined') {
-                        window.localStorage.setItem(propertyWelcomeKey, 'true')
-                      }
-                    }
-                  }
-                }
-              } catch (error) {
-                console.error('Error creating essential zones:', error)
-              }
-            }, 500)
-          }
-          
-          setZones(transformedZones)
-          setIsLoadingZones(false)
-          
-          // Check if we should show welcome banner for existing zones
-          if (isClient && hasExistingZones) {
+            // Property has no zones and we haven't created them yet
+            // Show modal immediately and create zones in background
             const propertyWelcomeKey = `property_${id}_welcome_shown`
             const hasShownWelcome = typeof window !== 'undefined' ? 
               !!window.localStorage.getItem(propertyWelcomeKey) : false
             
             if (!hasShownWelcome) {
-              setShowWelcomeBanner(true)
-              if (typeof window !== 'undefined') {
-                window.localStorage.setItem(propertyWelcomeKey, 'true')
-              }
+              // Show modal immediately
+              setShowZonasEsencialesModal(true)
+              setIsCreatingZone(true) // Show loading state
+              
+              // Create zones in background
+              setTimeout(async () => {
+                try {
+                  const success = await crearZonasEsenciales(id)
+                  if (success) {
+                    // Mark that we've created zones for this property
+                    if (typeof window !== 'undefined') {
+                      window.localStorage.setItem(propertyZonesKey, 'true')
+                      window.localStorage.setItem(propertyWelcomeKey, 'true')
+                    }
+                    
+                    // Refetch zones to show them
+                    const newResponse = await fetch(`/api/properties/${id}/zones`)
+                    const newResult = await newResponse.json()
+                    if (newResult.success) {
+                      const newZones = newResult.data.map((zone: any) => {
+                        const zoneName = getZoneText(zone.name)
+                        const zoneDescription = getZoneText(zone.description)
+                        return {
+                          id: zone.id,
+                          name: zoneName,
+                          description: zoneDescription,
+                          iconId: zone.icon,
+                          order: zone.order || 0,
+                          stepsCount: zone.steps?.length || 0,
+                          qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
+                          lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                          slug: zone.slug
+                        }
+                      })
+                      setZones(newZones)
+                      setHasCreatedEssentialZones(true) // Mark zones as ready
+                    }
+                  }
+                } catch (error) {
+                  console.error('Error creating essential zones:', error)
+                } finally {
+                  setIsCreatingZone(false) // Hide loading state
+                }
+              }, 1000) // Small delay to show modal first
             }
           }
+          
+          setZones(transformedZones)
+          setIsLoadingZones(false)
+          
+          // Don't show welcome modal for properties that already have zones
           
           // REMOVED: No longer showing welcome modal for existing zones
           // System template detection and modal logic removed
@@ -785,6 +776,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
   }
 
+  // Handler for keeping the essential zones that were automatically created (defined later)
+
+  // Handler for deleting all essential zones if user doesn't want them (defined later)
+
   const handleSelectMultipleElements = async (selectedElementIds: string[]) => {
     console.log('🎯 handleSelectMultipleElements called with:', selectedElementIds)
     console.log('🎯 Number of elements selected:', selectedElementIds.length)
@@ -1076,79 +1071,66 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  // Zonas esenciales modal handlers
-  const handleKeepEssentialZones = async () => {
-    // User wants the essential zones - create them now with loading state
+  // Zonas esenciales modal handlers - NEW FLOW
+  const handleKeepEssentialZones = () => {
+    // User accepts the zones that are already being created in background
+    setShowZonasEsencialesModal(false)
+    
+    // Show success notification
+    addNotification({
+      type: 'success',
+      title: '¡Perfecto!',
+      message: 'Hemos creado las zonas esenciales para ti. Ahora puedes completarlas con información específica.',
+      read: false
+    })
+    
+    // Add notification about inactive property if it's in DRAFT status
+    if (propertyStatus === 'DRAFT') {
+      setTimeout(() => {
+        addNotification({
+          type: 'warning',
+          title: '⚠️ Propiedad Inactiva',
+          message: 'Tu propiedad está inactiva. Los huéspedes no podrán verla hasta que la actives. Completa las zonas y actívala cuando esté lista.',
+          read: false,
+          propertyId: id
+        })
+      }, 1000) // Delay to show after the first notification
+    }
+  }
+
+  const handleDeleteEssentialZones = async () => {
+    // User doesn't want the zones that were created - delete them
     setIsCreatingZone(true)
     try {
-      const success = await crearZonasEsenciales(id)
-      if (success) {
-        // Refetch zones
-        const newResponse = await fetch(`/api/properties/${id}/zones`)
-        const newResult = await newResponse.json()
-        if (newResult.success) {
-          const newZones = newResult.data.map((zone: any) => {
-            const zoneName = getZoneText(zone.name)
-            const zoneDescription = getZoneText(zone.description)
-            return {
-              id: zone.id,
-              name: zoneName,
-              description: zoneDescription,
-              iconId: zone.icon,
-              order: zone.order || 0,
-              stepsCount: zone.steps?.length || 0,
-              qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
-              lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-              slug: zone.slug
-            }
-          })
-          setZones(newZones)
-          setShowZonasEsencialesModal(false)
-          
-          // Add notification about zones created
-          addNotification({
-            type: 'info',
-            title: 'Manual creado',
-            message: `Se han creado ${newZones.length} zonas esenciales. ¡Completa la información!`,
-            read: false
-          })
-          
-          // Add notification about inactive property if it's in DRAFT status
-          if (propertyStatus === 'DRAFT') {
-            setTimeout(() => {
-              addNotification({
-                type: 'warning',
-                title: '⚠️ Propiedad Inactiva',
-                message: 'Tu propiedad está inactiva. Los huéspedes no podrán verla hasta que la actives. Completa las zonas y actívala cuando esté lista.',
-                read: false,
-                propertyId: id
-              })
-            }, 1000) // Delay to show after the first notification
-          }
-        }
+      // Delete all zones that were created
+      for (const zone of zones) {
+        await fetch(`/api/properties/${id}/zones/${zone.id}`, {
+          method: 'DELETE'
+        })
       }
+      
+      // Clear zones from state
+      setZones([])
+      setShowZonasEsencialesModal(false)
+      setHasCreatedEssentialZones(false)
+      
+      addNotification({
+        type: 'info',
+        title: 'Manual vacío',
+        message: 'Las zonas han sido eliminadas. Puedes crear las zonas que necesites desde cero.',
+        read: false
+      })
     } catch (error) {
-      console.error('Error creando zonas esenciales:', error)
+      console.error('Error deleting zones:', error)
       addNotification({
         type: 'error',
         title: 'Error',
-        message: 'No se pudieron crear las zonas esenciales',
+        message: 'No se pudieron eliminar todas las zonas. Inténtalo de nuevo.',
         read: false
       })
     } finally {
       setIsCreatingZone(false)
     }
-  }
-
-  const handleDeleteEssentialZones = () => {
-    // User wants to start from scratch - just close modal, don't create anything
-    setShowZonasEsencialesModal(false)
-    addNotification({
-      type: 'info',
-      title: 'Manual vacío',
-      message: 'Puedes crear las zonas que necesites desde cero',
-      read: false
-    })
   }
 
 
@@ -1434,40 +1416,45 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           }}
         >
           <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              {/* Drag handle */}
-              <div className="flex items-center space-x-4 flex-1">
+            <div className="flex items-start justify-between min-h-[80px]">
+              {/* Left side - Zone info */}
+              <div className="flex items-start space-x-3 flex-1 min-w-0">
+                {/* Drag handle */}
                 <div
                   {...attributes}
                   {...listeners}
-                  className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded transition-colors"
+                  className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0 mt-1"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <GripVertical className="w-4 h-4 text-gray-400" />
                 </div>
                 
-                <ZoneIconDisplay iconId={zone.iconId} size="md" />
+                {/* Zone icon */}
+                <div className="flex-shrink-0 mt-1">
+                  <ZoneIconDisplay iconId={zone.iconId} size="md" />
+                </div>
                 
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{getZoneText(zone.name)}</h3>
+                {/* Zone content */}
+                <div className="flex-1 min-w-0 pt-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate">{getZoneText(zone.name)}</h3>
                   
-                  <div className="flex items-center space-x-6 text-sm text-gray-600">
+                  <div className="flex flex-col space-y-1 text-sm text-gray-600">
                     <div className="flex items-center">
-                      <Edit className="w-3 h-3 mr-1 text-gray-400" />
+                      <Edit className="w-3 h-3 mr-1 text-gray-400 flex-shrink-0" />
                       <span className="font-medium">{zone.stepsCount}</span>
                       <span className="ml-1">steps</span>
                     </div>
                     
                     <div className="flex items-center">
-                      <span className="text-gray-500">Actualizado:</span>
-                      <span className="ml-1 font-medium">{zone.lastUpdated}</span>
+                      <span className="text-gray-500 flex-shrink-0">Actualizado:</span>
+                      <span className="ml-1 font-medium truncate">{zone.lastUpdated}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Right Section - Menu */}
-              <div className="flex items-center ml-4" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-start pt-1 ml-4 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
                     <Button
@@ -1631,16 +1618,18 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Zone content */}
-              <div className="flex flex-col items-center text-center flex-1">
-                <div className="mb-2">
-                  <ZoneIconDisplay iconId={zone.iconId} size="lg" />
+              <div className="flex flex-col items-center text-center flex-1 min-h-[100px] justify-between">
+                <div className="flex-1 flex flex-col items-center justify-center">
+                  <div className="mb-3">
+                    <ZoneIconDisplay iconId={zone.iconId} size="lg" />
+                  </div>
+                  
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 break-words px-1">
+                    {getZoneText(zone.name)}
+                  </h3>
                 </div>
                 
-                <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2 break-words">
-                  {getZoneText(zone.name)}
-                </h3>
-                
-                <div className="flex items-center justify-center text-xs text-gray-600 mt-auto">
+                <div className="flex items-center justify-center text-xs text-gray-600 flex-shrink-0">
                   <Edit className="w-3 h-3 mr-1 text-gray-400" />
                   <span className="font-medium">{zone.stepsCount}</span>
                   <span className="ml-1">steps</span>
@@ -1715,62 +1704,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      {/* Welcome Banner - First time visitors */}
-      {showWelcomeBanner && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="mb-6 bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-lg p-6"
-        >
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-violet-600" />
-              </div>
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-violet-900 mb-2">
-                ¡Bienvenido a tu manual digital!
-              </h3>
-              <div className="text-violet-800 space-y-2">
-                <p>
-                  Hemos creado automáticamente las <strong>zonas esenciales</strong> que todo apartamento necesita. 
-                  Estas zonas están <strong>vacías</strong> y necesitan que las completes con instrucciones.
-                </p>
-                <div className="bg-white/50 rounded-lg p-4 mt-3">
-                  <h4 className="font-semibold text-violet-900 mb-2">Pasos para activar tu manual:</h4>
-                  <ul className="space-y-1 text-sm">
-                    <li className="flex items-center gap-2">
-                      <div className="w-5 h-5 bg-violet-200 rounded-full flex items-center justify-center text-xs font-bold text-violet-700">1</div>
-                      <span>Completa las instrucciones de cada zona haciendo click en ellas</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-5 h-5 bg-violet-200 rounded-full flex items-center justify-center text-xs font-bold text-violet-700">2</div>
-                      <span>Activa tu manual cuando esté completo</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-5 h-5 bg-violet-200 rounded-full flex items-center justify-center text-xs font-bold text-violet-700">3</div>
-                      <span>Comparte el enlace con tus huéspedes</span>
-                    </li>
-                  </ul>
-                </div>
-                <p className="text-sm text-violet-700 mt-3">
-                  💡 <strong>Consejo:</strong> Si hay alguna zona que no necesitas, puedes eliminarla usando el menú de 3 puntos.
-                </p>
-              </div>
-            </div>
-            <Button
-              onClick={() => setShowWelcomeBanner(false)}
-              variant="ghost"
-              size="sm"
-              className="text-violet-600 hover:text-violet-700 hover:bg-violet-100"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        </motion.div>
-      )}
 
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
