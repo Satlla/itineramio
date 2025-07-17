@@ -704,12 +704,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         if (!essentialZone) return null
         
         return {
-          name: { es: essentialZone.name, en: essentialZone.name },
-          description: { es: essentialZone.description, en: essentialZone.description },
+          name: essentialZone.name,
+          description: essentialZone.description,
           icon: essentialZone.icon,
           status: 'ACTIVE'
         }
-      }).filter(Boolean)
+      }).filter((zone): zone is NonNullable<typeof zone> => zone !== null)
 
       if (zonesToCreate.length === 0) {
         setShowEssentialZonesModal(false)
@@ -807,7 +807,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           icon: element.icon,
           status: 'ACTIVE'
         }
-      }).filter(Boolean)
+      }).filter((zone): zone is NonNullable<typeof zone> => zone !== null)
 
       if (zonesToCreate.length === 0) {
         setShowElementSelector(false)
