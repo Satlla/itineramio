@@ -71,15 +71,17 @@ interface Zone {
   status: string
 }
 
-// Zone icon mapping using centralized system
+// Zone icon mapping using centralized system - BLACK STYLE FOR PUBLIC VIEW
 const getZoneIcon = (iconName: string, className: string = "w-6 h-6") => {
   if (!iconName) {
-    return <Home className={className} />
+    return <Home className={`${className} text-gray-700`} />
   }
   
   // Use the improved icon mapping system from extended icons
   const IconComponent = getZoneIconByName(iconName)
-  return <IconComponent className={className} />
+  // Force black/gray color for all icons in public view
+  const blackClassName = className.replace(/text-\w+-\d+/, 'text-gray-700')
+  return <IconComponent className={blackClassName} />
 }
 
 // Helper function to get text from multilingual objects
@@ -825,7 +827,7 @@ export default function PropertyGuidePage() {
             <>
               {/* Mobile 2 Rows Grid */}
               <div className="lg:hidden">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                   {property.zones
                     .sort((a, b) => a.order - b.order)
                     .map((zone, index) => (
@@ -836,23 +838,22 @@ export default function PropertyGuidePage() {
                         transition={{ duration: 0.3, delay: index * 0.1 }}
                       >
                         <div 
-                          className="bg-gradient-to-br from-white to-violet-50 border border-violet-100 rounded-xl p-3 cursor-pointer hover:shadow-lg hover:border-violet-200 transition-all duration-200 h-28 flex flex-col"
+                          className="bg-white border border-gray-200 rounded-2xl p-4 cursor-pointer hover:shadow-md hover:border-gray-300 transition-all duration-200 h-32 flex flex-col"
                           onClick={() => handleZoneClick(zone.id)}
                         >
-                          <div className="flex items-center justify-center mb-2">
-                            <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
-                              {zone.icon ? getZoneIcon(zone.icon, "w-4 h-4 text-violet-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-4 h-4 text-violet-600")}
+                          <div className="flex items-center justify-center mb-3">
+                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                              {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5 text-gray-700") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-5 h-5 text-gray-700")}
                             </div>
                           </div>
                           <div className="text-center flex-1">
-                            <h4 className="font-medium text-gray-900 text-xs mb-1 line-clamp-2 break-words">
+                            <h4 className="font-semibold text-gray-900 text-sm mb-2 line-clamp-2 break-words">
                               {getText(zone.name, language, t('zone', language))}
                             </h4>
                             {isZoneViewed(zone.id) && (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                                {t('viewed', language)}
-                              </span>
+                              <div className="flex items-center justify-center">
+                                <CheckCircle className="w-4 h-4 text-green-600" />
+                              </div>
                             )}
                           </div>
                         </div>
@@ -862,7 +863,7 @@ export default function PropertyGuidePage() {
               </div>
 
               {/* Desktop Grid */}
-              <div className="hidden lg:grid grid-cols-2 gap-4">
+              <div className="hidden lg:grid grid-cols-1 gap-3">
                 {property.zones
                   .sort((a, b) => a.order - b.order)
                   .map((zone, index) => (
@@ -873,27 +874,30 @@ export default function PropertyGuidePage() {
                       transition={{ duration: 0.3, delay: index * 0.1 }}
                     >
                       <div 
-                        className="flex items-start space-x-4 p-5 bg-gradient-to-r from-white to-violet-50 border border-violet-100 rounded-xl cursor-pointer hover:shadow-lg hover:border-violet-200 transition-all duration-200"
+                        className="flex items-center space-x-4 p-6 bg-white border border-gray-200 rounded-2xl cursor-pointer hover:shadow-md hover:border-gray-300 transition-all duration-200"
                         onClick={() => handleZoneClick(zone.id)}
                       >
-                        <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
-                          {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5 text-violet-600") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-5 h-5 text-violet-600")}
+                        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                          {zone.icon ? getZoneIcon(zone.icon, "w-6 h-6 text-gray-700") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-6 h-6 text-gray-700")}
                         </div>
                         <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="font-medium text-gray-900">
-                              {getText(zone.name, language, t('zone', language))}
-                            </h4>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="font-semibold text-gray-900 text-lg">
+                                {getText(zone.name, language, t('zone', language))}
+                              </h4>
+                              {getText(zone.description, language, '') && (
+                                <p className="text-sm text-gray-500 mt-1">
+                                  {getText(zone.description, language, '')}
+                                </p>
+                              )}
+                            </div>
                             {isZoneViewed(zone.id) && (
-                              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                                {t('viewed', language)}
-                              </span>
+                              <div className="flex items-center">
+                                <CheckCircle className="w-5 h-5 text-green-600" />
+                              </div>
                             )}
                           </div>
-                          <p className="text-sm text-gray-500">
-                            {getText(zone.description, language, '')}
-                          </p>
                         </div>
                       </div>
                     </motion.div>
