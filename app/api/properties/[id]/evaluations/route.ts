@@ -1,17 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
+import { requireAuth } from '../../../../../src/lib/auth'
 
+// GET /api/properties/[propertyId]/evaluations - Get all evaluations for a property (for host dashboard)
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
-    
-    // Get all evaluations for this property with user info
-    const evaluations = await prisma.review.findMany({
+    const { id: propertyId } = await params
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '50')
+    const skip = (page - 1) * limit
+
+    // Check authentication
+    const authResult = await requireAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
+    const userId = authResult.userId
+
+    // Verify user owns the property
+    const property = await prisma.property.findFirst({
       where: {
-        propertyId: id
+        id: propertyId,
+        hostId: userId
+      }
+    })
+
+    if (!property) {
+      return NextResponse.json(
+        { error: 'Propiedad no encontrada o no autorizada' },
+        { status: 404 }
+      )
+    }
+
+    // Get all evaluations for this property (both zone and property reviews)
+    // First get Reviews (manual evaluations and zone reviews)
+    const reviews = await prisma.review.findMany({
+      where: { propertyId },
+      include: {
+        zone: {
+          select: {
+            id: true,
+            name: true,
+            icon: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    })
+
+    // Get Zone Ratings (private zone evaluations)
+    const zoneRatings = await prisma.zoneRating.findMany({
+      where: {
+        zone: {
+          propertyId: propertyId
+        }
       },
       include: {
         zone: {
@@ -22,42 +70,100 @@ export async function GET(
           }
         }
       },
-      orderBy: {
-        createdAt: 'desc'
-      }
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
     })
 
-    // Calculate property statistics
+    // Transform data to match the interface expected by the frontend
+    const transformedReviews = reviews.map(review => ({
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment,
+      userName: review.userName,
+      userEmail: review.userEmail,
+      reviewType: review.reviewType as 'zone' | 'property',
+      isPublic: review.isPublic,
+      isApproved: review.isApproved,
+      hostResponse: review.hostResponse,
+      hostRespondedAt: review.hostRespondedAt?.toISOString(),
+      createdAt: review.createdAt.toISOString(),
+      updatedAt: review.updatedAt.toISOString(),
+      zone: review.zone ? {
+        id: review.zone.id,
+        name: typeof review.zone.name === 'string' ? review.zone.name : (review.zone.name as any)?.es || 'Zona',
+        icon: review.zone.icon
+      } : undefined
+    }))
+
+    // Transform zone ratings to match interface (these are always private)
+    const transformedZoneRatings = zoneRatings.map(rating => ({
+      id: rating.id,
+      rating: rating.overallRating,
+      comment: rating.feedback || rating.improvementSuggestions,
+      userName: 'Usuario anónimo',
+      userEmail: undefined,
+      reviewType: 'zone' as const,
+      isPublic: false, // Zone ratings are always private
+      isApproved: false,
+      hostResponse: undefined,
+      hostRespondedAt: undefined,
+      createdAt: rating.createdAt.toISOString(),
+      updatedAt: rating.createdAt.toISOString(),
+      zone: {
+        id: rating.zone.id,
+        name: typeof rating.zone.name === 'string' ? rating.zone.name : (rating.zone.name as any)?.es || 'Zona',
+        icon: rating.zone.icon
+      }
+    }))
+
+    // Combine and sort all evaluations
+    const allEvaluations = [...transformedReviews, ...transformedZoneRatings]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+    // Calculate statistics
+    const totalEvaluations = allEvaluations.length
+    const averageRating = totalEvaluations > 0 
+      ? allEvaluations.reduce((sum, evaluation) => sum + evaluation.rating, 0) / totalEvaluations 
+      : 0
+
+    // Calculate rating distribution
+    const ratingDistribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+    allEvaluations.forEach(evaluation => {
+      ratingDistribution[evaluation.rating as keyof typeof ratingDistribution]++
+    })
+
+    const publicEvaluations = allEvaluations.filter(evaluation => evaluation.isPublic).length
+    const privateEvaluations = totalEvaluations - publicEvaluations
+
     const stats = {
-      totalEvaluations: evaluations.length,
-      averageRating: evaluations.length > 0 
-        ? evaluations.reduce((sum, evaluation) => sum + evaluation.rating, 0) / evaluations.length 
-        : 0,
-      ratingDistribution: {
-        5: evaluations.filter(e => e.rating === 5).length,
-        4: evaluations.filter(e => e.rating === 4).length,
-        3: evaluations.filter(e => e.rating === 3).length,
-        2: evaluations.filter(e => e.rating === 2).length,
-        1: evaluations.filter(e => e.rating === 1).length,
-      },
-      publicEvaluations: evaluations.filter(e => e.isPublic).length,
-      privateEvaluations: evaluations.filter(e => !e.isPublic).length,
-      recentActivity: evaluations.slice(0, 10) // Last 10 evaluations
+      totalEvaluations,
+      averageRating,
+      ratingDistribution,
+      publicEvaluations,
+      privateEvaluations,
+      recentActivity: allEvaluations.slice(0, 5) // Last 5 for recent activity
     }
 
     return NextResponse.json({
       success: true,
       data: {
-        evaluations,
-        stats
+        evaluations: allEvaluations,
+        stats,
+        pagination: {
+          page,
+          limit,
+          total: totalEvaluations,
+          pages: Math.ceil(totalEvaluations / limit)
+        }
       }
     })
-    
+
   } catch (error) {
     console.error('Error fetching property evaluations:', error)
-    return NextResponse.json({
-      success: false,
-      error: 'Error al obtener las evaluaciones'
-    }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Error al obtener las evaluaciones' },
+      { status: 500 }
+    )
   }
 }

@@ -82,7 +82,7 @@ export async function POST(
         userId: zone.property!.hostId,
         type: 'ZONE_EVALUATION_RECEIVED',
         title: 'Nueva evaluación de zona',
-        message: `Recibiste una nueva evaluación para la zona "${typeof zone.name === 'string' ? zone.name : zone.name.es}" con ${overallRating} estrellas`,
+        message: `Recibiste una nueva evaluación para la zona "${typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}" con ${overallRating} estrellas`,
         data: {
           zoneId: zone.id,
           zoneName: zone.name,

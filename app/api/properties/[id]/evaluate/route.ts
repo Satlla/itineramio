@@ -4,10 +4,10 @@ import { prisma } from '../../../../../src/lib/prisma'
 // POST /api/properties/[propertyId]/evaluate - Submit manual evaluation (can be public)
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ propertyId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { propertyId } = await params
+    const { id: propertyId } = await params
     const body = await request.json()
 
     const { 
@@ -129,10 +129,10 @@ export async function POST(
 // GET /api/properties/[propertyId]/evaluate - Get manual evaluations
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ propertyId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { propertyId } = await params
+    const { id: propertyId } = await params
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
