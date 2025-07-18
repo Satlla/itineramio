@@ -1,225 +1,221 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 
+// POST /api/evaluations/create - Create evaluation (from public widget)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    
     const { 
       propertyId, 
       zoneId, 
       rating, 
       comment, 
+      userName = 'Usuario anónimo', 
       userEmail,
-      userName,
-      reviewType, // 'zone' or 'property'
-      isPublic = false 
+      reviewType = 'zone',
+      isPublic = false,
+      clarity,
+      completeness,
+      helpfulness,
+      upToDate,
+      improvementSuggestions,
+      guestAgeRange,
+      guestCountry,
+      guestTravelType
     } = body
 
     // Validate required fields
     if (!propertyId || !rating || rating < 1 || rating > 5) {
-      return NextResponse.json({
-        success: false,
-        error: 'Datos de evaluación inválidos'
-      }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Property ID y rating son requeridos (1-5 estrellas)' },
+        { status: 400 }
+      )
     }
 
-    // For public reviews, name and email are required
-    if (isPublic && (!userName || !userEmail)) {
-      return NextResponse.json({
-        success: false,
-        error: 'Para evaluaciones públicas, el nombre y correo electrónico son obligatorios'
-      }, { status: 400 })
-    }
-
-    // Check if user already evaluated this zone/property
-    const existingEvaluation = await prisma.review.findFirst({
-      where: {
-        propertyId,
-        zoneId: zoneId || null,
-        userEmail: userEmail || null,
-        reviewType
-      }
-    })
-
-    if (existingEvaluation) {
-      // Update existing evaluation
-      const updatedEvaluation = await prisma.review.update({
-        where: { id: existingEvaluation.id },
-        data: {
-          rating,
-          comment: comment || null,
-          isPublic,
-          updatedAt: new Date()
-        },
-        include: {
-          zone: {
-            select: {
-              name: true,
-              icon: true
-            }
-          },
-          property: {
-            select: {
-              name: true,
-              hostId: true
-            }
-          }
-        }
-      })
-
-      // Send notification to property owner about updated evaluation
-      await sendEvaluationNotification(updatedEvaluation, 'updated')
-
-      return NextResponse.json({
-        success: true,
-        data: updatedEvaluation,
-        message: 'Evaluación actualizada correctamente'
-      })
-    } else {
-      // Create new evaluation
-      const newEvaluation = await prisma.review.create({
-        data: {
-          propertyId,
-          zoneId: zoneId || null,
-          rating,
-          comment: comment || null,
-          userEmail: userEmail || null,
-          userName: userName || 'Usuario anónimo',
-          reviewType,
-          isPublic,
-          isApproved: false, // Always requires approval
-          emailSent: false,
-          createdAt: new Date()
-        },
-        include: {
-          zone: {
-            select: {
-              name: true,
-              icon: true
-            }
-          },
-          property: {
-            select: {
-              name: true,
-              hostId: true
-            }
-          }
-        }
-      })
-
-      // Send notification to property owner about new evaluation
-      await sendEvaluationNotification(newEvaluation, 'created')
-
-      // Send email notification for zone evaluations (they affect overall property rating)
-      if (reviewType === 'zone' && !newEvaluation.emailSent) {
-        await sendZoneEvaluationEmail(newEvaluation)
-      }
-
-      return NextResponse.json({
-        success: true,
-        data: newEvaluation,
-        message: 'Evaluación creada correctamente'
-      })
-    }
-    
-  } catch (error) {
-    console.error('Error creating/updating evaluation:', error)
-    return NextResponse.json({
-      success: false,
-      error: 'Error al procesar la evaluación'
-    }, { status: 500 })
-  }
-}
-
-// Helper function to send notifications to property owner
-async function sendEvaluationNotification(evaluation: any, action: 'created' | 'updated') {
-  try {
-    if (!evaluation.property?.hostId) {
-      return
-    }
-    
-    const notificationData = {
-      userId: evaluation.property.hostId,
-      type: 'evaluation',
-      title: action === 'created' ? 'Nueva evaluación recibida' : 'Evaluación actualizada',
-      message: evaluation.zoneId 
-        ? `${evaluation.userName} ha ${action === 'created' ? 'dejado' : 'actualizado'} una evaluación (${evaluation.rating}★) en la zona "${evaluation.zone?.name}" de ${evaluation.property.name}`
-        : `${evaluation.userName} ha ${action === 'created' ? 'dejado' : 'actualizado'} una evaluación general (${evaluation.rating}★) de ${evaluation.property.name}`,
-      read: false,
-      data: {
-        propertyId: evaluation.propertyId,
-        zoneId: evaluation.zoneId,
-        evaluationId: evaluation.id,
-        actionUrl: `/properties/${evaluation.propertyId}/evaluations`,
-        rating: evaluation.rating,
-        isPublic: evaluation.isPublic,
-        hasComment: !!evaluation.comment
-      }
-    }
-
-    // Create notification in database
-    await prisma.notification.create({
-      data: notificationData
-    })
-  } catch (error) {
-    console.error('Error sending evaluation notification:', error)
-    // Don't throw the error, just log it so the main operation continues
-  }
-}
-
-// Helper function to send email notifications for zone evaluations
-async function sendZoneEvaluationEmail(evaluation: any) {
-  try {
-    if (!evaluation.property?.hostContactEmail || !evaluation.zone) {
-      return
-    }
-
-    // Get host information
-    const host = await prisma.property.findFirst({
-      where: { id: evaluation.propertyId },
+    // Check if property exists
+    const property = await prisma.property.findUnique({
+      where: { id: propertyId },
       select: {
+        id: true,
+        hostId: true,
         hostContactName: true,
-        hostContactEmail: true,
         name: true
       }
     })
 
-    if (!host?.hostContactEmail) {
-      return
+    if (!property) {
+      return NextResponse.json(
+        { error: 'Propiedad no encontrada' },
+        { status: 404 }
+      )
     }
 
-    // Send email notification
-    const emailData = {
-      to: host.hostContactEmail,
-      hostName: host.hostContactName || 'Anfitrión',
-      propertyName: host.name,
-      propertyId: evaluation.propertyId,
-      guestName: evaluation.userName,
-      guestEmail: evaluation.userEmail,
-      zoneName: evaluation.zone.name,
-      rating: evaluation.rating,
-      comment: evaluation.comment,
-      evaluationId: evaluation.id
+    // Get client IP for tracking
+    const forwarded = request.headers.get('x-forwarded-for')
+    const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown'
+
+    if (reviewType === 'zone' && zoneId) {
+      // For zone evaluations, create both a ZoneRating (private) and optionally a Review (can be public)
+      
+      // Check if zone exists
+      const zone = await prisma.zone.findUnique({
+        where: { id: zoneId },
+        select: { id: true, name: true, propertyId: true }
+      })
+
+      if (!zone || zone.propertyId !== propertyId) {
+        return NextResponse.json(
+          { error: 'Zona no encontrada' },
+          { status: 404 }
+        )
+      }
+
+      // Create ZoneRating (always private, for host improvement feedback)
+      await prisma.zoneRating.create({
+        data: {
+          zoneId,
+          overallRating: rating,
+          clarity: clarity || rating,
+          completeness: completeness || rating,
+          helpfulness: helpfulness || rating,
+          upToDate: upToDate || rating,
+          feedback: comment,
+          improvementSuggestions,
+          language: 'es',
+          guestAgeRange,
+          guestCountry,
+          guestTravelType,
+          ipAddress: ip,
+          visibleToHost: true,
+          visibleToGuests: false
+        }
+      })
+
+      // If there's a comment or the user wants it public, also create a Review
+      if (comment || isPublic) {
+        await prisma.review.create({
+          data: {
+            propertyId,
+            zoneId,
+            rating,
+            comment,
+            userName,
+            userEmail,
+            reviewType: 'zone',
+            isPublic: false, // Always start private, host can make it public
+            isApproved: false
+          }
+        })
+      }
+
+      // Create notification for host about zone evaluation
+      await prisma.notification.create({
+        data: {
+          userId: property.hostId,
+          type: 'ZONE_EVALUATION_RECEIVED',
+          title: 'Nueva evaluación de zona',
+          message: `Recibiste una nueva evaluación para la zona "${typeof zone.name === 'string' ? zone.name : zone.name.es}" con ${rating} estrellas`,
+          data: {
+            zoneId: zone.id,
+            zoneName: zone.name,
+            propertyId: property.id,
+            propertyName: property.name,
+            rating,
+            feedback: comment,
+            userName,
+            improvementSuggestions
+          }
+        }
+      })
+
+      // Update zone's average rating
+      const allRatings = await prisma.zoneRating.findMany({
+        where: { zoneId },
+        select: { overallRating: true }
+      })
+
+      const avgRating = allRatings.reduce((sum, r) => sum + r.overallRating, 0) / allRatings.length
+      
+      await prisma.zone.update({
+        where: { id: zoneId },
+        data: { avgRating }
+      })
+
+    } else {
+      // For property evaluations (full manual evaluation)
+      const review = await prisma.review.create({
+        data: {
+          propertyId,
+          rating,
+          comment,
+          userName,
+          userEmail,
+          reviewType: 'property',
+          isPublic: false, // Always start private, host can make it public
+          isApproved: false
+        }
+      })
+
+      // Create notification for host about manual evaluation
+      await prisma.notification.create({
+        data: {
+          userId: property.hostId,
+          type: 'MANUAL_EVALUATION_RECEIVED',
+          title: 'Nueva evaluación del manual',
+          message: `${userName} evaluó tu manual completo con ${rating} estrellas${comment ? ': "' + comment.substring(0, 50) + '..."' : ''}`,
+          data: {
+            reviewId: review.id,
+            propertyId: property.id,
+            propertyName: property.name,
+            rating,
+            comment,
+            userName,
+            canBePublic: isPublic
+          }
+        }
+      })
+
+      // Update property's average rating
+      const allReviews = await prisma.review.findMany({
+        where: { 
+          propertyId,
+          reviewType: 'property'
+        },
+        select: { rating: true }
+      })
+
+      if (allReviews.length > 0) {
+        const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
+        
+        await prisma.propertyAnalytics.upsert({
+          where: { propertyId },
+          create: {
+            propertyId,
+            overallRating: avgRating,
+            totalRatings: allReviews.length
+          },
+          update: {
+            overallRating: avgRating,
+            totalRatings: allReviews.length
+          }
+        })
+      }
     }
 
-    const emailResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/emails/zone-evaluation-notification`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(emailData)
+    return NextResponse.json({
+      success: true,
+      message: 'Evaluación enviada correctamente. El propietario recibirá una notificación.',
+      data: {
+        rating,
+        type: reviewType
+      }
     })
 
-    if (emailResponse.ok) {
-      // Mark email as sent
-      await prisma.review.update({
-        where: { id: evaluation.id },
-        data: { emailSent: true }
-      })
-    }
-
-    console.log(`✅ Zone evaluation email sent to: ${host.hostContactEmail}`)
   } catch (error) {
-    console.error('Error sending zone evaluation email:', error)
-    // Don't throw the error, just log it so the main operation continues
+    console.error('Error creating evaluation:', error)
+    return NextResponse.json(
+      { error: 'Error al enviar la evaluación' },
+      { status: 500 }
+    )
   }
 }
