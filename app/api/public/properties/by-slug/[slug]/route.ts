@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
-import { createPropertySlug } from '../../../../../../src/lib/slugs'
 
 export async function GET(
   request: NextRequest,
@@ -8,11 +7,12 @@ export async function GET(
 ) {
   try {
     const { slug } = await params
-    console.log('🔍 Public Property by slug endpoint - received slug:', slug)
+    console.log('🔍 Public Property by-slug endpoint - received slug:', slug)
     
-    // Get all published properties and find the one with matching slug
-    const properties = await prisma.property.findMany({
+    // Find property by slug
+    const property = await prisma.property.findFirst({
       where: {
+        slug: slug,
         isPublished: true // Only published properties
       },
       include: {
@@ -40,29 +40,8 @@ export async function GET(
         }
       }
     })
-
-    console.log('🔍 Found', properties.length, 'published properties')
     
-    // Find property with matching slug
-    let property = null
-    for (const prop of properties) {
-      const propertySlug = createPropertySlug(prop)
-      console.log('🔍 Comparing slug:', propertySlug, 'with:', slug)
-      if (propertySlug === slug) {
-        property = prop
-        break
-      }
-    }
-    
-    console.log('🔍 Property found by slug:', !!property)
-    if (property) {
-      console.log('🔍 Property details:', { 
-        id: property.id, 
-        name: property.name, 
-        zonesCount: property.zones.length,
-        isPublished: property.isPublished 
-      })
-    }
+    console.log('🔍 Public Property by slug found:', !!property)
     
     if (!property) {
       return NextResponse.json({

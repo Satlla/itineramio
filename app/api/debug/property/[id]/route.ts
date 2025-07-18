@@ -64,7 +64,7 @@ export async function GET(
         stepsCount: zone.steps.length,
         publishedStepsCount: zone.steps.filter(s => s.isPublished).length
       })),
-      issues: []
+      issues: [] as string[]
     }
     
     // Check for potential issues
