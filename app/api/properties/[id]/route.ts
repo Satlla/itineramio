@@ -243,14 +243,48 @@ export async function PATCH(
       }, { status: 404 })
     }
     
-    // Update property
+    // Update property with special handling for ACTIVE status
+    const updateData = {
+      ...body,
+      updatedAt: new Date()
+    }
+    
+    // If setting status to ACTIVE, also set isPublished to true and publishedAt
+    if (body.status === 'ACTIVE') {
+      updateData.isPublished = true
+      if (!property.publishedAt) {
+        updateData.publishedAt = new Date()
+      }
+    }
+    
     const updatedProperty = await prisma.property.update({
       where: { id },
-      data: {
-        ...body,
-        updatedAt: new Date()
-      }
+      data: updateData
     })
+    
+    // If property was activated, also publish zones and steps
+    if (body.status === 'ACTIVE') {
+      await prisma.zone.updateMany({
+        where: { propertyId: id },
+        data: { 
+          isPublished: true,
+          status: 'ACTIVE'
+        }
+      })
+      
+      // Get all zone IDs for this property
+      const zones = await prisma.zone.findMany({
+        where: { propertyId: id },
+        select: { id: true }
+      })
+      const zoneIds = zones.map(z => z.id)
+      
+      // Publish all steps
+      await prisma.step.updateMany({
+        where: { zoneId: { in: zoneIds } },
+        data: { isPublished: true }
+      })
+    }
     
     return NextResponse.json({
       success: true,
