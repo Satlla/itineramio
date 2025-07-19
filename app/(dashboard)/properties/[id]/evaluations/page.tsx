@@ -88,7 +88,9 @@ export default function PropertyEvaluationsPage() {
 
   const fetchPropertyInfo = async () => {
     try {
-      const response = await fetch(`/api/properties/${propertyId}`)
+      const response = await fetch(`/api/properties/${propertyId}`, {
+        credentials: 'include'
+      })
       const result = await response.json()
       if (result.success) {
         setPropertyName(result.data.name)
@@ -100,12 +102,22 @@ export default function PropertyEvaluationsPage() {
 
   const fetchEvaluationsData = async () => {
     try {
-      const response = await fetch(`/api/properties/${propertyId}/evaluations`)
+      const response = await fetch(`/api/properties/${propertyId}/evaluations`, {
+        credentials: 'include'
+      })
       const result = await response.json()
+      
+      console.log('📊 Evaluations API response:', {
+        success: result.success,
+        evaluationsCount: result.data?.evaluations?.length || 0,
+        stats: result.data?.stats
+      })
       
       if (result.success) {
         setEvaluations(result.data.evaluations)
         setStats(result.data.stats)
+      } else {
+        console.error('❌ Failed to fetch evaluations:', result.error)
       }
     } catch (error) {
       console.error('Error fetching evaluations:', error)
@@ -117,7 +129,8 @@ export default function PropertyEvaluationsPage() {
   const handleTogglePublic = async (evaluationId: string) => {
     try {
       const response = await fetch(`/api/evaluations/${evaluationId}/toggle-public`, {
-        method: 'PATCH'
+        method: 'PATCH',
+        credentials: 'include'
       })
       
       const result = await response.json()
