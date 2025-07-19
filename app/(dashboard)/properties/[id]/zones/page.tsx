@@ -1720,15 +1720,31 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   const response = await fetch(`/api/properties/${id}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify({ status: 'ACTIVE' })
                   })
                   
-                  if (response.ok) {
+                  const result = await response.json()
+                  
+                  if (response.ok && result.success) {
                     setPropertyStatus('ACTIVE')
                     addNotification({
                       type: 'info',
                       title: '✅ Propiedad Activada',
                       message: 'Tu propiedad ya está visible para los huéspedes',
+                      read: false
+                    })
+                    
+                    // Reload the page to ensure all data is updated
+                    setTimeout(() => {
+                      window.location.reload()
+                    }, 1000)
+                  } else {
+                    console.error('Failed to activate property:', result.error)
+                    addNotification({
+                      type: 'error',
+                      title: 'Error al activar',
+                      message: result.error || 'No se pudo activar la propiedad',
                       read: false
                     })
                   }
