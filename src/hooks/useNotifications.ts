@@ -39,9 +39,13 @@ export function useNotifications() {
   }, [notifications])
 
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'createdAt'>) => {
-    // EMERGENCY DISABLED - React error #31 persists even with safety measures
-    console.log('🚫 Notifications completely disabled to prevent React error #31:', notification)
-    return
+    const newNotification: Notification = {
+      ...notification,
+      id: Date.now().toString(),
+      createdAt: new Date()
+    }
+    
+    setNotifications(prev => [newNotification, ...prev])
   }, [])
 
   const markAsRead = useCallback((id: string) => {
@@ -57,9 +61,32 @@ export function useNotifications() {
   }, [])
 
   const generateZoneWarnings = useCallback((propertyId: string, zones: any[], propertyName?: string) => {
-    // EMERGENCY DISABLED - React error #31 persists
-    console.log('🚫 Zone warnings completely disabled to prevent React error #31')
-    return
+    // Generate warnings for empty zones or zones with few steps
+    zones.forEach(zone => {
+      const zoneName = getZoneText(zone.name)
+      
+      if (zone.stepsCount === 0) {
+        addNotification({
+          type: 'warning',
+          title: `${propertyName || 'Propiedad'} - Zona sin configurar`,
+          message: `La zona "${zoneName}" no tiene instrucciones configuradas`,
+          propertyId,
+          zoneId: zone.id,
+          read: false,
+          actionUrl: `/properties/${propertyId}/zones/${zone.id}/steps`
+        })
+      } else if (zone.stepsCount < 3) {
+        addNotification({
+          type: 'info',
+          title: `${propertyName || 'Propiedad'} - Zona incompleta`,
+          message: `La zona "${zoneName}" solo tiene ${zone.stepsCount} paso(s)`,
+          propertyId,
+          zoneId: zone.id,
+          read: false,
+          actionUrl: `/properties/${propertyId}/zones/${zone.id}/steps`
+        })
+      }
+    })
   }, [addNotification])
 
   const unreadCount = notifications.filter(n => !n.read).length

@@ -41,6 +41,17 @@ interface Evaluation {
     name: string
     icon: string
   }
+  // Additional zone rating details
+  clarity?: number
+  completeness?: number
+  helpfulness?: number
+  upToDate?: number
+  language?: string
+  guestInfo?: {
+    ageRange?: string
+    country?: string
+    travelType?: string
+  }
 }
 
 interface EvaluationStats {
@@ -183,11 +194,12 @@ export default function PropertyEvaluationsPage() {
     })
   }
 
-  const renderStars = (rating: number) => {
+  const renderStars = (rating: number, size: 'sm' | 'md' = 'md') => {
+    const sizeClass = size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`w-4 h-4 ${
+        className={`${sizeClass} ${
           i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
         }`}
       />
@@ -444,9 +456,50 @@ export default function PropertyEvaluationsPage() {
                       </div>
 
                       {evaluation.comment && (
-                        <p className="text-gray-800 text-sm leading-relaxed">
+                        <p className="text-gray-800 text-sm leading-relaxed mb-3">
                           "{evaluation.comment}"
                         </p>
+                      )}
+
+                      {/* Additional details for zone evaluations */}
+                      {evaluation.reviewType === 'zone' && (evaluation.clarity || evaluation.completeness || evaluation.helpfulness || evaluation.upToDate) && (
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <p className="text-xs font-medium text-gray-600 mb-2">Valoración detallada:</p>
+                          <div className="grid grid-cols-2 gap-2">
+                            {evaluation.clarity && (
+                              <div className="flex items-center gap-1 text-xs">
+                                <span className="text-gray-500">Claridad:</span>
+                                <div className="flex">{renderStars(evaluation.clarity, 'sm')}</div>
+                              </div>
+                            )}
+                            {evaluation.completeness && (
+                              <div className="flex items-center gap-1 text-xs">
+                                <span className="text-gray-500">Completitud:</span>
+                                <div className="flex">{renderStars(evaluation.completeness, 'sm')}</div>
+                              </div>
+                            )}
+                            {evaluation.helpfulness && (
+                              <div className="flex items-center gap-1 text-xs">
+                                <span className="text-gray-500">Utilidad:</span>
+                                <div className="flex">{renderStars(evaluation.helpfulness, 'sm')}</div>
+                              </div>
+                            )}
+                            {evaluation.upToDate && (
+                              <div className="flex items-center gap-1 text-xs">
+                                <span className="text-gray-500">Actualización:</span>
+                                <div className="flex">{renderStars(evaluation.upToDate, 'sm')}</div>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {evaluation.guestInfo && (evaluation.guestInfo.country || evaluation.guestInfo.ageRange || evaluation.guestInfo.travelType) && (
+                            <div className="mt-2 text-xs text-gray-500">
+                              {evaluation.guestInfo.country && <span>País: {evaluation.guestInfo.country} • </span>}
+                              {evaluation.guestInfo.ageRange && <span>Edad: {evaluation.guestInfo.ageRange} • </span>}
+                              {evaluation.guestInfo.travelType && <span>Tipo: {evaluation.guestInfo.travelType}</span>}
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
 

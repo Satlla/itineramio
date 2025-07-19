@@ -114,6 +114,17 @@ export async function GET(
         id: rating.zone.id,
         name: typeof rating.zone.name === 'string' ? rating.zone.name : (rating.zone.name as any)?.es || 'Zona',
         icon: rating.zone.icon
+      },
+      // Include additional rating details
+      clarity: rating.clarity,
+      completeness: rating.completeness,
+      helpfulness: rating.helpfulness,
+      upToDate: rating.upToDate,
+      language: rating.language,
+      guestInfo: {
+        ageRange: rating.guestAgeRange,
+        country: rating.guestCountry,
+        travelType: rating.guestTravelType
       }
     }))
 
