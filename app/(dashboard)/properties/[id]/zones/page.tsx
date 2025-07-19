@@ -251,17 +251,27 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setPropertyLocation(`${propResult.data.city}, ${propResult.data.state}`)
         setPropertyStatus(propResult.data.status || 'DRAFT')
 
-        // Fetch unread evaluations count
+        // Fetch unread evaluations count directly from notifications
         try {
-          const notificationsResponse = await fetch('/api/notifications')
-          const notificationsResult = await notificationsResponse.json()
-          if (notificationsResult.success) {
-            const unreadEvals = notificationsResult.data.filter((n: any) => 
-              n.type === 'ZONE_EVALUATION_RECEIVED' && 
-              !n.read && 
-              n.data?.propertyId === id
-            ).length
-            setUnreadEvaluations(unreadEvals)
+          const notificationsResponse = await fetch('/api/notifications', {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+          })
+          
+          if (notificationsResponse.ok) {
+            const notificationsResult = await notificationsResponse.json()
+            if (notificationsResult.success && notificationsResult.data) {
+              const unreadEvals = notificationsResult.data.filter((n: any) => 
+                (n.type === 'ZONE_EVALUATION_RECEIVED' || n.type === 'MANUAL_EVALUATION_RECEIVED') && 
+                !n.read && 
+                n.data?.propertyId === id
+              ).length
+              
+              console.log('Unread evaluations count:', unreadEvals)
+              setUnreadEvaluations(unreadEvals)
+            }
           }
         } catch (error) {
           console.error('Error fetching notifications:', error)
