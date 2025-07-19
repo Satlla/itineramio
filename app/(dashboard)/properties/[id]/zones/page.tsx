@@ -77,6 +77,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [propertyType, setPropertyType] = useState<string>('')
   const [propertyLocation, setPropertyLocation] = useState<string>('')
   const [propertyStatus, setPropertyStatus] = useState<string>('DRAFT')
+  const [unreadEvaluations, setUnreadEvaluations] = useState<number>(0)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [editingZone, setEditingZone] = useState<Zone | null>(null)
   const [showIconSelector, setShowIconSelector] = useState(false)
@@ -249,6 +250,22 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setPropertyType(propResult.data.type || 'APARTMENT')
         setPropertyLocation(`${propResult.data.city}, ${propResult.data.state}`)
         setPropertyStatus(propResult.data.status || 'DRAFT')
+
+        // Fetch unread evaluations count
+        try {
+          const notificationsResponse = await fetch('/api/notifications')
+          const notificationsResult = await notificationsResponse.json()
+          if (notificationsResult.success) {
+            const unreadEvals = notificationsResult.data.filter((n: any) => 
+              n.type === 'ZONE_EVALUATION_RECEIVED' && 
+              !n.read && 
+              n.data?.propertyId === id
+            ).length
+            setUnreadEvaluations(unreadEvals)
+          }
+        } catch (error) {
+          console.error('Error fetching notifications:', error)
+        }
 
         // Fetch zones
         const zonesResponse = await fetch(`/api/properties/${id}/zones`)
@@ -1760,12 +1777,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         <div className="hidden lg:flex space-x-3">
           {/* Desktop buttons */}
           <Button
-            onClick={() => router.push(`/properties/${id}/reviews`)}
+            onClick={() => router.push(`/properties/${id}/evaluations`)}
             variant="outline"
-            className="border-blue-500 text-blue-600 hover:bg-blue-50"
+            className="border-blue-500 text-blue-600 hover:bg-blue-50 relative"
           >
             <Star className="w-5 h-5 mr-2" />
-            Reseñas
+            Evaluaciones
+            {unreadEvaluations > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {unreadEvaluations}
+              </span>
+            )}
           </Button>
           
           <Button
@@ -1785,12 +1807,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Mobile buttons - below text */}
       <div className="lg:hidden mb-6">
         <div className="flex items-center gap-4">
-          {/* Reseñas - Airbnb style */}
+          {/* Evaluaciones - Airbnb style */}
           <button
-            onClick={() => router.push(`/properties/${id}/reviews`)}
-            className="text-black font-semibold text-sm underline underline-offset-4 hover:text-gray-700 transition-colors"
+            onClick={() => router.push(`/properties/${id}/evaluations`)}
+            className="text-black font-semibold text-sm underline underline-offset-4 hover:text-gray-700 transition-colors relative"
           >
-            Reseñas
+            Evaluaciones
+            {unreadEvaluations > 0 && (
+              <span className="absolute -top-2 -right-0 translate-x-full bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center ml-1">
+                {unreadEvaluations}
+              </span>
+            )}
           </button>
           
           {/* Vista Pública */}

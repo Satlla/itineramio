@@ -2554,7 +2554,7 @@ function PropertiesPageContent() {
                         <li>• Todas las zonas y sus instrucciones</li>
                         <li>• Códigos QR y enlaces de acceso</li>
                         <li>• Estadísticas y análisis</li>
-                        <li>• Reseñas y comentarios</li>
+                        <li>• Evaluaciones y comentarios</li>
                         <li>• Historial de actividad</li>
                       </ul>
                     </div>
