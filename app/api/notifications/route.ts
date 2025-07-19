@@ -12,22 +12,33 @@ export async function GET(request: NextRequest) {
     }
     const userId = authResult.userId
 
-    // Get all notifications for the user
-    const notifications = await prisma.notification.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      take: 100 // Limit to last 100 notifications
-    })
+    // Check if notification table exists first
+    try {
+      const notifications = await prisma.notification.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 100 // Limit to last 100 notifications
+      })
 
-    return NextResponse.json({
-      success: true,
-      data: notifications
-    })
+      return NextResponse.json({
+        success: true,
+        data: notifications
+      })
+    } catch (dbError) {
+      console.error('Database error (notification table might not exist):', dbError)
+      
+      // Return empty array if table doesn't exist
+      return NextResponse.json({
+        success: true,
+        data: [],
+        warning: 'Notification table not available'
+      })
+    }
 
   } catch (error) {
     console.error('Error fetching notifications:', error)
     return NextResponse.json(
-      { error: 'Error al obtener notificaciones' },
+      { error: 'Error al obtener notificaciones', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

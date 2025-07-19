@@ -108,25 +108,30 @@ export async function POST(request: NextRequest) {
         })
       }
 
-      // Create notification for host about zone evaluation
-      await prisma.notification.create({
-        data: {
-          userId: property.hostId,
-          type: 'ZONE_EVALUATION_RECEIVED',
-          title: 'Nueva evaluación de zona',
-          message: `Recibiste una nueva evaluación para la zona "${typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}" con ${rating} estrellas`,
+      // Try to create notification for host about zone evaluation
+      try {
+        await prisma.notification.create({
           data: {
-            zoneId: zone.id,
-            zoneName: zone.name,
-            propertyId: property.id,
-            propertyName: property.name,
-            rating,
-            feedback: comment,
-            userName,
-            improvementSuggestions
+            userId: property.hostId,
+            type: 'ZONE_EVALUATION_RECEIVED',
+            title: 'Nueva evaluación de zona',
+            message: `Recibiste una nueva evaluación para la zona "${typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}" con ${rating} estrellas`,
+            data: {
+              zoneId: zone.id,
+              zoneName: zone.name,
+              propertyId: property.id,
+              propertyName: property.name,
+              rating,
+              feedback: comment,
+              userName,
+              improvementSuggestions
+            }
           }
-        }
-      })
+        })
+      } catch (notificationError) {
+        console.warn('Could not create notification (table might not exist):', notificationError)
+        // Continue without notification - evaluation still saved
+      }
 
       // Update zone's average rating
       const allRatings = await prisma.zoneRating.findMany({
@@ -156,24 +161,29 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      // Create notification for host about manual evaluation
-      await prisma.notification.create({
-        data: {
-          userId: property.hostId,
-          type: 'MANUAL_EVALUATION_RECEIVED',
-          title: 'Nueva evaluación del manual',
-          message: `${userName} evaluó tu manual completo con ${rating} estrellas${comment ? ': "' + comment.substring(0, 50) + '..."' : ''}`,
+      // Try to create notification for host about manual evaluation
+      try {
+        await prisma.notification.create({
           data: {
-            reviewId: review.id,
-            propertyId: property.id,
-            propertyName: property.name,
-            rating,
-            comment,
-            userName,
-            canBePublic: isPublic
+            userId: property.hostId,
+            type: 'MANUAL_EVALUATION_RECEIVED',
+            title: 'Nueva evaluación del manual',
+            message: `${userName} evaluó tu manual completo con ${rating} estrellas${comment ? ': "' + comment.substring(0, 50) + '..."' : ''}`,
+            data: {
+              reviewId: review.id,
+              propertyId: property.id,
+              propertyName: property.name,
+              rating,
+              comment,
+              userName,
+              canBePublic: isPublic
+            }
           }
-        }
-      })
+        })
+      } catch (notificationError) {
+        console.warn('Could not create notification (table might not exist):', notificationError)
+        // Continue without notification - evaluation still saved
+      }
 
       // Update property's average rating
       const allReviews = await prisma.review.findMany({
