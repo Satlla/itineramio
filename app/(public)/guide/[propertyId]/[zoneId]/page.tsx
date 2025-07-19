@@ -243,19 +243,34 @@ const trackZoneCompleted = async (propertyId: string, zoneId: string, completion
 
 const trackZoneRated = async (propertyId: string, zoneId: string, rating: number, comment?: string) => {
   try {
-    await fetch('/api/tracking/zone-rated', {
+    // Use the proper evaluations endpoint that saves to database
+    const response = await fetch('/api/evaluations/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         propertyId,
         zoneId,
         rating,
-        comment,
-        timestamp: new Date()
+        comment: comment || null,
+        userName: 'Usuario anónimo',
+        reviewType: 'zone',
+        isPublic: false,
+        clarity: rating,
+        completeness: rating,
+        helpfulness: rating,
+        upToDate: rating
       })
     })
+    
+    const result = await response.json()
+    
+    if (result.success) {
+      console.log('✅ Zone evaluation saved successfully')
+    } else {
+      console.error('❌ Failed to save zone evaluation:', result.error)
+    }
   } catch (error) {
-    console.error('Error tracking zone rating:', error)
+    console.error('Error saving zone evaluation:', error)
   }
 }
 
