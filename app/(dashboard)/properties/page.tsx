@@ -510,6 +510,11 @@ function PropertiesPageContent() {
   const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   
+  // Delete property set modal states
+  const [deletePropertySetModalOpen, setDeletePropertySetModalOpen] = useState(false)
+  const [propertySetToDelete, setPropertySetToDelete] = useState<PropertySet | null>(null)
+  const [isDeletingPropertySet, setIsDeletingPropertySet] = useState(false)
+  
   // Success modal states
   const [successModalOpen, setSuccessModalOpen] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
@@ -731,6 +736,51 @@ function PropertiesPageContent() {
     setDeleteModalOpen(false)
     setPropertyToDelete(null)
     setIsDeleting(false)
+  }
+  
+  // Property Set deletion functions
+  const handleDeletePropertySet = (propertySet: PropertySet) => {
+    setPropertySetToDelete(propertySet)
+    setDeletePropertySetModalOpen(true)
+  }
+  
+  const confirmDeletePropertySet = async () => {
+    if (!propertySetToDelete) return
+    setIsDeletingPropertySet(true)
+    
+    try {
+      const response = await fetch(`/api/property-sets/${propertySetToDelete.id}`, {
+        method: 'DELETE'
+      })
+      
+      if (!response.ok) {
+        throw new Error('Error al eliminar el conjunto')
+      }
+      
+      // Update local state
+      setPropertySets(prev => prev.filter(ps => ps.id !== propertySetToDelete.id))
+      
+      // Success message
+      setSuccessMessage(`El conjunto "${propertySetToDelete.name}" y sus ${propertySetToDelete.propertiesCount} propiedades han sido eliminadas correctamente.`)
+      setSuccessModalOpen(true)
+      
+      // Close modal
+      setDeletePropertySetModalOpen(false)
+      setPropertySetToDelete(null)
+      
+    } catch (error) {
+      console.error('Error deleting property set:', error)
+      setSuccessMessage('Error al eliminar el conjunto. Por favor, inténtalo de nuevo.')
+      setSuccessModalOpen(true)
+    } finally {
+      setIsDeletingPropertySet(false)
+    }
+  }
+  
+  const closeDeletePropertySetModal = () => {
+    setDeletePropertySetModalOpen(false)
+    setPropertySetToDelete(null)
+    setIsDeletingPropertySet(false)
   }
 
   const handleToggleProperty = async (propertyId: string) => {
@@ -1704,6 +1754,14 @@ function PropertiesPageContent() {
                                     <Eye className="h-4 w-4 mr-2" />
                                     Ver propiedades
                                   </DropdownMenu.Item>
+                                  <DropdownMenu.Separator className="h-px my-1 bg-gray-200" />
+                                  <DropdownMenu.Item
+                                    className="flex items-center px-2 py-2 text-sm text-red-600 hover:bg-red-50 rounded cursor-pointer"
+                                    onSelect={() => handleDeletePropertySet(propertySet)}
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Eliminar conjunto
+                                  </DropdownMenu.Item>
                                 </DropdownMenu.Content>
                               </DropdownMenu.Portal>
                             </DropdownMenu.Root>
@@ -2501,6 +2559,129 @@ function PropertiesPageContent() {
           </div>
         )}
 
+        {/* Delete Property Set Modal */}
+        {deletePropertySetModalOpen && propertySetToDelete && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={closeDeletePropertySetModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <AlertTriangle className="w-6 h-6 text-red-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Eliminar Conjunto de Propiedades
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Esta acción es irreversible
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={closeDeletePropertySetModal}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+              
+              {/* Modal Content */}
+              <div className="p-6 flex-1 overflow-y-auto">
+                <div className="space-y-4">
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <h4 className="font-semibold text-red-900 mb-2">
+                      ⚠️ ADVERTENCIA: Esta acción eliminará:
+                    </h4>
+                    <ul className="space-y-2 text-sm text-red-800">
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>El conjunto <strong>"{propertySetToDelete.name}"</strong></span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span><strong>{propertySetToDelete.propertiesCount} propiedades</strong> dentro del conjunto</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Todas las zonas, instrucciones y contenido multimedia asociado</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>Todas las evaluaciones y estadísticas</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700 mb-3">
+                      Para confirmar la eliminación, escribe <strong>ELIMINAR CONJUNTO</strong> en el campo de abajo:
+                    </p>
+                    <input
+                      type="text"
+                      id="deleteSetConfirmation"
+                      placeholder="Escribe ELIMINAR CONJUNTO"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      autoComplete="off"
+                    />
+                  </div>
+                  
+                  <div className="text-sm text-gray-600">
+                    <p className="font-medium mb-1">Alternativa recomendada:</p>
+                    <p>En lugar de eliminar, puedes archivar el conjunto o cambiar su estado a borrador.</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Modal Footer */}
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex-shrink-0">
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    onClick={closeDeletePropertySetModal}
+                    variant="outline"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const input = document.getElementById('deleteSetConfirmation') as HTMLInputElement
+                      if (input?.value === 'ELIMINAR CONJUNTO') {
+                        confirmDeletePropertySet()
+                      } else {
+                        setSuccessMessage('Debes escribir "ELIMINAR CONJUNTO" para confirmar')
+                        setSuccessModalOpen(true)
+                      }
+                    }}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                    disabled={isDeletingPropertySet}
+                  >
+                    {isDeletingPropertySet ? (
+                      <>
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                        Eliminando...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Eliminar Conjunto
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+        
         {/* Success/Error Modal */}
         {successModalOpen && (
           <div 
