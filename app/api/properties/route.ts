@@ -238,7 +238,7 @@ export async function GET(request: NextRequest) {
       skip: (page - 1) * limit,
       take: limit,
       orderBy: {
-        createdAt: 'desc'
+        createdAt: 'desc'  // Most recent first
       },
       include: {
         analytics: true,
@@ -258,6 +258,12 @@ export async function GET(request: NextRequest) {
     
     const total = await prisma.property.count({ where })
     
+    // Log the first few properties to verify ordering
+    console.log('Properties order (showing first 3):')
+    properties.slice(0, 3).forEach((prop, index) => {
+      console.log(`${index + 1}. ${prop.name} - Created: ${prop.createdAt}`)
+    })
+
     // Transform properties data without additional queries
     const propertiesWithZones = properties.map((property) => ({
       id: property.id,
