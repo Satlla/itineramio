@@ -83,6 +83,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showIconSelector, setShowIconSelector] = useState(false)
   const [showQRModal, setShowQRModal] = useState(false)
   const [selectedZoneForQR, setSelectedZoneForQR] = useState<Zone | null>(null)
+  const [showPropertyQRModal, setShowPropertyQRModal] = useState(false)
   const [showElementSelector, setShowElementSelector] = useState(false)
   const [showInspirationModal, setShowInspirationModal] = useState(false)
   const [selectedInspirationZone, setSelectedInspirationZone] = useState<ZoneTemplate | null>(null)
@@ -1805,6 +1806,50 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
             <span className="hidden sm:inline">Vista Pública</span>
           </Button>
+
+          {/* Property Options Menu */}
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10 w-10 p-0"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content className="w-56 bg-white rounded-md border shadow-lg p-1 z-50">
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => setShowPropertyQRModal(true)}
+                >
+                  <QrCode className="h-4 w-4 mr-2" />
+                  QR del Apartamento Completo
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => router.push(`/properties/new?edit=${id}`)}
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar Propiedad
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => {
+                    const publicUrl = `${window.location.origin}/guide/${id}`
+                    navigator.clipboard.writeText(publicUrl).then(() => {
+                      setCopied(true)
+                      setTimeout(() => setCopied(false), 2000)
+                    })
+                  }}
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Compartir Manual
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         </div>
       </div>
 
@@ -1834,6 +1879,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           >
             <Eye className="w-4 h-4" />
             <span>Vista pública</span>
+          </button>
+          
+          {/* QR Code */}
+          <button
+            onClick={() => setShowPropertyQRModal(true)}
+            className="flex items-center gap-1 text-sm text-gray-700 hover:text-black transition-colors"
+          >
+            <QrCode className="w-4 h-4" />
+            <span>QR</span>
           </button>
           
           {/* Compartir */}
@@ -1926,13 +1980,23 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 <h2 className="text-xl font-semibold text-gray-900">
                   Tus zonas
                 </h2>
-                <Button
-                  onClick={handleOpenMultiSelect}
-                  className="bg-violet-600 hover:bg-violet-700"
-                >
-                  <Plus className="w-5 h-5 mr-2" />
-                  Añadir Elementos
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => setShowCreateForm(true)}
+                    variant="outline"
+                    className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Zona Personalizada
+                  </Button>
+                  <Button
+                    onClick={handleOpenMultiSelect}
+                    className="bg-violet-600 hover:bg-violet-700"
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    Elementos Predefinidos
+                  </Button>
+                </div>
               </div>
             </div>
           )}
@@ -1948,13 +2012,21 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
                   Añade zonas con instrucciones para que tus huéspedes tengan toda la información que necesitan.
                 </p>
-                <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button
-                    onClick={handleOpenMultiSelect}
-                    className="bg-violet-600 hover:bg-violet-700 w-full"
+                    onClick={() => setShowCreateForm(true)}
+                    variant="outline"
+                    className="border-violet-200 text-violet-700 hover:bg-violet-50 flex-1 sm:flex-none"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Crear mi primera zona
+                    Zona Personalizada
+                  </Button>
+                  <Button
+                    onClick={handleOpenMultiSelect}
+                    className="bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-none"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Elementos Predefinidos
                   </Button>
                 </div>
               </Card>
@@ -2042,9 +2114,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               exit={{ scale: 0.9, opacity: 0 }}
               className="bg-white rounded-lg p-6 w-full max-w-md"
             >
-              <h3 className="text-lg font-semibold mb-4">
-                {editingZone ? 'Editar Zona' : 'Nueva Zona'}
-              </h3>
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-violet-100 rounded-full mb-3">
+                  <Plus className="w-6 h-6 text-violet-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {editingZone ? 'Editar Zona' : 'Crear Zona Personalizada'}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {editingZone ? 'Modifica los detalles de tu zona' : 'Diseña una zona completamente personalizada con tu propio nombre e icono'}
+                </p>
+              </div>
               
               <div className="space-y-4">
                 <div>
@@ -2196,6 +2276,70 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             existingElementNames={zones.map(z => getZoneText(z.name))}
             isLoading={isCreatingZone}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Property QR Modal */}
+      <AnimatePresence>
+        {showPropertyQRModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-lg w-full max-w-md"
+            >
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">QR Code - {propertyName}</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPropertyQRModal(false)}
+                  >
+                    ✕
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="p-4">
+                <QRCodeDisplay
+                  propertyId={id}
+                  zoneName={propertyName}
+                  size="lg"
+                  showTitle={false}
+                />
+                
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <p className="text-sm text-gray-600 text-center">
+                    Los huéspedes pueden escanear este código QR para acceder al manual completo del apartamento.
+                  </p>
+                  <div className="mt-3 flex justify-center">
+                    <Button
+                      onClick={() => {
+                        const publicUrl = `${window.location.origin}/guide/${id}`
+                        navigator.clipboard.writeText(publicUrl).then(() => {
+                          setCopied(true)
+                          setTimeout(() => setCopied(false), 2000)
+                        })
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <Copy className="w-4 h-4" />
+                      {copied ? 'Copiado!' : 'Copiar Enlace'}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -2403,15 +2547,32 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
         <div className="p-4">
           {zones.length === 0 ? (
-            <Button
-              onClick={handleOpenMultiSelect}
-              className="bg-violet-600 hover:bg-violet-700 w-full"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Crear Zona
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowCreateForm(true)}
+                variant="outline"
+                className="border-violet-200 text-violet-700 hover:bg-violet-50 flex-1"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Personalizada
+              </Button>
+              <Button
+                onClick={handleOpenMultiSelect}
+                className="bg-violet-600 hover:bg-violet-700 flex-1"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Predefinidas
+              </Button>
+            </div>
           ) : (
-            <div className="flex gap-3">
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowCreateForm(true)}
+                variant="outline"
+                className="border-violet-200 text-violet-700 hover:bg-violet-50"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
               <Button
                 onClick={() => setShowElementSelector(true)}
                 className="bg-violet-600 hover:bg-violet-700 flex-1"
