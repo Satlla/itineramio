@@ -464,20 +464,46 @@ export default function PropertyGuidePage() {
 
   const handleShare = async () => {
     const url = window.location.href
+    const title = `Manual de ${getText(property?.name, language, 'Propiedad')}`
+    
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Manual de ${getText(property?.name, language, 'Propiedad')}`,
-          text: 'Manual digital del apartamento',
+          title: title,
+          text: 'Accede al manual digital de este alojamiento con todas las instrucciones que necesitas',
           url: url
         })
       } catch (err) {
-        console.log('Error sharing:', err)
+        // User cancelled or error occurred
+        if (err.name !== 'AbortError') {
+          console.log('Error sharing:', err)
+          // Fallback to clipboard
+          await copyToClipboard(url)
+        }
       }
     } else {
       // Fallback to clipboard
-      navigator.clipboard.writeText(url)
-      alert('URL copiada al portapapeles')
+      await copyToClipboard(url)
+    }
+  }
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      // Show success feedback
+      const button = document.querySelector('[data-share-button]') as HTMLElement
+      if (button) {
+        const originalContent = button.innerHTML
+        button.innerHTML = '<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'
+        button.style.color = '#059669'
+        setTimeout(() => {
+          button.innerHTML = originalContent
+          button.style.color = ''
+        }, 2000)
+      }
+    } catch (err) {
+      console.error('Failed to copy:', err)
+      alert('No se pudo copiar el enlace')
     }
   }
 
@@ -536,6 +562,7 @@ export default function PropertyGuidePage() {
                 variant="ghost" 
                 size="sm"
                 className="hover:bg-gray-100 rounded-full p-2"
+                data-share-button
               >
                 <Share2 className="w-5 h-5" />
               </Button>
