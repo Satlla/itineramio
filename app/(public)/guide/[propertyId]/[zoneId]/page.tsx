@@ -832,25 +832,39 @@ export default function ZoneGuidePage({
                         </div>
                       )}
                       
-                      {(step.description || step.content) && (
-                        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap mt-4">
-                          {(() => {
-                            const content = step.description || step.content;
-                            console.log('🔍 Rendering content for step:', step.id, content);
-                            
-                            // If content is an object with language keys, get only the current language
-                            if (content && typeof content === 'object') {
-                              const contentObj = content as any;
-                              const text = contentObj[language] || contentObj.es || contentObj.en || contentObj.fr || '';
-                              console.log('🔍 Extracted text for language', language, ':', text);
-                              return text;
+                      {/* Content rendering - handle IMAGE/VIDEO captions separately */}
+                      {(() => {
+                        let displayContent = '';
+                        
+                        if (step.type === 'IMAGE' || step.type === 'VIDEO') {
+                          // For IMAGE/VIDEO steps, only show the caption from content.description
+                          if (step.content && typeof step.content === 'object') {
+                            const contentObj = step.content as any;
+                            if (contentObj.description && typeof contentObj.description === 'object') {
+                              displayContent = contentObj.description[language] || contentObj.description.es || contentObj.description.en || contentObj.description.fr || '';
+                              console.log('🔍 IMAGE/VIDEO caption for language', language, ':', displayContent);
                             }
-                            
-                            // If content is a string, return as is
-                            return content || '';
-                          })()}
-                        </div>
-                      )}
+                          }
+                        } else {
+                          // For TEXT steps, use description or content as before
+                          const content = step.description || step.content;
+                          console.log('🔍 TEXT content for step:', step.id, content);
+                          
+                          if (content && typeof content === 'object') {
+                            const contentObj = content as any;
+                            displayContent = contentObj[language] || contentObj.es || contentObj.en || contentObj.fr || '';
+                            console.log('🔍 Extracted text for language', language, ':', displayContent);
+                          } else if (typeof content === 'string') {
+                            displayContent = content;
+                          }
+                        }
+                        
+                        return displayContent ? (
+                          <div className="text-gray-700 leading-relaxed whitespace-pre-wrap mt-4">
+                            {displayContent}
+                          </div>
+                        ) : null;
+                      })()}
                       
                       {completedSteps.has(step.id) && (
                         <motion.div
