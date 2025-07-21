@@ -795,19 +795,27 @@ export default function ZoneGuidePage({
                     ? 'border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 shadow-md'
                     : 'border-gray-200 bg-white'
                 }`}>
-                  {/* Glowing border for active step */}
+                  {/* Glowing border for active step - single animation */}
                   {index === activeStepIndex && (
                     <motion.div
                       className="absolute inset-0 rounded-lg"
+                      initial={{
+                        background: "linear-gradient(0deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.1))"
+                      }}
                       animate={{
                         background: [
                           "linear-gradient(0deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.1))",
                           "linear-gradient(90deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.2))",
                           "linear-gradient(180deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.1))",
-                          "linear-gradient(270deg, rgba(168, 85, 247, 0.2), rgba(139, 92, 246, 0.2))"
+                          "linear-gradient(270deg, rgba(168, 85, 247, 0.2), rgba(139, 92, 246, 0.2))",
+                          "linear-gradient(360deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.1))"
                         ]
                       }}
-                      transition={{ duration: 3, repeat: Infinity }}
+                      transition={{ 
+                        duration: 2, 
+                        ease: "easeInOut",
+                        repeat: 0 // Solo una vez, no infinito
+                      }}
                     />
                   )}
                   
