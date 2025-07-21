@@ -1600,6 +1600,13 @@ function PropertiesPageContent() {
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                                  onSelect={() => handleEditProperty(property.id)}
+                                >
+                                  <Edit2 className="h-4 w-4 mr-2" />
+                                  Editar propiedad
+                                </DropdownMenu.Item>
+                                <DropdownMenu.Item
+                                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                   onSelect={() => router.push(getFriendlyUrl(property))}
                                 >
                                   <Building2 className="h-4 w-4 mr-2" />
