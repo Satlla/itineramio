@@ -475,7 +475,7 @@ export default function PropertyGuidePage() {
         })
       } catch (err) {
         // User cancelled or error occurred
-        if (err.name !== 'AbortError') {
+        if (err instanceof Error && err.name !== 'AbortError') {
           console.log('Error sharing:', err)
           // Fallback to clipboard
           await copyToClipboard(url)
