@@ -379,7 +379,6 @@ export default function ZoneGuidePage({
             ...step,
             title: step.title || { es: `Paso ${step.order}`, en: `Step ${step.order}` },
             description: step.description || step.content,
-            content: step.content,
             mediaUrl: step.mediaUrl,
             linkUrl: step.linkUrl,
             thumbnail: step.thumbnail
@@ -815,14 +814,16 @@ export default function ZoneGuidePage({
                   <CardContent className="p-8 relative z-10">
                     {/* Step Header - Clean, no badges */}
                     <div className="mb-6">
-                      <motion.h2 
-                        className={`text-2xl font-bold mb-3 ${
-                          index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
-                        }`}
-                        layoutId={`title-${step.id}`}
-                      >
-                        {getText(step.title, language, t('step', language))}
-                      </motion.h2>
+                      {step.type === 'TEXT' && (
+                        <motion.h2 
+                          className={`text-2xl font-bold mb-3 ${
+                            index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
+                          }`}
+                          layoutId={`title-${step.id}`}
+                        >
+                          {getText(step.title, language, t('step', language))}
+                        </motion.h2>
+                      )}
                       
                       {step.estimatedTime && (
                         <div className="flex items-center text-sm text-gray-500 mb-2">
@@ -831,15 +832,9 @@ export default function ZoneGuidePage({
                         </div>
                       )}
                       
-                      {step.description && (
-                        <p className="text-gray-700 leading-relaxed text-lg">
-                          {getText(step.description, language, '')}
-                        </p>
-                      )}
-                      
-                      {step.content && (
+                      {(step.description || step.content) && (
                         <div className="text-gray-700 leading-relaxed whitespace-pre-wrap mt-4">
-                          {getText(step.content, language, '')}
+                          {getText(step.description || step.content, language, '')}
                         </div>
                       )}
                       
