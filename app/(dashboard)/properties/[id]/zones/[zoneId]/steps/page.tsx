@@ -528,6 +528,24 @@ export default function ZoneStepsPage({
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
+                Título de la imagen (opcional)
+              </label>
+              <input
+                type="text"
+                value={formData.title?.es || ''}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  title: {
+                    ...formData.title,
+                    es: e.target.value
+                  }
+                })}
+                placeholder="Ej: Entrada principal del edificio"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Imagen
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
@@ -589,6 +607,24 @@ export default function ZoneStepsPage({
       case StepType.VIDEO:
         return (
           <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Título del video (opcional)
+              </label>
+              <input
+                type="text"
+                value={formData.title?.es || ''}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  title: {
+                    ...formData.title,
+                    es: e.target.value
+                  }
+                })}
+                placeholder="Ej: Cómo usar la llave digital"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Video

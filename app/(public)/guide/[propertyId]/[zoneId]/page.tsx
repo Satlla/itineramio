@@ -715,14 +715,14 @@ export default function ZoneGuidePage({
                       : 'bg-white text-gray-400 border-gray-300'
                   }`}
                   animate={{
-                    scale: index === activeStepIndex ? [1, 1.1, 1] : 1,
+                    scale: 1, // Remove the infinite scaling animation
                     boxShadow: index === activeStepIndex 
-                      ? ["0 0 0 0 rgba(139, 92, 246, 0.3)", "0 0 0 8px rgba(139, 92, 246, 0)", "0 0 0 0 rgba(139, 92, 246, 0)"]
+                      ? "0 0 0 4px rgba(139, 92, 246, 0.2)" // Static shadow instead of animated
                       : "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
                   }}
                   transition={{
-                    scale: { duration: 2, repeat: Infinity },
-                    boxShadow: { duration: 2, repeat: Infinity }
+                    scale: { duration: 0.3 }, // Short transition only
+                    boxShadow: { duration: 0.3 }
                   }}
                 >
                   {completedSteps.has(step.id) ? (
@@ -814,16 +814,37 @@ export default function ZoneGuidePage({
                   <CardContent className="p-8 relative z-10">
                     {/* Step Header - Clean, no badges */}
                     <div className="mb-6">
-                      {step.type === 'TEXT' && (
-                        <motion.h2 
-                          className={`text-2xl font-bold mb-3 ${
-                            index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
-                          }`}
-                          layoutId={`title-${step.id}`}
-                        >
-                          {getText(step.title, language, t('step', language))}
-                        </motion.h2>
-                      )}
+                      {/* Show title for all types if it exists and has content */}
+                      {(() => {
+                        const titleText = getText(step.title, language, '');
+                        const hasTitle = titleText && titleText.trim() !== '' && titleText !== `Paso ${index + 1}`;
+                        
+                        if (hasTitle) {
+                          return (
+                            <motion.h2 
+                              className={`text-2xl font-bold mb-3 ${
+                                index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
+                              }`}
+                              layoutId={`title-${step.id}`}
+                            >
+                              {titleText}
+                            </motion.h2>
+                          );
+                        } else if (step.type === 'TEXT') {
+                          // Only show default title for TEXT steps
+                          return (
+                            <motion.h2 
+                              className={`text-2xl font-bold mb-3 ${
+                                index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
+                              }`}
+                              layoutId={`title-${step.id}`}
+                            >
+                              {t('step', language)}
+                            </motion.h2>
+                          );
+                        }
+                        return null;
+                      })()}
                       
                       {step.estimatedTime && (
                         <div className="flex items-center text-sm text-gray-500 mb-2">
