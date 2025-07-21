@@ -1053,7 +1053,8 @@ function PropertiesPageContent() {
       const response = await fetch(`/api/properties/${propertyId}/evaluations`)
       if (response.ok) {
         const result = await response.json()
-        setPropertyEvaluations(result.evaluations || [])
+        console.log('🔍 Evaluations API result:', result)
+        setPropertyEvaluations(result.data?.evaluations || [])
       }
     } catch (error) {
       console.error('Error fetching evaluations:', error)
@@ -1540,6 +1541,12 @@ function PropertiesPageContent() {
                                   <div className="flex items-center text-gray-600">
                                     <Eye className="h-4 w-4 mr-1" />
                                     <span>{property.totalViews}</span>
+                                  </div>
+                                )}
+                                {property.avgRating && property.avgRating > 0 && (
+                                  <div className="flex items-center text-gray-600">
+                                    <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
+                                    <span>{property.avgRating.toFixed(1)}</span>
                                   </div>
                                 )}
                               </div>

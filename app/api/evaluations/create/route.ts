@@ -146,6 +146,47 @@ export async function POST(request: NextRequest) {
         data: { avgRating }
       })
 
+      // Update property's overall rating including zone ratings
+      const allPropertyReviews = await prisma.review.findMany({
+        where: { 
+          propertyId,
+          reviewType: 'property'
+        },
+        select: { rating: true }
+      })
+
+      const allPropertyZoneRatings = await prisma.zoneRating.findMany({
+        where: {
+          zone: {
+            propertyId: propertyId
+          }
+        },
+        select: { overallRating: true }
+      })
+
+      // Combine property reviews and zone ratings for overall property rating
+      const allPropertyRatings = [
+        ...allPropertyReviews.map(r => r.rating),
+        ...allPropertyZoneRatings.map(r => r.overallRating)
+      ]
+
+      if (allPropertyRatings.length > 0) {
+        const propertyAvgRating = allPropertyRatings.reduce((sum, r) => sum + r, 0) / allPropertyRatings.length
+        
+        await prisma.propertyAnalytics.upsert({
+          where: { propertyId },
+          create: {
+            propertyId,
+            overallRating: propertyAvgRating,
+            totalRatings: allPropertyRatings.length
+          },
+          update: {
+            overallRating: propertyAvgRating,
+            totalRatings: allPropertyRatings.length
+          }
+        })
+      }
+
     } else {
       // For property evaluations (full manual evaluation)
       const review = await prisma.review.create({
