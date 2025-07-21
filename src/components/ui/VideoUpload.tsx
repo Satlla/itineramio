@@ -33,7 +33,7 @@ export function VideoUpload({
   onChange,
   placeholder = "Subir video VERTICAL (máx. 60 segundos)",
   className = "",
-  maxSize = 200, // Increased because we compress aggressively
+  maxSize = 300, // Increased for better quality videos
   maxDuration = 60,
   accept = "video/mp4,video/webm,video/quicktime",
   error = false,

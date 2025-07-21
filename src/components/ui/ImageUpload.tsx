@@ -24,7 +24,7 @@ export function ImageUpload({
   placeholder = "Subir imagen",
   className = "",
   variant = 'property',
-  maxSize = 5,
+  maxSize = 10, // Increased for better quality images (was 5MB)
   accept = "image/*",
   error = false,
   saveToLibrary = true
@@ -101,9 +101,9 @@ export function ImageUpload({
       const img = new Image()
       
       img.onload = () => {
-        // Set max dimensions for dashboard display (small size)
-        const maxWidth = 400
-        const maxHeight = 300
+        // Set max dimensions for better quality (increased from 400x300)
+        const maxWidth = 800
+        const maxHeight = 600
         
         let { width, height } = img
         
@@ -136,7 +136,7 @@ export function ImageUpload({
           } else {
             resolve(file)
           }
-        }, 'image/jpeg', 0.7) // 70% quality for small file size
+        }, 'image/jpeg', 0.85) // 85% quality for better image quality (was 70%)
         
         URL.revokeObjectURL(img.src)
       }
@@ -372,7 +372,7 @@ export function ImageUpload({
                 Arrastra una imagen aquí o haz clic para seleccionar
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                Máximo {maxSize}MB
+                Máximo {maxSize}MB (calidad mejorada)
               </p>
               
               {!isProfile && variant === 'property' && (

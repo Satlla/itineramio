@@ -15,9 +15,9 @@ function calculateBitrate(durationSeconds: number, targetSizeMB: number): number
   const targetSizeBits = targetSizeMB * 8 * 1024 * 1024 * 0.8
   const calculatedBitrate = Math.floor(targetSizeBits / durationSeconds)
   
-  // Cap the bitrate to ensure ultra-small files
-  const maxBitrate = 250000 // 250kbps max for tiny files
-  const minBitrate = 50000  // 50kbps minimum for watchable quality
+  // Cap the bitrate for better quality while keeping reasonable size
+  const maxBitrate = 800000 // 800kbps max for better quality (was 250kbps)
+  const minBitrate = 150000 // 150kbps minimum for good quality (was 50kbps)
   
   return Math.max(minBitrate, Math.min(maxBitrate, calculatedBitrate))
 }
@@ -28,10 +28,10 @@ export async function compressVideo(
   options: CompressionOptions = {}
 ): Promise<File> {
   const {
-    maxSizeMB = 1.5,  // Much more aggressive default
-    quality = 0.4,    // Lower quality default
-    scale = 0.6,      // More aggressive scaling
-    fps = 20,         // Lower frame rate
+    maxSizeMB = 3,    // Increased size limit for better quality
+    quality = 0.75,   // Higher quality default (was 0.4)
+    scale = 0.85,     // Less aggressive scaling (was 0.6)
+    fps = 24,         // Higher frame rate (was 20)
     onProgress
   } = options
 
@@ -248,9 +248,9 @@ export async function compressVideoUltra(
   
   return compressVideo(file, {
     maxSizeMB,
-    scale: Math.max(0.25, Math.min(0.5, Math.sqrt(compressionRatio))), // Very small
-    quality: 0.25,  // Very low quality
-    fps: 15,        // Very low frame rate
+    scale: Math.max(0.4, Math.min(0.7, Math.sqrt(compressionRatio))), // Less aggressive (was 0.25-0.5)
+    quality: 0.6,   // Better quality (was 0.25)
+    fps: 20,        // Better frame rate (was 15)
     onProgress
   })
 }
@@ -272,9 +272,9 @@ export async function compressVideoSimple(
   
   return compressVideo(file, {
     maxSizeMB,
-    scale: Math.max(0.3, Math.min(1, scale)),
-    quality: 0.4,  // Lower quality
-    fps: 18,       // Lower frame rate
+    scale: Math.max(0.5, Math.min(1, scale)),  // Less aggressive scaling (was 0.3)
+    quality: 0.7,  // Better quality (was 0.4)
+    fps: 22,       // Better frame rate (was 18)
     onProgress
   })
 }
