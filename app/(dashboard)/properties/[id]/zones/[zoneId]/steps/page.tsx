@@ -351,28 +351,48 @@ export default function ZoneStepsPage({
     setShowCreateForm(true)
   }
 
-  const handleUpdateStep = () => {
-    if (!editingStep || !formData.title.es) return
+  const handleUpdateStep = async () => {
+    if (!editingStep || !formData.title.es || !propertyId || !zoneId) return
 
-    setSteps(steps.map(step => 
-      step.id === editingStep.id 
-        ? {
-            ...step,
-            title: formData.title,
-            content: formData.content,
-            media: formData.media,
-            type: newStepType
-          }
-        : step
-    ))
+    setSaving(true)
+    try {
+      // Update the step in local state first
+      const updatedSteps = steps.map(step => 
+        step.id === editingStep.id 
+          ? {
+              ...step,
+              title: formData.title,
+              content: formData.content,
+              media: formData.media,
+              type: newStepType
+            }
+          : step
+      )
+      
+      setSteps(updatedSteps)
 
-    console.log('📝 Updating step:', { 
-      stepId: editingStep.id, 
-      hasMedia: !!formData.media,
-      mediaUrl: formData.media?.url,
-      contentMediaUrl: (formData.content as any)?.mediaUrl
-    })
-    resetForm()
+      console.log('📝 Updating step:', { 
+        stepId: editingStep.id, 
+        hasMedia: !!formData.media,
+        mediaUrl: formData.media?.url,
+        contentMediaUrl: (formData.content as any)?.mediaUrl
+      })
+
+      // Save automatically to database
+      const success = await saveStepsData(propertyId, zoneId, updatedSteps)
+      
+      if (success) {
+        console.log('✅ Step updated and saved successfully')
+        resetForm()
+      } else {
+        alert('Error al guardar el paso. Los cambios se han guardado localmente.')
+      }
+    } catch (error) {
+      console.error('Error updating step:', error)
+      alert('Error al guardar el paso. Los cambios se han guardado localmente.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleDeleteStep = (stepId: string) => {
@@ -1266,11 +1286,20 @@ export default function ZoneStepsPage({
                 </Button>
                 <Button
                   onClick={editingStep ? handleUpdateStep : handleCreateStep}
-                  disabled={!formData.title.es}
+                  disabled={!formData.title.es || saving}
                   className="flex-1 bg-violet-600 hover:bg-violet-700"
                 >
-                  <Save className="w-4 h-4 mr-2" />
-                  {editingStep ? 'Actualizar' : 'Crear Step'}
+                  {saving ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      {editingStep ? 'Guardar' : 'Crear Step'}
+                    </>
+                  )}
                 </Button>
               </div>
             </motion.div>
