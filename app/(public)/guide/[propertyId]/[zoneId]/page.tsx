@@ -834,7 +834,21 @@ export default function ZoneGuidePage({
                       
                       {(step.description || step.content) && (
                         <div className="text-gray-700 leading-relaxed whitespace-pre-wrap mt-4">
-                          {getText(step.description || step.content, language, '')}
+                          {(() => {
+                            const content = step.description || step.content;
+                            console.log('🔍 Rendering content for step:', step.id, content);
+                            
+                            // If content is an object with language keys, get only the current language
+                            if (content && typeof content === 'object') {
+                              const contentObj = content as any;
+                              const text = contentObj[language] || contentObj.es || contentObj.en || contentObj.fr || '';
+                              console.log('🔍 Extracted text for language', language, ':', text);
+                              return text;
+                            }
+                            
+                            // If content is a string, return as is
+                            return content || '';
+                          })()}
                         </div>
                       )}
                       
