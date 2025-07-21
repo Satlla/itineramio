@@ -818,9 +818,11 @@ export default function ZoneStepsPage({
                                 })()} 
                                 
                                 <div>
-                                  <CardTitle className="text-lg text-gray-900">
-                                    {getMultilingualText(step.title, selectedLanguage, 'Paso')}
-                                  </CardTitle>
+                                  {step.type === StepType.TEXT && (
+                                    <CardTitle className="text-lg text-gray-900">
+                                      {getMultilingualText(step.title, selectedLanguage, 'Paso')}
+                                    </CardTitle>
+                                  )}
                                   <div className="flex items-center space-x-2 mt-1">
                                     <span className={cn(
                                       "text-xs px-2 py-1 rounded-full",
@@ -1079,9 +1081,11 @@ export default function ZoneStepsPage({
                           })()} 
                           
                           <div>
-                            <CardTitle className="text-lg">
-                              {getMultilingualText(step.title, selectedLanguage, 'Paso')}
-                            </CardTitle>
+                            {step.type === StepType.TEXT && (
+                              <CardTitle className="text-lg">
+                                {getMultilingualText(step.title, selectedLanguage, 'Paso')}
+                              </CardTitle>
+                            )}
                             <div className="flex items-center space-x-2 mt-1">
                               <span className={cn(
                                 "text-xs px-2 py-1 rounded-full",
