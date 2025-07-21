@@ -587,7 +587,7 @@ export default function ZoneStepsPage({
                       media: {
                         url: videoUrl,
                         thumbnail: metadata.thumbnail,
-                        title: formData.title.es || 'Video'
+                        title: 'Video subido'
                       }
                     }
                     console.log('📝 Setting form data with video and media:', newFormData)
