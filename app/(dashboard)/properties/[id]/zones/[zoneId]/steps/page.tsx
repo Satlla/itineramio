@@ -576,8 +576,8 @@ export default function ZoneStepsPage({
                   }
                 })}
                 placeholder="Texto que aparecerá arriba de la imagen..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[80px]"
-                rows={3}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[120px] sm:min-h-[140px]"
+                rows={5}
               />
             </div>
             <div>
@@ -597,8 +597,8 @@ export default function ZoneStepsPage({
                   }
                 })}
                 placeholder="Text that will appear above the image..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[80px]"
-                rows={3}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[120px] sm:min-h-[140px]"
+                rows={5}
               />
             </div>
           </div>
@@ -690,8 +690,8 @@ export default function ZoneStepsPage({
                   }
                 })}
                 placeholder="Texto que aparecerá arriba del video..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[80px]"
-                rows={3}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[120px] sm:min-h-[140px]"
+                rows={5}
               />
             </div>
             <div>
@@ -711,8 +711,8 @@ export default function ZoneStepsPage({
                   }
                 })}
                 placeholder="Text that will appear above the video..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[80px]"
-                rows={3}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[120px] sm:min-h-[140px]"
+                rows={5}
               />
             </div>
           </div>
