@@ -414,6 +414,11 @@ export default function ZoneStepsPage({
       case StepType.IMAGE:
         return (
           <div className="space-y-3">
+            {step.content.description && (
+              <p className="text-sm text-gray-700 font-medium">
+                {getMultilingualText(step.content.description, selectedLanguage, '')}
+              </p>
+            )}
             <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
               <img 
                 src={step.content.imageUrl} 
@@ -421,17 +426,17 @@ export default function ZoneStepsPage({
                 className="w-full h-full object-cover"
               />
             </div>
-            {step.content.description && (
-              <p className="text-sm text-gray-600">
-                {getMultilingualText(step.content.description, selectedLanguage, 'Descripción')}
-              </p>
-            )}
           </div>
         )
       
       case StepType.VIDEO:
         return (
           <div className="space-y-3">
+            {step.content.description && (
+              <p className="text-sm text-gray-700 font-medium">
+                {getMultilingualText(step.content.description, selectedLanguage, '')}
+              </p>
+            )}
             <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden relative">
               {/* Try to get thumbnail from media first, then from content */}
               <img 
@@ -452,11 +457,6 @@ export default function ZoneStepsPage({
                 {step.content.duration || 'N/A'}s
               </div>
             </div>
-            {step.content.description && (
-              <p className="text-sm text-gray-600">
-                {getMultilingualText(step.content.description, selectedLanguage, 'Descripción')}
-              </p>
-            )}
             {/* Debug info */}
             <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
               <p>🔍 Debug: Media URL = {step.media?.url || 'none'}</p>
@@ -523,7 +523,7 @@ export default function ZoneStepsPage({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Descripción (Español)
+                Pie de foto (Español)
               </label>
               <textarea
                 value={(formData.content as any).description?.es || ''}
@@ -537,14 +537,14 @@ export default function ZoneStepsPage({
                     }
                   }
                 })}
-                placeholder="Descripción de la imagen..."
+                placeholder="Texto que aparecerá arriba de la imagen..."
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[80px]"
                 rows={3}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Descripción (Inglés)
+                Pie de foto (Inglés)
               </label>
               <textarea
                 value={(formData.content as any).description?.en || ''}
@@ -558,7 +558,7 @@ export default function ZoneStepsPage({
                     }
                   }
                 })}
-                placeholder="Image description..."
+                placeholder="Text that will appear above the image..."
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[80px]"
                 rows={3}
               />
@@ -619,7 +619,7 @@ export default function ZoneStepsPage({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Descripción (Español)
+                Pie de video (Español)
               </label>
               <textarea
                 value={(formData.content as any).description?.es || ''}
@@ -633,14 +633,14 @@ export default function ZoneStepsPage({
                     }
                   }
                 })}
-                placeholder="Descripción del video..."
+                placeholder="Texto que aparecerá arriba del video..."
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[80px]"
                 rows={3}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Descripción (Inglés)
+                Pie de video (Inglés)
               </label>
               <textarea
                 value={(formData.content as any).description?.en || ''}
@@ -654,7 +654,7 @@ export default function ZoneStepsPage({
                     }
                   }
                 })}
-                placeholder="Video description..."
+                placeholder="Text that will appear above the video..."
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[80px]"
                 rows={3}
               />
