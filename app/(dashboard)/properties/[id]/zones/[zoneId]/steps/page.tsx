@@ -154,14 +154,13 @@ const saveStepsData = async (propertyId: string, zoneId: string, steps: Step[]) 
       if (step.media?.url) {
         console.log(`🎬 Step ${index + 1} has media, adding to content:`, {
           url: step.media.url,
-          thumbnail: step.media.thumbnail,
-          title: step.media.title
+          thumbnail: step.media.thumbnail
         })
         contentData = {
           ...contentData,
           mediaUrl: step.media.url,
-          thumbnail: step.media.thumbnail,
-          title: step.media.title
+          thumbnail: step.media.thumbnail
+          // Removed title to prevent overwriting description
         }
       } else if (step.content?.mediaUrl) {
         console.log(`📹 Step ${index + 1} has content.mediaUrl, preserving:`, step.content.mediaUrl)
@@ -526,7 +525,7 @@ export default function ZoneStepsPage({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Descripción (Español)
               </label>
-              <Input
+              <textarea
                 value={(formData.content as any).description?.es || ''}
                 onChange={(e) => setFormData({
                   ...formData,
@@ -539,13 +538,15 @@ export default function ZoneStepsPage({
                   }
                 })}
                 placeholder="Descripción de la imagen..."
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[80px]"
+                rows={3}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Descripción (Inglés)
               </label>
-              <Input
+              <textarea
                 value={(formData.content as any).description?.en || ''}
                 onChange={(e) => setFormData({
                   ...formData,
@@ -558,6 +559,8 @@ export default function ZoneStepsPage({
                   }
                 })}
                 placeholder="Image description..."
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[80px]"
+                rows={3}
               />
             </div>
           </div>
@@ -618,7 +621,7 @@ export default function ZoneStepsPage({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Descripción (Español)
               </label>
-              <Input
+              <textarea
                 value={(formData.content as any).description?.es || ''}
                 onChange={(e) => setFormData({
                   ...formData,
@@ -631,13 +634,15 @@ export default function ZoneStepsPage({
                   }
                 })}
                 placeholder="Descripción del video..."
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[80px]"
+                rows={3}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Descripción (Inglés)
               </label>
-              <Input
+              <textarea
                 value={(formData.content as any).description?.en || ''}
                 onChange={(e) => setFormData({
                   ...formData,
@@ -650,6 +655,8 @@ export default function ZoneStepsPage({
                   }
                 })}
                 placeholder="Video description..."
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y min-h-[80px]"
+                rows={3}
               />
             </div>
           </div>
