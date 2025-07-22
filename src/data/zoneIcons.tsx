@@ -121,6 +121,47 @@ import {
   Router,
   Satellite,
   HardDrive,
+  // Travel and vacation icons
+  Plane,
+  Luggage,
+  Briefcase as Suitcase,
+  FileText as Passport,  
+  Globe,
+  Compass,
+  Map,
+  Camera as PhotoCamera,
+  Ship,
+  Zap as Train,
+  Car as Bus,
+  Car as Taxi,
+  Circle as ParkingCircle,
+  Navigation,
+  Building as Hotel,
+  Trees as PalmTree,
+  Umbrella as Beach,
+  CloudSun,
+  CloudSnow,
+  Sun as Sunset,
+  Sun as Sunrise,
+  // House and room icons
+  DoorOpen as Door,
+  DoorOpen as DoorClosed,
+  Package as Window,
+  Package as Blinds,
+  Package as Balcony,
+  Package as Stairs,
+  Package as Elevator,
+  // Appliances and amenities
+  Coffee as CoffeeCup,
+  Package as Oven,
+  Package as Dishwasher,
+  Snowflake as Freezer,
+  Flame as Heater,
+  Wind as AirVent,
+  Printer,
+  Package as Iron,
+  Lock as Safe,
+  CreditCard as AccessCard,
   // Aliased icons for non-existent ones
   Flame as Pizza, // Using Flame instead of Pizza for oven
   Coffee as Soup, // Using Coffee instead of Soup for hot beverages
@@ -942,5 +983,293 @@ export const ZONE_ICONS: ZoneIcon[] = [
     icon: Shirt,
     category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
     color: 'text-yellow-600'
+  },
+
+  // =================== TRAVEL & VACATION ICONS ===================
+  {
+    id: 'travel-plane',
+    name: 'Avión',
+    icon: Plane,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-luggage',
+    name: 'Equipaje',
+    icon: Luggage,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-suitcase',
+    name: 'Maleta',
+    icon: Suitcase,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-passport',
+    name: 'Pasaporte',
+    icon: Passport,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-globe',
+    name: 'Mundo',
+    icon: Globe,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-compass',
+    name: 'Brújula',
+    icon: Compass,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-map',
+    name: 'Mapa',
+    icon: Map,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-camera',
+    name: 'Cámara de Fotos',
+    icon: PhotoCamera,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-ship',
+    name: 'Barco',
+    icon: Ship,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-train',
+    name: 'Tren',
+    icon: Train,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-bus',
+    name: 'Autobús',
+    icon: Bus,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-taxi',
+    name: 'Taxi',
+    icon: Taxi,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-parking',
+    name: 'Parking',
+    icon: ParkingCircle,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-navigation',
+    name: 'Navegación',
+    icon: Navigation,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'travel-hotel',
+    name: 'Hotel',
+    icon: Hotel,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+
+  // =================== NATURE & WEATHER ICONS ===================
+  {
+    id: 'nature-sun',
+    name: 'Sol',
+    icon: Sun,
+    category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+    color: 'text-amber-600'
+  },
+  {
+    id: 'nature-palm',
+    name: 'Palmera',
+    icon: PalmTree,
+    category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+    color: 'text-amber-600'
+  },
+  {
+    id: 'nature-beach',
+    name: 'Playa',
+    icon: Beach,
+    category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+    color: 'text-amber-600'
+  },
+  {
+    id: 'nature-cloudsun',
+    name: 'Parcialmente Nublado',
+    icon: CloudSun,
+    category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+    color: 'text-amber-600'
+  },
+  {
+    id: 'nature-cloudsnow',
+    name: 'Nieve',
+    icon: CloudSnow,
+    category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+    color: 'text-amber-600'
+  },
+  {
+    id: 'nature-sunset',
+    name: 'Atardecer',
+    icon: Sunset,
+    category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+    color: 'text-amber-600'
+  },
+  {
+    id: 'nature-sunrise',
+    name: 'Amanecer',
+    icon: Sunrise,
+    category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+    color: 'text-amber-600'
+  },
+
+  // =================== HOUSE & ACCESS ICONS ===================
+  {
+    id: 'house-door',
+    name: 'Puerta',
+    icon: Door,
+    category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
+    color: 'text-red-600'
+  },
+  {
+    id: 'house-door-closed',
+    name: 'Puerta Cerrada',
+    icon: DoorClosed,
+    category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
+    color: 'text-red-600'
+  },
+  {
+    id: 'house-window',
+    name: 'Ventana',
+    icon: Window,
+    category: { id: 'general', name: 'General', color: 'bg-gray-100 text-gray-800 border-gray-200' },
+    color: 'text-gray-600'
+  },
+  {
+    id: 'house-blinds',
+    name: 'Persianas',
+    icon: Blinds,
+    category: { id: 'general', name: 'General', color: 'bg-gray-100 text-gray-800 border-gray-200' },
+    color: 'text-gray-600'
+  },
+  {
+    id: 'house-balcony',
+    name: 'Balcón',
+    icon: Balcony,
+    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    color: 'text-green-600'
+  },
+  {
+    id: 'house-stairs',
+    name: 'Escaleras',
+    icon: Stairs,
+    category: { id: 'general', name: 'General', color: 'bg-gray-100 text-gray-800 border-gray-200' },
+    color: 'text-gray-600'
+  },
+  {
+    id: 'house-elevator',
+    name: 'Ascensor',
+    icon: Elevator,
+    category: { id: 'general', name: 'General', color: 'bg-gray-100 text-gray-800 border-gray-200' },
+    color: 'text-gray-600'
+  },
+  {
+    id: 'house-keys',
+    name: 'Llaves',
+    icon: Key,
+    category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
+    color: 'text-red-600'
+  },
+
+  // =================== APPLIANCES & AMENITIES ===================
+  {
+    id: 'appliance-coffee',
+    name: 'Café',
+    icon: CoffeCup,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+  {
+    id: 'appliance-oven',
+    name: 'Horno',
+    icon: Oven,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+  {
+    id: 'appliance-dishwasher',
+    name: 'Lavavajillas',
+    icon: Dishwasher,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+  {
+    id: 'appliance-freezer',
+    name: 'Congelador',
+    icon: Freezer,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+  {
+    id: 'appliance-heater',
+    name: 'Calefactor',
+    icon: Heater,
+    category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    color: 'text-yellow-600'
+  },
+  {
+    id: 'appliance-airvent',
+    name: 'Ventilación',
+    icon: AirVent,
+    category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    color: 'text-yellow-600'
+  },
+  {
+    id: 'appliance-printer',
+    name: 'Impresora',
+    icon: Printer,
+    category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    color: 'text-yellow-600'
+  },
+  {
+    id: 'appliance-iron',
+    name: 'Plancha',
+    icon: Iron,
+    category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    color: 'text-yellow-600'
+  },
+  {
+    id: 'appliance-safe',
+    name: 'Caja Fuerte',
+    icon: Safe,
+    category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
+    color: 'text-red-600'
+  },
+  {
+    id: 'appliance-keycard',
+    name: 'Tarjeta de Acceso',
+    icon: AccessCard,
+    category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
+    color: 'text-red-600'
   }
 ]

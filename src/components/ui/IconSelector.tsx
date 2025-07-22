@@ -29,10 +29,16 @@ export function IconSelector({ selectedIconId, onSelect, onClose, className }: I
 
   const categories = [
     { id: 'all', name: 'Todos', color: 'bg-gray-100 text-gray-800 border-gray-200' },
-    { id: 'essential', name: 'Esenciales', color: 'bg-blue-100 text-blue-800 border-blue-200' },
-    { id: 'amenities', name: 'Comodidades', color: 'bg-green-100 text-green-800 border-green-200' },
-    { id: 'rules', name: 'Normas', color: 'bg-orange-100 text-orange-800 border-orange-200' },
-    { id: 'local', name: 'Local', color: 'bg-purple-100 text-purple-800 border-purple-200' }
+    { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+    { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    { id: 'bathroom', name: 'Baño', color: 'bg-teal-100 text-teal-800 border-teal-200' },
+    { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+    { id: 'living', name: 'Salón', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+    { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' },
+    { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    { id: 'general', name: 'General', color: 'bg-gray-100 text-gray-800 border-gray-200' }
   ]
 
   return (
@@ -194,10 +200,12 @@ interface ZoneIconDisplayProps {
 }
 
 export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisplayProps) {
-  // First try to get icon by direct iconId mapping
-  let IconComponent = null
+  // First try to get icon from ZONE_ICONS array
+  const zoneIcon = iconId ? ZONE_ICONS.find(icon => icon.id === iconId) : null
+  let IconComponent = zoneIcon?.icon || null
   
-  if (iconId) {
+  // Fallback: if not found in ZONE_ICONS, try extended icons
+  if (!IconComponent && iconId) {
     // Direct iconId mapping (for commonly used iconIds)
     const iconIdMapping: { [key: string]: any } = {
       'wifi': getZoneIconByName('wifi'),
@@ -218,7 +226,7 @@ export function ZoneIconDisplay({ iconId, size = 'md', className }: ZoneIconDisp
       'wind': getZoneIconByName('aire')
     }
     
-    // Try direct iconId mapping first
+    // Try direct iconId mapping
     IconComponent = iconIdMapping[iconId]
     
     // If not found, try by zone name
