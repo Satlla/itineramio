@@ -78,7 +78,8 @@ export default function PropertyEvaluationsPage() {
   const [stats, setStats] = useState<EvaluationStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [propertyName, setPropertyName] = useState<string>('')
-  const [filterType, setFilterType] = useState<'all' | 'zone' | 'property' | 'public' | 'private'>('all')
+  const [activeTab, setActiveTab] = useState<'zone' | 'public'>('zone')
+  const [filterType, setFilterType] = useState<'all' | 'zone' | 'property' | 'public' | 'private' | 'approved' | 'pending'>('all')
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'rating-high' | 'rating-low'>('newest')
 
   useEffect(() => {
@@ -160,22 +161,51 @@ export default function PropertyEvaluationsPage() {
     }
   }
 
+  const handleApproveEvaluation = async (evaluationId: string) => {
+    try {
+      const response = await fetch(`/api/evaluations/${evaluationId}/approve`, {
+        method: 'PATCH',
+        credentials: 'include'
+      })
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        // Update local state
+        setEvaluations(evaluations.map(evaluation => 
+          evaluation.id === evaluationId 
+            ? { ...evaluation, isApproved: !evaluation.isApproved }
+            : evaluation
+        ))
+      }
+    } catch (error) {
+      console.error('Error approving evaluation:', error)
+    }
+  }
+
   const filteredAndSortedEvaluations = () => {
     let filtered = evaluations
 
-    // Apply filters
+    // Apply tab filter first
+    if (activeTab === 'zone') {
+      filtered = evaluations.filter(e => e.reviewType === 'zone')
+    } else if (activeTab === 'public') {
+      filtered = evaluations.filter(e => e.reviewType === 'property')
+    }
+
+    // Apply additional filters
     switch (filterType) {
-      case 'zone':
-        filtered = evaluations.filter(e => e.reviewType === 'zone')
-        break
-      case 'property':
-        filtered = evaluations.filter(e => e.reviewType === 'property')
-        break
       case 'public':
-        filtered = evaluations.filter(e => e.isPublic)
+        filtered = filtered.filter(e => e.isPublic)
         break
       case 'private':
-        filtered = evaluations.filter(e => !e.isPublic)
+        filtered = filtered.filter(e => !e.isPublic)
+        break
+      case 'approved':
+        filtered = filtered.filter(e => e.isApproved)
+        break
+      case 'pending':
+        filtered = filtered.filter(e => !e.isApproved)
         break
     }
 
@@ -361,6 +391,34 @@ export default function PropertyEvaluationsPage() {
         </Card>
       )}
 
+      {/* Tabs */}
+      <div className="mb-6">
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab('zone')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'zone'
+                  ? 'border-violet-500 text-violet-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Evaluaciones por Zona
+            </button>
+            <button
+              onClick={() => setActiveTab('public')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'public'
+                  ? 'border-violet-500 text-violet-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Evaluaciones Públicas
+            </button>
+          </nav>
+        </div>
+      </div>
+
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="flex items-center gap-2">
@@ -374,8 +432,12 @@ export default function PropertyEvaluationsPage() {
           className="px-3 py-1 border border-gray-300 rounded-md text-sm"
         >
           <option value="all">Todas</option>
-          <option value="zone">Por Zona</option>
-          <option value="property">Propiedad General</option>
+          {activeTab === 'public' && (
+            <>
+              <option value="approved">Aprobadas</option>
+              <option value="pending">Pendientes</option>
+            </>
+          )}
           <option value="public">Públicas</option>
           <option value="private">Privadas</option>
         </select>
@@ -517,6 +579,31 @@ export default function PropertyEvaluationsPage() {
                     </div>
 
                     <div className="flex flex-col gap-2 ml-4">
+                      {activeTab === 'public' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleApproveEvaluation(evaluation.id)}
+                          className={`flex items-center gap-2 ${
+                            evaluation.isApproved 
+                              ? 'border-green-500 text-green-600 hover:bg-green-50' 
+                              : 'border-orange-500 text-orange-600 hover:bg-orange-50'
+                          }`}
+                        >
+                          {evaluation.isApproved ? (
+                            <>
+                              <CheckCircle className="w-4 h-4" />
+                              Aprobada
+                            </>
+                          ) : (
+                            <>
+                              <AlertCircle className="w-4 h-4" />
+                              Aprobar
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      
                       <Button
                         variant="outline"
                         size="sm"
