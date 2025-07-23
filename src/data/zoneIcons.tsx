@@ -192,9 +192,6 @@ import {
   Flame as Campfire, // Using Flame instead of Campfire
   Shield as Fence, // Using Shield instead of Fence
   Car as Sailboat, // Using Car instead of Sailboat
-  Sun as Sunrise, // Using Sun instead of Sunrise
-  Moon as Sunset, // Using Moon instead of Sunset
-  FileText as Printer, // Using FileText instead of Printer
   Phone as Smartphone, // Using Phone instead of Smartphone
   Radio as SatelliteIcon, // Using Radio instead of Satellite
   Building as Construction, // Using Building instead of Construction
