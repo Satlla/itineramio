@@ -378,7 +378,9 @@ export default function ZoneGuidePage({
           return {
             ...step,
             title: step.title || { es: `Paso ${step.order}`, en: `Step ${step.order}` },
-            description: step.description || step.content,
+            // Don't duplicate content into description
+            description: step.description,
+            content: step.content,
             mediaUrl: step.mediaUrl,
             linkUrl: step.linkUrl,
             thumbnail: step.thumbnail
