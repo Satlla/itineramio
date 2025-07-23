@@ -1202,7 +1202,7 @@ export const ZONE_ICONS: ZoneIcon[] = [
   {
     id: 'appliance-coffee',
     name: 'Café',
-    icon: CoffeCup,
+    icon: CoffeeCup,
     category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
     color: 'text-orange-600'
   },
