@@ -32,6 +32,11 @@ import { ImageUpload } from './ImageUpload'
 export interface Step {
   id: string
   type: 'text' | 'image' | 'video' | 'youtube' | 'link'
+  title?: {
+    es: string
+    en?: string
+    fr?: string
+  }
   content: {
     es: string
     en?: string

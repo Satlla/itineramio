@@ -29,6 +29,11 @@ import { MobileStepEditorSimple } from './MobileStepEditorSimple'
 export interface Step {
   id: string
   type: 'text' | 'image' | 'video' | 'youtube' | 'link'
+  title?: {
+    es: string
+    en?: string
+    fr?: string
+  }
   content: {
     es: string
     en?: string
@@ -218,6 +223,20 @@ export function StepEditor({
     ))
   }
 
+  const updateStepTitle = (stepId: string, language: 'es' | 'en' | 'fr', title: string) => {
+    setSteps(steps.map(step => 
+      step.id === stepId 
+        ? { 
+            ...step, 
+            title: { 
+              ...step.title || { es: '', en: '', fr: '' }, 
+              [language]: title 
+            } 
+          } 
+        : step
+    ))
+  }
+
   const getStepIcon = (type: string) => {
     switch (type) {
       case 'text': return <FileText className="w-4 h-4" />
@@ -326,74 +345,116 @@ export function StepEditor({
 
       {/* Content Editor */}
       {step.type === 'text' && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">Contenido</label>
-          <textarea
-            value={step.content[activeLanguage] || ''}
-            onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
-            placeholder={`Escribe las instrucciones...`}
-            className="w-full h-32 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none text-sm"
-          />
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Título (opcional)</label>
+            <input
+              type="text"
+              value={step.title?.[activeLanguage] || ''}
+              onChange={(e) => updateStepTitle(step.id, activeLanguage, e.target.value)}
+              placeholder={`Título del paso...`}
+              className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Instrucciones</label>
+            <textarea
+              value={step.content[activeLanguage] || ''}
+              onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
+              placeholder={`Escribe las instrucciones detalladas...`}
+              className="w-full h-40 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none text-sm"
+            />
+          </div>
         </div>
       )}
 
       {step.type === 'image' && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">Imagen</label>
-          <ImageUpload
-            value={step.media?.url}
-            onChange={(url) => {
-              if (url) {
-                updateStep(step.id, {
-                  media: {
-                    url,
-                    title: 'Uploaded image'
-                  }
-                })
-              } else {
-                updateStep(step.id, { media: undefined })
-              }
-            }}
-            className="mb-3"
-          />
-          <Input
-            value={step.content[activeLanguage] || ''}
-            onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
-            placeholder="Descripción (opcional)"
-            className="mt-3"
-          />
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Imagen</label>
+            <ImageUpload
+              value={step.media?.url}
+              onChange={(url) => {
+                if (url) {
+                  updateStep(step.id, {
+                    media: {
+                      url,
+                      title: 'Uploaded image'
+                    }
+                  })
+                } else {
+                  updateStep(step.id, { media: undefined })
+                }
+              }}
+              className="mb-3"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Título (opcional)</label>
+            <input
+              type="text"
+              value={step.title?.[activeLanguage] || ''}
+              onChange={(e) => updateStepTitle(step.id, activeLanguage, e.target.value)}
+              placeholder="Título de la imagen..."
+              className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Descripción / Instrucciones</label>
+            <textarea
+              value={step.content[activeLanguage] || ''}
+              onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
+              placeholder="Describe la imagen o agrega instrucciones..."
+              className="w-full h-32 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none text-sm"
+            />
+          </div>
         </div>
       )}
 
       {step.type === 'video' && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">Video</label>
-          <VideoUploadSimple
-            value={step.media?.url}
-            onChange={(url, metadata) => {
-              console.log('📹 Video onChange called:', { stepId: step.id, url, metadata })
-              if (url) {
-                updateStep(step.id, {
-                  media: {
-                    url,
-                    thumbnail: metadata?.thumbnail,
-                    title: 'Uploaded video'
-                  }
-                })
-              } else {
-                updateStep(step.id, { media: undefined })
-              }
-            }}
-            className="mb-3"
-            maxSize={100}
-            maxDuration={60}
-          />
-          <Input
-            value={step.content[activeLanguage] || ''}
-            onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
-            placeholder="Descripción (opcional)"
-            className="mt-3"
-          />
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Video</label>
+            <VideoUploadSimple
+              value={step.media?.url}
+              onChange={(url, metadata) => {
+                console.log('📹 Video onChange called:', { stepId: step.id, url, metadata })
+                if (url) {
+                  updateStep(step.id, {
+                    media: {
+                      url,
+                      thumbnail: metadata?.thumbnail,
+                      title: 'Uploaded video'
+                    }
+                  })
+                } else {
+                  updateStep(step.id, { media: undefined })
+                }
+              }}
+              className="mb-3"
+              maxSize={100}
+              maxDuration={60}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Título (opcional)</label>
+            <input
+              type="text"
+              value={step.title?.[activeLanguage] || ''}
+              onChange={(e) => updateStepTitle(step.id, activeLanguage, e.target.value)}
+              placeholder="Título del video..."
+              className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Descripción / Instrucciones</label>
+            <textarea
+              value={step.content[activeLanguage] || ''}
+              onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
+              placeholder="Describe el video o agrega instrucciones..."
+              className="w-full h-32 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none text-sm"
+            />
+          </div>
         </div>
       )}
     </div>
@@ -760,86 +821,130 @@ export function StepEditor({
                       {/* Content Editor */}
                       <div className="space-y-6">
                         {steps[activeStep].type === 'text' && (
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Contenido del paso
-                            </label>
-                            <textarea
-                              value={steps[activeStep].content[activeLanguage] || ''}
-                              onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
-                              placeholder={`Escribe las instrucciones en ${languages.find(l => l.code === activeLanguage)?.label}...`}
-                              className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
-                            />
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título del paso (opcional)
+                              </label>
+                              <input
+                                type="text"
+                                value={steps[activeStep].title?.[activeLanguage] || ''}
+                                onChange={(e) => updateStepTitle(steps[activeStep].id, activeLanguage, e.target.value)}
+                                placeholder={`Título en ${languages.find(l => l.code === activeLanguage)?.label}...`}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Instrucciones del paso
+                              </label>
+                              <textarea
+                                value={steps[activeStep].content[activeLanguage] || ''}
+                                onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
+                                placeholder={`Escribe las instrucciones detalladas en ${languages.find(l => l.code === activeLanguage)?.label}...`}
+                                className="w-full h-48 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+                              />
+                            </div>
                           </div>
                         )}
 
                         {steps[activeStep].type === 'image' && (
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Subir imagen
-                            </label>
-                            <ImageUpload
-                              value={steps[activeStep].media?.url}
-                              onChange={(url) => {
-                                if (url) {
-                                  updateStep(steps[activeStep].id, {
-                                    media: {
-                                      url,
-                                      title: 'Uploaded image'
-                                    }
-                                  })
-                                } else {
-                                  updateStep(steps[activeStep].id, { media: undefined })
-                                }
-                              }}
-                              className="mb-4"
-                            />
-                            <div className="mt-4">
+                          <div className="space-y-4">
+                            <div>
                               <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Descripción (opcional)
+                                Subir imagen
                               </label>
-                              <Input
+                              <ImageUpload
+                                value={steps[activeStep].media?.url}
+                                onChange={(url) => {
+                                  if (url) {
+                                    updateStep(steps[activeStep].id, {
+                                      media: {
+                                        url,
+                                        title: 'Uploaded image'
+                                      }
+                                    })
+                                  } else {
+                                    updateStep(steps[activeStep].id, { media: undefined })
+                                  }
+                                }}
+                                className="mb-4"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título (opcional)
+                              </label>
+                              <input
+                                type="text"
+                                value={steps[activeStep].title?.[activeLanguage] || ''}
+                                onChange={(e) => updateStepTitle(steps[activeStep].id, activeLanguage, e.target.value)}
+                                placeholder={`Título de la imagen en ${languages.find(l => l.code === activeLanguage)?.label}...`}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción / Instrucciones
+                              </label>
+                              <textarea
                                 value={steps[activeStep].content[activeLanguage] || ''}
                                 onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
-                                placeholder="Descripción de la imagen"
+                                placeholder="Describe la imagen o agrega instrucciones..."
+                                className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                               />
                             </div>
                           </div>
                         )}
 
                         {steps[activeStep].type === 'video' && (
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Subir video
-                            </label>
-                            <VideoUploadSimple
-                              value={steps[activeStep].media?.url}
-                              onChange={(url, metadata) => {
-                                console.log('📹 Mobile Video onChange called:', { stepId: steps[activeStep].id, url, metadata })
-                                if (url) {
-                                  updateStep(steps[activeStep].id, {
-                                    media: {
-                                      url,
-                                      thumbnail: metadata?.thumbnail,
-                                      title: 'Uploaded video'
-                                    }
-                                  })
-                                } else {
-                                  updateStep(steps[activeStep].id, { media: undefined })
-                                }
-                              }}
-                              className="mb-4"
-                              maxSize={100}
-                              maxDuration={60}
-                            />
-                            <div className="mt-4">
+                          <div className="space-y-4">
+                            <div>
                               <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Descripción (opcional)
+                                Subir video
                               </label>
-                              <Input
+                              <VideoUploadSimple
+                                value={steps[activeStep].media?.url}
+                                onChange={(url, metadata) => {
+                                  console.log('📹 Mobile Video onChange called:', { stepId: steps[activeStep].id, url, metadata })
+                                  if (url) {
+                                    updateStep(steps[activeStep].id, {
+                                      media: {
+                                        url,
+                                        thumbnail: metadata?.thumbnail,
+                                        title: 'Uploaded video'
+                                      }
+                                    })
+                                  } else {
+                                    updateStep(steps[activeStep].id, { media: undefined })
+                                  }
+                                }}
+                                className="mb-4"
+                                maxSize={100}
+                                maxDuration={60}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título (opcional)
+                              </label>
+                              <input
+                                type="text"
+                                value={steps[activeStep].title?.[activeLanguage] || ''}
+                                onChange={(e) => updateStepTitle(steps[activeStep].id, activeLanguage, e.target.value)}
+                                placeholder={`Título del video en ${languages.find(l => l.code === activeLanguage)?.label}...`}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción / Instrucciones
+                              </label>
+                              <textarea
                                 value={steps[activeStep].content[activeLanguage] || ''}
                                 onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
-                                placeholder="Descripción del video"
+                                placeholder="Describe el video o agrega instrucciones..."
+                                className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                               />
                             </div>
                           </div>

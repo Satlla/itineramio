@@ -235,7 +235,7 @@ export default function ZoneDetailPage() {
       const formattedSteps = steps.map((step, index) => {
         const formattedStep = {
           type: (step.type || 'text').toUpperCase(), // Ensure uppercase
-          title: step.content || { es: '', en: '', fr: '' }, // Use content as title
+          title: step.title || { es: '', en: '', fr: '' }, // Use title field
           content: step.content || { es: '', en: '', fr: '' },
           order: index,
           // Include media data for images/videos
@@ -292,6 +292,13 @@ export default function ZoneDetailPage() {
         .map(step => ({
           id: step.id,
           type: step.type.toLowerCase() as any,
+          title: typeof step.title === 'string' 
+            ? { es: step.title, en: '', fr: '' }
+            : {
+                es: (step.title as any)?.es || '',
+                en: (step.title as any)?.en || '',
+                fr: (step.title as any)?.fr || ''
+              },
           content: typeof step.content === 'string' 
             ? { es: step.content, en: '', fr: '' }
             : {
@@ -316,6 +323,7 @@ export default function ZoneDetailPage() {
       return [{
         id: `new-step-${Date.now()}`,
         type: 'text' as any,
+        title: { es: '', en: '', fr: '' },
         content: { es: '', en: '', fr: '' },
         media: undefined,
         order: 0
@@ -328,6 +336,13 @@ export default function ZoneDetailPage() {
       .map(step => ({
         id: step.id,
         type: step.type.toLowerCase() as any,
+        title: typeof step.title === 'string' 
+          ? { es: step.title, en: '', fr: '' }
+          : {
+              es: (step.title as any)?.es || '',
+              en: (step.title as any)?.en || '',
+              fr: (step.title as any)?.fr || ''
+            },
         content: typeof step.content === 'string' 
           ? { es: step.content, en: '', fr: '' }
           : {
@@ -346,6 +361,7 @@ export default function ZoneDetailPage() {
     allSteps.push({
       id: `new-step-${Date.now()}`,
       type: 'text' as any,
+      title: { es: '', en: '', fr: '' },
       content: { es: '', en: '', fr: '' },
       media: undefined,
       order: nextOrder

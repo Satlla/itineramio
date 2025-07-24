@@ -824,13 +824,12 @@ export default function ZoneGuidePage({
                   <CardContent className="p-8 relative z-10">
                     {/* Step Header - Clean, no badges */}
                     <div className="mb-6">
-                      {/* Show title only for media steps */}
+                      {/* Show title if provided */}
                       {(() => {
                         const titleText = getText(step.title, language, '');
                         
-                        // Only show titles for media steps (IMAGE, VIDEO, LINK)
-                        // For TEXT steps, skip titles to avoid showing content as title
-                        if (step.type !== 'TEXT' && titleText) {
+                        // Show title if it exists and is not empty
+                        if (titleText && titleText.trim()) {
                           return (
                             <motion.h2 
                               className={`text-2xl font-bold mb-3 break-words ${
@@ -859,7 +858,7 @@ export default function ZoneGuidePage({
                         // For all step types, show content if it exists
                         if (contentText && contentText.trim()) {
                           return (
-                            <div className="text-gray-700 leading-relaxed whitespace-pre-wrap mt-4 break-words">
+                            <div className="text-gray-700 leading-relaxed whitespace-pre-wrap mt-4 break-words text-base">
                               {contentText}
                             </div>
                           );
