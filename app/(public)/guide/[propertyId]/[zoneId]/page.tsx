@@ -377,8 +377,7 @@ export default function ZoneGuidePage({
           })
           return {
             ...step,
-            title: step.title || { es: `Paso ${step.order}`, en: `Step ${step.order}` },
-            // Don't duplicate content into description
+            title: step.title, // Keep original title, don't generate default
             description: step.description,
             content: step.content,
             mediaUrl: step.mediaUrl,

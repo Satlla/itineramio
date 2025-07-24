@@ -601,7 +601,13 @@ export function StepEditor({
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <p className="text-sm text-gray-900">
+                      {/* Show title if exists */}
+                      {step.title?.es && (
+                        <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                          {step.title.es}
+                        </h4>
+                      )}
+                      <p className="text-sm text-gray-600">
                         {step.content.es || `Configura el paso ${index + 1}`}
                       </p>
                     </motion.div>
@@ -1123,7 +1129,14 @@ export function StepEditor({
                                         <span className="text-xs text-gray-700 font-medium">Paso {index + 1}</span>
                                       </div>
                                       
-                                      <p className="text-xs text-gray-900 leading-relaxed">
+                                      {/* Show title if exists */}
+                                      {step.title?.es && (
+                                        <h4 className="text-xs font-semibold text-gray-900 mb-1 leading-tight">
+                                          {step.title.es}
+                                        </h4>
+                                      )}
+                                      
+                                      <p className="text-xs text-gray-700 leading-relaxed">
                                         {step.content.es || `Añade contenido para este paso`}
                                       </p>
                                     </div>
