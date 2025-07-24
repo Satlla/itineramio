@@ -824,43 +824,23 @@ export default function ZoneGuidePage({
                   <CardContent className="p-8 relative z-10">
                     {/* Step Header - Clean, no badges */}
                     <div className="mb-6">
-                      {/* Show title for all types */}
+                      {/* Show title only for media steps */}
                       {(() => {
                         const titleText = getText(step.title, language, '');
-                        const contentText = getText(step.content, language, '');
                         
-                        // For TEXT steps: show title if it exists and is not a truncated version of content
-                        if (step.type === 'TEXT') {
-                          const isTruncatedContent = titleText && contentText && 
-                            (contentText.startsWith(titleText.replace('...', '')) || 
-                             titleText === contentText.substring(0, 50) + '...');
-                          
-                          if (titleText && !isTruncatedContent) {
-                            return (
-                              <motion.h2 
-                                className={`text-2xl font-bold mb-3 break-words ${
-                                  index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
-                                }`}
-                                layoutId={`title-${step.id}`}
-                              >
-                                {titleText}
-                              </motion.h2>
-                            );
-                          }
-                        } else {
-                          // For media steps, always show title
-                          if (titleText) {
-                            return (
-                              <motion.h2 
-                                className={`text-2xl font-bold mb-3 break-words ${
-                                  index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
-                                }`}
-                                layoutId={`title-${step.id}`}
-                              >
-                                {titleText}
-                              </motion.h2>
-                            );
-                          }
+                        // Only show titles for media steps (IMAGE, VIDEO, LINK)
+                        // For TEXT steps, skip titles to avoid showing content as title
+                        if (step.type !== 'TEXT' && titleText) {
+                          return (
+                            <motion.h2 
+                              className={`text-2xl font-bold mb-3 break-words ${
+                                index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
+                              }`}
+                              layoutId={`title-${step.id}`}
+                            >
+                              {titleText}
+                            </motion.h2>
+                          );
                         }
                         return null;
                       })()}
