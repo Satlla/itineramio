@@ -379,21 +379,13 @@ export async function PUT(
       const step = stepsToSave[i]
       console.log(`🔍 API Processing step ${i + 1}:`, JSON.stringify(step, null, 2))
       
-      // Use provided title or default to generic titles
-      let titleContent = step.title || { es: '', en: '', fr: '' }
+      // Use provided title only if it exists and is not empty
+      let titleContent = null
       let bodyContent = step.content || { es: '', en: '', fr: '' }
       
-      // If no title provided, use generic titles
-      if (!step.title || (!step.title.es && !step.title.en && !step.title.fr)) {
-        const typeLabels = {
-          IMAGE: { es: 'Imagen', en: 'Image', fr: 'Image' },
-          VIDEO: { es: 'Video', en: 'Video', fr: 'Vidéo' },
-          LINK: { es: 'Enlace', en: 'Link', fr: 'Lien' },
-          YOUTUBE: { es: 'Video YouTube', en: 'YouTube Video', fr: 'Vidéo YouTube' },
-          TEXT: { es: `Paso ${i + 1}`, en: `Step ${i + 1}`, fr: `Étape ${i + 1}` }
-        }
-        const labels = typeLabels[step.type?.toUpperCase() as keyof typeof typeLabels] || { es: `Paso ${i + 1}`, en: `Step ${i + 1}`, fr: `Étape ${i + 1}` }
-        titleContent = labels
+      // Only set title if explicitly provided and not empty
+      if (step.title && (step.title.es || step.title.en || step.title.fr)) {
+        titleContent = step.title
       }
       
       console.log(`📝 Step ${i + 1} title:`, titleContent)
@@ -401,7 +393,7 @@ export async function PUT(
       console.log(`🎬 Step ${i + 1} media URL:`, step.mediaUrl || 'none')
       
       const stepData = {
-        title: titleContent,
+        title: titleContent || { es: '', en: '', fr: '' }, // Use empty object if no title
         content: typeof bodyContent === 'string'
           ? { 
               es: bodyContent, 

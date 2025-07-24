@@ -1129,15 +1129,22 @@ export function StepEditor({
                                         <span className="text-xs text-gray-700 font-medium">Paso {index + 1}</span>
                                       </div>
                                       
-                                      {/* Show title if exists */}
-                                      {step.title?.es && (
+                                      {/* Show title if exists - use the current step being edited */}
+                                      {index === activeStep && steps[activeStep]?.title?.[activeLanguage] ? (
+                                        <h4 className="text-xs font-semibold text-gray-900 mb-1 leading-tight">
+                                          {steps[activeStep].title[activeLanguage]}
+                                        </h4>
+                                      ) : index !== activeStep && step.title?.es ? (
                                         <h4 className="text-xs font-semibold text-gray-900 mb-1 leading-tight">
                                           {step.title.es}
                                         </h4>
-                                      )}
+                                      ) : null}
                                       
                                       <p className="text-xs text-gray-700 leading-relaxed">
-                                        {step.content.es || `Añade contenido para este paso`}
+                                        {index === activeStep 
+                                          ? (steps[activeStep]?.content?.[activeLanguage] || `Añade contenido para este paso`)
+                                          : (step.content.es || `Añade contenido para este paso`)
+                                        }
                                       </p>
                                     </div>
                                   </div>
