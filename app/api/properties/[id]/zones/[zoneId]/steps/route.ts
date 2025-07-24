@@ -386,6 +386,9 @@ export async function PUT(
       // Only set title if explicitly provided and not empty
       if (step.title && (step.title.es || step.title.en || step.title.fr)) {
         titleContent = step.title
+        console.log(`🎯 TITLE DETECTED for step ${i + 1}:`, JSON.stringify(titleContent))
+      } else {
+        console.log(`❌ NO TITLE for step ${i + 1}:`, JSON.stringify(step.title))
       }
       
       console.log(`📝 Step ${i + 1} title:`, titleContent)
