@@ -823,12 +823,13 @@ export default function ZoneGuidePage({
                   <CardContent className="p-8 relative z-10">
                     {/* Step Header - Clean, no badges */}
                     <div className="mb-6">
-                      {/* Show title if provided */}
+                      {/* Show title if provided and different from content */}
                       {(() => {
                         const titleText = getText(step.title, language, '');
+                        const contentText = getText(step.content, language, '');
                         
-                        // Show title if it exists and is not empty
-                        if (titleText && titleText.trim()) {
+                        // Show title only if it exists, is not empty, AND is different from content
+                        if (titleText && titleText.trim() && titleText !== contentText) {
                           return (
                             <motion.h2 
                               className={`text-2xl font-bold mb-3 break-words ${

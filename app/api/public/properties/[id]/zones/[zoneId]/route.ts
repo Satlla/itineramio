@@ -114,8 +114,6 @@ export async function GET(
 
       return {
         ...step,
-        // Force empty title to prevent duplication
-        title: { es: '', en: '', fr: '' },
         mediaUrl,
         linkUrl
       }
