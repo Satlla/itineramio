@@ -247,12 +247,7 @@ export async function POST(
 
     // For TEXT steps, ensure title is different from content
     let stepTitle = title
-    if (type === 'TEXT' && !title && content) {
-      // Create a title from the first part of content
-      const contentText = typeof content === 'string' ? content : (content.es || '')
-      const truncatedTitle = contentText.substring(0, 50) + (contentText.length > 50 ? '...' : '')
-      stepTitle = { es: truncatedTitle, en: '', fr: '' }
-    } else if (!title) {
+    if (!title) {
       // Use type-specific default titles
       const typeLabels = {
         IMAGE: { es: 'Imagen', en: 'Image', fr: 'Image' },
@@ -389,29 +384,16 @@ export async function PUT(
       let titleContent = { es: '', en: '', fr: '' }
       let bodyContent = step.content || { es: '', en: '', fr: '' }
       
-      if (step.type?.toUpperCase() === 'TEXT') {
-        // For TEXT steps, create a title from the first part of content
-        const contentText = typeof bodyContent === 'string' ? bodyContent : (bodyContent.es || '')
-        const truncatedTitle = contentText.substring(0, 50) + (contentText.length > 50 ? '...' : '')
-        
-        titleContent = typeof bodyContent === 'string' 
-          ? { es: truncatedTitle, en: '', fr: '' }
-          : {
-              es: (bodyContent.es || '').substring(0, 50) + ((bodyContent.es || '').length > 50 ? '...' : '') || `Paso ${i + 1}`,
-              en: (bodyContent.en || '').substring(0, 50) + ((bodyContent.en || '').length > 50 ? '...' : '') || '',
-              fr: (bodyContent.fr || '').substring(0, 50) + ((bodyContent.fr || '').length > 50 ? '...' : '') || ''
-            }
-      } else {
-        // For IMAGE/VIDEO/LINK steps, use generic titles
-        const typeLabels = {
-          IMAGE: { es: 'Imagen', en: 'Image', fr: 'Image' },
-          VIDEO: { es: 'Video', en: 'Video', fr: 'Vidéo' },
-          LINK: { es: 'Enlace', en: 'Link', fr: 'Lien' },
-          YOUTUBE: { es: 'Video YouTube', en: 'YouTube Video', fr: 'Vidéo YouTube' }
-        }
-        const labels = typeLabels[step.type?.toUpperCase() as keyof typeof typeLabels] || { es: `Paso ${i + 1}`, en: `Step ${i + 1}`, fr: `Étape ${i + 1}` }
-        titleContent = labels
+      // Use generic titles for all steps to avoid cutting content
+      const typeLabels = {
+        IMAGE: { es: 'Imagen', en: 'Image', fr: 'Image' },
+        VIDEO: { es: 'Video', en: 'Video', fr: 'Vidéo' },
+        LINK: { es: 'Enlace', en: 'Link', fr: 'Lien' },
+        YOUTUBE: { es: 'Video YouTube', en: 'YouTube Video', fr: 'Vidéo YouTube' },
+        TEXT: { es: `Paso ${i + 1}`, en: `Step ${i + 1}`, fr: `Étape ${i + 1}` }
       }
+      const labels = typeLabels[step.type?.toUpperCase() as keyof typeof typeLabels] || { es: `Paso ${i + 1}`, en: `Step ${i + 1}`, fr: `Étape ${i + 1}` }
+      titleContent = labels
       
       console.log(`📝 Step ${i + 1} title:`, titleContent)
       console.log(`📋 Step ${i + 1} content:`, bodyContent)

@@ -890,14 +890,12 @@ export default function ZoneDetailPage() {
                                   </span>
                                 </div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                  {getStepText(step, 'title') || 
-                                   getStepText(step, 'content').substring(0, 60) || 
-                                   `Paso ${index + 1}`}
+                                  {getStepText(step, 'title') || `Paso ${index + 1}`}
                                 </h3>
                                 {getStepText(step, 'content') && (
-                                  <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 mb-3">
-                                    {getStepText(step, 'content').substring(0, 120)}...
-                                  </p>
+                                  <div className="text-gray-600 text-sm leading-relaxed mb-3 whitespace-pre-wrap break-words">
+                                    {getStepText(step, 'content')}
+                                  </div>
                                 )}
                                 <div className="flex items-center space-x-4 text-xs text-gray-500">
                                   {step.estimatedTime && (
