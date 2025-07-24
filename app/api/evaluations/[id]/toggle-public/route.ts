@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
 import { requireAuth } from '../../../../../src/lib/auth'
 
-// PATCH /api/evaluations/[evaluationId]/toggle-public - Toggle evaluation visibility
+// PATCH /api/evaluations/[id]/toggle-public - Toggle evaluation visibility
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ evaluationId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { evaluationId } = await params
+    const { id: evaluationId } = await params
 
     // Check authentication
     const authResult = await requireAuth(request)

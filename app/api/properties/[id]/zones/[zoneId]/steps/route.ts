@@ -245,10 +245,28 @@ export async function POST(
 
     console.log('📹 Creating step with content:', { type, mediaUrl, linkUrl, stepContent })
 
+    // For TEXT steps, ensure title is different from content
+    let stepTitle = title
+    if (type === 'TEXT' && !title && content) {
+      // Create a title from the first part of content
+      const contentText = typeof content === 'string' ? content : (content.es || '')
+      const truncatedTitle = contentText.substring(0, 50) + (contentText.length > 50 ? '...' : '')
+      stepTitle = { es: truncatedTitle, en: '', fr: '' }
+    } else if (!title) {
+      // Use type-specific default titles
+      const typeLabels = {
+        IMAGE: { es: 'Imagen', en: 'Image', fr: 'Image' },
+        VIDEO: { es: 'Video', en: 'Video', fr: 'Vidéo' },
+        LINK: { es: 'Enlace', en: 'Link', fr: 'Lien' },
+        TEXT: { es: `Paso ${stepOrder + 1}`, en: `Step ${stepOrder + 1}`, fr: `Étape ${stepOrder + 1}` }
+      }
+      stepTitle = typeLabels[type as keyof typeof typeLabels] || { es: `Paso ${stepOrder + 1}`, en: `Step ${stepOrder + 1}`, fr: `Étape ${stepOrder + 1}` }
+    }
+    
     // Create the step directly linked to the zone
     const step = await prisma.step.create({
       data: {
-        title: typeof title === 'string' ? { es: title } : title,
+        title: typeof stepTitle === 'string' ? { es: stepTitle } : stepTitle,
         content: stepContent,
         type,
         order: stepOrder,
@@ -366,22 +384,41 @@ export async function PUT(
       const step = stepsToSave[i]
       console.log(`🔍 API Processing step ${i + 1}:`, JSON.stringify(step, null, 2))
       
-      // Handle both title and content fields, prioritizing title for the title field
-      const titleContent = step.title || step.content || { es: `Paso ${i + 1}`, en: '', fr: '' }
-      const bodyContent = step.content || { es: '', en: '', fr: '' }
+      // For TEXT steps: use content as title (truncated) and full content as content
+      // For MEDIA steps: use a generic title and content as description
+      let titleContent = { es: '', en: '', fr: '' }
+      let bodyContent = step.content || { es: '', en: '', fr: '' }
+      
+      if (step.type?.toUpperCase() === 'TEXT') {
+        // For TEXT steps, create a title from the first part of content
+        const contentText = typeof bodyContent === 'string' ? bodyContent : (bodyContent.es || '')
+        const truncatedTitle = contentText.substring(0, 50) + (contentText.length > 50 ? '...' : '')
+        
+        titleContent = typeof bodyContent === 'string' 
+          ? { es: truncatedTitle, en: '', fr: '' }
+          : {
+              es: (bodyContent.es || '').substring(0, 50) + ((bodyContent.es || '').length > 50 ? '...' : '') || `Paso ${i + 1}`,
+              en: (bodyContent.en || '').substring(0, 50) + ((bodyContent.en || '').length > 50 ? '...' : '') || '',
+              fr: (bodyContent.fr || '').substring(0, 50) + ((bodyContent.fr || '').length > 50 ? '...' : '') || ''
+            }
+      } else {
+        // For IMAGE/VIDEO/LINK steps, use generic titles
+        const typeLabels = {
+          IMAGE: { es: 'Imagen', en: 'Image', fr: 'Image' },
+          VIDEO: { es: 'Video', en: 'Video', fr: 'Vidéo' },
+          LINK: { es: 'Enlace', en: 'Link', fr: 'Lien' },
+          YOUTUBE: { es: 'Video YouTube', en: 'YouTube Video', fr: 'Vidéo YouTube' }
+        }
+        const labels = typeLabels[step.type?.toUpperCase() as keyof typeof typeLabels] || { es: `Paso ${i + 1}`, en: `Step ${i + 1}`, fr: `Étape ${i + 1}` }
+        titleContent = labels
+      }
       
       console.log(`📝 Step ${i + 1} title:`, titleContent)
       console.log(`📋 Step ${i + 1} content:`, bodyContent)
-      console.log(`🎬 Step ${i + 1} media URL:`, bodyContent.mediaUrl || 'none')
+      console.log(`🎬 Step ${i + 1} media URL:`, step.mediaUrl || 'none')
       
       const stepData = {
-        title: typeof titleContent === 'string' 
-          ? { es: titleContent.substring(0, 100), en: '', fr: '' }
-          : {
-              es: (titleContent.es || '').substring(0, 100) || `Paso ${i + 1}`,
-              en: (titleContent.en || '').substring(0, 100) || '',
-              fr: (titleContent.fr || '').substring(0, 100) || ''
-            },
+        title: titleContent,
         content: typeof bodyContent === 'string'
           ? { 
               es: bodyContent, 
