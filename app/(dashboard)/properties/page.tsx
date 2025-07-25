@@ -884,18 +884,23 @@ function PropertiesPageContent() {
     setDuplicateModalOpen(true)
     setDuplicateCount(1)
     setShareMedia(true)
-    setCopyCompleteProperty(true)
+    setCopyCompleteProperty(false) // Por defecto no copiar todo, dejar elegir zonas
     setSelectedZones([])
     setAssignToSet(false)
     setSelectedPropertySet('')
     
-    // Fetch complete property data including zones
+    // Cargar los datos completos de la propiedad incluyendo zonas
     try {
       const response = await fetch(`/api/properties/${property.id}`)
       if (response.ok) {
         const result = await response.json()
         if (result.success && result.data) {
           setPropertyToDuplicate(result.data)
+          // Si hay zonas, preseleccionar todas por defecto
+          if (result.data.zones && result.data.zones.length > 0) {
+            setSelectedZones(result.data.zones.map((zone: any) => zone.id))
+            setCopyCompleteProperty(true) // Si están todas seleccionadas, marcar como completo
+          }
         }
       }
     } catch (error) {
@@ -1399,7 +1404,15 @@ function PropertiesPageContent() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push(getFriendlyUrl(property))}>
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={(e) => {
+                  // Verificar si el click viene del dropdown
+                  const target = e.target as HTMLElement
+                  const isDropdownClick = target.closest('[role="menu"]') || target.closest('[data-radix-collection-item]')
+                  
+                  if (!isDropdownClick) {
+                    router.push(getFriendlyUrl(property))
+                  }
+                }}>
                   <CardContent className="p-6">
                     <div className="flex space-x-4">
                       {/* Property Image */}
@@ -1537,7 +1550,11 @@ function PropertiesPageContent() {
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                   onSelect={(e) => {
                                     e.preventDefault()
-                                    handleDuplicateProperty(property)
+                                    e.stopPropagation()
+                                    // Usar un timeout más largo para asegurar que el dropdown se cierre primero
+                                    setTimeout(() => {
+                                      handleDuplicateProperty(property)
+                                    }, 100)
                                   }}
                                 >
                                   <Copy className="h-4 w-4 mr-2" />
