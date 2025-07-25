@@ -1182,9 +1182,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         const transformedSteps: Step[] = result.data.map((apiStep: any, index: number) => ({
           id: apiStep.id,
           type: apiStep.type?.toLowerCase() || 'text',
-          content: typeof apiStep.title === 'string' 
-            ? { es: apiStep.title } 
-            : apiStep.title || { es: '' },
+          title: typeof apiStep.title === 'string' 
+            ? { es: apiStep.title, en: '', fr: '' } 
+            : apiStep.title || { es: '', en: '', fr: '' },
+          content: typeof apiStep.content === 'string' 
+            ? { es: apiStep.content, en: '', fr: '' } 
+            : apiStep.content || { es: '', en: '', fr: '' },
           media: apiStep.mediaUrl ? {
             url: apiStep.mediaUrl,
             thumbnail: apiStep.thumbnail,
