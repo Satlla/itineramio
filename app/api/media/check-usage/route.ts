@@ -35,36 +35,24 @@ export async function POST(request: NextRequest) {
     const propertyIds = userProperties.map(p => p.id)
 
     // Find all steps that use this media URL
-    const steps = await prisma.step.findMany({
+    const zones = await prisma.zone.findMany({
       where: {
-        OR: [
-          {
-            content: {
-              path: ['mediaUrl'],
-              equals: mediaUrl
-            }
-          },
-          {
-            zone: {
-              propertyId: {
-                in: propertyIds
-              }
-            },
+        propertyId: {
+          in: propertyIds
+        }
+      },
+      include: {
+        steps: {
+          where: {
             content: {
               string_contains: mediaUrl
             }
           }
-        ]
-      },
-      include: {
-        zone: {
-          include: {
-            property: {
-              select: {
-                id: true,
-                name: true
-              }
-            }
+        },
+        property: {
+          select: {
+            id: true,
+            name: true
           }
         }
       }
@@ -88,12 +76,12 @@ export async function POST(request: NextRequest) {
     // Combine and deduplicate properties
     const affectedProperties = new Map()
     
-    // From steps
-    steps.forEach(step => {
-      if (step.zone?.property) {
-        affectedProperties.set(step.zone.property.id, {
-          id: step.zone.property.id,
-          name: step.zone.property.name,
+    // From zones with steps
+    zones.forEach(zone => {
+      if (zone.steps.length > 0 && zone.property) {
+        affectedProperties.set(zone.property.id, {
+          id: zone.property.id,
+          name: zone.property.name,
           usage: 'step'
         })
       }
