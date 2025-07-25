@@ -82,23 +82,37 @@ export async function POST(request: NextRequest) {
 
     const createdProperties = []
 
+    // Helper function to increment number in name
+    const incrementPropertyName = (name: string, increment: number): string => {
+      // Check if name ends with a number
+      const match = name.match(/^(.+?)(\d+)$/)
+      
+      if (match) {
+        // Name ends with a number, increment it
+        const baseName = match[1]
+        const currentNumber = parseInt(match[2])
+        return `${baseName}${currentNumber + increment}`
+      } else {
+        // No number at the end, add one
+        return `${name} ${increment + 1}`
+      }
+    }
+
     // Create multiple duplicates
     for (let i = 1; i <= count; i++) {
-      const suffix = ` ${i + 1}` // Start from 2 (original is 1)
-      
-      // Determine new property name
+      // Determine new property name with smart numbering
       let newName
       if (typeof originalProperty.name === 'string') {
-        newName = originalProperty.name + suffix
+        newName = incrementPropertyName(originalProperty.name, i)
       } else if (originalProperty.name && typeof originalProperty.name === 'object') {
         const nameObj = originalProperty.name as any
         newName = {
-          es: (nameObj.es || '') + suffix,
-          en: (nameObj.en || '') + suffix,
-          fr: (nameObj.fr || '') + suffix
+          es: incrementPropertyName(nameObj.es || '', i),
+          en: incrementPropertyName(nameObj.en || '', i),
+          fr: incrementPropertyName(nameObj.fr || '', i)
         }
       } else {
-        newName = `Propiedad Duplicada${suffix}`
+        newName = `Propiedad Duplicada ${i + 1}`
       }
 
       // Create the new property

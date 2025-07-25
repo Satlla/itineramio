@@ -1535,7 +1535,10 @@ function PropertiesPageContent() {
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                  onSelect={() => handleDuplicateProperty(property)}
+                                  onSelect={(e) => {
+                                    e.preventDefault()
+                                    handleDuplicateProperty(property)
+                                  }}
                                 >
                                   <Copy className="h-4 w-4 mr-2" />
                                   Duplicar
