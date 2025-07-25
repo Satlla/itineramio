@@ -1228,7 +1228,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         // Create base API step
         const apiStep: any = {
           type: step.type?.toUpperCase() || 'TEXT',
-          title: step.content, // Use content as title for API
+          title: step.title || { es: '', en: '', fr: '' }, // Use actual title field
           content: step.content || {},
           order: index + 1
         }
