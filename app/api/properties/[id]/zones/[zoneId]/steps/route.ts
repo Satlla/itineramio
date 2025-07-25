@@ -421,12 +421,14 @@ export async function PUT(
       }
       
       console.log(`🚨 Creating step ${i + 1} with data:`, JSON.stringify(stepData, null, 2))
+      console.log(`🚨 TITLE TO SAVE:`, JSON.stringify(stepData.title))
       
       const createdStep = await prisma.step.create({
         data: stepData
       })
       
       console.log(`🚨 Step ${i + 1} created:`, createdStep.id)
+      console.log(`🚨 TITLE SAVED:`, JSON.stringify(createdStep.title))
       createdSteps.push(createdStep)
     }
 

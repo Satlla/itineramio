@@ -163,6 +163,21 @@ export function MobileStepEditor({
         : step
     ))
   }
+  
+  const updateStepTitle = (stepIndex: number, language: 'es' | 'en' | 'fr', title: string) => {
+    console.log(`📝 Updating step ${stepIndex} title for ${language}:`, title)
+    setSteps(steps.map((step, index) => 
+      index === stepIndex 
+        ? { 
+            ...step, 
+            title: { 
+              ...step.title || { es: '', en: '', fr: '' }, 
+              [language]: title 
+            } 
+          } 
+        : step
+    ))
+  }
 
   const handleMediaSelect = (type: 'image' | 'video' | 'text' | 'youtube' | 'link') => {
     if (selectedStep !== null) {
@@ -478,15 +493,30 @@ export function MobileStepEditor({
                     </button>
                   </div>
 
+                  {/* Title Input - For all step types */}
+                  <div className="mb-3">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Título (opcional)</label>
+                    <input
+                      type="text"
+                      value={step.title?.[activeLanguage] || ''}
+                      onChange={(e) => updateStepTitle(index, activeLanguage, e.target.value)}
+                      placeholder="Título del paso..."
+                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
+                    />
+                  </div>
+
                   {/* Content Input Based on Type */}
                   {step.type === 'text' && (
-                    <textarea
-                      value={step.content[activeLanguage] || ''}
-                      onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
-                      placeholder="Escribe las instrucciones para este paso..."
-                      className="w-full h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none text-sm"
-                      rows={4}
-                    />
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Descripción</label>
+                      <textarea
+                        value={step.content[activeLanguage] || ''}
+                        onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
+                        placeholder="Escribe las instrucciones para este paso..."
+                        className="w-full h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none text-sm"
+                        rows={4}
+                      />
+                    </div>
                   )}
 
                   {step.type === 'image' && (
