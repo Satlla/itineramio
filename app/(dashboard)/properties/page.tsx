@@ -1533,17 +1533,16 @@ function PropertiesPageContent() {
                                   <Building2 className="h-4 w-4 mr-2" />
                                   Gestionar propiedad
                                 </DropdownMenu.Item>
-                                <div
+                                <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                  onClick={(e) => {
+                                  onSelect={(e) => {
                                     e.preventDefault()
-                                    e.stopPropagation()
                                     handleDuplicateProperty(property)
                                   }}
                                 >
                                   <Copy className="h-4 w-4 mr-2" />
                                   Duplicar
-                                </div>
+                                </DropdownMenu.Item>
                                 {property.status === 'ACTIVE' && (
                                   <DropdownMenu.Item
                                     className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
