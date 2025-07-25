@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     const propertyIds = userProperties.map(p => p.id)
 
-    // Find all steps that use this media URL
+    // Find all zones with steps that use this media URL
     const zones = await prisma.zone.findMany({
       where: {
         propertyId: {
