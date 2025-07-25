@@ -884,13 +884,6 @@ function PropertiesPageContent() {
 
   const handleDuplicateProperty = async (property: Property) => {
     console.log('🎯 handleDuplicateProperty called for property:', property.id)
-    setIsDropdownActionInProgress(true)
-    
-    // Safety timeout to clear the flag in case of any edge cases
-    setTimeout(() => {
-      setIsDropdownActionInProgress(false)
-    }, 1000)
-    
     setPropertyToDuplicate(property)
     setDuplicateModalOpen(true)
     setDuplicateCount(1)
@@ -916,7 +909,6 @@ function PropertiesPageContent() {
 
   const closeDuplicateModal = () => {
     console.log('🚪 Closing duplicate modal')
-    setIsDropdownActionInProgress(false)
     setDuplicateModalOpen(false)
     setPropertyToDuplicate(null)
     setDuplicateCount(1)
@@ -1412,15 +1404,11 @@ function PropertiesPageContent() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => {
-                  if (isDropdownActionInProgress) {
-                    console.log('🚫 Card click prevented - dropdown action in progress')
-                    return
-                  }
-                  console.log('🏠 Card clicked for property:', property.id)
-                  router.push(getFriendlyUrl(property))
-                }}>
-                  <CardContent className="p-6">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardContent className="p-6" onClick={() => {
+                    console.log('🏠 Card content clicked for property:', property.id)
+                    router.push(getFriendlyUrl(property))
+                  }}>
                     <div className="flex space-x-4">
                       {/* Property Image */}
                       <div className="flex-shrink-0">
@@ -1525,6 +1513,7 @@ function PropertiesPageContent() {
                           </div>
                           
                           <DropdownMenu.Root>
+                            <div onClick={(e) => e.stopPropagation()}>
                             <DropdownMenu.Trigger asChild>
                               <Button variant="ghost" size="sm" className="h-8 w-8 p-0 ml-2" onClick={(e) => e.stopPropagation()}>
                                 <MoreHorizontal className="h-4 w-4" />
@@ -1555,7 +1544,7 @@ function PropertiesPageContent() {
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                  onSelect={(e) => {
+                                  onMouseDown={(e) => {
                                     e.preventDefault()
                                     e.stopPropagation()
                                     handleDuplicateProperty(property)
@@ -1584,6 +1573,7 @@ function PropertiesPageContent() {
                               </DropdownMenu.Content>
                             </DropdownMenu.Portal>
                           </DropdownMenu.Root>
+                            </div>
                         </div>
 
                       </div>
