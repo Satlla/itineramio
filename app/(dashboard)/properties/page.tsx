@@ -521,6 +521,7 @@ function PropertiesPageContent() {
   
   // Flag to prevent card clicks when dropdown actions are in progress
   const [isDropdownActionInProgress, setIsDropdownActionInProgress] = useState(false)
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
 
   // Handle URL parameters on mount
   useEffect(() => {
@@ -1542,9 +1543,9 @@ function PropertiesPageContent() {
                                   <Building2 className="h-4 w-4 mr-2" />
                                   Gestionar propiedad
                                 </DropdownMenu.Item>
-                                <DropdownMenu.Item
+                                <div
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                  onMouseDown={(e) => {
+                                  onClick={(e) => {
                                     e.preventDefault()
                                     e.stopPropagation()
                                     handleDuplicateProperty(property)
@@ -1552,7 +1553,7 @@ function PropertiesPageContent() {
                                 >
                                   <Copy className="h-4 w-4 mr-2" />
                                   Duplicar
-                                </DropdownMenu.Item>
+                                </div>
                                 {property.status === 'ACTIVE' && (
                                   <DropdownMenu.Item
                                     className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
