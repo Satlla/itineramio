@@ -362,7 +362,8 @@ export function StepEditor({
               value={step.content[activeLanguage] || ''}
               onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
               placeholder={`Escribe las instrucciones detalladas...`}
-              className="w-full h-40 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none text-sm"
+              className="w-full min-h-[200px] h-64 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y text-sm leading-relaxed"
+              rows={10}
             />
           </div>
         </div>
@@ -405,7 +406,7 @@ export function StepEditor({
               value={step.content[activeLanguage] || ''}
               onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
               placeholder="Describe la imagen o agrega instrucciones..."
-              className="w-full h-32 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none text-sm"
+              className="w-full min-h-[150px] h-48 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y text-sm leading-relaxed"
             />
           </div>
         </div>
@@ -452,7 +453,7 @@ export function StepEditor({
               value={step.content[activeLanguage] || ''}
               onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
               placeholder="Describe el video o agrega instrucciones..."
-              className="w-full h-32 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none text-sm"
+              className="w-full min-h-[150px] h-48 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y text-sm leading-relaxed"
             />
           </div>
         </div>
@@ -848,7 +849,7 @@ export function StepEditor({
                                 value={steps[activeStep].content[activeLanguage] || ''}
                                 onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
                                 placeholder={`Escribe las instrucciones detalladas en ${languages.find(l => l.code === activeLanguage)?.label}...`}
-                                className="w-full h-48 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+                                className="w-full min-h-[300px] h-80 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y leading-relaxed"
                               />
                             </div>
                           </div>

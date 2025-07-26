@@ -513,7 +513,7 @@ export function MobileStepEditor({
                         value={step.content[activeLanguage] || ''}
                         onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
                         placeholder="Escribe las instrucciones para este paso..."
-                        className="w-full h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none text-sm"
+                        className="w-full min-h-[200px] h-48 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-y text-sm leading-relaxed"
                         rows={4}
                       />
                     </div>
@@ -545,11 +545,12 @@ export function MobileStepEditor({
                         className="mb-3"
                       />
                       
-                      <Input
+                      <textarea
                         value={step.content[activeLanguage] || ''}
                         onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
                         placeholder="Descripción de la imagen (opcional)"
-                        className="text-sm"
+                        className="w-full min-h-[120px] h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-y text-sm leading-relaxed"
+                        rows={4}
                       />
                     </div>
                   )} 
@@ -586,11 +587,12 @@ export function MobileStepEditor({
                         className="mb-3"
                       />
                       
-                      <Input
+                      <textarea
                         value={step.content[activeLanguage] || ''}
                         onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
                         placeholder="Descripción del video (opcional)"
-                        className="text-sm"
+                        className="w-full min-h-[120px] h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-y text-sm leading-relaxed"
+                        rows={4}
                       />
                     </div>
                   )}
