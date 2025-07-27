@@ -48,6 +48,22 @@ export function ZonasEsencialesModal({
   userName,
   isLoading = false
 }: ZonasEsencialesModalProps) {
+  // Debug logging for mobile
+  React.useEffect(() => {
+    if (isOpen) {
+      console.log('🎭 ZonasEsencialesModal mounted and visible', {
+        isOpen,
+        userName,
+        isLoading,
+        viewport: typeof window !== 'undefined' ? {
+          width: window.innerWidth,
+          height: window.innerHeight,
+          userAgent: window.navigator.userAgent
+        } : null
+      })
+    }
+  }, [isOpen, userName, isLoading])
+
   if (!isOpen) return null
 
   return (
@@ -57,13 +73,29 @@ export function ZonasEsencialesModal({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto"
+        style={{ 
+          // Asegurar que el modal esté visible en todos los dispositivos
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 9999 
+        }}
         onClick={onClose}
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-xl p-6 w-full max-w-6xl lg:max-w-5xl max-h-[95vh] overflow-y-auto my-4"
+          className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-6xl lg:max-w-5xl max-h-[95vh] overflow-y-auto my-4"
+          style={{
+            // Asegurar que el modal funcione en móvil
+            minHeight: '300px',
+            maxWidth: 'calc(100vw - 2rem)',
+            maxHeight: 'calc(100vh - 2rem)',
+            margin: '1rem auto'
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}

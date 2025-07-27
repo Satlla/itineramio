@@ -117,6 +117,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showZonasEsencialesModal, setShowZonasEsencialesModal] = useState(false)
   const [hasCreatedEssentialZones, setHasCreatedEssentialZones] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  const [debugModalShow, setDebugModalShow] = useState(false) // For testing modal visibility
   
   const [isCreatingZone, setIsCreatingZone] = useState(false)
   const [isUpdatingZone, setIsUpdatingZone] = useState(false)
@@ -293,6 +294,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           const hasCreatedZonesForThisProperty = isClient && typeof window !== 'undefined' ? 
             !!window.localStorage.getItem(propertyZonesKey) : false
           
+          // Debug logging for mobile troubleshooting
+          console.log('🔍 Banner Debug Info:', {
+            isClient,
+            hasExistingZones,
+            zonesLength: transformedZones.length,
+            propertyZonesKey,
+            hasCreatedZonesForThisProperty,
+            windowExists: typeof window !== 'undefined',
+            localStorage: typeof window !== 'undefined' ? window.localStorage : null
+          })
+          
           if (isClient && !hasExistingZones && !hasCreatedZonesForThisProperty) {
             // Property has no zones and we haven't created them yet
             // Show modal immediately and create zones in background
@@ -300,8 +312,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             const hasShownWelcome = typeof window !== 'undefined' ? 
               !!window.localStorage.getItem(propertyWelcomeKey) : false
             
+            console.log('🎯 Welcome Modal Check:', {
+              propertyWelcomeKey,
+              hasShownWelcome,
+              shouldShowModal: !hasShownWelcome
+            })
+            
             if (!hasShownWelcome) {
-              // Show modal immediately
+              // Show modal immediately with extra mobile debugging
+              console.log('📱 Showing ZonasEsencialesModal...')
               setShowZonasEsencialesModal(true)
               setIsCreatingZone(true) // Show loading state
               
@@ -2673,12 +2692,30 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       )}
 
       <ZonasEsencialesModal
-        isOpen={showZonasEsencialesModal}
-        onClose={() => setShowZonasEsencialesModal(false)}
+        isOpen={showZonasEsencialesModal || debugModalShow}
+        onClose={() => {
+          setShowZonasEsencialesModal(false)
+          setDebugModalShow(false)
+        }}
         onKeepZones={handleKeepEssentialZones}
         userName={user?.name || user?.email || 'Usuario'}
         isLoading={isCreatingZone}
       />
+
+      {/* Debug button to test modal in mobile - remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-4 left-4 z-50">
+          <button
+            onClick={() => {
+              console.log('🧪 Debug: Forcing modal show')
+              setDebugModalShow(true)
+            }}
+            className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm"
+          >
+            🧪 Test Modal
+          </button>
+        </div>
+      )}
 
 
       <DeleteConfirmationModal

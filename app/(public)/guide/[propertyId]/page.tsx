@@ -58,6 +58,8 @@ interface Property {
   hostContactEmail: string
   hostContactPhoto?: string
   zones: Zone[]
+  status?: 'ACTIVE' | 'DRAFT' | 'ARCHIVED'
+  isPublished?: boolean
 }
 
 interface Zone {
@@ -146,7 +148,11 @@ const translations = {
     cancel: 'Cancelar',
     send: 'Enviar',
     takeMeThere: 'Llévame',
-    swipe: 'Desliza'
+    swipe: 'Desliza',
+    propertyNotActive: 'Manual no disponible',
+    propertyNotActiveDesc: 'El propietario está preparando el manual digital de esta propiedad. Por favor, contacta directamente con el anfitrión para obtener las instrucciones necesarias.',
+    callHost: 'Llamar al anfitrión',
+    emailHost: 'Enviar email'
   },
   en: {
     loading: 'Loading property manual...',
@@ -197,7 +203,11 @@ const translations = {
     cancel: 'Cancel',
     send: 'Send',
     takeMeThere: 'Take me there',
-    swipe: 'Swipe'
+    swipe: 'Swipe',
+    propertyNotActive: 'Manual not available',
+    propertyNotActiveDesc: 'The owner is preparing the digital manual for this property. Please contact the host directly for the necessary instructions.',
+    callHost: 'Call host',
+    emailHost: 'Send email'
   },
   fr: {
     loading: 'Chargement du manuel de la propriété...',
@@ -248,7 +258,11 @@ const translations = {
     cancel: 'Annuler',
     send: 'Envoyer',
     takeMeThere: 'Emmenez-moi',
-    swipe: 'Glissez'
+    swipe: 'Glissez',
+    propertyNotActive: 'Manuel non disponible',
+    propertyNotActiveDesc: 'Le propriétaire prépare le manuel numérique de cette propriété. Veuillez contacter directement l\'hôte pour obtenir les instructions nécessaires.',
+    callHost: 'Appeler l\'hôte',
+    emailHost: 'Envoyer un email'
   }
 }
 
@@ -525,6 +539,52 @@ export default function PropertyGuidePage() {
           <Button onClick={() => router.back()} variant="outline">
             {t('back', language)}
           </Button>
+        </div>
+      </div>
+    )
+  }
+
+  // Verificar si la propiedad está activa
+  if (property.status !== 'ACTIVE' || !property.isPublished) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="text-center max-w-md mx-auto">
+          <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Shield className="w-10 h-10 text-amber-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            {t('propertyNotActive', language) || 'Manual no disponible'}
+          </h1>
+          <p className="text-gray-600 mb-8 leading-relaxed">
+            {t('propertyNotActiveDesc', language) || 'El propietario está preparando el manual digital de esta propiedad. Por favor, contacta directamente con el anfitrión para obtener las instrucciones necesarias.'}
+          </p>
+          <div className="space-y-4">
+            {property.hostContactPhone && (
+              <a
+                href={`tel:${property.hostContactPhone}`}
+                className="flex items-center justify-center w-full px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              >
+                <Phone className="w-5 h-5 mr-2" />
+                {t('callHost', language) || 'Llamar al anfitrión'}
+              </a>
+            )}
+            {property.hostContactEmail && (
+              <a
+                href={`mailto:${property.hostContactEmail}`}
+                className="flex items-center justify-center w-full px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              >
+                <Mail className="w-5 h-5 mr-2" />
+                {t('emailHost', language) || 'Enviar email'}
+              </a>
+            )}
+            <Button 
+              onClick={() => router.back()} 
+              variant="outline"
+              className="w-full"
+            >
+              {t('back', language) || 'Volver'}
+            </Button>
+          </div>
         </div>
       </div>
     )
@@ -934,83 +994,8 @@ export default function PropertyGuidePage() {
           )}
         </div>
 
-        {/* Guest Reviews Section */}
-        <div className="border-b border-gray-200 pb-8 mb-8">
-          <div className="flex items-center space-x-2 mb-6">
-            <Star className="w-5 h-5 text-violet-600 fill-current" />
-            <h3 className="text-xl font-semibold text-gray-900">
-              Comentarios de huéspedes
-            </h3>
-            <span className="px-3 py-1 bg-violet-100 text-violet-700 text-sm font-medium rounded-full">
-              4.9 · 12 valoraciones
-            </span>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"></div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-medium text-gray-900">María</span>
-                    <span className="text-gray-500 text-sm">· December 2024</span>
-                  </div>
-                  <p className="text-gray-700 text-sm">
-                    "El manual digital fue súper útil, todo muy bien explicado paso a paso. ¡Genial!"
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"></div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-medium text-gray-900">David</span>
-                    <span className="text-gray-500 text-sm">· November 2024</span>
-                  </div>
-                  <p className="text-gray-700 text-sm">
-                    "Amazing property guide! Made our check-in seamless and answered all our questions."
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"></div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-medium text-gray-900">Sarah</span>
-                    <span className="text-gray-500 text-sm">· November 2024</span>
-                  </div>
-                  <p className="text-gray-700 text-sm">
-                    "Love this digital approach! So much better than traditional check-in processes."
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"></div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-medium text-gray-900">Jean</span>
-                    <span className="text-gray-500 text-sm">· October 2024</span>
-                  </div>
-                  <p className="text-gray-700 text-sm">
-                    "Guide numérique très pratique ! J'ai pu tout comprendre facilement."
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <Button 
-            variant="outline" 
-            className="mt-6 border-violet-200 text-violet-700 hover:bg-violet-50"
-          >
-            Ver todas las valoraciones
-          </Button>
-        </div>
+        {/* Guest Reviews Section - Solo mostrar si hay evaluaciones reales */}
+        {/* TODO: Implementar carga de evaluaciones reales desde la base de datos */}
 
         {/* Footer */}
         <div className="text-center py-8 border-t border-gray-200">
