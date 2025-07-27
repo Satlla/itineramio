@@ -94,64 +94,8 @@ export default function DashboardPage(): JSX.Element {
   const router = useRouter()
   const { user } = useAuth()
 
-  // Real-time activity state
-  const [recentActivity, setRecentActivity] = useState([
-    { 
-      id: '1', 
-      type: 'completed', 
-      message: 'Un huésped completó los pasos de WiFi de Villa Sunset', 
-      time: 'hace 5 minutos',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face'
-    },
-    { 
-      id: '2', 
-      type: 'comment', 
-      message: 'Nuevo comentario en Cocina: "Perfecto! Encontré todo lo que necesitaba para cocinar"', 
-      time: 'hace 1 hora',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face',
-      property: 'Loft Moderno',
-      zone: 'Cocina'
-    },
-    { 
-      id: '3', 
-      type: 'evaluation', 
-      message: 'Un usuario ha dejado una evaluación de 5 estrellas en la zona WiFi de Villa Sunset', 
-      time: 'hace 2 horas',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face'
-    },
-    { 
-      id: '4', 
-      type: 'comment', 
-      message: 'Nuevo comentario en Parking: "Muy útil la información, encontré el parking fácilmente"', 
-      time: 'hace 3 horas',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face',
-      property: 'Villa Sunset',
-      zone: 'Parking'
-    },
-    { 
-      id: '5', 
-      type: 'step', 
-      message: 'Un huésped vio un paso en Check-in de Apartamento Centro', 
-      time: 'hace 6 horas',
-      avatar: null
-    },
-    {
-      id: '6',
-      type: 'comment',
-      message: 'Nuevo comentario en Baño: "Gracias por las instrucciones de la ducha, muy claras!"',
-      time: 'hace 1 día',
-      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=40&h=40&fit=crop&crop=face',
-      property: 'Apartamento Centro',
-      zone: 'Baño'
-    },
-    {
-      id: '7',
-      type: 'report',
-      message: 'Reporte técnico: "La vitrocerámica no funciona bien" en Apartamento Playa',
-      time: 'hace 2 días',
-      avatar: null
-    }
-  ])
+  // Real-time activity state - solo datos reales
+  const [recentActivity, setRecentActivity] = useState<any[]>([])
 
   // Add new activity (simulates real-time updates)
   const addNewActivity = useCallback((activity: any) => {
@@ -180,22 +124,23 @@ export default function DashboardPage(): JSX.Element {
     try {
       setLoading(true)
       
-      // Fetch properties with simple endpoint
-      const propertiesResponse = await fetch('/api/properties-simple', {
+      // Fetch ALL properties using the same endpoint as properties page (no pagination limit)
+      const propertiesResponse = await fetch('/api/properties?limit=1000', {
         credentials: 'include'
       })
       const propertiesResult = await propertiesResponse.json()
       
       console.log('Properties response:', propertiesResponse.status, propertiesResult)
       
-      if (propertiesResponse.ok && propertiesResult.properties) {
-        setProperties(propertiesResult.properties)
+      if (propertiesResponse.ok && propertiesResult.data) {
+        setProperties(propertiesResult.data)
         setStats({
-          totalProperties: propertiesResult.properties.length,
-          totalViews: 0,
-          activeManuals: propertiesResult.properties.filter((p: any) => p.status === 'ACTIVE').length,
-          avgRating: 0,
-          zonesViewed: 0,
+          totalProperties: propertiesResult.data.length,
+          totalViews: propertiesResult.data.reduce((sum: number, p: any) => sum + (p.totalViews || 0), 0),
+          activeManuals: propertiesResult.data.filter((p: any) => p.status === 'ACTIVE').length,
+          avgRating: propertiesResult.data.length > 0 ? 
+            propertiesResult.data.reduce((sum: number, p: any) => sum + (p.avgRating || 0), 0) / propertiesResult.data.length : 0,
+          zonesViewed: propertiesResult.data.reduce((sum: number, p: any) => sum + (p.zonesCount || 0), 0),
           timeSavedMinutes: 0,
           monthlyViews: 0
         })

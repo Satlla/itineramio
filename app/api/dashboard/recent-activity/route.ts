@@ -15,60 +15,124 @@ export async function GET(request: NextRequest) {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const userId = decoded.userId
 
-    // Get recent evaluations for all properties owned by this user
-    const recentEvaluations = await prisma.review.findMany({
-      where: {
-        property: {
-          hostId: userId
-        }
-      },
-      include: {
-        property: {
-          select: {
-            name: true
+    // Get recent evaluations from both Review and ZoneRating tables
+    const [recentReviews, recentZoneRatings] = await Promise.all([
+      prisma.review.findMany({
+        where: {
+          property: {
+            hostId: userId
           }
         },
-        zone: {
-          select: {
-            name: true
+        include: {
+          property: {
+            select: {
+              name: true
+            }
+          },
+          zone: {
+            select: {
+              name: true
+            }
           }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      },
-      take: 10 // Get last 10 evaluations
-    })
-
-    // Format activity data
-    const activity = recentEvaluations.map(evaluation => {
-      const propertyName = typeof evaluation.property.name === 'string' 
-        ? evaluation.property.name 
-        : (evaluation.property.name as any)?.es || 'Propiedad'
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        take: 20 // Get more to combine later
+      }),
       
-      const zoneName = evaluation.zone 
-        ? (typeof evaluation.zone.name === 'string' 
-            ? evaluation.zone.name 
-            : (evaluation.zone.name as any)?.es || 'Zona')
+      prisma.zoneRating.findMany({
+        where: {
+          zone: {
+            property: {
+              hostId: userId
+            }
+          }
+        },
+        include: {
+          zone: {
+            select: {
+              name: true,
+              property: {
+                select: {
+                  name: true
+                }
+              }
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        take: 20 // Get more to combine later
+      })
+    ])
+
+    // Format activity data from both reviews and zone ratings
+    const reviewActivities = recentReviews.map(review => {
+      const propertyName = typeof review.property.name === 'string' 
+        ? review.property.name 
+        : (review.property.name as any)?.es || 'Propiedad'
+      
+      const zoneName = review.zone 
+        ? (typeof review.zone.name === 'string' 
+            ? review.zone.name 
+            : (review.zone.name as any)?.es || 'Zona')
         : null
 
-      const timeAgo = getTimeAgo(evaluation.createdAt)
+      const timeAgo = getTimeAgo(review.createdAt)
       
       return {
-        id: evaluation.id,
+        id: `review-${review.id}`,
         type: 'evaluation',
         message: zoneName 
-          ? `${evaluation.userName} dejó una evaluación de ${evaluation.rating} estrellas en ${zoneName} de ${propertyName}`
-          : `${evaluation.userName} dejó una evaluación general de ${evaluation.rating} estrellas en ${propertyName}`,
+          ? `${review.userName} dejó una evaluación de ${review.rating} estrellas en ${zoneName} de ${propertyName}`
+          : `${review.userName} dejó una evaluación general de ${review.rating} estrellas en ${propertyName}`,
         time: timeAgo,
-        avatar: null, // We could add user avatars in the future
+        avatar: null,
         property: propertyName,
         zone: zoneName,
-        rating: evaluation.rating,
-        isPublic: evaluation.isPublic,
-        createdAt: evaluation.createdAt
+        rating: review.rating,
+        isPublic: review.isPublic,
+        createdAt: review.createdAt,
+        comment: review.comment
       }
     })
+
+    const zoneRatingActivities = recentZoneRatings.map(rating => {
+      const propertyName = rating.zone.property ? 
+        (typeof rating.zone.property.name === 'string' 
+          ? rating.zone.property.name 
+          : (rating.zone.property.name as any)?.es || 'Propiedad')
+        : 'Propiedad'
+      
+      const zoneName = typeof rating.zone.name === 'string' 
+        ? rating.zone.name 
+        : (rating.zone.name as any)?.es || 'Zona'
+
+      const timeAgo = getTimeAgo(rating.createdAt)
+      
+      return {
+        id: `zonerating-${rating.id}`,
+        type: 'evaluation',
+        message: `Usuario anónimo dejó una evaluación de ${rating.overallRating} estrellas en ${zoneName} de ${propertyName}`,
+        time: timeAgo,
+        avatar: null,
+        property: propertyName,
+        zone: zoneName,
+        rating: rating.overallRating,
+        isPublic: false,
+        createdAt: rating.createdAt,
+        feedback: rating.feedback
+      }
+    })
+
+    // Combine and sort all activities by creation date
+    const allActivities = [...reviewActivities, ...zoneRatingActivities]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 10) // Take the 10 most recent
+
+    const activity = allActivities
 
     return NextResponse.json({
       success: true,
