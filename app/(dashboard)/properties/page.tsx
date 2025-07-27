@@ -77,6 +77,15 @@ interface Property {
     name: string | { es: string; en?: string; fr?: string }
     order: number
   }>
+  analytics?: {
+    id: string
+    totalViews: number
+    uniqueVisitors: number
+    whatsappClicks: number
+    avgSessionDuration: number
+    overallRating: number
+    totalRatings: number
+  }
 }
 
 // Helper function to get text from multilingual objects
@@ -421,14 +430,39 @@ const generateRecommendations = (properties: Property[]): Recommendation[] => {
 
 // Función para calcular tiempo ahorrado basado en datos reales
 const calculateRealTimeSaved = (property: Property) => {
-  // Estimación conservadora basada en el número real de zonas
-  const avgMinutesSavedPerZone = 4 // Minutos ahorrados por zona (estimación conservadora)
-  const avgGuestsPerMonth = Math.max(1, Math.floor((property.totalViews || 0) / 15)) // Basado en vistas reales
+  // Cálculos más precisos basados en datos reales de analytics
+  const analytics = property.analytics
+  
+  // Usar datos reales si están disponibles
+  const monthlyViews = analytics?.totalViews || property.totalViews || 0
+  const uniqueVisitors = analytics?.uniqueVisitors || Math.floor(monthlyViews * 0.7) // 70% son únicos
+  const whatsappAvoidance = analytics?.whatsappClicks || 0 // Cada WhatsApp evitado = consulta resuelta
+  
+  // Tiempo ahorrado por interacción
+  const avgMinutesPerQuery = 5 // Responder una consulta típica toma 5 minutos
+  const avgMinutesPerZoneView = 2 // Ver una zona ahorra 2 minutos de explicación
+  
+  // Cálculos mejorados
+  const queriesAvoided = Math.round(
+    (property.zonesCount * uniqueVisitors * 0.3) + // 30% de visitantes harían preguntas sin el manual
+    whatsappAvoidance // Consultas directamente evitadas
+  )
+  
+  const monthlyTimeSaved = 
+    (queriesAvoided * avgMinutesPerQuery) + // Tiempo en responder consultas
+    (monthlyViews * avgMinutesPerZoneView * 0.2) // 20% del tiempo de explicación ahorrado
+  
+  // Valor económico basado en el costo de un community manager
+  const hourlyRate = 25 // €25/hora para responder consultas
+  const yearlyValue = (monthlyTimeSaved * 12 * hourlyRate) / 60
   
   return {
-    monthlyTimeSaved: property.zonesCount * avgMinutesSavedPerZone * avgGuestsPerMonth,
-    totalQueries: Math.round(property.zonesCount * avgGuestsPerMonth * 0.6), // 60% de huéspedes hacen preguntas
-    estimatedYearlyValue: property.zonesCount * avgMinutesSavedPerZone * avgGuestsPerMonth * 12 * (25 / 60) // €25/hora
+    monthlyTimeSaved: Math.round(monthlyTimeSaved),
+    totalQueries: queriesAvoided,
+    estimatedYearlyValue: Math.round(yearlyValue),
+    // Métricas adicionales útiles
+    avgTimePerGuest: uniqueVisitors > 0 ? Math.round(monthlyTimeSaved / uniqueVisitors) : 0,
+    conversionRate: monthlyViews > 0 ? Math.round((uniqueVisitors / monthlyViews) * 100) : 0
   }
 }
 

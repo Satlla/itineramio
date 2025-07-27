@@ -205,18 +205,16 @@ const t = (key: string, language: string = 'es') => {
   return translations[language as keyof typeof translations]?.[key as keyof typeof translations.es] || translations.es[key as keyof typeof translations.es] || key
 }
 
-// Tracking functions according to OPEN_METRICS_ALGORITHM.md
+// Analytics tracking for real statistics
 const trackStepViewed = async (propertyId: string, zoneId: string, stepIndex: number, totalSteps: number) => {
   try {
-    await fetch('/api/tracking/step-viewed', {
+    await fetch('/api/analytics/track-interaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         propertyId,
         zoneId,
-        stepIndex,
-        totalSteps,
-        timestamp: new Date()
+        interactionType: 'zone_view'
       })
     })
   } catch (error) {
@@ -226,18 +224,33 @@ const trackStepViewed = async (propertyId: string, zoneId: string, stepIndex: nu
 
 const trackZoneCompleted = async (propertyId: string, zoneId: string, completionTime: number) => {
   try {
-    await fetch('/api/tracking/zone-completed', {
+    await fetch('/api/analytics/track-interaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         propertyId,
         zoneId,
-        completionTime,
-        timestamp: new Date()
+        interactionType: 'step_completed',
+        duration: completionTime
       })
     })
   } catch (error) {
     console.error('Error tracking zone completion:', error)
+  }
+}
+
+const trackWhatsAppClick = async (propertyId: string) => {
+  try {
+    await fetch('/api/analytics/track-interaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        propertyId,
+        interactionType: 'whatsapp_click'
+      })
+    })
+  } catch (error) {
+    console.error('Error tracking WhatsApp click:', error)
   }
 }
 
@@ -400,6 +413,9 @@ export default function ZoneGuidePage({
 
   const openWhatsApp = () => {
     if (property?.hostContactPhone && zone) {
+      // Track WhatsApp click for analytics
+      trackWhatsAppClick(propertyId)
+      
       const greeting = language === 'en' ? 'Hello' : language === 'fr' ? 'Bonjour' : 'Hola'
       const question = language === 'en' 
         ? 'I have a question about the zone' 
