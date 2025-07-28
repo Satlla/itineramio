@@ -623,9 +623,9 @@ export default function ZoneGuidePage({
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-4 py-4">
+        <div className="max-w-3xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           {/* First row - Back button and controls */}
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
             <Link href={`/guide/${zone.propertyId}`}>
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -660,33 +660,33 @@ export default function ZoneGuidePage({
 
           {/* Second row - Zone info */}
           <div className="flex items-center space-x-3">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white ${
               zone.color || 'bg-gradient-to-br from-violet-500 to-purple-600'
             }`}>
-              {zone.icon ? getZoneIcon(zone.icon, "w-6 h-6") : <MapPin className="w-6 h-6" />}
+              {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5 sm:w-6 sm:h-6") : <MapPin className="w-5 h-5 sm:w-6 sm:h-6" />}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h1 className="font-bold text-lg text-gray-900 truncate">{getText(zone.name, language, 'Zona')}</h1>
+                <h1 className="font-bold text-base sm:text-lg text-gray-900 truncate">{getText(zone.name, language, 'Zona')}</h1>
                 {isZoneViewed() && (
                   <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full whitespace-nowrap">
                     {t('viewed', language)}
                   </span>
                 )}
               </div>
-              <p className="text-sm text-gray-600 truncate">{getText(property.name, language, 'Propiedad')}</p>
+              <p className="text-xs sm:text-sm text-gray-600 truncate">{getText(property.name, language, 'Propiedad')}</p>
             </div>
           </div>
           
           {/* Progress Bar */}
-          <div className="mt-4">
-            <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+          <div className="mt-3 sm:mt-4">
+            <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600 mb-2">
               <span>{t('step', language)} {activeStepIndex + 1} {t('of', language)} {zone.steps.length}</span>
               <span>{Math.round(progress)}% {t('completed', language)}</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
               <motion.div
-                className="bg-violet-600 h-2 rounded-full"
+                className="bg-violet-600 h-1.5 sm:h-2 rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
@@ -697,7 +697,7 @@ export default function ZoneGuidePage({
       </header>
 
       {/* Main Content - Dynamic Vertical Timeline */}
-      <main className="max-w-3xl mx-auto px-4 py-8">
+      <main className="max-w-3xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
         <div className="relative">
           {/* Timeline Steps */}
           {sortedSteps.map((step, index) => (
@@ -716,13 +716,13 @@ export default function ZoneGuidePage({
                 type: "spring",
                 stiffness: 100
               }}
-              className={`relative flex mb-12 ${index <= activeStepIndex ? '' : 'pointer-events-none'}`}
+              className={`relative flex mb-6 sm:mb-8 lg:mb-12 ${index <= activeStepIndex ? '' : 'pointer-events-none'}`}
             >
               {/* Enhanced Timeline Line */}
-              <div className="flex flex-col items-center mr-8">
+              <div className="flex flex-col items-center mr-4 sm:mr-6 lg:mr-8">
                 {/* Step Number Circle with Glow Effect */}
                 <motion.div 
-                  className={`relative w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold border-3 z-10 shadow-lg ${
+                  className={`relative w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold border-2 sm:border-3 z-10 shadow-lg ${
                     completedSteps.has(step.id)
                       ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-green-400 shadow-green-400/50'
                       : index === activeStepIndex
@@ -751,7 +751,7 @@ export default function ZoneGuidePage({
                       <Check className="w-6 h-6" />
                     </motion.div>
                   ) : (
-                    <span className="text-lg font-bold">{index + 1}</span>
+                    <span className="text-sm sm:text-base lg:text-lg font-bold">{index + 1}</span>
                   )}
                 </motion.div>
                 
@@ -759,11 +759,11 @@ export default function ZoneGuidePage({
                 {index < sortedSteps.length - 1 && (
                   <div className="relative mt-3">
                     {/* Background line */}
-                    <div className="w-1 h-32 bg-gray-200" />
+                    <div className="w-0.5 sm:w-1 h-16 sm:h-24 lg:h-32 bg-gray-200" />
                     
                     {/* Animated progress line */}
                     <motion.div
-                      className={`absolute top-0 w-1 ${
+                      className={`absolute top-0 w-0.5 sm:w-1 ${
                         animatingLines.has(index)
                           ? 'bg-gradient-to-b from-violet-500 to-purple-600'
                           : index < activeStepIndex
@@ -789,8 +789,8 @@ export default function ZoneGuidePage({
                     {/* Flowing particles effect */}
                     {animatingLines.has(index) && (
                       <motion.div
-                        className="absolute top-0 left-1/2 w-2 h-2 bg-white rounded-full transform -translate-x-1/2 shadow-lg"
-                        animate={{ y: [0, 128] }}
+                        className="absolute top-0 left-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full transform -translate-x-1/2 shadow-lg"
+                        animate={{ y: [0, 64, 96, 128] }}
                         transition={{ duration: 0.8, ease: "easeInOut" }}
                       />
                     )}
@@ -836,7 +836,7 @@ export default function ZoneGuidePage({
                     />
                   )}
                   
-                  <CardContent className="p-8 relative z-10">
+                  <CardContent className="p-4 sm:p-6 lg:p-8 relative z-10">
                     {/* Step Header - Clean, no badges */}
                     <div className="mb-6">
                       {/* Show title if provided and different from content */}
@@ -848,7 +848,7 @@ export default function ZoneGuidePage({
                         if (titleText && titleText.trim() && titleText !== contentText) {
                           return (
                             <motion.h2 
-                              className={`text-2xl font-bold mb-3 break-words ${
+                              className={`text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 break-words ${
                                 index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
                               }`}
                               layoutId={`title-${step.id}`}
@@ -874,7 +874,7 @@ export default function ZoneGuidePage({
                         // For all step types, show content if it exists
                         if (contentText && contentText.trim()) {
                           return (
-                            <div className="text-gray-700 leading-relaxed whitespace-pre-wrap mt-4 break-words text-base">
+                            <div className="text-gray-700 leading-relaxed whitespace-pre-wrap mt-3 sm:mt-4 break-words text-sm sm:text-base">
                               {contentText}
                             </div>
                           );
@@ -908,15 +908,15 @@ export default function ZoneGuidePage({
                             <img
                               src={step.mediaUrl}
                               alt={getText(step.title, language, 'Imagen del paso')}
-                              className="w-full h-auto max-w-xs mx-auto block rounded-xl shadow-lg hover:shadow-xl transition-shadow"
+                              className="w-full h-auto max-w-xs sm:max-w-sm lg:max-w-md mx-auto block rounded-xl shadow-lg hover:shadow-xl transition-shadow"
                               style={{
-                                maxHeight: '50vh',
+                                maxHeight: '40vh',
                                 objectFit: 'contain'
                               }}
                             />
                             
                             {/* Mobile-optimized image hint */}
-                            <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded pointer-events-none">
+                            <div className="absolute bottom-1 sm:bottom-2 left-1 sm:left-2 right-1 sm:right-2 bg-black bg-opacity-50 text-white text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded pointer-events-none">
                               📱 Optimizado para móvil
                             </div>
                           </div>
@@ -930,7 +930,7 @@ export default function ZoneGuidePage({
                           exit={{ opacity: 0, scale: 0.9 }}
                           className="mb-6"
                         >
-                          <div className="relative rounded-2xl overflow-hidden shadow-lg bg-black mx-auto max-w-sm">
+                          <div className="relative rounded-2xl overflow-hidden shadow-lg bg-black mx-auto max-w-xs sm:max-w-sm">
                             {/* Video optimized for vertical format */}
                             <video
                               className="w-full h-auto block"
@@ -939,8 +939,8 @@ export default function ZoneGuidePage({
                               preload="metadata"
                               poster={step.thumbnail || undefined}
                               style={{
-                                maxHeight: '70vh',
-                                minHeight: '300px',
+                                maxHeight: '50vh',
+                                minHeight: '200px',
                                 aspectRatio: '9/16', // Force vertical aspect ratio
                                 objectFit: 'cover'
                               }}
@@ -951,10 +951,10 @@ export default function ZoneGuidePage({
                             </video>
                             
                             {/* Mobile-optimized video controls hint */}
-                            <div className="absolute bottom-3 left-3 right-3 bg-black bg-opacity-60 text-white text-xs px-3 py-2 rounded-lg backdrop-blur-sm pointer-events-none">
-                              <div className="flex items-center justify-center space-x-2">
+                            <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 right-2 sm:right-3 bg-black bg-opacity-60 text-white text-xs px-2 sm:px-3 py-1 sm:py-2 rounded-lg backdrop-blur-sm pointer-events-none">
+                              <div className="flex items-center justify-center space-x-1 sm:space-x-2">
                                 <span>📱</span>
-                                <span>Optimizado para móvil - Toca para reproducir</span>
+                                <span className="text-center">Optimizado para móvil - Toca para reproducir</span>
                               </div>
                             </div>
                           </div>
@@ -968,10 +968,10 @@ export default function ZoneGuidePage({
                           exit={{ opacity: 0, y: 20 }}
                           className="mb-6"
                         >
-                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
-                            <div className="flex items-center space-x-4">
-                              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                                <ArrowRight className="w-6 h-6 text-white" />
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 sm:p-6 hover:shadow-lg transition-shadow">
+                            <div className="flex items-center space-x-3 sm:space-x-4">
+                              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                               </div>
                               <div className="flex-1">
                                 <h3 className="font-semibold text-blue-900 mb-1">{t('externalLink', language)}</h3>
@@ -998,13 +998,13 @@ export default function ZoneGuidePage({
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
-                        className="flex gap-4 pt-6 border-t border-gray-200"
+                        className="flex gap-2 sm:gap-3 lg:gap-4 pt-4 sm:pt-6 border-t border-gray-200"
                       >
                         {activeStepIndex > 0 && (
                           <Button
                             variant="outline"
                             onClick={prevStep}
-                            className="flex-1 border-violet-200 text-violet-700 hover:bg-violet-50"
+                            className="flex-1 border-violet-200 text-violet-700 hover:bg-violet-50 text-sm sm:text-base"
                           >
                             <ChevronLeft className="w-4 h-4 mr-2" />
                             {t('previous', language)}
@@ -1016,7 +1016,7 @@ export default function ZoneGuidePage({
                           <Button
                             onClick={finishStep}
                             disabled={completedSteps.has(step.id)}
-                            className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
+                            className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg text-sm sm:text-base"
                           >
                             {completedSteps.has(step.id) ? t('completed', language) : t('finish', language)}
                             <Check className="w-4 h-4 ml-2" />
@@ -1024,7 +1024,7 @@ export default function ZoneGuidePage({
                         ) : (
                           <Button
                             onClick={nextStep}
-                            className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg"
+                            className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg text-sm sm:text-base"
                           >
                             {t('next', language)}
                             <ChevronRight className="w-4 h-4 ml-2" />
@@ -1044,7 +1044,7 @@ export default function ZoneGuidePage({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="text-center text-gray-500 text-sm mt-8"
+          className="text-center text-gray-500 text-xs sm:text-sm mt-6 sm:mt-8 px-4"
         >
           <p>
             Powered by <ItineramioLogo size="sm" className="inline-block mx-1" /> Itineramio
@@ -1059,7 +1059,7 @@ export default function ZoneGuidePage({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4"
             onClick={(e) => {
               if (e.target === e.currentTarget) {
                 setShowHostModal(false)
@@ -1070,11 +1070,11 @@ export default function ZoneGuidePage({
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+              className="bg-white rounded-xl shadow-2xl max-w-sm sm:max-w-md w-full p-4 sm:p-6"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   {property.hostContactPhoto ? (
                     <img 
                       src={property.hostContactPhoto} 
@@ -1082,10 +1082,10 @@ export default function ZoneGuidePage({
                       className="w-full h-full rounded-full object-cover"
                     />
                   ) : (
-                    <MessageCircle className="w-10 h-10 text-white" />
+                    <MessageCircle className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                   )}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
                   {property.hostContactName}
                 </h3>
                 <p className="text-gray-600">
@@ -1156,7 +1156,7 @@ export default function ZoneGuidePage({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4"
             onClick={(e) => {
               if (e.target === e.currentTarget) {
                 setShowRatingModal(false)
@@ -1167,14 +1167,14 @@ export default function ZoneGuidePage({
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+              className="bg-white rounded-xl shadow-2xl max-w-sm sm:max-w-md w-full p-4 sm:p-6"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Check className="w-8 h-8 text-green-600" />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Check className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
                   {zone.steps.length === 1 
                     ? t('instructionCompleted', language)
                     : t('zoneCompleted', language)
@@ -1198,7 +1198,7 @@ export default function ZoneGuidePage({
                     }`}
                   >
                     <Star 
-                      className="w-8 h-8" 
+                      className="w-7 h-7 sm:w-8 sm:h-8" 
                       fill={star <= rating ? 'currentColor' : 'none'}
                     />
                   </button>
@@ -1215,7 +1215,7 @@ export default function ZoneGuidePage({
                   onChange={(e) => setComment(e.target.value)}
                   placeholder={t('commentPlaceholder2', language)}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none text-sm"
                 />
               </div>
 
