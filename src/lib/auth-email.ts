@@ -1,5 +1,5 @@
 import { prisma } from './prisma'
-import { sendEmail, emailTemplates } from './email'
+import { sendEmail, emailTemplates } from './email-improved'
 import { randomBytes } from 'crypto'
 
 export class EmailVerificationService {

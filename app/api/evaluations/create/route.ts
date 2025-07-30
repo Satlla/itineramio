@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
+import { sendEmail, emailTemplates } from '../../../../src/lib/email-improved'
+import { createNotification } from '../../../../src/lib/notifications'
 
 // POST /api/evaluations/create - Create evaluation (from public widget)
 export async function POST(request: NextRequest) {
@@ -39,7 +41,14 @@ export async function POST(request: NextRequest) {
         id: true,
         hostId: true,
         hostContactName: true,
-        name: true
+        hostContactEmail: true,
+        name: true,
+        host: {
+          select: {
+            email: true,
+            name: true
+          }
+        }
       }
     })
 
@@ -108,29 +117,50 @@ export async function POST(request: NextRequest) {
         })
       }
 
-      // Try to create notification for host about zone evaluation
+      // Create notification for host about zone evaluation
       try {
-        await prisma.notification.create({
+        await createNotification({
+          userId: property.hostId,
+          type: 'evaluation',
+          title: 'Nueva evaluación de zona',
+          message: `Recibiste una nueva evaluación para la zona "${typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}" con ${rating} estrellas`,
           data: {
-            userId: property.hostId,
-            type: 'ZONE_EVALUATION_RECEIVED',
-            title: 'Nueva evaluación de zona',
-            message: `Recibiste una nueva evaluación para la zona "${typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'}" con ${rating} estrellas`,
-            data: {
-              zoneId: zone.id,
-              zoneName: zone.name,
-              propertyId: property.id,
-              propertyName: property.name,
-              rating,
-              feedback: comment,
-              userName,
-              improvementSuggestions
-            }
+            zoneId: zone.id,
+            zoneName: zone.name,
+            propertyId: property.id,
+            propertyName: property.name,
+            rating,
+            feedback: comment,
+            userName,
+            improvementSuggestions
           }
         })
       } catch (notificationError) {
-        console.warn('Could not create notification (table might not exist):', notificationError)
-        // Continue without notification - evaluation still saved
+        console.warn('Could not create notification:', notificationError)
+      }
+
+      // Send email notification to property owner
+      try {
+        const hostEmail = property.host?.email || property.hostContactEmail
+        if (hostEmail) {
+          const zoneName = typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'
+          const propertyName = typeof property.name === 'string' ? property.name : (property.name as any)?.es || 'Propiedad'
+          
+          await sendEmail({
+            to: hostEmail,
+            subject: `Nueva evaluación de zona: ${rating} estrellas - ${propertyName}`,
+            html: emailTemplates.zoneEvaluationNotification(
+              propertyName,
+              zoneName,
+              rating,
+              comment
+            )
+          })
+          console.log('✅ Email notification sent for zone evaluation')
+        }
+      } catch (emailError) {
+        console.error('❌ Error sending email notification:', emailError)
+        // Continue without email - evaluation still saved
       }
 
       // Update zone's average rating
@@ -202,28 +232,48 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      // Try to create notification for host about manual evaluation
+      // Create notification for host about manual evaluation
       try {
-        await prisma.notification.create({
+        await createNotification({
+          userId: property.hostId,
+          type: 'evaluation',
+          title: 'Nueva evaluación del manual',
+          message: `${userName} evaluó tu manual completo con ${rating} estrellas${comment ? ': "' + comment.substring(0, 50) + '..."' : ''}`,
           data: {
-            userId: property.hostId,
-            type: 'MANUAL_EVALUATION_RECEIVED',
-            title: 'Nueva evaluación del manual',
-            message: `${userName} evaluó tu manual completo con ${rating} estrellas${comment ? ': "' + comment.substring(0, 50) + '..."' : ''}`,
-            data: {
-              reviewId: review.id,
-              propertyId: property.id,
-              propertyName: property.name,
-              rating,
-              comment,
-              userName,
-              canBePublic: isPublic
-            }
+            reviewId: review.id,
+            propertyId: property.id,
+            propertyName: property.name,
+            rating,
+            comment,
+            userName,
+            canBePublic: isPublic
           }
         })
       } catch (notificationError) {
-        console.warn('Could not create notification (table might not exist):', notificationError)
-        // Continue without notification - evaluation still saved
+        console.warn('Could not create notification:', notificationError)
+      }
+
+      // Send email notification to property owner
+      try {
+        const hostEmail = property.host?.email || property.hostContactEmail
+        if (hostEmail) {
+          const propertyName = typeof property.name === 'string' ? property.name : (property.name as any)?.es || 'Propiedad'
+          
+          await sendEmail({
+            to: hostEmail,
+            subject: `Nueva evaluación del manual: ${rating} estrellas - ${propertyName}`,
+            html: emailTemplates.zoneEvaluationNotification(
+              propertyName,
+              'Manual completo',
+              rating,
+              comment
+            )
+          })
+          console.log('✅ Email notification sent for property evaluation')
+        }
+      } catch (emailError) {
+        console.error('❌ Error sending email notification:', emailError)
+        // Continue without email - evaluation still saved
       }
 
       // Update property's average rating
