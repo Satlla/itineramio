@@ -4,6 +4,11 @@ import { requireAuth } from '../../../src/lib/auth'
 
 // GET /api/announcements - Get announcements for a property
 export async function GET(request: NextRequest) {
+  console.log('🚀 GET /api/announcements - Starting...')
+  console.log('Environment:', process.env.NODE_ENV)
+  console.log('Database URL exists:', !!process.env.DATABASE_URL)
+  console.log('JWT Secret exists:', !!process.env.JWT_SECRET)
+  
   try {
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
@@ -69,7 +74,11 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching announcements:', error)
+    console.error('💥 Full error in GET announcements:', error)
+    if (error instanceof Error) {
+      console.error('💥 Error message:', error.message)
+      console.error('💥 Error stack:', error.stack)
+    }
     return NextResponse.json(
       { error: 'Error al obtener anuncios' },
       { status: 500 }
