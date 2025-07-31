@@ -50,6 +50,51 @@ const CATEGORIES = [
   { id: 'other', label: 'Otros', icon: Info, color: 'gray' }
 ]
 
+const AVISO_TEMPLATES = [
+  {
+    id: 'check-in-early',
+    title: 'Check-in temprano no disponible',
+    message: 'No podemos recibir huéspedes antes de las 15:00. Disculpa las molestias.',
+    category: 'check-in',
+    priority: 'HIGH'
+  },
+  {
+    id: 'check-out-late', 
+    title: 'Check-out tardío no disponible',
+    message: 'No podemos facilitar salida tardía después de las 11:00. Gracias por tu comprensión.',
+    category: 'check-in',
+    priority: 'HIGH'
+  },
+  {
+    id: 'no-luggage-storage',
+    title: 'Sin custodia de equipajes',
+    message: 'No disponemos de servicio de custodia de equipajes. Recomendamos consigna en estación/aeropuerto.',
+    category: 'amenities',
+    priority: 'NORMAL'
+  },
+  {
+    id: 'no-parking',
+    title: 'Sin plaza de aparcamiento',
+    message: 'El alojamiento no dispone de plaza de aparcamiento. Parking público disponible en la zona.',
+    category: 'parking',
+    priority: 'HIGH'
+  },
+  {
+    id: 'no-wifi',
+    title: 'Sin conexión WiFi',
+    message: 'El alojamiento no tiene conexión WiFi disponible temporalmente. Disculpa las molestias.',
+    category: 'amenities',
+    priority: 'URGENT'
+  },
+  {
+    id: 'service-unavailable',
+    title: 'Servicio temporalmente no disponible',
+    message: 'El servicio de [especificar] no está disponible temporalmente. Se restablecerá el [fecha].',
+    category: 'amenities',
+    priority: 'NORMAL'
+  }
+]
+
 const PRIORITIES = [
   { id: 'LOW', label: 'Baja', color: 'gray' },
   { id: 'NORMAL', label: 'Normal', color: 'blue' },
@@ -107,7 +152,7 @@ export default function PropertyAnnouncementsPage() {
         const data = await response.json()
         setAnnouncements(data.data || [])
       } else {
-        addNotification({ title: 'Error', message: 'Error al cargar anuncios', type: 'error', read: false })
+        addNotification({ title: 'Error', message: 'Error al cargar avisos', type: 'error', read: false })
       }
     } catch (error) {
       console.error('Error loading announcements:', error)
@@ -143,11 +188,11 @@ export default function PropertyAnnouncementsPage() {
         loadAnnouncements()
       } else {
         const data = await response.json()
-        addNotification({ title: 'Error', message: data.error || 'Error al crear anuncio', type: 'error', read: false })
+        addNotification({ title: 'Error', message: data.error || 'Error al crear aviso', type: 'error', read: false })
       }
     } catch (error) {
       console.error('Error creating announcement:', error)
-      addNotification({ title: 'Error', message: 'Error al crear anuncio', type: 'error', read: false })
+      addNotification({ title: 'Error', message: 'Error al crear aviso', type: 'error', read: false })
     } finally {
       setSaving(false)
     }
@@ -306,19 +351,20 @@ export default function PropertyAnnouncementsPage() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center">
                 <Bell className="w-8 h-8 mr-3 text-orange-600" />
-                Anuncios Importantes
+                Avisos Importantes
               </h1>
               <p className="text-gray-600 mt-2">
-                Comunica información importante a tus huéspedes antes de su llegada
+                Los avisos son para comunicar limitaciones importantes que los huéspedes deben conocer antes de su llegada. Úsalos para informar sobre servicios no disponibles, restricciones de horarios o situaciones temporales.
               </p>
             </div>
             
             <Button
               onClick={() => setShowCreateForm(true)}
               className="bg-orange-600 hover:bg-orange-700"
+              disabled={announcements.filter(a => a.isActive).length >= 5}
             >
               <Plus className="w-4 h-4 mr-2" />
-              Nuevo Anuncio
+              Nuevo Aviso {announcements.filter(a => a.isActive).length >= 5 && `(Máx. 5)`}
             </Button>
           </div>
         </div>
@@ -328,10 +374,52 @@ export default function PropertyAnnouncementsPage() {
           <Card className="mb-8">
             <CardHeader>
               <CardTitle>
-                {editingAnnouncement ? 'Editar Anuncio' : 'Crear Nuevo Anuncio'}
+                {editingAnnouncement ? 'Editar Aviso' : 'Crear Nuevo Aviso'}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Plantillas Predefinidas */}
+              <div className="border-b border-gray-200 pb-6">
+                <h4 className="text-sm font-medium text-gray-900 mb-3">
+                  💡 Plantillas Predefinidas
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {AVISO_TEMPLATES.map((template) => {
+                    const categoryInfo = getCategoryInfo(template.category)
+                    const IconComponent = categoryInfo.icon
+                    return (
+                      <button
+                        key={template.id}
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            title: template.title,
+                            message: template.message,
+                            category: template.category,
+                            priority: template.priority
+                          })
+                        }}
+                        className="text-left p-3 border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 transition-colors"
+                      >
+                        <div className="flex items-start space-x-2">
+                          <IconComponent className={`w-4 h-4 mt-0.5 text-${categoryInfo.color}-600`} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {template.title}
+                            </p>
+                            <p className="text-xs text-gray-600 line-clamp-2 mt-1">
+                              {template.message}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Haz clic en una plantilla para usarla como base y personalízala según tus necesidades
+                </p>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -460,10 +548,10 @@ export default function PropertyAnnouncementsPage() {
             <CardContent className="text-center py-12">
               <Bell className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No tienes anuncios creados
+                No tienes avisos creados
               </h3>
               <p className="text-gray-600 mb-6">
-                Crea tu primer anuncio para comunicar información importante a tus huéspedes
+                Crea tu primer aviso para comunicar información importante a tus huéspedes
               </p>
               <Button
                 onClick={() => setShowCreateForm(true)}

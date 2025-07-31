@@ -1941,7 +1941,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             className="border-orange-500 text-orange-600 hover:bg-orange-50"
           >
             <Bell className="w-5 h-5 mr-2" />
-            Anuncios
+            Avisos
           </Button>
           
           <Button
@@ -2018,12 +2018,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             )}
           </button>
           
-          {/* Anuncios */}
+          {/* Avisos */}
           <button
             onClick={() => router.push(`/properties/${id}/announcements`)}
             className="text-black font-semibold text-sm underline underline-offset-4 hover:text-gray-700 transition-colors"
           >
-            Anuncios
+            Avisos
           </button>
           
           {/* Vista Pública */}
