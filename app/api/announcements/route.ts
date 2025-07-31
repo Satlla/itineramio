@@ -151,8 +151,8 @@ export async function POST(request: NextRequest) {
         category,
         priority,
         isActive,
-        startDate: startDate ? new Date(startDate) : null,
-        endDate: endDate ? new Date(endDate) : null
+        startDate: startDate ? new Date(startDate) : undefined,
+        endDate: endDate ? new Date(endDate) : undefined
       }
     })
     console.log('✅ Announcement created:', announcement)

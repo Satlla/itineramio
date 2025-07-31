@@ -491,9 +491,13 @@ export default function PropertyAnnouncementsPage() {
                   </label>
                   <Input
                     type="date"
-                    value={formData.startDate}
+                    value={formData.startDate || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                    className="w-full"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Deja vacío para activar inmediatamente
+                  </p>
                 </div>
 
                 <div>
@@ -502,9 +506,13 @@ export default function PropertyAnnouncementsPage() {
                   </label>
                   <Input
                     type="date"
-                    value={formData.endDate}
+                    value={formData.endDate || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
+                    className="w-full"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Deja vacío para aviso permanente
+                  </p>
                 </div>
               </div>
 
@@ -514,28 +522,27 @@ export default function PropertyAnnouncementsPage() {
                   id="isActive"
                   checked={formData.isActive}
                   onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-                  className="mr-2"
+                  className="mr-2 w-4 h-4 text-black rounded focus:ring-black"
                 />
                 <label htmlFor="isActive" className="text-sm text-gray-700">
-                  Anuncio activo (visible para los huéspedes)
+                  Aviso activo (visible para los huéspedes)
                 </label>
               </div>
 
-              <div className="flex justify-end space-x-3">
+              <div className="flex justify-end space-x-3 pt-4 border-t">
                 <Button
                   variant="outline"
                   onClick={cancelEdit}
+                  className="px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
-                  <X className="w-4 h-4 mr-2" />
                   Cancelar
                 </Button>
                 <Button
                   onClick={editingAnnouncement ? handleUpdateAnnouncement : handleCreateAnnouncement}
                   disabled={saving}
-                  className="bg-orange-600 hover:bg-orange-700"
+                  className="bg-black hover:bg-gray-900 text-white px-6 py-2"
                 >
-                  <Save className="w-4 h-4 mr-2" />
-                  {saving ? 'Guardando...' : (editingAnnouncement ? 'Actualizar' : 'Crear')}
+                  {saving ? 'Guardando...' : (editingAnnouncement ? 'Actualizar aviso' : 'Crear aviso')}
                 </Button>
               </div>
             </CardContent>
