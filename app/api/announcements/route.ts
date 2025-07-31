@@ -5,72 +5,13 @@ import { requireAuth } from '../../../src/lib/auth'
 // GET /api/announcements - Get announcements for a property
 export async function GET(request: NextRequest) {
   console.log('🚀 GET /api/announcements - Starting...')
-  console.log('Environment:', process.env.NODE_ENV)
-  console.log('Database URL exists:', !!process.env.DATABASE_URL)
-  console.log('JWT Secret exists:', !!process.env.JWT_SECRET)
   
   try {
-    const authResult = await requireAuth(request)
-    if (authResult instanceof Response) {
-      return authResult
-    }
-    const userId = authResult.userId
-
-    const { searchParams } = new URL(request.url)
-    const propertyId = searchParams.get('propertyId')
-    const isPublic = searchParams.get('public') === 'true'
-
-    if (!propertyId) {
-      return NextResponse.json(
-        { error: 'Property ID es requerido' },
-        { status: 400 }
-      )
-    }
-
-    // For public requests, don't require ownership
-    let whereClause: any = {
-      propertyId,
-      isActive: true
-    }
-
-    // Add date filtering for active announcements
-    const now = new Date()
-    whereClause.OR = [
-      { startDate: null, endDate: null }, // Always active
-      { startDate: null, endDate: { gte: now } }, // No start date, not expired
-      { startDate: { lte: now }, endDate: null }, // Started, no end date
-      { startDate: { lte: now }, endDate: { gte: now } } // Within date range
-    ]
-
-    // For dashboard requests, verify ownership
-    if (!isPublic) {
-      const property = await prisma.property.findUnique({
-        where: { id: propertyId },
-        select: { hostId: true }
-      })
-
-      if (!property || property.hostId !== userId) {
-        return NextResponse.json(
-          { error: 'Propiedad no encontrada' },
-          { status: 404 }
-        )
-      }
-
-      // For dashboard, show all announcements (active and inactive)
-      whereClause = { propertyId }
-    }
-
-    const announcements = await prisma.announcement.findMany({
-      where: whereClause,
-      orderBy: [
-        { priority: 'desc' },
-        { createdAt: 'desc' }
-      ]
-    })
-
+    // Simple test first - just return success
     return NextResponse.json({
       success: true,
-      data: announcements
+      message: 'Announcements endpoint is working',
+      timestamp: new Date().toISOString()
     })
 
   } catch (error) {
