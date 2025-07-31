@@ -2004,74 +2004,80 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
       {/* Mobile buttons - below text */}
       <div className="lg:hidden mb-6">
-        <div className="flex items-center gap-4">
-          {/* Evaluaciones - Airbnb style */}
-          <button
-            onClick={handleViewEvaluations}
-            className="text-black font-semibold text-sm underline underline-offset-4 hover:text-gray-700 transition-colors relative"
-          >
-            Evaluaciones
-            {unreadEvaluations > 0 && (
-              <span className="absolute -top-2 -right-0 translate-x-full bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center ml-1">
-                {unreadEvaluations}
-              </span>
-            )}
-          </button>
-          
-          {/* Avisos */}
-          <button
-            onClick={() => router.push(`/properties/${id}/announcements`)}
-            className="text-black font-semibold text-sm underline underline-offset-4 hover:text-gray-700 transition-colors"
-          >
-            Avisos
-          </button>
-          
-          {/* Vista Pública */}
-          <button
-            onClick={() => {
-              const publicUrl = `${window.location.origin}/guide/${id}`
-              window.open(publicUrl, '_blank')
-            }}
-            className="flex items-center gap-1 text-sm text-gray-700 hover:text-black transition-colors"
-          >
-            <Eye className="w-4 h-4" />
-            <span>Vista pública</span>
-          </button>
-          
-          {/* QR Code */}
-          <button
-            onClick={() => setShowPropertyQRModal(true)}
-            className="flex items-center gap-1 text-sm text-gray-700 hover:text-black transition-colors"
-          >
-            <QrCode className="w-4 h-4" />
-            <span>QR</span>
-          </button>
-          
-          {/* Compartir */}
-          <button
-            onClick={async () => {
-              const shareUrl = `${window.location.origin}/guide/${id}`
-              try {
-                await navigator.clipboard.writeText(shareUrl)
-                setCopied(true)
-                setTimeout(() => setCopied(false), 2000)
-              } catch {
-                // Fallback
-                const textArea = document.createElement('textarea')
-                textArea.value = shareUrl
-                document.body.appendChild(textArea)
-                textArea.select()
-                document.execCommand('copy')
-                document.body.removeChild(textArea)
-                setCopied(true)
-                setTimeout(() => setCopied(false), 2000)
-              }
-            }}
-            className="flex items-center gap-1 text-sm text-gray-700 hover:text-black transition-colors"
-          >
-            <Share2 className="w-4 h-4" />
-            <span>{copied ? '¡Copiado!' : 'Compartir'}</span>
-          </button>
+        <div className="flex items-center justify-between">
+          {/* Left side - Text links */}
+          <div className="flex items-center gap-4">
+            {/* Evaluaciones - Keep text */}
+            <button
+              onClick={handleViewEvaluations}
+              className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors relative"
+            >
+              Evaluaciones
+              {unreadEvaluations > 0 && (
+                <span className="absolute -top-2 -right-0 translate-x-full bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center ml-1">
+                  {unreadEvaluations}
+                </span>
+              )}
+            </button>
+            
+            {/* Avisos - Keep text */}
+            <button
+              onClick={() => router.push(`/properties/${id}/announcements`)}
+              className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors"
+            >
+              Avisos
+            </button>
+          </div>
+
+          {/* Right side - Icon buttons */}
+          <div className="flex items-center gap-3">
+            {/* Vista Pública */}
+            <button
+              onClick={() => {
+                const publicUrl = `${window.location.origin}/guide/${id}`
+                window.open(publicUrl, '_blank')
+              }}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Vista pública"
+            >
+              <Eye className="w-5 h-5 text-gray-700" />
+            </button>
+            
+            {/* QR Code */}
+            <button
+              onClick={() => setShowPropertyQRModal(true)}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Código QR"
+            >
+              <QrCode className="w-5 h-5 text-gray-700" />
+            </button>
+            
+            {/* Compartir */}
+            <button
+              onClick={async () => {
+                const shareUrl = `${window.location.origin}/guide/${id}`
+                try {
+                  await navigator.clipboard.writeText(shareUrl)
+                  setCopied(true)
+                  setTimeout(() => setCopied(false), 2000)
+                } catch {
+                  // Fallback
+                  const textArea = document.createElement('textarea')
+                  textArea.value = shareUrl
+                  document.body.appendChild(textArea)
+                  textArea.select()
+                  document.execCommand('copy')
+                  document.body.removeChild(textArea)
+                  setCopied(true)
+                  setTimeout(() => setCopied(false), 2000)
+                }
+              }}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label={copied ? 'Enlace copiado' : 'Compartir'}
+            >
+              {copied ? <Check className="w-5 h-5 text-green-600" /> : <Share2 className="w-5 h-5 text-gray-700" />}
+            </button>
+          </div>
         </div>
       </div>
 
