@@ -165,7 +165,9 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('💥 Error creating announcement:', error)
-    console.error('💥 Error stack:', error.stack)
+    if (error instanceof Error) {
+      console.error('💥 Error stack:', error.stack)
+    }
     return NextResponse.json(
       { error: 'Error al crear anuncio' },
       { status: 500 }

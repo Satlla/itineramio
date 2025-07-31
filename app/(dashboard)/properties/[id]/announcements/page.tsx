@@ -335,55 +335,56 @@ export default function PropertyAnnouncementsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => router.push(`/properties/${propertyId}/zones`)}
-            className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-6 text-sm"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4 mr-1" />
             Volver a {propertyName}
           </button>
           
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-                <Bell className="w-8 h-8 mr-3 text-orange-600" />
-                Avisos Importantes
-              </h1>
-              <p className="text-gray-600 mt-2">
-                Los avisos son para comunicar limitaciones importantes que los huéspedes deben conocer antes de su llegada. Úsalos para informar sobre servicios no disponibles, restricciones de horarios o situaciones temporales.
-              </p>
-            </div>
+          <div className="space-y-4">
+            <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">
+              Avisos Importantes
+            </h1>
             
-            <Button
-              onClick={() => setShowCreateForm(true)}
-              className="bg-orange-600 hover:bg-orange-700"
-              disabled={announcements.filter(a => a.isActive).length >= 5}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Nuevo Aviso {announcements.filter(a => a.isActive).length >= 5 && `(Máx. 5)`}
-            </Button>
+            <p className="text-gray-600 text-base leading-relaxed max-w-3xl">
+              Los avisos son para comunicar limitaciones importantes que los huéspedes deben conocer antes de su llegada. Úsalos para informar sobre servicios no disponibles, restricciones de horarios o situaciones temporales.
+            </p>
+            
+            <div className="pt-2">
+              <Button
+                onClick={() => setShowCreateForm(true)}
+                className="bg-black hover:bg-gray-900 text-white rounded-lg px-6 py-3 font-medium transition-colors"
+                disabled={announcements.filter(a => a.isActive).length >= 5}
+              >
+                <Plus className="w-4 h-4 mr-2 inline-block" />
+                Nuevo Aviso {announcements.filter(a => a.isActive).length >= 5 && `(Máx. 5)`}
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Create/Edit Form */}
         {showCreateForm && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>
+          <Card className="mb-8 border-gray-200 shadow-sm">
+            <CardHeader className="border-b border-gray-200 bg-gray-50 px-6 py-4">
+              <CardTitle className="text-lg font-medium">
                 {editingAnnouncement ? 'Editar Aviso' : 'Crear Nuevo Aviso'}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 p-6">
               {/* Plantillas Predefinidas */}
-              <div className="border-b border-gray-200 pb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">
-                  💡 Plantillas Predefinidas
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {!editingAnnouncement && (
+                <div className="border-b border-gray-200 pb-6">
+                  <h4 className="text-base font-medium text-gray-900 mb-4">
+                    Plantillas rápidas
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {AVISO_TEMPLATES.map((template) => {
                     const categoryInfo = getCategoryInfo(template.category)
                     const IconComponent = categoryInfo.icon
@@ -399,15 +400,17 @@ export default function PropertyAnnouncementsPage() {
                             priority: template.priority
                           })
                         }}
-                        className="text-left p-3 border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 transition-colors"
+                        className="text-left p-4 border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all bg-white"
                       >
-                        <div className="flex items-start space-x-2">
-                          <IconComponent className={`w-4 h-4 mt-0.5 text-${categoryInfo.color}-600`} />
+                        <div className="flex items-start space-x-3">
+                          <div className={`p-2 rounded-lg bg-${categoryInfo.color}-50`}>
+                            <IconComponent className={`w-5 h-5 text-${categoryInfo.color}-600`} />
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
+                            <p className="text-sm font-medium text-gray-900 mb-1">
                               {template.title}
                             </p>
-                            <p className="text-xs text-gray-600 line-clamp-2 mt-1">
+                            <p className="text-xs text-gray-600 line-clamp-2">
                               {template.message}
                             </p>
                           </div>
@@ -416,10 +419,11 @@ export default function PropertyAnnouncementsPage() {
                     )
                   })}
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Haz clic en una plantilla para usarla como base y personalízala según tus necesidades
+                <p className="text-xs text-gray-500 mt-3">
+                  Selecciona una plantilla para empezar
                 </p>
               </div>
+            )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -544,21 +548,23 @@ export default function PropertyAnnouncementsPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
           </div>
         ) : announcements.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-12">
-              <Bell className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <Card className="border-gray-200 shadow-sm">
+            <CardContent className="text-center py-16">
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Bell className="w-10 h-10 text-gray-400" />
+              </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 No tienes avisos creados
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-500 mb-6 text-sm max-w-md mx-auto">
                 Crea tu primer aviso para comunicar información importante a tus huéspedes
               </p>
               <Button
                 onClick={() => setShowCreateForm(true)}
-                className="bg-orange-600 hover:bg-orange-700"
+                className="bg-black hover:bg-gray-900 text-white rounded-lg px-6 py-3 font-medium"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Crear Primer Anuncio
+                <Plus className="w-4 h-4 mr-2 inline-block" />
+                Crear Primer Aviso
               </Button>
             </CardContent>
           </Card>
