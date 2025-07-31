@@ -130,7 +130,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
             <div className="p-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-xl font-semibold text-gray-900">{t('navbar.menu')}</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Menú</h2>
                 <button
                   onClick={onClose}
                   className="p-2 rounded-full hover:bg-gray-100 transition-colors"

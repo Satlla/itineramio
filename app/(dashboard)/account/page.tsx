@@ -12,7 +12,8 @@ import {
   Save,
   AlertTriangle,
   Eye,
-  EyeOff
+  EyeOff,
+  Bell
 } from 'lucide-react'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '../../../src/components/ui'
 import { useRouter } from 'next/navigation'
@@ -405,7 +406,7 @@ export default function AccountPage() {
 
 
           {/* Save Button */}
-          <div className="flex justify-end mb-16">
+          <div className="flex justify-end mb-8">
             <Button
               onClick={handleSaveBasicInfo}
               disabled={loading}
@@ -415,6 +416,30 @@ export default function AccountPage() {
               {loading ? 'Guardando...' : 'Guardar Información'}
             </Button>
           </div>
+
+          {/* Notifications Settings */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Notificaciones</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-1">Configuración de Notificaciones</h3>
+                  <p className="text-sm text-gray-600">
+                    Gestiona cómo y cuándo quieres recibir notificaciones por email
+                  </p>
+                </div>
+                <Button
+                  onClick={() => router.push('/account/notifications')}
+                  variant="outline"
+                >
+                  <Bell className="w-4 h-4 mr-2" />
+                  Configurar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Delete Account */}
           <Card className="border-red-200 bg-red-50">

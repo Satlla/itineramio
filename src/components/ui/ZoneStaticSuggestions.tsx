@@ -26,20 +26,35 @@ export function ZoneStaticSuggestions({
 
   // Filter out zones that already exist and get most popular ones
   const availableZones = zoneTemplates
-    .filter(template => 
-      !existingZoneNames.some(existing => 
-        existing.toLowerCase() === template.name.toLowerCase()
-      )
-    )
+    .filter(template => {
+      // Check if the zone already exists with normalized comparison
+      const templateNameNormalized = template.name.toLowerCase().trim();
+      return !existingZoneNames.some(existing => {
+        const existingNormalized = existing.toLowerCase().trim();
+        // Check exact match
+        if (existingNormalized === templateNameNormalized) return true;
+        // Check if it's a variation (e.g., "Check-in" vs "Check in" vs "Checkin")
+        const templateClean = templateNameNormalized.replace(/[\s-_]/g, '');
+        const existingClean = existingNormalized.replace(/[\s-_]/g, '');
+        return templateClean === existingClean;
+      });
+    })
     .sort((a, b) => b.popularity - a.popularity)
 
   // Check if all essential zones are completed
   const essentialZones = zoneTemplates.filter(z => z.category === 'essential')
-  const hasAllEssentialZones = essentialZones.every(essential =>
-    existingZoneNames.some(existing => 
-      existing.toLowerCase() === essential.name.toLowerCase()
-    )
-  )
+  const hasAllEssentialZones = essentialZones.every(essential => {
+    const essentialNameNormalized = essential.name.toLowerCase().trim();
+    return existingZoneNames.some(existing => {
+      const existingNormalized = existing.toLowerCase().trim();
+      // Check exact match
+      if (existingNormalized === essentialNameNormalized) return true;
+      // Check if it's a variation (e.g., "Check-in" vs "Check in" vs "Checkin")
+      const essentialClean = essentialNameNormalized.replace(/[\s-_]/g, '');
+      const existingClean = existingNormalized.replace(/[\s-_]/g, '');
+      return essentialClean === existingClean;
+    });
+  })
 
   // If all essential zones are completed, show congratulations banner
   if (hasAllEssentialZones) {

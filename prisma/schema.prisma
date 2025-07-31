@@ -29,6 +29,7 @@ model User {
   isActive             Boolean                @default(true)
   isAdmin              Boolean                @default(false)
   notes                String?
+  notificationPreferences Json?              @default("{}")
   adminLogs            AdminActivityLog[]
   assignedErrorReports ErrorReport[]          @relation("ErrorReportAssignee")
   invoices             Invoice[]
@@ -124,6 +125,7 @@ model Property {
   zones               Zone[]
   propertyRatings     PropertyRating[]
   reviews             Review[]
+  announcements       Announcement[]
 
   @@index([slug])
   @@map("properties")
@@ -584,4 +586,23 @@ model Review {
   @@index([createdAt])
   @@index([isApproved, isPublic])
   @@map("reviews")
+}
+
+model Announcement {
+  id          String    @id @default(cuid())
+  propertyId  String
+  title       String
+  message     String
+  category    String    // 'parking', 'cleaning', 'construction', 'check-in', 'amenities', 'other'
+  priority    String    @default("NORMAL") // 'LOW', 'NORMAL', 'HIGH', 'URGENT'
+  isActive    Boolean   @default(true)
+  startDate   DateTime? // Optional - when announcement becomes active
+  endDate     DateTime? // Optional - when announcement expires
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, isActive])
+  @@index([startDate, endDate])
+  @@map("announcements")
 }

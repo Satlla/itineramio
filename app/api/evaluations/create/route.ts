@@ -139,10 +139,24 @@ export async function POST(request: NextRequest) {
         console.warn('Could not create notification:', notificationError)
       }
 
-      // Send email notification to property owner
+      // Send email notification to property owner (check preferences first)
       try {
+        // Check user notification preferences
+        const userPreferences = localStorage.getItem(`user-${property.hostId}-notificationSettings`)
+        let shouldSendEmail = true
+        
+        if (userPreferences) {
+          try {
+            const prefs = JSON.parse(userPreferences)
+            shouldSendEmail = prefs.emailNotifications?.evaluations !== false
+          } catch (e) {
+            // If preferences are invalid, default to sending
+            shouldSendEmail = true
+          }
+        }
+        
         const hostEmail = property.host?.email || property.hostContactEmail
-        if (hostEmail) {
+        if (hostEmail && shouldSendEmail) {
           const zoneName = typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'
           const propertyName = typeof property.name === 'string' ? property.name : (property.name as any)?.es || 'Propiedad'
           
@@ -157,6 +171,8 @@ export async function POST(request: NextRequest) {
             )
           })
           console.log('✅ Email notification sent for zone evaluation')
+        } else if (!shouldSendEmail) {
+          console.log('📧 Email notification skipped - user has disabled evaluation emails')
         }
       } catch (emailError) {
         console.error('❌ Error sending email notification:', emailError)

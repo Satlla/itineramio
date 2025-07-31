@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell } from 'lucide-react'
 import {
   DndContext,
   closestCenter,
@@ -117,6 +117,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showZonasEsencialesModal, setShowZonasEsencialesModal] = useState(false)
   const [hasCreatedEssentialZones, setHasCreatedEssentialZones] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  
+  // Evaluations modal state
+  const [evaluationsModalOpen, setEvaluationsModalOpen] = useState(false)
+  const [propertyEvaluations, setPropertyEvaluations] = useState<any[]>([])
+  const [loadingEvaluations, setLoadingEvaluations] = useState(false)
   const [debugModalShow, setDebugModalShow] = useState(false) // For testing modal visibility
   
   const [isCreatingZone, setIsCreatingZone] = useState(false)
@@ -442,6 +447,26 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   const handleCreateZone = async () => {
     if (!formData.name || !formData.iconId) return
+
+    // Check for duplicate zones
+    const nameNormalized = formData.name.toLowerCase().trim();
+    const nameClean = nameNormalized.replace(/[\s-_]/g, '');
+    
+    const isDuplicate = zones.some(zone => {
+      const existingName = getZoneText(zone.name).toLowerCase().trim();
+      const existingClean = existingName.replace(/[\s-_]/g, '');
+      return existingName === nameNormalized || existingClean === nameClean;
+    });
+
+    if (isDuplicate) {
+      addNotification({
+        type: 'error',
+        title: 'Zona duplicada',
+        message: `Ya existe una zona con el nombre "${formData.name}". Por favor elige otro nombre.`,
+        read: false
+      });
+      return;
+    }
 
     setIsCreatingZone(true)
     try {
@@ -1085,10 +1110,31 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   const handleCreateZoneFromInspiration = async (inspiration: InspirationZone) => {
+    // Check for duplicate zones
+    const inspirationName = getZoneText(inspiration.name);
+    const nameNormalized = inspirationName.toLowerCase().trim();
+    const nameClean = nameNormalized.replace(/[\s-_]/g, '');
+    
+    const isDuplicate = zones.some(zone => {
+      const existingNormalized = zone.name.toLowerCase().trim();
+      const existingClean = existingNormalized.replace(/[\s-_]/g, '');
+      return existingClean === nameClean;
+    });
+
+    if (isDuplicate) {
+      addNotification({
+        type: 'error',
+        title: 'Zona duplicada',
+        message: `Ya existe una zona "${inspirationName}" en esta propiedad.`,
+        read: false
+      });
+      return;
+    }
+
     setIsCreatingZone(true)
     try {
       const zoneData = {
-        name: getZoneText(inspiration.name),
+        name: inspirationName,
         description: getZoneText(inspiration.description),
         icon: inspiration.icon,
         color: 'bg-gray-100',
@@ -1124,6 +1170,26 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   const handleCreateZoneFromTemplate = async (template: ZoneTemplate) => {
+    // Check for duplicate zones
+    const nameNormalized = template.name.toLowerCase().trim();
+    const nameClean = nameNormalized.replace(/[\s-_]/g, '');
+    
+    const isDuplicate = zones.some(zone => {
+      const existingName = getZoneText(zone.name).toLowerCase().trim();
+      const existingClean = existingName.replace(/[\s-_]/g, '');
+      return existingName === nameNormalized || existingClean === nameClean;
+    });
+
+    if (isDuplicate) {
+      addNotification({
+        type: 'error',
+        title: 'Zona duplicada',
+        message: `Ya existe una zona "${template.name}" en esta propiedad.`,
+        read: false
+      });
+      return;
+    }
+
     setIsCreatingZone(true)
     try {
       const zoneData = {
@@ -1361,6 +1427,58 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       setShowDeletePropertyModal(false)
     } finally {
       setIsDeletingProperty(false)
+    }
+  }
+
+  // Evaluations modal functions
+  const handleViewEvaluations = async () => {
+    setEvaluationsModalOpen(true)
+    setLoadingEvaluations(true)
+    
+    try {
+      const response = await fetch(`/api/properties/${id}/evaluations`, {
+        credentials: 'include'
+      })
+      const result = await response.json()
+      
+      if (result.success) {
+        setPropertyEvaluations(result.data.evaluations)
+      } else {
+        console.error('Failed to fetch evaluations:', result.error)
+        setPropertyEvaluations([])
+      }
+    } catch (error) {
+      console.error('Error fetching evaluations:', error)
+      setPropertyEvaluations([])
+    } finally {
+      setLoadingEvaluations(false)
+    }
+  }
+
+  const closeEvaluationsModal = () => {
+    setEvaluationsModalOpen(false)
+    setPropertyEvaluations([])
+  }
+
+  const handleToggleEvaluationPublic = async (evaluationId: string, isCurrentlyPublic: boolean) => {
+    try {
+      const response = await fetch(`/api/evaluations/${evaluationId}/toggle-public`, {
+        method: 'PATCH',
+        credentials: 'include'
+      })
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        // Update local state
+        setPropertyEvaluations(propertyEvaluations.map(evaluation => 
+          evaluation.id === evaluationId 
+            ? { ...evaluation, isPublic: !isCurrentlyPublic }
+            : evaluation
+        ))
+      }
+    } catch (error) {
+      console.error('Error toggling evaluation visibility:', error)
     }
   }
 
@@ -1804,7 +1922,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         <div className="hidden lg:flex space-x-3">
           {/* Desktop buttons */}
           <Button
-            onClick={() => router.push(`/properties/${id}/evaluations`)}
+            onClick={handleViewEvaluations}
             variant="outline"
             className="border-blue-500 text-blue-600 hover:bg-blue-50 relative"
           >
@@ -1815,6 +1933,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 {unreadEvaluations}
               </span>
             )}
+          </Button>
+          
+          <Button
+            onClick={() => router.push(`/properties/${id}/announcements`)}
+            variant="outline"
+            className="border-orange-500 text-orange-600 hover:bg-orange-50"
+          >
+            <Bell className="w-5 h-5 mr-2" />
+            Anuncios
           </Button>
           
           <Button
@@ -1880,7 +2007,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         <div className="flex items-center gap-4">
           {/* Evaluaciones - Airbnb style */}
           <button
-            onClick={() => router.push(`/properties/${id}/evaluations`)}
+            onClick={handleViewEvaluations}
             className="text-black font-semibold text-sm underline underline-offset-4 hover:text-gray-700 transition-colors relative"
           >
             Evaluaciones
@@ -1889,6 +2016,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 {unreadEvaluations}
               </span>
             )}
+          </button>
+          
+          {/* Anuncios */}
+          <button
+            onClick={() => router.push(`/properties/${id}/announcements`)}
+            className="text-black font-semibold text-sm underline underline-offset-4 hover:text-gray-700 transition-colors"
+          >
+            Anuncios
           </button>
           
           {/* Vista Pública */}
@@ -2763,6 +2898,150 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         currentPropertyId={id}
         onCopyComplete={handleCopyComplete}
       />
+
+      {/* Evaluations Modal */}
+      {evaluationsModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={closeEvaluationsModal}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Evaluaciones de {propertyName}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Gestiona las evaluaciones de los huéspedes
+                </p>
+              </div>
+              <button
+                onClick={closeEvaluationsModal}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {loadingEvaluations ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
+                  <span className="ml-3 text-gray-600">Cargando evaluaciones...</span>
+                </div>
+              ) : propertyEvaluations.length === 0 ? (
+                <div className="text-center py-12">
+                  <Star className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <h4 className="text-lg font-medium text-gray-900 mb-2">
+                    Sin evaluaciones aún
+                  </h4>
+                  <p className="text-gray-600">
+                    Los huéspedes aún no han dejado evaluaciones para esta propiedad
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {propertyEvaluations.map((evaluation) => (
+                    <div key={evaluation.id} className="border rounded-lg p-4 hover:shadow-sm transition-shadow">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex items-center">
+                            {Array.from({ length: 5 }, (_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-5 h-5 ${
+                                  i < evaluation.rating
+                                    ? 'fill-yellow-400 text-yellow-400'
+                                    : 'text-gray-300'
+                                }`}
+                              />
+                            ))}
+                            <span className="ml-2 text-sm font-medium text-gray-900">
+                              {evaluation.rating}/5
+                            </span>
+                          </div>
+                          <span className="text-sm text-gray-600">
+                            por {evaluation.userName}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            evaluation.isPublic
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-gray-100 text-gray-600'
+                          }`}>
+                            {evaluation.isPublic ? 'Pública' : 'Privada'}
+                          </span>
+                          <button
+                            onClick={() => handleToggleEvaluationPublic(evaluation.id, evaluation.isPublic)}
+                            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                              evaluation.isPublic 
+                                ? "border border-gray-300 text-gray-600 hover:text-gray-800 hover:bg-gray-50" 
+                                : "bg-green-600 hover:bg-green-700 text-white"
+                            }`}
+                          >
+                            {evaluation.isPublic ? 'Hacer privada' : 'Hacer pública'}
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {evaluation.comment && (
+                        <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                          <p className="text-gray-700 text-sm leading-relaxed">
+                            "{evaluation.comment}"
+                          </p>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>
+                          {evaluation.reviewType === 'zone' ? 'Evaluación de zona' : 'Evaluación general'}
+                        </span>
+                        <span>
+                          {new Date(evaluation.createdAt).toLocaleDateString('es-ES', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 bg-gray-50 rounded-b-2xl">
+              <div className="flex justify-between items-center">
+                <div className="text-sm text-gray-600">
+                  {propertyEvaluations.length > 0 && (
+                    <span>
+                      {propertyEvaluations.filter(e => e.isPublic).length} de {propertyEvaluations.length} evaluaciones públicas
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={closeEvaluationsModal}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
     </div>
   )

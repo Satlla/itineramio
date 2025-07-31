@@ -31,7 +31,12 @@ import {
   BarChart3,
   Lightbulb,
   Send,
-  X
+  X,
+  Bell,
+  AlertTriangle,
+  Info,
+  Settings,
+  Key
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -71,6 +76,18 @@ interface Zone {
   order: number
   stepsCount?: number
   status: string
+}
+
+interface Announcement {
+  id: string
+  title: string
+  message: string
+  category: string
+  priority: string
+  isActive: boolean
+  startDate?: string
+  endDate?: string
+  createdAt: string
 }
 
 // Zone icon mapping using centralized system - BLACK STYLE FOR PUBLIC VIEW
@@ -321,6 +338,37 @@ const calculateProgress = (zones: Zone[]) => {
   return zones.length > 0 ? Math.round((viewedZones / zones.length) * 100) : 0
 }
 
+// Helper functions for announcements
+const getAnnouncementIcon = (category: string) => {
+  switch (category) {
+    case 'parking': return Car
+    case 'cleaning': return Users
+    case 'construction': return Settings
+    case 'check-in': return Key
+    case 'amenities': return Wifi
+    default: return Info
+  }
+}
+
+const getAnnouncementColor = (priority: string) => {
+  switch (priority) {
+    case 'URGENT': return 'red'
+    case 'HIGH': return 'orange'
+    case 'NORMAL': return 'blue'
+    case 'LOW': return 'gray'
+    default: return 'blue'
+  }
+}
+
+const getPriorityText = (priority: string, language: string) => {
+  const priorities = {
+    es: { URGENT: 'Urgente', HIGH: 'Alta', NORMAL: 'Normal', LOW: 'Baja' },
+    en: { URGENT: 'Urgent', HIGH: 'High', NORMAL: 'Normal', LOW: 'Low' },
+    fr: { URGENT: 'Urgent', HIGH: 'Haute', NORMAL: 'Normal', LOW: 'Basse' }
+  }
+  return priorities[language as keyof typeof priorities]?.[priority as keyof typeof priorities.es] || priority
+}
+
 export default function PropertyGuidePage() {
   const router = useRouter()
   const params = useParams()
@@ -347,9 +395,11 @@ export default function PropertyGuidePage() {
   const [publicEvaluations, setPublicEvaluations] = useState<any[]>([])
   const [evaluationsStats, setEvaluationsStats] = useState<any>(null)
   const [loadingEvaluations, setLoadingEvaluations] = useState(false)
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
 
   useEffect(() => {
     fetchPropertyData()
+    fetchAnnouncements()
     // fetchPublicEvaluations will be called from fetchPropertyData if needed
   }, [propertyId])
 
@@ -430,6 +480,19 @@ export default function PropertyGuidePage() {
       await fetchPublicEvaluationsWithId(propertyId)
     }
     // If it's a slug and we don't have property data yet, this will be called after fetchPropertyData
+  }
+
+  const fetchAnnouncements = async () => {
+    try {
+      const response = await fetch(`/api/announcements?propertyId=${propertyId}&public=true`)
+      if (response.ok) {
+        const data = await response.json()
+        setAnnouncements(data.data || [])
+      }
+    } catch (error) {
+      console.error('Error fetching announcements:', error)
+      setAnnouncements([])
+    }
   }
 
   const submitSuggestion = async () => {
@@ -881,6 +944,93 @@ export default function PropertyGuidePage() {
           </motion.div>
         )}
 
+        {/* Important Announcements */}
+        {announcements.length > 0 && (
+          <div className="border-b border-gray-200 pb-8 mb-8">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 flex items-center mb-2">
+                <Bell className="w-6 h-6 mr-2 text-orange-600" />
+                {language === 'es' ? 'Anuncios Importantes' : language === 'en' ? 'Important Announcements' : 'Annonces Importantes'}
+              </h3>
+              <p className="text-gray-600 text-sm">
+                {language === 'es' ? 'Información importante que debes conocer antes de tu llegada' : 
+                 language === 'en' ? 'Important information you should know before your arrival' : 
+                 'Informations importantes à connaître avant votre arrivée'}
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              {announcements
+                .sort((a, b) => {
+                  // Sort by priority first (URGENT > HIGH > NORMAL > LOW)
+                  const priorityOrder = { 'URGENT': 4, 'HIGH': 3, 'NORMAL': 2, 'LOW': 1 }
+                  const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 1
+                  const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 1
+                  if (aPriority !== bPriority) return bPriority - aPriority
+                  // Then by creation date (newest first)
+                  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                })
+                .map((announcement, index) => {
+                  const IconComponent = getAnnouncementIcon(announcement.category)
+                  const colorName = getAnnouncementColor(announcement.priority)
+                  
+                  return (
+                    <motion.div
+                      key={announcement.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Card className={`p-4 border-l-4 border-l-${colorName}-500 bg-${colorName}-50/30`}>
+                        <div className="flex items-start space-x-3">
+                          <div className={`p-2 rounded-lg bg-${colorName}-100 flex-shrink-0`}>
+                            <IconComponent className={`w-5 h-5 text-${colorName}-600`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <h4 className="font-semibold text-gray-900 text-sm">
+                                {announcement.title}
+                              </h4>
+                              {announcement.priority !== 'NORMAL' && (
+                                <span className={`px-2 py-1 text-xs rounded-full bg-${colorName}-100 text-${colorName}-700 font-medium`}>
+                                  {getPriorityText(announcement.priority, language)}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-gray-700 text-sm leading-relaxed mb-2">
+                              {announcement.message}
+                            </p>
+                            {(announcement.startDate || announcement.endDate) && (
+                              <div className="flex items-center text-xs text-gray-500">
+                                <Clock className="w-3 h-3 mr-1" />
+                                {announcement.startDate && announcement.endDate ? (
+                                  <span>
+                                    {new Date(announcement.startDate).toLocaleDateString()} - {new Date(announcement.endDate).toLocaleDateString()}
+                                  </span>
+                                ) : announcement.startDate ? (
+                                  <span>
+                                    {language === 'es' ? 'Desde: ' : language === 'en' ? 'From: ' : 'Depuis: '}
+                                    {new Date(announcement.startDate).toLocaleDateString()}
+                                  </span>
+                                ) : (
+                                  <span>
+                                    {language === 'es' ? 'Hasta: ' : language === 'en' ? 'Until: ' : "Jusqu'au: "}
+                                    {new Date(announcement.endDate!).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </Card>
+                    </motion.div>
+                  )
+                })
+              }
+            </div>
+          </div>
+        )}
+
         {/* Manual Sections */}
         <div className="border-b border-gray-200 pb-8 mb-8">
           <div className="flex items-center justify-between mb-6">
@@ -1165,16 +1315,24 @@ export default function PropertyGuidePage() {
                       const count = evaluationsStats.ratingDistribution?.[rating] || 0
                       const percentage = publicEvaluations.length > 0 ? (count / publicEvaluations.length) * 100 : 0
                       return (
-                        <div key={rating} className="flex items-center space-x-2 mb-1">
-                          <span className="text-sm text-gray-600 w-3">{rating}</span>
-                          <Star className="w-3 h-3 text-gray-400" />
-                          <div className="flex-1 bg-gray-200 rounded-full h-2">
+                        <div key={rating} className="flex items-center gap-3 mb-2">
+                          <div className="flex items-center gap-0.5 min-w-[88px]">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star 
+                                key={star}
+                                className={`w-4 h-4 ${star <= rating ? 'text-violet-600 fill-current' : 'text-gray-300'}`}
+                              />
+                            ))}
+                          </div>
+                          <div className="flex-1 bg-gray-200 rounded-full h-2.5">
                             <div 
-                              className="bg-violet-600 h-2 rounded-full" 
+                              className="bg-violet-600 h-2.5 rounded-full transition-all duration-500 ease-out" 
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
-                          <span className="text-sm text-gray-600 w-6">{count}</span>
+                          <span className="text-sm text-gray-700 min-w-[65px] text-right font-medium">
+                            {count} {count === 1 ? '' : ''}
+                          </span>
                         </div>
                       )
                     })}

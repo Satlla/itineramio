@@ -33,11 +33,26 @@ export async function GET(
     })
 
     // Calculate statistics for public evaluations only
+    const ratingDistribution: Record<number, number> = {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0
+    }
+    
+    evaluations.forEach(evaluation => {
+      if (evaluation.rating >= 1 && evaluation.rating <= 5) {
+        ratingDistribution[evaluation.rating]++
+      }
+    })
+    
     const stats = {
       totalEvaluations: evaluations.length,
       averageRating: evaluations.length > 0 
         ? evaluations.reduce((sum, evaluation) => sum + evaluation.rating, 0) / evaluations.length 
-        : 0
+        : 0,
+      ratingDistribution
     }
 
     return NextResponse.json({

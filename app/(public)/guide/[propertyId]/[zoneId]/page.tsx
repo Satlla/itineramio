@@ -254,7 +254,7 @@ const trackWhatsAppClick = async (propertyId: string) => {
   }
 }
 
-const trackZoneRated = async (propertyId: string, zoneId: string, rating: number, comment?: string) => {
+const trackZoneRated = async (propertyId: string, zoneId: string, rating: number, comment?: string, isPublic: boolean = false) => {
   try {
     // Use the proper evaluations endpoint that saves to database
     const response = await fetch('/api/evaluations/create', {
@@ -267,7 +267,7 @@ const trackZoneRated = async (propertyId: string, zoneId: string, rating: number
         comment: comment || null,
         userName: 'Usuario anónimo',
         reviewType: 'zone',
-        isPublic: false,
+        isPublic,
         clarity: rating,
         completeness: rating,
         helpfulness: rating,
@@ -303,6 +303,7 @@ export default function ZoneGuidePage({
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
   const [isSubmittingRating, setIsSubmittingRating] = useState(false)
+  const [makePublic, setMakePublic] = useState(false)
   const [zoneCompleted, setZoneCompleted] = useState(false)
   const [activeStepIndex, setActiveStepIndex] = useState(0)
   const [language, setLanguage] = useState('es')
@@ -522,7 +523,7 @@ export default function ZoneGuidePage({
     
     setIsSubmittingRating(true)
     try {
-      await trackZoneRated(propertyId, zoneId, rating, comment || undefined)
+      await trackZoneRated(propertyId, zoneId, rating, comment || undefined, makePublic)
       // Mark zone as viewed in localStorage
       localStorage.setItem(`zone-${zoneId}-viewed`, 'true')
       setShowRatingModal(false)
@@ -1206,7 +1207,7 @@ export default function ZoneGuidePage({
               </div>
 
               {/* Comment */}
-              <div className="mb-6">
+              <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('commentOptional', language)}
                 </label>
@@ -1217,6 +1218,26 @@ export default function ZoneGuidePage({
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none text-sm"
                 />
+              </div>
+
+              {/* Make Public Checkbox */}
+              <div className="mb-6">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={makePublic}
+                    onChange={(e) => setMakePublic(e.target.checked)}
+                    className="w-4 h-4 text-violet-600 bg-gray-100 border-gray-300 rounded focus:ring-violet-500 focus:ring-2"
+                  />
+                  <span className="text-sm text-gray-700">
+                    {language === 'es' 
+                      ? 'Hacer mi reseña pública (será visible para otros huéspedes)' 
+                      : language === 'en'
+                      ? 'Make my review public (will be visible to other guests)'
+                      : 'Rendre mon avis public (sera visible pour les autres invités)'
+                    }
+                  </span>
+                </label>
               </div>
 
               {/* Buttons */}
