@@ -38,7 +38,7 @@ export async function PUT(
 
     if (!announcement || announcement.property.hostId !== userId) {
       return NextResponse.json(
-        { error: 'Anuncio no encontrado' },
+        { error: 'Aviso no encontrado' },
         { status: 404 }
       )
     }
@@ -60,13 +60,13 @@ export async function PUT(
     return NextResponse.json({
       success: true,
       data: updatedAnnouncement,
-      message: 'Anuncio actualizado correctamente'
+      message: 'Aviso actualizado correctamente'
     })
 
   } catch (error) {
     console.error('Error updating announcement:', error)
     return NextResponse.json(
-      { error: 'Error al actualizar anuncio' },
+      { error: 'Error al actualizar aviso' },
       { status: 500 }
     )
   }
@@ -98,7 +98,7 @@ export async function DELETE(
 
     if (!announcement || announcement.property.hostId !== userId) {
       return NextResponse.json(
-        { error: 'Anuncio no encontrado' },
+        { error: 'Aviso no encontrado' },
         { status: 404 }
       )
     }
@@ -110,13 +110,13 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'Anuncio eliminado correctamente'
+      message: 'Aviso eliminado correctamente'
     })
 
   } catch (error) {
     console.error('Error deleting announcement:', error)
     return NextResponse.json(
-      { error: 'Error al eliminar anuncio' },
+      { error: 'Error al eliminar aviso' },
       { status: 500 }
     )
   }

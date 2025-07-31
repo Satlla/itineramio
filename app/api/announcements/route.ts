@@ -7,11 +7,74 @@ export async function GET(request: NextRequest) {
   console.log('🚀 GET /api/announcements - Starting...')
   
   try {
-    // Simple test first - just return success
+    const authResult = await requireAuth(request)
+    if (authResult instanceof Response) {
+      console.log('❌ Auth failed')
+      return authResult
+    }
+    const userId = authResult.userId
+    console.log('✅ Auth success, userId:', userId)
+
+    const { searchParams } = new URL(request.url)
+    const propertyId = searchParams.get('propertyId')
+    const isPublic = searchParams.get('public') === 'true'
+    console.log('📋 Request params:', { propertyId, isPublic })
+
+    if (!propertyId) {
+      return NextResponse.json(
+        { error: 'Property ID es requerido' },
+        { status: 400 }
+      )
+    }
+
+    // For public requests, don't require ownership
+    let whereClause: any = {
+      propertyId,
+      isActive: true
+    }
+
+    // For dashboard requests, verify ownership
+    if (!isPublic) {
+      const property = await prisma.property.findUnique({
+        where: { id: propertyId },
+        select: { hostId: true }
+      })
+
+      if (!property || property.hostId !== userId) {
+        return NextResponse.json(
+          { error: 'Propiedad no encontrada' },
+          { status: 404 }
+        )
+      }
+
+      // For dashboard, show all announcements (active and inactive)
+      whereClause = { propertyId }
+    } else {
+      // Add date filtering for public active announcements
+      const now = new Date()
+      whereClause.OR = [
+        { startDate: null, endDate: null }, // Always active
+        { startDate: null, endDate: { gte: now } }, // No start date, not expired
+        { startDate: { lte: now }, endDate: null }, // Started, no end date
+        { startDate: { lte: now }, endDate: { gte: now } } // Within date range
+      ]
+    }
+
+    console.log('🔍 Query where clause:', JSON.stringify(whereClause, null, 2))
+
+    const announcements = await prisma.announcement.findMany({
+      where: whereClause,
+      orderBy: [
+        { priority: 'desc' },
+        { createdAt: 'desc' }
+      ]
+    })
+
+    console.log('📢 Found announcements:', announcements.length)
+
     return NextResponse.json({
       success: true,
-      message: 'Announcements endpoint is working',
-      timestamp: new Date().toISOString()
+      data: announcements
     })
 
   } catch (error) {
@@ -81,36 +144,35 @@ export async function POST(request: NextRequest) {
     }
     console.log('✅ Property ownership verified')
 
-    // Create announcement
-    console.log('📝 Creating announcement with data:', {
+    // Create announcement with proper date handling
+    const createData: any = {
       propertyId,
       title,
       message,
       category,
       priority,
-      isActive,
-      startDate: startDate ? new Date(startDate) : null,
-      endDate: endDate ? new Date(endDate) : null
-    })
+      isActive
+    }
+
+    // Only add dates if they exist and are valid
+    if (startDate && startDate.trim()) {
+      createData.startDate = new Date(startDate)
+    }
+    if (endDate && endDate.trim()) {
+      createData.endDate = new Date(endDate)
+    }
+
+    console.log('📝 Creating announcement with data:', createData)
     
     const announcement = await prisma.announcement.create({
-      data: {
-        propertyId,
-        title,
-        message,
-        category,
-        priority,
-        isActive,
-        startDate: startDate ? new Date(startDate) : undefined,
-        endDate: endDate ? new Date(endDate) : undefined
-      }
+      data: createData
     })
     console.log('✅ Announcement created:', announcement)
 
     return NextResponse.json({
       success: true,
       data: announcement,
-      message: 'Anuncio creado correctamente'
+      message: 'Aviso creado correctamente'
     })
 
   } catch (error) {
@@ -119,7 +181,7 @@ export async function POST(request: NextRequest) {
       console.error('💥 Error stack:', error.stack)
     }
     return NextResponse.json(
-      { error: 'Error al crear anuncio' },
+      { error: 'Error al crear aviso' },
       { status: 500 }
     )
   }
