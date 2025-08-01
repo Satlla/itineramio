@@ -1776,13 +1776,6 @@ function PropertiesPageContent() {
                                   )}
                                 </div>
                                 
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                  propertySet.status === 'DRAFT' 
-                                    ? 'bg-yellow-100 text-yellow-800' 
-                                    : 'bg-green-100 text-green-800'
-                                }`}>
-                                  {propertySet.status === 'DRAFT' ? 'Borrador' : 'Activo'}
-                                </span>
                               </div>
                             </div>
                             
