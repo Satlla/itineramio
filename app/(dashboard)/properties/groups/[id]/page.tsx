@@ -18,7 +18,11 @@ import {
   Edit,
   ExternalLink,
   Share2,
-  Settings
+  Settings,
+  Copy,
+  Trash2,
+  BarChart3,
+  UserX
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -101,7 +105,36 @@ export default function PropertySetDetailPage() {
   const handlePropertyAction = async (action: string, propertyId: string) => {
     switch (action) {
       case 'edit':
-        router.push(`/properties/${propertyId}`)
+        router.push(`/properties/new?edit=${propertyId}`)
+        break
+      case 'manage':
+        router.push(`/properties/${propertyId}/zones`)
+        break
+      case 'duplicate':
+        try {
+          const response = await fetch('/api/properties/duplicate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ propertyId })
+          })
+          const result = await response.json()
+          if (response.ok) {
+            // Show success notification
+            alert('Propiedad duplicada correctamente')
+            // Refresh the data to show the new property
+            fetchPropertySetData()
+          } else {
+            alert(result.error || 'Error al duplicar la propiedad')
+          }
+        } catch (error) {
+          console.error('Error duplicating property:', error)
+          alert('Error al duplicar la propiedad')
+        }
+        break
+      case 'evaluations':
+        router.push(`/properties/${propertyId}/evaluations`)
         break
       case 'share':
         // First ensure the property is published
@@ -116,9 +149,18 @@ export default function PropertySetDetailPage() {
           }
         }
         const shareUrl = `${window.location.origin}/guide/${propertyId}`
-        navigator.clipboard.writeText(shareUrl)
-        // Show a success message
-        alert('Enlace copiado al portapapeles')
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          // Show success notification
+          const notification = document.createElement('div')
+          notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50'
+          notification.textContent = 'Enlace copiado'
+          document.body.appendChild(notification)
+          setTimeout(() => {
+            document.body.removeChild(notification)
+          }, 3000)
+        }).catch(() => {
+          alert('Enlace copiado al portapapeles')
+        })
         break
       case 'public':
         // First ensure the property is published
@@ -133,6 +175,50 @@ export default function PropertySetDetailPage() {
           }
         }
         window.open(`/guide/${propertyId}`, '_blank')
+        break
+      case 'removeFromSet':
+        if (confirm('¿Estás seguro de que quieres quitar esta propiedad del conjunto? La propiedad volverá a aparecer en tu lista de propiedades individuales.')) {
+          try {
+            const response = await fetch(`/api/properties/${propertyId}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ propertySetId: null })
+            })
+            if (response.ok) {
+              // Show success notification
+              alert('Propiedad removida del conjunto')
+              // Refresh the data
+              fetchPropertySetData()
+            } else {
+              alert('Error al remover la propiedad del conjunto')
+            }
+          } catch (error) {
+            console.error('Error removing property from set:', error)
+            alert('Error al remover la propiedad del conjunto')
+          }
+        }
+        break
+      case 'delete':
+        if (confirm('¿Estás seguro de que quieres eliminar esta propiedad? Esta acción no se puede deshacer.')) {
+          try {
+            const response = await fetch(`/api/properties/${propertyId}`, {
+              method: 'DELETE'
+            })
+            if (response.ok) {
+              // Show success notification
+              alert('Propiedad eliminada correctamente')
+              // Refresh the data
+              fetchPropertySetData()
+            } else {
+              alert('Error al eliminar la propiedad')
+            }
+          } catch (error) {
+            console.error('Error deleting property:', error)
+            alert('Error al eliminar la propiedad')
+          }
+        }
         break
       default:
         break
@@ -343,8 +429,38 @@ export default function PropertySetDetailPage() {
                                 onClick={() => handlePropertyAction('edit', property.id)}
                               >
                                 <Edit className="mr-2 h-4 w-4" />
-                                Gestionar
+                                Editar
                               </DropdownMenu.Item>
+                              <DropdownMenu.Item 
+                                className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                                onClick={() => handlePropertyAction('manage', property.id)}
+                              >
+                                <Building2 className="mr-2 h-4 w-4" />
+                                Gestionar propiedad
+                              </DropdownMenu.Item>
+                              <DropdownMenu.Item 
+                                className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                                onClick={() => handlePropertyAction('duplicate', property.id)}
+                              >
+                                <Copy className="mr-2 h-4 w-4" />
+                                Duplicar
+                              </DropdownMenu.Item>
+                              <DropdownMenu.Item 
+                                className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                                onClick={() => handlePropertyAction('evaluations', property.id)}
+                              >
+                                <BarChart3 className="mr-2 h-4 w-4" />
+                                Evaluaciones
+                              </DropdownMenu.Item>
+                              {property.status === 'ACTIVE' && (
+                                <DropdownMenu.Item 
+                                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                                  onClick={() => handlePropertyAction('public', property.id)}
+                                >
+                                  <ExternalLink className="mr-2 h-4 w-4" />
+                                  Vista pública
+                                </DropdownMenu.Item>
+                              )}
                               <DropdownMenu.Item 
                                 className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                 onClick={() => handlePropertyAction('share', property.id)}
@@ -352,12 +468,20 @@ export default function PropertySetDetailPage() {
                                 <Share2 className="mr-2 h-4 w-4" />
                                 Compartir
                               </DropdownMenu.Item>
+                              <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
                               <DropdownMenu.Item 
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                onClick={() => handlePropertyAction('public', property.id)}
+                                className="flex items-center px-3 py-2 text-sm text-orange-600 hover:bg-orange-50 rounded cursor-pointer"
+                                onClick={() => handlePropertyAction('removeFromSet', property.id)}
                               >
-                                <ExternalLink className="mr-2 h-4 w-4" />
-                                Vista pública
+                                <UserX className="mr-2 h-4 w-4" />
+                                Quitar del conjunto
+                              </DropdownMenu.Item>
+                              <DropdownMenu.Item 
+                                className="flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded cursor-pointer"
+                                onClick={() => handlePropertyAction('delete', property.id)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Eliminar
                               </DropdownMenu.Item>
                             </DropdownMenu.Content>
                           </DropdownMenu.Portal>
