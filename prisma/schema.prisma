@@ -44,6 +44,8 @@ model User {
   createdUsers         User[]                 @relation("UserCreatedBy")
   moderatedComments    ZoneComment[]          @relation("CommentModerator")
   notifications        Notification[]
+  propertyViews        PropertyView[]         @relation("HostPropertyViews")
+  zoneViews            ZoneView[]             @relation("HostZoneViews")
 
   @@map("users")
 }
@@ -126,6 +128,8 @@ model Property {
   propertyRatings     PropertyRating[]
   reviews             Review[]
   announcements       Announcement[]
+  propertyViews       PropertyView[]
+  zoneViews           ZoneView[]         @relation("PropertyZoneViews")
 
   @@index([slug])
   @@map("properties")
@@ -163,6 +167,7 @@ model Zone {
   comments            ZoneComment[]
   ratings             ZoneRating[]
   reviews             Review[]
+  zoneViews           ZoneView[]         @relation("ZoneViews")
   buildings           buildings?      @relation(fields: [buildingId], references: [id], onDelete: Cascade)
   organizations       organizations?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   property            Property?       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
@@ -270,19 +275,21 @@ model ZoneRating {
 }
 
 model PropertyAnalytics {
-  id                 String   @id @default(cuid())
-  propertyId         String   @unique
-  totalViews         Int      @default(0)
-  uniqueVisitors     Int      @default(0)
-  avgSessionDuration Int      @default(0)
-  overallRating      Float    @default(0)
-  totalRatings       Int      @default(0)
-  improvementScore   Int      @default(0)
-  whatsappClicks     Int      @default(0)
-  errorReportsCount  Int      @default(0)
-  commentsCount      Int      @default(0)
-  lastCalculatedAt   DateTime @default(now())
-  property           Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  id                 String    @id @default(cuid())
+  propertyId         String    @unique
+  totalViews         Int       @default(0)
+  uniqueVisitors     Int       @default(0)
+  avgSessionDuration Int       @default(0)
+  overallRating      Float     @default(0)
+  totalRatings       Int       @default(0)
+  improvementScore   Int       @default(0)
+  whatsappClicks     Int       @default(0)
+  errorReportsCount  Int       @default(0)
+  commentsCount      Int       @default(0)
+  zoneViews          Int       @default(0)
+  lastViewedAt       DateTime?
+  lastCalculatedAt   DateTime  @default(now())
+  property           Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@map("property_analytics")
 }
@@ -329,19 +336,21 @@ model TrackingEvent {
 }
 
 model ZoneAnalytics {
-  id                String   @id @default(cuid())
-  zoneId            String   @unique
-  totalViews        Int      @default(0)
-  uniqueVisitors    Int      @default(0)
-  avgTimeSpent      Int      @default(0)
-  completionRate    Float    @default(0)
-  avgStepsCompleted Float    @default(0)
-  totalCompletions  Int      @default(0)
-  avgRating         Float    @default(0)
-  totalRatings      Int      @default(0)
-  timeSavedMinutes  Int      @default(0)
-  lastCalculatedAt  DateTime @default(now())
-  zone              Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  id                String    @id @default(cuid())
+  zoneId            String    @unique
+  totalViews        Int       @default(0)
+  uniqueVisitors    Int       @default(0)
+  avgTimeSpent      Int       @default(0)
+  completionRate    Float     @default(0)
+  avgStepsCompleted Float     @default(0)
+  totalCompletions  Int       @default(0)
+  avgRating         Float     @default(0)
+  totalRatings      Int       @default(0)
+  timeSavedMinutes  Int       @default(0)
+  totalTimeSpent    Int       @default(0)
+  lastViewedAt      DateTime?
+  lastCalculatedAt  DateTime  @default(now())
+  zone              Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
 
   @@map("zone_analytics")
 }
@@ -605,4 +614,50 @@ model Announcement {
   @@index([propertyId, isActive])
   @@index([startDate, endDate])
   @@map("announcements")
+}
+
+model PropertyView {
+  id           String   @id @default(cuid())
+  propertyId   String
+  hostId       String
+  visitorIp    String
+  userAgent    String?
+  referrer     String?
+  language     String   @default("es")
+  timezone     String   @default("UTC")
+  screenWidth  Int?
+  screenHeight Int?
+  viewedAt     DateTime @default(now())
+  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  host         User     @relation("HostPropertyViews", fields: [hostId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, viewedAt])
+  @@index([hostId, viewedAt])
+  @@index([visitorIp])
+  @@map("property_views")
+}
+
+model ZoneView {
+  id           String   @id @default(cuid())
+  zoneId       String
+  propertyId   String
+  hostId       String
+  visitorIp    String
+  userAgent    String?
+  referrer     String?
+  language     String   @default("es")
+  timezone     String   @default("UTC")
+  screenWidth  Int?
+  screenHeight Int?
+  timeSpent    Int      @default(0) // seconds
+  viewedAt     DateTime @default(now())
+  zone         Zone     @relation("ZoneViews", fields: [zoneId], references: [id], onDelete: Cascade)
+  property     Property @relation("PropertyZoneViews", fields: [propertyId], references: [id], onDelete: Cascade)
+  host         User     @relation("HostZoneViews", fields: [hostId], references: [id], onDelete: Cascade)
+
+  @@index([zoneId, viewedAt])
+  @@index([propertyId, viewedAt])
+  @@index([hostId, viewedAt])
+  @@index([visitorIp])
+  @@map("zone_views")
 }

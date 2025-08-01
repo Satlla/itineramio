@@ -78,6 +78,8 @@ export default function PropertySetDetailPage() {
   
   const [propertySet, setPropertySet] = useState<PropertySet | null>(null)
   const [loading, setLoading] = useState(true)
+  const [viewsData, setViewsData] = useState<any>(null)
+  const [loadingViews, setLoadingViews] = useState(false)
   
   // Duplicate property modal states
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false)
@@ -109,6 +111,7 @@ export default function PropertySetDetailPage() {
 
   useEffect(() => {
     fetchPropertySetData()
+    fetchViewsData()
   }, [propertySetId])
 
   const fetchPropertySetData = async () => {
@@ -128,6 +131,22 @@ export default function PropertySetDetailPage() {
       router.push('/main')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchViewsData = async () => {
+    try {
+      setLoadingViews(true)
+      const response = await fetch(`/api/property-sets/${propertySetId}/views?days=30&details=true`)
+      const result = await response.json()
+      
+      if (response.ok && result.data) {
+        setViewsData(result.data)
+      }
+    } catch (error) {
+      console.error('Error fetching views data:', error)
+    } finally {
+      setLoadingViews(false)
     }
   }
 
@@ -548,7 +567,18 @@ export default function PropertySetDetailPage() {
                   <Eye className="h-8 w-8 text-green-600" />
                   <div className="ml-3">
                     <p className="text-sm font-medium text-gray-600">Visualizaciones</p>
-                    <p className="text-2xl font-bold text-gray-900">{propertySet.totalViews}</p>
+                    <div className="flex items-center space-x-2">
+                      <p className="text-2xl font-bold text-gray-900">
+                        {loadingViews ? (
+                          <div className="animate-pulse bg-gray-200 h-6 w-12 rounded"></div>
+                        ) : (
+                          viewsData?.summary?.totalViews || propertySet.totalViews
+                        )}
+                      </p>
+                      {viewsData?.summary?.totalViews && (
+                        <span className="text-xs text-gray-500">(30d)</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -568,6 +598,111 @@ export default function PropertySetDetailPage() {
               </CardContent>
             </Card>
           </motion.div>
+
+          {/* Detailed Views Analytics */}
+          {viewsData && !loadingViews && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="mb-8"
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center text-lg">
+                    <BarChart3 className="w-5 h-5 mr-2 text-violet-600" />
+                    Análisis de Visualizaciones (Últimos 30 días)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {viewsData.summary.totalPropertyViews}
+                      </div>
+                      <div className="text-sm text-blue-600">Vistas de Perfil</div>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">
+                        {viewsData.summary.totalZoneViews}
+                      </div>
+                      <div className="text-sm text-green-600">Vistas de Zonas</div>
+                    </div>
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-600">
+                        {viewsData.summary.totalUniqueVisitors}
+                      </div>
+                      <div className="text-sm text-purple-600">Visitantes Únicos</div>
+                    </div>
+                    <div className="text-center p-4 bg-orange-50 rounded-lg">
+                      <div className="text-2xl font-bold text-orange-600">
+                        {Math.round(viewsData.summary.totalTimeSpent / 60)}m
+                      </div>
+                      <div className="text-sm text-orange-600">Tiempo Total</div>
+                    </div>
+                  </div>
+
+                  {/* Property breakdown */}
+                  {viewsData.detailedViews && viewsData.detailedViews.length > 0 && (
+                    <div className="space-y-4">
+                      <h4 className="font-semibold text-gray-900 mb-3">Desglose por Propiedad</h4>
+                      {viewsData.detailedViews
+                        .sort((a: any, b: any) => (b.propertyViews + b.totalZoneViews) - (a.propertyViews + a.totalZoneViews))
+                        .map((property: any) => (
+                          <div key={property.propertyId} className="border border-gray-200 rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div>
+                                <h5 className="font-medium text-gray-900">{property.propertyName}</h5>
+                                <p className="text-sm text-gray-600">
+                                  {property.propertyViews} vistas de perfil • {property.totalZoneViews} vistas de zonas
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-lg font-bold text-violet-600">
+                                  {property.propertyViews + property.totalZoneViews}
+                                </div>
+                                <div className="text-xs text-gray-500">Total</div>
+                              </div>
+                            </div>
+                            
+                            {/* Zone breakdown */}
+                            {property.zones && property.zones.length > 0 && (
+                              <div className="mt-3 pt-3 border-t border-gray-100">
+                                <div className="text-sm text-gray-600 mb-2">Zonas más visitadas:</div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                  {property.zones
+                                    .filter((zone: any) => zone.views > 0)
+                                    .sort((a: any, b: any) => b.views - a.views)
+                                    .slice(0, 4)
+                                    .map((zone: any) => (
+                                      <div key={zone.id} className="flex items-center justify-between text-sm">
+                                        <span className="text-gray-700 truncate mr-2">
+                                          {typeof zone.name === 'object' ? 
+                                            (zone.name.es || zone.name.en || zone.name.fr || 'Zona') : 
+                                            zone.name
+                                          }
+                                        </span>
+                                        <div className="flex items-center space-x-2">
+                                          <span className="font-medium text-gray-900">{zone.views}</span>
+                                          {zone.timeSpent > 0 && (
+                                            <span className="text-xs text-gray-500">
+                                              ({Math.round(zone.timeSpent / 60)}m)
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
           {/* Properties List */}
           <motion.div
@@ -874,34 +1009,64 @@ export default function PropertySetDetailPage() {
                     />
                   </div>
                   
-                  <div className="space-y-3 max-h-64 overflow-y-auto">
-                    {filteredProperties.map((property) => (
-                      <label
-                        key={property.id}
-                        className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedProperties.includes(property.id)}
-                          onChange={() => togglePropertySelection(property.id)}
-                          className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
-                        />
-                        <div className="flex-1">
-                          <div className="font-medium text-gray-900">
-                            {getText(property.name, 'Propiedad')}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {property.city}, {property.state} • {property.bedrooms} hab • {property.zonesCount} zonas
-                            {property.propertySetId && (
-                              <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                                En conjunto
-                              </span>
+                  <div className="border border-gray-300 rounded-lg max-h-64 overflow-y-auto bg-gray-50">
+                    <div className="p-2 space-y-2">
+                      {filteredProperties.map((property) => {
+                        const isSelected = selectedProperties.includes(property.id)
+                        return (
+                          <label
+                            key={property.id}
+                            className={`flex items-center space-x-3 p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                              isSelected 
+                                ? 'border-violet-500 bg-violet-50 hover:bg-violet-100' 
+                                : 'border-gray-400 bg-white hover:border-gray-500 hover:bg-gray-50'
+                            }`}
+                            style={{
+                              borderColor: isSelected ? '#8b5cf6' : '#484848'
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => togglePropertySelection(property.id)}
+                              className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
+                            />
+                            <div className="flex-1">
+                              <div className={`font-medium ${isSelected ? 'text-violet-900' : 'text-gray-900'}`}>
+                                {getText(property.name, 'Propiedad')}
+                              </div>
+                              <div className={`text-sm ${isSelected ? 'text-violet-700' : 'text-gray-600'}`}>
+                                {property.city}, {property.state} • {property.bedrooms} hab • {property.zonesCount} zonas
+                                {property.propertySetId && (
+                                  <span className={`ml-2 px-2 py-1 text-xs rounded ${
+                                    isSelected ? 'bg-violet-200 text-violet-800' : 'bg-blue-100 text-blue-800'
+                                  }`}>
+                                    En conjunto
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {isSelected && (
+                              <div className="w-5 h-5 rounded-full bg-violet-600 flex items-center justify-center">
+                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              </div>
                             )}
-                          </div>
-                        </div>
-                      </label>
-                    ))}
+                          </label>
+                        )
+                      })}
+                    </div>
                   </div>
+                  
+                  {/* Scroll indicator */}
+                  {filteredProperties.length > 4 && (
+                    <div className="text-center mt-2">
+                      <p className="text-xs text-gray-500">
+                        📜 Desliza para ver más propiedades
+                      </p>
+                    </div>
+                  )}
                   
                   <div className="mt-6 flex justify-end space-x-3">
                     <Button
