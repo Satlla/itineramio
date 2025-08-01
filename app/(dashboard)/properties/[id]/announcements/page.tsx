@@ -105,10 +105,10 @@ const PRIORITIES = [
 export default function PropertyAnnouncementsPage() {
   const router = useRouter()
   const params = useParams()
-  const propertyId = params.id as string
   const { user } = useAuth()
   const { addNotification } = useNotifications()
 
+  const [propertyId, setPropertyId] = useState<string>('')
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -128,8 +128,19 @@ export default function PropertyAnnouncementsPage() {
   })
 
   useEffect(() => {
-    loadPropertyData()
-    loadAnnouncements()
+    const initializeParams = async () => {
+      const resolvedParams = await params
+      const id = resolvedParams.id as string
+      setPropertyId(id)
+    }
+    initializeParams()
+  }, [params])
+
+  useEffect(() => {
+    if (propertyId) {
+      loadPropertyData()
+      loadAnnouncements()
+    }
   }, [propertyId])
 
   const loadPropertyData = async () => {
@@ -163,6 +174,11 @@ export default function PropertyAnnouncementsPage() {
   }
 
   const handleCreateAnnouncement = async () => {
+    if (!propertyId) {
+      addNotification({ title: 'Error', message: 'ID de propiedad no disponible', type: 'error', read: false })
+      return
+    }
+
     if (!formData.title.trim() || !formData.message.trim()) {
       addNotification({ title: 'Error', message: 'Título y mensaje son requeridos', type: 'error', read: false })
       return
@@ -199,7 +215,7 @@ export default function PropertyAnnouncementsPage() {
   }
 
   const handleUpdateAnnouncement = async () => {
-    if (!editingAnnouncement || !formData.title.trim() || !formData.message.trim()) {
+    if (!propertyId || !editingAnnouncement || !formData.title.trim() || !formData.message.trim()) {
       addNotification({ title: 'Error', message: 'Título y mensaje son requeridos', type: 'error', read: false })
       return
     }
@@ -332,6 +348,19 @@ export default function PropertyAnnouncementsPage() {
       URGENT: 'bg-red-100 text-red-700'
     }
     return colors[priority as keyof typeof colors] || colors.NORMAL
+  }
+
+  // Wait for propertyId to be available
+  if (!propertyId) {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
