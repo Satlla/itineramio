@@ -26,7 +26,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { Button, Card, CardContent, CardHeader, CardTitle, Badge } from '../../../../../src/components/ui'
+import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Checkbox } from '../../../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardNavbar } from '../../../../../src/components/layout/DashboardNavbar'
 import { DashboardFooter } from '../../../../../src/components/layout/DashboardFooter'
@@ -89,6 +89,13 @@ export default function PropertySetDetailPage() {
   const [selectedPropertySet, setSelectedPropertySet] = useState<string>('')
   const [autoPublish, setAutoPublish] = useState(false)
   const [isDuplicating, setIsDuplicating] = useState(false)
+  
+  // Add property modal states
+  const [addPropertyModalOpen, setAddPropertyModalOpen] = useState(false)
+  const [availableProperties, setAvailableProperties] = useState<Property[]>([])
+  const [selectedProperties, setSelectedProperties] = useState<string[]>([])
+  const [loadingProperties, setLoadingProperties] = useState(false)
+  const [showPropertySelection, setShowPropertySelection] = useState(false)
 
   useEffect(() => {
     fetchPropertySetData()
@@ -189,6 +196,71 @@ export default function PropertySetDetailPage() {
       return obj.es || obj.en || obj.fr || fallback
     }
     return fallback
+  }
+
+  const handleOpenAddPropertyModal = () => {
+    setAddPropertyModalOpen(true)
+    setShowPropertySelection(false)
+    setSelectedProperties([])
+  }
+
+  const handleShowExistingProperties = async () => {
+    setShowPropertySelection(true)
+    setLoadingProperties(true)
+    
+    try {
+      // Fetch all properties that are not in any set
+      const response = await fetch('/api/properties?filter=standalone')
+      const result = await response.json()
+      
+      if (response.ok && result.properties) {
+        setAvailableProperties(result.properties)
+      }
+    } catch (error) {
+      console.error('Error fetching available properties:', error)
+    } finally {
+      setLoadingProperties(false)
+    }
+  }
+
+  const handleAddExistingProperties = async () => {
+    if (selectedProperties.length === 0) return
+    
+    try {
+      // Add selected properties to the current set
+      for (const propertyId of selectedProperties) {
+        await fetch(`/api/properties/${propertyId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            propertySetId: propertySetId
+          })
+        })
+      }
+      
+      // Refresh the property set data
+      await fetchPropertySetData()
+      
+      // Close modal and reset
+      setAddPropertyModalOpen(false)
+      setSelectedProperties([])
+      setShowPropertySelection(false)
+      
+      alert(`${selectedProperties.length} ${selectedProperties.length === 1 ? 'propiedad añadida' : 'propiedades añadidas'} al conjunto`)
+    } catch (error) {
+      console.error('Error adding properties to set:', error)
+      alert('Error al añadir propiedades al conjunto')
+    }
+  }
+
+  const togglePropertySelection = (propertyId: string) => {
+    setSelectedProperties(prev => 
+      prev.includes(propertyId) 
+        ? prev.filter(id => id !== propertyId)
+        : [...prev, propertyId]
+    )
   }
 
   const handlePropertyAction = async (action: string, propertyId: string) => {
@@ -452,11 +524,12 @@ export default function PropertySetDetailPage() {
               <h2 className="text-2xl font-bold text-gray-900">
                 Propiedades ({propertySet.properties?.length || 0})
               </h2>
-              <Button asChild className="bg-violet-600 hover:bg-violet-700">
-                <Link href="/properties/new">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Añadir Propiedad
-                </Link>
+              <Button 
+                onClick={handleOpenAddPropertyModal}
+                className="bg-violet-600 hover:bg-violet-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Añadir Propiedad
               </Button>
             </div>
 
@@ -633,6 +706,168 @@ export default function PropertySetDetailPage() {
       </main>
       
       <DashboardFooter />
+
+      {/* Add Property Modal */}
+      {addPropertyModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setAddPropertyModalOpen(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              {/* Header */}
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  Añadir Propiedades al Conjunto
+                </h2>
+                <p className="text-gray-600">
+                  Elige cómo quieres añadir propiedades a {propertySet?.name}
+                </p>
+              </div>
+
+              {/* Options */}
+              {!showPropertySelection && (
+                <div className="space-y-4">
+                  {/* Add existing properties option */}
+                  <Card 
+                    className="cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-violet-500"
+                    onClick={handleShowExistingProperties}
+                  >
+                  <CardContent className="p-6">
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-12 h-12 rounded-lg bg-violet-100 flex items-center justify-center">
+                          <Building2 className="w-6 h-6 text-violet-600" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                          Añadir propiedades existentes
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          Selecciona propiedades individuales que ya tienes creadas para añadirlas a este conjunto
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Create new property option */}
+                <Card 
+                  className="cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-violet-500"
+                  onClick={() => {
+                    router.push(`/properties/new?propertySetId=${propertySetId}`)
+                  }}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+                          <Plus className="w-6 h-6 text-green-600" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                          Crear nueva propiedad
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          Crea una nueva propiedad desde cero y añádela directamente a este conjunto
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                </div>
+              )}
+
+              {/* Property Selection (shown when selecting existing) */}
+              {showPropertySelection && loadingProperties ? (
+                <div className="mt-6 text-center py-8">
+                  <div className="animate-spin w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <p className="text-gray-600">Cargando propiedades disponibles...</p>
+                </div>
+              ) : showPropertySelection && availableProperties.length > 0 ? (
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Propiedades disponibles ({availableProperties.length})
+                  </h3>
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {availableProperties.map((property) => (
+                      <label
+                        key={property.id}
+                        className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={selectedProperties.includes(property.id)}
+                          onCheckedChange={() => togglePropertySelection(property.id)}
+                        />
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">
+                            {getText(property.name, 'Propiedad')}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {property.city}, {property.state} • {property.bedrooms} hab • {property.zonesCount} zonas
+                          </div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-6 flex justify-end space-x-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowPropertySelection(false)
+                        setSelectedProperties([])
+                      }}
+                    >
+                      Volver
+                    </Button>
+                    <Button
+                      onClick={handleAddExistingProperties}
+                      className="bg-violet-600 hover:bg-violet-700"
+                      disabled={selectedProperties.length === 0}
+                    >
+                      Añadir {selectedProperties.length > 0 && `(${selectedProperties.length})`} al conjunto
+                    </Button>
+                  </div>
+                </div>
+              ) : showPropertySelection ? (
+                <div className="mt-6 text-center py-8">
+                  <Home className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No hay propiedades disponibles para añadir</p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Todas tus propiedades ya están asignadas a conjuntos
+                  </p>
+                </div>
+              )}
+
+              {/* Close button */}
+              {!showPropertySelection && (
+                <div className="mt-6 flex justify-center">
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setAddPropertyModalOpen(false)
+                      setSelectedProperties([])
+                      setShowPropertySelection(false)
+                    }}
+                    className="text-gray-600"
+                  >
+                    Cerrar
+                  </Button>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Duplicate Property Modal */}
       {duplicateModalOpen && propertyToDuplicate && (
