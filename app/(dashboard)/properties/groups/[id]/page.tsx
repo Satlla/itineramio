@@ -210,8 +210,8 @@ export default function PropertySetDetailPage() {
         break
       case 'share':
         // First ensure the property is published
-        const property = propertySet?.properties.find(p => p.id === propertyId)
-        if (property && property.status !== 'ACTIVE') {
+        const shareProperty = propertySet?.properties.find(p => p.id === propertyId)
+        if (shareProperty && shareProperty.status !== 'ACTIVE') {
           try {
             await fetch(`/api/properties/${propertyId}/publish`, {
               method: 'POST'
@@ -236,8 +236,8 @@ export default function PropertySetDetailPage() {
         break
       case 'public':
         // First ensure the property is published
-        const prop = propertySet?.properties.find(p => p.id === propertyId)
-        if (prop && prop.status !== 'ACTIVE') {
+        const publicProperty = propertySet?.properties.find(p => p.id === propertyId)
+        if (publicProperty && publicProperty.status !== 'ACTIVE') {
           try {
             await fetch(`/api/properties/${propertyId}/publish`, {
               method: 'POST'
