@@ -26,7 +26,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Checkbox } from '../../../../../src/components/ui'
+import { Button, Card, CardContent, CardHeader, CardTitle, Badge } from '../../../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardNavbar } from '../../../../../src/components/layout/DashboardNavbar'
 import { DashboardFooter } from '../../../../../src/components/layout/DashboardFooter'
@@ -803,9 +803,11 @@ export default function PropertySetDetailPage() {
                         key={property.id}
                         className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"
                       >
-                        <Checkbox
+                        <input
+                          type="checkbox"
                           checked={selectedProperties.includes(property.id)}
-                          onCheckedChange={() => togglePropertySelection(property.id)}
+                          onChange={() => togglePropertySelection(property.id)}
+                          className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
                         />
                         <div className="flex-1">
                           <div className="font-medium text-gray-900">
