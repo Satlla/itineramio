@@ -117,7 +117,13 @@ export default function PropertySetDetailPage() {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ propertyId })
+            body: JSON.stringify({ 
+              propertyId,
+              count: 1,
+              shareMedia: true,
+              copyCompleteProperty: true,
+              autoPublish: false
+            })
           })
           const result = await response.json()
           if (response.ok) {
