@@ -1590,9 +1590,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           }}
         >
           <CardContent className="p-4">
-            <div className="flex items-start justify-between min-h-[80px]">
+            <div className="flex items-start justify-between min-h-[100px]">
               {/* Left side - Zone info */}
-              <div className="flex items-start space-x-3 flex-1 min-w-0">
+              <div className="flex items-start space-x-3 flex-1 min-w-0 h-full">
                 {/* Drag handle */}
                 <div
                   {...attributes}
@@ -1609,19 +1609,21 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 </div>
                 
                 {/* Zone content */}
-                <div className="flex-1 min-w-0 pt-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate">{getZoneText(zone.name)}</h3>
+                <div className="flex-1 min-w-0 pt-1 pb-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 truncate">{getZoneText(zone.name)}</h3>
                   
-                  <div className="flex flex-col space-y-1 text-sm text-gray-600">
+                  <div className="flex flex-col space-y-2 text-sm text-gray-600">
                     <div className="flex items-center">
-                      <Edit className="w-3 h-3 mr-1 text-gray-400 flex-shrink-0" />
-                      <span className="font-medium">{zone.stepsCount}</span>
-                      <span className="ml-1">steps</span>
+                      <div className="flex items-center bg-blue-50 rounded-full px-2 py-1">
+                        <Edit className="w-3 h-3 mr-1 text-blue-500 flex-shrink-0" />
+                        <span className="font-medium text-blue-700">{zone.stepsCount}</span>
+                        <span className="ml-1 text-blue-600">steps</span>
+                      </div>
                     </div>
                     
                     <div className="flex items-center">
-                      <span className="text-gray-500 flex-shrink-0">Actualizado:</span>
-                      <span className="ml-1 font-medium truncate">{zone.lastUpdated}</span>
+                      <span className="text-gray-500 flex-shrink-0 mr-2">Actualizado:</span>
+                      <span className="font-medium truncate">{zone.lastUpdated}</span>
                     </div>
                   </div>
                 </div>
@@ -1806,18 +1808,18 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Zone content */}
-              <div className="flex flex-col items-center text-center flex-1 min-h-[100px] justify-between">
+              <div className="flex flex-col items-center text-center flex-1 min-h-[110px] justify-between">
                 <div className="flex-1 flex flex-col items-center justify-center">
                   <div className="mb-3">
                     <ZoneIconDisplay iconId={zone.iconId} size="lg" />
                   </div>
                   
-                  <h3 className="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 break-words px-1">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3 line-clamp-2 break-words px-1">
                     {getZoneText(zone.name)}
                   </h3>
                 </div>
                 
-                <div className="flex items-center justify-center text-xs text-gray-600 flex-shrink-0">
+                <div className="flex items-center justify-center text-xs text-gray-600 flex-shrink-0 mt-auto bg-gray-50 rounded-full px-2 py-1">
                   <Edit className="w-3 h-3 mr-1 text-gray-400" />
                   <span className="font-medium">{zone.stepsCount}</span>
                   <span className="ml-1">steps</span>
