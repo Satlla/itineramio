@@ -121,8 +121,8 @@ export default function PropertySetDetailPage() {
     setShareMedia(true)
     setCopyCompleteProperty(true)
     setSelectedZones([])
-    setAssignToSet(false)
-    setSelectedPropertySet('')
+    setAssignToSet(true) // Auto-assign to current set
+    setSelectedPropertySet(propertySetId) // Set current property set
     setAutoPublish(false)
   }
 
