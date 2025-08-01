@@ -97,11 +97,6 @@ export default function DashboardPage(): JSX.Element {
   // Real-time activity state - solo datos reales
   const [recentActivity, setRecentActivity] = useState<any[]>([])
 
-  // Add new activity (simulates real-time updates)
-  const addNewActivity = useCallback((activity: any) => {
-    setRecentActivity(prev => [activity, ...prev.slice(0, 9)]) // Keep only last 10 activities
-  }, [])
-
   // Fetch recent activity
   const fetchRecentActivity = useCallback(async () => {
     try {
@@ -165,47 +160,14 @@ export default function DashboardPage(): JSX.Element {
     fetchRecentActivity()
   }, [fetchAnalyticsData, fetchRecentActivity])
 
-  // Simulate real-time activity updates
+  // Refresh recent activity periodically to get new real data
   useEffect(() => {
-    const guestComments = [
-      {
-        message: 'Nuevo comentario en WiFi: "Conexión súper rápida, gracias por la contraseña!"',
-        property: 'Villa Sunset',
-        zone: 'WiFi'
-      },
-      {
-        message: 'Nuevo comentario en Lavadora: "Instrucciones perfectas, ya tengo la ropa lavándose"',
-        property: 'Loft Moderno',
-        zone: 'Lavadora'
-      },
-      {
-        message: 'Nuevo comentario en Check-in: "Todo súper fácil siguiendo las instrucciones"',
-        property: 'Apartamento Centro',
-        zone: 'Check-in'
-      },
-      {
-        message: 'Nuevo comentario en Aire Acondicionado: "Genial! Ya tengo la temperatura perfecta"',
-        property: 'Villa Sunset',
-        zone: 'Aire Acondicionado'
-      }
-    ]
-
     const interval = setInterval(() => {
-      const randomComment = guestComments[Math.floor(Math.random() * guestComments.length)]
-      const newActivity = {
-        id: Date.now().toString(),
-        type: 'comment',
-        message: randomComment.message,
-        time: 'hace unos segundos',
-        avatar: `https://images.unsplash.com/photo-${Math.random() > 0.5 ? '1494790108755-2616b612b786' : '1507003211169-0a1dd7228f2d'}?w=40&h=40&fit=crop&crop=face`,
-        property: randomComment.property,
-        zone: randomComment.zone
-      }
-      addNewActivity(newActivity)
-    }, 15000) // Add new comment every 15 seconds
+      fetchRecentActivity()
+    }, 30000) // Refresh every 30 seconds
 
     return () => clearInterval(interval)
-  }, [addNewActivity])
+  }, [fetchRecentActivity])
 
   const handlePropertyAction = (action: string, propertyIdOrObject: string | any) => {
     const propertyId = typeof propertyIdOrObject === 'string' ? propertyIdOrObject : propertyIdOrObject.id
