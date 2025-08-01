@@ -22,7 +22,8 @@ import {
   Copy,
   Trash2,
   BarChart3,
-  UserX
+  UserX,
+  Search
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -93,9 +94,11 @@ export default function PropertySetDetailPage() {
   // Add property modal states
   const [addPropertyModalOpen, setAddPropertyModalOpen] = useState(false)
   const [availableProperties, setAvailableProperties] = useState<Property[]>([])
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([])
   const [selectedProperties, setSelectedProperties] = useState<string[]>([])
   const [loadingProperties, setLoadingProperties] = useState(false)
   const [showPropertySelection, setShowPropertySelection] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
   
   // Remove property modal states
   const [removeModalOpen, setRemoveModalOpen] = useState(false)
@@ -214,14 +217,21 @@ export default function PropertySetDetailPage() {
   const handleShowExistingProperties = async () => {
     setShowPropertySelection(true)
     setLoadingProperties(true)
+    setSearchTerm('')
     
     try {
-      // Fetch all properties that are not in any set
-      const response = await fetch('/api/properties?filter=standalone&limit=100')
+      // Fetch ALL user properties (remove filter to get all properties)
+      const response = await fetch('/api/properties?limit=100')
       const result = await response.json()
       
       if (response.ok && result.data) {
-        setAvailableProperties(result.data)
+        // Filter out properties that are already in this set
+        const currentSetPropertyIds = propertySet?.properties.map(p => p.id) || []
+        const availableProps = result.data.filter((prop: Property) => 
+          !currentSetPropertyIds.includes(prop.id)
+        )
+        setAvailableProperties(availableProps)
+        setFilteredProperties(availableProps)
       }
     } catch (error) {
       console.error('Error fetching available properties:', error)
@@ -268,6 +278,22 @@ export default function PropertySetDetailPage() {
         ? prev.filter(id => id !== propertyId)
         : [...prev, propertyId]
     )
+  }
+
+  const handleSearchChange = (searchValue: string) => {
+    setSearchTerm(searchValue)
+    
+    if (!searchValue.trim()) {
+      setFilteredProperties(availableProperties)
+    } else {
+      const filtered = availableProperties.filter(property => 
+        getText(property.name, 'Propiedad').toLowerCase().includes(searchValue.toLowerCase()) ||
+        property.city.toLowerCase().includes(searchValue.toLowerCase()) ||
+        property.state.toLowerCase().includes(searchValue.toLowerCase()) ||
+        property.type.toLowerCase().includes(searchValue.toLowerCase())
+      )
+      setFilteredProperties(filtered)
+    }
   }
 
   const handleOpenRemoveModal = (propertyId: string) => {
@@ -740,7 +766,12 @@ export default function PropertySetDetailPage() {
       {addPropertyModalOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-          onClick={() => setAddPropertyModalOpen(false)}
+          onClick={() => {
+            setAddPropertyModalOpen(false)
+            setSelectedProperties([])
+            setShowPropertySelection(false)
+            setSearchTerm('')
+          }}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -823,11 +854,28 @@ export default function PropertySetDetailPage() {
                 </div>
               ) : showPropertySelection && availableProperties.length > 0 ? (
                 <div className="mt-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Propiedades disponibles ({availableProperties.length})
-                  </h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Propiedades disponibles ({filteredProperties.length})
+                    </h3>
+                  </div>
+                  
+                  {/* Search bar */}
+                  <div className="relative mb-4">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Search className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Buscar por nombre, ciudad, tipo..."
+                      value={searchTerm}
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm"
+                    />
+                  </div>
+                  
                   <div className="space-y-3 max-h-64 overflow-y-auto">
-                    {availableProperties.map((property) => (
+                    {filteredProperties.map((property) => (
                       <label
                         key={property.id}
                         className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"
@@ -844,6 +892,11 @@ export default function PropertySetDetailPage() {
                           </div>
                           <div className="text-sm text-gray-600">
                             {property.city}, {property.state} • {property.bedrooms} hab • {property.zonesCount} zonas
+                            {property.propertySetId && (
+                              <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                                En conjunto
+                              </span>
+                            )}
                           </div>
                         </div>
                       </label>
@@ -856,6 +909,7 @@ export default function PropertySetDetailPage() {
                       onClick={() => {
                         setShowPropertySelection(false)
                         setSelectedProperties([])
+                        setSearchTerm('')
                       }}
                     >
                       Volver
@@ -872,10 +926,28 @@ export default function PropertySetDetailPage() {
               ) : showPropertySelection ? (
                 <div className="mt-6 text-center py-8">
                   <Home className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No hay propiedades disponibles para añadir</p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    Todas tus propiedades ya están asignadas a conjuntos
-                  </p>
+                  {searchTerm ? (
+                    <>
+                      <p className="text-gray-600">No se encontraron propiedades</p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        Intenta con otros términos de búsqueda
+                      </p>
+                      <Button
+                        variant="ghost"
+                        onClick={() => handleSearchChange('')}
+                        className="mt-3 text-violet-600"
+                      >
+                        Limpiar búsqueda
+                      </Button>
+                    </>
+                  ) : availableProperties.length === 0 ? (
+                    <>
+                      <p className="text-gray-600">No hay propiedades disponibles para añadir</p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        Todas tus propiedades ya están en este conjunto
+                      </p>
+                    </>
+                  ) : null}
                 </div>
               ) : null}
 
@@ -888,6 +960,7 @@ export default function PropertySetDetailPage() {
                       setAddPropertyModalOpen(false)
                       setSelectedProperties([])
                       setShowPropertySelection(false)
+                      setSearchTerm('')
                     }}
                     className="text-gray-600"
                   >
