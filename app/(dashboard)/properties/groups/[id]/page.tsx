@@ -96,6 +96,13 @@ export default function PropertySetDetailPage() {
   const [selectedProperties, setSelectedProperties] = useState<string[]>([])
   const [loadingProperties, setLoadingProperties] = useState(false)
   const [showPropertySelection, setShowPropertySelection] = useState(false)
+  
+  // Remove property modal states
+  const [removeModalOpen, setRemoveModalOpen] = useState(false)
+  const [propertyToRemove, setPropertyToRemove] = useState<Property | null>(null)
+  const [removeAction, setRemoveAction] = useState<'remove' | 'delete' | null>(null)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [isRemoving, setIsRemoving] = useState(false)
 
   useEffect(() => {
     fetchPropertySetData()
@@ -213,8 +220,8 @@ export default function PropertySetDetailPage() {
       const response = await fetch('/api/properties?filter=standalone')
       const result = await response.json()
       
-      if (response.ok && result.properties) {
-        setAvailableProperties(result.properties)
+      if (response.ok && result.data) {
+        setAvailableProperties(result.data)
       }
     } catch (error) {
       console.error('Error fetching available properties:', error)
@@ -261,6 +268,66 @@ export default function PropertySetDetailPage() {
         ? prev.filter(id => id !== propertyId)
         : [...prev, propertyId]
     )
+  }
+
+  const handleOpenRemoveModal = (propertyId: string) => {
+    const property = propertySet?.properties.find(p => p.id === propertyId)
+    if (property) {
+      setPropertyToRemove(property)
+      setRemoveModalOpen(true)
+      setRemoveAction(null)
+      setDeleteConfirmText('')
+    }
+  }
+
+  const closeRemoveModal = () => {
+    setRemoveModalOpen(false)
+    setPropertyToRemove(null)
+    setRemoveAction(null)
+    setDeleteConfirmText('')
+    setIsRemoving(false)
+  }
+
+  const handleRemoveConfirm = async () => {
+    if (!propertyToRemove || !removeAction) return
+
+    setIsRemoving(true)
+    try {
+      if (removeAction === 'remove') {
+        // Just remove from set, property stays in user's properties
+        const response = await fetch(`/api/properties/${propertyToRemove.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ propertySetId: null })
+        })
+        if (response.ok) {
+          alert('Propiedad removida del conjunto. Ahora aparece en "Mis propiedades"')
+          await fetchPropertySetData()
+          closeRemoveModal()
+        } else {
+          alert('Error al remover la propiedad del conjunto')
+        }
+      } else if (removeAction === 'delete') {
+        // Delete property completely
+        const response = await fetch(`/api/properties/${propertyToRemove.id}`, {
+          method: 'DELETE'
+        })
+        if (response.ok) {
+          alert('Propiedad eliminada permanentemente')
+          await fetchPropertySetData()
+          closeRemoveModal()
+        } else {
+          alert('Error al eliminar la propiedad')
+        }
+      }
+    } catch (error) {
+      console.error('Error in remove action:', error)
+      alert('Error al procesar la acción')
+    } finally {
+      setIsRemoving(false)
+    }
   }
 
   const handlePropertyAction = async (action: string, propertyId: string) => {
@@ -321,48 +388,10 @@ export default function PropertySetDetailPage() {
         window.open(`/guide/${propertyId}`, '_blank')
         break
       case 'removeFromSet':
-        if (confirm('¿Estás seguro de que quieres quitar esta propiedad del conjunto? La propiedad volverá a aparecer en tu lista de propiedades individuales.')) {
-          try {
-            const response = await fetch(`/api/properties/${propertyId}`, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ propertySetId: null })
-            })
-            if (response.ok) {
-              // Show success notification
-              alert('Propiedad removida del conjunto')
-              // Refresh the data
-              fetchPropertySetData()
-            } else {
-              alert('Error al remover la propiedad del conjunto')
-            }
-          } catch (error) {
-            console.error('Error removing property from set:', error)
-            alert('Error al remover la propiedad del conjunto')
-          }
-        }
+        handleOpenRemoveModal(propertyId)
         break
       case 'delete':
-        if (confirm('¿Estás seguro de que quieres eliminar esta propiedad? Esta acción no se puede deshacer.')) {
-          try {
-            const response = await fetch(`/api/properties/${propertyId}`, {
-              method: 'DELETE'
-            })
-            if (response.ok) {
-              // Show success notification
-              alert('Propiedad eliminada correctamente')
-              // Refresh the data
-              fetchPropertySetData()
-            } else {
-              alert('Error al eliminar la propiedad')
-            }
-          } catch (error) {
-            console.error('Error deleting property:', error)
-            alert('Error al eliminar la propiedad')
-          }
-        }
+        handleOpenRemoveModal(propertyId)
         break
       default:
         break
@@ -673,7 +702,7 @@ export default function PropertySetDetailPage() {
                       <Button
                         variant="outline"
                         className="w-full"
-                        onClick={() => handlePropertyAction('edit', property.id)}
+                        onClick={() => handlePropertyAction('manage', property.id)}
                       >
                         Gestionar
                         <ArrowRight className="w-4 h-4 ml-2" />
@@ -1020,6 +1049,176 @@ export default function PropertySetDetailPage() {
                     `Crear ${duplicateCount} ${duplicateCount === 1 ? 'propiedad' : 'propiedades'}`
                   )}
                 </Button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Remove Property Modal */}
+      {removeModalOpen && propertyToRemove && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={closeRemoveModal}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              {/* Header */}
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  ¿Qué quieres hacer con esta propiedad?
+                </h2>
+                <div className="flex items-center space-x-3 mb-4">
+                  {propertyToRemove.profileImage ? (
+                    <img 
+                      src={propertyToRemove.profileImage} 
+                      alt={propertyToRemove.name}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
+                      <Home className="w-6 h-6 text-white" />
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-medium text-gray-900">{propertyToRemove.name}</p>
+                    <p className="text-sm text-gray-600">{propertyToRemove.city}, {propertyToRemove.state}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Options */}
+              {!removeAction && (
+                <div className="space-y-3 mb-6">
+                  <button
+                    onClick={() => setRemoveAction('remove')}
+                    className="w-full p-4 text-left border-2 border-gray-200 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors"
+                  >
+                    <div className="flex items-start space-x-3">
+                      <UserX className="w-6 h-6 text-orange-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Quitar del conjunto</h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          La propiedad se quitará de este conjunto pero permanecerá en "Mis propiedades"
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setRemoveAction('delete')}
+                    className="w-full p-4 text-left border-2 border-gray-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors"
+                  >
+                    <div className="flex items-start space-x-3">
+                      <Trash2 className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Eliminar permanentemente</h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          La propiedad se eliminará completamente. Esta acción es irreversible.
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              )}
+
+              {/* Remove confirmation */}
+              {removeAction === 'remove' && (
+                <div className="mb-6">
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <UserX className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-medium text-orange-900">Quitar del conjunto</h4>
+                        <p className="text-sm text-orange-700 mt-1">
+                          La propiedad "{propertyToRemove.name}" se quitará de este conjunto y volverá a aparecer en "Mis propiedades".
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Delete confirmation */}
+              {removeAction === 'delete' && (
+                <div className="mb-6">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-start space-x-3">
+                      <Trash2 className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-medium text-red-900">⚠️ Eliminación permanente</h4>
+                        <p className="text-sm text-red-700 mt-1">
+                          Se eliminará toda la propiedad, incluyendo todas sus zonas, pasos, imágenes y datos. 
+                          <strong className="block mt-1">Esta acción es irreversible.</strong>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Para confirmar, escribe <strong>ELIMINAR</strong> en mayúsculas:
+                    </label>
+                    <input
+                      type="text"
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder="ELIMINAR"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex justify-end space-x-3">
+                <Button
+                  variant="outline"
+                  onClick={closeRemoveModal}
+                  disabled={isRemoving}
+                >
+                  Cancelar
+                </Button>
+                
+                {removeAction === 'remove' && (
+                  <Button
+                    onClick={handleRemoveConfirm}
+                    className="bg-orange-600 hover:bg-orange-700"
+                    disabled={isRemoving}
+                  >
+                    {isRemoving ? (
+                      <>
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                        Quitando...
+                      </>
+                    ) : (
+                      'Quitar del conjunto'
+                    )}
+                  </Button>
+                )}
+                
+                {removeAction === 'delete' && (
+                  <Button
+                    onClick={handleRemoveConfirm}
+                    className="bg-red-600 hover:bg-red-700"
+                    disabled={isRemoving || deleteConfirmText !== 'ELIMINAR'}
+                  >
+                    {isRemoving ? (
+                      <>
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                        Eliminando...
+                      </>
+                    ) : (
+                      'Eliminar permanentemente'
+                    )}
+                  </Button>
+                )}
               </div>
             </div>
           </motion.div>

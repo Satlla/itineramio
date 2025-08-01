@@ -214,6 +214,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
     const type = searchParams.get('type')
     const propertySetId = searchParams.get('propertySetId')
+    const filter = searchParams.get('filter')
     
     // Build where clause
     const where: any = {
@@ -230,6 +231,11 @@ export async function GET(request: NextRequest) {
 
     if (propertySetId) {
       where.propertySetId = propertySetId
+    }
+
+    // Handle filter for standalone properties (not in any set)
+    if (filter === 'standalone') {
+      where.propertySetId = null
     }
     
     // Get properties with zones count in a single query
