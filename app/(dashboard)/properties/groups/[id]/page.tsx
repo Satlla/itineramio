@@ -217,7 +217,7 @@ export default function PropertySetDetailPage() {
     
     try {
       // Fetch all properties that are not in any set
-      const response = await fetch('/api/properties?filter=standalone')
+      const response = await fetch('/api/properties?filter=standalone&limit=100')
       const result = await response.json()
       
       if (response.ok && result.data) {

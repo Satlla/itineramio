@@ -34,7 +34,10 @@ const updatePropertySchema = z.object({
   
   // Status
   status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE']).optional(),
-  isPublished: z.boolean().optional()
+  isPublished: z.boolean().optional(),
+  
+  // Property Set Association
+  propertySetId: z.string().nullable().optional()
 }).strict()
 
 export async function GET(
