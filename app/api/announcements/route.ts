@@ -27,11 +27,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // For public requests, don't require ownership
-    let whereClause: any = {
-      propertyId,
-      isActive: true
-    }
+    let whereClause: any
 
     // For dashboard requests, verify ownership
     if (!isPublic) {
@@ -50,14 +46,11 @@ export async function GET(request: NextRequest) {
       // For dashboard, show all announcements (active and inactive)
       whereClause = { propertyId }
     } else {
-      // Add date filtering for public active announcements
-      const now = new Date()
-      whereClause.OR = [
-        { startDate: null, endDate: null }, // Always active
-        { startDate: null, endDate: { gte: now } }, // No start date, not expired
-        { startDate: { lte: now }, endDate: null }, // Started, no end date
-        { startDate: { lte: now }, endDate: { gte: now } } // Within date range
-      ]
+      // For public requests, show only active announcements (simplified)
+      whereClause = {
+        propertyId,
+        isActive: true
+      }
     }
 
     console.log('🔍 Query where clause:', JSON.stringify(whereClause, null, 2))
@@ -65,7 +58,6 @@ export async function GET(request: NextRequest) {
     const announcements = await prisma.announcement.findMany({
       where: whereClause,
       orderBy: [
-        { priority: 'desc' },
         { createdAt: 'desc' }
       ]
     })
