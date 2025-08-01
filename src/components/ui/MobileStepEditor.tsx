@@ -409,16 +409,19 @@ export function MobileStepEditor({
 
       {/* Language Selector */}
       <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+        <div className="text-center mb-2">
+          <p className="text-xs text-gray-600">Editar en múltiples idiomas</p>
+        </div>
         <div className="flex justify-center">
-          <div className="flex bg-white rounded-full p-1 shadow-sm">
+          <div className="flex bg-white rounded-full p-1 shadow-sm border">
             {languages.map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => setActiveLanguage(lang.code as any)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   activeLanguage === lang.code
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 {lang.flag} {lang.label}
