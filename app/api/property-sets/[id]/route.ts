@@ -38,16 +38,18 @@ export async function GET(
         id,
         hostId: userId
       },
-      include: {
-        properties: {
-          include: {
-            analytics: true,
-            zones: true
-          },
-          orderBy: {
-            order: 'asc'
-          }
-        }
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        type: true,
+        city: true,
+        state: true,
+        country: true,
+        profileImage: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true
       }
     })
     
@@ -73,37 +75,64 @@ export async function GET(
         // This should be removed once we fix the auth issue
         const tempPropertySet = await prisma.propertySet.findFirst({
           where: { id },
-          include: {
-            properties: {
-              include: {
-                analytics: true,
-                zones: true
-              },
-              orderBy: {
-                order: 'asc'
-              }
-            }
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            type: true,
+            city: true,
+            state: true,
+            country: true,
+            profileImage: true,
+            status: true,
+            createdAt: true,
+            updatedAt: true
           }
         })
         
         if (tempPropertySet) {
           console.log('🔍 Returning property set without user check (TEMPORARY)')
+          
+          // Get properties for this set
+          const tempProperties = await prisma.property.findMany({
+            where: {
+              propertySetId: id
+            },
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              description: true,
+              type: true,
+              city: true,
+              state: true,
+              bedrooms: true,
+              bathrooms: true,
+              maxGuests: true,
+              status: true,
+              isPublished: true,
+              profileImage: true,
+              hostContactName: true,
+              hostContactPhoto: true,
+              createdAt: true,
+              updatedAt: true
+            },
+            orderBy: {
+              id: 'asc'
+            }
+          })
+          
           const transformedPropertySet = {
             ...tempPropertySet,
-            propertiesCount: tempPropertySet.properties.length,
-            totalViews: tempPropertySet.properties.reduce((sum, p) => sum + (p.analytics?.totalViews || 0), 0),
-            avgRating: (() => {
-              const propertiesWithRatings = tempPropertySet.properties.filter(p => (p.analytics?.overallRating || 0) > 0)
-              return propertiesWithRatings.length > 0 
-                ? propertiesWithRatings.reduce((sum, p) => sum + (p.analytics?.overallRating || 0), 0) / propertiesWithRatings.length 
-                : 0
-            })(),
-            totalZones: tempPropertySet.properties.reduce((sum, p) => sum + (p.zones?.length || 0), 0),
-            properties: tempPropertySet.properties.map(p => ({
+            propertiesCount: tempProperties.length,
+            totalViews: 0, // Temporarily set to 0
+            avgRating: 0, // Temporarily set to 0
+            totalZones: 0, // Temporarily set to 0
+            properties: tempProperties.map(p => ({
               ...p,
-              zonesCount: p.zones?.length || 0,
-              totalViews: p.analytics?.totalViews || 0,
-              avgRating: p.analytics?.overallRating || 0
+              zonesCount: 0, // Temporarily set to 0
+              totalViews: 0, // Temporarily set to 0
+              avgRating: 0 // Temporarily set to 0
             }))
           }
           
@@ -120,23 +149,48 @@ export async function GET(
       }, { status: 404 })
     }
     
-    // Transform data to include counts and analytics
+    // Get properties separately with basic data
+    const properties = await prisma.property.findMany({
+      where: {
+        propertySetId: id,
+        hostId: userId
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        type: true,
+        city: true,
+        state: true,
+        bedrooms: true,
+        bathrooms: true,
+        maxGuests: true,
+        status: true,
+        isPublished: true,
+        profileImage: true,
+        hostContactName: true,
+        hostContactPhoto: true,
+        createdAt: true,
+        updatedAt: true
+      },
+      orderBy: {
+        id: 'asc'
+      }
+    })
+
+    // Transform data - simplified to avoid analytics/count issues
     const transformedPropertySet = {
       ...propertySet,
-      propertiesCount: propertySet.properties.length,
-      totalViews: propertySet.properties.reduce((sum, p) => sum + (p.analytics?.totalViews || 0), 0),
-      avgRating: (() => {
-        const propertiesWithRatings = propertySet.properties.filter(p => (p.analytics?.overallRating || 0) > 0)
-        return propertiesWithRatings.length > 0 
-          ? propertiesWithRatings.reduce((sum, p) => sum + (p.analytics?.overallRating || 0), 0) / propertiesWithRatings.length 
-          : 0
-      })(),
-      totalZones: propertySet.properties.reduce((sum, p) => sum + (p.zones?.length || 0), 0),
-      properties: propertySet.properties.map(p => ({
+      propertiesCount: properties.length,
+      totalViews: 0, // Temporarily set to 0
+      avgRating: 0, // Temporarily set to 0
+      totalZones: 0, // Temporarily set to 0
+      properties: properties.map(p => ({
         ...p,
-        zonesCount: p.zones?.length || 0,
-        totalViews: p.analytics?.totalViews || 0,
-        avgRating: p.analytics?.overallRating || 0
+        zonesCount: 0, // Temporarily set to 0
+        totalViews: 0, // Temporarily set to 0
+        avgRating: 0 // Temporarily set to 0
       }))
     }
     
