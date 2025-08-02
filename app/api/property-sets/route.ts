@@ -32,18 +32,24 @@ export async function GET(request: NextRequest) {
     })
     
     // Transform data to include counts and analytics
-    const transformedPropertySets = propertySets.map(propertySet => ({
-      ...propertySet,
-      propertiesCount: propertySet.properties.length,
-      totalViews: propertySet.properties.reduce((sum, p) => sum + (p.analytics?.totalViews || 0), 0),
-      avgRating: (() => {
+    const transformedPropertySets = propertySets.map(propertySet => {
+      try {
         const propertiesWithRatings = propertySet.properties.filter(p => (p.analytics?.overallRating || 0) > 0)
-        return propertiesWithRatings.length > 0 
-          ? propertiesWithRatings.reduce((sum, p) => sum + (p.analytics?.overallRating || 0), 0) / propertiesWithRatings.length 
-          : 0
-      })(),
-      totalZones: propertySet.properties.reduce((sum, p) => sum + (p.zones?.length || 0), 0)
-    }))
+        
+        return {
+          ...propertySet,
+          propertiesCount: propertySet.properties?.length || 0,
+          totalViews: propertySet.properties?.reduce((sum, p) => sum + (p.analytics?.totalViews || 0), 0) || 0,
+          avgRating: propertiesWithRatings.length > 0 
+            ? propertiesWithRatings.reduce((sum, p) => sum + (p.analytics?.overallRating || 0), 0) / propertiesWithRatings.length 
+            : 0,
+          totalZones: propertySet.properties?.reduce((sum, p) => sum + (p.zones?.length || 0), 0) || 0
+        }
+      } catch (error) {
+        console.error('Error transforming property set:', propertySet.id, error)
+        throw error
+      }
+    })
     
     return NextResponse.json({
       success: true,

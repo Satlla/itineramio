@@ -271,30 +271,37 @@ export async function GET(request: NextRequest) {
     })
 
     // Transform properties data without additional queries
-    const propertiesWithZones = properties.map((property) => ({
-      id: property.id,
-      name: property.name,
-      slug: property.slug,
-      description: property.description,
-      type: property.type,
-      city: property.city,
-      state: property.state,
-      bedrooms: property.bedrooms,
-      bathrooms: property.bathrooms,
-      maxGuests: property.maxGuests,
-      zonesCount: property._count.zones,
-      totalViews: property.analytics?.totalViews || 0,
-      avgRating: property.analytics?.overallRating || 0,
-      status: property.status,
-      createdAt: property.createdAt,
-      updatedAt: property.updatedAt,
-      isPublished: property.isPublished,
-      profileImage: property.profileImage,
-      propertySetId: property.propertySetId,
-      propertySet: property.propertySet,
-      hostContactName: property.hostContactName,
-      hostContactPhoto: property.hostContactPhoto
-    }))
+    const propertiesWithZones = properties.map((property) => {
+      try {
+        return {
+          id: property.id,
+          name: property.name,
+          slug: property.slug,
+          description: property.description,
+          type: property.type,
+          city: property.city,
+          state: property.state,
+          bedrooms: property.bedrooms,
+          bathrooms: property.bathrooms,
+          maxGuests: property.maxGuests,
+          zonesCount: property._count?.zones || 0,
+          totalViews: property.analytics?.totalViews || 0,
+          avgRating: property.analytics?.overallRating || 0,
+          status: property.status,
+          createdAt: property.createdAt,
+          updatedAt: property.updatedAt,
+          isPublished: property.isPublished,
+          profileImage: property.profileImage,
+          propertySetId: property.propertySetId,
+          propertySet: property.propertySet,
+          hostContactName: property.hostContactName,
+          hostContactPhoto: property.hostContactPhoto
+        }
+      } catch (error) {
+        console.error('Error transforming property:', property.id, error)
+        throw error
+      }
+    })
     
     return NextResponse.json({
       success: true,
