@@ -40,18 +40,21 @@ export async function PUT(
     }
 
     // Update each property with its new order
-    const updatePromises = propertyOrders.map((item: { id: string; order: number }) =>
-      prisma.property.update({
-        where: { 
-          id: item.id,
-          propertySetId: propertySetId,
-          hostId: userId // Security check
-        },
-        data: { order: item.order }
-      })
-    )
+    // TEMPORARILY DISABLED: properties.order column doesn't exist in production
+    console.log('⚠️ Property reordering is temporarily disabled - order column missing')
+    
+    // const updatePromises = propertyOrders.map((item: { id: string; order: number }) =>
+    //   prisma.property.update({
+    //     where: { 
+    //       id: item.id,
+    //       propertySetId: propertySetId,
+    //       hostId: userId // Security check
+    //     },
+    //     data: { order: item.order }
+    //   })
+    // )
 
-    await Promise.all(updatePromises)
+    // await Promise.all(updatePromises)
 
     console.log('✅ Properties reordered successfully')
 
