@@ -36,9 +36,12 @@ export async function GET(request: NextRequest) {
       ...propertySet,
       propertiesCount: propertySet.properties.length,
       totalViews: propertySet.properties.reduce((sum, p) => sum + (p.analytics?.totalViews || 0), 0),
-      avgRating: propertySet.properties.length > 0 
-        ? propertySet.properties.reduce((sum, p) => sum + (p.analytics?.overallRating || 0), 0) / propertySet.properties.length 
-        : 0,
+      avgRating: (() => {
+        const propertiesWithRatings = propertySet.properties.filter(p => (p.analytics?.overallRating || 0) > 0)
+        return propertiesWithRatings.length > 0 
+          ? propertiesWithRatings.reduce((sum, p) => sum + (p.analytics?.overallRating || 0), 0) / propertiesWithRatings.length 
+          : 0
+      })(),
       totalZones: propertySet.properties.reduce((sum, p) => sum + (p.zones?.length || 0), 0)
     }))
     
