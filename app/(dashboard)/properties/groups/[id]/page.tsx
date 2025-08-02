@@ -1037,13 +1037,6 @@ export default function PropertySetDetailPage() {
                               </div>
                               <div className={`text-sm ${isSelected ? 'text-violet-700' : 'text-gray-600'}`}>
                                 {property.city}, {property.state} • {property.bedrooms} hab • {property.zonesCount} zonas
-                                {property.propertySetId && (
-                                  <span className={`ml-2 px-2 py-1 text-xs rounded ${
-                                    isSelected ? 'bg-violet-200 text-violet-800' : 'bg-blue-100 text-blue-800'
-                                  }`}>
-                                    En conjunto
-                                  </span>
-                                )}
                               </div>
                             </div>
                             {isSelected && (
