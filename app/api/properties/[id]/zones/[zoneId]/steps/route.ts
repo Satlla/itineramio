@@ -213,7 +213,7 @@ export async function POST(
     if (stepOrder === undefined || stepOrder === null) {
       const lastStep = await prisma.step.findFirst({
         where: { zoneId: zoneId },
-        orderBy: { order: 'desc' }
+        orderBy: { id: 'desc' }
       })
       stepOrder = lastStep ? lastStep.order + 1 : 0
     }

@@ -48,10 +48,10 @@ export async function POST(request: NextRequest) {
         zones: {
           include: {
             steps: {
-              orderBy: { order: 'asc' }
+              orderBy: { id: 'asc' }
             }
           },
-          orderBy: { order: 'asc' }
+          orderBy: { id: 'asc' }
         }
       }
     })

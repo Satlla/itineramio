@@ -22,7 +22,11 @@ export async function GET(request: NextRequest) {
         properties: {
           include: {
             analytics: true,
-            zones: true
+            zones: {
+              orderBy: {
+                id: 'asc'
+              }
+            }
           }
         }
       },

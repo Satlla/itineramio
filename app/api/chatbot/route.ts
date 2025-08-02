@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
           where: { id: zoneId },
           include: {
             steps: {
-              orderBy: { order: 'asc' }
+              orderBy: { id: 'asc' }
             }
           }
         },

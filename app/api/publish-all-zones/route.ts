@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
         isPublished: true,
         order: true
       },
-      orderBy: { order: 'asc' }
+      orderBy: { id: 'asc' }
     })
     
     console.log('Found zones:', zones.length)
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
         isPublished: true,
         order: true
       },
-      orderBy: { order: 'asc' }
+      orderBy: { id: 'asc' }
     })
     
     // Also update the property to be active if it's not

@@ -86,7 +86,7 @@ export async function POST(
     if (zoneOrder === undefined || zoneOrder === null) {
       const maxOrder = await prisma.zone.findFirst({
         where: { propertyId },
-        orderBy: { order: 'desc' },
+        orderBy: { id: 'desc' },
         select: { order: true }
       })
       zoneOrder = (maxOrder?.order || 0) + 1

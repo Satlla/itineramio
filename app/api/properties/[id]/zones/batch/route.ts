@@ -70,7 +70,7 @@ export async function POST(
     // Get the next order number
     const lastZone = await prisma.zone.findFirst({
       where: { propertyId: propertyId },
-      orderBy: { order: 'desc' }
+      orderBy: { id: 'desc' }
     })
     
     let currentOrder = lastZone ? lastZone.order + 1 : 1
