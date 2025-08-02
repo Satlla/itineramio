@@ -1,19 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
 import { prisma } from '../../../src/lib/prisma'
-
-const JWT_SECRET = 'itineramio-secret-key-2024'
+import { requireAuth } from '../../../src/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
-    // Get user from JWT token
-    const token = request.cookies.get('auth-token')?.value
-    if (!token) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    // Get authenticated user
+    const authResult = await requireAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
     }
-
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
-    const userId = decoded.userId
+    const userId = authResult.userId
     
     // Set JWT claims for PostgreSQL RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
