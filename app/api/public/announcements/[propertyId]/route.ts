@@ -59,9 +59,11 @@ export async function GET(
 
   } catch (error) {
     console.error('💥 Error getting public announcements:', error)
-    return NextResponse.json(
-      { error: 'Error al obtener avisos' },
-      { status: 500 }
-    )
+    
+    // Return empty announcements array instead of error to prevent frontend crash
+    return NextResponse.json({
+      success: true,
+      data: []
+    })
   }
 }
