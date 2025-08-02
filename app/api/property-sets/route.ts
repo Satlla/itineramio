@@ -59,14 +59,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Get user from JWT token
-    const token = request.cookies.get('auth-token')?.value
-    if (!token) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    // Get authenticated user
+    const authResult = await requireAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
     }
-
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
-    const userId = decoded.userId
+    const userId = authResult.userId
 
     // Set JWT claims for PostgreSQL RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`

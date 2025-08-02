@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
         error: 'No auth token found',
         debug: {
           hasToken: false,
-          cookieNames: Array.from(request.cookies.keys()),
+          cookieNames: request.cookies.getAll().map(cookie => cookie.name),
           headers: Object.fromEntries(request.headers.entries())
         }
       })
