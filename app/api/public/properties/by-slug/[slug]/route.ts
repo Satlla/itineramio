@@ -9,8 +9,8 @@ export async function GET(
     const { slug } = await params
     console.log('🔍 Public Property by-slug endpoint - received slug:', slug)
     
-    // Find property by slug
-    const property = await prisma.property.findFirst({
+    // Find property by slug first
+    let property = await prisma.property.findFirst({
       where: {
         slug: slug,
         isPublished: true // Only published properties
@@ -18,10 +18,25 @@ export async function GET(
       include: {
         zones: {
           where: {
-            // Only include published zones or zones with steps
-            OR: [
-              { isPublished: true },
-              { steps: { some: { isPublished: true } } }
+            // Only include published zones with published steps
+            AND: [
+              {
+                OR: [
+                  { 
+                    AND: [
+                      { isPublished: true },
+                      { status: 'ACTIVE' }
+                    ]
+                  },
+                  { 
+                    steps: { 
+                      some: { 
+                        isPublished: true
+                      } 
+                    } 
+                  }
+                ]
+              }
             ]
           },
           include: {
@@ -41,7 +56,114 @@ export async function GET(
       }
     })
     
-    console.log('🔍 Public Property by slug found:', !!property)
+    // If not found by slug, try by ID (for backward compatibility)
+    if (!property) {
+      console.log('🔍 Property not found by slug, trying by ID:', slug)
+      
+      property = await prisma.property.findFirst({
+        where: {
+          id: slug,
+          isPublished: true // Only published properties
+        },
+        include: {
+          zones: {
+            where: {
+              // Only include published zones with published steps
+              AND: [
+                {
+                  OR: [
+                    { 
+                      AND: [
+                        { isPublished: true },
+                        { status: 'ACTIVE' }
+                      ]
+                    },
+                    { 
+                      steps: { 
+                        some: { 
+                          isPublished: true
+                        } 
+                      } 
+                    }
+                  ]
+                }
+              ]
+            },
+            include: {
+              steps: {
+                where: {
+                  isPublished: true
+                },
+                orderBy: {
+                  order: 'asc'
+                }
+              }
+            },
+            orderBy: {
+              order: 'asc'
+            }
+          }
+        }
+      })
+      
+      // If still not found by exact ID, try with startsWith (for Next.js URL truncation)
+      if (!property) {
+        console.log('🔍 Property not found by exact ID, trying startsWith:', slug)
+        
+        const properties = await prisma.property.findMany({
+          where: {
+            id: { startsWith: slug },
+            isPublished: true
+          },
+          include: {
+            zones: {
+              where: {
+                AND: [
+                  {
+                    OR: [
+                      { 
+                        AND: [
+                          { isPublished: true },
+                          { status: 'ACTIVE' }
+                        ]
+                      },
+                      { 
+                        steps: { 
+                          some: { 
+                            isPublished: true
+                          } 
+                        } 
+                      }
+                    ]
+                  }
+                ]
+              },
+              include: {
+                steps: {
+                  where: {
+                    isPublished: true
+                  },
+                  orderBy: {
+                    order: 'asc'
+                  }
+                }
+              },
+              orderBy: {
+                order: 'asc'
+              }
+            }
+          },
+          take: 1
+        })
+        
+        if (properties.length > 0) {
+          property = properties[0]
+          console.log('🔍 Found property by startsWith ID:', property.id)
+        }
+      }
+    }
+    
+    console.log('🔍 Public Property final result found:', !!property)
     
     if (!property) {
       return NextResponse.json({

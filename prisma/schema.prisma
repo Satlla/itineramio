@@ -118,6 +118,7 @@ model Property {
   updatedAt           DateTime           @updatedAt
   publishedAt         DateTime?
   slug                String?            @unique
+  order               Int?               @default(0)
   buildings           buildings?         @relation(fields: [buildingId], references: [id])
   host                User               @relation(fields: [hostId], references: [id], onDelete: Cascade)
   organizations       organizations?     @relation(fields: [organizationId], references: [id])

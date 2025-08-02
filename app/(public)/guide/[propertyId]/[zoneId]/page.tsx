@@ -913,42 +913,61 @@ export default function ZoneGuidePage({
                   <CardContent className="p-4 sm:p-6 lg:p-8 relative z-10">
                     {/* Step Header - Clean, no badges */}
                     <div className="mb-6">
-                      {/* Show title if provided and different from content */}
+                      {/* Smart content display to avoid duplication */}
                       {(() => {
                         const titleText = getText(step.title, language, '');
                         const contentText = getText(step.content, language, '');
                         
-                        // Show title only if it exists, is not empty, AND is different from content
-                        if (titleText && titleText.trim() && titleText !== contentText) {
+                        // If both title and content exist
+                        if (titleText && titleText.trim() && contentText && contentText.trim()) {
+                          // If they're the same or very similar, show only one
+                          if (titleText === contentText || titleText.toLowerCase().includes(contentText.toLowerCase()) || contentText.toLowerCase().includes(titleText.toLowerCase())) {
+                            return (
+                              <motion.div 
+                                className={`text-lg sm:text-xl lg:text-2xl font-bold break-words ${
+                                  index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
+                                }`}
+                                layoutId={`content-${step.id}`}
+                              >
+                                {titleText.length > contentText.length ? titleText : contentText}
+                              </motion.div>
+                            );
+                          } else {
+                            // They're different, show both
+                            return (
+                              <>
+                                <motion.h2 
+                                  className={`text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 break-words ${
+                                    index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
+                                  }`}
+                                  layoutId={`title-${step.id}`}
+                                >
+                                  {titleText}
+                                </motion.h2>
+                                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base">
+                                  {contentText}
+                                </div>
+                              </>
+                            );
+                          }
+                        }
+                        // If only title exists
+                        else if (titleText && titleText.trim()) {
                           return (
-                            <motion.h2 
-                              className={`text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 break-words ${
+                            <motion.div 
+                              className={`text-lg sm:text-xl lg:text-2xl font-bold break-words ${
                                 index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
                               }`}
                               layoutId={`title-${step.id}`}
                             >
                               {titleText}
-                            </motion.h2>
+                            </motion.div>
                           );
                         }
-                        return null;
-                      })()}
-                      
-                      {step.estimatedTime && (
-                        <div className="flex items-center text-sm text-gray-500 mb-2">
-                          <Clock className="w-4 h-4 mr-1" />
-                          <span>{step.estimatedTime} min</span>
-                        </div>
-                      )}
-                      
-                      {/* Content rendering - show full content for all types */}
-                      {(() => {
-                        const contentText = getText(step.content, language, '');
-                        
-                        // For all step types, show content if it exists
-                        if (contentText && contentText.trim()) {
+                        // If only content exists
+                        else if (contentText && contentText.trim()) {
                           return (
-                            <div className="text-gray-700 leading-relaxed whitespace-pre-wrap mt-3 sm:mt-4 break-words text-sm sm:text-base">
+                            <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base">
                               {contentText}
                             </div>
                           );
@@ -956,6 +975,13 @@ export default function ZoneGuidePage({
                         
                         return null;
                       })()}
+                      
+                      {step.estimatedTime && (
+                        <div className="flex items-center text-sm text-gray-500 mb-2 mt-3">
+                          <Clock className="w-4 h-4 mr-1" />
+                          <span>{step.estimatedTime} min</span>
+                        </div>
+                      )}
                       
                       {completedSteps.has(step.id) && (
                         <motion.div

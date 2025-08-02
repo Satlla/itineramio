@@ -43,6 +43,9 @@ export async function GET(
           include: {
             analytics: true,
             zones: true
+          },
+          orderBy: {
+            order: 'asc'
           }
         }
       }
@@ -75,6 +78,9 @@ export async function GET(
               include: {
                 analytics: true,
                 zones: true
+              },
+              orderBy: {
+                order: 'asc'
               }
             }
           }
@@ -86,9 +92,12 @@ export async function GET(
             ...tempPropertySet,
             propertiesCount: tempPropertySet.properties.length,
             totalViews: tempPropertySet.properties.reduce((sum, p) => sum + (p.analytics?.totalViews || 0), 0),
-            avgRating: tempPropertySet.properties.length > 0 
-              ? tempPropertySet.properties.reduce((sum, p) => sum + (p.analytics?.overallRating || 0), 0) / tempPropertySet.properties.length 
-              : 0,
+            avgRating: (() => {
+              const propertiesWithRatings = tempPropertySet.properties.filter(p => (p.analytics?.overallRating || 0) > 0)
+              return propertiesWithRatings.length > 0 
+                ? propertiesWithRatings.reduce((sum, p) => sum + (p.analytics?.overallRating || 0), 0) / propertiesWithRatings.length 
+                : 0
+            })(),
             totalZones: tempPropertySet.properties.reduce((sum, p) => sum + (p.zones?.length || 0), 0),
             properties: tempPropertySet.properties.map(p => ({
               ...p,
@@ -116,9 +125,12 @@ export async function GET(
       ...propertySet,
       propertiesCount: propertySet.properties.length,
       totalViews: propertySet.properties.reduce((sum, p) => sum + (p.analytics?.totalViews || 0), 0),
-      avgRating: propertySet.properties.length > 0 
-        ? propertySet.properties.reduce((sum, p) => sum + (p.analytics?.overallRating || 0), 0) / propertySet.properties.length 
-        : 0,
+      avgRating: (() => {
+        const propertiesWithRatings = propertySet.properties.filter(p => (p.analytics?.overallRating || 0) > 0)
+        return propertiesWithRatings.length > 0 
+          ? propertiesWithRatings.reduce((sum, p) => sum + (p.analytics?.overallRating || 0), 0) / propertiesWithRatings.length 
+          : 0
+      })(),
       totalZones: propertySet.properties.reduce((sum, p) => sum + (p.zones?.length || 0), 0),
       properties: propertySet.properties.map(p => ({
         ...p,

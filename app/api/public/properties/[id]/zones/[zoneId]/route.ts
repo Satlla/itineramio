@@ -17,9 +17,24 @@ export async function GET(
         property: {
           isPublished: true // Property must be published
         },
-        OR: [
-          { isPublished: true },
-          { steps: { some: { isPublished: true } } }
+        AND: [
+          {
+            OR: [
+              { 
+                AND: [
+                  { isPublished: true },
+                  { status: 'ACTIVE' }
+                ]
+              },
+              { 
+                steps: { 
+                  some: { 
+                    isPublished: true
+                  } 
+                } 
+              }
+            ]
+          }
         ]
       },
       include: {
@@ -53,9 +68,24 @@ export async function GET(
           property: {
             isPublished: true // Property must be published
           },
-          OR: [
-            { isPublished: true },
-            { steps: { some: { isPublished: true } } }
+          AND: [
+            {
+              OR: [
+                { 
+                  AND: [
+                    { isPublished: true },
+                    { status: 'ACTIVE' }
+                  ]
+                },
+                { 
+                  steps: { 
+                    some: { 
+                      isPublished: true
+                    } 
+                  } 
+                }
+              ]
+            }
           ]
         },
         include: {

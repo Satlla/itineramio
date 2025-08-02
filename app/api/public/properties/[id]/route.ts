@@ -18,10 +18,25 @@ export async function GET(
       include: {
         zones: {
           where: {
-            // Only include published zones or zones with steps
-            OR: [
-              { isPublished: true },
-              { steps: { some: { isPublished: true } } }
+            // Only include published zones with published steps
+            AND: [
+              {
+                OR: [
+                  { 
+                    AND: [
+                      { isPublished: true },
+                      { status: 'ACTIVE' }
+                    ]
+                  },
+                  { 
+                    steps: { 
+                      some: { 
+                        isPublished: true
+                      } 
+                    } 
+                  }
+                ]
+              }
             ]
           },
           include: {

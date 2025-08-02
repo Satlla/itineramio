@@ -23,7 +23,8 @@ import {
   Trash2,
   BarChart3,
   UserX,
-  Search
+  Search,
+  GripVertical
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -33,6 +34,209 @@ import { DashboardNavbar } from '../../../../../src/components/layout/DashboardN
 import { DashboardFooter } from '../../../../../src/components/layout/DashboardFooter'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import {
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+// Sortable Property Card Component
+function SortablePropertyCard({ 
+  property, 
+  handlePropertyAction 
+}: { 
+  property: Property
+  handlePropertyAction: (action: string, propertyId: string) => void 
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: property.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <Card 
+      ref={setNodeRef} 
+      style={style} 
+      className={`hover:shadow-lg transition-shadow ${isDragging ? 'shadow-2xl' : ''}`}
+    >
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            {/* Drag Handle */}
+            <div 
+              {...attributes} 
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-100 flex-shrink-0"
+            >
+              <GripVertical className="w-4 h-4 text-gray-400" />
+            </div>
+            
+            {property.profileImage ? (
+              <img 
+                src={property.profileImage} 
+                alt={property.name}
+                className="w-12 h-12 rounded-lg object-cover"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
+                <Home className="w-6 h-6 text-white" />
+              </div>
+            )}
+            <div>
+              <h3 className="font-semibold text-lg text-gray-900">
+                {property.name}
+              </h3>
+              <p className="text-sm text-gray-600">
+                {property.city}, {property.state}
+              </p>
+            </div>
+          </div>
+
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content className="w-56 bg-white rounded-md shadow-lg border border-gray-200 p-1">
+                <DropdownMenu.Item 
+                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                  onClick={() => handlePropertyAction('edit', property.id)}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Editar
+                </DropdownMenu.Item>
+                <DropdownMenu.Item 
+                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                  onClick={() => handlePropertyAction('manage', property.id)}
+                >
+                  <Building2 className="mr-2 h-4 w-4" />
+                  Gestionar propiedad
+                </DropdownMenu.Item>
+                <DropdownMenu.Item 
+                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                  onClick={() => handlePropertyAction('duplicate', property.id)}
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  Duplicar
+                </DropdownMenu.Item>
+                <DropdownMenu.Item 
+                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                  onClick={() => handlePropertyAction('evaluations', property.id)}
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Evaluaciones
+                </DropdownMenu.Item>
+                {property.status === 'ACTIVE' && (
+                  <DropdownMenu.Item 
+                    className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                    onClick={() => handlePropertyAction('public', property.id)}
+                  >
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Vista pública
+                  </DropdownMenu.Item>
+                )}
+                <DropdownMenu.Item 
+                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
+                  onClick={() => handlePropertyAction('share', property.id)}
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Compartir
+                </DropdownMenu.Item>
+                <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
+                <DropdownMenu.Item 
+                  className="flex items-center px-3 py-2 text-sm text-orange-600 hover:bg-orange-50 rounded cursor-pointer"
+                  onClick={() => handlePropertyAction('removeFromSet', property.id)}
+                >
+                  <UserX className="mr-2 h-4 w-4" />
+                  Quitar del conjunto
+                </DropdownMenu.Item>
+                <DropdownMenu.Item 
+                  className="flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded cursor-pointer"
+                  onClick={() => handlePropertyAction('delete', property.id)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Eliminar
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+        </div>
+
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center space-x-4 text-sm text-gray-500">
+            <span>{property.bedrooms} hab</span>
+            <span>{property.bathrooms} baños</span>
+            <span>{property.maxGuests} huéspedes</span>
+          </div>
+          <div className="flex items-center space-x-4 text-sm">
+            <div className="flex items-center text-gray-600">
+              <MapPin className="h-4 w-4 mr-1" />
+              <span>{property.zonesCount} zonas</span>
+            </div>
+            {property.totalViews !== undefined && (
+              <div className="flex items-center text-gray-600">
+                <Eye className="h-4 w-4 mr-1" />
+                <span>{property.totalViews}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between mb-4">
+          <Badge 
+            variant={property.status === 'ACTIVE' ? 'default' : 'secondary'}
+            className={property.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : ''}
+          >
+            {property.status === 'ACTIVE' ? 'Activa' : 'Inactiva'}
+          </Badge>
+          
+          {property.avgRating !== undefined && property.avgRating > 0 && (
+            <div className="flex items-center text-sm text-gray-600">
+              <Star className="w-4 h-4 text-yellow-500 mr-1" />
+              <span>{property.avgRating.toFixed(1)}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Gestionar Button */}
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => handlePropertyAction('manage', property.id)}
+        >
+          Gestionar
+          <ArrowRight className="w-4 h-4 ml-2" />
+        </Button>
+      </CardContent>
+    </Card>
+  )
+}
 
 interface Property {
   id: string
@@ -50,6 +254,7 @@ interface Property {
   status: string
   profileImage?: string
   createdAt: string
+  order?: number
 }
 
 interface PropertySet {
@@ -108,6 +313,14 @@ export default function PropertySetDetailPage() {
   const [removeAction, setRemoveAction] = useState<'remove' | 'delete' | null>(null)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [isRemoving, setIsRemoving] = useState(false)
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   useEffect(() => {
     fetchPropertySetData()
@@ -372,6 +585,68 @@ export default function PropertySetDetailPage() {
       alert('Error al procesar la acción')
     } finally {
       setIsRemoving(false)
+    }
+  }
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (!over || active.id === over.id || !propertySet?.properties) {
+      return
+    }
+
+    const oldIndex = propertySet.properties.findIndex((item) => item.id === active.id)
+    const newIndex = propertySet.properties.findIndex((item) => item.id === over.id)
+
+    if (oldIndex === -1 || newIndex === -1) {
+      return
+    }
+
+    // Optimistically update the UI
+    const newProperties = arrayMove(propertySet.properties, oldIndex, newIndex)
+    
+    // Update local state immediately for smooth UX
+    setPropertySet(prev => prev ? {
+      ...prev,
+      properties: newProperties
+    } : null)
+
+    try {
+      // Create the new order array
+      const propertyOrders = newProperties.map((property, index) => ({
+        id: property.id,
+        order: index + 1
+      }))
+
+      // Send to API
+      const response = await fetch(`/api/property-sets/${propertySetId}/reorder`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ propertyOrders })
+      })
+
+      if (!response.ok) {
+        // Revert on error
+        setPropertySet(prev => prev ? {
+          ...prev,
+          properties: propertySet.properties
+        } : null)
+        
+        const result = await response.json()
+        alert(`Error al reordenar: ${result.error || 'Error desconocido'}`)
+      }
+    } catch (error) {
+      console.error('Error reordering properties:', error)
+      
+      // Revert on error
+      setPropertySet(prev => prev ? {
+        ...prev,
+        properties: propertySet.properties
+      } : null)
+      
+      alert('Error al reordenar las propiedades')
     }
   }
 
@@ -724,154 +999,28 @@ export default function PropertySetDetailPage() {
             </div>
 
             {propertySet.properties && propertySet.properties.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {propertySet.properties.map((property) => (
-                  <Card key={property.id} className="hover:shadow-lg transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center space-x-3">
-                          {property.profileImage ? (
-                            <img 
-                              src={property.profileImage} 
-                              alt={property.name}
-                              className="w-12 h-12 rounded-lg object-cover"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
-                              <Home className="w-6 h-6 text-white" />
-                            </div>
-                          )}
-                          <div>
-                            <h3 className="font-semibold text-lg text-gray-900">
-                              {property.name}
-                            </h3>
-                            <p className="text-sm text-gray-600">
-                              {property.city}, {property.state}
-                            </p>
-                          </div>
-                        </div>
-
-                        <DropdownMenu.Root>
-                          <DropdownMenu.Trigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenu.Trigger>
-                          <DropdownMenu.Portal>
-                            <DropdownMenu.Content className="w-56 bg-white rounded-md shadow-lg border border-gray-200 p-1">
-                              <DropdownMenu.Item 
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                onClick={() => handlePropertyAction('edit', property.id)}
-                              >
-                                <Edit className="mr-2 h-4 w-4" />
-                                Editar
-                              </DropdownMenu.Item>
-                              <DropdownMenu.Item 
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                onClick={() => handlePropertyAction('manage', property.id)}
-                              >
-                                <Building2 className="mr-2 h-4 w-4" />
-                                Gestionar propiedad
-                              </DropdownMenu.Item>
-                              <DropdownMenu.Item 
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                onClick={() => handlePropertyAction('duplicate', property.id)}
-                              >
-                                <Copy className="mr-2 h-4 w-4" />
-                                Duplicar
-                              </DropdownMenu.Item>
-                              <DropdownMenu.Item 
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                onClick={() => handlePropertyAction('evaluations', property.id)}
-                              >
-                                <BarChart3 className="mr-2 h-4 w-4" />
-                                Evaluaciones
-                              </DropdownMenu.Item>
-                              {property.status === 'ACTIVE' && (
-                                <DropdownMenu.Item 
-                                  className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                  onClick={() => handlePropertyAction('public', property.id)}
-                                >
-                                  <ExternalLink className="mr-2 h-4 w-4" />
-                                  Vista pública
-                                </DropdownMenu.Item>
-                              )}
-                              <DropdownMenu.Item 
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
-                                onClick={() => handlePropertyAction('share', property.id)}
-                              >
-                                <Share2 className="mr-2 h-4 w-4" />
-                                Compartir
-                              </DropdownMenu.Item>
-                              <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
-                              <DropdownMenu.Item 
-                                className="flex items-center px-3 py-2 text-sm text-orange-600 hover:bg-orange-50 rounded cursor-pointer"
-                                onClick={() => handlePropertyAction('removeFromSet', property.id)}
-                              >
-                                <UserX className="mr-2 h-4 w-4" />
-                                Quitar del conjunto
-                              </DropdownMenu.Item>
-                              <DropdownMenu.Item 
-                                className="flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded cursor-pointer"
-                                onClick={() => handlePropertyAction('delete', property.id)}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Eliminar
-                              </DropdownMenu.Item>
-                            </DropdownMenu.Content>
-                          </DropdownMenu.Portal>
-                        </DropdownMenu.Root>
-                      </div>
-
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center space-x-4 text-sm text-gray-500">
-                          <span>{property.bedrooms} hab</span>
-                          <span>{property.bathrooms} baños</span>
-                          <span>{property.maxGuests} huéspedes</span>
-                        </div>
-                        <div className="flex items-center space-x-4 text-sm">
-                          <div className="flex items-center text-gray-600">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            <span>{property.zonesCount} zonas</span>
-                          </div>
-                          {property.totalViews !== undefined && (
-                            <div className="flex items-center text-gray-600">
-                              <Eye className="h-4 w-4 mr-1" />
-                              <span>{property.totalViews}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between mb-4">
-                        <Badge 
-                          variant={property.status === 'ACTIVE' ? 'default' : 'secondary'}
-                          className={property.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : ''}
-                        >
-                          {property.status === 'ACTIVE' ? 'Activa' : 'Inactiva'}
-                        </Badge>
-                        
-                        {property.avgRating !== undefined && property.avgRating > 0 && (
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                            <span>{property.avgRating.toFixed(1)}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Gestionar Button */}
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => handlePropertyAction('manage', property.id)}
-                      >
-                        Gestionar
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              <DndContext 
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext 
+                  items={propertySet.properties.map(p => p.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {propertySet.properties
+                      .sort((a, b) => (a.order || 0) - (b.order || 0))
+                      .map((property) => (
+                        <SortablePropertyCard
+                          key={property.id}
+                          property={property}
+                          handlePropertyAction={handlePropertyAction}
+                        />
+                      ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             ) : (
               <Card className="text-center py-12">
                 <CardContent>
