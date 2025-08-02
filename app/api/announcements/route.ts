@@ -7,6 +7,14 @@ export async function GET(request: NextRequest) {
   console.log('🚀 GET /api/announcements - Starting...')
   
   try {
+    const authResult = await requireAuth(request)
+    if (authResult instanceof Response) {
+      console.log('❌ Auth failed')
+      return authResult
+    }
+    const userId = authResult.userId
+    console.log('✅ Auth success, userId:', userId)
+
     const { searchParams } = new URL(request.url)
     const propertyId = searchParams.get('propertyId')
     const isPublic = searchParams.get('public') === 'true'
@@ -21,38 +29,8 @@ export async function GET(request: NextRequest) {
 
     let whereClause: any
 
-    // For public requests, don't require auth
-    if (isPublic) {
-      // For public requests, show only active announcements with date validation
-      const now = new Date()
-      whereClause = {
-        propertyId,
-        isActive: true,
-        AND: [
-          {
-            OR: [
-              { startDate: null },
-              { startDate: { lte: now } }
-            ]
-          },
-          {
-            OR: [
-              { endDate: null },
-              { endDate: { gte: now } }
-            ]
-          }
-        ]
-      }
-    } else {
-      // For dashboard requests, verify ownership
-      const authResult = await requireAuth(request)
-      if (authResult instanceof Response) {
-        console.log('❌ Auth failed')
-        return authResult
-      }
-      const userId = authResult.userId
-      console.log('✅ Auth success, userId:', userId)
-
+    // For dashboard requests, verify ownership
+    if (!isPublic) {
       const property = await prisma.property.findUnique({
         where: { id: propertyId },
         select: { hostId: true }
@@ -67,19 +45,21 @@ export async function GET(request: NextRequest) {
 
       // For dashboard, show all announcements (active and inactive)
       whereClause = { propertyId }
+    } else {
+      // For public requests, show only active announcements (simplified)
+      whereClause = {
+        propertyId,
+        isActive: true
+      }
     }
 
     console.log('🔍 Query where clause:', JSON.stringify(whereClause, null, 2))
 
     const announcements = await prisma.announcement.findMany({
       where: whereClause,
-      orderBy: isPublic ? [
-        { priority: 'desc' },
+      orderBy: [
         { createdAt: 'desc' }
-      ] : [
-        { createdAt: 'desc' }
-      ],
-      take: isPublic ? 5 : undefined // Limit to 5 for public requests
+      ]
     })
 
     console.log('📢 Found announcements:', announcements.length)
