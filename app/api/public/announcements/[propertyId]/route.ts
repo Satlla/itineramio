@@ -18,29 +18,37 @@ export async function GET(
     }
 
     // Get active announcements for the property (max 5)
-    const announcements = await prisma.announcement.findMany({
-      where: {
-        propertyId,
-        isActive: true,
-        OR: [
-          { startDate: null },
-          { startDate: { lte: new Date() } }
+    let announcements = []
+    
+    try {
+      announcements = await prisma.announcement.findMany({
+        where: {
+          propertyId,
+          isActive: true,
+          OR: [
+            { startDate: null },
+            { startDate: { lte: new Date() } }
+          ],
+          AND: [
+            {
+              OR: [
+                { endDate: null },
+                { endDate: { gte: new Date() } }
+              ]
+            }
+          ]
+        },
+        orderBy: [
+          { priority: 'desc' },
+          { createdAt: 'desc' }
         ],
-        AND: [
-          {
-            OR: [
-              { endDate: null },
-              { endDate: { gte: new Date() } }
-            ]
-          }
-        ]
-      },
-      orderBy: [
-        { priority: 'desc' },
-        { createdAt: 'desc' }
-      ],
-      take: 5 // Limit to maximum 5 announcements
-    })
+        take: 5 // Limit to maximum 5 announcements
+      })
+    } catch (dbError) {
+      console.error('💥 Database error getting announcements:', dbError)
+      // Return empty array if database error
+      announcements = []
+    }
 
     console.log('📢 Found active announcements:', announcements.length)
 
