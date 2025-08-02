@@ -1741,7 +1741,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           <CardContent className="p-3">
             <div className="flex flex-col h-full">
               {/* Header with drag handle and menu */}
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-3">
                 <div
                   {...attributes}
                   {...listeners}
@@ -1808,21 +1808,21 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Zone content */}
-              <div className="flex flex-col items-center text-center flex-1 px-2">
-                <div className="flex-1 flex flex-col items-center justify-center mb-2">
-                  <div className="mb-2">
+              <div className="flex flex-col items-center text-center flex-1 min-h-[110px] justify-between">
+                <div className="flex-1 flex flex-col items-center justify-center">
+                  <div className="mb-3">
                     <ZoneIconDisplay iconId={zone.iconId} size="lg" />
                   </div>
                   
-                  <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 break-words">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3 line-clamp-2 break-words px-1">
                     {getZoneText(zone.name)}
                   </h3>
                 </div>
                 
-                <div className="flex items-center justify-center text-xs text-gray-600 bg-gray-50 rounded-full px-3 py-1">
+                <div className="flex items-center justify-center text-xs text-gray-600 flex-shrink-0 mt-auto bg-gray-50 rounded-full px-2 py-1">
                   <Edit className="w-3 h-3 mr-1 text-gray-400" />
                   <span className="font-medium">{zone.stepsCount}</span>
-                  <span className="ml-0.5">steps</span>
+                  <span className="ml-1">steps</span>
                 </div>
               </div>
             </div>
