@@ -16,13 +16,15 @@ import {
   Eye,
   Upload,
   Link,
-  Loader2
+  Loader2,
+  ImageIcon
 } from 'lucide-react'
 import { Button } from '../../../../../../../src/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../../../../src/components/ui/Card'
 import { Input } from '../../../../../../../src/components/ui/Input'
 import { ZoneIconDisplay, useZoneIcon } from '../../../../../../../src/components/ui/IconSelector'
 import { VideoUpload } from '../../../../../../../src/components/ui/VideoUpload'
+import { MediaSelector } from '../../../../../../../src/components/ui/MediaSelector'
 import { cn } from '../../../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
 import { AnimatedLoadingSpinner } from '../../../../../../../src/components/ui/AnimatedLoadingSpinner'
@@ -219,6 +221,7 @@ export default function ZoneStepsPage({
   const [editingStep, setEditingStep] = useState<Step | null>(null)
   const [selectedLanguage, setSelectedLanguage] = useState<'es' | 'en'>('es')
   const [newStepType, setNewStepType] = useState<StepType>(StepType.TEXT)
+  const [showMediaLibrary, setShowMediaLibrary] = useState(false)
 
   // Unwrap params and load data
   useEffect(() => {
@@ -310,6 +313,39 @@ export default function ZoneStepsPage({
       color: 'from-purple-500 to-purple-600'
     }
   ]
+
+  const handleMediaSelect = (media: any) => {
+    if (newStepType === StepType.IMAGE || (editingStep && editingStep.type === StepType.IMAGE)) {
+      setFormData({
+        ...formData,
+        content: {
+          ...formData.content,
+          imageUrl: media.url
+        },
+        media: {
+          url: media.url,
+          thumbnail: media.thumbnailUrl,
+          title: media.originalName
+        }
+      })
+    } else if (newStepType === StepType.VIDEO || (editingStep && editingStep.type === StepType.VIDEO)) {
+      setFormData({
+        ...formData,
+        content: {
+          ...formData.content,
+          mediaUrl: media.url,
+          thumbnail: media.thumbnailUrl,
+          duration: media.duration
+        },
+        media: {
+          url: media.url,
+          thumbnail: media.thumbnailUrl,
+          title: media.originalName
+        }
+      })
+    }
+    setShowMediaLibrary(false)
+  }
 
   const handleCreateStep = () => {
     if (!formData.title.es) return
@@ -548,15 +584,50 @@ export default function ZoneStepsPage({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Imagen
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <Upload className="mx-auto h-12 w-12 text-gray-400 mb-2" />
-                <div className="text-sm text-gray-600">
-                  <button className="font-medium text-violet-600 hover:text-violet-500">
-                    Subir archivo
-                  </button>
-                  {' o arrastra y suelta'}
+              <div className="space-y-3">
+                {(formData.content as any)?.imageUrl ? (
+                  <div className="relative rounded-lg overflow-hidden">
+                    <img 
+                      src={(formData.content as any).imageUrl} 
+                      alt="Vista previa" 
+                      className="w-full h-48 object-cover"
+                    />
+                    <button
+                      onClick={() => setFormData({
+                        ...formData,
+                        content: { ...formData.content, imageUrl: '' }
+                      })}
+                      className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-700"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <Upload className="mx-auto h-12 w-12 text-gray-400 mb-2" />
+                    <div className="text-sm text-gray-600">
+                      <button className="font-medium text-violet-600 hover:text-violet-500">
+                        Subir archivo
+                      </button>
+                      {' o arrastra y suelta'}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">PNG, JPG hasta 10MB</p>
+                  </div>
+                )}
+                
+                <div className="flex items-center justify-center">
+                  <div className="text-sm text-gray-500">o</div>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">PNG, JPG hasta 10MB</p>
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowMediaLibrary(true)}
+                  className="w-full"
+                >
+                  <ImageIcon className="w-4 h-4 mr-2" />
+                  Seleccionar de la biblioteca
+                </Button>
               </div>
             </div>
             <div>
@@ -629,49 +700,65 @@ export default function ZoneStepsPage({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Video
               </label>
-              <VideoUpload
-                value={editingStep?.media?.url || editingStep?.content?.mediaUrl || ''}
-                onChange={(videoUrl, metadata) => {
-                  console.log('🎬 VideoUpload onChange called:', { videoUrl, metadata })
-                  
-                  if (videoUrl && metadata) {
-                    const newFormData = {
-                      ...formData,
-                      content: {
-                        ...formData.content,
-                        mediaUrl: videoUrl,
-                        thumbnail: metadata.thumbnail,
-                        duration: metadata.duration
-                      },
-                      media: {
-                        url: videoUrl,
-                        thumbnail: metadata.thumbnail,
-                        title: 'Video subido'
+              <div className="space-y-3">
+                <VideoUpload
+                  value={editingStep?.media?.url || editingStep?.content?.mediaUrl || ''}
+                  onChange={(videoUrl, metadata) => {
+                    console.log('🎬 VideoUpload onChange called:', { videoUrl, metadata })
+                    
+                    if (videoUrl && metadata) {
+                      const newFormData = {
+                        ...formData,
+                        content: {
+                          ...formData.content,
+                          mediaUrl: videoUrl,
+                          thumbnail: metadata.thumbnail,
+                          duration: metadata.duration
+                        },
+                        media: {
+                          url: videoUrl,
+                          thumbnail: metadata.thumbnail,
+                          title: 'Video subido'
+                        }
                       }
+                      console.log('📝 Setting form data with video and media:', newFormData)
+                      setFormData(newFormData)
+                    } else {
+                      // Clear media
+                      const newFormData = {
+                        ...formData,
+                        content: {
+                          ...formData.content,
+                          mediaUrl: undefined,
+                          thumbnail: undefined,
+                          duration: undefined
+                        },
+                        media: undefined
+                      }
+                      console.log('🗑️ Clearing video from form data:', newFormData)
+                      setFormData(newFormData)
                     }
-                    console.log('📝 Setting form data with video and media:', newFormData)
-                    setFormData(newFormData)
-                  } else {
-                    // Clear media
-                    const newFormData = {
-                      ...formData,
-                      content: {
-                        ...formData.content,
-                        mediaUrl: undefined,
-                        thumbnail: undefined,
-                        duration: undefined
-                      },
-                      media: undefined
-                    }
-                    console.log('🗑️ Clearing video from form data:', newFormData)
-                    setFormData(newFormData)
-                  }
-                }}
-                placeholder="Subir video VERTICAL (máx. 30 segundos)"
-                maxSize={50}
-                maxDuration={30}
-                saveToLibrary={true}
-              />
+                  }}
+                  placeholder="Subir video VERTICAL (máx. 30 segundos)"
+                  maxSize={50}
+                  maxDuration={30}
+                  saveToLibrary={true}
+                />
+                
+                <div className="flex items-center justify-center">
+                  <div className="text-sm text-gray-500">o</div>
+                </div>
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowMediaLibrary(true)}
+                  className="w-full"
+                >
+                  <Video className="w-4 h-4 mr-2" />
+                  Seleccionar de la biblioteca
+                </Button>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1342,6 +1429,20 @@ export default function ZoneStepsPage({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Media Library Selector */}
+      <MediaSelector
+        type={
+          newStepType === StepType.IMAGE || (editingStep && editingStep.type === StepType.IMAGE) 
+            ? "image" 
+            : newStepType === StepType.VIDEO || (editingStep && editingStep.type === StepType.VIDEO)
+            ? "video"
+            : "all"
+        }
+        isOpen={showMediaLibrary}
+        onSelect={handleMediaSelect}
+        onClose={() => setShowMediaLibrary(false)}
+      />
     </div>
   )
 }
