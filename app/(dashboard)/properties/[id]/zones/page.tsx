@@ -2045,6 +2045,49 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               <Eye className="w-5 h-5 text-gray-700" />
             </button>
             
+            {/* Compartir URL */}
+            <button
+              onClick={async () => {
+                const publicUrl = `${window.location.origin}/guide/${id}`
+                try {
+                  await navigator.clipboard.writeText(publicUrl)
+                  addNotification({
+                    type: 'success',
+                    title: 'URL copiada',
+                    message: 'El enlace se ha copiado al portapapeles',
+                    read: false
+                  })
+                } catch (err) {
+                  // Fallback para navegadores más antiguos
+                  const textArea = document.createElement('textarea')
+                  textArea.value = publicUrl
+                  document.body.appendChild(textArea)
+                  textArea.select()
+                  try {
+                    document.execCommand('copy')
+                    addNotification({
+                      type: 'success',
+                      title: 'URL copiada',
+                      message: 'El enlace se ha copiado al portapapeles',
+                      read: false
+                    })
+                  } catch (fallbackErr) {
+                    addNotification({
+                      type: 'error',
+                      title: 'Error',
+                      message: 'No se pudo copiar el enlace',
+                      read: false
+                    })
+                  }
+                  document.body.removeChild(textArea)
+                }
+              }}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Compartir manual"
+            >
+              <Share2 className="w-5 h-5 text-gray-700" />
+            </button>
+            
             {/* QR Code */}
             <button
               onClick={() => setShowPropertyQRModal(true)}
