@@ -7,12 +7,16 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  console.log('🚀 PUT /api/announcements/[id] - Starting...')
+  
   try {
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
+      console.log('❌ Auth failed')
       return authResult
     }
     const userId = authResult.userId
+    console.log('✅ Auth success, userId:', userId)
 
     const { id } = await params
     const body = await request.json()
@@ -43,18 +47,27 @@ export async function PUT(
       )
     }
 
+    // Build update data object
+    const updateData: any = {}
+    
+    if (title !== undefined) updateData.title = title
+    if (message !== undefined) updateData.message = message
+    if (category !== undefined) updateData.category = category
+    if (priority !== undefined) updateData.priority = priority
+    if (isActive !== undefined) updateData.isActive = isActive
+    
+    // Handle dates carefully - allow null to clear dates
+    if (startDate !== undefined) {
+      updateData.startDate = startDate && startDate.trim() ? new Date(startDate) : null
+    }
+    if (endDate !== undefined) {
+      updateData.endDate = endDate && endDate.trim() ? new Date(endDate) : null
+    }
+    
     // Update announcement
     const updatedAnnouncement = await prisma.announcement.update({
       where: { id },
-      data: {
-        title: title || announcement.title,
-        message: message || announcement.message,
-        category: category || announcement.category,
-        priority: priority || announcement.priority,
-        isActive: isActive !== undefined ? isActive : announcement.isActive,
-        startDate: startDate !== undefined ? (startDate ? new Date(startDate) : null) : announcement.startDate,
-        endDate: endDate !== undefined ? (endDate ? new Date(endDate) : null) : announcement.endDate
-      }
+      data: updateData
     })
 
     return NextResponse.json({
@@ -77,12 +90,16 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  console.log('🚀 DELETE /api/announcements/[id] - Starting...')
+  
   try {
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
+      console.log('❌ Auth failed')
       return authResult
     }
     const userId = authResult.userId
+    console.log('✅ Auth success, userId:', userId)
 
     const { id } = await params
 
@@ -120,4 +137,16 @@ export async function DELETE(
       { status: 500 }
     )
   }
+}
+
+// OPTIONS for CORS
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  })
 }

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Play, Pause, ChevronLeft, ChevronRight, Phone, MessageCircle, Check, X, Star, Send, Wifi, Zap, Car, Utensils, Bed, Bath, Shield, Tv, Coffee, MapPin, Globe, Clock, Mail } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Play, Pause, ChevronLeft, ChevronRight, Phone, MessageCircle, Check, X, Star, Send, Wifi, Zap, Car, Utensils, Bed, Bath, Shield, Tv, Coffee, MapPin, Globe, Clock, Mail, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '../../../../../src/components/ui/Button'
 import { Card, CardContent } from '../../../../../src/components/ui/Card'
@@ -309,6 +309,7 @@ export default function ZoneGuidePage({
   const [language, setLanguage] = useState('es')
   const [showHostModal, setShowHostModal] = useState(false)
   const [animatingLines, setAnimatingLines] = useState<Set<number>>(new Set())
+  const [copySuccess, setCopySuccess] = useState(false)
 
   // Unwrap params and fetch data
   useEffect(() => {
@@ -316,6 +317,19 @@ export default function ZoneGuidePage({
       setPropertyId(pId)
       setZoneId(zId)
       fetchZoneData(pId, zId)
+      
+      // Get language from URL params
+      const urlParams = new URLSearchParams(window.location.search)
+      const langParam = urlParams.get('lang')
+      if (langParam && ['es', 'en', 'fr'].includes(langParam)) {
+        setLanguage(langParam)
+      } else {
+        // Try to get from localStorage as fallback
+        const savedLang = localStorage.getItem('itineramio-language')
+        if (savedLang && ['es', 'en', 'fr'].includes(savedLang)) {
+          setLanguage(savedLang)
+        }
+      }
     })
   }, [params])
 
@@ -518,6 +532,51 @@ export default function ZoneGuidePage({
     }
   }
 
+  const handleShare = async () => {
+    const url = window.location.href
+    const zoneTitle = getText(zone?.name, language, 'Zona')
+    const title = `${zoneTitle} - Manual digital`
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          text: `Revisa las instrucciones de ${zoneTitle}`,
+          url: url
+        })
+        return
+      } catch (err) {
+        // User cancelled or error occurred, fallback to clipboard
+        if (err instanceof Error && err.name === 'AbortError') {
+          return // User cancelled
+        }
+      }
+    }
+    
+    // Fallback to clipboard
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea')
+      textArea.value = url
+      document.body.appendChild(textArea)
+      textArea.select()
+      try {
+        document.execCommand('copy')
+        setCopySuccess(true)
+        setTimeout(() => setCopySuccess(false), 2000)
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed:', fallbackErr)
+        alert('No se pudo copiar el enlace. URL: ' + url)
+      }
+      document.body.removeChild(textArea)
+    }
+  }
+
   const submitRating = async () => {
     if (rating === 0) return
     
@@ -646,6 +705,20 @@ export default function ZoneGuidePage({
                 <option value="en">🇬🇧</option>
                 <option value="fr">🇫🇷</option>
               </select>
+              
+              {/* Share Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleShare}
+                className="text-violet-600 border-violet-200 hover:bg-violet-50"
+                title={copySuccess ? "¡Copiado!" : "Compartir zona"}
+              >
+                <Share2 className="w-4 h-4" />
+                <span className="hidden sm:inline ml-2">
+                  {copySuccess ? "¡Copiado!" : "Compartir"}
+                </span>
+              </Button>
               
               <Button
                 variant="outline"

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ArrowLeft,
   MapPin, 
@@ -369,6 +369,22 @@ const getPriorityText = (priority: string, language: string) => {
   return priorities[language as keyof typeof priorities]?.[priority as keyof typeof priorities.es] || priority
 }
 
+// Helper function to get priority color classes
+const getPriorityColor = (priority: string) => {
+  switch (priority) {
+    case 'URGENT':
+      return 'bg-red-50 border-red-400'
+    case 'HIGH':
+      return 'bg-orange-50 border-orange-400'
+    case 'NORMAL':
+      return 'bg-blue-50 border-blue-400'
+    case 'LOW':
+      return 'bg-gray-50 border-gray-400'
+    default:
+      return 'bg-gray-50 border-gray-400'
+  }
+}
+
 export default function PropertyGuidePage() {
   const router = useRouter()
   const params = useParams()
@@ -396,11 +412,25 @@ export default function PropertyGuidePage() {
   const [evaluationsStats, setEvaluationsStats] = useState<any>(null)
   const [loadingEvaluations, setLoadingEvaluations] = useState(false)
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [showAnnouncementsModal, setShowAnnouncementsModal] = useState(false)
 
   useEffect(() => {
     fetchPropertyData()
     fetchAnnouncements()
     // fetchPublicEvaluations will be called from fetchPropertyData if needed
+    
+    // Get language from URL params
+    const urlParams = new URLSearchParams(window.location.search)
+    const langParam = urlParams.get('lang')
+    if (langParam && ['es', 'en', 'fr'].includes(langParam)) {
+      setLanguage(langParam)
+    } else {
+      // Try to get from localStorage as fallback
+      const savedLang = localStorage.getItem('itineramio-language')
+      if (savedLang && ['es', 'en', 'fr'].includes(savedLang)) {
+        setLanguage(savedLang)
+      }
+    }
   }, [propertyId])
 
   // Check progress and show warning or completion reward
@@ -484,15 +514,34 @@ export default function PropertyGuidePage() {
 
   const fetchAnnouncements = async () => {
     try {
-      const response = await fetch(`/api/announcements?propertyId=${propertyId}&public=true`)
+      const response = await fetch(`/api/public/announcements/${propertyId}`)
       if (response.ok) {
         const data = await response.json()
-        setAnnouncements(data.data || [])
+        const activeAnnouncements = data.data || []
+        setAnnouncements(activeAnnouncements)
+        
+        // Show modal if there are active announcements and user hasn't dismissed them
+        if (activeAnnouncements.length > 0) {
+          const dismissedAnnouncements = localStorage.getItem(`announcements-dismissed-${propertyId}`)
+          if (!dismissedAnnouncements) {
+            setShowAnnouncementsModal(true)
+          }
+        }
       }
     } catch (error) {
       console.error('Error fetching announcements:', error)
       setAnnouncements([])
     }
+  }
+
+  const handleAcceptAnnouncements = () => {
+    setShowAnnouncementsModal(false)
+  }
+
+  const handleDismissAnnouncements = () => {
+    // Set a cookie/localStorage flag to not show announcements again for this property
+    localStorage.setItem(`announcements-dismissed-${propertyId}`, 'true')
+    setShowAnnouncementsModal(false)
   }
 
   const submitSuggestion = async () => {
@@ -521,7 +570,8 @@ export default function PropertyGuidePage() {
   }
 
   const handleZoneClick = (zoneId: string) => {
-    router.push(`/guide/${propertyId}/${zoneId}`)
+    const url = `/guide/${propertyId}/${zoneId}?lang=${language}`
+    router.push(url)
   }
 
   const scrollCarousel = (direction: 'left' | 'right') => {
@@ -672,7 +722,18 @@ export default function PropertyGuidePage() {
               {/* Language Selector */}
               <select
                 value={language}
-                onChange={(e) => setLanguage(e.target.value)}
+                onChange={(e) => {
+                  const newLang = e.target.value
+                  setLanguage(newLang)
+                  
+                  // Update URL with language parameter
+                  const url = new URL(window.location.href)
+                  url.searchParams.set('lang', newLang)
+                  window.history.replaceState({}, '', url.toString())
+                  
+                  // Save to localStorage for persistence
+                  localStorage.setItem('itineramio-language', newLang)
+                }}
                 className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
               >
                 <option value="es">🇪🇸 ES</option>
@@ -1590,6 +1651,99 @@ export default function PropertyGuidePage() {
           </motion.div>
         </motion.div>
       )}
+
+      {/* Announcements Modal */}
+      <AnimatePresence>
+        {showAnnouncementsModal && announcements.length > 0 && (
+          <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              handleAcceptAnnouncements()
+            }
+          }}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Bell className="w-8 h-8 text-orange-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  {language === 'es' ? 'Avisos Importantes' : language === 'en' ? 'Important Announcements' : 'Avis Importants'}
+                </h3>
+                <p className="text-gray-600">
+                  {language === 'es' 
+                    ? 'Tu anfitrión ha dejado algunos avisos importantes para tu estancia.'
+                    : language === 'en'
+                    ? 'Your host has left some important announcements for your stay.'
+                    : 'Votre hôte a laissé quelques annonces importantes pour votre séjour.'
+                  }
+                </p>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                {announcements.map((announcement, index) => {
+                  const IconComponent = getAnnouncementIcon(announcement.category)
+                  const priorityColor = getPriorityColor(announcement.priority)
+                  
+                  return (
+                    <div
+                      key={announcement.id}
+                      className={`p-4 rounded-lg border-l-4 ${priorityColor}`}
+                    >
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0 mt-0.5">
+                          <IconComponent className="w-5 h-5 text-gray-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 mb-1">
+                            {announcement.title}
+                          </h4>
+                          <p className="text-gray-700 text-sm leading-relaxed">
+                            {announcement.message}
+                          </p>
+                          <div className="flex items-center mt-2 text-xs text-gray-500">
+                            <span className="px-2 py-1 bg-gray-100 rounded-full">
+                              {getPriorityText(announcement.priority, language)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleDismissAnnouncements}
+                  className="flex-1"
+                >
+                  {language === 'es' ? 'No mostrar de nuevo' : language === 'en' ? 'Don\'t show again' : 'Ne plus afficher'}
+                </Button>
+                <Button
+                  onClick={handleAcceptAnnouncements}
+                  className="flex-1 bg-orange-600 hover:bg-orange-700"
+                >
+                  {language === 'es' ? 'Aceptar' : language === 'en' ? 'Accept' : 'Accepter'}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

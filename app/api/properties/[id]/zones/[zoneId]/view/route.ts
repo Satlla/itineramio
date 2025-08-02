@@ -38,7 +38,7 @@ export async function POST(
       }
     })
 
-    if (!zone) {
+    if (!zone || !zone.property) {
       return NextResponse.json({
         success: false,
         error: 'Zona no encontrada'

@@ -84,9 +84,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/announcements - Create new announcement
 export async function POST(request: NextRequest) {
+  console.log('🚀 POST /api/announcements - Starting...')
+  
   try {
-    console.log('🚀 POST /api/announcements - Starting...')
-    
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
       console.log('❌ Auth failed')
@@ -147,10 +147,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Only add dates if they exist and are valid
-    if (startDate && startDate.trim()) {
+    if (startDate && typeof startDate === 'string' && startDate.trim()) {
       createData.startDate = new Date(startDate)
     }
-    if (endDate && endDate.trim()) {
+    if (endDate && typeof endDate === 'string' && endDate.trim()) {
       createData.endDate = new Date(endDate)
     }
 
@@ -177,4 +177,16 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+// OPTIONS for CORS
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  })
 }
