@@ -42,12 +42,12 @@ export async function GET(
       include: {
         steps: {
           orderBy: {
-            order: 'asc'
+            id: 'asc'
           }
         }
       },
       orderBy: {
-        order: 'asc'
+        id: 'asc'
       }
     })
     

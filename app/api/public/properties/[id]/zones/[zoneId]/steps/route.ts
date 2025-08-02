@@ -60,7 +60,7 @@ export async function GET(
         isPublished: true
       },
       orderBy: {
-        order: 'asc'
+        id: 'asc'
       }
     })
 

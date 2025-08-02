@@ -91,7 +91,7 @@ export async function GET(
           }
         },
         orderBy: {
-          order: 'asc'
+          id: 'asc'
         }
       })
     } catch (zoneError) {

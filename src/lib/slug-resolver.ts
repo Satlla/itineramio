@@ -118,7 +118,7 @@ export async function getZonesWithSlugs(propertyId: string): Promise<ResolvedZon
     const zones = await prisma.zone.findMany({
       where: { propertyId },
       select: { id: true, name: true, propertyId: true }, // slug temporarily disabled
-      orderBy: { order: 'asc' }
+      orderBy: { id: 'asc' }
     });
     
     // return zones.filter(z => z.slug) as ResolvedZone[];
