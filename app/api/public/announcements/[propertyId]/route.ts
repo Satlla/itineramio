@@ -18,7 +18,7 @@ export async function GET(
     }
 
     // Get active announcements for the property (max 5)
-    let announcements = []
+    let announcements: any[] = []
     
     try {
       announcements = await prisma.announcement.findMany({
