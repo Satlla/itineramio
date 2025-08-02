@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const totalCount = await prisma.announcement.count()
     
     // Get announcements for specific property if provided
-    let propertyAnnouncements = []
+    let propertyAnnouncements: any[] = []
     if (propertyId) {
       try {
         propertyAnnouncements = await prisma.announcement.findMany({
