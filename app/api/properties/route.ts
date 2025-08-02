@@ -238,39 +238,39 @@ export async function GET(request: NextRequest) {
       where.propertySetId = null
     }
     
-    // Get properties with zones count in a single query
+    // Get properties with minimal includes to avoid DB schema issues
     const properties = await prisma.property.findMany({
       where,
       skip: (page - 1) * limit,
       take: limit,
       orderBy: {
-        createdAt: 'desc'  // Most recent first
+        id: 'desc'  // Use ID instead of createdAt
       },
-      include: {
-        analytics: true,
-        propertySet: {
-          select: {
-            id: true,
-            name: true
-          }
-        },
-        _count: {
-          select: {
-            zones: true
-          }
-        }
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        type: true,
+        city: true,
+        state: true,
+        bedrooms: true,
+        bathrooms: true,
+        maxGuests: true,
+        status: true,
+        isPublished: true,
+        profileImage: true,
+        propertySetId: true,
+        hostContactName: true,
+        hostContactPhoto: true,
+        createdAt: true,
+        updatedAt: true
       }
     })
     
     const total = await prisma.property.count({ where })
     
-    // Log the first few properties to verify ordering
-    console.log('Properties order (showing first 3):')
-    properties.slice(0, 3).forEach((prop, index) => {
-      console.log(`${index + 1}. ${prop.name} - Created: ${prop.createdAt}`)
-    })
-
-    // Transform properties data without additional queries
+    // Transform properties data - simplified to avoid analytics/count issues
     const propertiesWithZones = properties.map((property) => {
       try {
         return {
@@ -284,16 +284,16 @@ export async function GET(request: NextRequest) {
           bedrooms: property.bedrooms,
           bathrooms: property.bathrooms,
           maxGuests: property.maxGuests,
-          zonesCount: property._count?.zones || 0,
-          totalViews: property.analytics?.totalViews || 0,
-          avgRating: property.analytics?.overallRating || 0,
+          zonesCount: 0, // Temporarily set to 0
+          totalViews: 0, // Temporarily set to 0
+          avgRating: 0, // Temporarily set to 0
           status: property.status,
           createdAt: property.createdAt,
           updatedAt: property.updatedAt,
           isPublished: property.isPublished,
           profileImage: property.profileImage,
           propertySetId: property.propertySetId,
-          propertySet: property.propertySet,
+          propertySet: null, // Temporarily set to null
           hostContactName: property.hostContactName,
           hostContactPhoto: property.hostContactPhoto
         }
