@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
         debug: {
           hasToken: false,
           cookieNames: request.cookies.getAll().map(cookie => cookie.name),
-          headers: Object.fromEntries(request.headers.entries())
+          totalCookies: request.cookies.getAll().length
         }
       })
     }
