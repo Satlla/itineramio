@@ -13,31 +13,13 @@ export async function GET(
     let property = await prisma.property.findFirst({
       where: {
         slug: slug,
-        isPublished: true // Only published properties
+        isPublished: true
       },
       include: {
         zones: {
           where: {
-            // Only include published zones with published steps
-            AND: [
-              {
-                OR: [
-                  { 
-                    AND: [
-                      { isPublished: true },
-                      { status: 'ACTIVE' }
-                    ]
-                  },
-                  { 
-                    steps: { 
-                      some: { 
-                        isPublished: true
-                      } 
-                    } 
-                  }
-                ]
-              }
-            ]
+            isPublished: true,
+            status: 'ACTIVE'
           },
           include: {
             steps: {
@@ -63,31 +45,13 @@ export async function GET(
       property = await prisma.property.findFirst({
         where: {
           id: slug,
-          isPublished: true // Only published properties
+          isPublished: true
         },
         include: {
           zones: {
             where: {
-              // Only include published zones with published steps
-              AND: [
-                {
-                  OR: [
-                    { 
-                      AND: [
-                        { isPublished: true },
-                        { status: 'ACTIVE' }
-                      ]
-                    },
-                    { 
-                      steps: { 
-                        some: { 
-                          isPublished: true
-                        } 
-                      } 
-                    }
-                  ]
-                }
-              ]
+              isPublished: true,
+              status: 'ACTIVE'
             },
             include: {
               steps: {
@@ -105,62 +69,6 @@ export async function GET(
           }
         }
       })
-      
-      // If still not found by exact ID, try with startsWith (for Next.js URL truncation)
-      if (!property) {
-        console.log('🔍 Property not found by exact ID, trying startsWith:', slug)
-        
-        const properties = await prisma.property.findMany({
-          where: {
-            id: { startsWith: slug },
-            isPublished: true
-          },
-          include: {
-            zones: {
-              where: {
-                AND: [
-                  {
-                    OR: [
-                      { 
-                        AND: [
-                          { isPublished: true },
-                          { status: 'ACTIVE' }
-                        ]
-                      },
-                      { 
-                        steps: { 
-                          some: { 
-                            isPublished: true
-                          } 
-                        } 
-                      }
-                    ]
-                  }
-                ]
-              },
-              include: {
-                steps: {
-                  where: {
-                    isPublished: true
-                  },
-                  orderBy: {
-                    order: 'asc'
-                  }
-                }
-              },
-              orderBy: {
-                order: 'asc'
-              }
-            }
-          },
-          take: 1
-        })
-        
-        if (properties.length > 0) {
-          property = properties[0]
-          console.log('🔍 Found property by startsWith ID:', property.id)
-        }
-      }
     }
     
     console.log('🔍 Public Property final result found:', !!property)
