@@ -66,8 +66,34 @@ export async function GET(
         },
         hostId: userId
       },
-      include: {
-        analytics: true
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        type: true,
+        street: true,
+        city: true,
+        state: true,
+        country: true,
+        postalCode: true,
+        bedrooms: true,
+        bathrooms: true,
+        maxGuests: true,
+        squareMeters: true,
+        profileImage: true,
+        hostContactName: true,
+        hostContactPhone: true,
+        hostContactEmail: true,
+        hostContactLanguage: true,
+        hostContactPhoto: true,
+        status: true,
+        isPublished: true,
+        propertySetId: true,
+        hostId: true,
+        createdAt: true,
+        updatedAt: true,
+        publishedAt: true
       }
     })
     
@@ -83,7 +109,19 @@ export async function GET(
         where: {
           propertyId: actualPropertyId
         },
-        include: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          icon: true,
+          description: true,
+          color: true,
+          status: true,
+          isPublished: true,
+          propertyId: true,
+          createdAt: true,
+          updatedAt: true,
+          publishedAt: true,
           _count: {
             select: {
               steps: true
@@ -96,6 +134,10 @@ export async function GET(
       })
     } catch (zoneError) {
       console.error('Error fetching zones:', zoneError)
+      console.error('Zone error details:', {
+        propertyId: actualPropertyId,
+        error: zoneError instanceof Error ? zoneError.message : 'Unknown error'
+      })
       zones = []
     }
     
@@ -106,15 +148,53 @@ export async function GET(
       }, { status: 404 })
     }
     
-    // Transform data to include counts and analytics
+    // Transform data to include counts and analytics    
     const transformedProperty = {
-      ...property,
+      id: property.id,
+      name: property.name,
+      slug: property.slug,
+      description: property.description,
+      type: property.type,
+      street: property.street,
+      city: property.city,
+      state: property.state,
+      country: property.country,
+      postalCode: property.postalCode,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      maxGuests: property.maxGuests,
+      squareMeters: property.squareMeters,
+      profileImage: property.profileImage,
+      hostContactName: property.hostContactName,
+      hostContactPhone: property.hostContactPhone,
+      hostContactEmail: property.hostContactEmail,
+      hostContactLanguage: property.hostContactLanguage,
+      hostContactPhoto: property.hostContactPhoto,
+      status: property.status,
+      isPublished: property.isPublished,
+      propertySetId: property.propertySetId,
+      hostId: property.hostId,
+      createdAt: property.createdAt,
+      updatedAt: property.updatedAt,
+      publishedAt: property.publishedAt,
+      // Computed fields
       zonesCount: zones.length,
-      totalViews: property.analytics?.totalViews || 0,
-      avgRating: property.analytics?.overallRating || 0,
+      totalViews: 0, // Temporarily set to 0
+      avgRating: 0, // Temporarily set to 0
       zones: zones.map(zone => ({
-        ...zone,
-        stepsCount: zone._count.steps
+        id: zone.id,
+        name: zone.name,
+        slug: zone.slug,
+        icon: zone.icon,
+        description: zone.description,
+        color: zone.color,
+        status: zone.status,
+        isPublished: zone.isPublished,
+        propertyId: zone.propertyId,
+        createdAt: zone.createdAt,
+        updatedAt: zone.updatedAt,
+        publishedAt: zone.publishedAt,
+        stepsCount: zone._count?.steps || 0
       }))
     }
     
