@@ -3,7 +3,7 @@ import { prisma } from '../../../src/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔍 DB Check - Testing database connection...')
+    console.log('🔍 DB Check - Testing database connection and Prisma client...')
     
     // Test basic connection
     const userCount = await prisma.user.count()
