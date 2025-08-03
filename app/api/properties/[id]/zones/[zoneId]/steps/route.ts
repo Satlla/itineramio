@@ -394,8 +394,8 @@ export async function PUT(
           }
         }
         
-        // Handle content - ensure it's always a proper multilingual object
-        let contentData = { es: '', en: '', fr: '' }
+        // Handle content - ensure it's always a proper multilingual object with media support
+        let contentData: any = { es: '', en: '', fr: '' }
         if (step.content) {
           if (typeof step.content === 'string') {
             contentData.es = step.content
@@ -403,7 +403,9 @@ export async function PUT(
             contentData = {
               es: step.content.es || '',
               en: step.content.en || '',
-              fr: step.content.fr || ''
+              fr: step.content.fr || '',
+              ...(step.content as any).mediaUrl && { mediaUrl: (step.content as any).mediaUrl },
+              ...(step.content as any).linkUrl && { linkUrl: (step.content as any).linkUrl }
             }
           }
         }
