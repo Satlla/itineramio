@@ -234,8 +234,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     const fetchData = async () => {
       try {
         // Fetch property info
-        const propResponse = await fetch(`/api/properties/${id}`)
-        const propResult = await propResponse.json()
+        let propResponse = await fetch(`/api/properties/${id}`)
+        let propResult = await propResponse.json()
+        
+        // If main endpoint fails, try safe endpoint
+        if (!propResponse.ok || !propResult.success) {
+          console.log('Main property endpoint failed, trying safe endpoint...')
+          propResponse = await fetch(`/api/properties/${id}/safe`)
+          propResult = await propResponse.json()
+        }
         
         // Check if property exists
         if (!propResponse.ok || !propResult.success || !propResult.data) {
