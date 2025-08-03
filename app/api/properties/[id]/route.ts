@@ -205,10 +205,67 @@ export async function GET(
     
   } catch (error) {
     console.error('Error fetching property:', error)
+    console.error('Error details:', {
+      propertyId: id,
+      userId,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    })
+    
+    // Try safe method as fallback
+    try {
+      console.log('🔄 Attempting safe property fetch as fallback...')
+      
+      const safeProperties = await prisma.$queryRaw`
+        SELECT 
+          id, name, slug, description, type,
+          street, city, state, country, "postalCode",
+          bedrooms, bathrooms, "maxGuests", "squareMeters",
+          "profileImage", "hostContactName", "hostContactPhone",
+          "hostContactEmail", "hostContactLanguage", "hostContactPhoto",
+          status, "isPublished", "propertySetId", "hostId",
+          "createdAt", "updatedAt", "publishedAt"
+        FROM properties
+        WHERE id LIKE ${id + '%'}
+          AND "hostId" = ${userId}
+        LIMIT 1
+      ` as any[]
+      
+      const safeProperty = safeProperties[0]
+      
+      if (safeProperty) {
+        // Get zones count safely
+        const zonesCount = await prisma.$queryRaw`
+          SELECT COUNT(*) as count
+          FROM zones
+          WHERE "propertyId" = ${safeProperty.id}
+        ` as any[]
+        
+        const count = Number(zonesCount[0]?.count || 0)
+        
+        const fallbackResult = {
+          ...safeProperty,
+          zonesCount: count,
+          totalViews: 0,
+          avgRating: 0,
+          zones: [] // Empty zones array for fallback
+        }
+        
+        console.log('✅ Safe fallback successful')
+        
+        return NextResponse.json({
+          success: true,
+          data: fallbackResult,
+          fallback: true
+        })
+      }
+    } catch (fallbackError) {
+      console.error('Fallback also failed:', fallbackError)
+    }
     
     return NextResponse.json({
       success: false,
-      error: 'Error interno del servidor'
+      error: 'Error interno del servidor',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
 }
