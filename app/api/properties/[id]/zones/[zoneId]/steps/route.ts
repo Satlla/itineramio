@@ -459,7 +459,7 @@ export async function PUT(
         } catch (fallbackError) {
           console.error(`🚨 Error creating fallback step ${i + 1}:`, fallbackError)
           // If we can't even create a fallback, something is seriously wrong
-          throw new Error(`Failed to create step ${i + 1}: ${stepError.message}`)
+          throw new Error(`Failed to create step ${i + 1}: ${stepError instanceof Error ? stepError.message : String(stepError)}`)
         }
       }
     }
