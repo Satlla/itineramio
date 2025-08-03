@@ -372,11 +372,17 @@ export default function ZoneGuidePage({
       console.log('🔍 Resolved property ID:', actualPropertyId, 'from:', pId)
       
       // Fetch both zone data and steps using public APIs with resolved ID
-      const [zoneResponse, stepsResponse, propertyResponse] = await Promise.all([
+      let [zoneResponse, stepsResponse, propertyResponse] = await Promise.all([
         fetch(`/api/public/properties/${actualPropertyId}/zones/${zId}`),
         fetch(`/api/public/properties/${actualPropertyId}/zones/${zId}/steps`),
         fetch(`/api/public/properties/${actualPropertyId}`)
       ])
+      
+      // If property endpoint fails, try safe endpoint
+      if (!propertyResponse.ok && propertyResponse.status === 500) {
+        console.log('Property endpoint failed, trying safe endpoint...')
+        propertyResponse = await fetch(`/api/public/properties/${actualPropertyId}/safe`)
+      }
       
       const [zoneResult, stepsResult, propertyResult] = await Promise.all([
         zoneResponse.json(),

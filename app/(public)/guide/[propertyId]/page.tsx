@@ -464,6 +464,13 @@ export default function PropertyGuidePage() {
         result = await response.json()
       }
       
+      // If main ID endpoint fails, try safe endpoint
+      if (!response.ok && response.status === 500) {
+        console.log('Main property endpoint failed, trying safe endpoint...')
+        response = await fetch(`/api/public/properties/${propertyId}/safe`)
+        result = await response.json()
+      }
+      
       if (!response.ok) {
         throw new Error(result.error || 'Manual no encontrado')
       }
