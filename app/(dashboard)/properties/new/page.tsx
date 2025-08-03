@@ -181,7 +181,7 @@ function NewPropertyPageContent() {
     setIsSubmitting(true)
     
     try {
-      const url = isEditing ? `/api/properties/${editId}/safe` : '/api/properties/safe'
+      const url = isEditing ? `/api/properties/${editId}/safe` : '/api/properties/ultra-safe'
       const method = isEditing ? 'PUT' : 'POST'
       
       const response = await fetch(url, {
