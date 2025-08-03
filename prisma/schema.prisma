@@ -8,44 +8,44 @@ datasource db {
 }
 
 model User {
-  id                   String                 @id @default(cuid())
-  email                String                 @unique
-  name                 String
-  phone                String?
-  password             String?
-  emailVerified        DateTime?
-  phoneVerified        DateTime?
-  preferredLanguage    String                 @default("es")
-  timezone             String                 @default("Europe/Madrid")
-  role                 String                 @default("HOST")
-  status               String                 @default("PENDING")
-  subscription         String                 @default("FREE")
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  lastLoginAt          DateTime?
-  avatar               String?
-  companyName          String?
-  createdBy            String?
-  isActive             Boolean                @default(true)
-  isAdmin              Boolean                @default(false)
-  notes                String?
-  notificationPreferences Json?              @default("{}")
-  adminLogs            AdminActivityLog[]
-  assignedErrorReports ErrorReport[]          @relation("ErrorReportAssignee")
-  invoices             Invoice[]
-  mediaItems           MediaLibrary[]
-  organization_members organization_members[]
-  properties           Property[]
-  propertySets         PropertySet[]
-  trackingEvents       TrackingEvent[]        @relation("UserTrackingEvents")
-  inspirationState     UserInspirationState?
-  subscriptions        UserSubscription[]
-  creator              User?                  @relation("UserCreatedBy", fields: [createdBy], references: [id])
-  createdUsers         User[]                 @relation("UserCreatedBy")
-  moderatedComments    ZoneComment[]          @relation("CommentModerator")
-  notifications        Notification[]
-  propertyViews        PropertyView[]         @relation("HostPropertyViews")
-  zoneViews            ZoneView[]             @relation("HostZoneViews")
+  id                      String                 @id @default(cuid())
+  email                   String                 @unique
+  name                    String
+  phone                   String?
+  password                String?
+  emailVerified           DateTime?
+  phoneVerified           DateTime?
+  preferredLanguage       String                 @default("es")
+  timezone                String                 @default("Europe/Madrid")
+  role                    String                 @default("HOST")
+  status                  String                 @default("PENDING")
+  subscription            String                 @default("FREE")
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  lastLoginAt             DateTime?
+  avatar                  String?
+  companyName             String?
+  createdBy               String?
+  isActive                Boolean                @default(true)
+  isAdmin                 Boolean                @default(false)
+  notes                   String?
+  notificationPreferences Json?                  @default("{}")
+  adminLogs               AdminActivityLog[]
+  assignedErrorReports    ErrorReport[]          @relation("ErrorReportAssignee")
+  invoices                Invoice[]
+  mediaItems              MediaLibrary[]
+  notifications           Notification[]
+  organization_members    organization_members[]
+  properties              Property[]
+  propertySets            PropertySet[]
+  propertyViews           PropertyView[]         @relation("HostPropertyViews")
+  trackingEvents          TrackingEvent[]        @relation("UserTrackingEvents")
+  inspirationState        UserInspirationState?
+  subscriptions           UserSubscription[]
+  creator                 User?                  @relation("UserCreatedBy", fields: [createdBy], references: [id])
+  createdUsers            User[]                 @relation("UserCreatedBy")
+  moderatedComments       ZoneComment[]          @relation("CommentModerator")
+  zoneViews               ZoneView[]             @relation("HostZoneViews")
 
   @@map("users")
 }
@@ -119,18 +119,18 @@ model Property {
   publishedAt         DateTime?
   slug                String?            @unique
   order               Int?               @default(0)
+  announcements       Announcement[]
   buildings           buildings?         @relation(fields: [buildingId], references: [id])
   host                User               @relation(fields: [hostId], references: [id], onDelete: Cascade)
   organizations       organizations?     @relation(fields: [organizationId], references: [id])
   propertySet         PropertySet?       @relation(fields: [propertySetId], references: [id])
   analytics           PropertyAnalytics?
-  trackingEvents      TrackingEvent[]
-  zones               Zone[]
   propertyRatings     PropertyRating[]
-  reviews             Review[]
-  announcements       Announcement[]
   propertyViews       PropertyView[]
+  reviews             Review[]
+  trackingEvents      TrackingEvent[]
   zoneViews           ZoneView[]         @relation("PropertyZoneViews")
+  zones               Zone[]
 
   @@index([slug])
   @@map("properties")
@@ -162,13 +162,13 @@ model Zone {
   publishedAt         DateTime?
   slug                String?
   errorReports        ErrorReport[]
+  reviews             Review[]
   steps               Step[]
   trackingEvents      TrackingEvent[]
   analytics           ZoneAnalytics?
   comments            ZoneComment[]
   ratings             ZoneRating[]
-  reviews             Review[]
-  zoneViews           ZoneView[]         @relation("ZoneViews")
+  zoneViews           ZoneView[]      @relation("ZoneViews")
   buildings           buildings?      @relation(fields: [buildingId], references: [id], onDelete: Cascade)
   organizations       organizations?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   property            Property?       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
@@ -287,9 +287,9 @@ model PropertyAnalytics {
   whatsappClicks     Int       @default(0)
   errorReportsCount  Int       @default(0)
   commentsCount      Int       @default(0)
-  zoneViews          Int       @default(0)
-  lastViewedAt       DateTime?
   lastCalculatedAt   DateTime  @default(now())
+  lastViewedAt       DateTime?
+  zoneViews          Int       @default(0)
   property           Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@map("property_analytics")
@@ -348,9 +348,9 @@ model ZoneAnalytics {
   avgRating         Float     @default(0)
   totalRatings      Int       @default(0)
   timeSavedMinutes  Int       @default(0)
-  totalTimeSpent    Int       @default(0)
-  lastViewedAt      DateTime?
   lastCalculatedAt  DateTime  @default(now())
+  lastViewedAt      DateTime?
+  totalTimeSpent    Int       @default(0)
   zone              Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
 
   @@map("zone_analytics")
@@ -540,16 +540,16 @@ model MediaLibrary {
 }
 
 model PropertyRating {
-  id          String    @id @default(cuid())
-  propertyId  String
-  rating      Int       // 1-5 stars
-  comment     String?
-  guestId     String    // Anonymous guest identifier
-  guestIp     String?
-  status      String    @default("PENDING") // PENDING, APPROVED, REJECTED
-  createdAt   DateTime  @default(now())
-  reviewedAt  DateTime?
-  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  id         String    @id @default(cuid())
+  propertyId String
+  rating     Int
+  comment    String?
+  guestId    String
+  guestIp    String?
+  status     String    @default("PENDING")
+  createdAt  DateTime  @default(now())
+  reviewedAt DateTime?
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([propertyId, status])
   @@index([guestId])
@@ -559,10 +559,10 @@ model PropertyRating {
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  type      String   // RATING_RECEIVED, etc.
+  type      String
   title     String
   message   String
-  data      Json?    // Additional data for the notification
+  data      Json?
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -575,17 +575,17 @@ model Notification {
 model Review {
   id              String    @id @default(cuid())
   propertyId      String
-  zoneId          String?   // Optional - for zone-specific reviews
-  rating          Int       // 1-5 stars
-  comment         String?   // Optional comment
+  zoneId          String?
+  rating          Int
+  comment         String?
   userName        String    @default("Usuario anónimo")
-  userEmail       String?   // Optional
-  reviewType      String    // 'zone' or 'property'
+  userEmail       String?
+  reviewType      String
   isPublic        Boolean   @default(false)
-  isApproved      Boolean   @default(false) // Host approval for public reviews
-  hostResponse    String?   // Host response to the review
-  hostRespondedAt DateTime? // When host responded
-  emailSent       Boolean   @default(false) // Track if email notification was sent
+  isApproved      Boolean   @default(false)
+  hostResponse    String?
+  hostRespondedAt DateTime?
+  emailSent       Boolean   @default(false)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
@@ -599,18 +599,18 @@ model Review {
 }
 
 model Announcement {
-  id          String    @id @default(cuid())
-  propertyId  String
-  title       String
-  message     String
-  category    String    // 'parking', 'cleaning', 'construction', 'check-in', 'amenities', 'other'
-  priority    String    @default("NORMAL") // 'LOW', 'NORMAL', 'HIGH', 'URGENT'
-  isActive    Boolean   @default(true)
-  startDate   DateTime? // Optional - when announcement becomes active
-  endDate     DateTime? // Optional - when announcement expires
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  id         String    @id @default(cuid())
+  propertyId String
+  title      String
+  message    String
+  category   String
+  priority   String    @default("NORMAL")
+  isActive   Boolean   @default(true)
+  startDate  DateTime?
+  endDate    DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([propertyId, isActive])
   @@index([startDate, endDate])
@@ -629,8 +629,8 @@ model PropertyView {
   screenWidth  Int?
   screenHeight Int?
   viewedAt     DateTime @default(now())
-  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   host         User     @relation("HostPropertyViews", fields: [hostId], references: [id], onDelete: Cascade)
+  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([propertyId, viewedAt])
   @@index([hostId, viewedAt])
@@ -650,11 +650,11 @@ model ZoneView {
   timezone     String   @default("UTC")
   screenWidth  Int?
   screenHeight Int?
-  timeSpent    Int      @default(0) // seconds
+  timeSpent    Int      @default(0)
   viewedAt     DateTime @default(now())
-  zone         Zone     @relation("ZoneViews", fields: [zoneId], references: [id], onDelete: Cascade)
-  property     Property @relation("PropertyZoneViews", fields: [propertyId], references: [id], onDelete: Cascade)
   host         User     @relation("HostZoneViews", fields: [hostId], references: [id], onDelete: Cascade)
+  property     Property @relation("PropertyZoneViews", fields: [propertyId], references: [id], onDelete: Cascade)
+  zone         Zone     @relation("ZoneViews", fields: [zoneId], references: [id], onDelete: Cascade)
 
   @@index([zoneId, viewedAt])
   @@index([propertyId, viewedAt])

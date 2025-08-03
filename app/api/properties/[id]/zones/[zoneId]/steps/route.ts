@@ -17,77 +17,33 @@ export async function GET(
     }
     const userId = authResult.userId
 
-    // Set JWT claims for RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
-
-    // Verify user owns the property
-    const property = await prisma.property.findFirst({
-      where: {
-        id: propertyId,
-        hostId: userId
-      }
-    })
-
-    if (!property) {
-      return NextResponse.json(
-        { error: 'Propiedad no encontrada o no autorizada' },
-        { status: 404 }
-      )
-    }
-
-    // Find zone using startsWith due to Next.js truncating long IDs
-    const zones = await prisma.zone.findMany({
-      where: {
-        id: {
-          startsWith: zoneId
-        },
-        propertyId: propertyId
-      }
-    })
-    
-    const zone = zones[0]
-    const actualZoneId = zone?.id || zoneId
-
-    if (!zone) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Zona no encontrada' 
-        },
-        { status: 404 }
-      )
-    }
-
-    // Try to get steps using Prisma query first
-    let steps
+    // Set JWT claims for RLS policies - with error handling
     try {
-      steps = await prisma.step.findMany({
-        where: {
-          zoneId: actualZoneId
-        },
-        orderBy: {
-          id: 'asc'
-        }
-      })
-    } catch (prismaError) {
-      console.error('Prisma query failed, using raw SQL:', prismaError)
-      // Fallback to raw SQL if Prisma fails
-      steps = await prisma.$queryRaw`
-        SELECT 
-          id, 
-          "zoneId", 
-          type, 
-          title, 
-          content,
-          "isPublished", 
-          "createdAt", 
-          "updatedAt",
-          COALESCE("order", 0) as "order"
-        FROM steps
-        WHERE "zoneId" = ${actualZoneId}
-        ORDER BY id ASC
-      ` as any[]
+      await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    } catch (rslError) {
+      console.error('RLS config failed:', rslError)
     }
+
+    // Use raw SQL to get steps directly, bypassing potential Prisma/RLS issues
+    const steps = await prisma.$queryRaw`
+      SELECT 
+        s.id, 
+        s."zoneId", 
+        s.type, 
+        s.title, 
+        s.content,
+        COALESCE(s."order", 0) as "order",
+        s."isPublished", 
+        s."createdAt", 
+        s."updatedAt"
+      FROM steps s
+      JOIN zones z ON s."zoneId" = z.id
+      JOIN properties p ON z."propertyId" = p.id
+      WHERE s."zoneId" = ${zoneId}
+        AND p.id = ${propertyId}
+        AND p."hostId" = ${userId}
+      ORDER BY COALESCE(s."order", 0) ASC, s.id ASC
+    ` as any[]
 
     // Process steps to extract mediaUrl from content JSON
     const processedSteps = steps.map(step => {
@@ -97,7 +53,6 @@ export async function GET(
       try {
         if (step.content && typeof step.content === 'object') {
           const content = step.content as any
-          // Extract mediaUrl from content JSON
           if (content.mediaUrl) {
             mediaUrl = content.mediaUrl
           }
@@ -113,7 +68,6 @@ export async function GET(
         ...step,
         mediaUrl,
         linkUrl,
-        // Also provide the original content for backward compatibility
         content: step.content
       }
     })
@@ -127,7 +81,8 @@ export async function GET(
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Error al obtener los pasos' 
+        error: 'Error al obtener los pasos',
+        details: error instanceof Error ? error.message : String(error)
       },
       { status: 500 }
     )

@@ -60,6 +60,7 @@ interface Zone {
   description?: string
   iconId: string
   order: number
+  steps?: any[] // Array of steps from API
   stepsCount: number
   qrUrl: string
   lastUpdated: string
@@ -292,6 +293,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               description: zoneDescription,
               iconId: zone.icon, // API uses 'icon' field, UI expects 'iconId'
               order: zone.order || 0,
+              steps: zone.steps || [], // Preserve original steps array
               stepsCount: zone.steps?.length || 0,
               qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
               lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -368,6 +370,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                           description: zoneDescription,
                           iconId: zone.icon,
                           order: zone.order || 0,
+                          steps: zone.steps || [],
                           stepsCount: zone.steps?.length || 0,
                           qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
                           lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -839,6 +842,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               description: zoneDescription,
               iconId: zone.icon,
               order: zone.order || 0,
+              steps: zone.steps || [],
               stepsCount: zone.steps?.length || 0,
               qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
               lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -936,6 +940,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               description: zoneDescription,
               iconId: zone.icon,
               order: zone.order || 0,
+              steps: zone.steps || [],
               stepsCount: zone.steps?.length || 0,
               qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
               lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -1031,6 +1036,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               description: zoneDescription,
               iconId: zone.icon,
               order: zone.order || 0,
+              steps: zone.steps || [],
               stepsCount: zone.steps?.length || 0,
               qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
               lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -1662,6 +1668,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                       <DropdownMenu.Item
                         className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                         onSelect={async () => {
+                          console.log('🔍 Opening steps editor for zone:', zone.id, zone)
                           setEditingZoneForSteps(zone)
                           await loadZoneSteps(zone.id)
                           setShowStepEditor(true)

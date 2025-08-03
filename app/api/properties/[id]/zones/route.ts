@@ -61,11 +61,11 @@ export async function GET(
       zones.map(async (zone: any) => {
         const steps = await prisma.$queryRaw`
           SELECT 
-            id, "zoneId", type, title, content, "order",
+            id, "zoneId", type, title, content, COALESCE("order", 0) as "order",
             "isPublished", "createdAt", "updatedAt"
           FROM steps
           WHERE "zoneId" = ${zone.id}
-          ORDER BY "order" ASC
+          ORDER BY COALESCE("order", 0) ASC, id ASC
         ` as any[]
         
         return {
