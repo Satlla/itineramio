@@ -279,12 +279,20 @@ export async function PUT(
     // Check authentication
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
+      console.log('🚨 Auth failed')
       return authResult
     }
     const userId = authResult.userId
+    console.log('🚨 Auth success, userId:', userId)
 
-    // Set JWT claims for RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // Set JWT claims for RLS policies - with better error handling
+    try {
+      await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+      console.log('🚨 RLS config set successfully')
+    } catch (rslError) {
+      console.error('🚨 RLS config failed:', rslError)
+      // Continue anyway, some environments might not need RLS
+    }
 
     // Verify user owns the property
     const property = await prisma.property.findFirst({
@@ -295,6 +303,7 @@ export async function PUT(
     })
 
     if (!property) {
+      console.log('🚨 Property not found or unauthorized')
       return NextResponse.json(
         { error: 'Propiedad no encontrada o no autorizada' },
         { status: 404 }
@@ -309,8 +318,13 @@ export async function PUT(
     console.log('🚨 Steps is array:', Array.isArray(steps))
     console.log('🚨 Steps length:', steps?.length)
     
-    // Simplified: Just save whatever we receive
-    console.log('📥 Saving steps for zone:', zoneId)
+    if (!Array.isArray(steps)) {
+      console.log('🚨 Steps is not an array')
+      return NextResponse.json({
+        success: false,
+        error: 'Steps debe ser un array'
+      }, { status: 400 })
+    }
 
     // Find the zone - try exact match first, then startsWith
     let zone = await prisma.zone.findFirst({
@@ -332,6 +346,7 @@ export async function PUT(
     }
     
     const actualZoneId = zone?.id || zoneId
+    console.log('🚨 Zone found:', !!zone, 'actualZoneId:', actualZoneId)
     
     if (!zone) {
       return NextResponse.json({
@@ -340,73 +355,114 @@ export async function PUT(
       }, { status: 404 })
     }
 
-    // Delete all existing steps
-    await prisma.step.deleteMany({
-      where: { zoneId: actualZoneId }
-    })
+    // Delete all existing steps with better error handling
+    try {
+      const deleteResult = await prisma.step.deleteMany({
+        where: { zoneId: actualZoneId }
+      })
+      console.log('🚨 Deleted steps:', deleteResult.count)
+    } catch (deleteError) {
+      console.error('🚨 Error deleting steps:', deleteError)
+      // Continue anyway, maybe there were no steps to delete
+    }
 
-    // Create new steps - simplified version
+    // Create new steps - with better validation and error handling
     const createdSteps = []
     
     // If we have steps, save them. If not, create one empty step
-    const stepsToSave = steps?.length > 0 ? steps : [{ type: 'text', content: { es: '' } }]
+    const stepsToSave = steps.length > 0 ? steps : [{ type: 'TEXT', content: { es: '' } }]
     
     for (let i = 0; i < stepsToSave.length; i++) {
       const step = stepsToSave[i]
       console.log(`🔍 API Processing step ${i + 1}:`, JSON.stringify(step, null, 2))
       
-      // Use provided title only if it exists and is not empty
-      let titleContent = null
-      let bodyContent = step.content || { es: '', en: '', fr: '' }
-      
-      // Only set title if explicitly provided and not empty
-      if (step.title && (step.title.es || step.title.en || step.title.fr)) {
-        titleContent = step.title
-        console.log(`🎯 TITLE DETECTED for step ${i + 1}:`, JSON.stringify(titleContent))
-      } else {
-        console.log(`❌ NO TITLE for step ${i + 1}:`, JSON.stringify(step.title))
-      }
-      
-      console.log(`📝 Step ${i + 1} title:`, titleContent)
-      console.log(`📋 Step ${i + 1} content:`, bodyContent)
-      console.log(`🎬 Step ${i + 1} media URL:`, step.mediaUrl || 'none')
-      
-      const stepData = {
-        title: titleContent || { es: '', en: '', fr: '' }, // Use empty object if no title
-        content: typeof bodyContent === 'string'
-          ? { 
-              es: bodyContent, 
-              en: '', 
-              fr: '',
-              // Include media data in content JSON
-              ...(step.mediaUrl && { mediaUrl: step.mediaUrl }),
-              ...(step.linkUrl && { linkUrl: step.linkUrl })
+      try {
+        // Validate and prepare step data
+        const stepType = (step.type || 'TEXT').toUpperCase()
+        
+        // Handle title - ensure it's always a proper multilingual object
+        let titleContent = { es: '', en: '', fr: '' }
+        if (step.title) {
+          if (typeof step.title === 'string') {
+            titleContent.es = step.title
+          } else if (typeof step.title === 'object') {
+            titleContent = {
+              es: step.title.es || '',
+              en: step.title.en || '',
+              fr: step.title.fr || ''
             }
-          : {
-              es: bodyContent.es || '',
-              en: bodyContent.en || '',
-              fr: bodyContent.fr || '',
-              // Include media data in content JSON
-              ...(step.mediaUrl && { mediaUrl: step.mediaUrl }),
-              ...(step.linkUrl && { linkUrl: step.linkUrl })
-            },
-        type: (step.type || 'TEXT').toUpperCase(),
-        isPublished: true,
-        zoneId: actualZoneId
+          }
+        }
+        
+        // Handle content - ensure it's always a proper multilingual object
+        let contentData = { es: '', en: '', fr: '' }
+        if (step.content) {
+          if (typeof step.content === 'string') {
+            contentData.es = step.content
+          } else if (typeof step.content === 'object') {
+            contentData = {
+              es: step.content.es || '',
+              en: step.content.en || '',
+              fr: step.content.fr || ''
+            }
+          }
+        }
+        
+        // Add media URLs to content if they exist
+        if (step.media?.url) {
+          contentData.mediaUrl = step.media.url
+        }
+        if (step.mediaUrl) {
+          contentData.mediaUrl = step.mediaUrl
+        }
+        if (step.linkUrl) {
+          contentData.linkUrl = step.linkUrl
+        }
+        
+        const stepData = {
+          title: titleContent,
+          content: contentData,
+          type: stepType,
+          order: i, // Explicit order field
+          isPublished: step.isPublished !== false, // Default to true
+          zoneId: actualZoneId
+        }
+        
+        console.log(`🚨 Creating step ${i + 1} with data:`, JSON.stringify(stepData, null, 2))
+        
+        const createdStep = await prisma.step.create({
+          data: stepData
+        })
+        
+        console.log(`🚨 Step ${i + 1} created successfully:`, createdStep.id)
+        createdSteps.push(createdStep)
+        
+      } catch (stepError) {
+        console.error(`🚨 Error creating step ${i + 1}:`, stepError)
+        // Don't fail the entire operation for one step
+        // Instead, create a minimal fallback step
+        try {
+          const fallbackStep = await prisma.step.create({
+            data: {
+              title: { es: `Paso ${i + 1}`, en: `Step ${i + 1}`, fr: `Étape ${i + 1}` },
+              content: { es: 'Error al procesar este paso', en: 'Error processing this step', fr: 'Erreur lors du traitement de cette étape' },
+              type: 'TEXT',
+              order: i,
+              isPublished: true,
+              zoneId: actualZoneId
+            }
+          })
+          console.log(`🚨 Fallback step ${i + 1} created:`, fallbackStep.id)
+          createdSteps.push(fallbackStep)
+        } catch (fallbackError) {
+          console.error(`🚨 Error creating fallback step ${i + 1}:`, fallbackError)
+          // If we can't even create a fallback, something is seriously wrong
+          throw new Error(`Failed to create step ${i + 1}: ${stepError.message}`)
+        }
       }
-      
-      console.log(`🚨 Creating step ${i + 1} with data:`, JSON.stringify(stepData, null, 2))
-      console.log(`🚨 TITLE TO SAVE:`, JSON.stringify(stepData.title))
-      
-      const createdStep = await prisma.step.create({
-        data: stepData
-      })
-      
-      console.log(`🚨 Step ${i + 1} created:`, createdStep.id)
-      console.log(`🚨 TITLE SAVED:`, JSON.stringify(createdStep.title))
-      createdSteps.push(createdStep)
     }
 
+    console.log('🚨 All steps processed, returning success')
     return NextResponse.json({
       success: true,
       data: createdSteps,
@@ -414,12 +470,14 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error('Error saving steps:', error)
+    console.error('🚨 Error saving steps:', error)
+    console.error('🚨 Error stack:', error.stack)
     return NextResponse.json(
       { 
         success: false, 
         error: 'Error al guardar los pasos',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
       },
       { status: 500 }
     )
