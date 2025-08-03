@@ -35,27 +35,50 @@ export async function GET(
       )
     }
 
-    const zones = await prisma.zone.findMany({
-      where: {
-        propertyId: propertyId
-      },
-      include: {
-        steps: {
-          orderBy: {
-            id: 'asc'
-          }
+    // Use raw SQL to avoid schema issues
+    const zones = await prisma.$queryRaw`
+      SELECT 
+        z.id,
+        z.name,
+        z.slug,
+        z.icon,
+        z.description,
+        z.color,
+        z.status,
+        z."isPublished",
+        z."propertyId",
+        z."createdAt",
+        z."updatedAt",
+        z."publishedAt"
+      FROM zones z
+      WHERE z."propertyId" = ${propertyId}
+      ORDER BY z.id ASC
+    ` as any[]
+
+    // Get steps for each zone using raw SQL
+    const zonesWithSteps = await Promise.all(
+      zones.map(async (zone: any) => {
+        const steps = await prisma.$queryRaw`
+          SELECT 
+            id, "zoneId", type, title, content,
+            "isPublished", "createdAt", "updatedAt"
+          FROM steps
+          WHERE "zoneId" = ${zone.id}
+          ORDER BY id ASC
+        ` as any[]
+        
+        return {
+          ...zone,
+          steps: steps
         }
-      },
-      orderBy: {
-        id: 'asc'
-      }
-    })
+      })
+    )
     
-    console.log('🔍 Zones fetched:', zones.length)
+    console.log('🔍 Zones fetched:', zonesWithSteps.length)
     
     return NextResponse.json({
       success: true,
-      data: zones
+      data: zonesWithSteps
     })
   } catch (error) {
     console.error('Error fetching zones:', error)

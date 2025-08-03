@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../../../src/lib/prisma'
+import { prisma } from '../../../../../../../src/lib/prisma'
 
 export async function GET(
   request: NextRequest,
@@ -7,9 +7,9 @@ export async function GET(
 ) {
   try {
     const { slug } = await params
-    console.log('🔍 Public Property by-slug endpoint - received slug:', slug)
+    console.log('🔍 Safe Public Property by-slug endpoint - received slug:', slug)
     
-    // Use raw SQL to find property safely - avoid slug field which may not exist in production
+    // Try to find property by slug first using raw SQL
     let properties = await prisma.$queryRaw`
       SELECT 
         id, name, slug, description, type,
@@ -20,15 +20,35 @@ export async function GET(
         status, "isPublished", "propertySetId", "hostId",
         "createdAt", "updatedAt", "publishedAt"
       FROM properties
-      WHERE id = ${slug}
+      WHERE slug = ${slug}
         AND "isPublished" = true
       LIMIT 1
     ` as any[]
     
-    let property = properties[0]
+    // If not found by slug, try by ID (for backward compatibility)
+    if (properties.length === 0) {
+      console.log('🔍 Property not found by slug, trying by ID:', slug)
+      
+      properties = await prisma.$queryRaw`
+        SELECT 
+          id, name, slug, description, type,
+          street, city, state, country, "postalCode",
+          bedrooms, bathrooms, "maxGuests", "squareMeters",
+          "profileImage", "hostContactName", "hostContactPhone",
+          "hostContactEmail", "hostContactLanguage", "hostContactPhoto",
+          status, "isPublished", "propertySetId", "hostId",
+          "createdAt", "updatedAt", "publishedAt"
+        FROM properties
+        WHERE id = ${slug}
+          AND "isPublished" = true
+        LIMIT 1
+      ` as any[]
+    }
+    
+    const property = properties[0]
+    console.log('🔍 Safe Public Property final result found:', !!property)
     
     if (!property) {
-      console.log('🔍 Property not found by ID, no slug field available in production')
       return NextResponse.json({
         success: false,
         error: 'Propiedad no encontrada o no publicada'
@@ -110,32 +130,27 @@ export async function GET(
       })
     )
 
-    // Reconstruct property object with zones
-    property = {
+    const result = {
       ...property,
       zones: zonesWithSteps
     }
     
-    console.log('🔍 Public Property final result found:', !!property)
-    
-    if (!property) {
-      return NextResponse.json({
-        success: false,
-        error: 'Propiedad no encontrada o no publicada'
-      }, { status: 404 })
-    }
-
-    const result = property
+    console.log('🔍 Safe Public Property by-slug loaded:', {
+      id: result.id,
+      name: result.name,
+      zonesCount: result.zones.length
+    })
     
     return NextResponse.json({
       success: true,
       data: result
     })
   } catch (error) {
-    console.error('Error fetching public property by slug:', error)
+    console.error('Error fetching safe public property by slug:', error)
     return NextResponse.json({
       success: false,
-      error: 'Error al obtener la propiedad'
+      error: 'Error al obtener la propiedad',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
 }

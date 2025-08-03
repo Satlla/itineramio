@@ -36,21 +36,49 @@ export async function GET(request: NextRequest) {
       }
     })
     
-    // Transform data - simplified to avoid properties/analytics issues
-    const transformedPropertySets = propertySets.map(propertySet => {
+    // Transform data with real counts using raw SQL to avoid schema issues
+    const transformedPropertySets = await Promise.all(propertySets.map(async (propertySet) => {
       try {
+        // Get properties count for this property set using raw SQL
+        const propertiesCount = await prisma.$queryRaw`
+          SELECT COUNT(*) as count
+          FROM properties
+          WHERE "propertySetId" = ${propertySet.id}
+        ` as any[]
+        
+        console.log(`PropertySet ${propertySet.id} - ${propertySet.name}: ${propertiesCount[0]?.count} properties`)
+        
+        // Get total zones count for all properties in this set using raw SQL
+        const totalZones = await prisma.$queryRaw`
+          SELECT COUNT(*) as count
+          FROM zones z
+          INNER JOIN properties p ON z."propertyId" = p.id
+          WHERE p."propertySetId" = ${propertySet.id}
+        ` as any[]
+        
+        // Convert BigInt to number properly
+        const propCount = propertiesCount[0]?.count
+        const zoneCount = totalZones[0]?.count
+        
         return {
           ...propertySet,
-          propertiesCount: 0, // Temporarily set to 0
-          totalViews: 0, // Temporarily set to 0
-          avgRating: 0, // Temporarily set to 0
-          totalZones: 0 // Temporarily set to 0
+          propertiesCount: propCount ? parseInt(propCount.toString()) : 0,
+          totalViews: 0, // Keep as 0 for now - analytics can be added later
+          avgRating: 0, // Keep as 0 for now - ratings can be calculated later
+          totalZones: zoneCount ? parseInt(zoneCount.toString()) : 0
         }
       } catch (error) {
         console.error('Error transforming property set:', propertySet.id, error)
-        throw error
+        // Return with zero counts if there's an error
+        return {
+          ...propertySet,
+          propertiesCount: 0,
+          totalViews: 0,
+          avgRating: 0,
+          totalZones: 0
+        }
       }
-    })
+    }))
     
     return NextResponse.json({
       success: true,

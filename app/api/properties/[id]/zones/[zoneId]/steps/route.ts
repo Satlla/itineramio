@@ -58,14 +58,15 @@ export async function GET(
       )
     }
 
-    const steps = await prisma.step.findMany({
-      where: {
-        zoneId: actualZoneId
-      },
-      orderBy: {
-        order: 'asc'
-      }
-    })
+    // Use raw SQL to avoid schema issues
+    const steps = await prisma.$queryRaw`
+      SELECT 
+        id, "zoneId", type, title, content,
+        "isPublished", "createdAt", "updatedAt"
+      FROM steps
+      WHERE "zoneId" = ${actualZoneId}
+      ORDER BY id ASC
+    ` as any[]
 
     // Process steps to extract mediaUrl from content JSON
     const processedSteps = steps.map(step => {
@@ -215,7 +216,7 @@ export async function POST(
         where: { zoneId: zoneId },
         orderBy: { id: 'desc' }
       })
-      stepOrder = lastStep ? lastStep.order + 1 : 0
+      stepOrder = lastStep ? 1 : 0
     }
 
     // Prepare content with media URLs
@@ -264,7 +265,6 @@ export async function POST(
         title: typeof stepTitle === 'string' ? { es: stepTitle } : stepTitle,
         content: stepContent,
         type,
-        order: stepOrder,
         isPublished: true,
         zoneId: zoneId
       }
@@ -415,7 +415,6 @@ export async function PUT(
               ...(step.linkUrl && { linkUrl: step.linkUrl })
             },
         type: (step.type || 'TEXT').toUpperCase(),
-        order: step.order !== undefined ? step.order : i,
         isPublished: true,
         zoneId: actualZoneId
       }

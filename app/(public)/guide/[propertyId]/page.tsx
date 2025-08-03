@@ -464,6 +464,13 @@ export default function PropertyGuidePage() {
         result = await response.json()
       }
       
+      // If by-slug endpoint fails with 500, try safe by-slug endpoint
+      if (!response.ok && response.status === 500) {
+        console.log('By-slug endpoint failed, trying safe by-slug endpoint...')
+        response = await fetch(`/api/public/properties/by-slug/${propertyId}/safe`)
+        result = await response.json()
+      }
+      
       // If main ID endpoint fails, try safe endpoint
       if (!response.ok && response.status === 500) {
         console.log('Main property endpoint failed, trying safe endpoint...')

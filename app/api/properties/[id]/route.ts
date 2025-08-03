@@ -44,8 +44,12 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  let id: string = ''
+  let userId: string = ''
+  
   try {
-    const { id } = await params
+    const paramResult = await params
+    id = paramResult.id
     console.log('🔍 Property endpoint - received ID:', id)
     
     // Get authenticated user
@@ -53,7 +57,7 @@ export async function GET(
     if (authResult instanceof Response) {
       return authResult
     }
-    const userId = authResult.userId
+    userId = authResult.userId
     
     // Set JWT claims for PostgreSQL RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
