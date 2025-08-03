@@ -43,7 +43,7 @@ export async function GET(
             isPublished: true
           },
           orderBy: {
-            id: 'asc'
+            order: 'asc'
           }
         },
         property: {
@@ -94,7 +94,7 @@ export async function GET(
               isPublished: true
             },
             orderBy: {
-              id: 'asc'
+              order: 'asc'
             }
           },
           property: {
