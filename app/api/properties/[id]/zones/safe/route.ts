@@ -38,7 +38,7 @@ export async function GET(
       )
     }
 
-    // Use raw SQL to get zones and step counts safely
+    // Use raw SQL to get zones safely
     const zones = await prisma.$queryRaw`
       SELECT 
         z.id,
@@ -48,32 +48,42 @@ export async function GET(
         z.description,
         z.color,
         z.status,
+        z."order",
         z."isPublished",
         z."propertyId",
         z."createdAt",
         z."updatedAt",
-        z."publishedAt",
-        (
-          SELECT COUNT(*)
-          FROM steps s
-          WHERE s."zoneId" = z.id
-        ) as "stepsCount"
+        z."publishedAt"
       FROM zones z
       WHERE z."propertyId" = ${propertyId}
-      ORDER BY z.id ASC
+      ORDER BY z."order" ASC, z.id ASC
     ` as any[]
     
-    // Convert stepsCount from BigInt to number
-    const transformedZones = zones.map(zone => ({
-      ...zone,
-      stepsCount: Number(zone.stepsCount) || 0
-    }))
+    // Get steps for each zone using raw SQL
+    const zonesWithSteps = await Promise.all(
+      zones.map(async (zone: any) => {
+        const steps = await prisma.$queryRaw`
+          SELECT 
+            id, "zoneId", type, title, content, "order",
+            "isPublished", "createdAt", "updatedAt"
+          FROM steps
+          WHERE "zoneId" = ${zone.id}
+          ORDER BY "order" ASC
+        ` as any[]
+        
+        return {
+          ...zone,
+          steps: steps,
+          stepsCount: steps.length
+        }
+      })
+    )
     
-    console.log('🔍 Safe zones fetched:', transformedZones.length)
+    console.log('🔍 Safe zones fetched:', zonesWithSteps.length)
     
     return NextResponse.json({
       success: true,
-      data: transformedZones
+      data: zonesWithSteps
     })
   } catch (error) {
     console.error('Error fetching zones (safe):', error)
