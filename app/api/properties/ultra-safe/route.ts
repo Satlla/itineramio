@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../../src/lib/prisma'
-import { requireAuth } from '../../../../../src/lib/auth'
+import { prisma } from '../../../../src/lib/prisma'
+import { requireAuth } from '../../../../src/lib/auth'
 
 // POST /api/properties/ultra-safe - Ultra minimal property creation
 export async function POST(request: NextRequest) {
