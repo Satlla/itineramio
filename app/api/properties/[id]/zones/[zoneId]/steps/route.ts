@@ -473,12 +473,12 @@ export async function PUT(
 
   } catch (error) {
     console.error('🚨 Error saving steps:', error)
-    console.error('🚨 Error stack:', error.stack)
+    console.error('🚨 Error stack:', error instanceof Error ? error.stack : 'No stack available')
     return NextResponse.json(
       { 
         success: false, 
         error: 'Error al guardar los pasos',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined
       },
       { status: 500 }
