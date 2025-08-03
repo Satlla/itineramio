@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../../../../../../src/lib/prisma'
-import { requireAuth } from '../../../../../../../../../src/lib/auth'
+import { prisma } from '../../../../../../../../src/lib/prisma'
+import { requireAuth } from '../../../../../../../../src/lib/auth'
 
 // GET /api/properties/[id]/zones/[zoneId]/steps/simple - Simplified steps endpoint
 export async function GET(
