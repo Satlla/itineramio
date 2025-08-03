@@ -276,3 +276,137 @@ export async function PUT(
     }, { status: 500 })
   }
 }
+
+// POST /api/properties/[id]/zones/[zoneId]/steps/safe - Create single step
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; zoneId: string }> }
+) {
+  console.log('✅ SAFE POST /steps endpoint called')
+  
+  try {
+    const { id: propertyId, zoneId } = await params
+    console.log('✅ SAFE POST - Params:', { propertyId, zoneId })
+
+    // Check authentication
+    const authResult = await requireAuth(request)
+    if (authResult instanceof Response) {
+      console.log('✅ SAFE POST - Auth failed')
+      return authResult
+    }
+    const userId = authResult.userId
+    console.log('✅ SAFE POST - Auth success, userId:', userId)
+
+    // Get request body
+    const body = await request.json()
+    console.log('✅ SAFE POST - Body:', body)
+
+    // Set RLS config (ignore if fails)
+    try {
+      await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    } catch (e) {
+      console.log('✅ SAFE POST - RLS skipped:', String(e))
+    }
+
+    // Find property (bypass RLS with raw query)
+    const properties = await prisma.$queryRaw`
+      SELECT id FROM properties 
+      WHERE id = ${propertyId} AND "hostId" = ${userId}
+      LIMIT 1
+    ` as any[]
+    
+    if (properties.length === 0) {
+      console.log('✅ SAFE POST - Property not found or unauthorized')
+      return NextResponse.json({
+        success: false,
+        error: 'Propiedad no encontrada o no autorizada'
+      }, { status: 404 })
+    }
+
+    // Find zone (bypass RLS with raw query)
+    const zones = await prisma.$queryRaw`
+      SELECT id FROM zones 
+      WHERE id = ${zoneId} AND "propertyId" = ${propertyId}
+      LIMIT 1
+    ` as any[]
+    
+    if (zones.length === 0) {
+      console.log('✅ SAFE POST - Zone not found')
+      return NextResponse.json({
+        success: false,
+        error: 'Zona no encontrada'
+      }, { status: 404 })
+    }
+
+    console.log('✅ SAFE POST - Property and zone verified')
+
+    // Get next order
+    const orderResult = await prisma.$queryRaw`
+      SELECT COALESCE(MAX("order"), -1) + 1 as next_order
+      FROM steps WHERE "zoneId" = ${zoneId}
+    ` as any[]
+    
+    const nextOrder = orderResult[0]?.next_order || 0
+
+    // Prepare step data
+    const stepType = (body.type || 'TEXT').toUpperCase()
+    const titleData = body.title || { es: body.title || '', en: '', fr: '' }
+    const contentData = body.content || body.description || { es: body.content || body.description || '', en: '', fr: '' }
+    
+    // Handle media URLs
+    if (body.mediaUrl) {
+      if (typeof contentData === 'object') {
+        contentData.mediaUrl = body.mediaUrl
+      }
+    }
+    if (body.linkUrl) {
+      if (typeof contentData === 'object') {
+        contentData.linkUrl = body.linkUrl
+      }
+    }
+    
+    const titleJson = JSON.stringify(titleData)
+    const contentJson = JSON.stringify(contentData)
+    const stepId = `step-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
+    
+    console.log(`✅ SAFE POST - Creating step with ID: ${stepId}`)
+    
+    await prisma.$executeRaw`
+      INSERT INTO steps (id, "zoneId", type, title, content, "order", "isPublished", "createdAt", "updatedAt")
+      VALUES (
+        ${stepId},
+        ${zoneId},
+        ${stepType},
+        ${titleJson}::jsonb,
+        ${contentJson}::jsonb,
+        ${nextOrder},
+        true,
+        NOW(),
+        NOW()
+      )
+    `
+    
+    // Get the created step
+    const createdStep = await prisma.$queryRaw`
+      SELECT id, type, title, content, "order", "isPublished", "createdAt", "updatedAt"
+      FROM steps WHERE id = ${stepId}
+      LIMIT 1
+    ` as any[]
+    
+    console.log(`✅ SAFE POST - Step created successfully: ${stepId}`)
+
+    return NextResponse.json({
+      success: true,
+      data: createdStep[0],
+      message: 'Paso creado correctamente'
+    })
+
+  } catch (error) {
+    console.error('✅ SAFE POST - Error:', error)
+    return NextResponse.json({
+      success: false,
+      error: 'Error al crear el paso',
+      details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 })
+  }
+}

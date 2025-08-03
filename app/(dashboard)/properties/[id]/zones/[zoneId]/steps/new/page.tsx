@@ -131,7 +131,7 @@ export default function NewStepPage() {
     setIsSubmitting(true)
     
     try {
-      const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
+      const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps/safe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

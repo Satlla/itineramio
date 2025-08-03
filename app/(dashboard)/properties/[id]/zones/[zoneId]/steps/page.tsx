@@ -92,7 +92,7 @@ const fetchZoneData = async (propertyId: string, zoneId: string) => {
 
 const fetchStepsData = async (propertyId: string, zoneId: string) => {
   try {
-    const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`)
+    const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps/safe`)
     const result = await response.json()
     
     if (result.success) {
@@ -187,7 +187,7 @@ const saveStepsData = async (propertyId: string, zoneId: string, steps: Step[]) 
     
     console.log('💾 Final steps payload for API:', JSON.stringify(stepsForAPI, null, 2))
 
-    const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
+    const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps/safe`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'

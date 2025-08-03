@@ -1281,7 +1281,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const loadZoneSteps = async (zoneId: string) => {
     setLoadingSteps(true)
     try {
-      const response = await fetch(`/api/properties/${id}/zones/${zoneId}/steps`)
+      const response = await fetch(`/api/properties/${id}/zones/${zoneId}/steps/safe`)
       const result = await response.json()
       
       if (result.success) {
@@ -1382,7 +1382,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         console.log('🐛 Debug endpoint failed:', debugError)
       }
 
-      const response = await fetch(`/api/properties/${id}/zones/${editingZoneForSteps.id}/steps`, {
+      const response = await fetch(`/api/properties/${id}/zones/${editingZoneForSteps.id}/steps/safe`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
