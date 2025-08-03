@@ -45,6 +45,7 @@ export async function GET(
         z.description,
         z.color,
         z.status,
+        z."order",
         z."isPublished",
         z."propertyId",
         z."createdAt",
@@ -52,7 +53,7 @@ export async function GET(
         z."publishedAt"
       FROM zones z
       WHERE z."propertyId" = ${propertyId}
-      ORDER BY z.id ASC
+      ORDER BY z."order" ASC, z.id ASC
     ` as any[]
 
     // Get steps for each zone using raw SQL
@@ -60,11 +61,11 @@ export async function GET(
       zones.map(async (zone: any) => {
         const steps = await prisma.$queryRaw`
           SELECT 
-            id, "zoneId", type, title, content,
+            id, "zoneId", type, title, content, "order",
             "isPublished", "createdAt", "updatedAt"
           FROM steps
           WHERE "zoneId" = ${zone.id}
-          ORDER BY id ASC
+          ORDER BY "order" ASC
         ` as any[]
         
         return {
