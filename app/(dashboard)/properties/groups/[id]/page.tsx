@@ -478,7 +478,7 @@ export default function PropertySetDetailPage() {
     try {
       // Add selected properties to the current set
       for (const propertyId of selectedProperties) {
-        await fetch(`/api/properties/${propertyId}`, {
+        await fetch(`/api/properties/${propertyId}/safe`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -553,7 +553,7 @@ export default function PropertySetDetailPage() {
     try {
       if (removeAction === 'remove') {
         // Just remove from set, property stays in user's properties
-        const response = await fetch(`/api/properties/${propertyToRemove.id}`, {
+        const response = await fetch(`/api/properties/${propertyToRemove.id}/safe`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
