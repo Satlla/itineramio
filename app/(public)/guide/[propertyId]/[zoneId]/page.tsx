@@ -371,12 +371,17 @@ export default function ZoneGuidePage({
       const actualPropertyId = resolveResult.data.id
       console.log('🔍 Resolved property ID:', actualPropertyId, 'from:', pId)
       
-      // Fetch both zone data and steps using public APIs with resolved ID
-      let [zoneResponse, stepsResponse, propertyResponse] = await Promise.all([
+      // Fetch zone data (which includes steps) and property data using public APIs with resolved ID
+      let [zoneResponse, propertyResponse] = await Promise.all([
         fetch(`/api/public/properties/${actualPropertyId}/zones/${zId}`),
-        fetch(`/api/public/properties/${actualPropertyId}/zones/${zId}/steps`),
         fetch(`/api/public/properties/${actualPropertyId}`)
       ])
+      
+      // If zone endpoint fails, try safe endpoint
+      if (!zoneResponse.ok && zoneResponse.status === 500) {
+        console.log('Zone endpoint failed, trying safe endpoint...')
+        zoneResponse = await fetch(`/api/public/properties/${actualPropertyId}/zones/${zId}/safe`)
+      }
       
       // If property endpoint fails, try safe endpoint
       if (!propertyResponse.ok && propertyResponse.status === 500) {
@@ -384,9 +389,8 @@ export default function ZoneGuidePage({
         propertyResponse = await fetch(`/api/public/properties/${actualPropertyId}/safe`)
       }
       
-      const [zoneResult, stepsResult, propertyResult] = await Promise.all([
+      const [zoneResult, propertyResult] = await Promise.all([
         zoneResponse.json(),
-        stepsResponse.json(),
         propertyResponse.json()
       ])
       
@@ -398,10 +402,10 @@ export default function ZoneGuidePage({
         throw new Error(propertyResult.error || 'Propiedad no encontrada')
       }
       
-      // Combine zone data with steps
+      // Zone data already includes steps from the API
       const zoneWithSteps = {
         ...zoneResult.data,
-        steps: stepsResult.success ? stepsResult.data.map((step: any) => {
+        steps: zoneResult.data.steps ? zoneResult.data.steps.map((step: any) => {
           console.log('🔍 Frontend step:', {
             title: step.title,
             type: step.type,
