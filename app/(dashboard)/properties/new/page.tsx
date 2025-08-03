@@ -132,7 +132,7 @@ function NewPropertyPageContent() {
       const loadPropertyData = async () => {
         setIsLoading(true)
         try {
-          const response = await fetch(`/api/properties/${editId}`)
+          const response = await fetch(`/api/properties/${editId}/safe`)
           const result = await response.json()
           
           if (response.ok && result.success) {
@@ -181,7 +181,7 @@ function NewPropertyPageContent() {
     setIsSubmitting(true)
     
     try {
-      const url = isEditing ? `/api/properties/${editId}` : '/api/properties'
+      const url = isEditing ? `/api/properties/${editId}/safe` : '/api/properties/safe'
       const method = isEditing ? 'PUT' : 'POST'
       
       const response = await fetch(url, {
