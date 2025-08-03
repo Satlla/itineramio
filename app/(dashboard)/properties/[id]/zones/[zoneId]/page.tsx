@@ -250,7 +250,7 @@ export default function ZoneDetailPage() {
       console.log('💾 Formatted steps for API:', formattedSteps)
       console.log('💾 API URL:', `/api/properties/${propertyId}/zones/${zoneId}/steps`)
       
-      const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
+      const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps/safe`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ steps: formattedSteps })
