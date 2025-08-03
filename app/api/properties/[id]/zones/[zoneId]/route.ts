@@ -59,7 +59,7 @@ export async function GET(
       include: {
         steps: {
           orderBy: {
-            order: 'asc'
+            id: 'asc'
           }
         },
         property: {
@@ -223,7 +223,7 @@ export async function PUT(
       include: {
         steps: {
           orderBy: {
-            order: 'asc'
+            id: 'asc'
           }
         }
       }
