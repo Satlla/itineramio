@@ -227,19 +227,45 @@ export async function GET(
       })
     }
 
+    // Get zones count for each property
+    const propertiesWithZoneCount = await Promise.all(
+      properties.map(async (p) => {
+        try {
+          const zonesCount = await prisma.zone.count({
+            where: {
+              propertyId: p.id
+            }
+          })
+          
+          return {
+            ...p,
+            zonesCount,
+            totalViews: 0, // Temporarily set to 0
+            avgRating: 0 // Temporarily set to 0
+          }
+        } catch (error) {
+          console.error('Error counting zones for property:', p.id, error)
+          return {
+            ...p,
+            zonesCount: 0,
+            totalViews: 0,
+            avgRating: 0
+          }
+        }
+      })
+    )
+
+    // Calculate total zones
+    const totalZones = propertiesWithZoneCount.reduce((sum, p) => sum + p.zonesCount, 0)
+
     // Transform data - simplified to avoid analytics/count issues
     const transformedPropertySet = {
       ...propertySet,
       propertiesCount: properties.length,
       totalViews: 0, // Temporarily set to 0
       avgRating: 0, // Temporarily set to 0
-      totalZones: 0, // Temporarily set to 0
-      properties: properties.map(p => ({
-        ...p,
-        zonesCount: 0, // Temporarily set to 0
-        totalViews: 0, // Temporarily set to 0
-        avgRating: 0 // Temporarily set to 0
-      }))
+      totalZones,
+      properties: propertiesWithZoneCount
     }
     
     return NextResponse.json({

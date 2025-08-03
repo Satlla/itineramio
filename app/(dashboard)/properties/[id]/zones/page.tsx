@@ -270,8 +270,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setUnreadEvaluations(0)
 
         // Fetch zones
-        const zonesResponse = await fetch(`/api/properties/${id}/zones`)
-        const zonesResult = await zonesResponse.json()
+        let zonesResponse = await fetch(`/api/properties/${id}/zones`)
+        let zonesResult = await zonesResponse.json()
+        
+        // If main zones endpoint fails, try safe endpoint
+        if (!zonesResponse.ok || !zonesResult.success) {
+          console.log('Main zones endpoint failed, trying safe endpoint...')
+          zonesResponse = await fetch(`/api/properties/${id}/zones/safe`)
+          zonesResult = await zonesResponse.json()
+        }
+        
         if (zonesResult.success && zonesResult.data) {
           let transformedZones: Zone[] = zonesResult.data.map((zone: any) => {
             // Use helper to get zone text
