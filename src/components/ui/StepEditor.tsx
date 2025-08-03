@@ -113,9 +113,9 @@ export function StepEditor({
   useEffect(() => {
     setIsClient(true)
     const checkMobile = () => {
-      // More aggressive mobile detection - consider tablets as mobile too
-      const mobile = window.innerWidth <= 1280 || 
-                   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      // More precise mobile detection - only actual mobile devices
+      const mobile = window.innerWidth <= 768 || 
+                   /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
       console.log('🖥️ Window width:', window.innerWidth, 'User agent:', navigator.userAgent, 'Is mobile:', mobile)
       setIsMobile(mobile)
     }
@@ -133,8 +133,9 @@ export function StepEditor({
     )
   }
   
-  // Force mobile editor if screen is touch-enabled or small
-  const shouldUseMobileEditor = isMobile || window.innerWidth <= 1024 || 'ontouchstart' in window
+  // Only use mobile editor for actual mobile devices (not tablets or desktop)
+  const shouldUseMobileEditor = window.innerWidth <= 768 && 
+    (/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 'ontouchstart' in window)
   
   if (shouldUseMobileEditor) {
     console.log('📱 Rendering MobileStepEditor (width:', window.innerWidth, ', touch:', 'ontouchstart' in window, ')')
