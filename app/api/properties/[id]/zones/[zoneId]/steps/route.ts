@@ -58,15 +58,36 @@ export async function GET(
       )
     }
 
-    // Use raw SQL to avoid schema issues
-    const steps = await prisma.$queryRaw`
-      SELECT 
-        id, "zoneId", type, title, content,
-        "isPublished", "createdAt", "updatedAt"
-      FROM steps
-      WHERE "zoneId" = ${actualZoneId}
-      ORDER BY id ASC
-    ` as any[]
+    // Try to get steps using Prisma query first
+    let steps
+    try {
+      steps = await prisma.step.findMany({
+        where: {
+          zoneId: actualZoneId
+        },
+        orderBy: {
+          id: 'asc'
+        }
+      })
+    } catch (prismaError) {
+      console.error('Prisma query failed, using raw SQL:', prismaError)
+      // Fallback to raw SQL if Prisma fails
+      steps = await prisma.$queryRaw`
+        SELECT 
+          id, 
+          "zoneId", 
+          type, 
+          title, 
+          content,
+          "isPublished", 
+          "createdAt", 
+          "updatedAt",
+          COALESCE("order", 0) as "order"
+        FROM steps
+        WHERE "zoneId" = ${actualZoneId}
+        ORDER BY id ASC
+      ` as any[]
+    }
 
     // Process steps to extract mediaUrl from content JSON
     const processedSteps = steps.map(step => {
