@@ -335,8 +335,10 @@ const isZoneViewed = (zoneId: string) => {
 
 // Helper function to calculate progress
 const calculateProgress = (zones: Zone[]) => {
-  const viewedZones = zones.filter(zone => isZoneViewed(zone.id)).length
-  return zones.length > 0 ? Math.round((viewedZones / zones.length) * 100) : 0
+  // Only count zones that have steps
+  const zonesWithSteps = zones.filter(zone => zone.stepsCount && zone.stepsCount > 0)
+  const viewedZones = zonesWithSteps.filter(zone => isZoneViewed(zone.id)).length
+  return zonesWithSteps.length > 0 ? Math.round((viewedZones / zonesWithSteps.length) * 100) : 0
 }
 
 // Helper functions for announcements
@@ -1104,7 +1106,7 @@ export default function PropertyGuidePage() {
             </Button>
           </div>
           
-          {property.zones.length === 0 ? (
+          {property.zones.filter(zone => zone.stepsCount && zone.stepsCount > 0).length === 0 ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">📖</span>
@@ -1122,6 +1124,7 @@ export default function PropertyGuidePage() {
               <div className="lg:hidden">
                 <div className="grid grid-cols-2 gap-4">
                   {property.zones
+                    .filter(zone => zone.stepsCount && zone.stepsCount > 0)
                     .sort((a, b) => a.order - b.order)
                     .map((zone, index) => (
                       <motion.div
@@ -1158,6 +1161,7 @@ export default function PropertyGuidePage() {
               {/* Desktop Grid */}
               <div className="hidden lg:grid grid-cols-1 gap-3">
                 {property.zones
+                  .filter(zone => zone.stepsCount && zone.stepsCount > 0)
                   .sort((a, b) => a.order - b.order)
                   .map((zone, index) => (
                     <motion.div
