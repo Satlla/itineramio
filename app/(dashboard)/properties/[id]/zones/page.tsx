@@ -1613,7 +1613,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           }}
         >
           <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center justify-between min-h-[100px] sm:min-h-[120px]">
+            <div className="flex items-center justify-between min-h-[120px] sm:min-h-[100px]">
               {/* Left side - Zone info */}
               <div className="flex items-center space-x-3 flex-1 min-w-0 h-full">
                 {/* Drag handle */}
@@ -1633,7 +1633,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 
                 {/* Zone content */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate pr-2">{getZoneText(zone.name)}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate pr-2">{getZoneText(zone.name)}</h3>
                   
                   <div className="flex flex-wrap items-center gap-2 text-sm">
                     <div className="inline-flex items-center bg-blue-50 rounded-full px-2 py-0.5">
