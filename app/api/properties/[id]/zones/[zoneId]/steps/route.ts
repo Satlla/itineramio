@@ -271,6 +271,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string; zoneId: string }> }
 ) {
   console.log('🚨 PUT /steps endpoint called')
+  console.log('🚨 Request URL:', request.url)
+  console.log('🚨 Request method:', request.method)
   
   try {
     const { id: propertyId, zoneId } = await params

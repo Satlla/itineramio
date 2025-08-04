@@ -10,6 +10,7 @@ import { ZoneIconDisplay } from '../../../../../src/components/ui/IconSelector'
 import { ItineramioLogo } from '../../../../../src/components/ui/ItineramioLogo'
 import { Badge } from '../../../../../src/components/ui/Badge'
 import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
+import { ShareLanguageModal } from '../../../../../src/components/ui/ShareLanguageModal'
 
 interface ZoneStep {
   id: string
@@ -307,6 +308,7 @@ export default function ZoneGuidePage({
   const [zoneCompleted, setZoneCompleted] = useState(false)
   const [activeStepIndex, setActiveStepIndex] = useState(0)
   const [language, setLanguage] = useState('es')
+  const [showShareModal, setShowShareModal] = useState(false)
   const [showHostModal, setShowHostModal] = useState(false)
   const [animatingLines, setAnimatingLines] = useState<Set<number>>(new Set())
   const [copySuccess, setCopySuccess] = useState(false)
@@ -543,48 +545,7 @@ export default function ZoneGuidePage({
   }
 
   const handleShare = async () => {
-    const url = window.location.href
-    const zoneTitle = getText(zone?.name, language, 'Zona')
-    const title = `${zoneTitle} - Manual digital`
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: title,
-          text: `Revisa las instrucciones de ${zoneTitle}`,
-          url: url
-        })
-        return
-      } catch (err) {
-        // User cancelled or error occurred, fallback to clipboard
-        if (err instanceof Error && err.name === 'AbortError') {
-          return // User cancelled
-        }
-      }
-    }
-    
-    // Fallback to clipboard
-    try {
-      await navigator.clipboard.writeText(url)
-      setCopySuccess(true)
-      setTimeout(() => setCopySuccess(false), 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea')
-      textArea.value = url
-      document.body.appendChild(textArea)
-      textArea.select()
-      try {
-        document.execCommand('copy')
-        setCopySuccess(true)
-        setTimeout(() => setCopySuccess(false), 2000)
-      } catch (fallbackErr) {
-        console.error('Fallback copy failed:', fallbackErr)
-        alert('No se pudo copiar el enlace. URL: ' + url)
-      }
-      document.body.removeChild(textArea)
-    }
+    setShowShareModal(true)
   }
 
   const submitRating = async () => {
@@ -708,7 +669,18 @@ export default function ZoneGuidePage({
               {/* Language Selector */}
               <select
                 value={language}
-                onChange={(e) => setLanguage(e.target.value)}
+                onChange={(e) => {
+                  const newLang = e.target.value
+                  setLanguage(newLang)
+                  
+                  // Update URL with language parameter
+                  const url = new URL(window.location.href)
+                  url.searchParams.set('lang', newLang)
+                  window.history.replaceState({}, '', url.toString())
+                  
+                  // Save to localStorage for persistence
+                  localStorage.setItem('itineramio-language', newLang)
+                }}
                 className="px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-transparent"
               >
                 <option value="es">🇪🇸</option>
@@ -1382,6 +1354,26 @@ export default function ZoneGuidePage({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Share Language Modal */}
+      <ShareLanguageModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        onShare={async (selectedLanguage) => {
+          const url = `${window.location.origin}/guide/${propertyId}/${zoneId}?lang=${selectedLanguage}`
+          try {
+            await navigator.clipboard.writeText(url)
+            setCopySuccess(true)
+            setTimeout(() => setCopySuccess(false), 2000)
+          } catch (err) {
+            console.error('Failed to copy:', err)
+          }
+        }}
+        title={language === 'es' ? 'Compartir Zona' : language === 'en' ? 'Share Zone' : 'Partager la Zone'}
+        description={language === 'es' ? 'Selecciona el idioma en el que quieres compartir' : language === 'en' ? 'Select the language you want to share in' : 'Sélectionnez la langue dans laquelle vous souhaitez partager'}
+        type="zone"
+        currentUrl={`${window.location.origin}/guide/${propertyId}/${zoneId}`}
+      />
     </div>
   )
 }

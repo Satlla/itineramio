@@ -45,6 +45,7 @@ import { Card } from '../../../../src/components/ui/Card'
 import { ZoneIconDisplay } from '../../../../src/components/ui/IconSelector'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
 import { getZoneIconByName } from '../../../../src/data/zoneIconsExtended'
+import { ShareLanguageModal } from '../../../../src/components/ui/ShareLanguageModal'
 
 interface Property {
   id: string
@@ -413,6 +414,7 @@ export default function PropertyGuidePage() {
   const [loadingEvaluations, setLoadingEvaluations] = useState(false)
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [showAnnouncementsModal, setShowAnnouncementsModal] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
 
   useEffect(() => {
     fetchPropertyData()
@@ -604,28 +606,7 @@ export default function PropertyGuidePage() {
   }
 
   const handleShare = async () => {
-    const url = window.location.href
-    const title = `Manual de ${getText(property?.name, language, 'Propiedad')}`
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: title,
-          text: 'Accede al manual digital de este alojamiento con todas las instrucciones que necesitas',
-          url: url
-        })
-      } catch (err) {
-        // User cancelled or error occurred
-        if (err instanceof Error && err.name !== 'AbortError') {
-          console.log('Error sharing:', err)
-          // Fallback to clipboard
-          await copyToClipboard(url)
-        }
-      }
-    } else {
-      // Fallback to clipboard
-      await copyToClipboard(url)
-    }
+    setShowShareModal(true)
   }
 
   const copyToClipboard = async (text: string) => {
@@ -1758,6 +1739,20 @@ export default function PropertyGuidePage() {
         </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Share Language Modal */}
+      <ShareLanguageModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        onShare={(selectedLanguage) => {
+          const url = `${window.location.origin}/guide/${propertyId}?lang=${selectedLanguage}`
+          copyToClipboard(url)
+        }}
+        title={language === 'es' ? 'Compartir Manual' : language === 'en' ? 'Share Manual' : 'Partager le Manuel'}
+        description={language === 'es' ? 'Selecciona el idioma en el que quieres compartir' : language === 'en' ? 'Select the language you want to share in' : 'Sélectionnez la langue dans laquelle vous souhaitez partager'}
+        type="manual"
+        currentUrl={`${window.location.origin}/guide/${propertyId}`}
+      />
     </div>
   )
 }

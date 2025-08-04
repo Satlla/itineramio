@@ -48,6 +48,7 @@ import { crearZonasEsenciales, borrarTodasLasZonas } from '../../../../../src/ut
 import { createBatchZones } from '../../../../../src/utils/createBatchZones'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
 import { CopyZoneToPropertyModal } from '../../../../../src/components/ui/CopyZoneToPropertyModal'
+import { ShareLanguageModal } from '../../../../../src/components/ui/ShareLanguageModal'
 // Removed unused imports
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
@@ -134,6 +135,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     iconId: ''
   })
   const [isReordering, setIsReordering] = useState(false)
+  const [showCopiedBadge, setShowCopiedBadge] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
   
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -1933,6 +1936,23 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       )}
 
 
+      {/* Copied Badge */}
+      <AnimatePresence>
+        {showCopiedBadge && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-20 right-6 z-50"
+          >
+            <div className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2">
+              <CheckCircle className="w-5 h-5" />
+              <span className="font-medium">Manual copiado al portapapeles</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -2009,13 +2029,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                  onSelect={() => {
-                    const publicUrl = `${window.location.origin}/guide/${id}`
-                    navigator.clipboard.writeText(publicUrl).then(() => {
-                      setCopied(true)
-                      setTimeout(() => setCopied(false), 2000)
-                    })
-                  }}
+                  onSelect={() => setShowShareModal(true)}
                 >
                   <Share2 className="h-4 w-4 mr-2" />
                   Compartir Manual
@@ -3115,6 +3129,23 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </motion.div>
         </div>
       )}
+
+      {/* Share Language Modal */}
+      <ShareLanguageModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        onShare={(language) => {
+          const publicUrl = `${window.location.origin}/guide/${id}?lang=${language}`
+          navigator.clipboard.writeText(publicUrl).then(() => {
+            setShowCopiedBadge(true)
+            setTimeout(() => setShowCopiedBadge(false), 2000)
+          })
+        }}
+        title="Compartir Manual Digital"
+        description="Selecciona el idioma en el que quieres compartir el manual"
+        type="manual"
+        currentUrl={`${window.location.origin}/guide/${id}`}
+      />
 
     </div>
   )
