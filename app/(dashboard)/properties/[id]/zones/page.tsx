@@ -1612,7 +1612,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             })
           }}
         >
-          <CardContent className="p-4">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between min-h-[100px] sm:min-h-[120px]">
               {/* Left side - Zone info */}
               <div className="flex items-center space-x-3 flex-1 min-w-0 h-full">
@@ -1632,8 +1632,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 </div>
                 
                 {/* Zone content */}
-                <div className="flex-1 min-w-0 py-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 truncate pr-2">{getZoneText(zone.name)}</h3>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate pr-2">{getZoneText(zone.name)}</h3>
                   
                   <div className="flex flex-wrap items-center gap-2 text-sm">
                     <div className="inline-flex items-center bg-blue-50 rounded-full px-2 py-0.5">
@@ -1843,10 +1843,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   </h3>
                 </div>
                 
-                <div className="inline-flex items-center justify-center text-xs text-gray-600 flex-shrink-0 mt-auto bg-gray-50 rounded-full px-2 py-1">
-                  <Edit className="w-3 h-3 mr-1 text-gray-400" />
+                <div className="inline-flex items-center justify-center text-xs text-gray-600 bg-gray-50 rounded-full px-2 py-0.5 max-w-full">
+                  <Edit className="w-2.5 h-2.5 mr-0.5 text-gray-400 flex-shrink-0" />
                   <span className="font-medium">{zone.stepsCount}</span>
-                  <span className="ml-1 hidden sm:inline">steps</span>
+                  <span className="ml-0.5 hidden xs:inline">steps</span>
                 </div>
               </div>
             </div>
