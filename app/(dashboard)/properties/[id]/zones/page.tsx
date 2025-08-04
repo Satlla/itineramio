@@ -1613,7 +1613,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           }}
         >
           <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center justify-between min-h-[120px] sm:min-h-[100px]">
+            <div className="flex items-center justify-between min-h-[140px] lg:min-h-[100px]">
               {/* Left side - Zone info */}
               <div className="flex items-center space-x-3 flex-1 min-w-0 h-full">
                 {/* Drag handle */}
@@ -2209,33 +2209,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   items={zones.map(zone => zone.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {/* Desktop: vertical list, Mobile: 2x2 grid */}
-                  <div className="hidden lg:block space-y-4">
+                  {/* Desktop: 2 columns, Mobile: 1 column */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {zones.map((zone) => (
                       <SortableZoneItem key={zone.id} zone={zone} />
                     ))}
-                  </div>
-                  
-                  <div className="lg:hidden">
-                    {/* Mobile: 2 rows with 2 columns each = 4 zones visible at once */}
-                    <div className="grid grid-cols-2 grid-rows-2 gap-3 h-80">
-                      {zones.slice(0, 4).map((zone) => (
-                        <SortableZoneItemMobile key={zone.id} zone={zone} />
-                      ))}
-                    </div>
-                    
-                    {/* If more than 4 zones, show them in additional 2x2 grids */}
-                    {zones.length > 4 && (
-                      <div className="mt-6 space-y-6">
-                        {Array.from({ length: Math.ceil((zones.length - 4) / 4) }, (_, index) => (
-                          <div key={index} className="grid grid-cols-2 grid-rows-2 gap-3 h-80">
-                            {zones.slice(4 + index * 4, 8 + index * 4).map((zone) => (
-                              <SortableZoneItemMobile key={zone.id} zone={zone} />
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </SortableContext>
               </DndContext>
