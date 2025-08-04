@@ -73,7 +73,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [id, setId] = useState<string>('')
   const router = useRouter()
   const { user } = useAuth()
-  const { addNotification } = useNotifications()
+  const { refreshNotifications } = useRealNotifications()
   const [zones, setZones] = useState<Zone[]>([])
   const [propertyName, setPropertyName] = useState<string>('')
   const [propertySlug, setPropertySlug] = useState<string>('')
