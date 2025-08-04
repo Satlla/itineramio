@@ -38,7 +38,7 @@ import { useRouter } from 'next/navigation'
 import { zoneTemplates, zoneCategories, ZoneTemplate } from '../../../../../src/data/zoneTemplates'
 import { InspirationZone } from '../../../../../src/data/zoneInspiration'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
-import { useRealNotifications } from '../../../../../src/hooks/useRealNotifications'
+import { useNotifications } from '../../../../../src/hooks/useNotifications'
 import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
 import { InlineLoadingSpinner } from '../../../../../src/components/ui/InlineLoadingSpinner'
 import { DeleteConfirmationModal } from '../../../../../src/components/ui/DeleteConfirmationModal'
@@ -48,7 +48,6 @@ import { crearZonasEsenciales, borrarTodasLasZonas } from '../../../../../src/ut
 import { createBatchZones } from '../../../../../src/utils/createBatchZones'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
 import { CopyZoneToPropertyModal } from '../../../../../src/components/ui/CopyZoneToPropertyModal'
-import { ShareLanguageModal } from '../../../../../src/components/ui/ShareLanguageModal'
 import { EvaluationsModal } from '../../../../../src/components/ui/EvaluationsModal'
 // Removed unused imports
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
@@ -73,7 +72,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [id, setId] = useState<string>('')
   const router = useRouter()
   const { user } = useAuth()
-  const { refreshNotifications } = useRealNotifications()
+  const { addNotification } = useNotifications()
   const [zones, setZones] = useState<Zone[]>([])
   const [propertyName, setPropertyName] = useState<string>('')
   const [propertySlug, setPropertySlug] = useState<string>('')
@@ -90,7 +89,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showElementSelector, setShowElementSelector] = useState(false)
   const [showInspirationModal, setShowInspirationModal] = useState(false)
   const [selectedInspirationZone, setSelectedInspirationZone] = useState<ZoneTemplate | null>(null)
-  const [copied, setCopied] = useState(false)
   const [showStepEditor, setShowStepEditor] = useState(false)
   const [editingZoneForSteps, setEditingZoneForSteps] = useState<Zone | null>(null)
   const [loadingSteps, setLoadingSteps] = useState(false)
@@ -137,7 +135,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   })
   const [isReordering, setIsReordering] = useState(false)
   const [showCopiedBadge, setShowCopiedBadge] = useState(false)
-  const [showShareModal, setShowShareModal] = useState(false)
   const [showEvaluationsModal, setShowEvaluationsModal] = useState(false)
   
   const sensors = useSensors(
@@ -708,9 +705,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setShowIconSelector(false)
   }
 
-  const handleViewEvaluations = () => {
-    setShowEvaluationsModal(true)
-  }
 
   const handleApplyTemplate = async (templateId: string) => {
     try {
@@ -1132,8 +1126,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     const url = `${window.location.origin}/guide/${id}/${zone.id}`
     try {
       await navigator.clipboard.writeText(url)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      // URL copied successfully
     } catch (error) {
       console.error('Failed to copy URL:', error)
     }
@@ -1644,10 +1637,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   
                   <div className="flex flex-col space-y-2 text-sm text-gray-600">
                     <div className="flex items-center">
-                      <div className="flex items-center bg-blue-50 rounded-full px-2 py-1">
+                      <div className="flex items-center bg-blue-50 rounded-full px-2 py-1 flex-shrink-0 min-w-0">
                         <Edit className="w-3 h-3 mr-1 text-blue-500 flex-shrink-0" />
-                        <span className="font-medium text-blue-700">{zone.stepsCount}</span>
-                        <span className="ml-1 text-blue-600">steps</span>
+                        <span className="font-medium text-blue-700 flex-shrink-0">{zone.stepsCount}</span>
+                        <span className="ml-1 text-blue-600 flex-shrink-0 hidden sm:inline">steps</span>
                       </div>
                     </div>
                     
@@ -1850,10 +1843,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   </h3>
                 </div>
                 
-                <div className="flex items-center justify-center text-xs text-gray-600 flex-shrink-0 mt-auto bg-gray-50 rounded-full px-2 py-1">
-                  <Edit className="w-3 h-3 mr-1 text-gray-400" />
-                  <span className="font-medium">{zone.stepsCount}</span>
-                  <span className="ml-1">steps</span>
+                <div className="flex items-center justify-center text-xs text-gray-600 flex-shrink-0 mt-auto bg-gray-50 rounded-full px-2 py-1 min-w-0">
+                  <Edit className="w-3 h-3 mr-1 text-gray-400 flex-shrink-0" />
+                  <span className="font-medium flex-shrink-0">{zone.stepsCount}</span>
+                  <span className="ml-1 flex-shrink-0 hidden sm:inline">steps</span>
                 </div>
               </div>
             </div>
@@ -2033,13 +2026,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   <Edit className="h-4 w-4 mr-2" />
                   Editar Propiedad
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                  onSelect={() => setShowShareModal(true)}
-                >
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Compartir Manual
-                </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
           </DropdownMenu.Root>
@@ -2087,48 +2073,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               <Eye className="w-5 h-5 text-gray-700" />
             </button>
             
-            {/* Compartir URL */}
-            <button
-              onClick={async () => {
-                const publicUrl = `${window.location.origin}/guide/${id}`
-                try {
-                  await navigator.clipboard.writeText(publicUrl)
-                  addNotification({
-                    type: 'success',
-                    title: 'URL copiada',
-                    message: 'El enlace se ha copiado al portapapeles',
-                    read: false
-                  })
-                } catch (err) {
-                  // Fallback para navegadores más antiguos
-                  const textArea = document.createElement('textarea')
-                  textArea.value = publicUrl
-                  document.body.appendChild(textArea)
-                  textArea.select()
-                  try {
-                    document.execCommand('copy')
-                    addNotification({
-                      type: 'success',
-                      title: 'URL copiada',
-                      message: 'El enlace se ha copiado al portapapeles',
-                      read: false
-                    })
-                  } catch (fallbackErr) {
-                    addNotification({
-                      type: 'error',
-                      title: 'Error',
-                      message: 'No se pudo copiar el enlace',
-                      read: false
-                    })
-                  }
-                  document.body.removeChild(textArea)
-                }
-              }}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Compartir manual"
-            >
-              <Share2 className="w-5 h-5 text-gray-700" />
-            </button>
             
             {/* QR Code */}
             <button
@@ -2139,31 +2083,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               <QrCode className="w-5 h-5 text-gray-700" />
             </button>
             
-            {/* Compartir */}
-            <button
-              onClick={async () => {
-                const shareUrl = `${window.location.origin}/guide/${id}`
-                try {
-                  await navigator.clipboard.writeText(shareUrl)
-                  setCopied(true)
-                  setTimeout(() => setCopied(false), 2000)
-                } catch {
-                  // Fallback
-                  const textArea = document.createElement('textarea')
-                  textArea.value = shareUrl
-                  document.body.appendChild(textArea)
-                  textArea.select()
-                  document.execCommand('copy')
-                  document.body.removeChild(textArea)
-                  setCopied(true)
-                  setTimeout(() => setCopied(false), 2000)
-                }
-              }}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label={copied ? 'Enlace copiado' : 'Compartir'}
-            >
-              {copied ? <Check className="w-5 h-5 text-green-600" /> : <Share2 className="w-5 h-5 text-gray-700" />}
-            </button>
           </div>
         </div>
       </div>
@@ -2574,8 +2493,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                       onClick={() => {
                         const publicUrl = `${window.location.origin}/guide/${id}`
                         navigator.clipboard.writeText(publicUrl).then(() => {
-                          setCopied(true)
-                          setTimeout(() => setCopied(false), 2000)
+                          // URL copied successfully
                         })
                       }}
                       variant="outline"
@@ -2583,7 +2501,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                       className="flex items-center gap-2"
                     >
                       <Copy className="w-4 h-4" />
-                      {copied ? 'Copiado!' : 'Copiar Enlace'}
+                      Copiar Enlace
                     </Button>
                   </div>
                 </div>
@@ -3136,22 +3054,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      {/* Share Language Modal */}
-      <ShareLanguageModal
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        onShare={(language) => {
-          const publicUrl = `${window.location.origin}/guide/${id}?lang=${language}`
-          navigator.clipboard.writeText(publicUrl).then(() => {
-            setShowCopiedBadge(true)
-            setTimeout(() => setShowCopiedBadge(false), 2000)
-          })
-        }}
-        title="Compartir Manual Digital"
-        description="Selecciona el idioma en el que quieres compartir el manual"
-        type="manual"
-        currentUrl={`${window.location.origin}/guide/${id}`}
-      />
 
       {/* Evaluations Modal */}
       <EvaluationsModal

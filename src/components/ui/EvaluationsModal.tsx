@@ -118,8 +118,8 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
 
       if (response.ok) {
         setEvaluations(prev => 
-          prev.map(eval => 
-            eval.id === evaluationId ? { ...eval, isPublic } : eval
+          prev.map(evaluation => 
+            evaluation.id === evaluationId ? { ...evaluation, isPublic } : evaluation
           )
         )
       }
@@ -128,7 +128,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
     }
   }
 
-  const filteredEvaluations = evaluations.filter(eval => eval.type === activeTab)
+  const filteredEvaluations = evaluations.filter(evaluation => evaluation.type === activeTab)
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (

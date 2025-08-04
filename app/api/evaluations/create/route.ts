@@ -141,25 +141,35 @@ export async function POST(request: NextRequest) {
 
       // Send email notification to property owner (check preferences first)
       try {
+        console.log('🔍 ZONE EVALUATION EMAIL: Starting email process for hostId:', property.hostId)
+        
         // Get user notification preferences from database
         const userWithPrefs = await prisma.user.findUnique({
           where: { id: property.hostId },
           select: { notificationPreferences: true }
         })
         
+        console.log('🔍 ZONE EVALUATION EMAIL: User preferences:', userWithPrefs?.notificationPreferences)
+        
         let shouldSendEmail = true // Default to sending emails
         
         if (userWithPrefs?.notificationPreferences) {
           const prefs = userWithPrefs.notificationPreferences as any
           shouldSendEmail = prefs.emailNotifications?.zoneEvaluations !== false
+          console.log('🔍 ZONE EVALUATION EMAIL: Should send email based on prefs:', shouldSendEmail)
         }
         
         const hostEmail = property.host?.email || property.hostContactEmail
+        console.log('🔍 ZONE EVALUATION EMAIL: Host email:', hostEmail, 'Should send:', shouldSendEmail)
+        
         if (hostEmail && shouldSendEmail) {
           const zoneName = typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'
           const propertyName = typeof property.name === 'string' ? property.name : (property.name as any)?.es || 'Propiedad'
           
-          await sendEmail({
+          console.log('📧 ZONE EVALUATION EMAIL: Sending email to:', hostEmail)
+          console.log('📧 ZONE EVALUATION EMAIL: Subject:', `Nueva evaluación de zona: ${rating} estrellas - ${propertyName}`)
+          
+          const emailResult = await sendEmail({
             to: hostEmail,
             subject: `Nueva evaluación de zona: ${rating} estrellas - ${propertyName}`,
             html: emailTemplates.zoneEvaluationNotification(
@@ -169,12 +179,15 @@ export async function POST(request: NextRequest) {
               comment
             )
           })
-          console.log('✅ Email notification sent for zone evaluation')
+          
+          console.log('✅ ZONE EVALUATION EMAIL: Email result:', emailResult)
         } else if (!shouldSendEmail) {
-          console.log('📧 Email notification skipped - user has disabled evaluation emails')
+          console.log('📧 ZONE EVALUATION EMAIL: Email notification skipped - user has disabled zone evaluation emails')
+        } else if (!hostEmail) {
+          console.log('📧 ZONE EVALUATION EMAIL: Email notification skipped - no host email available')
         }
       } catch (emailError) {
-        console.error('❌ Error sending email notification:', emailError)
+        console.error('❌ ZONE EVALUATION EMAIL: Error sending email notification:', emailError)
         // Continue without email - evaluation still saved
       }
 
@@ -270,24 +283,34 @@ export async function POST(request: NextRequest) {
 
       // Send email notification to property owner (check preferences first)
       try {
+        console.log('🔍 PROPERTY EVALUATION EMAIL: Starting email process for hostId:', property.hostId)
+        
         // Get user notification preferences from database
         const userWithPrefs = await prisma.user.findUnique({
           where: { id: property.hostId },
           select: { notificationPreferences: true }
         })
         
+        console.log('🔍 PROPERTY EVALUATION EMAIL: User preferences:', userWithPrefs?.notificationPreferences)
+        
         let shouldSendEmail = true // Default to sending emails
         
         if (userWithPrefs?.notificationPreferences) {
           const prefs = userWithPrefs.notificationPreferences as any
           shouldSendEmail = prefs.emailNotifications?.propertyEvaluations !== false
+          console.log('🔍 PROPERTY EVALUATION EMAIL: Should send email based on prefs:', shouldSendEmail)
         }
         
         const hostEmail = property.host?.email || property.hostContactEmail
+        console.log('🔍 PROPERTY EVALUATION EMAIL: Host email:', hostEmail, 'Should send:', shouldSendEmail)
+        
         if (hostEmail && shouldSendEmail) {
           const propertyName = typeof property.name === 'string' ? property.name : (property.name as any)?.es || 'Propiedad'
           
-          await sendEmail({
+          console.log('📧 PROPERTY EVALUATION EMAIL: Sending email to:', hostEmail)
+          console.log('📧 PROPERTY EVALUATION EMAIL: Subject:', `Nueva evaluación del manual: ${rating} estrellas - ${propertyName}`)
+          
+          const emailResult = await sendEmail({
             to: hostEmail,
             subject: `Nueva evaluación del manual: ${rating} estrellas - ${propertyName}`,
             html: emailTemplates.zoneEvaluationNotification(
@@ -297,12 +320,15 @@ export async function POST(request: NextRequest) {
               comment
             )
           })
-          console.log('✅ Email notification sent for property evaluation')
+          
+          console.log('✅ PROPERTY EVALUATION EMAIL: Email result:', emailResult)
         } else if (!shouldSendEmail) {
-          console.log('📧 Email notification skipped - user has disabled property evaluation emails')
+          console.log('📧 PROPERTY EVALUATION EMAIL: Email notification skipped - user has disabled property evaluation emails')
+        } else if (!hostEmail) {
+          console.log('📧 PROPERTY EVALUATION EMAIL: Email notification skipped - no host email available')
         }
       } catch (emailError) {
-        console.error('❌ Error sending email notification:', emailError)
+        console.error('❌ PROPERTY EVALUATION EMAIL: Error sending email notification:', emailError)
         // Continue without email - evaluation still saved
       }
 
