@@ -503,12 +503,14 @@ export default function PropertyGuidePage() {
   const fetchPublicEvaluationsWithId = async (actualPropertyId: string) => {
     try {
       setLoadingEvaluations(true)
-      const response = await fetch(`/api/properties/${actualPropertyId}/public-evaluations`)
+      const response = await fetch(`/api/public/properties/${actualPropertyId}/evaluations`)
       
       if (response.ok) {
         const result = await response.json()
-        setPublicEvaluations(result.evaluations || [])
-        setEvaluationsStats(result.stats || null)
+        if (result.success) {
+          setPublicEvaluations(result.data.evaluations || [])
+          setEvaluationsStats(result.data.stats || null)
+        }
       }
     } catch (error) {
       console.error('Error fetching public evaluations:', error)

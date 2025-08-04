@@ -24,10 +24,16 @@ export async function GET(request: NextRequest) {
     // Default preferences if none exist
     const defaultPreferences = {
       emailNotifications: {
-        evaluations: true,
+        zoneEvaluations: true,
+        propertyEvaluations: true,
         propertyUpdates: true,
         weeklyReports: false,
         marketing: false
+      },
+      dashboardNotifications: {
+        zoneEvaluations: true,
+        propertyEvaluations: true,
+        propertyUpdates: true
       },
       pushNotifications: {
         enabled: false,
@@ -50,8 +56,8 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT /api/account/notification-settings - Update user notification preferences
-export async function PUT(request: NextRequest) {
+// POST /api/account/notification-settings - Update user notification preferences  
+export async function POST(request: NextRequest) {
   try {
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
@@ -60,10 +66,11 @@ export async function PUT(request: NextRequest) {
     const userId = authResult.userId
 
     const body = await request.json()
-    const { emailNotifications, pushNotifications } = body
+    const { emailNotifications, dashboardNotifications, pushNotifications } = body
 
     // Validate the structure
-    if (!emailNotifications || typeof emailNotifications !== 'object') {
+    if (!emailNotifications || typeof emailNotifications !== 'object' ||
+        !dashboardNotifications || typeof dashboardNotifications !== 'object') {
       return NextResponse.json(
         { error: 'Configuración inválida' },
         { status: 400 }
@@ -76,6 +83,7 @@ export async function PUT(request: NextRequest) {
       data: {
         notificationPreferences: {
           emailNotifications,
+          dashboardNotifications,
           pushNotifications: pushNotifications || { enabled: false }
         }
       }

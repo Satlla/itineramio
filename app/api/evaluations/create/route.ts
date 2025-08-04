@@ -141,18 +141,17 @@ export async function POST(request: NextRequest) {
 
       // Send email notification to property owner (check preferences first)
       try {
-        // Check user notification preferences
-        const userPreferences = localStorage.getItem(`user-${property.hostId}-notificationSettings`)
-        let shouldSendEmail = true
+        // Get user notification preferences from database
+        const userWithPrefs = await prisma.user.findUnique({
+          where: { id: property.hostId },
+          select: { notificationPreferences: true }
+        })
         
-        if (userPreferences) {
-          try {
-            const prefs = JSON.parse(userPreferences)
-            shouldSendEmail = prefs.emailNotifications?.evaluations !== false
-          } catch (e) {
-            // If preferences are invalid, default to sending
-            shouldSendEmail = true
-          }
+        let shouldSendEmail = true // Default to sending emails
+        
+        if (userWithPrefs?.notificationPreferences) {
+          const prefs = userWithPrefs.notificationPreferences as any
+          shouldSendEmail = prefs.emailNotifications?.zoneEvaluations !== false
         }
         
         const hostEmail = property.host?.email || property.hostContactEmail
@@ -269,10 +268,23 @@ export async function POST(request: NextRequest) {
         console.warn('Could not create notification:', notificationError)
       }
 
-      // Send email notification to property owner
+      // Send email notification to property owner (check preferences first)
       try {
+        // Get user notification preferences from database
+        const userWithPrefs = await prisma.user.findUnique({
+          where: { id: property.hostId },
+          select: { notificationPreferences: true }
+        })
+        
+        let shouldSendEmail = true // Default to sending emails
+        
+        if (userWithPrefs?.notificationPreferences) {
+          const prefs = userWithPrefs.notificationPreferences as any
+          shouldSendEmail = prefs.emailNotifications?.propertyEvaluations !== false
+        }
+        
         const hostEmail = property.host?.email || property.hostContactEmail
-        if (hostEmail) {
+        if (hostEmail && shouldSendEmail) {
           const propertyName = typeof property.name === 'string' ? property.name : (property.name as any)?.es || 'Propiedad'
           
           await sendEmail({
@@ -286,6 +298,8 @@ export async function POST(request: NextRequest) {
             )
           })
           console.log('✅ Email notification sent for property evaluation')
+        } else if (!shouldSendEmail) {
+          console.log('📧 Email notification skipped - user has disabled property evaluation emails')
         }
       } catch (emailError) {
         console.error('❌ Error sending email notification:', emailError)

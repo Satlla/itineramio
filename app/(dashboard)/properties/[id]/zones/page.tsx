@@ -49,6 +49,7 @@ import { createBatchZones } from '../../../../../src/utils/createBatchZones'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
 import { CopyZoneToPropertyModal } from '../../../../../src/components/ui/CopyZoneToPropertyModal'
 import { ShareLanguageModal } from '../../../../../src/components/ui/ShareLanguageModal'
+import { EvaluationsModal } from '../../../../../src/components/ui/EvaluationsModal'
 // Removed unused imports
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
@@ -137,6 +138,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [isReordering, setIsReordering] = useState(false)
   const [showCopiedBadge, setShowCopiedBadge] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
+  const [showEvaluationsModal, setShowEvaluationsModal] = useState(false)
   
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -704,6 +706,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setEditingZone(null)
     setShowCreateForm(false)
     setShowIconSelector(false)
+  }
+
+  const handleViewEvaluations = () => {
+    setShowEvaluationsModal(true)
   }
 
   const handleApplyTemplate = async (templateId: string) => {
@@ -3145,6 +3151,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         description="Selecciona el idioma en el que quieres compartir el manual"
         type="manual"
         currentUrl={`${window.location.origin}/guide/${id}`}
+      />
+
+      {/* Evaluations Modal */}
+      <EvaluationsModal
+        isOpen={showEvaluationsModal}
+        onClose={() => setShowEvaluationsModal(false)}
+        propertyId={id}
+        propertyName={propertyName || 'Propiedad'}
       />
 
     </div>
