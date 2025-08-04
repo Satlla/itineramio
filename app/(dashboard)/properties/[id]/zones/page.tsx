@@ -1636,11 +1636,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   <h3 className="text-lg font-semibold text-gray-900 mb-3 truncate">{getZoneText(zone.name)}</h3>
                   
                   <div className="flex flex-col space-y-2 text-sm text-gray-600">
-                    <div className="flex items-center">
-                      <div className="flex items-center bg-blue-50 rounded-full px-2 py-1 flex-shrink-0 min-w-0">
+                    <div className="flex items-center min-w-0">
+                      <div className="inline-flex items-center bg-blue-50 rounded-full px-2 py-1 flex-shrink-0">
                         <Edit className="w-3 h-3 mr-1 text-blue-500 flex-shrink-0" />
-                        <span className="font-medium text-blue-700 flex-shrink-0">{zone.stepsCount}</span>
-                        <span className="ml-1 text-blue-600 flex-shrink-0 hidden sm:inline">steps</span>
+                        <span className="font-medium text-blue-700">{zone.stepsCount}</span>
+                        <span className="ml-1 text-blue-600 hidden sm:inline">steps</span>
                       </div>
                     </div>
                     
@@ -1843,10 +1843,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   </h3>
                 </div>
                 
-                <div className="flex items-center justify-center text-xs text-gray-600 flex-shrink-0 mt-auto bg-gray-50 rounded-full px-2 py-1 min-w-0">
-                  <Edit className="w-3 h-3 mr-1 text-gray-400 flex-shrink-0" />
-                  <span className="font-medium flex-shrink-0">{zone.stepsCount}</span>
-                  <span className="ml-1 flex-shrink-0 hidden sm:inline">steps</span>
+                <div className="inline-flex items-center justify-center text-xs text-gray-600 flex-shrink-0 mt-auto bg-gray-50 rounded-full px-2 py-1">
+                  <Edit className="w-3 h-3 mr-1 text-gray-400" />
+                  <span className="font-medium">{zone.stepsCount}</span>
+                  <span className="ml-1 hidden sm:inline">steps</span>
                 </div>
               </div>
             </div>
