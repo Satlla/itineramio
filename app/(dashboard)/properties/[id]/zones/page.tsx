@@ -1633,20 +1633,20 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 
                 {/* Zone content */}
                 <div className="flex-1 min-w-0 pt-1 pb-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 truncate">{getZoneText(zone.name)}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 truncate pr-2">{getZoneText(zone.name)}</h3>
                   
-                  <div className="flex flex-col space-y-2 text-sm text-gray-600">
-                    <div className="flex items-center min-w-0">
-                      <div className="inline-flex items-center bg-blue-50 rounded-full px-2 py-1 flex-shrink-0">
-                        <Edit className="w-3 h-3 mr-1 text-blue-500 flex-shrink-0" />
-                        <span className="font-medium text-blue-700">{zone.stepsCount}</span>
-                        <span className="ml-1 text-blue-600 hidden sm:inline">steps</span>
-                      </div>
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <div className="inline-flex items-center bg-blue-50 rounded-full px-2 py-0.5">
+                      <Edit className="w-3 h-3 mr-1 text-blue-500" />
+                      <span className="font-medium text-blue-700">{zone.stepsCount}</span>
+                      <span className="ml-0.5 text-blue-600 hidden xs:inline">steps</span>
                     </div>
                     
-                    <div className="flex items-center">
-                      <span className="text-gray-500 flex-shrink-0 mr-2">Actualizado:</span>
-                      <span className="font-medium truncate">{zone.lastUpdated}</span>
+                    <span className="text-gray-400">•</span>
+                    
+                    <div className="text-gray-600">
+                      <span className="hidden sm:inline text-gray-500">Actualizado: </span>
+                      <span className="font-medium">{zone.lastUpdated}</span>
                     </div>
                   </div>
                 </div>
