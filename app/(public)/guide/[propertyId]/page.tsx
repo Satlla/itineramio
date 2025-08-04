@@ -1122,46 +1122,8 @@ export default function PropertyGuidePage() {
             </div>
           ) : (
             <>
-              {/* Mobile 2 Rows Grid */}
-              <div className="lg:hidden">
-                <div className="grid grid-cols-2 gap-4">
-                  {property.zones
-                    .filter(zone => zone.stepsCount && zone.stepsCount > 0)
-                    .sort((a, b) => a.order - b.order)
-                    .map((zone, index) => (
-                      <motion.div
-                        key={zone.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                      >
-                        <div 
-                          className="bg-white border border-gray-200 rounded-2xl p-4 cursor-pointer hover:shadow-md hover:border-gray-300 transition-all duration-200 h-32 flex flex-col"
-                          onClick={() => handleZoneClick(zone.id)}
-                        >
-                          <div className="flex items-center justify-center mb-3">
-                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                              {zone.icon ? getZoneIcon(zone.icon, "w-5 h-5 text-gray-700") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-5 h-5 text-gray-700")}
-                            </div>
-                          </div>
-                          <div className="text-center flex-1">
-                            <h4 className="font-semibold text-gray-900 text-sm mb-2 line-clamp-2 break-words">
-                              {getText(zone.name, language, t('zone', language))}
-                            </h4>
-                            {isZoneViewed(zone.id) && (
-                              <div className="flex items-center justify-center">
-                                <CheckCircle className="w-4 h-4 text-green-600" />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                </div>
-              </div>
-
-              {/* Desktop Grid */}
-              <div className="hidden lg:grid grid-cols-1 gap-3">
+              {/* Grid 2 columnas para desktop y móvil */}
+              <div className="grid grid-cols-2 gap-4">
                 {property.zones
                   .filter(zone => zone.stepsCount && zone.stepsCount > 0)
                   .sort((a, b) => a.order - b.order)
@@ -1173,30 +1135,35 @@ export default function PropertyGuidePage() {
                       transition={{ duration: 0.3, delay: index * 0.1 }}
                     >
                       <div 
-                        className="flex items-center space-x-4 p-6 bg-white border border-gray-200 rounded-2xl cursor-pointer hover:shadow-md hover:border-gray-300 transition-all duration-200"
+                        className="bg-white border border-gray-200 rounded-2xl p-4 lg:p-6 cursor-pointer hover:shadow-md hover:border-gray-300 transition-all duration-200 h-full"
                         onClick={() => handleZoneClick(zone.id)}
                       >
-                        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                          {zone.icon ? getZoneIcon(zone.icon, "w-6 h-6 text-gray-700") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-6 h-6 text-gray-700")}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h4 className="font-semibold text-gray-900 text-lg">
-                                {getText(zone.name, language, t('zone', language))}
-                              </h4>
-                              {getText(zone.description, language, '') && (
-                                <p className="text-sm text-gray-500 mt-1">
-                                  {getText(zone.description, language, '')}
-                                </p>
-                              )}
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 h-full relative">
+                          <div className="flex items-center justify-center lg:justify-start mb-3 lg:mb-0">
+                            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                              {zone.icon ? getZoneIcon(zone.icon, "w-6 h-6 text-gray-700") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-6 h-6 text-gray-700")}
                             </div>
-                            {isZoneViewed(zone.id) && (
-                              <div className="flex items-center">
-                                <CheckCircle className="w-5 h-5 text-green-600" />
-                              </div>
+                          </div>
+                          <div className="flex-1 text-center lg:text-left">
+                            <h4 className="font-semibold text-gray-900 text-base lg:text-lg">
+                              {getText(zone.name, language, t('zone', language))}
+                            </h4>
+                            {/* Mostrar número de pasos en móvil */}
+                            <p className="text-sm text-gray-500 mt-1 lg:hidden">
+                              {zone.stepsCount} {zone.stepsCount === 1 ? 'paso' : 'pasos'}
+                            </p>
+                            {/* Mostrar descripción en desktop */}
+                            {getText(zone.description, language, '') && (
+                              <p className="text-sm text-gray-500 mt-1 hidden lg:block">
+                                {getText(zone.description, language, '')}
+                              </p>
                             )}
                           </div>
+                          {isZoneViewed(zone.id) && (
+                            <div className="flex items-center ml-2">
+                              <CheckCircle className="w-5 h-5 text-green-600" />
+                            </div>
+                          )}
                         </div>
                       </div>
                     </motion.div>
