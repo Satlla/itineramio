@@ -1613,26 +1613,26 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           }}
         >
           <CardContent className="p-4">
-            <div className="flex items-start justify-between min-h-[100px]">
+            <div className="flex items-center justify-between min-h-[100px] sm:min-h-[120px]">
               {/* Left side - Zone info */}
-              <div className="flex items-start space-x-3 flex-1 min-w-0 h-full">
+              <div className="flex items-center space-x-3 flex-1 min-w-0 h-full">
                 {/* Drag handle */}
                 <div
                   {...attributes}
                   {...listeners}
-                  className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0 mt-1"
+                  className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <GripVertical className="w-4 h-4 text-gray-400" />
                 </div>
                 
                 {/* Zone icon */}
-                <div className="flex-shrink-0 mt-1">
+                <div className="flex-shrink-0 flex items-center">
                   <ZoneIconDisplay iconId={zone.iconId} size="md" />
                 </div>
                 
                 {/* Zone content */}
-                <div className="flex-1 min-w-0 pt-1 pb-1">
+                <div className="flex-1 min-w-0 py-1">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3 truncate pr-2">{getZoneText(zone.name)}</h3>
                   
                   <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -1653,7 +1653,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Right Section - Menu */}
-              <div className="flex items-start pt-1 ml-4 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center ml-4 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
                     <Button
