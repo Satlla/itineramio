@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast'
 import { validateEnvironmentVariables } from '../src/lib/env-validation'
 import { ErrorBoundary } from '../src/components/ErrorBoundary'
 import { ChunkErrorHandler } from '../src/components/ChunkErrorHandler'
+import { Analytics } from '@vercel/analytics/next'
 
 // Validate environment variables on startup
 if (typeof window === 'undefined') {
@@ -127,6 +128,7 @@ export default function RootLayout({
             </Providers>
           </I18nProvider>
         </ErrorBoundary>
+        <Analytics />
       </body>
     </html>
   )
