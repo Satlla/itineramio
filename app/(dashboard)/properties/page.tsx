@@ -760,9 +760,9 @@ function PropertiesPageContent() {
 
     setIsDeleting(true)
     try {
-      // 💥 ELIMINACIÓN NUCLEAR INTEGRADA EN ENDPOINT PRINCIPAL
-      console.log('💥 Using NUCLEAR DELETE for property:', propertyToDelete.id)
-      const response = await fetch(`/api/properties/${propertyToDelete.id}`, {
+      // 🔥 MÉTODO SIMPLE - A VER SI ASÍ FUNCIONA
+      console.log('🔥 Using SIMPLE DELETE for property:', propertyToDelete.id)
+      const response = await fetch(`/api/properties/${propertyToDelete.id}/simple-delete`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
@@ -771,7 +771,9 @@ function PropertiesPageContent() {
       })
 
       if (!response.ok) {
-        throw new Error('Error al eliminar la propiedad')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('🔥 DELETE ERROR RESPONSE:', response.status, errorData)
+        throw new Error(errorData.error || `Error ${response.status} al eliminar la propiedad`)
       }
 
       // Actualizar la lista local
