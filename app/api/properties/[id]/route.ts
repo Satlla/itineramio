@@ -475,7 +475,8 @@ export async function DELETE(
     console.log('💥 NUCLEAR DELETE: Confirmed ownership, proceeding with total destruction...')
     
     // 💥💥💥 ELIMINACIÓN NUCLEAR - SQL DIRECTO SIN MIRAMIENTOS 💥💥💥
-    await prisma.$transaction(async (tx) => {
+    try {
+      await prisma.$transaction(async (tx) => {
       console.log('💥 Step 1: Eliminating steps...')
       await tx.$executeRaw`
         DELETE FROM steps WHERE "zoneId" IN (
@@ -540,6 +541,33 @@ export async function DELETE(
     })
     
     console.log('💥💥💥 NUCLEAR DELETE SUCCESSFUL - Property completely obliterated! 💥💥💥')
+    } catch (txError) {
+      console.error('💥 TRANSACTION ERROR:', txError)
+      
+      // If transaction fails, try deleting just the property
+      console.log('💥 Attempting simple property deletion...')
+      try {
+        await prisma.$executeRaw`DELETE FROM properties WHERE id = ${id} AND "hostId" = ${userId}`
+        console.log('💥 Simple deletion successful!')
+      } catch (simpleError) {
+        console.error('💥 Simple deletion also failed:', simpleError)
+        
+        // Return more specific error info
+        if (txError instanceof Error && txError.message.includes('violates foreign key constraint')) {
+          const match = txError.message.match(/on table "(\w+)"/)
+          const table = match ? match[1] : 'unknown'
+          
+          return NextResponse.json({
+            success: false,
+            error: `Cannot delete: Data exists in related table '${table}'`,
+            details: txError.message,
+            suggestion: 'Delete all zones and related data first'
+          }, { status: 400 })
+        }
+        
+        throw txError
+      }
+    }
     
     return NextResponse.json({
       success: true,
