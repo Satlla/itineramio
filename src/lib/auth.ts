@@ -29,19 +29,25 @@ export async function getAuthUser(request: NextRequest): Promise<JWTPayload | nu
     const authHeader = request.headers.get('authorization')
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.substring(7)
+      console.log('🔑 Attempting to verify Bearer token')
       const decoded = verifyToken(token)
+      console.log('✅ Bearer token verified successfully')
       return decoded
     }
 
     // Fall back to cookie
     const cookieToken = request.cookies.get('auth-token')?.value
     if (cookieToken) {
+      console.log('🍪 Attempting to verify cookie token')
       const decoded = verifyToken(cookieToken)
+      console.log('✅ Cookie token verified successfully')
       return decoded
     }
 
+    console.log('❌ No valid authentication token found')
     return null
   } catch (error) {
+    console.error('❌ Auth token verification failed:', error instanceof Error ? error.message : error)
     return null
   }
 }

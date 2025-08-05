@@ -453,10 +453,15 @@ export async function DELETE(
     const { id } = await params
     console.log('🗑️ DELETE property request - ID:', id)
     
-    // Get authenticated user
+    // Get authenticated user with detailed logging
+    console.log('🔑 Auth headers:', request.headers.get('authorization') ? 'Bearer token present' : 'No Bearer token')
+    console.log('🍪 Auth cookie:', request.cookies.get('auth-token') ? 'Cookie present' : 'No cookie')
+    
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
       console.log('❌ Auth failed for property deletion')
+      const authData = await authResult.json()
+      console.log('❌ Auth error details:', authData)
       return authResult
     }
     const userId = authResult.userId
