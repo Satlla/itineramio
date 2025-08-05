@@ -499,73 +499,98 @@ export async function DELETE(
     
     // Manual deletion to handle any cascade issues
     try {
+      console.log('🚀 Starting manual deletion process...')
+      
       // First delete all steps
       for (const zone of property.zones) {
         console.log('🗑️ Deleting', zone.steps.length, 'steps from zone:', zone.name)
-        await prisma.step.deleteMany({
-          where: { zoneId: zone.id }
-        })
+        try {
+          await prisma.step.deleteMany({
+            where: { zoneId: zone.id }
+          })
+          console.log('✅ Steps deleted for zone:', zone.name)
+        } catch (stepError) {
+          console.error('❌ Error deleting steps for zone:', zone.name, stepError)
+          throw stepError
+        }
       }
       
       // Then delete all zones
       console.log('🗑️ Deleting', property.zones.length, 'zones')
-      await prisma.zone.deleteMany({
-        where: { propertyId: id }
-      })
+      try {
+        await prisma.zone.deleteMany({
+          where: { propertyId: id }
+        })
+        console.log('✅ Zones deleted successfully')
+      } catch (zoneError) {
+        console.error('❌ Error deleting zones:', zoneError)
+        throw zoneError
+      }
       
-      // Delete property analytics if exists
-      console.log('🗑️ Deleting property analytics')
-      await prisma.propertyAnalytics.deleteMany({
-        where: { propertyId: id }
-      })
+      // Delete related records that might cause FK constraints
+      const deletionSteps = [
+        { name: 'property analytics', fn: () => prisma.propertyAnalytics.deleteMany({ where: { propertyId: id } }) },
+        { name: 'property ratings', fn: () => prisma.propertyRating.deleteMany({ where: { propertyId: id } }) },
+        { name: 'property views', fn: () => prisma.propertyView.deleteMany({ where: { propertyId: id } }) },
+        { name: 'reviews', fn: () => prisma.review.deleteMany({ where: { propertyId: id } }) },
+        { name: 'tracking events', fn: () => prisma.trackingEvent.deleteMany({ where: { propertyId: id } }) },
+        { name: 'announcements', fn: () => prisma.announcement.deleteMany({ where: { propertyId: id } }) },
+        { name: 'zone views', fn: () => prisma.zoneView.deleteMany({ where: { propertyId: id } }) }
+      ]
       
-      // Delete property ratings
-      console.log('🗑️ Deleting property ratings')
-      await prisma.propertyRating.deleteMany({
-        where: { propertyId: id }
-      })
-      
-      // Delete property views
-      console.log('🗑️ Deleting property views')
-      await prisma.propertyView.deleteMany({
-        where: { propertyId: id }
-      })
-      
-      // Delete reviews
-      console.log('🗑️ Deleting reviews')
-      await prisma.review.deleteMany({
-        where: { propertyId: id }
-      })
-      
-      // Delete tracking events
-      console.log('🗑️ Deleting tracking events')
-      await prisma.trackingEvent.deleteMany({
-        where: { propertyId: id }
-      })
-      
-      // Delete announcements
-      console.log('🗑️ Deleting announcements')
-      await prisma.announcement.deleteMany({
-        where: { propertyId: id }
-      })
-      
-      // Delete zone views (related to this property)
-      console.log('🗑️ Deleting zone views')
-      await prisma.zoneView.deleteMany({
-        where: { propertyId: id }
-      })
+      for (const step of deletionSteps) {
+        console.log(`🗑️ Deleting ${step.name}...`)
+        try {
+          const result = await step.fn()
+          console.log(`✅ ${step.name} deleted: ${result.count} records`)
+        } catch (stepError) {
+          console.error(`❌ Error deleting ${step.name}:`, stepError)
+          // Continue with other deletions, some tables might not exist or be empty
+        }
+      }
       
       // Finally delete the property
-      console.log('🗑️ Deleting property')
-      await prisma.property.delete({
-        where: { id }
-      })
+      console.log('🗑️ Deleting property...')
+      try {
+        await prisma.property.delete({
+          where: { id }
+        })
+        console.log('✅ Property deleted successfully')
+      } catch (propertyError) {
+        console.error('❌ CRITICAL: Error deleting property:', propertyError)
+        throw propertyError
+      }
       
       console.log('✅ Property deleted successfully')
       
     } catch (deleteError) {
       console.error('❌ Error during manual deletion:', deleteError)
-      throw deleteError
+      console.log('🔄 Attempting raw SQL deletion as fallback...')
+      
+      try {
+        // Use raw SQL to delete everything at once
+        await prisma.$executeRaw`
+          DELETE FROM steps WHERE "zoneId" IN (
+            SELECT id FROM zones WHERE "propertyId" = ${id}
+          );
+        `
+        
+        await prisma.$executeRaw`DELETE FROM zones WHERE "propertyId" = ${id};`
+        await prisma.$executeRaw`DELETE FROM property_analytics WHERE "propertyId" = ${id};`
+        await prisma.$executeRaw`DELETE FROM property_ratings WHERE "propertyId" = ${id};`
+        await prisma.$executeRaw`DELETE FROM property_views WHERE "propertyId" = ${id};`
+        await prisma.$executeRaw`DELETE FROM reviews WHERE "propertyId" = ${id};`
+        await prisma.$executeRaw`DELETE FROM tracking_events WHERE "propertyId" = ${id};`
+        await prisma.$executeRaw`DELETE FROM announcements WHERE "propertyId" = ${id};`
+        await prisma.$executeRaw`DELETE FROM zone_views WHERE "propertyId" = ${id};`
+        await prisma.$executeRaw`DELETE FROM properties WHERE id = ${id};`
+        
+        console.log('✅ Raw SQL deletion successful')
+        
+      } catch (rawError) {
+        console.error('❌ Raw SQL deletion also failed:', rawError)
+        throw new Error(`Both Prisma and raw SQL deletion failed. Prisma error: ${deleteError instanceof Error ? deleteError.message : deleteError}. Raw SQL error: ${rawError instanceof Error ? rawError.message : rawError}`)
+      }
     }
     
     return NextResponse.json({
