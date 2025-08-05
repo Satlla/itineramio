@@ -70,10 +70,11 @@ export async function POST(
     // Get the next order number
     const lastZone = await prisma.zone.findFirst({
       where: { propertyId: propertyId },
-      orderBy: { id: 'desc' }
+      orderBy: { order: 'desc' },
+      select: { order: true }
     })
     
-    let currentOrder = lastZone ? lastZone.order + 1 : 1
+    let currentOrder = lastZone ? (lastZone.order || 0) + 1 : 1
     
     // Get existing slugs for uniqueness check
     const existingSlugs = await prisma.zone.findMany({
