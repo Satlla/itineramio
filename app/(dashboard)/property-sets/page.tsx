@@ -30,6 +30,7 @@ interface PropertySet {
   totalViews: number
   avgRating: number
   totalZones?: number
+  timeSavedMinutes?: number
   status: string
   createdAt: string
 }
@@ -181,6 +182,16 @@ export default function PropertySetsPage() {
                               <div className="text-xs text-gray-600">Vistas</div>
                             </div>
                           </div>
+                          
+                          {/* Time Saved */}
+                          {propertySet.timeSavedMinutes && propertySet.timeSavedMinutes > 0 && (
+                            <div className="mb-4 p-3 bg-green-50 rounded-lg text-center">
+                              <div className="text-lg font-bold text-green-700">
+                                {Math.round(propertySet.timeSavedMinutes / 60)}h
+                              </div>
+                              <div className="text-xs text-green-600">Tiempo Ahorrado</div>
+                            </div>
+                          )}
 
                           {/* Type Badge and Rating */}
                           <div className="flex items-center justify-between mb-4">

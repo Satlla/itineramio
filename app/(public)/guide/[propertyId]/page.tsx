@@ -388,6 +388,22 @@ const getPriorityColor = (priority: string) => {
   }
 }
 
+// Analytics tracking for real statistics
+const trackPropertyView = async (propertyId: string) => {
+  try {
+    await fetch('/api/analytics/track-interaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        propertyId,
+        interactionType: 'property_view'
+      })
+    })
+  } catch (error) {
+    console.error('Error tracking property view:', error)
+  }
+}
+
 export default function PropertyGuidePage() {
   const router = useRouter()
   const params = useParams()
@@ -422,6 +438,9 @@ export default function PropertyGuidePage() {
     fetchPropertyData()
     fetchAnnouncements()
     // fetchPublicEvaluations will be called from fetchPropertyData if needed
+    
+    // Track property view for analytics
+    trackPropertyView(propertyId)
     
     // Get language from URL params
     const urlParams = new URLSearchParams(window.location.search)

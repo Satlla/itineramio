@@ -207,7 +207,7 @@ const t = (key: string, language: string = 'es') => {
 }
 
 // Analytics tracking for real statistics
-const trackStepViewed = async (propertyId: string, zoneId: string, stepIndex: number, totalSteps: number) => {
+const trackZoneView = async (propertyId: string, zoneId: string) => {
   try {
     await fetch('/api/analytics/track-interaction', {
       method: 'POST',
@@ -216,6 +216,24 @@ const trackStepViewed = async (propertyId: string, zoneId: string, stepIndex: nu
         propertyId,
         zoneId,
         interactionType: 'zone_view'
+      })
+    })
+  } catch (error) {
+    console.error('Error tracking zone view:', error)
+  }
+}
+
+const trackStepViewed = async (propertyId: string, zoneId: string, stepIndex: number, totalSteps: number) => {
+  try {
+    await fetch('/api/analytics/track-interaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        propertyId,
+        zoneId,
+        interactionType: 'step_view',
+        stepIndex,
+        totalSteps
       })
     })
   } catch (error) {
@@ -319,6 +337,9 @@ export default function ZoneGuidePage({
       setPropertyId(pId)
       setZoneId(zId)
       fetchZoneData(pId, zId)
+      
+      // Track zone view immediately when the page loads
+      trackZoneView(pId, zId)
       
       // Get language from URL params
       const urlParams = new URLSearchParams(window.location.search)
@@ -568,7 +589,22 @@ export default function ZoneGuidePage({
     }
   }
 
-  const skipRating = () => {
+  const skipRating = async () => {
+    // Track skipped evaluation for analytics
+    try {
+      await fetch('/api/tracking/evaluation-skipped', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          propertyId,
+          zoneId,
+          reason: 'user_skipped'
+        })
+      })
+    } catch (error) {
+      console.error('Error tracking skipped evaluation:', error)
+    }
+    
     // Mark zone as viewed even if rating is skipped
     localStorage.setItem(`zone-${zoneId}-viewed`, 'true')
     setShowRatingModal(false)

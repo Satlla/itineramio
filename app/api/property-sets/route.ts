@@ -56,16 +56,33 @@ export async function GET(request: NextRequest) {
           WHERE p."propertySetId" = ${propertySet.id}
         ` as any[]
         
+        // Get real metrics
+        const metrics = await prisma.$queryRaw`
+          SELECT 
+            COALESCE(SUM(pa."totalViews"), 0) as total_views,
+            COALESCE(AVG(pa."overallRating"), 0) as avg_rating,
+            COALESCE(SUM(za."timeSavedMinutes"), 0) as time_saved,
+            COUNT(DISTINCT pv.id) as property_views_count
+          FROM properties p
+          LEFT JOIN property_analytics pa ON p.id = pa."propertyId"
+          LEFT JOIN zones z ON p.id = z."propertyId"
+          LEFT JOIN zone_analytics za ON z.id = za."zoneId"
+          LEFT JOIN property_views pv ON p.id = pv."propertyId"
+          WHERE p."propertySetId" = ${propertySet.id}
+        ` as any[]
+        
         // Convert BigInt to number properly
         const propCount = propertiesCount[0]?.count
         const zoneCount = totalZones[0]?.count
+        const metricsData = metrics[0] || {}
         
         return {
           ...propertySet,
           propertiesCount: propCount ? parseInt(propCount.toString()) : 0,
-          totalViews: 0, // Keep as 0 for now - analytics can be added later
-          avgRating: 0, // Keep as 0 for now - ratings can be calculated later
-          totalZones: zoneCount ? parseInt(zoneCount.toString()) : 0
+          totalViews: parseInt(metricsData.total_views || 0) + parseInt(metricsData.property_views_count || 0),
+          avgRating: parseFloat(metricsData.avg_rating || 0),
+          totalZones: zoneCount ? parseInt(zoneCount.toString()) : 0,
+          timeSavedMinutes: parseInt(metricsData.time_saved || 0)
         }
       } catch (error) {
         console.error('Error transforming property set:', propertySet.id, error)
