@@ -119,26 +119,48 @@ export default function DashboardPage(): JSX.Element {
     try {
       setLoading(true)
       
-      // Fetch ALL properties using the same endpoint as properties page (no pagination limit)
-      const propertiesResponse = await fetch('/api/properties?limit=1000', {
+      // Try to fetch analytics data from dedicated endpoint first
+      const analyticsResponse = await fetch('/api/analytics/dashboard', {
         credentials: 'include'
       })
-      const propertiesResult = await propertiesResponse.json()
+      const analyticsResult = await analyticsResponse.json()
       
-      console.log('Properties response:', propertiesResponse.status, propertiesResult)
+      console.log('Analytics response:', analyticsResponse.status, analyticsResult)
       
-      if (propertiesResponse.ok && propertiesResult.data) {
-        setProperties(propertiesResult.data)
+      if (analyticsResponse.ok && analyticsResult.success && analyticsResult.data) {
+        const { stats, allProperties } = analyticsResult.data
+        setProperties(allProperties || [])
         setStats({
-          totalProperties: propertiesResult.data.length,
-          totalViews: propertiesResult.data.reduce((sum: number, p: any) => sum + (p.totalViews || 0), 0),
-          activeManuals: propertiesResult.data.filter((p: any) => p.status === 'ACTIVE').length,
-          avgRating: propertiesResult.data.length > 0 ? 
-            propertiesResult.data.reduce((sum: number, p: any) => sum + (p.avgRating || 0), 0) / propertiesResult.data.length : 0,
-          zonesViewed: propertiesResult.data.reduce((sum: number, p: any) => sum + (p.zonesCount || 0), 0),
-          timeSavedMinutes: 0,
-          monthlyViews: 0
+          totalProperties: stats.totalProperties || 0,
+          totalViews: stats.totalViews || 0,
+          activeManuals: stats.activeManuals || 0,
+          avgRating: stats.avgRating || 0,
+          zonesViewed: stats.zonesViewed || 0,
+          timeSavedMinutes: stats.timeSavedMinutes || 0,
+          monthlyViews: stats.monthlyViews || 0
         })
+      } else {
+        // Fallback to properties endpoint
+        const propertiesResponse = await fetch('/api/properties?limit=1000', {
+          credentials: 'include'
+        })
+        const propertiesResult = await propertiesResponse.json()
+        
+        console.log('Properties fallback:', propertiesResponse.status, propertiesResult)
+        
+        if (propertiesResponse.ok && propertiesResult.data) {
+          setProperties(propertiesResult.data)
+          setStats({
+            totalProperties: propertiesResult.data.length,
+            totalViews: propertiesResult.data.reduce((sum: number, p: any) => sum + (p.totalViews || 0), 0),
+            activeManuals: propertiesResult.data.filter((p: any) => p.status === 'ACTIVE').length,
+            avgRating: propertiesResult.data.length > 0 ? 
+              propertiesResult.data.reduce((sum: number, p: any) => sum + (p.avgRating || 0), 0) / propertiesResult.data.length : 0,
+            zonesViewed: propertiesResult.data.reduce((sum: number, p: any) => sum + (p.zonesCount || 0), 0),
+            timeSavedMinutes: 0,
+            monthlyViews: 0
+          })
+        }
       }
       
       // Fetch property sets for navigation
