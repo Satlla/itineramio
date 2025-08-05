@@ -451,36 +451,81 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
+    console.log('🗑️ DELETE property request - ID:', id)
     
     // Get authenticated user
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
+      console.log('❌ Auth failed for property deletion')
       return authResult
     }
     const userId = authResult.userId
+    console.log('✅ Auth successful - User ID:', userId)
     
     // Set JWT claims for PostgreSQL RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
     
+    // First, let's find the property with more detailed logging
+    console.log('🔍 Looking for property with ID:', id, 'and hostId:', userId)
+    
     const property = await prisma.property.findFirst({
       where: {
         id,
-        hostId: userId // Using hostId to match the correct user
+        hostId: userId
+      },
+      include: {
+        zones: {
+          include: {
+            steps: true
+          }
+        }
       }
     })
     
     if (!property) {
+      console.log('❌ Property not found or user not authorized')
       return NextResponse.json({
         success: false,
         error: 'Propiedad no encontrada'
       }, { status: 404 })
     }
     
-    // Delete property and all related data (zones, steps, etc.)
-    // Thanks to the cascade delete in the schema, this will handle cleanup
-    await prisma.property.delete({
-      where: { id }
-    })
+    console.log('✅ Property found:', property.name, 'with', property.zones.length, 'zones')
+    
+    // Manual deletion to handle any cascade issues
+    try {
+      // First delete all steps
+      for (const zone of property.zones) {
+        console.log('🗑️ Deleting', zone.steps.length, 'steps from zone:', zone.name)
+        await prisma.step.deleteMany({
+          where: { zoneId: zone.id }
+        })
+      }
+      
+      // Then delete all zones
+      console.log('🗑️ Deleting', property.zones.length, 'zones')
+      await prisma.zone.deleteMany({
+        where: { propertyId: id }
+      })
+      
+      // Delete property analytics if exists
+      console.log('🗑️ Deleting property analytics')
+      await prisma.propertyAnalytics.deleteMany({
+        where: { propertyId: id }
+      })
+      
+      // Finally delete the property
+      console.log('🗑️ Deleting property')
+      await prisma.property.delete({
+        where: { id }
+      })
+      
+      console.log('✅ Property deleted successfully')
+      
+    } catch (deleteError) {
+      console.error('❌ Error during manual deletion:', deleteError)
+      throw deleteError
+    }
     
     return NextResponse.json({
       success: true,
@@ -488,11 +533,16 @@ export async function DELETE(
     })
     
   } catch (error) {
-    console.error('Error deleting property:', error)
+    console.error('❌ Error deleting property:', error)
+    console.error('❌ Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    })
     
     return NextResponse.json({
       success: false,
-      error: 'Error interno del servidor'
+      error: 'Error interno del servidor',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
 }
