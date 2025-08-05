@@ -451,147 +451,95 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    console.log('🗑️ DELETE property request - ID:', id)
+    console.log('💥 NUCLEAR DELETE MODE ACTIVATED - Property ID:', id)
     
-    // Get authenticated user with detailed logging
-    console.log('🔑 Auth headers:', request.headers.get('authorization') ? 'Bearer token present' : 'No Bearer token')
-    console.log('🍪 Auth cookie:', request.cookies.get('auth-token') ? 'Cookie present' : 'No cookie')
-    
+    // Get authenticated user
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
-      console.log('❌ Auth failed for property deletion')
-      const authData = await authResult.json()
-      console.log('❌ Auth error details:', authData)
       return authResult
     }
     const userId = authResult.userId
-    console.log('✅ Auth successful - User ID:', userId)
     
-    // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // Verify user owns this property first with simple query
+    const ownerCheck = await prisma.$queryRaw`
+      SELECT id FROM properties WHERE id = ${id} AND "hostId" = ${userId}
+    ` as any[]
     
-    // First, let's find the property with more detailed logging
-    console.log('🔍 Looking for property with ID:', id, 'and hostId:', userId)
-    
-    const property = await prisma.property.findFirst({
-      where: {
-        id,
-        hostId: userId
-      },
-      include: {
-        zones: {
-          include: {
-            steps: true
-          }
-        }
-      }
-    })
-    
-    if (!property) {
-      console.log('❌ Property not found or user not authorized')
+    if (ownerCheck.length === 0) {
       return NextResponse.json({
         success: false,
-        error: 'Propiedad no encontrada'
+        error: 'Propiedad no encontrada o no autorizada'
       }, { status: 404 })
     }
     
-    console.log('✅ Property found:', property.name, 'with', property.zones.length, 'zones')
+    console.log('💥 NUCLEAR DELETE: Confirmed ownership, proceeding with total destruction...')
     
-    // Manual deletion to handle any cascade issues
-    try {
-      console.log('🚀 Starting manual deletion process...')
+    // 💥💥💥 ELIMINACIÓN NUCLEAR - SQL DIRECTO SIN MIRAMIENTOS 💥💥💥
+    await prisma.$transaction(async (tx) => {
+      console.log('💥 Step 1: Eliminating steps...')
+      await tx.$executeRaw`
+        DELETE FROM steps WHERE "zoneId" IN (
+          SELECT id FROM zones WHERE "propertyId" = ${id}
+        )
+      `
       
-      // First delete all steps
-      for (const zone of property.zones) {
-        console.log('🗑️ Deleting', zone.steps.length, 'steps from zone:', zone.name)
-        try {
-          await prisma.step.deleteMany({
-            where: { zoneId: zone.id }
-          })
-          console.log('✅ Steps deleted for zone:', zone.name)
-        } catch (stepError) {
-          console.error('❌ Error deleting steps for zone:', zone.name, stepError)
-          throw stepError
-        }
-      }
+      console.log('💥 Step 2: Eliminating zone comments...')
+      await tx.$executeRaw`
+        DELETE FROM zone_comments WHERE "zoneId" IN (
+          SELECT id FROM zones WHERE "propertyId" = ${id}
+        )
+      `
       
-      // Then delete all zones
-      console.log('🗑️ Deleting', property.zones.length, 'zones')
-      try {
-        await prisma.zone.deleteMany({
-          where: { propertyId: id }
-        })
-        console.log('✅ Zones deleted successfully')
-      } catch (zoneError) {
-        console.error('❌ Error deleting zones:', zoneError)
-        throw zoneError
-      }
+      console.log('💥 Step 3: Eliminating zone ratings...')
+      await tx.$executeRaw`
+        DELETE FROM zone_ratings WHERE "zoneId" IN (
+          SELECT id FROM zones WHERE "propertyId" = ${id}
+        )
+      `
       
-      // Delete related records that might cause FK constraints
-      const deletionSteps = [
-        { name: 'property analytics', fn: () => prisma.propertyAnalytics.deleteMany({ where: { propertyId: id } }) },
-        { name: 'property ratings', fn: () => prisma.propertyRating.deleteMany({ where: { propertyId: id } }) },
-        { name: 'property views', fn: () => prisma.propertyView.deleteMany({ where: { propertyId: id } }) },
-        { name: 'reviews', fn: () => prisma.review.deleteMany({ where: { propertyId: id } }) },
-        { name: 'tracking events', fn: () => prisma.trackingEvent.deleteMany({ where: { propertyId: id } }) },
-        { name: 'announcements', fn: () => prisma.announcement.deleteMany({ where: { propertyId: id } }) },
-        { name: 'zone views', fn: () => prisma.zoneView.deleteMany({ where: { propertyId: id } }) }
-      ]
+      console.log('💥 Step 4: Eliminating error reports...')
+      await tx.$executeRaw`
+        DELETE FROM error_reports WHERE "zoneId" IN (
+          SELECT id FROM zones WHERE "propertyId" = ${id}
+        )
+      `
       
-      for (const step of deletionSteps) {
-        console.log(`🗑️ Deleting ${step.name}...`)
-        try {
-          const result = await step.fn()
-          console.log(`✅ ${step.name} deleted: ${result.count} records`)
-        } catch (stepError) {
-          console.error(`❌ Error deleting ${step.name}:`, stepError)
-          // Continue with other deletions, some tables might not exist or be empty
-        }
-      }
+      console.log('💥 Step 5: Eliminating zone analytics...')
+      await tx.$executeRaw`
+        DELETE FROM zone_analytics WHERE "zoneId" IN (
+          SELECT id FROM zones WHERE "propertyId" = ${id}
+        )
+      `
       
-      // Finally delete the property
-      console.log('🗑️ Deleting property...')
-      try {
-        await prisma.property.delete({
-          where: { id }
-        })
-        console.log('✅ Property deleted successfully')
-      } catch (propertyError) {
-        console.error('❌ CRITICAL: Error deleting property:', propertyError)
-        throw propertyError
-      }
+      console.log('💥 Step 6: Eliminating zone views...')
+      await tx.$executeRaw`DELETE FROM zone_views WHERE "propertyId" = ${id}`
       
-      console.log('✅ Property deleted successfully')
+      console.log('💥 Step 7: Eliminating zones...')
+      await tx.$executeRaw`DELETE FROM zones WHERE "propertyId" = ${id}`
       
-    } catch (deleteError) {
-      console.error('❌ Error during manual deletion:', deleteError)
-      console.log('🔄 Attempting raw SQL deletion as fallback...')
+      console.log('💥 Step 8: Eliminating property analytics...')
+      await tx.$executeRaw`DELETE FROM property_analytics WHERE "propertyId" = ${id}`
       
-      try {
-        // Use raw SQL to delete everything at once
-        await prisma.$executeRaw`
-          DELETE FROM steps WHERE "zoneId" IN (
-            SELECT id FROM zones WHERE "propertyId" = ${id}
-          );
-        `
-        
-        await prisma.$executeRaw`DELETE FROM zones WHERE "propertyId" = ${id};`
-        await prisma.$executeRaw`DELETE FROM property_analytics WHERE "propertyId" = ${id};`
-        await prisma.$executeRaw`DELETE FROM property_ratings WHERE "propertyId" = ${id};`
-        await prisma.$executeRaw`DELETE FROM property_views WHERE "propertyId" = ${id};`
-        await prisma.$executeRaw`DELETE FROM reviews WHERE "propertyId" = ${id};`
-        await prisma.$executeRaw`DELETE FROM tracking_events WHERE "propertyId" = ${id};`
-        await prisma.$executeRaw`DELETE FROM announcements WHERE "propertyId" = ${id};`
-        await prisma.$executeRaw`DELETE FROM zone_views WHERE "propertyId" = ${id};`
-        await prisma.$executeRaw`DELETE FROM properties WHERE id = ${id};`
-        
-        console.log('✅ Raw SQL deletion successful')
-        
-      } catch (rawError) {
-        console.error('❌ Raw SQL deletion also failed:', rawError)
-        throw new Error(`Both Prisma and raw SQL deletion failed. Prisma error: ${deleteError instanceof Error ? deleteError.message : deleteError}. Raw SQL error: ${rawError instanceof Error ? rawError.message : rawError}`)
-      }
-    }
+      console.log('💥 Step 9: Eliminating property ratings...')
+      await tx.$executeRaw`DELETE FROM property_ratings WHERE "propertyId" = ${id}`
+      
+      console.log('💥 Step 10: Eliminating property views...')
+      await tx.$executeRaw`DELETE FROM property_views WHERE "propertyId" = ${id}`
+      
+      console.log('💥 Step 11: Eliminating reviews...')
+      await tx.$executeRaw`DELETE FROM reviews WHERE "propertyId" = ${id}`
+      
+      console.log('💥 Step 12: Eliminating tracking events...')
+      await tx.$executeRaw`DELETE FROM tracking_events WHERE "propertyId" = ${id}`
+      
+      console.log('💥 Step 13: Eliminating announcements...')
+      await tx.$executeRaw`DELETE FROM announcements WHERE "propertyId" = ${id}`
+      
+      console.log('💥 FINAL NUCLEAR STRIKE: Eliminating property...')
+      await tx.$executeRaw`DELETE FROM properties WHERE id = ${id}`
+    })
+    
+    console.log('💥💥💥 NUCLEAR DELETE SUCCESSFUL - Property completely obliterated! 💥💥💥')
     
     return NextResponse.json({
       success: true,
