@@ -760,7 +760,9 @@ function PropertiesPageContent() {
 
     setIsDeleting(true)
     try {
-      const response = await fetch(`/api/properties/${propertyToDelete.id}`, {
+      // 💥 USAR ELIMINACIÓN NUCLEAR - Sin miramientos
+      console.log('💥 Using NUCLEAR DELETE for property:', propertyToDelete.id)
+      const response = await fetch(`/api/properties/${propertyToDelete.id}/nuclear-delete`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
