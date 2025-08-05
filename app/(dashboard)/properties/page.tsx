@@ -761,7 +761,11 @@ function PropertiesPageContent() {
     setIsDeleting(true)
     try {
       const response = await fetch(`/api/properties/${propertyToDelete.id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
       })
 
       if (!response.ok) {

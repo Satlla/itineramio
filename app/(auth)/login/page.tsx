@@ -67,11 +67,6 @@ function LoginContent() {
     }
   }, [searchParams])
 
-  // Demo credentials for testing
-  const demoCredentials = {
-    email: 'demo@itineramio.com',
-    password: 'Demo1234'
-  }
 
   const validateForm = () => {
     const newErrors = {
@@ -170,10 +165,6 @@ function LoginContent() {
     }
   }
 
-  const fillDemoCredentials = () => {
-    setFormData(demoCredentials)
-    setErrors({ email: '', password: '', general: '' })
-  }
 
   const resendVerificationEmail = async () => {
     if (!formData.email) {
@@ -268,31 +259,6 @@ function LoginContent() {
               </p>
             </div>
 
-            {/* Demo Credentials */}
-            <div className="bg-blue-50 rounded-lg p-4 mb-6">
-              <div className="flex items-start space-x-3">
-                <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <AlertCircle className="w-3 h-3 text-white" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm text-gray-700 mb-2">
-                    <span className="font-semibold">Demo:</span> Usa estas credenciales para probar
-                  </div>
-                  <div className="text-xs text-gray-600 space-y-1">
-                    <div>Email: demo@itineramio.com</div>
-                    <div>Contraseña: Demo1234</div>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={fillDemoCredentials}
-                    className="mt-2 h-8 px-3 text-xs"
-                  >
-                    Rellenar automáticamente
-                  </Button>
-                </div>
-              </div>
-            </div>
 
             {/* Success Message */}
             {messages.success && (
