@@ -616,6 +616,24 @@ function PropertiesPageContent() {
     }
   }, [])
 
+  // Track property views when properties are loaded
+  useEffect(() => {
+    if (properties.length > 0) {
+      // Track views for all visible properties
+      properties.forEach(async (property) => {
+        try {
+          await fetch('/api/tracking/property-view', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ propertyId: property.id })
+          })
+        } catch (error) {
+          console.error('Error tracking property view:', error)
+        }
+      })
+    }
+  }, [properties])
+
   const fetchProperties = async () => {
     try {
       setLoading(true)
