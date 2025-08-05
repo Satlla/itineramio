@@ -519,6 +519,42 @@ export async function DELETE(
         where: { propertyId: id }
       })
       
+      // Delete property ratings
+      console.log('🗑️ Deleting property ratings')
+      await prisma.propertyRating.deleteMany({
+        where: { propertyId: id }
+      })
+      
+      // Delete property views
+      console.log('🗑️ Deleting property views')
+      await prisma.propertyView.deleteMany({
+        where: { propertyId: id }
+      })
+      
+      // Delete reviews
+      console.log('🗑️ Deleting reviews')
+      await prisma.review.deleteMany({
+        where: { propertyId: id }
+      })
+      
+      // Delete tracking events
+      console.log('🗑️ Deleting tracking events')
+      await prisma.trackingEvent.deleteMany({
+        where: { propertyId: id }
+      })
+      
+      // Delete announcements
+      console.log('🗑️ Deleting announcements')
+      await prisma.announcement.deleteMany({
+        where: { propertyId: id }
+      })
+      
+      // Delete zone views (related to this property)
+      console.log('🗑️ Deleting zone views')
+      await prisma.zoneView.deleteMany({
+        where: { propertyId: id }
+      })
+      
       // Finally delete the property
       console.log('🗑️ Deleting property')
       await prisma.property.delete({
