@@ -148,7 +148,58 @@ export async function POST(request: NextRequest) {
     
     console.log('Property created successfully:', property.id)
     
-    // NO longer auto-creating zones - they are created on demand via modal
+    // Auto-create essential zones for new properties to improve UX for new users
+    try {
+      console.log('🏠 Auto-creating essential zones for new property:', property.id)
+      
+      const zonasEsenciales = [
+        { name: 'Check In', description: 'Proceso de entrada al apartamento', icon: 'key' },
+        { name: 'WiFi', description: 'Información de conexión a internet', icon: 'wifi' },
+        { name: 'Check Out', description: 'Instrucciones para la salida', icon: 'exit' },
+        { name: 'Cómo Llegar', description: 'Direcciones desde aeropuerto, estación y ubicación exacta', icon: 'map-pin' },
+        { name: 'Normas de la Casa', description: 'Reglas y políticas del apartamento', icon: 'list' },
+        { name: 'Parking', description: 'Información sobre aparcamiento', icon: 'car' },
+        { name: 'Climatización', description: 'Aire acondicionado y calefacción', icon: 'thermometer' },
+        { name: 'Teléfonos de Emergencia', description: 'Contactos importantes y anfitrión', icon: 'phone' },
+        { name: 'Transporte Público', description: 'Metro, autobús y opciones de movilidad', icon: 'bus' },
+        { name: 'Recomendaciones', description: 'Restaurantes, tiendas y lugares de interés', icon: 'star' },
+        { name: 'Basura y Reciclaje', description: 'Cómo y dónde desechar la basura', icon: 'trash' }
+      ]
+
+      // Prepare zones data with unique slugs
+      let currentOrder = 1
+      const zonesData = zonasEsenciales.map((zoneData, index) => {
+        const timestamp = Date.now() + index
+        const random1 = Math.random().toString(36).substr(2, 12)
+        const random2 = Math.random().toString(36).substr(2, 12)
+        
+        const baseSlug = generateSlug(zoneData.name)
+        const uniqueSlug = `${baseSlug}-${timestamp}` // Ensure uniqueness with timestamp
+        
+        return {
+          propertyId: property.id,
+          name: { es: zoneData.name },
+          slug: uniqueSlug,
+          description: { es: zoneData.description },
+          icon: zoneData.icon,
+          color: 'bg-gray-100',
+          order: currentOrder++,
+          status: 'ACTIVE',
+          qrCode: `qr_${timestamp}_${random1}`,
+          accessCode: `ac_${timestamp}_${random2}`
+        }
+      })
+
+      // Create zones in a single transaction
+      await prisma.$transaction(
+        zonesData.map((data) => prisma.zone.create({ data }))
+      )
+      
+      console.log('✅ Essential zones auto-created for property:', property.id)
+    } catch (zoneError) {
+      console.error('❌ Warning: Failed to auto-create zones for property:', property.id, zoneError)
+      // Don't fail the property creation if zone creation fails
+    }
     
     return NextResponse.json({
       success: true,
