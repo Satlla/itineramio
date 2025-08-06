@@ -167,7 +167,6 @@ export async function POST(request: NextRequest) {
       ]
 
       // Prepare zones data with unique slugs
-      let currentOrder = 1
       const zonesData = zonasEsenciales.map((zoneData, index) => {
         const timestamp = Date.now() + index
         const random1 = Math.random().toString(36).substr(2, 12)
@@ -183,7 +182,6 @@ export async function POST(request: NextRequest) {
           description: { es: zoneData.description },
           icon: zoneData.icon,
           color: 'bg-gray-100',
-          order: currentOrder++,
           status: 'ACTIVE',
           qrCode: `qr_${timestamp}_${random1}`,
           accessCode: `ac_${timestamp}_${random2}`

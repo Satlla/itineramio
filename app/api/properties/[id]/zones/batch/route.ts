@@ -67,14 +67,12 @@ export async function POST(
       }, { status: 404 })
     }
     
-    // Get the next order number
+    // Get the next order number - using id since order field doesn't exist in current schema
     const lastZone = await prisma.zone.findFirst({
       where: { propertyId: propertyId },
-      orderBy: { order: 'desc' },
-      select: { order: true }
+      orderBy: { id: 'desc' },
+      select: { id: true }
     })
-    
-    let currentOrder = lastZone ? (lastZone.order || 0) + 1 : 1
     
     // Get existing slugs for uniqueness check
     const existingSlugs = await prisma.zone.findMany({
@@ -104,7 +102,6 @@ export async function POST(
         description: typeof zoneData.description === 'string' ? { es: zoneData.description || '' } : (zoneData.description || { es: '' }),
         icon: zoneData.icon,
         color: zoneData.color,
-        order: currentOrder++,
         status: zoneData.status,
         qrCode: `qr_${timestamp}_${random1}`,
         accessCode: `ac_${timestamp}_${random2}`
