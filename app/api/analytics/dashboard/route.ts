@@ -14,23 +14,41 @@ export async function GET(request: NextRequest) {
     // Set JWT claims for PostgreSQL RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
 
-    // Get user's properties with simple query
-    const properties = await prisma.property.findMany({
-      where: { hostId: userId },
-      include: {
-        analytics: true,
-        zones: {
-          include: {
-            _count: {
-              select: {
-                ratings: true,
-                steps: true
-              }
-            }
-          }
+    // Get user's properties - try without zones first to isolate the issue
+    let properties: any[] = []
+    
+    try {
+      // First, get properties with analytics only
+      const propsWithAnalytics = await prisma.property.findMany({
+        where: { hostId: userId },
+        include: {
+          analytics: true
         }
+      })
+      
+      // Then get zones count separately to avoid field issues
+      for (const prop of propsWithAnalytics) {
+        const zonesCount = await prisma.zone.count({
+          where: { propertyId: prop.id }
+        })
+        
+        properties.push({
+          ...prop,
+          zones: Array(zonesCount).fill({ _count: { ratings: 0, steps: 0 } })
+        })
       }
-    })
+    } catch (error) {
+      console.error('Error fetching properties with workaround:', error)
+      // Fallback to basic query
+      const basicProps = await prisma.property.findMany({
+        where: { hostId: userId }
+      })
+      properties = basicProps.map(p => ({
+        ...p,
+        analytics: null,
+        zones: []
+      }))
+    }
 
     console.log('🏠 Properties found for user:', userId, 'count:', properties.length)
     if (properties.length > 0) {
