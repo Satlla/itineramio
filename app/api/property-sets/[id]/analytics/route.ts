@@ -141,8 +141,8 @@ export async function GET(
     const recentSkippedEvaluations = await prisma.trackingEvent.count({
       where: {
         propertyId: { in: properties.map(p => p.id) },
-        type: 'EVALUATION_SKIPPED',
-        createdAt: { gte: thirtyDaysAgo }
+        type: 'EVALUATION_SKIPPED'
+        // Note: Would filter by date if createdAt field was available
       }
     })
     
