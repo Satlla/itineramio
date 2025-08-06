@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Process zones
-      property.zones.forEach(zone => {
+      property.zones.forEach((zone: any) => {
         // For now, skip zone analytics since zone_analytics table doesn't exist
         // This can be implemented later when proper analytics tables are created
       })
