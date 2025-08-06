@@ -82,15 +82,8 @@ export async function POST(
 
     // Get order
     debug.step = 'Calculating order'
-    let zoneOrder = order
-    if (zoneOrder === undefined || zoneOrder === null) {
-      const maxOrder = await prisma.zone.findFirst({
-        where: { propertyId },
-        orderBy: { id: 'desc' },
-        select: { order: true }
-      })
-      zoneOrder = (maxOrder?.order || 0) + 1
-    }
+    // Order field was removed from zones table
+    let zoneOrder = 1
     debug.zoneOrder = zoneOrder
 
     // Generate codes

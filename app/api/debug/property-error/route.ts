@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
             propertyId: property.id
           },
           orderBy: {
-            order: 'asc'
+            id: 'asc'
           },
           select: {
             id: true,

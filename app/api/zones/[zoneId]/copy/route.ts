@@ -93,11 +93,11 @@ export async function POST(
         propertyId: targetPropertyId
       },
       orderBy: {
-        order: 'desc'
+        id: 'desc'
       }
     })
 
-    const nextOrder = lastZone ? lastZone.order + 1 : 0
+    // Order field was removed, using id-based ordering instead
 
     // 4. Create the new zone (without steps first)
     const newZone = await prisma.zone.create({
@@ -107,7 +107,6 @@ export async function POST(
         description: sourceZone.description as any, // JSON field
         icon: sourceZone.icon,
         color: sourceZone.color,
-        order: nextOrder,
         qrCode: `qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generate unique QR code
         accessCode: `ac_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` // Generate unique access code
       }

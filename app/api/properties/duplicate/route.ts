@@ -164,11 +164,10 @@ export async function POST(request: NextRequest) {
             description: originalZone.description as any,
             icon: originalZone.icon,
             color: originalZone.color,
-            order: originalZone.order,
             isPublished: autoPublish !== undefined ? autoPublish : originalZone.isPublished,
             status: autoPublish !== undefined ? (autoPublish ? 'ACTIVE' : 'DRAFT') : (originalZone.status || 'DRAFT'),
-            qrCode: `${newProperty.id}-${originalZone.order}-${Date.now()}`, // Generate new QR code
-            accessCode: `${newProperty.id.slice(-6)}${originalZone.order}` // Generate new access code
+            qrCode: `${newProperty.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Generate new QR code
+            accessCode: `${newProperty.id.slice(-6)}${Date.now().toString().slice(-4)}` // Generate new access code
           }
         })
 

@@ -20,8 +20,7 @@ export async function POST(
         description: { es: 'Test Description' },
         icon: 'home',
         color: 'bg-gray-100',
-        order: 999,
-        status: 'ACTIVE',
+          status: 'ACTIVE',
         qrCode: `test_qr_${timestamp}_${random}`,
         accessCode: `test_ac_${timestamp}_${random}`,
         slug: `test-zone-${timestamp}`

@@ -23,8 +23,7 @@ export async function POST(request: NextRequest) {
         name: true,
         status: true,
         isPublished: true,
-        order: true
-      },
+        },
       orderBy: { id: 'asc' }
     })
     
@@ -59,8 +58,7 @@ export async function POST(request: NextRequest) {
         name: true,
         status: true,
         isPublished: true,
-        order: true
-      },
+        },
       orderBy: { id: 'asc' }
     })
     
