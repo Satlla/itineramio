@@ -7,6 +7,8 @@ export async function PATCH(
 ) {
   try {
     const propertyId = (await params).id
+    
+    console.log('🔄 Toggle property request:', propertyId)
 
     // Verificar que la propiedad existe (handle potential ID truncation)
     let existingProperty = await prisma.property.findFirst({

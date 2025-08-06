@@ -56,7 +56,7 @@ export async function GET(
         z."publishedAt"
       FROM zones z
       WHERE z."propertyId" = ${propertyId}
-      ORDER BY z."order" ASC, z.id ASC
+      ORDER BY z.id ASC
     ` as any[]
     
     // Get steps for each zone using raw SQL
