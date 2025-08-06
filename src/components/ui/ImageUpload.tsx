@@ -25,7 +25,7 @@ export function ImageUpload({
   className = "",
   variant = 'property',
   maxSize = 10, // Increased for better quality images (was 5MB)
-  accept = "image/*",
+  accept = "image/jpeg,image/jpg,image/png,image/gif,image/webp",
   error = false,
   saveToLibrary = true
 }: ImageUploadProps) {
@@ -222,6 +222,18 @@ export function ImageUpload({
     if (!file.type.startsWith('image/')) {
       console.error('❌ ImageUpload: Invalid file type:', file.type)
       alert('Solo se permiten archivos de imagen.')
+      return
+    }
+
+    // Check for unsupported formats
+    const fileName = file.name.toLowerCase()
+    const unsupportedFormats = ['.heic', '.heif']
+    const isUnsupported = unsupportedFormats.some(format => fileName.endsWith(format)) || 
+                          file.type === 'image/heic' || file.type === 'image/heif'
+    
+    if (isUnsupported) {
+      console.error('❌ ImageUpload: Unsupported format:', file.type, fileName)
+      alert('Formato no compatible. Por favor, usa JPG, PNG, GIF o WebP. Los archivos HEIC de iPhone no son compatibles con navegadores web.')
       return
     }
 

@@ -110,7 +110,8 @@ function NewPropertyPageContent() {
       country: 'España',
       hostContactLanguage: 'es',
       type: 'APARTMENT',
-      hostContactName: 'Alejandro Satlla'
+      hostContactName: 'Alejandro Satlla',
+      hostContactPhoto: undefined
     },
     mode: 'onChange'
   })
@@ -787,12 +788,9 @@ function NewPropertyPageContent() {
                       Foto de perfil de contacto
                     </label>
                     <ImageUpload
-                      value={(() => {
-                        console.log('🖼️ Host image value:', watchedValues.hostContactPhoto, typeof watchedValues.hostContactPhoto)
-                        return watchedValues.hostContactPhoto
-                      })()}
+                      value={watchedValues.hostContactPhoto}
                       onChange={(imageUrl) => {
-                        console.log('🖼️ Host image onChange called with:', imageUrl)
+                        console.log('🖼️ Host photo changed to:', imageUrl)
                         setValue('hostContactPhoto', imageUrl || undefined)
                       }}
                       placeholder="Subir foto de perfil"
