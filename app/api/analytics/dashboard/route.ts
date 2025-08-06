@@ -21,7 +21,6 @@ export async function GET(request: NextRequest) {
         analytics: true,
         zones: {
           include: {
-            analytics: true,
             _count: {
               select: {
                 ratings: true,
@@ -60,28 +59,21 @@ export async function GET(request: NextRequest) {
       // Add property views
       if (property.analytics) {
         totalViews += property.analytics.totalViews
+        // Add property rating to sum if available
+        if (property.analytics.overallRating) {
+          totalRatingSum += property.analytics.overallRating
+          totalRatings += 1
+        }
       }
 
       // Process zones
       property.zones.forEach(zone => {
-        if (zone.analytics) {
-          totalZonesViewed += zone.analytics.totalViews
-          totalTimeSavedMinutes += zone.analytics.timeSavedMinutes
-        }
-
-        // Add ratings count
-        if (zone._count?.ratings) {
-          totalRatings += zone._count.ratings
-        }
-        
-        // Add average rating from analytics
-        if (zone.analytics?.avgRating && zone.analytics.totalRatings > 0) {
-          totalRatingSum += zone.analytics.avgRating * zone.analytics.totalRatings
-        }
+        // For now, skip zone analytics since zone_analytics table doesn't exist
+        // This can be implemented later when proper analytics tables are created
       })
     })
 
-    // Calculate average rating
+    // Calculate average rating from property analytics
     const avgRating = totalRatings > 0 ? totalRatingSum / totalRatings : 0
 
     // Get recent activity (last 30 days)
