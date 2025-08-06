@@ -145,7 +145,6 @@ model Zone {
   description         Json?
   icon                String
   color               String?
-  order               Int             @default(0)
   qrCode              String          @unique
   accessCode          String          @unique
   whatsappEnabled     Boolean         @default(true)
