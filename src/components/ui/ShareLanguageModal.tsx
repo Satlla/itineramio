@@ -53,13 +53,15 @@ export function ShareLanguageModal({
             className="fixed inset-0 bg-black bg-opacity-50 z-50"
           />
 
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-lg shadow-xl z-50 p-6"
-          >
+          {/* Modal Container - Centered with scroll */}
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="w-full max-w-md bg-white rounded-lg shadow-xl p-6 relative"
+              >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
@@ -157,7 +159,9 @@ export function ShareLanguageModal({
                 )}
               </Button>
             </div>
-          </motion.div>
+              </motion.div>
+            </div>
+          </div>
         </>
       )}
     </AnimatePresence>
