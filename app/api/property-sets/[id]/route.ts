@@ -261,12 +261,20 @@ export async function GET(
     // Transform data - simplified to avoid analytics/count issues
     const transformedPropertySet = {
       ...propertySet,
-      propertiesCount: properties.length,
+      propertiesCount: propertiesWithZoneCount.length,
       totalViews: 0, // Temporarily set to 0
       avgRating: 0, // Temporarily set to 0
       totalZones,
       properties: propertiesWithZoneCount
     }
+    
+    console.log('🔍 Final property set data:', {
+      id: transformedPropertySet.id,
+      name: transformedPropertySet.name,
+      propertiesCount: transformedPropertySet.propertiesCount,
+      propertiesArrayLength: transformedPropertySet.properties.length,
+      totalZones: transformedPropertySet.totalZones
+    })
     
     return NextResponse.json({
       success: true,

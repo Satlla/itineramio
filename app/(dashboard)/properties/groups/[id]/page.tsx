@@ -818,7 +818,7 @@ export default function PropertySetDetailPage() {
                   <Home className="h-8 w-8 text-violet-600" />
                   <div className="ml-3">
                     <p className="text-sm font-medium text-gray-600">Propiedades</p>
-                    <p className="text-2xl font-bold text-gray-900">{propertySet.propertiesCount}</p>
+                    <p className="text-2xl font-bold text-gray-900">{propertySet.properties?.length || propertySet.propertiesCount || 0}</p>
                   </div>
                 </div>
               </CardContent>
