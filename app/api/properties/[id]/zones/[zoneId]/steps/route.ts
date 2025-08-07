@@ -190,9 +190,9 @@ export async function POST(
     if (stepOrder === undefined || stepOrder === null) {
       const lastStep = await prisma.step.findFirst({
         where: { zoneId: zoneId },
-        orderBy: { id: 'desc' }
+        orderBy: { order: 'desc' }
       })
-      stepOrder = lastStep ? 1 : 0
+      stepOrder = lastStep ? (lastStep.order || 0) + 1 : 0
     }
 
     // Prepare content with media URLs
@@ -241,6 +241,7 @@ export async function POST(
         title: typeof stepTitle === 'string' ? { es: stepTitle } : stepTitle,
         content: stepContent,
         type,
+        order: stepOrder,
         isPublished: true,
         zoneId: zoneId
       }

@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       try {
         // Get properties count for this property set using raw SQL
         const propertiesCount = await prisma.$queryRaw`
-          SELECT COUNT(*) as count
+          SELECT COUNT(*)::integer as count
           FROM properties
           WHERE "propertySetId" = ${propertySet.id}
         ` as any[]
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
         
         // Get total zones count for all properties in this set using raw SQL
         const totalZones = await prisma.$queryRaw`
-          SELECT COUNT(*) as count
+          SELECT COUNT(*)::integer as count
           FROM zones z
           INNER JOIN properties p ON z."propertyId" = p.id
           WHERE p."propertySetId" = ${propertySet.id}
@@ -71,17 +71,17 @@ export async function GET(request: NextRequest) {
           WHERE p."propertySetId" = ${propertySet.id}
         ` as any[]
         
-        // Convert BigInt to number properly
-        const propCount = propertiesCount[0]?.count
-        const zoneCount = totalZones[0]?.count
+        // Convert values properly - they should now be integers from the cast
+        const propCount = propertiesCount[0]?.count || 0
+        const zoneCount = totalZones[0]?.count || 0
         const metricsData = metrics[0] || {}
         
         return {
           ...propertySet,
-          propertiesCount: propCount ? parseInt(propCount.toString()) : 0,
+          propertiesCount: Number(propCount),
           totalViews: parseInt(metricsData.total_views || 0) + parseInt(metricsData.property_views_count || 0),
           avgRating: parseFloat(metricsData.avg_rating || 0),
-          totalZones: zoneCount ? parseInt(zoneCount.toString()) : 0,
+          totalZones: Number(zoneCount),
           timeSavedMinutes: parseInt(metricsData.time_saved || 0)
         }
       } catch (error) {
