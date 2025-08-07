@@ -79,6 +79,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [propertyType, setPropertyType] = useState<string>('')
   const [propertyLocation, setPropertyLocation] = useState<string>('')
   const [propertyStatus, setPropertyStatus] = useState<string>('DRAFT')
+  const [propertySetId, setPropertySetId] = useState<string | null>(null)
   const [unreadEvaluations, setUnreadEvaluations] = useState<number>(0)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [editingZone, setEditingZone] = useState<Zone | null>(null)
@@ -267,6 +268,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setPropertyType(propResult.data.type || 'APARTMENT')
         setPropertyLocation(`${propResult.data.city}, ${propResult.data.state}`)
         setPropertyStatus(propResult.data.status || 'DRAFT')
+        setPropertySetId(propResult.data.propertySetId || null)
 
         // Skip notifications for now to avoid 500 errors
         // Will be re-enabled once notification system is properly set up
@@ -1951,6 +1953,32 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Back to property set button */}
+      {propertySetId && (
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            onClick={() => router.push(`/properties/groups/${propertySetId}`)}
+            className="flex items-center text-gray-600 hover:text-gray-900"
+          >
+            <svg 
+              className="w-5 h-5 mr-2" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M10 19l-7-7m0 0l7-7m-7 7h18" 
+              />
+            </svg>
+            Volver al conjunto
+          </Button>
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
