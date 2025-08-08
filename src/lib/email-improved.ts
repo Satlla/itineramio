@@ -1,10 +1,17 @@
 import { Resend } from 'resend'
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY || 'test_key'
+const RESEND_API_KEY = process.env.RESEND_API_KEY
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'hola@itineramio.com'
 
+console.log('📧 Email service initialization:', {
+  hasApiKey: !!RESEND_API_KEY,
+  apiKeyLength: RESEND_API_KEY?.length || 0,
+  fromEmail: FROM_EMAIL,
+  nodeEnv: process.env.NODE_ENV
+})
+
 // Initialize Resend client
-const resend = new Resend(RESEND_API_KEY)
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null
 
 export interface EmailOptions {
   to: string | string[]
@@ -37,26 +44,15 @@ export async function sendEmail({
     to: cleanEmails,
     subject,
     from,
-    hasApiKey: !!process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 'test_key'
+    hasApiKey: !!RESEND_API_KEY
   })
 
-  // Development mode - skip email sending
-  if (process.env.NODE_ENV === 'development' && (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 'test_key')) {
-    console.log('⚠️ Development mode: Email sending skipped')
-    console.log('📄 Email content:', { to: cleanEmails, subject })
-    return { 
-      success: true, 
-      id: `dev-${Date.now()}`, 
-      skipped: true 
-    }
-  }
-
   // Check if API key is configured
-  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 'test_key') {
-    console.error('❌ Email sending failed: No valid RESEND_API_KEY configured')
+  if (!RESEND_API_KEY || !resend) {
+    console.error('❌ Email sending failed: No RESEND_API_KEY configured or Resend client not initialized')
     return { 
       success: false, 
-      error: 'Email service not configured',
+      error: 'Email service not configured - RESEND_API_KEY missing',
       skipped: true 
     }
   }
