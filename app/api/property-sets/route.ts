@@ -56,33 +56,70 @@ export async function GET(request: NextRequest) {
           WHERE p."propertySetId" = ${propertySet.id}
         ` as any[]
         
-        // Get real metrics
-        const metrics = await prisma.$queryRaw`
-          SELECT 
-            COALESCE(SUM(pa."totalViews"), 0) as total_views,
-            COALESCE(AVG(pa."overallRating"), 0) as avg_rating,
-            COALESCE(SUM(za."timeSavedMinutes"), 0) as time_saved,
-            COUNT(DISTINCT pv.id) as property_views_count
+        // Get views from property_views table (more reliable)
+        const propertyViews = await prisma.$queryRaw`
+          SELECT COUNT(DISTINCT pv.id)::integer as view_count
           FROM properties p
-          LEFT JOIN property_analytics pa ON p.id = pa."propertyId"
-          LEFT JOIN zones z ON p.id = z."propertyId"
-          LEFT JOIN zone_analytics za ON z.id = za."zoneId"
           LEFT JOIN property_views pv ON p.id = pv."propertyId"
           WHERE p."propertySetId" = ${propertySet.id}
         ` as any[]
         
+        // Get zone views (if table exists)
+        let zoneViewsCount = 0
+        try {
+          const zoneViews = await prisma.$queryRaw`
+            SELECT COUNT(DISTINCT zv.id)::integer as zone_view_count
+            FROM properties p
+            INNER JOIN zones z ON p.id = z."propertyId"
+            LEFT JOIN zone_views zv ON z.id = zv."zoneId"
+            WHERE p."propertySetId" = ${propertySet.id}
+          ` as any[]
+          zoneViewsCount = zoneViews[0]?.zone_view_count || 0
+        } catch (zoneError) {
+          console.log('Zone views table might not exist:', zoneError)
+          zoneViewsCount = 0
+        }
+        
+        // Get basic property analytics
+        let analyticsData = { total_views: 0, avg_rating: 0 }
+        try {
+          const analytics = await prisma.$queryRaw`
+            SELECT 
+              COALESCE(SUM(pa."totalViews"), 0)::integer as total_views,
+              COALESCE(AVG(pa."overallRating"), 0) as avg_rating
+            FROM properties p
+            LEFT JOIN property_analytics pa ON p.id = pa."propertyId"
+            WHERE p."propertySetId" = ${propertySet.id}
+          ` as any[]
+          analyticsData = analytics[0] || analyticsData
+        } catch (analyticsError) {
+          console.log('Property analytics table might not exist:', analyticsError)
+        }
+        
         // Convert values properly - they should now be integers from the cast
         const propCount = propertiesCount[0]?.count || 0
         const zoneCount = totalZones[0]?.count || 0
-        const metricsData = metrics[0] || {}
+        const viewCount = propertyViews[0]?.view_count || 0
+        
+        // Calculate total views (property views + zone views + analytics views)
+        const totalViews = viewCount + zoneViewsCount + (analyticsData.total_views || 0)
+        
+        console.log(`PropertySet ${propertySet.id} metrics:`, {
+          propertiesCount: propCount,
+          totalZones: zoneCount,
+          propertyViews: viewCount,
+          zoneViews: zoneViewsCount,
+          analyticsViews: analyticsData.total_views,
+          totalViews: totalViews
+        })
         
         return {
           ...propertySet,
           propertiesCount: Number(propCount),
-          totalViews: parseInt(metricsData.total_views || 0) + parseInt(metricsData.property_views_count || 0),
-          avgRating: parseFloat(metricsData.avg_rating || 0),
+          totalViews: totalViews,
+          avgRating: parseFloat(String(analyticsData.avg_rating || 0)),
           totalZones: Number(zoneCount),
-          timeSavedMinutes: parseInt(metricsData.time_saved || 0)
+          timeSavedMinutes: 0 // Simplified for now
         }
       } catch (error) {
         console.error('Error transforming property set:', propertySet.id, error)

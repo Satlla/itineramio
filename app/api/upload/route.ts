@@ -205,27 +205,48 @@ export async function POST(request: NextRequest) {
       fileUrl = blob.url
     }
 
-    // Save to media library with hash
+    // Save to media library with hash - check for existing first
     try {
       const mediaType = file.type.startsWith('image/') ? 'image' : 'video'
       
-      const mediaLibraryItem = await prisma.mediaLibrary.create({
-        data: {
+      // Check if an item with this hash already exists
+      const existingMediaByHash = await prisma.mediaLibrary.findFirst({
+        where: {
           userId: userId,
-          type: mediaType,
-          url: fileUrl,
-          filename: uniqueFilename,
-          originalName: file.name,
-          mimeType: file.type,
-          size: file.size,
-          hash: fileHash,
-          usageCount: 1,
-          isPublic: false,
-          lastUsedAt: new Date()
+          hash: fileHash
         }
       })
 
-      console.log('✅ File saved to media library:', mediaLibraryItem.id)
+      if (existingMediaByHash) {
+        console.log('📝 Found existing media with same hash, updating usage count')
+        // Update the existing item instead of creating a new one
+        await prisma.mediaLibrary.update({
+          where: { id: existingMediaByHash.id },
+          data: {
+            usageCount: { increment: 1 },
+            lastUsedAt: new Date()
+          }
+        })
+      } else {
+        // Create new media entry
+        const mediaLibraryItem = await prisma.mediaLibrary.create({
+          data: {
+            userId: userId,
+            type: mediaType,
+            url: fileUrl,
+            filename: uniqueFilename,
+            originalName: file.name,
+            mimeType: file.type,
+            size: file.size,
+            hash: fileHash,
+            usageCount: 1,
+            isPublic: false,
+            lastUsedAt: new Date()
+          }
+        })
+
+        console.log('✅ File saved to media library:', mediaLibraryItem.id)
+      }
     } catch (mediaError) {
       console.error('⚠️ Error saving to media library:', mediaError)
       // Continue anyway, the file was uploaded successfully
