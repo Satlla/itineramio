@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'hola@itineramio.com'
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 
 console.log('📧 Email service initialization:', {
   hasApiKey: !!RESEND_API_KEY,
@@ -66,7 +66,7 @@ export async function sendEmail({
     
     // First attempt with configured email
     let { data, error } = await resend.emails.send({
-      from: fromEmail,
+      from: 'onboarding@resend.dev', // Force use fallback email that works
       to: cleanEmails,
       subject,
       html,
