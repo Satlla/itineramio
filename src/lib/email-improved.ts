@@ -62,14 +62,14 @@ export async function sendEmail({
   }
 
   try {
-    // For development/testing, use Resend's test email if domain not verified
-    const fromEmail = process.env.NODE_ENV === 'development' && from === 'hola@itineramio.com' 
-      ? 'onboarding@resend.dev' 
-      : from
+    // Try with configured email first
+    let fromEmail = from
+    let attempt = 1
 
     console.log('🚀 Sending email via Resend...')
     
-    const { data, error } = await resend.emails.send({
+    // First attempt with configured email
+    let { data, error } = await resend.emails.send({
       from: fromEmail,
       to: cleanEmails,
       subject,
@@ -80,24 +80,30 @@ export async function sendEmail({
     if (error) {
       console.error('❌ Resend error:', error)
       
-      // Check for specific errors
-      if (error.message?.includes('domain') || error.message?.includes('verified')) {
+      // Check for specific errors and retry with fallback email
+      if (error.message?.includes('domain') || error.message?.includes('verified') || error.message?.includes('DNS')) {
         console.error('🔐 Domain verification issue detected')
+        console.log('🔄 Retrying with onboarding@resend.dev...')
         
-        // In development, retry with test email
-        if (process.env.NODE_ENV === 'development') {
-          console.log('🔄 Retrying with test email...')
-          const retryResult = await resend.emails.send({
-            from: 'onboarding@resend.dev',
-            to: cleanEmails,
-            subject: `[DEV] ${subject}`,
-            html,
-            ...(replyTo && { reply_to: replyTo })
-          })
-          
-          if (retryResult.data) {
-            console.log('✅ Email sent successfully with test email')
-            return { success: true, id: retryResult.data.id }
+        attempt = 2
+        const retryResult = await resend.emails.send({
+          from: 'onboarding@resend.dev',
+          to: cleanEmails,
+          subject,
+          html,
+          ...(replyTo && { reply_to: replyTo })
+        })
+        
+        if (retryResult.data) {
+          console.log('✅ Email sent successfully with fallback email (attempt 2)')
+          return { success: true, id: retryResult.data.id }
+        }
+        
+        if (retryResult.error) {
+          console.error('❌ Retry also failed:', retryResult.error)
+          return { 
+            success: false, 
+            error: `Failed after ${attempt} attempts: ${retryResult.error.message || 'Unknown error'}` 
           }
         }
       }
