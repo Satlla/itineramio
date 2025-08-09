@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'hola@itineramio.com'
 
 console.log('📧 Email service initialization:', {
   hasApiKey: !!RESEND_API_KEY,
@@ -66,7 +66,7 @@ export async function sendEmail({
     
     // First attempt with configured email
     let { data, error } = await resend.emails.send({
-      from: 'onboarding@resend.dev', // Force use fallback email that works
+      from: fromEmail,
       to: cleanEmails,
       subject,
       html,
@@ -248,7 +248,7 @@ export const emailTemplates = {
     </html>
   `,
 
-  // Nueva plantilla para notificación de evaluación
+  // Plantilla simplificada para notificación de evaluación
   zoneEvaluationNotification: (propertyName: string, zoneName: string, rating: number, comment?: string) => `
     <!DOCTYPE html>
     <html>

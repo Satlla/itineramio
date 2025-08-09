@@ -150,8 +150,9 @@ export default function AdminDashboard() {
           </h3>
           
           <div className="space-y-4">
-            {stats.recentActivity.map((activity) => (
-              <div key={activity.id} className="flex items-start space-x-3">
+            {stats.recentActivity && stats.recentActivity.length > 0 ? (
+              stats.recentActivity.map((activity) => (
+                <div key={activity.id} className="flex items-start space-x-3">
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900">
@@ -165,7 +166,12 @@ export default function AdminDashboard() {
                   </p>
                 </div>
               </div>
-            ))}
+            ))
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-4">
+                No hay actividad reciente
+              </p>
+            )}
           </div>
         </div>
 

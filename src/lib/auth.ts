@@ -1,5 +1,6 @@
 import * as jwt from 'jsonwebtoken'
 import { NextRequest } from 'next/server'
+import { prisma } from './prisma'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
 
@@ -70,7 +71,13 @@ export async function requireAdmin(request: NextRequest): Promise<JWTPayload | R
     return userOrResponse
   }
 
-  if (userOrResponse.role !== 'ADMIN') {
+  // Check if user is admin in database
+  const user = await prisma.user.findUnique({
+    where: { id: userOrResponse.userId },
+    select: { isAdmin: true }
+  })
+
+  if (!user || !user.isAdmin) {
     return createAuthResponse('Acceso denegado. Se requieren permisos de administrador', 403)
   }
 
