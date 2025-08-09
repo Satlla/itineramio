@@ -1,70 +1,66 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Users, 
-  Plus, 
   Search, 
-  Filter,
-  Edit,
-  Trash2,
-  MoreHorizontal,
-  UserCheck,
-  UserX,
-  Crown,
+  CheckCircle, 
+  XCircle, 
   Building2,
   Calendar,
   Mail,
-  Phone
+  Phone,
+  Eye
 } from 'lucide-react'
-import CreateUserModal from './components/CreateUserModal'
-import EditUserModal from './components/EditUserModal'
+import UserProfileModal from './components/UserProfileModal'
 
 interface User {
   id: string
   email: string
   name: string
-  phone?: string
-  companyName?: string
-  isAdmin: boolean
-  isActive: boolean
+  phone: string | null
+  companyName: string | null
+  role: string
   status: string
   subscription: string
+  isActive: boolean
   createdAt: string
-  lastLoginAt?: string
-  notes?: string
-  properties: { id: string, name: string }[]
-  currentSubscription?: {
-    id: string
-    plan: {
-      id: string
-      name: string
-      priceMonthly: number
-    }
-    status: string
+  lastLoginAt: string | null
+  _count: {
+    properties: number
+    propertySets: number
   }
 }
 
-export default function UsersManagementPage() {
+export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [planFilter, setPlanFilter] = useState('all')
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchUsers()
-  }, [])
+  }, [page, search])
 
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/admin/users')
-      const data = await response.json()
-      if (data.success) {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: '20',
+        ...(search && { search })
+      })
+      
+      const response = await fetch(`/api/admin/users?${params}`, {
+        credentials: 'include'
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
         setUsers(data.users)
+        setTotalPages(data.pagination.totalPages)
       }
     } catch (error) {
       console.error('Error fetching users:', error)
@@ -73,395 +69,194 @@ export default function UsersManagementPage() {
     }
   }
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = 
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.id.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    const matchesStatus = statusFilter === 'all' || 
-      (statusFilter === 'active' && user.isActive) ||
-      (statusFilter === 'inactive' && !user.isActive) ||
-      (statusFilter === 'admin' && user.isAdmin)
-
-    const matchesPlan = planFilter === 'all' || 
-      user.currentSubscription?.plan.name.toLowerCase() === planFilter.toLowerCase()
-
-    return matchesSearch && matchesStatus && matchesPlan
-  })
-
-  const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
-    try {
-      const response = await fetch(`/api/admin/users/${userId}/toggle-status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: !currentStatus })
-      })
-      
-      if (response.ok) {
-        fetchUsers() // Refresh list
-      }
-    } catch (error) {
-      console.error('Error toggling user status:', error)
-    }
-  }
-
-  const StatusBadge = ({ user }: { user: User }) => {
-    if (user.isAdmin) {
-      return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-          <Crown className="w-3 h-3 mr-1" />
-          Admin
-        </span>
-      )
-    }
-    
-    if (user.isActive) {
-      return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          <UserCheck className="w-3 h-3 mr-1" />
-          Activo
-        </span>
-      )
-    }
-    
-    return (
-      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-        <UserX className="w-3 h-3 mr-1" />
-        Inactivo
-      </span>
-    )
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full"></div>
-      </div>
-    )
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
   }
 
   return (
     <div>
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
-          <p className="text-gray-600 mt-2">
-            {users.length} usuarios registrados • {users.filter(u => u.isActive).length} activos
-          </p>
-        </div>
-        
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Crear Usuario
-        </button>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white rounded-lg border p-4 mb-6">
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1 min-w-0">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Buscar por nombre, email o ID..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 w-full"
-              />
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-2 lg:gap-4">
-            {/* Status Filter */}
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 min-w-0"
-            >
-              <option value="all">Todos los estados</option>
-              <option value="active">Activos</option>
-              <option value="inactive">Inactivos</option>
-              <option value="admin">Administradores</option>
-            </select>
-
-            {/* Plan Filter */}
-            <select
-              value={planFilter}
-              onChange={(e) => setPlanFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 min-w-0"
-            >
-              <option value="all">Todos los planes</option>
-              <option value="gratuito">Gratuito</option>
-              <option value="premium">Premium</option>
-              <option value="profesional">Profesional</option>
-              <option value="enterprise">Enterprise</option>
-            </select>
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+              <Users className="h-6 w-6 mr-2 text-red-600" />
+              Usuarios
+            </h1>
+            <p className="text-gray-600 mt-1">Gestión de usuarios registrados</p>
           </div>
         </div>
       </div>
 
-      {/* Users Table - Desktop */}
-      <div className="hidden lg:block bg-white rounded-lg border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Usuario
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Estado
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Plan
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Propiedades
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Registro
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Acciones
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                        <span className="text-red-600 font-medium text-sm">
-                          {user.name.charAt(0).toUpperCase()}
-                        </span>
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Buscar por nombre, email o empresa..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
+            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+          />
+        </div>
+      </div>
+
+      {/* Users Table */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        {loading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full"></div>
+          </div>
+        ) : users.length === 0 ? (
+          <div className="text-center py-12">
+            <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">No se encontraron usuarios</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Usuario
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Contacto
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Propiedades
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Estado
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Registro
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {users.map((user) => (
+                  <tr key={user.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {user.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {user.companyName || '-'}
+                        </div>
                       </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                        <div className="text-sm text-gray-500 flex items-center">
-                          <Mail className="w-3 h-3 mr-1" />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm">
+                        <div className="flex items-center text-gray-900">
+                          <Mail className="h-4 w-4 mr-1 text-gray-400" />
                           {user.email}
                         </div>
                         {user.phone && (
-                          <div className="text-sm text-gray-500 flex items-center">
-                            <Phone className="w-3 h-3 mr-1" />
+                          <div className="flex items-center text-gray-500 mt-1">
+                            <Phone className="h-4 w-4 mr-1 text-gray-400" />
                             {user.phone}
                           </div>
                         )}
-                        {user.companyName && (
-                          <div className="text-xs text-gray-400">{user.companyName}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-4 text-sm">
+                        <div className="flex items-center">
+                          <Building2 className="h-4 w-4 mr-1 text-gray-400" />
+                          <span className="text-gray-900">{user._count.properties}</span>
+                        </div>
+                        <div className="text-gray-500">
+                          Conjuntos: {user._count.propertySets}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        {user.isActive ? (
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <XCircle className="h-5 w-5 text-red-500" />
+                        )}
+                        <span className={`ml-2 text-sm ${user.isActive ? 'text-green-700' : 'text-red-700'}`}>
+                          {user.isActive ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        Plan: {user.subscription}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm">
+                        <div className="flex items-center text-gray-900">
+                          <Calendar className="h-4 w-4 mr-1 text-gray-400" />
+                          {formatDate(user.createdAt)}
+                        </div>
+                        {user.lastLoginAt && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            Último acceso: {formatDate(user.lastLoginAt)}
+                          </div>
                         )}
                       </div>
-                    </div>
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <StatusBadge user={user} />
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {user.currentSubscription?.plan.name || 'Sin plan'}
-                    </div>
-                    {user.currentSubscription && (
-                      <div className="text-sm text-gray-500">
-                        €{user.currentSubscription.plan.priceMonthly}/mes
-                      </div>
-                    )}
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm text-gray-900">
-                      <Building2 className="w-4 h-4 mr-1" />
-                      {user.properties.length}
-                    </div>
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {new Date(user.createdAt).toLocaleDateString('es-ES')}
-                    </div>
-                    {user.lastLoginAt && (
-                      <div className="text-xs text-gray-400">
-                        Último: {new Date(user.lastLoginAt).toLocaleDateString('es-ES')}
-                      </div>
-                    )}
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center space-x-2">
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <button
-                        onClick={() => setSelectedUser(user)}
-                        className="text-blue-600 hover:text-blue-900"
+                        onClick={() => setSelectedUserId(user.id)}
+                        className="flex items-center space-x-1 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
                       >
-                        <Edit className="w-4 h-4" />
+                        <Eye className="h-4 w-4" />
+                        <span>Ver Perfil</span>
                       </button>
-                      
-                      <button
-                        onClick={() => toggleUserStatus(user.id, user.isActive)}
-                        className={`${user.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
-                      >
-                        {user.isActive ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
-                      </button>
-                      
-                      <button className="text-gray-400 hover:text-gray-600">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Users Cards - Mobile & Tablet */}
-      <div className="lg:hidden space-y-4">
-        {filteredUsers.map((user) => (
-          <div key={user.id} className="bg-white rounded-lg border p-4">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center flex-1 min-w-0">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                  <span className="text-red-600 font-medium">
-                    {user.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-medium text-gray-900 truncate">{user.name}</h3>
-                  <p className="text-xs text-gray-500 truncate flex items-center">
-                    <Mail className="w-3 h-3 mr-1" />
-                    {user.email}
-                  </p>
-                  {user.phone && (
-                    <p className="text-xs text-gray-500 flex items-center">
-                      <Phone className="w-3 h-3 mr-1" />
-                      {user.phone}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center space-x-1 ml-2">
-                <StatusBadge user={user} />
-                {user.isAdmin && <Crown className="w-3 h-3 text-yellow-500" />}
-              </div>
-            </div>
-
-            {/* User Details */}
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div>
-                <p className="text-xs text-gray-500">Plan</p>
-                <p className="text-sm font-medium text-gray-900">
-                  {user.currentSubscription?.plan.name || 'Sin plan'}
-                </p>
-                {user.currentSubscription && (
-                  <p className="text-xs text-gray-500">
-                    €{user.currentSubscription.plan.priceMonthly}/mes
-                  </p>
-                )}
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Propiedades</p>
-                <p className="text-sm font-medium text-gray-900 flex items-center">
-                  <Building2 className="w-3 h-3 mr-1" />
-                  {user.properties.length}
-                </p>
-              </div>
-            </div>
-
-            {/* Additional Info */}
-            {user.companyName && (
-              <div className="mb-3">
-                <p className="text-xs text-gray-500">Empresa</p>
-                <p className="text-sm text-gray-900">{user.companyName}</p>
-              </div>
-            )}
-
-            {/* Registration Date */}
-            <div className="flex items-center justify-between mb-3 text-xs text-gray-500">
-              <div className="flex items-center">
-                <Calendar className="w-3 h-3 mr-1" />
-                Registrado: {new Date(user.createdAt).toLocaleDateString('es-ES')}
-              </div>
-              {user.lastLoginAt && (
-                <div>
-                  Último login: {new Date(user.lastLoginAt).toLocaleDateString('es-ES')}
-                </div>
-              )}
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-              <button
-                onClick={() => setSelectedUser(user)}
-                className="flex items-center text-blue-600 hover:text-blue-900 text-sm"
-              >
-                <Edit className="w-4 h-4 mr-1" />
-                Editar
-              </button>
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => toggleUserStatus(user.id, user.isActive)}
-                  className={`flex items-center text-sm ${
-                    user.isActive 
-                      ? 'text-red-600 hover:text-red-900' 
-                      : 'text-green-600 hover:text-green-900'
-                  }`}
-                >
-                  {user.isActive ? (
-                    <>
-                      <UserX className="w-4 h-4 mr-1" />
-                      Suspender
-                    </>
-                  ) : (
-                    <>
-                      <UserCheck className="w-4 h-4 mr-1" />
-                      Activar
-                    </>
-                  )}
-                </button>
-                <button className="text-gray-400 hover:text-gray-600">
-                  <MoreHorizontal className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        ))}
+        )}
       </div>
 
-      {filteredUsers.length === 0 && (
-        <div className="text-center py-12 bg-white rounded-lg border">
-          <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No se encontraron usuarios</h3>
-          <p className="text-gray-600">Intenta ajustar los filtros de búsqueda</p>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <button
+            onClick={() => setPage(page - 1)}
+            disabled={page === 1}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Anterior
+          </button>
+          <span className="text-sm text-gray-700">
+            Página {page} de {totalPages}
+          </span>
+          <button
+            onClick={() => setPage(page + 1)}
+            disabled={page === totalPages}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Siguiente
+          </button>
         </div>
       )}
 
-      {/* Create User Modal */}
-      <CreateUserModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onSuccess={fetchUsers}
+      {/* User Profile Modal */}
+      <UserProfileModal
+        userId={selectedUserId}
+        isOpen={!!selectedUserId}
+        onClose={() => setSelectedUserId(null)}
       />
-
-      {/* Edit User Modal */}
-      {selectedUser && (
-        <EditUserModal
-          isOpen={!!selectedUser}
-          onClose={() => setSelectedUser(null)}
-          onSuccess={fetchUsers}
-          user={selectedUser}
-        />
-      )}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 interface User {
   id: string
@@ -34,10 +34,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
+    // Don't check auth for admin routes
+    if (pathname?.startsWith('/admin')) {
+      setLoading(false)
+      return
+    }
+    
     checkAuthStatus()
-  }, [])
+  }, [pathname])
 
   const checkAuthStatus = async () => {
     try {

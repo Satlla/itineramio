@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
-import { requireAuth } from '../../../../../src/lib/auth'
+import { requireAuthOrAdmin } from '../../../../../src/lib/auth'
 
 // GET /api/properties/[id]/zones - Get all zones for a property
 export async function GET(
@@ -10,8 +10,8 @@ export async function GET(
   try {
     const propertyId = (await params).id
 
-    // Check authentication
-    const authResult = await requireAuth(request)
+    // Check authentication (allows admin bypass)
+    const authResult = await requireAuthOrAdmin(request)
     if (authResult instanceof Response) {
       return authResult
     }
@@ -45,7 +45,6 @@ export async function GET(
         z.description,
         z.color,
         z.status,
-        z."order",
         z."isPublished",
         z."propertyId",
         z."createdAt",

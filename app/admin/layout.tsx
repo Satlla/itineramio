@@ -1,9 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { 
+  LogOut, 
+  Shield, 
   Users, 
   Home, 
   CreditCard, 
@@ -12,7 +14,6 @@ import {
   BarChart3,
   Building2,
   FileText,
-  Shield,
   Menu,
   X
 } from 'lucide-react'
@@ -29,24 +30,85 @@ const navigation = [
 ]
 
 export default function AdminLayout({
-  children,
+  children
 }: {
   children: React.ReactNode
 }) {
+  const router = useRouter()
   const pathname = usePathname()
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [adminName, setAdminName] = useState('')
+  const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  useEffect(() => {
+    // Skip auth check for login page
+    if (pathname === '/admin/login') {
+      setLoading(false)
+      return
+    }
+
+    checkAuth()
+  }, [pathname])
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/admin/auth/check', {
+        credentials: 'include'
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setIsAuthenticated(true)
+        setAdminName(data.admin.name)
+      } else {
+        router.push('/admin/login')
+      }
+    } catch (error) {
+      router.push('/admin/login')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      })
+      router.push('/admin/login')
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
+  }
+
+  // Show nothing while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full"></div>
+      </div>
+    )
+  }
+
+  // Login page doesn't need the admin header
+  if (pathname === '/admin/login') {
+    return children
+  }
+
+  // Protected admin pages
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-gray-900 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               {/* Mobile menu button */}
               <button
                 type="button"
-                className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 mr-2"
+                className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-200 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 mr-2"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
               >
                 {sidebarOpen ? (
@@ -56,32 +118,24 @@ export default function AdminLayout({
                 )}
               </button>
               
-              <Shield className="h-8 w-8 text-red-600 mr-3" />
-              <h1 className="text-xl font-bold text-gray-900 hidden sm:block">
-                Itineramio Admin
-              </h1>
-              <h1 className="text-lg font-bold text-gray-900 sm:hidden">
-                Admin
-              </h1>
+              <Shield className="h-8 w-8 text-red-500 mr-3" />
+              <div>
+                <h1 className="text-xl font-semibold">Panel Administrativo</h1>
+                <p className="text-sm text-gray-400">Itineramio Admin</p>
+              </div>
             </div>
             
             <div className="flex items-center space-x-4">
-              {/* Search - hidden on mobile */}
-              <div className="relative hidden md:block">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Buscar usuario, propiedad..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 w-64"
-                />
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-medium">AD</span>
-                </div>
-                <span className="text-sm font-medium text-gray-700 hidden sm:block">Admin</span>
-              </div>
+              <span className="text-sm text-gray-300">
+                Hola, {adminName}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded-lg transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="text-sm">Cerrar Sesión</span>
+              </button>
             </div>
           </div>
         </div>

@@ -46,6 +46,8 @@ model User {
   createdUsers            User[]                 @relation("UserCreatedBy")
   moderatedComments       ZoneComment[]          @relation("CommentModerator")
   zoneViews               ZoneView[]             @relation("HostZoneViews")
+  callLogs                CallLog[]
+  userNotes               UserNote[]
 
   @@map("users")
 }
@@ -118,6 +120,7 @@ model Property {
   updatedAt           DateTime           @updatedAt
   publishedAt         DateTime?
   slug                String?            @unique
+  propertyCode        String?            @unique
   announcements       Announcement[]
   buildings           buildings?         @relation(fields: [buildingId], references: [id])
   host                User               @relation(fields: [hostId], references: [id], onDelete: Cascade)
@@ -130,6 +133,7 @@ model Property {
   trackingEvents      TrackingEvent[]
   zoneViews           ZoneView[]         @relation("PropertyZoneViews")
   zones               Zone[]
+  callLogs            CallLog[]
 
   @@index([slug])
   @@map("properties")
@@ -659,4 +663,63 @@ model ZoneView {
   @@index([hostId, viewedAt])
   @@index([visitorIp])
   @@map("zone_views")
+}
+
+model Admin {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  name              String
+  password          String
+  role              String             @default("ADMIN") // ADMIN, SUPER_ADMIN, SUPPORT, VIEWER
+  isActive          Boolean            @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  callLogs          CallLog[]
+  userNotes         UserNote[]
+
+  @@map("admins")
+}
+
+model CallLog {
+  id              String   @id @default(cuid())
+  userId          String
+  adminId         String
+  propertyId      String?
+  category        String   // TECHNICAL, BILLING, COMPLAINT, PRAISE, CONSULTATION
+  status          String   @default("PENDING") // PENDING, IN_PROGRESS, RESOLVED, ESCALATED
+  title           String
+  description     String?
+  resolution      String?
+  priority        String   @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
+  duration        Int?     // minutes
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  admin           Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  property        Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([adminId])
+  @@index([createdAt])
+  @@map("call_logs")
+}
+
+model UserNote {
+  id              String   @id @default(cuid())
+  userId          String
+  adminId         String
+  category        String   @default("GENERAL") // GENERAL, BEHAVIOR, TECHNICAL, BILLING
+  title           String?
+  content         String
+  isImportant     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  admin           Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([adminId])
+  @@index([createdAt])
+  @@map("user_notes")
 }

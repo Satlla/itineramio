@@ -1,6 +1,7 @@
 import * as jwt from 'jsonwebtoken'
 import { NextRequest } from 'next/server'
 import { prisma } from './prisma'
+import { getAdminUser } from './admin-auth'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
 
@@ -63,6 +64,49 @@ export async function requireAuth(request: NextRequest): Promise<JWTPayload | Re
     return createAuthResponse('No autorizado')
   }
   return user
+}
+
+// Nueva función: permite bypass de admin
+export async function requireAuthOrAdmin(request: NextRequest): Promise<JWTPayload | Response> {
+  // Primero intenta autenticación normal de usuario
+  const user = await getAuthUser(request)
+  if (user) {
+    return user
+  }
+
+  // Si no hay usuario normal, verifica si es admin
+  const admin = await getAdminUser(request)
+  if (admin) {
+    // Si es admin, verifica que está en una ruta permitida
+    const url = new URL(request.url)
+    const isPropertyRoute = url.pathname.includes('/properties/') && url.pathname.includes('/zones')
+    
+    if (isPropertyRoute) {
+      // Extraer propertyId de la URL
+      const pathParts = url.pathname.split('/')
+      const propertyIndex = pathParts.indexOf('properties')
+      const propertyId = pathParts[propertyIndex + 1]
+      
+      if (propertyId) {
+        // Buscar el propietario de la propiedad
+        const property = await prisma.property.findUnique({
+          where: { id: propertyId },
+          select: { hostId: true, host: { select: { email: true } } }
+        })
+        
+        if (property) {
+          // Crear un JWTPayload simulado del propietario para el admin
+          return {
+            userId: property.hostId,
+            email: property.host.email,
+            role: 'HOST' // Simula ser el host
+          } as JWTPayload
+        }
+      }
+    }
+  }
+
+  return createAuthResponse('No autorizado')
 }
 
 export async function requireAdmin(request: NextRequest): Promise<JWTPayload | Response> {

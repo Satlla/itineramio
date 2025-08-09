@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../../src/lib/prisma'
-import { requireAuth } from '../../../../../../../src/lib/auth'
+import { requireAuthOrAdmin } from '../../../../../../../src/lib/auth'
 
 // GET /api/properties/[id]/zones/[zoneId]/steps - Get all steps for a zone
 export async function GET(
@@ -11,7 +11,7 @@ export async function GET(
     const { id: propertyId, zoneId } = await params
 
     // Check authentication
-    const authResult = await requireAuth(request)
+    const authResult = await requireAuthOrAdmin(request)
     if (authResult instanceof Response) {
       return authResult
     }
@@ -99,7 +99,7 @@ export async function POST(
     const body = await request.json()
 
     // Check authentication
-    const authResult = await requireAuth(request)
+    const authResult = await requireAuthOrAdmin(request)
     if (authResult instanceof Response) {
       return authResult
     }
@@ -280,7 +280,7 @@ export async function PUT(
     console.log('🚨 Params:', { propertyId, zoneId })
 
     // Check authentication
-    const authResult = await requireAuth(request)
+    const authResult = await requireAuthOrAdmin(request)
     if (authResult instanceof Response) {
       console.log('🚨 Auth failed')
       return authResult

@@ -1,280 +1,136 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '../../../../../src/lib/prisma';
-import { requireAdmin } from '../../../../../src/lib/auth';
-import bcrypt from 'bcryptjs';
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '../../../../../src/lib/prisma'
+import { requireAdminAuth } from '../../../../../src/lib/admin-auth'
 
-export async function PATCH(
+export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = (await params).id
+    
     // Require admin authentication
-    const authResult = await requireAdmin(request)
+    const authResult = await requireAdminAuth(request)
     if (authResult instanceof Response) {
       return authResult
     }
-    
-    const { id: userId } = await params;
-    const { 
-      email, 
-      name, 
-      phone, 
-      companyName, 
-      planId, 
-      notes,
-      isAdmin,
-      isActive 
-    } = await request.json();
 
-    // Check if user exists
-    const existingUser = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        subscriptions: {
-          include: { plan: true },
-          where: { status: 'ACTIVE' },
-          orderBy: { createdAt: 'desc' },
-          take: 1
-        }
-      }
-    });
-
-    if (!existingUser) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'User not found' 
-      }, { status: 404 });
-    }
-
-    // Check if email is already taken by another user
-    if (email && email !== existingUser.email) {
-      const emailExists = await prisma.user.findUnique({
-        where: { email }
-      });
-      
-      if (emailExists) {
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Email already exists' 
-        }, { status: 400 });
-      }
-    }
-
-    // Prepare update data
-    const updateData: any = {
-      ...(email && { email }),
-      ...(name && { name }),
-      ...(phone !== undefined && { phone: phone || null }),
-      ...(companyName !== undefined && { companyName: companyName || null }),
-      ...(notes !== undefined && { notes: notes || null }),
-      ...(typeof isAdmin === 'boolean' && { isAdmin }),
-      ...(typeof isActive === 'boolean' && { 
-        isActive,
-        status: isActive ? 'ACTIVE' : 'SUSPENDED'
-      })
-    };
-
-    // Update user
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: updateData,
-      include: {
-        subscriptions: {
-          include: { plan: true },
-          where: { status: 'ACTIVE' },
-          orderBy: { createdAt: 'desc' },
-          take: 1
-        },
-        properties: {
-          select: { id: true, name: true }
-        }
-      }
-    });
-
-    // Handle plan assignment if provided
-    if (planId !== undefined) {
-      if (planId === '') {
-        // Remove current subscription
-        if (existingUser.subscriptions.length > 0) {
-          await prisma.userSubscription.update({
-            where: { id: existingUser.subscriptions[0].id },
-            data: { 
-              status: 'CANCELLED',
-              endDate: new Date()
-            }
-          });
-        }
-      } else {
-        // Check if plan exists
-        const plan = await prisma.subscriptionPlan.findUnique({
-          where: { id: planId }
-        });
-
-        if (!plan) {
-          return NextResponse.json({ 
-            success: false, 
-            error: 'Plan not found' 
-          }, { status: 400 });
-        }
-
-        // Cancel existing subscription
-        if (existingUser.subscriptions.length > 0) {
-          await prisma.userSubscription.update({
-            where: { id: existingUser.subscriptions[0].id },
-            data: { 
-              status: 'CANCELLED',
-              endDate: new Date()
-            }
-          });
-        }
-
-        // Create new subscription
-        await prisma.userSubscription.create({
-          data: {
-            userId: userId,
-            planId: planId,
-            status: 'ACTIVE',
-            startDate: new Date(),
-            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-            customPrice: null
-          }
-        });
-      }
-    }
-
-    // Log activity
-    const changes = [];
-    if (email && email !== existingUser.email) changes.push(`email: ${existingUser.email} → ${email}`);
-    if (name && name !== existingUser.name) changes.push(`name: ${existingUser.name} → ${name}`);
-    if (typeof isActive === 'boolean' && isActive !== existingUser.isActive) {
-      changes.push(`status: ${existingUser.isActive ? 'active' : 'inactive'} → ${isActive ? 'active' : 'inactive'}`);
-    }
-    if (typeof isAdmin === 'boolean' && isAdmin !== existingUser.isAdmin) {
-      changes.push(`admin: ${existingUser.isAdmin} → ${isAdmin}`);
-    }
-    if (planId !== undefined) {
-      const oldPlan = existingUser.subscriptions.length > 0 ? existingUser.subscriptions[0].plan.name : 'No plan';
-      if (planId === '') {
-        changes.push(`plan: ${oldPlan} → No plan`);
-      } else {
-        const newPlan = await prisma.subscriptionPlan.findUnique({ where: { id: planId } });
-        changes.push(`plan: ${oldPlan} → ${newPlan?.name || 'Unknown'}`);
-      }
-    }
-
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: 'admin', // TODO: Get actual admin ID
-        action: 'user_updated',
-        targetType: 'user',
-        targetId: userId,
-        description: `Updated user ${updatedUser.email}: ${changes.join(', ')}`,
-        metadata: { 
-          changes,
-          userEmail: updatedUser.email
-        }
-      }
-    });
-
-    // Fetch updated user with all relationships
-    const finalUser = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        subscriptions: {
-          include: { plan: true },
-          where: { status: 'ACTIVE' },
-          orderBy: { createdAt: 'desc' },
-          take: 1
-        },
-        properties: {
-          select: { id: true, name: true }
-        }
-      }
-    });
-
-    return NextResponse.json({
-      success: true,
-      user: finalUser,
-      message: 'User updated successfully'
-    });
-
-  } catch (error) {
-    console.error('Error updating user:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Internal server error' 
-    }, { status: 500 });
-  }
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    // Require admin authentication
-    const authResult = await requireAdmin(request)
-    if (authResult instanceof Response) {
-      return authResult
-    }
-    
-    const { id: userId } = await params;
-
-    // Check if user exists
+    // Get complete user profile
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, name: true }
-    });
-
-    if (!user) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'User not found' 
-      }, { status: 404 });
-    }
-
-    // Check if user has properties (prevent deletion if they do)
-    const propertiesCount = await prisma.property.count({
-      where: { hostId: userId }
-    });
-
-    if (propertiesCount > 0) {
-      return NextResponse.json({ 
-        success: false, 
-        error: `Cannot delete user with ${propertiesCount} properties. Please transfer or delete properties first.` 
-      }, { status: 400 });
-    }
-
-    // Delete user (this will cascade delete subscriptions, etc.)
-    await prisma.user.delete({
-      where: { id: userId }
-    });
-
-    // Log activity
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: 'admin', // TODO: Get actual admin ID
-        action: 'user_deleted',
-        targetType: 'user',
-        targetId: userId,
-        description: `Deleted user ${user.email} (${user.name})`,
-        metadata: { 
-          userEmail: user.email,
-          userName: user.name
+      include: {
+        properties: {
+          include: {
+            _count: {
+              select: {
+                zones: true,
+                propertyViews: true,
+                reviews: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'desc' }
+        },
+        propertySets: {
+          include: {
+            _count: {
+              select: {
+                properties: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'desc' }
+        },
+        callLogs: {
+          include: {
+            admin: {
+              select: {
+                name: true,
+                email: true
+              }
+            },
+            property: {
+              select: {
+                name: true,
+                propertyCode: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 10
+        },
+        userNotes: {
+          include: {
+            admin: {
+              select: {
+                name: true,
+                email: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 5
+        },
+        subscriptions: {
+          include: {
+            plan: true
+          },
+          where: {
+            status: 'ACTIVE'
+          },
+          take: 1,
+          orderBy: { createdAt: 'desc' }
         }
       }
-    });
+    })
+
+    if (!user) {
+      return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 })
+    }
+
+    // Calculate stats
+    const totalProperties = user.properties.length + user.propertySets.reduce((acc, set) => acc + set._count.properties, 0)
+    const totalZones = user.properties.reduce((acc, prop) => acc + prop._count.zones, 0)
+    const totalViews = user.properties.reduce((acc, prop) => acc + prop._count.propertyViews, 0)
+    const totalReviews = user.properties.reduce((acc, prop) => acc + prop._count.reviews, 0)
+    const recentCallsCount = await prisma.callLog.count({
+      where: { 
+        userId,
+        createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } // Last 24h
+      }
+    })
 
     return NextResponse.json({
-      success: true,
-      message: 'User deleted successfully'
-    });
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        phone: user.phone,
+        companyName: user.companyName,
+        role: user.role,
+        status: user.status,
+        subscription: user.subscription,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        lastLoginAt: user.lastLoginAt,
+        notes: user.notes,
+        currentSubscription: user.subscriptions[0] || null,
+        stats: {
+          totalProperties,
+          totalZones,
+          totalViews,
+          totalReviews,
+          recentCallsCount
+        },
+        properties: user.properties,
+        propertySets: user.propertySets,
+        recentCallLogs: user.callLogs,
+        recentNotes: user.userNotes
+      }
+    })
 
   } catch (error) {
-    console.error('Error deleting user:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Internal server error' 
-    }, { status: 500 });
+    console.error('Error fetching user profile:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
