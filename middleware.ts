@@ -15,6 +15,10 @@ const authRoutes = [
   '/register'
 ]
 
+const adminAuthRoutes = [
+  '/admin/login'
+]
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('auth-token')?.value
@@ -32,6 +36,15 @@ export function middleware(request: NextRequest) {
   const isAuthRoute = authRoutes.some(route => 
     pathname.startsWith(route)
   )
+
+  const isAdminAuthRoute = adminAuthRoutes.some(route => 
+    pathname.startsWith(route)
+  )
+
+  // Allow admin login route to pass through without authentication check
+  if (isAdminAuthRoute) {
+    return NextResponse.next()
+  }
 
   if (isProtectedRoute) {
     if (!token) {
@@ -129,6 +142,6 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|public|login|register).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|public|login|register|admin/login).*)',
   ],
 }
