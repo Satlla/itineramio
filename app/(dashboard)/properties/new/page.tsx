@@ -202,7 +202,14 @@ function NewPropertyPageContent() {
       console.log(`Propiedad ${isEditing ? 'actualizada' : 'creada'} exitosamente:`, result.data)
       
       // Clear saved data and redirect
-      handleSuccessfulSubmit()
+      if (!isEditing && result.data?.id) {
+        // For new properties, redirect to zones management
+        clearSavedData()
+        router.push(`/properties/${result.data.id}/zones`)
+      } else {
+        // For edited properties, use the normal flow
+        handleSuccessfulSubmit()
+      }
     } catch (error) {
       console.error(`Error ${isEditing ? 'actualizando' : 'creando'} propiedad:`, error)
       alert(`Error al ${isEditing ? 'actualizar' : 'crear'} la propiedad. Por favor, inténtalo de nuevo.`)
