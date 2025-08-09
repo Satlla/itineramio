@@ -515,7 +515,6 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
                     )}
                   </div>
                 )}
-              )}
 
               {activeTab === 'notes' && (
                 <div>
