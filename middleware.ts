@@ -29,14 +29,6 @@ export function middleware(request: NextRequest) {
     return rewriteResponse
   }
   
-  const isProtectedRoute = protectedRoutes.some(route => 
-    pathname.startsWith(route)
-  )
-  
-  const isAuthRoute = authRoutes.some(route => 
-    pathname.startsWith(route)
-  )
-
   const isAdminAuthRoute = adminAuthRoutes.some(route => 
     pathname.startsWith(route)
   )
@@ -45,6 +37,14 @@ export function middleware(request: NextRequest) {
   if (isAdminAuthRoute) {
     return NextResponse.next()
   }
+
+  const isProtectedRoute = protectedRoutes.some(route => 
+    pathname.startsWith(route)
+  )
+  
+  const isAuthRoute = authRoutes.some(route => 
+    pathname.startsWith(route)
+  )
 
   if (isProtectedRoute) {
     if (!token) {
