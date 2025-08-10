@@ -4,10 +4,10 @@ const protectedRoutes: string[] = [
   '/main',
   '/properties', 
   '/property-sets',
-  '/admin',
   '/analytics',
   '/account',
   '/media-library'
+  // Note: /admin removed - handled separately
 ]
 
 const authRoutes = [
@@ -23,21 +23,27 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('auth-token')?.value
 
+  // CRITICAL: Allow admin login page to bypass all checks
+  if (pathname === '/admin/login' || pathname.startsWith('/admin/login')) {
+    return NextResponse.next()
+  }
+
+  // Handle all admin routes separately
+  if (pathname.startsWith('/admin')) {
+    const adminToken = request.cookies.get('admin-token')?.value
+    if (!adminToken) {
+      const adminLoginUrl = new URL('/admin/login', request.url)
+      return NextResponse.redirect(adminLoginUrl)
+    }
+    return NextResponse.next()
+  }
+
   // Handle slug-based URL resolution by rewriting to dynamic routes
   const rewriteResponse = handleSlugRewrite(request)
   if (rewriteResponse) {
     return rewriteResponse
   }
   
-  const isAdminAuthRoute = adminAuthRoutes.some(route => 
-    pathname.startsWith(route)
-  )
-
-  // Allow admin login route to pass through without authentication check
-  if (isAdminAuthRoute) {
-    return NextResponse.next()
-  }
-
   const isProtectedRoute = protectedRoutes.some(route => 
     pathname.startsWith(route)
   )
