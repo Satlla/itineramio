@@ -706,10 +706,12 @@ model UserNote {
   id              String   @id @default(cuid())
   userId          String
   adminId         String
-  category        String   @default("GENERAL") // GENERAL, BEHAVIOR, TECHNICAL, BILLING
-  title           String?
+  type            String   @default("GENERAL") // GENERAL, BEHAVIOR, TECHNICAL, BILLING, COMPLAINT, COMPLIMENT
+  priority        String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  title           String
   content         String
-  isImportant     Boolean  @default(false)
+  isPrivate       Boolean  @default(false)
+  tags            String[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
