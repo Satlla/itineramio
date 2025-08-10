@@ -133,7 +133,6 @@ model Property {
   trackingEvents      TrackingEvent[]
   zoneViews           ZoneView[]         @relation("PropertyZoneViews")
   zones               Zone[]
-  callLogs            CallLog[]
 
   @@index([slug])
   @@map("properties")
