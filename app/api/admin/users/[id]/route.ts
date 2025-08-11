@@ -48,12 +48,6 @@ export async function GET(
                 name: true,
                 email: true
               }
-            },
-            property: {
-              select: {
-                name: true,
-                propertyCode: true
-              }
             }
           },
           orderBy: { createdAt: 'desc' },
