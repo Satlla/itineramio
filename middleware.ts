@@ -23,8 +23,11 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('auth-token')?.value
 
+  console.log('[Middleware] Path:', pathname)
+
   // CRITICAL: Allow admin login page to bypass all checks
   if (pathname === '/admin/login' || pathname.startsWith('/admin/login')) {
+    console.log('[Middleware] Admin login detected, bypassing checks')
     return NextResponse.next()
   }
 
@@ -148,6 +151,6 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|public|login|register|admin/login).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|public|login|register|admin).*)',
   ],
 }
