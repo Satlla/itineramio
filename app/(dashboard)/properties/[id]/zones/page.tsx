@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash } from 'lucide-react'
 import {
   DndContext,
   closestCenter,
@@ -75,6 +75,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const { addNotification } = useNotifications()
   const [zones, setZones] = useState<Zone[]>([])
   const [propertyName, setPropertyName] = useState<string>('')
+  const [propertyCode, setPropertyCode] = useState<string>('')
   const [propertySlug, setPropertySlug] = useState<string>('')
   const [propertyType, setPropertyType] = useState<string>('')
   const [propertyLocation, setPropertyLocation] = useState<string>('')
@@ -264,6 +265,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         
         // Set property data
         setPropertyName(propResult.data.name)
+        setPropertyCode(propResult.data.propertyCode || '')
         setPropertySlug(propResult.data.slug || '')
         setPropertyType(propResult.data.type || 'APARTMENT')
         setPropertyLocation(`${propResult.data.city}, ${propResult.data.state}`)
@@ -1983,9 +1985,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Zonas de {propertyName || 'la Propiedad'}
-          </h1>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Zonas de {propertyName || 'la Propiedad'}
+            </h1>
+            {propertyCode && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                <Hash className="w-4 h-4 mr-1" />
+                {propertyCode}
+              </span>
+            )}
+          </div>
           <p className="text-gray-600 mt-2">
             Gestiona las diferentes zonas y sus códigos QR para facilitar la experiencia de tus huéspedes
           </p>

@@ -24,7 +24,8 @@ import {
   Building2,
   CheckCircle,
   MessageCircle,
-  Timer
+  Timer,
+  Hash
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -53,6 +54,7 @@ interface Property {
   avgRating?: number
   status: string
   profileImage?: string
+  propertyCode?: string
   propertySetId?: string | null
   createdAt: string
   updatedAt: string
@@ -98,7 +100,7 @@ export default function DashboardPage(): JSX.Element {
   const [recentActivity, setRecentActivity] = useState<any[]>([])
 
   // Fetch recent activity
-  const fetchRecentActivity = useCallback(async () => {
+  const fetchRecentActivity = async () => {
     try {
       const response = await fetch('/api/dashboard/recent-activity', {
         credentials: 'include'
@@ -107,26 +109,30 @@ export default function DashboardPage(): JSX.Element {
       
       if (response.ok && result.success) {
         // Just use the real evaluations from API
-        setRecentActivity(result.activity.slice(0, 10))
+        setRecentActivity(result.activity.slice(0, 5)) // Reducir a 5 elementos
       }
     } catch (error) {
       console.error('Error fetching recent activity:', error)
     }
-  }, [])
+  }
 
   // Fetch analytics data
-  const fetchAnalyticsData = useCallback(async () => {
+  const fetchAnalyticsData = async () => {
     try {
       setLoading(true)
       
-      // Try to fetch analytics data from dedicated endpoint first
-      const analyticsResponse = await fetch('/api/analytics/dashboard', {
-        credentials: 'include'
-      })
-      const analyticsResult = await analyticsResponse.json()
+      // Hacer todas las llamadas en paralelo para optimizar carga
+      const [analyticsResponse, propertySetsResponse] = await Promise.all([
+        fetch('/api/analytics/dashboard', { credentials: 'include' }),
+        fetch('/api/property-sets', { credentials: 'include' })
+      ])
       
-      console.log('Analytics response:', analyticsResponse.status, analyticsResult)
+      const [analyticsResult, propertySetsResult] = await Promise.all([
+        analyticsResponse.json(),
+        propertySetsResponse.json()
+      ])
       
+      // Procesar analytics data
       if (analyticsResponse.ok && analyticsResult.success && analyticsResult.data) {
         const { stats, allProperties } = analyticsResult.data
         setProperties(allProperties || [])
@@ -140,13 +146,11 @@ export default function DashboardPage(): JSX.Element {
           monthlyViews: stats.monthlyViews || 0
         })
       } else {
-        // Fallback to properties endpoint
-        const propertiesResponse = await fetch('/api/properties?limit=1000', {
+        // Fallback - obtener todas las propiedades
+        const propertiesResponse = await fetch('/api/properties', {
           credentials: 'include'
         })
         const propertiesResult = await propertiesResponse.json()
-        
-        console.log('Properties fallback:', propertiesResponse.status, propertiesResult)
         
         if (propertiesResponse.ok && propertiesResult.data) {
           setProperties(propertiesResult.data)
@@ -154,8 +158,7 @@ export default function DashboardPage(): JSX.Element {
             totalProperties: propertiesResult.data.length,
             totalViews: propertiesResult.data.reduce((sum: number, p: any) => sum + (p.totalViews || 0), 0),
             activeManuals: propertiesResult.data.filter((p: any) => p.status === 'ACTIVE').length,
-            avgRating: propertiesResult.data.length > 0 ? 
-              propertiesResult.data.reduce((sum: number, p: any) => sum + (p.avgRating || 0), 0) / propertiesResult.data.length : 0,
+            avgRating: 0,
             zonesViewed: propertiesResult.data.reduce((sum: number, p: any) => sum + (p.zonesCount || 0), 0),
             timeSavedMinutes: 0,
             monthlyViews: 0
@@ -163,10 +166,7 @@ export default function DashboardPage(): JSX.Element {
         }
       }
       
-      // Fetch property sets for navigation
-      const propertySetsResponse = await fetch('/api/property-sets')
-      const propertySetsResult = await propertySetsResponse.json()
-      
+      // Procesar property sets
       if (propertySetsResponse.ok && propertySetsResult.data) {
         setPropertySets(propertySetsResult.data)
       }
@@ -175,21 +175,59 @@ export default function DashboardPage(): JSX.Element {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }
 
   useEffect(() => {
-    fetchAnalyticsData()
-    fetchRecentActivity()
-  }, [fetchAnalyticsData, fetchRecentActivity])
+    // Cargar datos con el nuevo endpoint optimizado
+    const loadDashboardData = async () => {
+      try {
+        setLoading(true)
+        
+        const response = await fetch('/api/dashboard/data', {
+          credentials: 'include'
+        })
+        
+        if (response.ok) {
+          const result = await response.json()
+          if (result.success && result.data) {
+            setProperties(result.data.properties || [])
+            setPropertySets(result.data.propertySets || [])
+            setStats(prev => ({
+              ...prev,
+              ...result.data.stats
+            }))
+            setRecentActivity(result.data.recentActivity || [])
+          }
+        } else {
+          // Fallback a método anterior si falla
+          await Promise.all([
+            fetchAnalyticsData(),
+            fetchRecentActivity()
+          ])
+        }
+      } catch (error) {
+        console.error('Error loading dashboard:', error)
+        // Fallback a método anterior si falla
+        await Promise.all([
+          fetchAnalyticsData(),
+          fetchRecentActivity()
+        ])
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    loadDashboardData()
+  }, [])
 
   // Refresh recent activity periodically to get new real data
   useEffect(() => {
     const interval = setInterval(() => {
       fetchRecentActivity()
-    }, 30000) // Refresh every 30 seconds
+    }, 60000) // Refresh every 60 seconds instead of 30
 
     return () => clearInterval(interval)
-  }, [fetchRecentActivity])
+  }, [])
 
   const handlePropertyAction = (action: string, propertyIdOrObject: string | any) => {
     const propertyId = typeof propertyIdOrObject === 'string' ? propertyIdOrObject : propertyIdOrObject.id
@@ -513,7 +551,7 @@ export default function DashboardPage(): JSX.Element {
                 </Card>
               ) : (
                 <div className="space-y-4">
-                  {properties.filter(property => !property.propertySetId).slice(0, 6).map((property) => (
+                  {properties.slice(0, 3).map((property) => (
                     <Card key={property.id} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push(`/properties/${property.id}`)}>
                       <CardContent className="p-6">
                         <div className="flex space-x-4">
@@ -551,6 +589,12 @@ export default function DashboardPage(): JSX.Element {
                                   <h3 className="font-semibold text-lg text-gray-900 truncate">
                                     {property.name}
                                   </h3>
+                                  {property.propertyCode && (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                      <Hash className="w-3 h-3 mr-1" />
+                                      {property.propertyCode}
+                                    </span>
+                                  )}
                                   {property.propertySetId && (
                                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                                       <Building2 className="w-3 h-3 mr-1" />
@@ -673,7 +717,7 @@ export default function DashboardPage(): JSX.Element {
               )}
               
               {/* Ver todas button below properties */}
-              {!loading && properties.length > 0 && (
+              {!loading && properties.length > 3 && (
                 <div className="mt-6 text-center">
                   <Button asChild variant="outline" className="w-full sm:w-auto">
                     <Link href="/properties">
@@ -733,7 +777,7 @@ export default function DashboardPage(): JSX.Element {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {propertySets.map((propertySet) => (
+                  {propertySets.slice(0, 3).map((propertySet) => (
                     <Card key={propertySet.id} className="hover:shadow-lg transition-shadow">
                       <CardContent className="p-6">
                         <div className="flex flex-col h-full">
@@ -845,16 +889,18 @@ export default function DashboardPage(): JSX.Element {
                 </div>
 
                 {/* Ver todos button below property sets */}
-                <div className="mt-6 text-center">
-                  <Button 
-                    variant="outline" 
-                    className="w-full sm:w-auto"
-                    onClick={() => router.push('/properties/groups')}
-                  >
-                    Ver todos los conjuntos
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
+                {propertySets.length > 3 && (
+                  <div className="mt-6 text-center">
+                    <Button 
+                      variant="outline" 
+                      className="w-full sm:w-auto"
+                      onClick={() => router.push('/properties/groups')}
+                    >
+                      Ver todos los conjuntos ({propertySets.length})
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                )}
                 </motion.div>
               )}
             </div>

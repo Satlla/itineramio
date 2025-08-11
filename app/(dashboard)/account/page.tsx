@@ -13,7 +13,8 @@ import {
   AlertTriangle,
   Eye,
   EyeOff,
-  Bell
+  Bell,
+  CreditCard
 } from 'lucide-react'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '../../../src/components/ui'
 import { useRouter } from 'next/navigation'
@@ -436,6 +437,33 @@ export default function AccountPage() {
                 >
                   <Bell className="w-4 h-4 mr-2" />
                   Configurar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Billing Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <CreditCard className="w-5 h-5 mr-2" />
+                Facturación y Suscripción
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-1">Datos de Facturación</h3>
+                  <p className="text-sm text-gray-600">
+                    Gestiona tu plan, datos fiscales y programa de afiliados
+                  </p>
+                </div>
+                <Button
+                  onClick={() => router.push('/account/billing')}
+                  variant="outline"
+                >
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Gestionar
                 </Button>
               </div>
             </CardContent>

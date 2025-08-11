@@ -27,6 +27,7 @@ import { useRouter } from 'next/navigation'
 import { Button, Input, Card, ImageUpload, PropertyPreview, SavedDataBanner } from '../../../../src/components/ui'
 import { AutoSaveIndicator } from '../../../../src/components/ui/AutoSaveIndicator'
 import { useFormPersistence } from '../../../../src/hooks/useFormPersistence'
+import { TrialActivationModal } from '../../../../src/components/TrialActivationModal'
 // PropertyType as string literal type
 type PropertyType = 'APARTMENT' | 'HOUSE' | 'ROOM' | 'VILLA'
 
@@ -96,6 +97,13 @@ function NewPropertyPageContent() {
     hasData: boolean
   }>({ data: null, timestamp: null, hasData: false })
   const [submissionSuccess, setSubmissionSuccess] = useState(false)
+  const [showTrialModal, setShowTrialModal] = useState(false)
+  const [createdPropertyData, setCreatedPropertyData] = useState<{
+    id: string
+    name: string
+    monthlyFee: number
+    isFirstProperty: boolean
+  } | null>(null)
 
   const {
     register,
@@ -201,11 +209,23 @@ function NewPropertyPageContent() {
       
       console.log(`Propiedad ${isEditing ? 'actualizada' : 'creada'} exitosamente:`, result.data)
       
-      // Clear saved data and redirect
+      // Clear saved data
       if (!isEditing && result.data?.id) {
-        // For new properties, redirect to zones management
         clearSavedData()
-        router.push(`/properties/${result.data.id}/zones`)
+        
+        // Check if trial activation is needed
+        if (result.subscription?.needsTrial) {
+          setCreatedPropertyData({
+            id: result.data.id,
+            name: result.data.name,
+            monthlyFee: result.subscription.monthlyFee,
+            isFirstProperty: result.subscription.isFirstProperty
+          })
+          setShowTrialModal(true)
+        } else {
+          // First property is free, just redirect
+          router.push(`/properties/${result.data.id}/zones`)
+        }
       } else {
         // For edited properties, use the normal flow
         handleSuccessfulSubmit()
@@ -930,6 +950,41 @@ function NewPropertyPageContent() {
           isVisible={Object.values(watchedValues).some(value => value && value !== '' && value !== 0)}
           lastSaved={lastSaved || undefined}
         />
+
+        {/* Trial Activation Modal */}
+        {createdPropertyData && (
+          <TrialActivationModal
+            isOpen={showTrialModal}
+            onClose={() => {
+              setShowTrialModal(false)
+              router.push(`/properties/${createdPropertyData.id}/zones`)
+            }}
+            propertyId={createdPropertyData.id}
+            propertyName={createdPropertyData.name}
+            monthlyFee={createdPropertyData.monthlyFee}
+            isFirstProperty={createdPropertyData.isFirstProperty}
+            onActivateTrial={async () => {
+              try {
+                const response = await fetch(`/api/properties/${createdPropertyData.id}/activate-trial`, {
+                  method: 'POST'
+                })
+                
+                if (response.ok) {
+                  setShowTrialModal(false)
+                  router.push(`/properties/${createdPropertyData.id}/zones`)
+                } else {
+                  alert('Error al activar el período de prueba')
+                }
+              } catch (error) {
+                alert('Error al activar el período de prueba')
+              }
+            }}
+            onPayNow={() => {
+              setShowTrialModal(false)
+              router.push('/account/billing')
+            }}
+          />
+        )}
       </div>
     </div>
   )

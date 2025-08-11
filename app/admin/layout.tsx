@@ -15,7 +15,9 @@ import {
   Building2,
   FileText,
   Menu,
-  X
+  X,
+  Tag,
+  Star
 } from 'lucide-react'
 
 const navigation = [
@@ -24,6 +26,8 @@ const navigation = [
   { name: 'Propiedades', href: '/admin/properties', icon: Building2 },
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { name: 'Reportes', href: '/admin/reports', icon: FileText },
+  { name: 'Cupones', href: '/admin/coupons', icon: Tag },
+  { name: 'Planes Custom', href: '/admin/custom-plans', icon: Star },
   { name: 'Planes', href: '/admin/plans', icon: Settings },
   { name: 'Facturación', href: '/admin/billing', icon: CreditCard },
   { name: 'Logs', href: '/admin/logs', icon: FileText },

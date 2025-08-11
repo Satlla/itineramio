@@ -25,6 +25,16 @@ model User {
   lastLoginAt             DateTime?
   avatar                  String?
   companyName             String?
+  // Billing fields
+  billingAddress          String?
+  billingCity             String?
+  billingCountry          String?
+  billingPostalCode       String?
+  vatNumber               String?                // NIF/CIF
+  // Affiliate system
+  referralCode            String?                @unique // Su código para referir
+  referredBy              String?                // Quién lo refirió
+  affiliateCommission     Decimal                @default(0) // Comisiones ganadas
   createdBy               String?
   isActive                Boolean                @default(true)
   isAdmin                 Boolean                @default(false)
@@ -48,6 +58,11 @@ model User {
   zoneViews               ZoneView[]             @relation("HostZoneViews")
   callLogs                CallLog[]
   userNotes               UserNote[]
+  // Affiliate relations
+  referredUsers           AffiliateTransaction[] @relation("AffiliateReferrer")
+  referralTransactions    AffiliateTransaction[] @relation("AffiliateReferred")
+  // Coupon relations
+  couponUses              CouponUse[]            @relation("UserCouponUses")
 
   @@map("users")
 }
@@ -115,7 +130,16 @@ model Property {
   hostContactEmail    String
   hostContactLanguage String             @default("es")
   hostContactPhoto    String?
-  status              String             @default("DRAFT")
+  status              String             @default("DRAFT") // DRAFT, TRIAL, ACTIVE, SUSPENDED, CANCELLED
+  // Trial system (48 hours)
+  trialStartsAt       DateTime?          // Cuándo empezó el trial
+  trialEndsAt         DateTime?          // Cuándo expira (48h después)
+  trialNotified24h    Boolean            @default(false) // Si ya notificó a las 24h
+  trialNotified6h     Boolean            @default(false) // Si ya notificó a las 6h
+  trialNotified1h     Boolean            @default(false) // Si ya notificó a la 1h
+  // Subscription fields
+  subscriptionEndsAt  DateTime?          // Cuándo expira la suscripción pagada
+  lastPaymentDate     DateTime?          // Último pago realizado
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
   publishedAt         DateTime?
@@ -443,7 +467,8 @@ model SubscriptionPlan {
 model UserSubscription {
   id                 String           @id @default(cuid())
   userId             String           @map("user_id")
-  planId             String           @map("plan_id")
+  planId             String?          @map("plan_id") // Ahora opcional
+  customPlanId       String?          @map("custom_plan_id") // Para planes personalizados
   status             String
   customPrice        Decimal?         @map("custom_price")
   discountPercentage Decimal?         @default(0) @map("discount_percentage")
@@ -455,7 +480,8 @@ model UserSubscription {
   createdAt          DateTime         @default(now()) @map("created_at")
   updatedAt          DateTime         @updatedAt @map("updated_at")
   invoices           Invoice[]
-  plan               SubscriptionPlan @relation(fields: [planId], references: [id])
+  plan               SubscriptionPlan? @relation(fields: [planId], references: [id])
+  customPlan         CustomPlan?      @relation(fields: [customPlanId], references: [id])
   user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_subscriptions")
@@ -721,4 +747,123 @@ model UserNote {
   @@index([adminId])
   @@index([createdAt])
   @@map("user_notes")
+}
+
+model AffiliateTransaction {
+  id              String   @id @default(cuid())
+  referrerId      String   @map("referrer_id")   // Quien refirió
+  referredUserId  String   @map("referred_user_id") // Usuario referido
+  type            String   // 'SIGNUP_BONUS', 'MONTHLY_COMMISSION', 'PROPERTY_BONUS'
+  amount          Decimal  // Cantidad ganada
+  status          String   @default("PENDING") // PENDING, PAID, CANCELLED
+  description     String?
+  paidAt          DateTime? @map("paid_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  
+  referrer        User     @relation("AffiliateReferrer", fields: [referrerId], references: [id])
+  referredUser    User     @relation("AffiliateReferred", fields: [referredUserId], references: [id])
+
+  @@index([referrerId])
+  @@index([referredUserId])
+  @@map("affiliate_transactions")
+}
+
+model Coupon {
+  id                String    @id @default(cuid())
+  code              String    @unique // LAUNCH50, HOTEL100, FRIEND6M
+  name              String    // Nombre descriptivo
+  description       String?   // Descripción para el usuario
+  
+  // Tipo de cupón
+  type              String    // PERCENTAGE, FIXED_AMOUNT, FREE_MONTHS, CUSTOM_PLAN
+  
+  // Valores de descuento
+  discountPercent   Int?      // 25 para 25%
+  discountAmount    Decimal?  // 10.00 para €10 fijo
+  freeMonths        Int?      // 6 para 6 meses gratis
+  
+  // Límites de uso
+  maxUses           Int?      // null = ilimitado
+  usedCount         Int       @default(0)
+  maxUsesPerUser    Int       @default(1) // Cuántas veces puede usar cada usuario
+  
+  // Fechas
+  validFrom         DateTime  @default(now())
+  validUntil        DateTime?
+  
+  // Restricciones
+  minAmount         Decimal?  // Monto mínimo para aplicar
+  minDuration       Int?      // Duración mínima en meses
+  applicableToPlans String[]  // ["STANDARD", "HOTEL", "ENTERPRISE"]
+  
+  // Configuración especial
+  isActive          Boolean   @default(true)
+  isPublic          Boolean   @default(false) // Si aparece en listados públicos
+  campaignSource    String?   // "INSTAGRAM", "TIKTOK", "REFERRAL"
+  
+  // Tracking
+  createdBy         String?   // Admin que lo creó
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relaciones
+  uses              CouponUse[]
+  
+  @@index([code])
+  @@index([validFrom, validUntil])
+  @@index([campaignSource])
+  @@map("coupons")
+}
+
+model CouponUse {
+  id          String   @id @default(cuid())
+  couponId    String   @map("coupon_id")
+  userId      String   @map("user_id")
+  orderId     String?  @map("order_id") // Referencia al pedido
+  
+  discountApplied Decimal // Descuento real aplicado
+  originalAmount  Decimal // Monto original
+  finalAmount     Decimal // Monto final tras descuento
+  
+  createdAt   DateTime @default(now())
+  
+  coupon      Coupon   @relation(fields: [couponId], references: [id])
+  user        User     @relation("UserCouponUses", fields: [userId], references: [id])
+  
+  @@index([couponId])
+  @@index([userId])
+  @@map("coupon_uses")
+}
+
+model CustomPlan {
+  id              String   @id @default(cuid())
+  name            String   // "Hotel Premium 100", "Hostel Basic"
+  description     String?
+  
+  // Precios
+  pricePerProperty Decimal // €5.50 por propiedad
+  minProperties    Int     @default(1)
+  maxProperties    Int?    // null = ilimitado
+  
+  // Características especiales
+  features         Json    @default("[]") // ["priority_support", "custom_branding"]
+  restrictions     Json    @default("{}") // {"max_zones_per_property": 5}
+  
+  // Para hoteles
+  isForHotels      Boolean @default(false)
+  maxZonesPerProperty Int? // Límite de zonas por habitación
+  
+  // Configuración
+  isActive         Boolean @default(true)
+  requiresApproval Boolean @default(false) // Si requiere aprobación admin
+  
+  // Tracking
+  createdBy        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relaciones con usuarios que usan este plan
+  subscriptions    UserSubscription[]
+  
+  @@map("custom_plans")
 }

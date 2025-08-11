@@ -199,9 +199,30 @@ export async function POST(request: NextRequest) {
       // Don't fail the property creation if zone creation fails
     }
     
+    // Check if this property needs trial activation
+    const activePropertiesCount = await prisma.property.count({
+      where: {
+        hostId: userId,
+        status: { in: ['ACTIVE', 'TRIAL'] }
+      }
+    })
+    
+    // Determine if trial is needed
+    const needsTrial = activePropertiesCount > 0 // First property is free
+    const monthlyFee = activePropertiesCount >= 9 ? 2.00 : 2.50 // 10+ properties get discount
+    
     return NextResponse.json({
       success: true,
-      data: property
+      data: property,
+      subscription: {
+        needsTrial,
+        isFirstProperty: activePropertiesCount === 0,
+        monthlyFee,
+        trialDuration: 48, // hours
+        message: needsTrial 
+          ? 'Esta propiedad requiere un plan de pago. Puedes activar un período de prueba de 48 horas.'
+          : '¡Tu primera propiedad es completamente gratuita!'
+      }
     }, { status: 201 })
     
   } catch (error) {
