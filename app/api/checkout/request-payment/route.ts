@@ -170,12 +170,12 @@ export async function POST(request: NextRequest) {
       method: paymentMethod,
       instructions: paymentMethod === 'BIZUM' 
         ? {
-            phone: '612345678',
+            phone: '+34652656440',
             concept: paymentReference,
             note: 'Indica el código de referencia en el concepto'
           }
         : {
-            iban: 'ES21 1234 5678 9012 3456 7890',
+            iban: 'ES82 0182 0304 8102 0158 7248',
             beneficiary: 'Itineramio S.L.',
             concept: paymentReference,
             note: 'Importante: incluye el código de referencia'

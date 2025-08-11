@@ -568,8 +568,8 @@ export default function BillingPage() {
           <div className="bg-blue-50 p-4 rounded-lg">
             <h4 className="font-semibold text-blue-900 mb-2">Métodos de pago disponibles</h4>
             <ul className="text-sm text-blue-700 space-y-1">
-              <li>• Bizum: 612345678</li>
-              <li>• Transferencia bancaria: ES21 1234 5678 9012 3456 7890</li>
+              <li>• Bizum: +34652656440</li>
+              <li>• Transferencia bancaria: ES82 0182 0304 8102 0158 7248</li>
               <li>• Las facturas se envían por email el día 1 de cada mes</li>
               <li>• Plazo de pago: 15 días desde la emisión</li>
             </ul>
