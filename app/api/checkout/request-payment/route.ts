@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
         user: {
           name: user.name,
           email: user.email,
-          phone: user.phone
+          phone: user.phone || undefined
         },
         createdAt: invoice.createdAt,
         properties: properties.map(p => ({ name: p.name }))

@@ -23,7 +23,7 @@ export class EmailNotificationService {
   private async getSmtpSettings() {
     if (!this.smtpSettings) {
       try {
-        const settings = await prisma.systemSettings.findFirst()
+        const settings = await prisma.systemSetting.findFirst()
         if (settings?.value) {
           const parsedSettings = JSON.parse(settings.value)
           this.smtpSettings = {
@@ -45,11 +45,11 @@ export class EmailNotificationService {
 
   private async getAdminEmails(): Promise<string[]> {
     try {
-      const admins = await prisma.adminUser.findMany({
+      const admins = await prisma.admin.findMany({
         where: { isActive: true },
         select: { email: true }
       })
-      return admins.map(admin => admin.email)
+      return admins.map((admin: any) => admin.email)
     } catch (error) {
       console.error('Error fetching admin emails:', error)
       return []
@@ -80,16 +80,19 @@ export class EmailNotificationService {
       })
 
       // Log the notification in the database
-      await prisma.notificationLog.create({
+      await prisma.notification.create({
         data: {
-          type: 'EMAIL',
-          recipients: data.to,
-          subject: data.subject,
-          content: data.htmlContent,
-          status: 'SENT',
-          sentAt: new Date()
+          userId: 'system', // System notification
+          type: 'EMAIL_SENT',
+          title: data.subject,
+          message: `Email sent to: ${data.to.join(', ')}`,
+          data: {
+            recipients: data.to,
+            subject: data.subject,
+            status: 'SENT'
+          }
         }
-      }).catch(() => {}) // Ignore if table doesn't exist
+      }).catch(() => {}) // Ignore if fails
 
       return true
     } catch (error) {

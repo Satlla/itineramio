@@ -16,7 +16,8 @@ import {
   Copy,
   Check,
   Tag,
-  Percent
+  Percent,
+  Eye
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../src/components/ui/Card'
 import { Button } from '../../../../src/components/ui/Button'

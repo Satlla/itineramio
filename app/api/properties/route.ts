@@ -230,7 +230,7 @@ export async function POST(request: NextRequest) {
           user: {
             name: user.name,
             email: user.email,
-            phone: user.phone
+            phone: user.phone || undefined
           },
           createdAt: property.createdAt
         })

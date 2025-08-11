@@ -63,7 +63,7 @@ export async function PUT(
           planName: name,
           changes: {
             name: currentPlan.name !== name ? { from: currentPlan.name, to: name } : undefined,
-            pricePerProperty: currentPlan.pricePerProperty !== Number(pricePerProperty) ? { from: currentPlan.pricePerProperty, to: Number(pricePerProperty) } : undefined,
+            pricePerProperty: Number(currentPlan.pricePerProperty) !== Number(pricePerProperty) ? { from: Number(currentPlan.pricePerProperty), to: Number(pricePerProperty) } : undefined,
             // Add other significant changes if needed
           }
         }

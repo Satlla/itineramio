@@ -60,7 +60,7 @@ export class InvoiceGenerator {
 
   private async getCompanySettings(): Promise<any> {
     try {
-      const settings = await prisma.systemSettings.findFirst()
+      const settings = await prisma.systemSetting.findFirst()
       if (settings?.value) {
         const parsedSettings = JSON.parse(settings.value)
         return {
@@ -140,8 +140,25 @@ export class InvoiceGenerator {
       }
 
       return {
-        invoice,
-        user: invoice.user,
+        invoice: {
+          ...invoice,
+          amount: Number(invoice.amount),
+          discountAmount: Number(invoice.discountAmount),
+          finalAmount: Number(invoice.finalAmount),
+          paymentMethod: invoice.paymentMethod || 'TRANSFER',
+          notes: invoice.notes || undefined,
+          paidDate: invoice.paidDate || undefined
+        },
+        user: {
+          ...invoice.user,
+          phone: invoice.user.phone || undefined,
+          companyName: invoice.user.companyName || undefined,
+          billingAddress: invoice.user.billingAddress || undefined,
+          billingCity: invoice.user.billingCity || undefined,
+          billingCountry: invoice.user.billingCountry || undefined,
+          billingPostalCode: invoice.user.billingPostalCode || undefined,
+          vatNumber: invoice.user.vatNumber || undefined
+        },
         companySettings,
         properties
       }
