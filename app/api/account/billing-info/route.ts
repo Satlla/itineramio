@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
         billingCountry: true,
         billingPostalCode: true,
         vatNumber: true,
+        phone: true,
         referralCode: true,
         affiliateCommission: true
       }
@@ -66,7 +67,8 @@ export async function POST(request: NextRequest) {
         billingCity: body.billingCity || null,
         billingCountry: body.billingCountry || null,
         billingPostalCode: body.billingPostalCode || null,
-        vatNumber: body.vatNumber || null
+        vatNumber: body.vatNumber || null,
+        phone: body.phone || null
       },
       select: {
         companyName: true,
@@ -74,7 +76,8 @@ export async function POST(request: NextRequest) {
         billingCity: true,
         billingCountry: true,
         billingPostalCode: true,
-        vatNumber: true
+        vatNumber: true,
+        phone: true
       }
     })
     

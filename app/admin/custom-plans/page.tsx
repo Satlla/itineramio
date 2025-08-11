@@ -62,6 +62,8 @@ export default function CustomPlansAdminPage() {
   })
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [editingPlan, setEditingPlan] = useState<CustomPlan | null>(null)
+  const [processingPlan, setProcessingPlan] = useState<string | null>(null)
 
   useEffect(() => {
     fetchCustomPlans()
@@ -80,6 +82,28 @@ export default function CustomPlansAdminPage() {
       console.error('Error fetching custom plans:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const togglePlanStatus = async (planId: string, currentStatus: boolean) => {
+    try {
+      setProcessingPlan(planId)
+      const response = await fetch(`/api/admin/custom-plans/${planId}/toggle`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: !currentStatus })
+      })
+      
+      if (response.ok) {
+        await fetchCustomPlans()
+      } else {
+        const error = await response.json()
+        alert(`Error: ${error.message || 'Error al cambiar estado del plan'}`)
+      }
+    } catch (error) {
+      alert('Error al cambiar estado del plan')
+    } finally {
+      setProcessingPlan(null)
     }
   }
 
@@ -311,16 +335,22 @@ export default function CustomPlansAdminPage() {
                     </div>
                     
                     <div className="flex items-center space-x-2 ml-4">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setEditingPlan(plan)}
+                      >
                         <Edit className="w-4 h-4" />
                       </Button>
                       
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className={plan.isActive ? 'text-red-600' : 'text-green-600'}
+                        onClick={() => togglePlanStatus(plan.id, plan.isActive)}
+                        disabled={processingPlan === plan.id}
+                        className={plan.isActive ? 'text-red-600 border-red-300 hover:bg-red-50' : 'text-green-600 border-green-300 hover:bg-green-50'}
                       >
-                        {plan.isActive ? 'Desactivar' : 'Activar'}
+                        {processingPlan === plan.id ? '...' : (plan.isActive ? 'Desactivar' : 'Activar')}
                       </Button>
                     </div>
                   </div>
@@ -330,6 +360,258 @@ export default function CustomPlansAdminPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Plan Modal */}
+      {editingPlan && (
+        <EditPlanModal
+          plan={editingPlan}
+          onClose={() => setEditingPlan(null)}
+          onSave={fetchCustomPlans}
+        />
+      )}
+    </div>
+  )
+}
+
+// Modal component for editing plans
+function EditPlanModal({ 
+  plan, 
+  onClose, 
+  onSave 
+}: { 
+  plan: CustomPlan
+  onClose: () => void
+  onSave: () => void
+}) {
+  const [formData, setFormData] = useState({
+    name: plan.name,
+    description: plan.description || '',
+    pricePerProperty: plan.pricePerProperty,
+    minProperties: plan.minProperties,
+    maxProperties: plan.maxProperties || '',
+    maxZonesPerProperty: plan.maxZonesPerProperty || '',
+    isForHotels: plan.isForHotels,
+    requiresApproval: plan.requiresApproval,
+    features: plan.features
+  })
+  const [saving, setSaving] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      setSaving(true)
+      
+      const response = await fetch(`/api/admin/custom-plans/${plan.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          maxProperties: formData.maxProperties ? Number(formData.maxProperties) : null,
+          maxZonesPerProperty: formData.maxZonesPerProperty ? Number(formData.maxZonesPerProperty) : null,
+        })
+      })
+      
+      if (response.ok) {
+        onSave()
+        onClose()
+      } else {
+        const error = await response.json()
+        alert(`Error: ${error.message || 'Error al actualizar plan'}`)
+      }
+    } catch (error) {
+      alert('Error al actualizar plan')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const availableFeatures = [
+    { key: 'priority_support', label: 'Soporte prioritario' },
+    { key: 'custom_branding', label: 'Marca personalizada' },
+    { key: 'analytics_reports', label: 'Reportes analytics' },
+    { key: 'api_access', label: 'Acceso API' },
+    { key: 'white_label', label: 'White label' },
+    { key: 'basic_support', label: 'Soporte básico' },
+    { key: 'extended_zones', label: 'Zonas extendidas' },
+    { key: '24_7_support', label: 'Soporte 24/7' },
+    { key: 'dedicated_manager', label: 'Manager dedicado' }
+  ]
+
+  const toggleFeature = (featureKey: string) => {
+    setFormData(prev => ({
+      ...prev,
+      features: prev.features.includes(featureKey)
+        ? prev.features.filter(f => f !== featureKey)
+        : [...prev.features, featureKey]
+    }))
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Editar Plan: {plan.name}
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre del Plan
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Precio por Propiedad (€)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.pricePerProperty}
+                  onChange={(e) => setFormData({ ...formData, pricePerProperty: Number(e.target.value) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Descripción
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Min Propiedades
+                </label>
+                <input
+                  type="number"
+                  value={formData.minProperties}
+                  onChange={(e) => setFormData({ ...formData, minProperties: Number(e.target.value) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Max Propiedades
+                </label>
+                <input
+                  type="number"
+                  value={formData.maxProperties}
+                  onChange={(e) => setFormData({ ...formData, maxProperties: e.target.value })}
+                  placeholder="Ilimitado"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Max Zonas/Prop
+                </label>
+                <input
+                  type="number"
+                  value={formData.maxZonesPerProperty}
+                  onChange={(e) => setFormData({ ...formData, maxZonesPerProperty: e.target.value })}
+                  placeholder="Ilimitado"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={formData.isForHotels}
+                  onChange={(e) => setFormData({ ...formData, isForHotels: e.target.checked })}
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label className="ml-2 text-sm text-gray-700">
+                  Plan específico para hoteles
+                </label>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={formData.requiresApproval}
+                  onChange={(e) => setFormData({ ...formData, requiresApproval: e.target.checked })}
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label className="ml-2 text-sm text-gray-700">
+                  Requiere aprobación admin
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Características Incluidas
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {availableFeatures.map((feature) => (
+                  <div key={feature.key} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={formData.features.includes(feature.key)}
+                      onChange={() => toggleFeature(feature.key)}
+                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <label className="ml-2 text-sm text-gray-700">
+                      {feature.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={saving}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={saving}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {saving ? 'Guardando...' : 'Guardar Cambios'}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   )
 }

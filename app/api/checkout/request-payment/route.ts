@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import { verifyToken } from '../../../../src/lib/auth'
+import { emailNotificationService } from '../../../../src/lib/email-notifications'
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,6 +32,7 @@ export async function POST(request: NextRequest) {
         id: true,
         name: true,
         email: true,
+        phone: true,
         companyName: true,
         billingAddress: true,
         billingCity: true,
@@ -162,6 +164,25 @@ export async function POST(request: NextRequest) {
         }
       }
     })
+    
+    // Send email notification to admins
+    try {
+      await emailNotificationService.notifyPaymentRequest({
+        id: invoice.id,
+        invoiceNumber: paymentReference,
+        finalAmount,
+        user: {
+          name: user.name,
+          email: user.email,
+          phone: user.phone
+        },
+        createdAt: invoice.createdAt,
+        properties: properties.map(p => ({ name: p.name }))
+      })
+    } catch (error) {
+      console.error('Error sending payment notification email:', error)
+      // Don't fail the request if email fails
+    }
     
     // Prepare payment instructions
     const paymentInstructions = {

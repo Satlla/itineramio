@@ -31,6 +31,14 @@ interface SystemSettings {
   companyPhone: string
   companyAddress: string
   companyWebsite: string
+  companyTaxId: string
+  companyCity: string
+  companyPostalCode: string
+  companyCountry: string
+  companyBankAccount: string
+  companyBic: string
+  companyLogoUrl: string
+  companyAdditionalInfo: string
   
   // Platform Settings
   platformName: string
@@ -76,8 +84,16 @@ const defaultSettings: SystemSettings = {
   companyName: 'Itineramio',
   companyEmail: 'info@itineramio.com',
   companyPhone: '+34 900 000 000',
-  companyAddress: 'Madrid, España',
+  companyAddress: '',
   companyWebsite: 'https://itineramio.com',
+  companyTaxId: '',
+  companyCity: '',
+  companyPostalCode: '',
+  companyCountry: 'España',
+  companyBankAccount: '',
+  companyBic: '',
+  companyLogoUrl: '',
+  companyAdditionalInfo: '',
   
   platformName: 'Itineramio',
   supportEmail: 'support@itineramio.com',
@@ -226,6 +242,18 @@ export default function SystemSettingsPage() {
       case 'companyWebsite':
         if (value && !/^https?:\/\/.+\..+$/.test(value)) {
           return 'Debe ser una URL válida (http:// o https://)'
+        }
+        break
+        
+      case 'companyTaxId':
+        if (value && value.length < 8) {
+          return 'NIF/CIF debe tener al menos 8 caracteres'
+        }
+        break
+        
+      case 'companyBankAccount':
+        if (value && !/^ES\d{22}$/.test(value.replace(/\s/g, ''))) {
+          return 'Formato IBAN español inválido (debe empezar por ES + 22 dígitos)'
         }
         break
       
@@ -449,6 +477,7 @@ export default function SystemSettingsPage() {
           {activeTab === 'company' && (
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">Información de la Empresa</h3>
+              <p className="text-sm text-gray-600">Esta información aparecerá en las facturas y documentos oficiales</p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <InputField
@@ -457,6 +486,14 @@ export default function SystemSettingsPage() {
                   onChange={(e) => updateSetting('companyName', e.target.value)}
                   error={errors.companyName}
                   required
+                />
+                
+                <InputField
+                  label="NIF/CIF"
+                  value={settings.companyTaxId}
+                  onChange={(e) => updateSetting('companyTaxId', e.target.value)}
+                  error={errors.companyTaxId}
+                  placeholder="B12345678"
                 />
                 
                 <InputField
@@ -484,14 +521,167 @@ export default function SystemSettingsPage() {
                   error={errors.companyWebsite}
                   placeholder="https://example.com"
                 />
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">País</label>
+                  <select
+                    value={settings.companyCountry}
+                    onChange={(e) => updateSetting('companyCountry', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                  >
+                    <option value="España">España</option>
+                    <option value="Francia">Francia</option>
+                    <option value="Portugal">Portugal</option>
+                    <option value="Italia">Italia</option>
+                    <option value="Reino Unido">Reino Unido</option>
+                  </select>
+                </div>
               </div>
               
-              <TextareaField
-                label="Dirección"
-                value={settings.companyAddress}
-                onChange={(e) => updateSetting('companyAddress', e.target.value)}
-                error={errors.companyAddress}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <InputField
+                  label="Dirección"
+                  value={settings.companyAddress}
+                  onChange={(e) => updateSetting('companyAddress', e.target.value)}
+                  error={errors.companyAddress}
+                  placeholder="Calle Ejemplo, 123"
+                />
+                
+                <InputField
+                  label="Ciudad"
+                  value={settings.companyCity}
+                  onChange={(e) => updateSetting('companyCity', e.target.value)}
+                  error={errors.companyCity}
+                  placeholder="Madrid"
+                />
+                
+                <InputField
+                  label="Código Postal"
+                  value={settings.companyPostalCode}
+                  onChange={(e) => updateSetting('companyPostalCode', e.target.value)}
+                  error={errors.companyPostalCode}
+                  placeholder="28001"
+                />
+              </div>
+
+              <div className="border-t pt-6">
+                <h4 className="text-md font-semibold text-gray-900 mb-4">Información Bancaria</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <InputField
+                    label="IBAN"
+                    value={settings.companyBankAccount}
+                    onChange={(e) => updateSetting('companyBankAccount', e.target.value)}
+                    error={errors.companyBankAccount}
+                    placeholder="ES82 0182 0304 8102 0158 7248"
+                  />
+                  
+                  <InputField
+                    label="BIC/SWIFT"
+                    value={settings.companyBic}
+                    onChange={(e) => updateSetting('companyBic', e.target.value)}
+                    error={errors.companyBic}
+                    placeholder="BBVAESMM"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t pt-6">
+                <h4 className="text-md font-semibold text-gray-900 mb-4">Logo e Información Adicional</h4>
+                
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Logo de la Empresa</label>
+                  <div className="flex items-center space-x-4">
+                    {settings.companyLogoUrl && (
+                      <img 
+                        src={settings.companyLogoUrl} 
+                        alt="Company Logo" 
+                        className="w-20 h-20 object-contain border rounded-lg bg-white p-2"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <InputField
+                        label="URL del Logo"
+                        value={settings.companyLogoUrl}
+                        onChange={(e) => updateSetting('companyLogoUrl', e.target.value)}
+                        placeholder="https://ejemplo.com/logo.png"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        URL directa de la imagen del logo (PNG, JPG). Recomendado: 400x200px
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <TextareaField
+                  label="Información Adicional"
+                  value={settings.companyAdditionalInfo}
+                  onChange={(e) => updateSetting('companyAdditionalInfo', e.target.value)}
+                  error={errors.companyAdditionalInfo}
+                  placeholder="Información adicional que aparecerá en las facturas..."
+                  rows={3}
+                />
+              </div>
+
+              {/* Vista previa de factura */}
+              <div className="border-t pt-6">
+                <h4 className="text-md font-semibold text-gray-900 mb-4">Vista Previa de Factura</h4>
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <div className="flex justify-between items-start mb-6">
+                    {settings.companyLogoUrl && (
+                      <img 
+                        src={settings.companyLogoUrl} 
+                        alt="Logo" 
+                        className="h-16 object-contain"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                        }}
+                      />
+                    )}
+                    <div className="text-right">
+                      <h2 className="text-xl font-bold text-gray-900">
+                        {settings.companyName || 'Nombre de la Empresa'}
+                      </h2>
+                      {settings.companyTaxId && (
+                        <p className="text-sm text-gray-600">
+                          NIF/CIF: {settings.companyTaxId}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-2">Datos de contacto:</h3>
+                      <p>{settings.companyEmail || 'email@empresa.com'}</p>
+                      <p>{settings.companyPhone || '+34 900 000 000'}</p>
+                      {settings.companyWebsite && <p>{settings.companyWebsite}</p>}
+                    </div>
+                    
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-2">Dirección fiscal:</h3>
+                      <p>{settings.companyAddress || 'Dirección'}</p>
+                      <p>{settings.companyPostalCode || '28001'} {settings.companyCity || 'Ciudad'}</p>
+                      <p>{settings.companyCountry || 'País'}</p>
+                    </div>
+                  </div>
+
+                  {(settings.companyBankAccount || settings.companyBic) && (
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <h3 className="font-semibold text-gray-900 mb-2 text-sm">Datos bancarios:</h3>
+                      <div className="text-sm text-gray-600">
+                        {settings.companyBankAccount && <p>IBAN: {settings.companyBankAccount}</p>}
+                        {settings.companyBic && <p>BIC: {settings.companyBic}</p>}
+                      </div>
+                    </div>
+                  )}
+
+                  {settings.companyAdditionalInfo && (
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <p className="text-xs text-gray-600">{settings.companyAdditionalInfo}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 

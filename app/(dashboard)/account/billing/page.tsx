@@ -31,6 +31,7 @@ interface BillingData {
   billingCountry?: string
   billingPostalCode?: string
   vatNumber?: string
+  phone?: string
   referralCode?: string
   affiliateCommission?: number
 }
@@ -83,6 +84,7 @@ export default function BillingPage() {
     billingCountry: 'España',
     billingPostalCode: '',
     vatNumber: '',
+    phone: '',
     referralCode: '',
     affiliateCommission: 0
   })
@@ -93,9 +95,13 @@ export default function BillingPage() {
     monthlyFee: 0
   })
 
+  const [invoices, setInvoices] = useState<any[]>([])
+  const [loadingInvoices, setLoadingInvoices] = useState(false)
+
   useEffect(() => {
     fetchBillingData()
     fetchPlanInfo()
+    fetchInvoices()
   }, [])
 
   const fetchBillingData = async () => {
@@ -111,6 +117,7 @@ export default function BillingPage() {
           billingCountry: data.billingCountry || 'España',
           billingPostalCode: data.billingPostalCode || '',
           vatNumber: data.vatNumber || '',
+          phone: data.phone || '',
           referralCode: data.referralCode || '',
           affiliateCommission: data.affiliateCommission || 0
         })
@@ -218,6 +225,26 @@ export default function BillingPage() {
     } finally {
       setValidatingCoupon(false)
     }
+  }
+
+  const fetchInvoices = async () => {
+    try {
+      setLoadingInvoices(true)
+      const response = await fetch('/api/account/invoices')
+      if (response.ok) {
+        const data = await response.json()
+        setInvoices(data || [])
+      }
+    } catch (error) {
+      console.error('Error fetching invoices:', error)
+    } finally {
+      setLoadingInvoices(false)
+    }
+  }
+
+  const viewInvoice = (invoiceId: string) => {
+    const url = `/api/invoices/${invoiceId}/view`
+    window.open(url, '_blank')
   }
 
   if (loading) {
@@ -415,6 +442,19 @@ export default function BillingPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <div className="flex items-start">
+              <AlertCircle className="w-5 h-5 text-yellow-600 mr-3 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-yellow-900">Información importante</h4>
+                <p className="text-sm text-yellow-700 mt-1">
+                  Incluye tu número de teléfono para que podamos contactarte directamente sobre solicitudes de pago.
+                  Esta información ayuda a nuestro equipo a gestionar tus pagos de forma más eficiente.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -439,6 +479,21 @@ export default function BillingPage() {
                 placeholder="12345678Z"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <span className="text-red-500">*</span> Teléfono de contacto
+            </label>
+            <Input
+              value={billingData.phone}
+              onChange={(e) => setBillingData({ ...billingData, phone: e.target.value })}
+              placeholder="+34 600 000 000"
+              type="tel"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Necesario para confirmaciones de pago y comunicación directa
+            </p>
           </div>
 
           <div>
@@ -574,6 +629,106 @@ export default function BillingPage() {
               <li>• Plazo de pago: 15 días desde la emisión</li>
             </ul>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Facturas */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <FileText className="w-5 h-5 mr-2" />
+            Mis Facturas
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loadingInvoices ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="animate-spin w-6 h-6 border-4 border-violet-600 border-t-transparent rounded-full"></div>
+            </div>
+          ) : invoices.length === 0 ? (
+            <div className="text-center py-8">
+              <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No hay facturas disponibles
+              </h3>
+              <p className="text-gray-600">
+                Las facturas aparecerán aquí una vez que realices tu primer pago
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {invoices.map((invoice: any) => (
+                <div
+                  key={invoice.id}
+                  className={`border rounded-lg p-4 flex items-center justify-between ${
+                    invoice.status === 'PAID' 
+                      ? 'border-green-200 bg-green-50' 
+                      : invoice.status === 'REJECTED'
+                      ? 'border-red-200 bg-red-50'
+                      : 'border-orange-200 bg-orange-50'
+                  }`}
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <span className="font-mono text-sm font-semibold">
+                        {invoice.invoiceNumber}
+                      </span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        invoice.status === 'PAID'
+                          ? 'bg-green-100 text-green-800'
+                          : invoice.status === 'REJECTED'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-orange-100 text-orange-800'
+                      }`}>
+                        {invoice.status === 'PAID' ? 'Pagado' : 
+                         invoice.status === 'REJECTED' ? 'Rechazado' : 'Pendiente'}
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Importe:</span>
+                        <span className="font-semibold text-green-600 ml-2">
+                          €{Number(invoice.finalAmount).toFixed(2)}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Fecha:</span>
+                        <span className="ml-2">
+                          {new Date(invoice.createdAt).toLocaleDateString('es-ES')}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Vencimiento:</span>
+                        <span className="ml-2">
+                          {new Date(invoice.dueDate).toLocaleDateString('es-ES')}
+                        </span>
+                      </div>
+                    </div>
+
+                    {invoice.status === 'PAID' && invoice.paidDate && (
+                      <div className="mt-2 text-sm text-green-600">
+                        <CheckCircle className="w-4 h-4 inline mr-1" />
+                        Pagado el {new Date(invoice.paidDate).toLocaleDateString('es-ES')}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center space-x-2 ml-4">
+                    <Button
+                      onClick={() => viewInvoice(invoice.id)}
+                      size="sm"
+                      variant="outline"
+                      className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      Ver Factura
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -14,7 +14,9 @@ import {
   Eye,
   Check,
   X,
-  AlertCircle
+  AlertCircle,
+  Download,
+  FileText
 } from 'lucide-react'
 import { Button } from '../../../src/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../src/components/ui/Card'
@@ -133,6 +135,11 @@ export default function PaymentsAdminPage() {
     } finally {
       setProcessingPayment(null)
     }
+  }
+
+  const downloadInvoice = (invoiceId: string) => {
+    const url = `/api/invoices/${invoiceId}/download`
+    window.open(url, '_blank')
   }
 
   const filteredPayments = payments.filter(payment => {
@@ -372,33 +379,45 @@ export default function PaymentsAdminPage() {
                       </div>
                     </div>
                     
-                    {payment.status === 'PENDING' && (
-                      <div className="flex items-center space-x-2 ml-4">
-                        <Button
-                          onClick={() => confirmPayment(payment.id, payment.paymentReference)}
-                          disabled={processingPayment === payment.id}
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          <Check className="w-4 h-4 mr-1" />
-                          Confirmar Pago
-                        </Button>
-                        
-                        <Button
-                          onClick={() => {
-                            const reason = prompt('Motivo del rechazo:')
-                            if (reason) rejectPayment(payment.id, reason)
-                          }}
-                          disabled={processingPayment === payment.id}
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600 border-red-300 hover:bg-red-50"
-                        >
-                          <X className="w-4 h-4 mr-1" />
-                          Rechazar
-                        </Button>
-                      </div>
-                    )}
+                    <div className="flex items-center space-x-2 ml-4">
+                      {payment.status === 'PENDING' && (
+                        <>
+                          <Button
+                            onClick={() => confirmPayment(payment.id, payment.paymentReference)}
+                            disabled={processingPayment === payment.id}
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            <Check className="w-4 h-4 mr-1" />
+                            Confirmar Pago
+                          </Button>
+                          
+                          <Button
+                            onClick={() => {
+                              const reason = prompt('Motivo del rechazo:')
+                              if (reason) rejectPayment(payment.id, reason)
+                            }}
+                            disabled={processingPayment === payment.id}
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 border-red-300 hover:bg-red-50"
+                          >
+                            <X className="w-4 h-4 mr-1" />
+                            Rechazar
+                          </Button>
+                        </>
+                      )}
+                      
+                      <Button
+                        onClick={() => downloadInvoice(payment.id)}
+                        size="sm"
+                        variant="outline"
+                        className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                        title="Descargar factura"
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}

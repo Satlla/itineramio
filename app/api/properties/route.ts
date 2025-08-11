@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { prisma } from '../../../src/lib/prisma'
 import { generateSlug, generateUniqueSlug } from '../../../src/lib/slug-utils'
 import { requireAuth } from '../../../src/lib/auth'
+import { emailNotificationService } from '../../../src/lib/email-notifications'
 
 // Validation schema for property creation
 const createPropertySchema = z.object({
@@ -210,6 +211,34 @@ export async function POST(request: NextRequest) {
     // Determine if trial is needed
     const needsTrial = activePropertiesCount > 0 // First property is free
     const monthlyFee = activePropertiesCount >= 9 ? 2.00 : 2.50 // 10+ properties get discount
+    
+    // Send email notification to admins about new property
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          name: true,
+          email: true,
+          phone: true
+        }
+      })
+      
+      if (user) {
+        await emailNotificationService.notifyNewProperty({
+          id: property.id,
+          name: property.name,
+          user: {
+            name: user.name,
+            email: user.email,
+            phone: user.phone
+          },
+          createdAt: property.createdAt
+        })
+      }
+    } catch (error) {
+      console.error('Error sending new property notification email:', error)
+      // Don't fail the request if email fails
+    }
     
     return NextResponse.json({
       success: true,
