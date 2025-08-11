@@ -4,11 +4,16 @@ import { requireAdminAuth } from '../../../../src/lib/admin-auth'
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('📊 Admin properties endpoint called')
+    
     // Require admin authentication
     const authResult = await requireAdminAuth(request)
     if (authResult instanceof Response) {
+      console.log('❌ Admin authentication failed in properties endpoint')
       return authResult
     }
+    
+    console.log('✅ Admin authenticated successfully:', authResult.email)
 
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')

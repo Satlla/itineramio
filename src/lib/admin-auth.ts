@@ -23,12 +23,16 @@ export function verifyAdminToken(token: string): AdminJWTPayload {
 
 export async function getAdminUser(request: NextRequest): Promise<AdminJWTPayload | null> {
   try {
+    console.log('🔍 All cookies:', request.cookies.toString())
+    
     // Check for admin-token cookie
     const adminToken = request.cookies.get('admin-token')?.value
+    console.log('🔐 Admin token found:', !!adminToken)
+    
     if (adminToken) {
       console.log('🔐 Attempting to verify admin token')
       const decoded = verifyAdminToken(adminToken)
-      console.log('✅ Admin token verified successfully')
+      console.log('✅ Admin token verified successfully for:', decoded.email)
       return decoded
     }
 
