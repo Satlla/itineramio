@@ -31,7 +31,8 @@ import {
   Timer,
   MessageCircle,
   ExternalLink,
-  Search
+  Search,
+  Hash
 } from 'lucide-react'
 import { Button } from '../../../src/components/ui/Button'
 import { Card, CardContent } from '../../../src/components/ui/Card'
@@ -62,6 +63,7 @@ interface Property {
   status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED'
   createdAt: string
   isPublished: boolean
+  propertyCode?: string
   profileImage?: string
   hostContactName?: string
   hostContactPhoto?: string
@@ -1509,6 +1511,12 @@ function PropertiesPageContent() {
                               <h3 className="font-semibold text-lg text-gray-900 truncate">
                                 {getText(property.name, 'Propiedad')}
                               </h3>
+                              {property.propertyCode && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-1">
+                                  <Hash className="w-3 h-3 mr-1" />
+                                  {property.propertyCode}
+                                </span>
+                              )}
                               {property.propertySetId && property.propertySet && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                                   <Building2 className="w-3 h-3 mr-1" />
