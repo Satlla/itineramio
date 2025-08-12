@@ -128,28 +128,13 @@ export default function AccountPage() {
   const handleSaveBasicInfo = async () => {
     if (!validateBasicForm()) return
 
-    // Check if email is changing
-    const isEmailChanging = user && formData.email !== user.email
-
-    // If email is changing, use the new secure flow
-    if (isEmailChanging) {
-      if (!showPasswordModal) {
-        setShowPasswordModal(true)
-        return
-      }
-      
-      // Use the new email change flow
-      await handleEmailChangeRequest()
-      return
-    }
-
-    // For non-email changes, use the regular update flow
+    // ALWAYS save basic info with current email (don't change email here)
     setLoading(true)
     try {
       const requestBody = {
         firstName: formData.firstName?.trim() || '',
         lastName: formData.lastName?.trim() || '',
-        email: formData.email?.trim() || '',
+        email: user?.email || '', // Use current user email, not form email
         phone: formData.phone?.trim() || '',
         profileImage: profileImage || null
       }
@@ -185,6 +170,24 @@ export default function AccountPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Separate function for email change
+  const handleChangeEmail = async () => {
+    const isEmailChanging = user && formData.email !== user.email
+    
+    if (!isEmailChanging) {
+      setErrors({ general: 'No hay cambios de email para aplicar' })
+      return
+    }
+
+    if (!showPasswordModal) {
+      setShowPasswordModal(true)
+      return
+    }
+    
+    // Use the new email change flow
+    await handleEmailChangeRequest()
   }
 
   const handleEmailChangeRequest = async () => {
@@ -484,8 +487,8 @@ export default function AccountPage() {
           </Card>
 
 
-          {/* Save Button */}
-          <div className="flex justify-end mb-8">
+          {/* Save Buttons */}
+          <div className="flex gap-4 justify-end mb-8">
             <Button
               onClick={handleSaveBasicInfo}
               disabled={loading}
@@ -494,6 +497,17 @@ export default function AccountPage() {
               <Save className="w-4 h-4 mr-2" />
               {loading ? 'Guardando...' : 'Guardar Información'}
             </Button>
+            
+            {/* Show change email button if email is different */}
+            {user && formData.email !== user.email && (
+              <Button
+                onClick={handleChangeEmail}
+                disabled={loading}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
+                🔐 Cambiar Email
+              </Button>
+            )}
           </div>
 
           {/* Notifications Settings */}
@@ -652,7 +666,7 @@ export default function AccountPage() {
                   Cancelar
                 </Button>
                 <Button
-                  onClick={user && formData.email !== user.email ? handleSaveBasicInfo : confirmPasswordChange}
+                  onClick={user && formData.email !== user.email ? handleChangeEmail : confirmPasswordChange}
                   disabled={loading || !confirmationPassword}
                   className="flex-1 bg-blue-600 hover:bg-blue-700"
                 >
