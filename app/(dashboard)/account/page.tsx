@@ -51,10 +51,11 @@ export default function AccountPage() {
   useEffect(() => {
     // Load user data
     if (user) {
+      const nameParts = user.name?.trim().split(' ') || []
       setFormData(prev => ({
         ...prev,
-        firstName: user.name?.split(' ')[0] || '',
-        lastName: user.name?.split(' ').slice(1).join(' ') || '',
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
         email: user.email || '',
         phone: user.phone || ''
       }))
@@ -122,19 +123,35 @@ export default function AccountPage() {
   const handleSaveBasicInfo = async () => {
     if (!validateBasicForm()) return
 
+    // Check if email is changing
+    const isEmailChanging = user && formData.email !== user.email
+
+    // If email is changing and no password modal is showing, show it
+    if (isEmailChanging && !showPasswordModal) {
+      setShowPasswordModal(true)
+      return
+    }
+
     setLoading(true)
     try {
-      // Update basic info without password
+      // Update basic info (with password if email is changing)
+      const requestBody: any = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        profileImage
+      }
+
+      // Add password if provided (when changing email)
+      if (isEmailChanging && confirmationPassword) {
+        requestBody.password = confirmationPassword
+      }
+
       const response = await fetch('/api/account/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          profileImage
-        })
+        body: JSON.stringify(requestBody)
       })
 
       if (response.ok) {
@@ -142,11 +159,19 @@ export default function AccountPage() {
         // Success - show toast and refresh user data
         setShowSuccessToast(true)
         setTimeout(() => setShowSuccessToast(false), 3000)
+        setShowPasswordModal(false)
+        setConfirmationPassword('')
         // Refresh user data from the server
         await refreshUser()
       } else {
         const data = await response.json()
-        setErrors({ general: data.error || 'Error al actualizar' })
+        
+        // If password is required but not showing modal, show it
+        if (data.requiresPassword && !showPasswordModal) {
+          setShowPasswordModal(true)
+        } else {
+          setErrors({ general: data.error || 'Error al actualizar' })
+        }
       }
     } catch (error) {
       setErrors({ general: 'Error de conexión' })
@@ -513,10 +538,12 @@ export default function AccountPage() {
               className="bg-white rounded-xl p-6 max-w-md w-full"
             >
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Cambiar Contraseña
+                {user && formData.email !== user.email ? 'Confirmar Cambio de Email' : 'Cambiar Contraseña'}
               </h2>
               <p className="text-gray-600 mb-6">
-                Introduce tu contraseña actual para confirmar el cambio.
+                {user && formData.email !== user.email 
+                  ? 'Por seguridad, introduce tu contraseña actual para cambiar tu email.'
+                  : 'Introduce tu contraseña actual para confirmar el cambio.'}
               </p>
               
               <div className="mb-6">
@@ -544,17 +571,21 @@ export default function AccountPage() {
                     setShowPasswordModal(false)
                     setConfirmationPassword('')
                     setErrors({})
+                    // Reset email if it was being changed
+                    if (user && formData.email !== user.email) {
+                      setFormData(prev => ({ ...prev, email: user.email }))
+                    }
                   }}
                   className="flex-1"
                 >
                   Cancelar
                 </Button>
                 <Button
-                  onClick={confirmPasswordChange}
+                  onClick={user && formData.email !== user.email ? handleSaveBasicInfo : confirmPasswordChange}
                   disabled={loading || !confirmationPassword}
                   className="flex-1 bg-blue-600 hover:bg-blue-700"
                 >
-                  {loading ? 'Cambiando...' : 'Cambiar Contraseña'}
+                  {loading ? 'Procesando...' : (user && formData.email !== user.email ? 'Confirmar Cambio' : 'Cambiar Contraseña')}
                 </Button>
               </div>
             </motion.div>
