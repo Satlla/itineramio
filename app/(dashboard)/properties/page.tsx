@@ -46,6 +46,7 @@ import { AnimatedLoadingSpinner } from '../../../src/components/ui/AnimatedLoadi
 import { InlineLoadingSpinner } from '../../../src/components/ui/InlineLoadingSpinner'
 import { useNotifications } from '../../../src/hooks/useNotifications'
 import { useTranslation } from 'react-i18next'
+import { PlanLimitsCard } from '../../../src/components/plan-limits/PlanLimitsCard'
 
 interface Property {
   id: string
@@ -555,6 +556,10 @@ function PropertiesPageContent() {
   const [successModalOpen, setSuccessModalOpen] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
 
+  // Plan limits states
+  const [planLimits, setPlanLimits] = useState(null)
+  const [loadingPlanLimits, setLoadingPlanLimits] = useState(true)
+
   // Handle URL parameters on mount
   useEffect(() => {
     const tab = searchParams.get('tab')
@@ -604,10 +609,11 @@ function PropertiesPageContent() {
     const loadData = async () => {
       if (!mounted) return
       
-      // Run both fetches in parallel for better performance
+      // Run all fetches in parallel for better performance
       await Promise.allSettled([
         fetchProperties(),
-        fetchPropertySets()
+        fetchPropertySets(),
+        fetchPlanLimits()
       ])
     }
     
@@ -689,6 +695,30 @@ function PropertiesPageContent() {
     } catch (err) {
       console.error('❌ Error fetching property sets:', err)
       setPropertySets([])
+    }
+  }
+
+  const fetchPlanLimits = async () => {
+    try {
+      setLoadingPlanLimits(true)
+      console.log('🎯 Fetching plan limits...')
+      const response = await fetch('/api/account/plan-limits')
+      const result = await response.json()
+      
+      console.log('📊 Plan limits response:', { status: response.status, result })
+      
+      if (response.ok) {
+        setPlanLimits(result)
+        console.log('✅ Plan limits loaded:', result)
+      } else {
+        console.error('❌ Failed to fetch plan limits:', result.error || 'Unknown error')
+        setPlanLimits(null)
+      }
+    } catch (err) {
+      console.error('❌ Error fetching plan limits:', err)
+      setPlanLimits(null)
+    } finally {
+      setLoadingPlanLimits(false)
     }
   }
 
@@ -1169,6 +1199,11 @@ function PropertiesPageContent() {
           </div>
 
         </div>
+
+        {/* Plan Limits Card */}
+        {planLimits && !loadingPlanLimits && (
+          <PlanLimitsCard limits={planLimits} />
+        )}
 
         {/* Time Savings Stats Cards */}
         {(() => {

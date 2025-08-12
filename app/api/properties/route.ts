@@ -4,6 +4,7 @@ import { prisma } from '../../../src/lib/prisma'
 import { generateSlug, generateUniqueSlug } from '../../../src/lib/slug-utils'
 import { requireAuth } from '../../../src/lib/auth'
 import { emailNotificationService } from '../../../src/lib/email-notifications'
+import { planLimitsService } from '../../../src/lib/plan-limits'
 
 // Validation schema for property creation
 const createPropertySchema = z.object({
@@ -48,6 +49,17 @@ export async function POST(request: NextRequest) {
 
     // Set JWT claims for PostgreSQL RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+
+    // Check plan limits BEFORE processing the request
+    const limitsCheck = await planLimitsService.validatePropertyCreation(userId)
+    if (!limitsCheck.valid) {
+      return NextResponse.json({
+        success: false,
+        error: limitsCheck.error,
+        upgradeRequired: true,
+        upgradeUrl: limitsCheck.upgradeUrl
+      }, { status: 403 })
+    }
 
     const body = await request.json()
     

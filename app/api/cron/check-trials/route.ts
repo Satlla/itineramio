@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
+import { emailNotificationService } from '../../../../src/lib/email-notifications'
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('🕐 Starting trial check cron job...')
+    
     // This should be protected by a cron secret in production
     const cronSecret = request.headers.get('x-cron-secret')
     if (process.env.CRON_SECRET && cronSecret !== process.env.CRON_SECRET) {
@@ -10,8 +13,10 @@ export async function GET(request: NextRequest) {
     }
     
     const now = new Date()
+    console.log('🕐 Current time:', now.toISOString())
     
     // 1. Check for expired trials
+    console.log('🔍 Searching for expired trials...')
     const expiredTrials = await prisma.property.findMany({
       where: {
         status: 'TRIAL',
@@ -29,6 +34,7 @@ export async function GET(request: NextRequest) {
         }
       }
     })
+    console.log(`📊 Found ${expiredTrials.length} expired trials`)
     
     // Suspend expired trials
     for (const property of expiredTrials) {
@@ -52,6 +58,23 @@ export async function GET(request: NextRequest) {
           }
         }
       })
+
+      // Send email notification for trial expiration
+      try {
+        await emailNotificationService.notifyTrialExpired({
+          property: {
+            id: property.id,
+            name: property.name
+          },
+          user: {
+            name: property.host.name,
+            email: property.host.email
+          }
+        })
+      } catch (emailError) {
+        console.error('Error sending trial expiration email:', emailError)
+        // Don't fail the cron job if email fails
+      }
     }
     
     // 2. Send 24h warning

@@ -357,6 +357,103 @@ Ver usuarios: ${userUrl}
       textContent
     })
   }
+
+  async notifyTrialExpired(data: {
+    property: {
+      id: string
+      name: string
+    }
+    user: {
+      name: string
+      email: string
+    }
+  }): Promise<boolean> {
+    const dashboardUrl = `${process.env.NEXTAUTH_URL || 'https://itineramio.com'}/properties`
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+            .warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 5px; margin: 20px 0; }
+            .button { display: inline-block; background: #667eea; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>⏰ Período de Prueba Finalizado</h1>
+            </div>
+            <div class="content">
+              <p>Hola ${data.user.name},</p>
+              
+              <div class="warning">
+                <h3>🚨 Tu propiedad "${data.property.name}" ha sido suspendida</h3>
+                <p>El período de prueba de 48 horas ha terminado y tu propiedad ya no está disponible para los huéspedes.</p>
+              </div>
+              
+              <h3>¿Qué hacer ahora?</h3>
+              <p>Para reactivar tu propiedad, necesitas activar un plan de pago:</p>
+              
+              <ul>
+                <li><strong>Plan Growth:</strong> €2.50/mes por propiedad adicional</li>
+                <li><strong>Descuento por volumen:</strong> €2.00/mes si tienes 10+ propiedades</li>
+                <li><strong>Facturas automáticas</strong> - Recibe tu factura mensualmente</li>
+                <li><strong>Soporte prioritario</strong></li>
+              </ul>
+              
+              <h3>💳 Información de Pago</h3>
+              <p><strong>Bizum:</strong> +34652656440</p>
+              <p><strong>Transferencia:</strong> ES82 0182 0304 8102 0158 7248</p>
+              
+              <p><em>Concepto: Itineramio - ${data.property.name}</em></p>
+              
+              <a href="${dashboardUrl}" class="button">Ir a Mi Dashboard</a>
+              
+              <div class="footer">
+                <p>¿Necesitas ayuda? Contáctanos en <a href="mailto:hola@itineramio.com">hola@itineramio.com</a></p>
+                <p>Itineramio - Simplificando la gestión de tus propiedades</p>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+
+    const textContent = `
+Período de Prueba Finalizado - ${data.property.name}
+
+Hola ${data.user.name},
+
+Tu propiedad "${data.property.name}" ha sido suspendida porque el período de prueba de 48 horas ha terminado.
+
+Para reactivarla, activa un plan de pago:
+- Plan Growth: €2.50/mes por propiedad adicional  
+- Descuento: €2.00/mes con 10+ propiedades
+
+Información de Pago:
+Bizum: +34652656440
+Transferencia: ES82 0182 0304 8102 0158 7248
+Concepto: Itineramio - ${data.property.name}
+
+Accede a tu dashboard: ${dashboardUrl}
+
+¿Necesitas ayuda? Contáctanos en hola@itineramio.com
+    `
+
+    return await this.sendEmail({
+      to: [data.user.email],
+      subject: `⏰ Período de prueba finalizado - ${data.property.name}`,
+      htmlContent,
+      textContent
+    })
+  }
 }
 
 export const emailNotificationService = EmailNotificationService.getInstance()
