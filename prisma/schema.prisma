@@ -63,6 +63,8 @@ model User {
   referralTransactions    AffiliateTransaction[] @relation("AffiliateReferred")
   // Coupon relations
   couponUses              CouponUse[]            @relation("UserCouponUses")
+  // Email change tokens
+  emailChangeTokens       EmailChangeToken[]
 
   @@map("users")
 }
@@ -866,4 +868,23 @@ model CustomPlan {
   subscriptions    UserSubscription[]
   
   @@map("custom_plans")
+}
+
+model EmailChangeToken {
+  id           String    @id @default(cuid())
+  userId       String    @map("user_id")
+  oldEmail     String    @map("old_email")
+  newEmail     String    @map("new_email")
+  token        String    @unique
+  expiresAt    DateTime  @map("expires_at")
+  confirmedAt  DateTime? @map("confirmed_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, newEmail])
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("email_change_tokens")
 }

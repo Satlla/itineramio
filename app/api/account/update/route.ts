@@ -10,42 +10,70 @@ export async function POST(request: NextRequest) {
     // Get user from token
     const token = request.cookies.get('auth-token')?.value
     if (!token) {
+      console.log('No auth token provided')
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    let decoded: { userId: string }
+    try {
+      decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    } catch (jwtError) {
+      console.log('Invalid JWT token:', jwtError)
+      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
+    }
     
     // Set JWT claims for PostgreSQL RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${decoded.userId}, true)`
     
-    const body = await request.json()
-    console.log('Update request body:', body)
+    let body: any
+    try {
+      body = await request.json()
+    } catch (parseError) {
+      console.log('Failed to parse request body:', parseError)
+      return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 })
+    }
     
+    console.log('Update request from user:', decoded.userId)
+    console.log('Update request body:', JSON.stringify(body, null, 2))
+    
+    // Destructure with defaults
     const {
-      firstName,
-      lastName,
-      email,
-      phone,
-      password, // Current password for verification
-      newPassword,
-      profileImage
+      firstName = '',
+      lastName = '',
+      email = '',
+      phone = '',
+      password = '', // Current password for verification
+      newPassword = '',
+      profileImage = null
     } = body
 
-    // Validate required fields - only email is truly required
-    if (!email) {
-      console.log('Missing email')
+    console.log('Extracted fields:', {
+      firstName: typeof firstName,
+      lastName: typeof lastName,
+      email: typeof email,
+      phone: typeof phone,
+      hasPassword: !!password,
+      hasNewPassword: !!newPassword,
+      hasProfileImage: profileImage !== null
+    })
+
+    // Validate required fields - be more permissive
+    if (!email || typeof email !== 'string' || email.trim() === '') {
+      console.log('Missing or invalid email:', { email, type: typeof email })
       return NextResponse.json({ 
         error: 'Email es requerido'
       }, { status: 400 })
     }
     
-    // If firstName or lastName are empty, use a default or current name
-    const finalFirstName = firstName || 'Usuario'
-    const finalLastName = lastName || ''
+    // If firstName or lastName are empty, use current user's name or default
+    const finalFirstName = firstName && typeof firstName === 'string' && firstName.trim() !== '' ? firstName.trim() : 'Usuario'
+    const finalLastName = lastName && typeof lastName === 'string' && lastName.trim() !== '' ? lastName.trim() : ''
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
+    const trimmedEmail = email.trim()
+    if (!emailRegex.test(trimmedEmail)) {
+      console.log('Invalid email format:', trimmedEmail)
       return NextResponse.json({ error: 'Email inválido' }, { status: 400 })
     }
 
@@ -70,41 +98,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Prepare update data
+    const finalPhone = phone && typeof phone === 'string' ? phone.trim() : ''
     const updateData: any = {
       name: `${finalFirstName} ${finalLastName}`.trim(),
-      phone
+      phone: finalPhone || null // Use null for empty phone
     }
 
     // Check if email is changing
-    if (email !== currentUser.email) {
-      console.log('Email change detected:', { old: currentUser.email, new: email })
+    if (trimmedEmail !== currentUser.email) {
+      console.log('Email change detected:', { old: currentUser.email, new: trimmedEmail })
       
-      // Require password for email change
-      if (!password) {
-        return NextResponse.json({ 
-          error: 'Se requiere la contraseña actual para cambiar el email',
-          requiresPassword: true 
-        }, { status: 400 })
-      }
-      
-      // Verify password
-      const isValidPassword = await bcrypt.compare(password, currentUser.password!)
-      if (!isValidPassword) {
-        return NextResponse.json({ error: 'Contraseña incorrecta' }, { status: 401 })
-      }
-      
-      // Check if new email is already taken
-      const existingUser = await prisma.user.findUnique({
-        where: { email }
-      })
-      
-      if (existingUser) {
-        console.log('Email already taken by user:', existingUser.id)
-        return NextResponse.json({ error: 'Este email ya está en uso' }, { status: 400 })
-      }
-      
-      updateData.email = email
-      console.log('Email will be updated')
+      // Block email changes - redirect to new secure flow
+      return NextResponse.json({ 
+        error: 'Para cambiar tu email, utiliza el nuevo proceso seguro en la página de cuenta. Este endpoint ya no permite cambios de email directos.',
+        requiresEmailChangeFlow: true 
+      }, { status: 400 })
     }
 
     // Update password if provided

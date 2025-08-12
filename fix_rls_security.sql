@@ -25,6 +25,17 @@ ALTER TABLE public.zones ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.system_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admin_activity_log ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.affiliate_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.custom_plans ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.coupons ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.coupon_uses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.zone_analytics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.property_ratings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.property_views ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.zone_views ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
 -- Media library table doesn't exist yet, skip RLS for now
 -- ALTER TABLE public.media_library ENABLE ROW LEVEL SECURITY;
 
@@ -183,9 +194,53 @@ CREATE POLICY "Users can view analytics of own properties" ON public.property_an
         )
     );
 
+-- Zone Analytics: Users can view analytics of zones in their properties
+CREATE POLICY "Users can view analytics of own zones" ON public.zone_analytics
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM public.zones 
+            JOIN public.properties ON properties.id = zones."propertyId"
+            WHERE zones.id = zone_analytics."zoneId" 
+            AND properties."hostId" = current_user_id()
+        )
+    );
+
+CREATE POLICY "Users can insert analytics for own zones" ON public.zone_analytics
+    FOR INSERT WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM public.zones 
+            JOIN public.properties ON properties.id = zones."propertyId"
+            WHERE zones.id = zone_analytics."zoneId" 
+            AND properties."hostId" = current_user_id()
+        )
+    );
+
+CREATE POLICY "Users can update analytics for own zones" ON public.zone_analytics
+    FOR UPDATE USING (
+        EXISTS (
+            SELECT 1 FROM public.zones 
+            JOIN public.properties ON properties.id = zones."propertyId"
+            WHERE zones.id = zone_analytics."zoneId" 
+            AND properties."hostId" = current_user_id()
+        )
+    );
+
 -- User subscriptions: Users can view their own subscriptions
 CREATE POLICY "Users can view own subscriptions" ON public.user_subscriptions
     FOR SELECT USING (current_user_id() = user_id);
+
+-- Notifications: Users can manage their own notifications
+CREATE POLICY "Users can view own notifications" ON public.notifications
+    FOR SELECT USING (current_user_id() = user_id);
+
+CREATE POLICY "Users can update own notifications" ON public.notifications
+    FOR UPDATE USING (current_user_id() = user_id);
+
+CREATE POLICY "Users can insert own notifications" ON public.notifications
+    FOR INSERT WITH CHECK (current_user_id() = user_id);
+
+CREATE POLICY "Users can delete own notifications" ON public.notifications
+    FOR DELETE USING (current_user_id() = user_id);
 
 -- User inspiration states: Users can manage their own inspiration state
 CREATE POLICY "Users can view own inspiration state" ON public.user_inspiration_states
@@ -204,6 +259,116 @@ CREATE POLICY "Users can view own email tokens" ON public.email_verification_tok
             SELECT 1 FROM public.users 
             WHERE users.id = current_user_id() 
             AND users.email = email_verification_tokens.email
+        )
+    );
+
+-- Reviews: Users can manage reviews for their properties
+CREATE POLICY "Users can view reviews for their properties" ON public.reviews
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM public.properties 
+            WHERE properties.id = reviews.property_id 
+            AND properties."hostId" = current_user_id()
+        )
+    );
+
+CREATE POLICY "Users can create reviews for their properties" ON public.reviews
+    FOR INSERT WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM public.properties 
+            WHERE properties.id = reviews.property_id 
+            AND properties."hostId" = current_user_id()
+        )
+    );
+
+-- Affiliate transactions: Users can view their own transactions
+CREATE POLICY "Users can view own affiliate transactions" ON public.affiliate_transactions
+    FOR SELECT USING (current_user_id() = user_id);
+
+-- Custom plans: Users can view their own custom plans
+CREATE POLICY "Users can view own custom plans" ON public.custom_plans
+    FOR SELECT USING (current_user_id() = user_id);
+
+-- Coupons: Users can view active coupons (for applying them)
+CREATE POLICY "Users can view active coupons" ON public.coupons
+    FOR SELECT USING (
+        is_active = true 
+        AND (expires_at IS NULL OR expires_at > NOW())
+        AND (usage_limit IS NULL OR usage_count < usage_limit)
+    );
+
+-- Coupon uses: Users can view and create their own coupon uses
+CREATE POLICY "Users can view own coupon uses" ON public.coupon_uses
+    FOR SELECT USING (current_user_id() = user_id);
+
+CREATE POLICY "Users can create own coupon uses" ON public.coupon_uses
+    FOR INSERT WITH CHECK (current_user_id() = user_id);
+
+-- Property ratings: Users can manage ratings for their properties
+CREATE POLICY "Users can view ratings for own properties" ON public.property_ratings
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM public.properties 
+            WHERE properties.id = property_ratings."propertyId" 
+            AND properties."hostId" = current_user_id()
+        )
+    );
+
+-- Property views: Users can view analytics for their properties
+CREATE POLICY "Users can view analytics for own properties" ON public.property_views
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM public.properties 
+            WHERE properties.id = property_views."propertyId" 
+            AND properties."hostId" = current_user_id()
+        )
+    );
+
+-- Zone views: Users can view analytics for zones in their properties
+CREATE POLICY "Users can view analytics for own zones" ON public.zone_views
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM public.zones 
+            JOIN public.properties ON properties.id = zones."propertyId"
+            WHERE zones.id = zone_views."zoneId" 
+            AND properties."hostId" = current_user_id()
+        )
+    );
+
+-- Announcements: Users can manage announcements for their properties
+CREATE POLICY "Users can view announcements for own properties" ON public.announcements
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM public.properties 
+            WHERE properties.id = announcements.property_id 
+            AND properties."hostId" = current_user_id()
+        )
+    );
+
+CREATE POLICY "Users can create announcements for own properties" ON public.announcements
+    FOR INSERT WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM public.properties 
+            WHERE properties.id = announcements.property_id 
+            AND properties."hostId" = current_user_id()
+        )
+    );
+
+CREATE POLICY "Users can update announcements for own properties" ON public.announcements
+    FOR UPDATE USING (
+        EXISTS (
+            SELECT 1 FROM public.properties 
+            WHERE properties.id = announcements.property_id 
+            AND properties."hostId" = current_user_id()
+        )
+    );
+
+CREATE POLICY "Users can delete announcements for own properties" ON public.announcements
+    FOR DELETE USING (
+        EXISTS (
+            SELECT 1 FROM public.properties 
+            WHERE properties.id = announcements.property_id 
+            AND properties."hostId" = current_user_id()
         )
     );
 
@@ -236,6 +401,29 @@ CREATE POLICY "Public can view approved comments" ON public.zone_comments
 -- Zone ratings: Public can view ratings
 CREATE POLICY "Public can view zone ratings" ON public.zone_ratings
     FOR ALL USING (true);
+
+-- Zone analytics: Public can insert analytics (for tracking views)
+CREATE POLICY "Public can insert zone analytics" ON public.zone_analytics
+    FOR INSERT WITH CHECK (true);
+
+-- Property ratings: Public can create ratings
+CREATE POLICY "Public can create property ratings" ON public.property_ratings
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Public can view property ratings" ON public.property_ratings
+    FOR SELECT USING (true);
+
+-- Property views: Public can insert views (for tracking)
+CREATE POLICY "Public can insert property views" ON public.property_views
+    FOR INSERT WITH CHECK (true);
+
+-- Zone views: Public can insert views (for tracking)
+CREATE POLICY "Public can insert zone views" ON public.zone_views
+    FOR INSERT WITH CHECK (true);
+
+-- Announcements: Public can view active announcements
+CREATE POLICY "Public can view active announcements" ON public.announcements
+    FOR SELECT USING (is_active = true);
 
 -- =================================================
 -- ADMIN POLICIES
@@ -331,6 +519,57 @@ CREATE POLICY "Organization members can access buildings" ON public.buildings
             SELECT 1 FROM public.organization_members 
             WHERE organization_members."organizationId" = buildings."organizationId" 
             AND organization_members."userId" = current_user_id()
+        )
+    );
+
+-- Admin policies for new tables
+-- Reviews: Admins can view all reviews
+CREATE POLICY "Admins can manage all reviews" ON public.reviews
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM public.users 
+            WHERE users.id = current_user_id() 
+            AND users."isAdmin" = true
+        )
+    );
+
+-- Affiliate transactions: Admins can view all transactions
+CREATE POLICY "Admins can view all affiliate transactions" ON public.affiliate_transactions
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM public.users 
+            WHERE users.id = current_user_id() 
+            AND users."isAdmin" = true
+        )
+    );
+
+-- Custom plans: Admins can manage all custom plans
+CREATE POLICY "Admins can manage all custom plans" ON public.custom_plans
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM public.users 
+            WHERE users.id = current_user_id() 
+            AND users."isAdmin" = true
+        )
+    );
+
+-- Coupons: Only admins can manage coupons
+CREATE POLICY "Admins can manage all coupons" ON public.coupons
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM public.users 
+            WHERE users.id = current_user_id() 
+            AND users."isAdmin" = true
+        )
+    );
+
+-- Coupon uses: Admins can view all coupon uses
+CREATE POLICY "Admins can view all coupon uses" ON public.coupon_uses
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM public.users 
+            WHERE users.id = current_user_id() 
+            AND users."isAdmin" = true
         )
     );
 

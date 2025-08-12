@@ -91,8 +91,13 @@ export default function AccountPage() {
   const validateBasicForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (formData.email && !formData.email.includes('@')) {
-      newErrors.email = 'Email inválido'
+    if (!formData.email?.trim()) {
+      newErrors.email = 'Email es requerido'
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(formData.email.trim())) {
+        newErrors.email = 'Email inválido'
+      }
     }
 
     setErrors(newErrors)
@@ -126,27 +131,33 @@ export default function AccountPage() {
     // Check if email is changing
     const isEmailChanging = user && formData.email !== user.email
 
-    // If email is changing and no password modal is showing, show it
-    if (isEmailChanging && !showPasswordModal) {
-      setShowPasswordModal(true)
+    // If email is changing, use the new secure flow
+    if (isEmailChanging) {
+      if (!showPasswordModal) {
+        setShowPasswordModal(true)
+        return
+      }
+      
+      // Use the new email change flow
+      await handleEmailChangeRequest()
       return
     }
 
+    // For non-email changes, use the regular update flow
     setLoading(true)
     try {
-      // Update basic info (with password if email is changing)
-      const requestBody: any = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        profileImage
+      const requestBody = {
+        firstName: formData.firstName?.trim() || '',
+        lastName: formData.lastName?.trim() || '',
+        email: formData.email?.trim() || '',
+        phone: formData.phone?.trim() || '',
+        profileImage: profileImage || null
       }
 
-      // Add password if provided (when changing email)
-      if (isEmailChanging && confirmationPassword) {
-        requestBody.password = confirmationPassword
-      }
+      // Debug logging
+      console.log('Sending update request:', requestBody)
+      console.log('Form data state:', formData)
+      console.log('Profile image state:', profileImage)
 
       const response = await fetch('/api/account/update', {
         method: 'POST',
@@ -154,26 +165,68 @@ export default function AccountPage() {
         body: JSON.stringify(requestBody)
       })
 
+      console.log('Response status:', response.status)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+
       if (response.ok) {
         const data = await response.json()
-        // Success - show toast and refresh user data
+        console.log('Success response:', data)
         setShowSuccessToast(true)
         setTimeout(() => setShowSuccessToast(false), 3000)
-        setShowPasswordModal(false)
-        setConfirmationPassword('')
-        // Refresh user data from the server
         await refreshUser()
       } else {
-        const data = await response.json()
-        
-        // If password is required but not showing modal, show it
-        if (data.requiresPassword && !showPasswordModal) {
-          setShowPasswordModal(true)
-        } else {
-          setErrors({ general: data.error || 'Error al actualizar' })
-        }
+        const data = await response.json().catch(() => ({ error: 'Error desconocido' }))
+        console.log('Error response:', data)
+        setErrors({ general: data.error || `Error ${response.status}: ${response.statusText}` })
       }
     } catch (error) {
+      console.error('Request error:', error)
+      setErrors({ general: 'Error de conexión: ' + (error instanceof Error ? error.message : 'Error desconocido') })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEmailChangeRequest = async () => {
+    if (!confirmationPassword) {
+      setErrors({ general: 'Por favor, ingresa tu contraseña' })
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await fetch('/api/account/request-email-change', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          newEmail: formData.email,
+          password: confirmationPassword
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        // Success - email sent
+        setShowPasswordModal(false)
+        setConfirmationPassword('')
+        setShowSuccessToast(true)
+        setTimeout(() => setShowSuccessToast(false), 5000)
+        
+        // Reset email to original value since change is pending
+        if (user) {
+          setFormData(prev => ({ ...prev, email: user.email }))
+        }
+        
+        // Show info message
+        setErrors({ 
+          general: '✅ Se ha enviado un email de confirmación a tu dirección actual. Por favor, revisa tu bandeja de entrada para completar el cambio.' 
+        })
+      } else {
+        setErrors({ general: data.error || 'Error al solicitar cambio de email' })
+      }
+    } catch (error) {
+      console.error('Error requesting email change:', error)
       setErrors({ general: 'Error de conexión' })
     } finally {
       setLoading(false)
@@ -538,13 +591,31 @@ export default function AccountPage() {
               className="bg-white rounded-xl p-6 max-w-md w-full"
             >
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                {user && formData.email !== user.email ? 'Confirmar Cambio de Email' : 'Cambiar Contraseña'}
+                {user && formData.email !== user.email ? '🔐 Verificación de Seguridad' : 'Cambiar Contraseña'}
               </h2>
-              <p className="text-gray-600 mb-6">
-                {user && formData.email !== user.email 
-                  ? 'Por seguridad, introduce tu contraseña actual para cambiar tu email.'
-                  : 'Introduce tu contraseña actual para confirmar el cambio.'}
-              </p>
+              {user && formData.email !== user.email ? (
+                <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6">
+                  <div className="flex">
+                    <div className="ml-3">
+                      <p className="text-sm text-amber-700">
+                        <strong>Cambio de email detectado</strong>
+                      </p>
+                      <p className="text-sm text-amber-600 mt-1">
+                        Para tu seguridad, necesitamos verificar tu identidad antes de cambiar tu email.
+                      </p>
+                      <div className="mt-2 text-xs text-amber-600">
+                        <p>• Se enviará un email de confirmación a tu dirección actual</p>
+                        <p>• Deberás confirmar el cambio desde ese email</p>
+                        <p>• Tu cuenta estará protegida durante todo el proceso</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-gray-600 mb-6">
+                  Introduce tu contraseña actual para confirmar el cambio.
+                </p>
+              )}
               
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
