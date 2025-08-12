@@ -157,7 +157,7 @@ export default function AccountPage() {
       console.log('Form data state:', formData)
       console.log('Profile image state:', profileImage)
 
-      const response = await fetch('/api/account/update', {
+      const response = await fetch('/api/account/simple-update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
