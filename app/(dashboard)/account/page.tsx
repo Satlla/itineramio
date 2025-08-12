@@ -157,10 +157,19 @@ export default function AccountPage() {
       console.log('Form data state:', formData)
       console.log('Profile image state:', profileImage)
 
-      const response = await fetch('/api/account/simple-update', {
+      const directBody = {
+        email: user?.email || '', // Current email for auth
+        password: isEmailChanging ? confirmationPassword : undefined,
+        firstName: formData.firstName?.trim() || '',
+        lastName: formData.lastName?.trim() || '',
+        phone: formData.phone?.trim() || '',
+        newEmail: isEmailChanging ? formData.email?.trim() : undefined
+      }
+
+      const response = await fetch('/api/update-user-direct', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(directBody)
       })
 
       console.log('Response status:', response.status)
@@ -171,7 +180,17 @@ export default function AccountPage() {
         console.log('Success response:', data)
         setShowSuccessToast(true)
         setTimeout(() => setShowSuccessToast(false), 3000)
-        await refreshUser()
+        // Don't refresh user, just update form data
+        if (data.user) {
+          const nameParts = data.user.name?.trim().split(' ') || []
+          setFormData(prev => ({
+            ...prev,
+            firstName: nameParts[0] || '',
+            lastName: nameParts.slice(1).join(' ') || '',
+            email: data.user.email || '',
+            phone: data.user.phone || ''
+          }))
+        }
       } else {
         const data = await response.json().catch(() => ({ error: 'Error desconocido' }))
         console.log('Error response:', data)
