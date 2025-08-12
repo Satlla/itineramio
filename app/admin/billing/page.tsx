@@ -30,7 +30,7 @@ interface Invoice {
   amount: number
   discountAmount: number
   finalAmount: number
-  status: 'pending' | 'paid' | 'overdue' | 'cancelled'
+  status: 'pending' | 'paid' | 'overdue' | 'cancelled' | 'PENDING' | 'PAID' | 'OVERDUE' | 'CANCELLED' | string
   paymentMethod?: string
   paymentReference?: string
   dueDate: string
@@ -51,6 +51,9 @@ interface Invoice {
 }
 
 const StatusBadge = ({ status }: { status: string }) => {
+  // Normalize status to lowercase
+  const normalizedStatus = status?.toLowerCase() || 'pending'
+  
   const styles = {
     pending: 'bg-yellow-100 text-yellow-800',
     paid: 'bg-green-100 text-green-800',
@@ -72,12 +75,14 @@ const StatusBadge = ({ status }: { status: string }) => {
     cancelled: 'Cancelada'
   }
 
-  const Icon = icons[status as keyof typeof icons]
+  const Icon = icons[normalizedStatus as keyof typeof icons] || Clock
+  const label = labels[normalizedStatus as keyof typeof labels] || 'Desconocido'
+  const style = styles[normalizedStatus as keyof typeof styles] || styles.pending
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status as keyof typeof styles]}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${style}`}>
       <Icon className="w-3 h-3 mr-1" />
-      {labels[status as keyof typeof labels]}
+      {label}
     </span>
   )
 }

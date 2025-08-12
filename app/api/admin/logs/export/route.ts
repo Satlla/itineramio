@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../../src/lib/prisma';
-import { requireAdmin } from '../../../../../src/lib/auth';
+import { requireAdminAuth } from '../../../../src/lib/admin-auth';
 
 export async function GET(request: NextRequest) {
   try {
     // Require admin authentication
-    const authResult = await requireAdmin(request)
+    const authResult = await requireAdminAuth(request)
     if (authResult instanceof Response) {
       return authResult
     }
