@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
           isActive: true,
           createdAt: true,
           lastLoginAt: true,
-          userSubscriptions: {
+          subscriptions: {
             select: {
               id: true,
               status: true,
@@ -80,12 +80,12 @@ export async function GET(request: NextRequest) {
     // Transform users to match expected format
     const transformedUsers = users.map(user => ({
       ...user,
-      currentSubscription: user.userSubscriptions && user.userSubscriptions.length > 0 
+      currentSubscription: user.subscriptions && user.subscriptions.length > 0 
         ? {
-            id: user.userSubscriptions[0].id,
+            id: user.subscriptions[0].id,
             plan: {
-              name: user.userSubscriptions[0].plan?.name || user.userSubscriptions[0].customPlan?.name || 'No Plan',
-              priceMonthly: Number(user.userSubscriptions[0].plan?.priceMonthly || user.userSubscriptions[0].customPlan?.pricePerProperty || 0)
+              name: user.subscriptions[0].plan?.name || user.subscriptions[0].customPlan?.name || 'No Plan',
+              priceMonthly: Number(user.subscriptions[0].plan?.priceMonthly || user.subscriptions[0].customPlan?.pricePerProperty || 0)
             }
           }
         : null

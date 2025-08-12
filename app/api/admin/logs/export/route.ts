@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../../src/lib/prisma';
-import { requireAdminAuth } from '../../../../src/lib/admin-auth';
+import { requireAdminAuth } from '../../../../../src/lib/admin-auth';
 
 export async function GET(request: NextRequest) {
   try {

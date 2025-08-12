@@ -1,5 +1,4 @@
 import { prisma } from './prisma'
-import { formatCurrency } from './currency'
 
 // Define types
 interface InvoiceData {

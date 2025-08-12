@@ -25,7 +25,7 @@ interface Invoice {
   amount: number
   discountAmount: number
   finalAmount: number
-  status: 'pending' | 'paid' | 'overdue' | 'cancelled'
+  status: 'pending' | 'paid' | 'overdue' | 'cancelled' | 'PENDING' | 'PAID' | 'OVERDUE' | 'CANCELLED' | string
   paymentMethod?: string
   paymentReference?: string
   dueDate: string
