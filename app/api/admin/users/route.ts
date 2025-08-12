@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import { requireAdminAuth } from '../../../../src/lib/admin-auth'
 
+// Force Vercel rebuild - fixed userSubscriptions -> subscriptions
+
 export async function GET(request: NextRequest) {
   try {
     // Require admin authentication
