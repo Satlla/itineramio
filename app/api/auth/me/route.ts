@@ -4,16 +4,22 @@ import { verifyToken } from '../../../../src/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('=== AUTH ME REQUEST ===')
     const token = request.cookies.get('auth-token')?.value
+    console.log('Token present:', !!token)
+    console.log('Token length:', token?.length)
 
     if (!token) {
+      console.log('No token provided')
       return NextResponse.json({
         success: false,
         error: 'No authentication token provided'
       }, { status: 401 })
     }
 
+    console.log('Attempting to verify token...')
     const decoded = verifyToken(token)
+    console.log('Token decoded successfully:', { userId: decoded.userId, email: decoded.email })
     
     // Set JWT claims for PostgreSQL RLS policies
     await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${decoded.userId}, true)`

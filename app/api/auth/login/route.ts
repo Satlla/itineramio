@@ -75,13 +75,15 @@ export async function POST(request: NextRequest) {
     })
 
     // Token set successfully
+    console.log('Setting auth cookie with token length:', token.length)
     response.cookies.set('auth-token', token, {
       httpOnly: true,
-      secure: true, // Production requires secure
+      secure: process.env.NODE_ENV === 'production', // Only secure in production
       sameSite: 'lax',
       maxAge: 24 * 60 * 60,
       path: '/'
     })
+    console.log('Auth cookie set successfully')
 
     return response
   } catch (error) {
