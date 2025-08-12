@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '../../../../../src/lib/auth'
-import { invoiceGenerator } from '../../../../../src/lib/invoice-generator'
+import { invoiceGeneratorAirbnb } from '../../../../../src/lib/invoice-generator-airbnb'
 import { prisma } from '../../../../../src/lib/prisma'
 
 export async function GET(
@@ -29,7 +29,7 @@ export async function GET(
       return NextResponse.json({ error: 'Invoice not found or access denied' }, { status: 404 })
     }
 
-    const invoiceHTML = await invoiceGenerator.generateInvoicePDF(params.id)
+    const invoiceHTML = await invoiceGeneratorAirbnb.generateInvoicePDF(params.id)
     
     if (!invoiceHTML) {
       return NextResponse.json({ error: 'Error generating invoice' }, { status: 500 })

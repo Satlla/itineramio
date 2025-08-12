@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminAuth } from '../../../../../src/lib/admin-auth'
-import { invoiceGenerator } from '../../../../../src/lib/invoice-generator'
+import { invoiceGeneratorAirbnb } from '../../../../../src/lib/invoice-generator-airbnb'
 
 export async function GET(
   request: NextRequest,
@@ -14,7 +14,7 @@ export async function GET(
       return authResult
     }
 
-    const invoiceHTML = await invoiceGenerator.generateInvoicePDF(params.id)
+    const invoiceHTML = await invoiceGeneratorAirbnb.generateInvoicePDF(params.id)
     
     if (!invoiceHTML) {
       return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })

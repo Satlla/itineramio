@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { invoiceGenerator } from '../../../../../src/lib/invoice-generator'
+import { invoiceGeneratorAirbnb } from '../../../../../src/lib/invoice-generator-airbnb'
 
 export async function GET(
   request: NextRequest,
@@ -11,7 +11,7 @@ export async function GET(
     // En producción este endpoint debe tener autenticación
     console.log('📄 Generando vista previa de factura:', params.id)
     
-    const invoiceHTML = await invoiceGenerator.generateInvoicePDF(params.id)
+    const invoiceHTML = await invoiceGeneratorAirbnb.generateInvoicePDF(params.id)
     
     if (!invoiceHTML) {
       return NextResponse.json({ error: 'Error generating invoice preview' }, { status: 500 })

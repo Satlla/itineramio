@@ -1,0 +1,398 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Factura INV-1754973261014</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+      background-color: #fff;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #dc2626;
+    }
+    
+    .logo-section {
+      flex: 1;
+    }
+    
+    .company-info {
+      text-align: right;
+      flex: 1;
+    }
+    
+    .company-name {
+      font-size: 24px;
+      font-weight: bold;
+      color: #dc2626;
+      margin-bottom: 5px;
+    }
+    
+    .company-details {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+    
+    .invoice-title {
+      text-align: center;
+      margin: 30px 0;
+    }
+    
+    .invoice-title h1 {
+      font-size: 28px;
+      color: #dc2626;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .invoice-number {
+      font-size: 16px;
+      color: #666;
+      font-weight: normal;
+    }
+    
+    .info-section {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      gap: 40px;
+    }
+    
+    .info-block {
+      flex: 1;
+    }
+    
+    .info-block h3 {
+      background-color: #f3f4f6;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #374151;
+      border-left: 4px solid #dc2626;
+      margin-bottom: 10px;
+    }
+    
+    .info-content {
+      padding-left: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    
+    .details-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+      background-color: #fff;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .details-table th {
+      background-color: #dc2626;
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: bold;
+      font-size: 13px;
+    }
+    
+    .details-table td {
+      padding: 12px;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 13px;
+    }
+    
+    .details-table tr:nth-child(even) {
+      background-color: #f9fafb;
+    }
+    
+    .amount-right {
+      text-align: right;
+      font-weight: bold;
+    }
+    
+    .totals-section {
+      margin-top: 20px;
+      text-align: right;
+    }
+    
+    .totals-table {
+      display: inline-block;
+      border-collapse: collapse;
+      margin-left: auto;
+    }
+    
+    .totals-table td {
+      padding: 8px 15px;
+      border: none;
+    }
+    
+    .totals-table .label {
+      text-align: right;
+      font-weight: bold;
+      color: #374151;
+    }
+    
+    .totals-table .amount {
+      text-align: right;
+      font-weight: bold;
+      min-width: 100px;
+    }
+    
+    .total-final {
+      background-color: #dc2626;
+      color: white;
+      font-size: 16px;
+    }
+    
+    .payment-info {
+      background-color: #f0f9ff;
+      border: 1px solid #0ea5e9;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 30px 0;
+    }
+    
+    .payment-info h3 {
+      color: #0c4a6e;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    
+    .payment-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      font-size: 13px;
+    }
+    
+    .payment-item {
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .payment-item strong {
+      color: #0c4a6e;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    
+    .status-pending {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+    
+    .status-paid {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+    
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 11px;
+      color: #6b7280;
+      text-align: center;
+    }
+    
+    .additional-info {
+      background-color: #f9fafb;
+      border-radius: 6px;
+      padding: 15px;
+      margin: 20px 0;
+      font-size: 12px;
+      color: #4b5563;
+    }
+    
+    @media print {
+      .container {
+        max-width: none;
+        padding: 20px;
+      }
+      
+      .info-section {
+        page-break-inside: avoid;
+      }
+      
+      .details-table {
+        page-break-inside: auto;
+      }
+      
+      .payment-info {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-section">
+        
+      </div>
+      <div class="company-info">
+        <div class="company-name">Itineramio</div>
+        <div class="company-details">
+          
+          
+          
+          España<br>
+          facturacion@itineramio.com<br>
+          +34 900 000 000
+          <br>https://itineramio.com
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoice Title -->
+    <div class="invoice-title">
+      <h1>FACTURA</h1>
+      <div class="invoice-number">INV-1754973261014</div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="info-section">
+      <div class="info-block">
+        <h3>Facturar a:</h3>
+        <div class="info-content">
+          <strong>Demo User</strong><br>
+          
+          
+          demo@itineramio.com<br>
+          
+          
+          
+          España
+        </div>
+      </div>
+      
+      <div class="info-block">
+        <h3>Datos de la factura:</h3>
+        <div class="info-content">
+          <strong>Fecha:</strong> 12/8/2025<br>
+          <strong>Vencimiento:</strong> 19/8/2025<br>
+          <strong>Estado:</strong> 
+          <span class="status-badge status-pending">
+            Pendiente
+          </span><br>
+          
+          <strong>Método:</strong> Transferencia
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Table -->
+    <table class="details-table">
+      <thead>
+        <tr>
+          <th>Concepto</th>
+          <th style="text-align: center;">Cantidad</th>
+          <th style="text-align: center;">Precio/mes</th>
+          <th style="text-align: center;">Meses</th>
+          <th style="text-align: right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong>Suscripción Itineramio - Plan Growth</strong><br>
+            <small>Propiedades: N/A</small>
+          </td>
+          <td style="text-align: center;">1</td>
+          <td class="amount-right">€2.50</td>
+          <td style="text-align: center;">1</td>
+          <td class="amount-right">€2.50</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Totals Section -->
+    <div class="totals-section">
+      <table class="totals-table">
+        <tr>
+          <td class="label">Subtotal:</td>
+          <td class="amount">€2.50</td>
+        </tr>
+        
+        <tr class="total-final">
+          <td class="label">TOTAL:</td>
+          <td class="amount">€2.50</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Payment Info -->
+    
+    <div class="payment-info">
+      <h3>Información de Pago</h3>
+      <div class="payment-details">
+        
+        <div class="payment-item">
+          <span>IBAN:</span>
+          <strong>ES82 0182 0304 8102 0158 7248</strong>
+        </div>
+        <div class="payment-item">
+          <span>Beneficiario:</span>
+          <strong>Itineramio</strong>
+        </div>
+        <div class="payment-item">
+          <span>BIC:</span>
+          <strong>BBVAESMM</strong>
+        </div>
+        <div class="payment-item">
+          <span>Concepto:</span>
+          <strong>INV-1754973261014</strong>
+        </div>
+        
+      </div>
+      <div style="margin-top: 15px; font-weight: bold; color: #0c4a6e;">
+        ⚠️ Importante: Incluir el número de factura INV-1754973261014 en el concepto del pago
+      </div>
+    </div>
+    
+
+    <!-- Additional Info -->
+    
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>Esta factura ha sido generada automáticamente por el sistema Itineramio.</p>
+      <p>Para cualquier consulta, contacta con nosotros en facturacion@itineramio.com</p>
+      <p>Visítanos en https://itineramio.com</p>
+    </div>
+  </div>
+</body>
+</html>
+    

@@ -182,8 +182,15 @@ export class InvoiceGenerator {
       months = 1
     }
 
+    // Calcular IVA y totales
+    const subtotal = Number(invoice.amount)
+    const discount = Number(invoice.discountAmount) || 0
+    const baseImponible = subtotal - discount
+    const iva = baseImponible * 0.21
+    const total = baseImponible + iva
+
     const logoSection = companySettings.companyLogoUrl 
-      ? `<img src="${companySettings.companyLogoUrl}" alt="Logo" style="max-height: 80px; max-width: 300px; object-fit: contain;" onerror="this.style.display='none'">`
+      ? `<img src="${companySettings.companyLogoUrl}" alt="Logo" style="max-height: 48px; max-width: 200px; object-fit: contain;" onerror="this.style.display='none'">`
       : ''
 
     return `
@@ -201,93 +208,125 @@ export class InvoiceGenerator {
     }
     
     body {
-      font-family: 'Arial', sans-serif;
-      font-size: 14px;
-      line-height: 1.6;
-      color: #333;
-      background-color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      color: #222222;
+      line-height: 1.4;
+      background: #ffffff;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
     
-    .container {
+    .invoice-wrapper {
       max-width: 800px;
       margin: 0 auto;
-      padding: 40px 20px;
+      background: #ffffff;
+      padding: 48px 64px;
     }
     
+    /* Header estilo Airbnb */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 40px;
-      padding-bottom: 20px;
-      border-bottom: 3px solid #dc2626;
+      margin-bottom: 48px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #EBEBEB;
     }
     
     .logo-section {
       flex: 1;
     }
     
-    .company-info {
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: #FF385C;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .logo-subtitle {
+      font-size: 14px;
+      color: #717171;
+      font-weight: 400;
+    }
+    
+    .invoice-number-section {
       text-align: right;
       flex: 1;
     }
     
-    .company-name {
-      font-size: 24px;
-      font-weight: bold;
-      color: #dc2626;
-      margin-bottom: 5px;
-    }
-    
-    .company-details {
-      font-size: 12px;
-      color: #666;
-      line-height: 1.4;
-    }
-    
-    .invoice-title {
-      text-align: center;
-      margin: 30px 0;
-    }
-    
-    .invoice-title h1 {
-      font-size: 28px;
-      color: #dc2626;
-      font-weight: bold;
-      margin-bottom: 5px;
+    .invoice-label {
+      font-size: 14px;
+      color: #717171;
+      margin-bottom: 4px;
+      font-weight: 400;
     }
     
     .invoice-number {
-      font-size: 16px;
-      color: #666;
-      font-weight: normal;
+      font-size: 20px;
+      font-weight: 600;
+      color: #222222;
+      margin-bottom: 16px;
     }
     
-    .info-section {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 40px;
-      gap: 40px;
-    }
-    
-    .info-block {
-      flex: 1;
-    }
-    
-    .info-block h3 {
-      background-color: #f3f4f6;
-      padding: 8px 12px;
+    .invoice-date {
       font-size: 14px;
-      font-weight: bold;
-      color: #374151;
-      border-left: 4px solid #dc2626;
-      margin-bottom: 10px;
+      color: #717171;
+      margin-bottom: 2px;
     }
     
-    .info-content {
-      padding-left: 12px;
-      font-size: 13px;
+    /* Status Badge estilo Airbnb */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 12px;
+    }
+    
+    .status-pending {
+      background: #FFF8E5;
+      color: #C13515;
+      border: 1px solid #FFE0B2;
+    }
+    
+    .status-paid {
+      background: #E8F5E9;
+      color: #0B8043;
+      border: 1px solid #C8E6C9;
+    }
+    
+    /* Billing sections */
+    .billing-sections {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+    
+    .billing-block h3 {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #717171;
+      margin-bottom: 16px;
+    }
+    
+    .billing-block p {
+      font-size: 14px;
+      color: #222222;
+      margin-bottom: 4px;
       line-height: 1.5;
+    }
+    
+    .billing-block p strong {
+      font-weight: 600;
+      color: #222222;
     }
     
     .details-table {
