@@ -44,6 +44,28 @@ export async function GET(request: NextRequest) {
           isActive: true,
           createdAt: true,
           lastLoginAt: true,
+          userSubscriptions: {
+            select: {
+              id: true,
+              status: true,
+              plan: {
+                select: {
+                  name: true,
+                  priceMonthly: true
+                }
+              },
+              customPlan: {
+                select: {
+                  name: true,
+                  pricePerProperty: true
+                }
+              }
+            },
+            where: {
+              status: 'ACTIVE'
+            },
+            take: 1
+          },
           _count: {
             select: {
               properties: true,
@@ -55,8 +77,23 @@ export async function GET(request: NextRequest) {
       prisma.user.count({ where })
     ])
 
+    // Transform users to match expected format
+    const transformedUsers = users.map(user => ({
+      ...user,
+      currentSubscription: user.userSubscriptions && user.userSubscriptions.length > 0 
+        ? {
+            id: user.userSubscriptions[0].id,
+            plan: {
+              name: user.userSubscriptions[0].plan?.name || user.userSubscriptions[0].customPlan?.name || 'No Plan',
+              priceMonthly: Number(user.userSubscriptions[0].plan?.priceMonthly || user.userSubscriptions[0].customPlan?.pricePerProperty || 0)
+            }
+          }
+        : null
+    }))
+
     return NextResponse.json({
-      users,
+      success: true,
+      users: transformedUsers,
       pagination: {
         page,
         limit,
