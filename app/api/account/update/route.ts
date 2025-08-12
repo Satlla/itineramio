@@ -108,11 +108,32 @@ export async function POST(request: NextRequest) {
     if (trimmedEmail !== currentUser.email) {
       console.log('Email change detected:', { old: currentUser.email, new: trimmedEmail })
       
-      // Block email changes - redirect to new secure flow
-      return NextResponse.json({ 
-        error: 'Para cambiar tu email, utiliza el nuevo proceso seguro en la página de cuenta. Este endpoint ya no permite cambios de email directos.',
-        requiresEmailChangeFlow: true 
-      }, { status: 400 })
+      // Require password for email change
+      if (!password) {
+        return NextResponse.json({ 
+          error: 'Se requiere la contraseña actual para cambiar el email',
+          requiresPassword: true 
+        }, { status: 400 })
+      }
+      
+      // Verify password
+      const isValidPassword = await bcrypt.compare(password, currentUser.password!)
+      if (!isValidPassword) {
+        return NextResponse.json({ error: 'Contraseña incorrecta' }, { status: 401 })
+      }
+      
+      // Check if new email is already taken
+      const existingUser = await prisma.user.findUnique({
+        where: { email: trimmedEmail }
+      })
+      
+      if (existingUser) {
+        console.log('Email already taken by user:', existingUser.id)
+        return NextResponse.json({ error: 'Este email ya está en uso' }, { status: 400 })
+      }
+      
+      updateData.email = trimmedEmail
+      console.log('Email will be updated')
     }
 
     // Update password if provided

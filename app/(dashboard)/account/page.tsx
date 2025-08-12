@@ -128,15 +128,28 @@ export default function AccountPage() {
   const handleSaveBasicInfo = async () => {
     if (!validateBasicForm()) return
 
-    // ALWAYS save basic info with current email (don't change email here)
+    // Check if email is changing
+    const isEmailChanging = user && formData.email !== user.email
+
+    // If email is changing and no password modal is showing, show it
+    if (isEmailChanging && !showPasswordModal) {
+      setShowPasswordModal(true)
+      return
+    }
+
     setLoading(true)
     try {
       const requestBody = {
         firstName: formData.firstName?.trim() || '',
         lastName: formData.lastName?.trim() || '',
-        email: user?.email || '', // Use current user email, not form email
+        email: formData.email?.trim() || '',
         phone: formData.phone?.trim() || '',
         profileImage: profileImage || null
+      }
+
+      // Add password if changing email
+      if (isEmailChanging && confirmationPassword) {
+        requestBody.password = confirmationPassword
       }
 
       // Debug logging
@@ -172,23 +185,6 @@ export default function AccountPage() {
     }
   }
 
-  // Separate function for email change
-  const handleChangeEmail = async () => {
-    const isEmailChanging = user && formData.email !== user.email
-    
-    if (!isEmailChanging) {
-      setErrors({ general: 'No hay cambios de email para aplicar' })
-      return
-    }
-
-    if (!showPasswordModal) {
-      setShowPasswordModal(true)
-      return
-    }
-    
-    // Use the new email change flow
-    await handleEmailChangeRequest()
-  }
 
   const handleEmailChangeRequest = async () => {
     if (!confirmationPassword) {
@@ -487,27 +483,16 @@ export default function AccountPage() {
           </Card>
 
 
-          {/* Save Buttons */}
-          <div className="flex gap-4 justify-end mb-8">
+          {/* Save Button */}
+          <div className="flex justify-end mb-8">
             <Button
               onClick={handleSaveBasicInfo}
               disabled={loading}
               className="bg-violet-600 hover:bg-violet-700"
             >
               <Save className="w-4 h-4 mr-2" />
-              {loading ? 'Guardando...' : 'Guardar Información'}
+              {loading ? 'Guardando...' : 'Guardar Cambios'}
             </Button>
-            
-            {/* Show change email button if email is different */}
-            {user && formData.email !== user.email && (
-              <Button
-                onClick={handleChangeEmail}
-                disabled={loading}
-                className="bg-amber-600 hover:bg-amber-700"
-              >
-                🔐 Cambiar Email
-              </Button>
-            )}
           </div>
 
           {/* Notifications Settings */}
@@ -666,7 +651,7 @@ export default function AccountPage() {
                   Cancelar
                 </Button>
                 <Button
-                  onClick={user && formData.email !== user.email ? handleChangeEmail : confirmPasswordChange}
+                  onClick={user && formData.email !== user.email ? handleSaveBasicInfo : confirmPasswordChange}
                   disabled={loading || !confirmationPassword}
                   className="flex-1 bg-blue-600 hover:bg-blue-700"
                 >
