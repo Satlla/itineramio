@@ -175,6 +175,13 @@ export default function AccountPage() {
       } else {
         const data = await response.json().catch(() => ({ error: 'Error desconocido' }))
         console.log('Error response:', data)
+        
+        // If unauthorized, redirect to login
+        if (response.status === 401) {
+          window.location.href = '/login'
+          return
+        }
+        
         setErrors({ general: data.error || `Error ${response.status}: ${response.statusText}` })
       }
     } catch (error) {
