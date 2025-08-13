@@ -95,6 +95,7 @@ export default function BillingPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState('all')
+  const [markingAsPaid, setMarkingAsPaid] = useState<string | null>(null)
 
   useEffect(() => {
     fetchInvoices()
@@ -157,6 +158,65 @@ export default function BillingPage() {
   }
 
   const stats = calculateStats()
+
+  const handleMarkAsPaid = async (invoiceId: string) => {
+    const paymentMethod = prompt('Método de pago (ej: Transferencia, Tarjeta, Efectivo):')
+    if (!paymentMethod) return
+
+    const paymentReference = prompt('Referencia del pago (opcional):') || null
+
+    try {
+      setMarkingAsPaid(invoiceId)
+      
+      const response = await fetch(`/api/admin/invoices/${invoiceId}/payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentMethod,
+          paymentReference,
+          paidDate: new Date().toISOString()
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        // Refresh invoices
+        fetchInvoices()
+        alert('Factura marcada como pagada correctamente')
+      } else {
+        alert(data.error || 'Error al marcar la factura como pagada')
+      }
+    } catch (error) {
+      console.error('Error marking invoice as paid:', error)
+      alert('Error al marcar la factura como pagada')
+    } finally {
+      setMarkingAsPaid(null)
+    }
+  }
+
+  const handleDownloadInvoice = async (invoiceId: string) => {
+    try {
+      const response = await fetch(`/api/invoices/${invoiceId}/download`)
+      
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `factura-${invoiceId}.html`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      } else {
+        alert('Error al descargar la factura')
+      }
+    } catch (error) {
+      console.error('Error downloading invoice:', error)
+      alert('Error al descargar la factura')
+    }
+  }
 
   if (loading) {
     return (
@@ -364,11 +424,26 @@ export default function BillingPage() {
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
+                        onClick={() => handleDownloadInvoice(invoice.id)}
                         className="text-gray-600 hover:text-gray-900"
                         title="Descargar PDF"
                       >
                         <Download className="w-4 h-4" />
                       </button>
+                      {invoice.status !== 'paid' && invoice.status !== 'cancelled' && (
+                        <button
+                          onClick={() => handleMarkAsPaid(invoice.id)}
+                          disabled={markingAsPaid === invoice.id}
+                          className="text-green-600 hover:text-green-900 disabled:opacity-50"
+                          title="Marcar como pagada"
+                        >
+                          {markingAsPaid === invoice.id ? (
+                            <div className="w-4 h-4 border-2 border-green-600 border-t-transparent animate-spin rounded-full"></div>
+                          ) : (
+                            <CheckCircle className="w-4 h-4" />
+                          )}
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -417,19 +492,36 @@ export default function BillingPage() {
             </div>
 
             <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-              <button
-                onClick={() => setSelectedInvoice(invoice)}
-                className="flex items-center text-blue-600 hover:text-blue-900 text-sm"
-              >
-                <Eye className="w-4 h-4 mr-1" />
-                Ver detalles
-              </button>
-              <button
-                className="flex items-center text-gray-600 hover:text-gray-900 text-sm"
-              >
-                <Download className="w-4 h-4 mr-1" />
-                PDF
-              </button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setSelectedInvoice(invoice)}
+                  className="flex items-center text-blue-600 hover:text-blue-900 text-sm"
+                >
+                  <Eye className="w-4 h-4 mr-1" />
+                  Ver
+                </button>
+                <button
+                  onClick={() => handleDownloadInvoice(invoice.id)}
+                  className="flex items-center text-gray-600 hover:text-gray-900 text-sm"
+                >
+                  <Download className="w-4 h-4 mr-1" />
+                  PDF
+                </button>
+                {invoice.status !== 'paid' && invoice.status !== 'cancelled' && (
+                  <button
+                    onClick={() => handleMarkAsPaid(invoice.id)}
+                    disabled={markingAsPaid === invoice.id}
+                    className="flex items-center text-green-600 hover:text-green-900 text-sm disabled:opacity-50"
+                  >
+                    {markingAsPaid === invoice.id ? (
+                      <div className="w-4 h-4 border-2 border-green-600 border-t-transparent animate-spin rounded-full mr-1"></div>
+                    ) : (
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                    )}
+                    Pagada
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ))}

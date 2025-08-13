@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import CallLogModal from './CallLogModal'
 import UserNoteModal from './UserNoteModal'
+import ChangePlanModal from './ChangePlanModal'
 
 interface UserProfileModalProps {
   userId: string | null
@@ -103,6 +104,8 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
   const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'calls' | 'notes'>('overview')
   const [showCallModal, setShowCallModal] = useState(false)
   const [showNoteModal, setShowNoteModal] = useState(false)
+  const [showChangePlanModal, setShowChangePlanModal] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [calls, setCalls] = useState<any[]>([])
   const [notes, setNotes] = useState<any[]>([])
   const [loadingCalls, setLoadingCalls] = useState(false)
@@ -224,6 +227,31 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
     }
   }
 
+  const handleDeleteUser = async () => {
+    if (!user || !userId) return
+    
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/delete`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        alert('Usuario eliminado correctamente')
+        onClose()
+        // Refresh parent component
+        window.location.reload()
+      } else {
+        alert(data.error || 'Error al eliminar usuario')
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      alert('Error al eliminar usuario')
+    }
+  }
+
   if (!isOpen) return null
 
   return (
@@ -262,9 +290,25 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
                   </div>
                 </div>
               </div>
-              <button onClick={onClose} className="text-gray-400 hover:text-white">
-                <X className="h-6 w-6" />
-              </button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setShowChangePlanModal(true)}
+                  className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 flex items-center text-sm"
+                >
+                  <Settings className="h-4 w-4 mr-1" />
+                  Cambiar Plan
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 flex items-center text-sm"
+                >
+                  <XCircle className="h-4 w-4 mr-1" />
+                  Eliminar
+                </button>
+                <button onClick={onClose} className="text-gray-400 hover:text-white">
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
             </div>
 
             {/* Stats Cards */}
@@ -601,6 +645,59 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
         userName={user?.name || ''}
         onSaved={refreshNotes}
       />
+
+      <ChangePlanModal
+        isOpen={showChangePlanModal}
+        onClose={() => setShowChangePlanModal(false)}
+        userId={userId!}
+        currentPlanId={user?.currentSubscription?.planId}
+        userName={user?.name || ''}
+        userEmail={user?.email || ''}
+        onSuccess={() => {
+          fetchUserProfile()
+          setShowChangePlanModal(false)
+        }}
+      />
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="text-center">
+              <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                ¿Eliminar usuario?
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Esta acción eliminará permanentemente a <strong>{user?.name}</strong> y todos sus datos:
+                <br />• {user?.stats?.totalProperties || 0} propiedades
+                <br />• {user?.stats?.totalZones || 0} zonas
+                <br />• Todos los archivos y configuraciones
+                <br /><br />
+                <strong className="text-red-600">Esta acción no se puede deshacer.</strong>
+              </p>
+              
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirm(false)
+                    handleDeleteUser()
+                  }}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                >
+                  Eliminar Usuario
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

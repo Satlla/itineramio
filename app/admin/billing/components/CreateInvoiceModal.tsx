@@ -23,10 +23,24 @@ interface User {
   }
 }
 
+interface Plan {
+  id: string
+  name: string
+  description: string | null
+  priceMonthly: number
+  priceYearly: number | null
+  aiMessagesIncluded: number
+  maxProperties: number
+  features: string[]
+  isActive: boolean
+}
+
 export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: CreateInvoiceModalProps) {
   const [users, setUsers] = useState<User[]>([])
+  const [plans, setPlans] = useState<Plan[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null)
   const [loading, setLoading] = useState(false)
   const [searchingUsers, setSearchingUsers] = useState(false)
   
@@ -43,19 +57,39 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    if (isOpen && searchTerm.length >= 2) {
-      searchUsers()
+    if (isOpen) {
+      fetchPlans()
+      if (searchTerm.length >= 2) {
+        searchUsers()
+      }
     }
   }, [searchTerm, isOpen])
 
   useEffect(() => {
-    if (selectedUser && selectedUser.currentSubscription && formData.linkToSubscription) {
+    if (selectedPlan) {
+      setFormData(prev => ({
+        ...prev,
+        amount: selectedPlan.priceMonthly.toString()
+      }))
+    } else if (selectedUser && selectedUser.currentSubscription && formData.linkToSubscription) {
       setFormData(prev => ({
         ...prev,
         amount: selectedUser.currentSubscription!.plan.priceMonthly.toString()
       }))
     }
-  }, [selectedUser, formData.linkToSubscription])
+  }, [selectedUser, selectedPlan, formData.linkToSubscription])
+
+  const fetchPlans = async () => {
+    try {
+      const response = await fetch('/api/admin/plans')
+      const data = await response.json()
+      if (data.success) {
+        setPlans(data.plans.filter((plan: Plan) => plan.isActive))
+      }
+    } catch (error) {
+      console.error('Error fetching plans:', error)
+    }
+  }
 
   const searchUsers = async () => {
     try {
@@ -162,6 +196,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
 
   const handleClose = () => {
     setSelectedUser(null)
+    setSelectedPlan(null)
     setSearchTerm('')
     setUsers([])
     setFormData({
@@ -279,13 +314,74 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
                       <input
                         type="checkbox"
                         checked={formData.linkToSubscription}
-                        onChange={(e) => setFormData({ ...formData, linkToSubscription: e.target.checked })}
+                        onChange={(e) => {
+                          setFormData({ ...formData, linkToSubscription: e.target.checked })
+                          if (e.target.checked) {
+                            setSelectedPlan(null)
+                          }
+                        }}
                         className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
                       />
                       <span className="ml-2 text-sm text-gray-700">
                         Vincular a suscripción actual ({selectedUser.currentSubscription.plan.name})
                       </span>
                     </label>
+                  </div>
+                )}
+
+                {/* Plan Selection */}
+                {!formData.linkToSubscription && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Seleccionar Plan (opcional)
+                    </label>
+                    <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                      {plans.map((plan) => (
+                        <button
+                          key={plan.id}
+                          type="button"
+                          onClick={() => setSelectedPlan(plan)}
+                          className={`text-left p-3 rounded-lg border transition-all ${
+                            selectedPlan?.id === plan.id
+                              ? 'border-red-500 bg-red-50'
+                              : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="font-medium text-gray-900">{plan.name}</div>
+                              {plan.description && (
+                                <div className="text-xs text-gray-500 mt-1">{plan.description}</div>
+                              )}
+                              <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
+                                <span>✉️ {plan.aiMessagesIncluded} mensajes IA</span>
+                                <span>🏠 {plan.maxProperties} propiedades</span>
+                              </div>
+                            </div>
+                            <div className="text-right ml-4">
+                              <div className="font-bold text-gray-900">€{plan.priceMonthly}/mes</div>
+                              {plan.priceYearly && (
+                                <div className="text-xs text-gray-500">€{plan.priceYearly}/año</div>
+                              )}
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    {selectedPlan && (
+                      <div className="mt-2 p-2 bg-blue-50 rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-blue-700">Plan seleccionado: {selectedPlan.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedPlan(null)}
+                            className="text-sm text-blue-600 hover:text-blue-800"
+                          >
+                            Quitar
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
