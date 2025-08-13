@@ -139,21 +139,18 @@ export default function AccountPage() {
 
     setLoading(true)
     try {
-      const requestBody = {
+      // Prepare request body for old endpoint (not used anymore)
+      const requestBodyOld = {
         firstName: formData.firstName?.trim() || '',
         lastName: formData.lastName?.trim() || '',
         email: formData.email?.trim() || '',
         phone: formData.phone?.trim() || '',
-        profileImage: profileImage || null
+        profileImage: profileImage || null,
+        ...(isEmailChanging && confirmationPassword && { password: confirmationPassword })
       }
 
-      // Add password if changing email
-      if (isEmailChanging && confirmationPassword) {
-        requestBody.password = confirmationPassword
-      }
-
-      // Debug logging
-      console.log('Sending update request:', requestBody)
+      // Debug logging (old endpoint not used)
+      // console.log('Sending update request:', requestBodyOld)
       console.log('Form data state:', formData)
       console.log('Profile image state:', profileImage)
 
