@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    esmExternals: true,
+  },
   images: {
     domains: ['k1f4x7ksxbn13s8z.public.blob.vercel-storage.com'],
   },
@@ -41,7 +44,7 @@ const nextConfig = {
   },
   // Generate build ID based on timestamp to force new deployments
   generateBuildId: async () => {
-    return `build-${new Date().getTime()}`
+    return `clean-build-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   },
 }
 
