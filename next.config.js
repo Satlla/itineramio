@@ -1,7 +1,16 @@
 /** @type {import('next').NextConfig} */
-// Set default DATABASE_URL for build if not provided
+// Set default environment variables for build if not provided
 if (!process.env.DATABASE_URL) {
   process.env.DATABASE_URL = 'postgresql://build:build@localhost:5432/builddb'
+}
+if (!process.env.RESEND_API_KEY) {
+  process.env.RESEND_API_KEY = 're_build_dummy_key_for_build_only'
+}
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = 'build-jwt-secret-placeholder-do-not-use-in-production'
+}
+if (!process.env.NEXT_PUBLIC_APP_URL) {
+  process.env.NEXT_PUBLIC_APP_URL = 'https://itineramio.com'
 }
 
 const nextConfig = {
