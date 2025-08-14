@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import PricingCalculator from './components/PricingCalculator'
 
 // Testimonials data
 const testimonials = [
@@ -453,35 +454,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Precios transparentes
-          </h2>
-          <p className="text-xl text-gray-600 mb-12">
-            Sin suscripciones. Solo pagas por lo que usas.
-          </p>
-          
-          <div className="bg-white border-2 border-violet-200 rounded-lg p-8 max-w-md mx-auto">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Pago por manual</h3>
-            <div className="mb-6">
-              <span className="text-4xl font-bold text-violet-600">Gratis</span>
-              <span className="text-gray-600 ml-2">primer manual</span>
-            </div>
-            <div className="mb-8">
-              <span className="text-2xl font-bold text-gray-900">€5</span>
-              <span className="text-gray-600 ml-2">por manual adicional</span>
-            </div>
-            <Link 
-              href="/register"
-              className="block w-full bg-violet-600 text-white py-3 rounded-lg font-semibold hover:bg-violet-700 transition-colors"
-            >
-              Regístrate gratis
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Pricing Calculator */}
+      <PricingCalculator />
 
       {/* CTA */}
       <section className="py-20 bg-violet-600">
