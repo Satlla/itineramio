@@ -38,6 +38,11 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
   const [showNotifications, setShowNotifications] = useState(false)
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useRealNotifications()
 
+  // Wrapper function to bridge the compatibility gap between hooks
+  const handleMarkAsRead = (id: string) => {
+    markAsRead([id])
+  }
+
   const menuItems = [
     {
       icon: <Home className="w-5 h-5" />,
@@ -278,7 +283,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
               onBack={() => setShowNotifications(false)}
               notifications={notifications}
               unreadCount={unreadCount}
-              onMarkAsRead={markAsRead}
+              onMarkAsRead={handleMarkAsRead}
               onMarkAllAsRead={markAllAsRead}
             />
           </motion.div>
