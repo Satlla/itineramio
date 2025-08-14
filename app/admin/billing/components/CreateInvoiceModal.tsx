@@ -120,7 +120,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
     setFormData(prev => ({
       ...prev,
       discountPercentage: percentage,
-      discountAmount: discountAmount.toFixed(2)
+      discountAmount: Number(discountAmount).toFixed(2)
     }))
   }
 
@@ -132,7 +132,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
     setFormData(prev => ({
       ...prev,
       discountAmount: discountAmount,
-      discountPercentage: percentage.toFixed(2)
+      discountPercentage: Number(percentage).toFixed(2)
     }))
   }
 
