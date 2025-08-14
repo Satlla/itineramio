@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/src/lib/prisma';
-import { requireAdminAuth } from '@/src/lib/admin-auth';
-import { sendEmail, emailTemplates } from '@/src/lib/email';
+import { prisma } from '../../../../../../src/lib/prisma';
+import { requireAdminAuth } from '../../../../../../src/lib/admin-auth';
+import { sendEmail, emailTemplates } from '../../../../../../src/lib/email';
 
 export async function POST(
   request: NextRequest,
