@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../../../src/lib/prisma';
 import { requireAdminAuth } from '../../../../../../src/lib/admin-auth';
+import { sendEmail, emailTemplates } from '../../../../../../src/lib/email';
 
 export async function POST(
   request: NextRequest,
@@ -68,6 +69,48 @@ export async function POST(
       }
     });
 
+    // Send payment confirmation email AND invoice notification
+    try {
+      // 1. Send payment confirmation email
+      const paymentEmailContent = emailTemplates.paymentConfirmation({
+        userName: invoice.user.name || 'Cliente',
+        invoiceNumber: invoice.invoiceNumber,
+        amount: Number(invoice.finalAmount).toFixed(2),
+        paymentMethod,
+        paymentReference,
+        paidDate: updatedInvoice.paidDate?.toLocaleDateString('es-ES') || new Date().toLocaleDateString('es-ES')
+      });
+
+      await sendEmail({
+        to: invoice.user.email,
+        subject: `Pago confirmado - Factura ${invoice.invoiceNumber}`,
+        html: paymentEmailContent
+      });
+
+      // 2. Send updated invoice with payment status
+      const invoiceEmailContent = emailTemplates.invoiceNotification({
+        userName: invoice.user.name || 'Cliente',
+        invoiceNumber: invoice.invoiceNumber,
+        amount: Number(invoice.finalAmount).toFixed(2),
+        dueDate: new Date(invoice.dueDate).toLocaleDateString('es-ES'),
+        status: 'paid',
+        isPaid: true,
+        paidDate: updatedInvoice.paidDate?.toLocaleDateString('es-ES') || new Date().toLocaleDateString('es-ES'),
+        paymentMethod,
+        downloadUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'}/api/invoices/${invoice.id}/download`
+      });
+
+      await sendEmail({
+        to: invoice.user.email,
+        subject: `Factura ${invoice.invoiceNumber} - Pagada`,
+        html: invoiceEmailContent
+      });
+      
+    } catch (emailError) {
+      console.error('Error sending payment emails:', emailError);
+      // Don't fail the payment process if email fails
+    }
+
     // Log activity - find an admin user for now
     const adminUser = await prisma.user.findFirst({
       where: { isAdmin: true },
@@ -96,7 +139,7 @@ export async function POST(
     return NextResponse.json({
       success: true,
       invoice: updatedInvoice,
-      message: 'Invoice marked as paid successfully'
+      message: 'Invoice marked as paid successfully. Confirmation and invoice emails sent to customer.'
     });
 
   } catch (error) {
