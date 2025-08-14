@@ -79,9 +79,27 @@ export async function POST(request: NextRequest) {
       })
     }
     
-    // Calculate discount
-    const basePrice = propertyCount > 1 ? (propertyCount - 1) * 2.5 : 0
-    const totalAmount = basePrice * duration
+    // Get pricing tiers to calculate correct base price
+    const tiers = await prisma.pricingTier.findMany({
+      where: { isActive: true },
+      orderBy: { minProperties: 'asc' }
+    })
+
+    // Find applicable tier
+    const applicableTier = tiers.find(tier => 
+      propertyCount >= tier.minProperties && 
+      (tier.maxProperties === null || propertyCount <= tier.maxProperties)
+    )
+
+    if (!applicableTier) {
+      return NextResponse.json({ 
+        valid: false, 
+        error: 'No se encontró un tier de precios para este número de propiedades' 
+      }, { status: 400 })
+    }
+
+    const pricePerProperty = Number(applicableTier.pricePerProperty)
+    const totalAmount = propertyCount * pricePerProperty * duration
     let discountAmount = 0
     let finalAmount = totalAmount
     let freeMonthsGained = 0
@@ -104,7 +122,10 @@ export async function POST(request: NextRequest) {
       case 'FREE_MONTHS':
         if (coupon.freeMonths) {
           freeMonthsGained = coupon.freeMonths
-          // Don't change the final amount, but note the free months
+          // Calculate the discount as the equivalent value of free months
+          discountAmount = propertyCount * pricePerProperty * coupon.freeMonths
+          // For display purposes, show the discount but don't reduce the current payment
+          // The customer pays the same but gets additional months free
         }
         break
         
@@ -137,7 +158,9 @@ export async function POST(request: NextRequest) {
         discountAmount,
         finalAmount,
         freeMonthsGained,
-        percentageOff: coupon.discountPercent || 0
+        percentageOff: coupon.discountPercent || 0,
+        pricePerProperty,
+        equivalentValue: coupon.type === 'FREE_MONTHS' ? discountAmount : discountAmount
       },
       details: {
         usesRemaining: coupon.maxUses ? coupon.maxUses - coupon.usedCount : 'Ilimitado',

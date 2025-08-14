@@ -152,9 +152,13 @@ export async function POST(request: NextRequest) {
           discountAmount = (totalPrice * coupon.discountPercent) / 100;
         } else if (coupon.type === 'FIXED_AMOUNT' && coupon.discountAmount) {
           discountAmount = Math.min(Number(coupon.discountAmount), totalPrice);
+        } else if (coupon.type === 'FREE_MONTHS' && coupon.freeMonths) {
+          // For FREE_MONTHS, calculate the equivalent value but don't reduce current payment
+          discountAmount = properties * pricePerProperty * coupon.freeMonths;
+          // Customer pays the same but gets additional months free
         }
 
-        finalPrice = totalPrice - discountAmount;
+        finalPrice = coupon.type === 'FREE_MONTHS' ? totalPrice : totalPrice - discountAmount;
 
         couponInfo = {
           id: coupon.id,
@@ -163,6 +167,8 @@ export async function POST(request: NextRequest) {
           type: coupon.type,
           discountPercent: coupon.discountPercent,
           discountAmount: coupon.discountAmount ? Number(coupon.discountAmount) : null,
+          freeMonths: coupon.freeMonths || 0,
+          equivalentValue: discountAmount,
           applied: true
         };
       } else {
