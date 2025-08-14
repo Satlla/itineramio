@@ -108,23 +108,39 @@ export async function POST(
       // Don't fail the deactivation process if email fails
     }
 
-    // Log admin activity
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: authResult.adminId,
-        action: 'PROPERTY_DEACTIVATED',
-        targetType: 'property',
-        targetId: property.id,
-        description: `Propiedad "${property.name}" desactivada para ${property.host.name}`,
-        metadata: {
-          propertyId: property.id,
-          propertyName: property.name,
-          userId: property.hostId,
-          userEmail: property.host.email,
-          reason: reason
-        }
+    // Log admin activity - use fallback admin if auth fails
+    try {
+      let adminId = authResult.adminId
+      
+      // If no admin ID from auth, find any admin user as fallback
+      if (!adminId) {
+        const fallbackAdmin = await prisma.user.findFirst({
+          where: { isAdmin: true },
+          select: { id: true }
+        })
+        adminId = fallbackAdmin?.id || 'system'
       }
-    })
+
+      await prisma.adminActivityLog.create({
+        data: {
+          adminUserId: adminId,
+          action: 'PROPERTY_DEACTIVATED',
+          targetType: 'property',
+          targetId: property.id,
+          description: `Propiedad "${property.name}" desactivada para ${property.host.name}`,
+          metadata: {
+            propertyId: property.id,
+            propertyName: property.name,
+            userId: property.hostId,
+            userEmail: property.host.email,
+            reason: reason
+          }
+        }
+      })
+    } catch (logError) {
+      console.error('Error creating admin activity log:', logError)
+      // Don't fail the deactivation if logging fails
+    }
 
     return NextResponse.json({
       success: true,

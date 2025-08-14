@@ -171,29 +171,45 @@ export async function POST(
       console.error('Error sending invoice email:', emailError)
     }
 
-    // Log admin activity
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: authResult.adminId,
-        action: 'PROPERTY_ACTIVATED_WITH_INVOICE',
-        targetType: 'property',
-        targetId: property.id,
-        description: `Propiedad "${property.name}" activada con factura ${invoice.invoiceNumber} para ${property.host.name}`,
-        metadata: {
-          propertyId: property.id,
-          propertyName: property.name,
-          userId: property.hostId,
-          userEmail: property.host.email,
-          months,
-          subscriptionEnd: subscriptionEnd.toISOString(),
-          reason: reason || null,
-          invoiceId: invoice.id,
-          invoiceNumber: invoice.invoiceNumber,
-          amount: invoice.finalAmount,
-          plan
-        }
+    // Log admin activity - use fallback admin if auth fails
+    try {
+      let adminId = authResult.adminId
+      
+      // If no admin ID from auth, find any admin user as fallback
+      if (!adminId) {
+        const fallbackAdmin = await prisma.user.findFirst({
+          where: { isAdmin: true },
+          select: { id: true }
+        })
+        adminId = fallbackAdmin?.id || 'system'
       }
-    })
+
+      await prisma.adminActivityLog.create({
+        data: {
+          adminUserId: adminId,
+          action: 'PROPERTY_ACTIVATED_WITH_INVOICE',
+          targetType: 'property',
+          targetId: property.id,
+          description: `Propiedad "${property.name}" activada con factura ${invoice.invoiceNumber} para ${property.host.name}`,
+          metadata: {
+            propertyId: property.id,
+            propertyName: property.name,
+            userId: property.hostId,
+            userEmail: property.host.email,
+            months,
+            subscriptionEnd: subscriptionEnd.toISOString(),
+            reason: reason || null,
+            invoiceId: invoice.id,
+            invoiceNumber: invoice.invoiceNumber,
+            amount: invoice.finalAmount,
+            plan
+          }
+        }
+      })
+    } catch (logError) {
+      console.error('Error creating admin activity log:', logError)
+      // Don't fail the activation if logging fails
+    }
 
     return NextResponse.json({
       success: true,

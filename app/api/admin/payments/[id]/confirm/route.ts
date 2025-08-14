@@ -129,22 +129,38 @@ export async function POST(
       }
     }
 
-    // Log admin activity
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: authResult.adminId,
-        action: 'PAYMENT_CONFIRMED',
-        targetType: 'invoice',
-        targetId: invoice.id,
-        description: `Pago confirmado para ${invoice.user.name} - €${invoice.finalAmount}`,
-        metadata: {
-          userId: invoice.userId,
-          amount: invoice.finalAmount,
-          propertiesActivated: activatedProperties.length,
-          paymentReference
-        }
+    // Log admin activity - use fallback admin if auth fails
+    try {
+      let adminId = authResult.adminId
+      
+      // If no admin ID from auth, find any admin user as fallback
+      if (!adminId) {
+        const fallbackAdmin = await prisma.user.findFirst({
+          where: { isAdmin: true },
+          select: { id: true }
+        })
+        adminId = fallbackAdmin?.id || 'system'
       }
-    })
+
+      await prisma.adminActivityLog.create({
+        data: {
+          adminUserId: adminId,
+          action: 'PAYMENT_CONFIRMED',
+          targetType: 'invoice',
+          targetId: invoice.id,
+          description: `Pago confirmado para ${invoice.user.name} - €${invoice.finalAmount}`,
+          metadata: {
+            userId: invoice.userId,
+            amount: invoice.finalAmount,
+            propertiesActivated: activatedProperties.length,
+            paymentReference
+          }
+        }
+      })
+    } catch (logError) {
+      console.error('Error creating admin activity log:', logError)
+      // Don't fail the payment confirmation if logging fails
+    }
 
     return NextResponse.json({
       success: true,
