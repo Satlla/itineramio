@@ -31,13 +31,22 @@ export default function AdminActivatePropertyPage() {
 
   const fetchProperties = async () => {
     try {
+      console.log('Fetching properties from /api/admin/properties...')
       const response = await fetch('/api/admin/properties')
+      console.log('Response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('Properties data:', data)
         setProperties(data.properties || [])
+      } else {
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
+        setMessage({ type: 'error', text: `Error fetching properties: ${response.status}` })
       }
     } catch (error) {
       console.error('Error fetching properties:', error)
+      setMessage({ type: 'error', text: 'Network error fetching properties' })
     } finally {
       setLoading(false)
     }

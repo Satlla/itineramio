@@ -110,6 +110,14 @@ export async function POST(
     
   } catch (error) {
     console.error('Error activating property:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Property ID:', params.id)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    })
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 })
   }
 }
