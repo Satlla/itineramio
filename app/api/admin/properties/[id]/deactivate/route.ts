@@ -15,11 +15,11 @@ export async function POST(
       return authResult
     }
 
-    const { months, reason } = await request.json()
+    const { reason } = await request.json()
     
-    if (!months || months < 1 || months > 12) {
+    if (!reason || reason.trim().length < 3) {
       return NextResponse.json({ 
-        error: 'Months must be between 1 and 12' 
+        error: 'Reason must be at least 3 characters long' 
       }, { status: 400 })
     }
 
@@ -41,23 +41,17 @@ export async function POST(
       return NextResponse.json({ error: 'Property not found' }, { status: 404 })
     }
 
-    if (property.status === 'ACTIVE') {
-      return NextResponse.json({ error: 'Property is already active' }, { status: 400 })
+    if (property.status !== 'ACTIVE') {
+      return NextResponse.json({ error: 'Property is not active' }, { status: 400 })
     }
 
-    // Calculate subscription end date
-    const subscriptionEnd = new Date()
-    subscriptionEnd.setMonth(subscriptionEnd.getMonth() + months)
-
-    // Activate the property
+    // Deactivate the property
     const updatedProperty = await prisma.property.update({
       where: { id: params.id },
       data: {
-        status: 'ACTIVE',
-        subscriptionEndsAt: subscriptionEnd,
-        lastPaymentDate: new Date(),
-        isPublished: true,
-        publishedAt: new Date()
+        status: 'INACTIVE',
+        isPublished: false,
+        publishedAt: null
       }
     })
 
@@ -65,72 +59,68 @@ export async function POST(
     await prisma.notification.create({
       data: {
         userId: property.hostId,
-        type: 'PROPERTY_ACTIVATED_MANUAL',
-        title: '🎉 Propiedad activada',
-        message: `Tu propiedad "${property.name}" ha sido activada por el administrador hasta ${subscriptionEnd.toLocaleDateString()}. ${reason ? `Motivo: ${reason}` : ''}`,
+        type: 'PROPERTY_DEACTIVATED',
+        title: '❌ Propiedad desactivada',
+        message: `Tu propiedad "${property.name}" ha sido desactivada por el administrador. Motivo: ${reason}`,
         data: {
           propertyId: property.id,
           propertyName: property.name,
-          subscriptionEnd: subscriptionEnd.toISOString(),
-          activatedBy: 'admin',
-          reason: reason || null
+          reason: reason,
+          deactivatedBy: 'admin'
         }
       }
     })
 
     // Send email notification
     try {
-      const emailContent = emailTemplates.propertyActivated({
+      const emailContent = emailTemplates.propertyDeactivated({
         userName: property.host.name || 'Usuario',
         propertyName: property.name,
-        activatedBy: 'admin',
-        subscriptionEndsAt: subscriptionEnd.toLocaleDateString('es-ES'),
-        reason: reason || undefined
+        reason: reason,
+        deactivatedBy: 'admin'
       })
 
       await sendEmail({
         to: property.host.email,
-        subject: `🎉 Propiedad activada - ${property.name}`,
+        subject: `❌ Propiedad desactivada - ${property.name}`,
         html: emailContent
       })
     } catch (emailError) {
-      console.error('Error sending activation email:', emailError)
-      // Don't fail the activation process if email fails
+      console.error('Error sending deactivation email:', emailError)
+      // Don't fail the deactivation process if email fails
     }
 
     // Log admin activity
     await prisma.adminActivityLog.create({
       data: {
         adminUserId: authResult.adminId,
-        action: 'PROPERTY_ACTIVATED_MANUAL',
+        action: 'PROPERTY_DEACTIVATED',
         targetType: 'property',
         targetId: property.id,
-        description: `Propiedad "${property.name}" activada manualmente para ${property.host.name}`,
+        description: `Propiedad "${property.name}" desactivada para ${property.host.name}`,
         metadata: {
           propertyId: property.id,
           propertyName: property.name,
           userId: property.hostId,
           userEmail: property.host.email,
-          months,
-          subscriptionEnd: subscriptionEnd.toISOString(),
-          reason: reason || null
+          reason: reason
         }
       }
     })
 
     return NextResponse.json({
       success: true,
-      message: `Propiedad activada por ${months} mes(es). Notificación enviada al usuario.`,
+      message: `Propiedad desactivada. Notificación y email enviados al usuario.`,
       property: {
         id: updatedProperty.id,
         name: updatedProperty.name,
         status: updatedProperty.status,
-        subscriptionEndsAt: updatedProperty.subscriptionEndsAt
+        isPublished: updatedProperty.isPublished
       }
     })
     
   } catch (error) {
-    console.error('Error activating property:', error)
+    console.error('Error deactivating property:', error)
     console.error('Property ID:', params.id)
     console.error('Error details:', {
       message: error instanceof Error ? error.message : String(error),

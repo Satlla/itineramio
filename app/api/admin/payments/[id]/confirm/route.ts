@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
 import { requireAdminAuth } from '../../../../../../src/lib/admin-auth'
+import { sendEmail, emailTemplates } from '../../../../../../src/lib/email'
 
 export async function POST(
   request: NextRequest,
@@ -106,6 +107,27 @@ export async function POST(
         }
       }
     })
+
+    // Send property activation emails for each activated property
+    for (const property of activatedProperties) {
+      try {
+        const activationEmailContent = emailTemplates.propertyActivated({
+          userName: invoice.user.name || 'Usuario',
+          propertyName: property.name,
+          activatedBy: 'payment',
+          subscriptionEndsAt: subscriptionEnd.toLocaleDateString('es-ES'),
+          invoiceNumber: invoice.invoiceNumber
+        })
+
+        await sendEmail({
+          to: invoice.user.email,
+          subject: `🎉 Propiedad activada - ${property.name}`,
+          html: activationEmailContent
+        })
+      } catch (emailError) {
+        console.error(`Error sending activation email for property ${property.id}:`, emailError)
+      }
+    }
 
     // Log admin activity
     await prisma.adminActivityLog.create({
