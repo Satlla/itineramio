@@ -17,8 +17,7 @@ import {
   AlertCircle,
   User,
   Building2,
-  Receipt,
-  Mail
+  Receipt
 } from 'lucide-react'
 import CreateInvoiceModal from './components/CreateInvoiceModal'
 import InvoiceDetailModal from './components/InvoiceDetailModal'
@@ -97,7 +96,6 @@ export default function BillingPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState('all')
   const [markingAsPaid, setMarkingAsPaid] = useState<string | null>(null)
-  const [sendingEmail, setSendingEmail] = useState<string | null>(null)
 
   useEffect(() => {
     fetchInvoices()
@@ -194,34 +192,6 @@ export default function BillingPage() {
       alert('Error al marcar la factura como pagada')
     } finally {
       setMarkingAsPaid(null)
-    }
-  }
-
-  const handleSendInvoiceEmail = async (invoice: Invoice) => {
-    if (!confirm(`¿Enviar factura ${invoice.invoiceNumber} por email a ${invoice.user.email}?`)) {
-      return
-    }
-
-    try {
-      setSendingEmail(invoice.id)
-      
-      const response = await fetch(`/api/admin/invoices/${invoice.id}/send-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        alert('Factura enviada por email correctamente')
-      } else {
-        alert(data.error || 'Error al enviar la factura por email')
-      }
-    } catch (error) {
-      console.error('Error sending invoice email:', error)
-      alert('Error al enviar la factura por email')
-    } finally {
-      setSendingEmail(null)
     }
   }
 
@@ -459,18 +429,6 @@ export default function BillingPage() {
                         title="Descargar PDF"
                       >
                         <Download className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleSendInvoiceEmail(invoice)}
-                        disabled={sendingEmail === invoice.id}
-                        className="text-blue-600 hover:text-blue-900 disabled:opacity-50"
-                        title="Enviar por email"
-                      >
-                        {sendingEmail === invoice.id ? (
-                          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent animate-spin rounded-full"></div>
-                        ) : (
-                          <Mail className="w-4 h-4" />
-                        )}
                       </button>
                       {invoice.status !== 'paid' && invoice.status !== 'cancelled' && (
                         <button
