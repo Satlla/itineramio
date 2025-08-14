@@ -2,24 +2,25 @@
 
 import { useState } from 'react'
 
-export default function TestPaymentPage() {
+export default function AdminTestPaymentPage() {
+  const [invoiceId, setInvoiceId] = useState('cme81rmqh00017c1voih8z5f0')
   const [result, setResult] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
-  const testAPI = async () => {
+  const testConfirmPayment = async () => {
     setLoading(true)
-    setResult('Testing...')
+    setResult('Processing...')
     setStatus('idle')
     
     try {
-      const response = await fetch('/api/admin/payments/cme81rmqh00017c1voih8z5f0/confirm', {
+      const response = await fetch(`/api/admin/payments/${invoiceId}/confirm`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          paymentReference: 'TEST-REF-' + Date.now(),
+          paymentReference: 'MANUAL-' + Date.now(),
           confirmedAt: new Date().toISOString()
         })
       })
@@ -33,7 +34,6 @@ export default function TestPaymentPage() {
       }
       
       const resultText = `Status: ${response.status} ${response.statusText}
-Headers: ${JSON.stringify([...response.headers.entries()], null, 2)}
 Response: ${typeof data === 'object' ? JSON.stringify(data, null, 2) : data}`
       
       setResult(resultText)
@@ -49,28 +49,54 @@ Response: ${typeof data === 'object' ? JSON.stringify(data, null, 2) : data}`
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Test Payment Confirm API</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Admin - Test Payment Confirmation</h1>
         
         <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-600 mb-4">Invoice ID: cme81rmqh00017c1voih8z5f0</p>
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Invoice ID
+            </label>
+            <input
+              type="text"
+              value={invoiceId}
+              onChange={(e) => setInvoiceId(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              placeholder="Enter invoice ID"
+            />
+          </div>
           
           <button
-            onClick={testAPI}
-            disabled={loading}
+            onClick={testConfirmPayment}
+            disabled={loading || !invoiceId}
             className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'Testing...' : 'Test API Call'}
+            {loading ? 'Processing...' : 'Confirm Payment'}
           </button>
           
           {result && (
-            <pre className={`mt-6 p-4 rounded-lg overflow-x-auto text-sm ${
-              status === 'success' ? 'bg-green-50 text-green-900 border border-green-200' :
-              status === 'error' ? 'bg-red-50 text-red-900 border border-red-200' :
-              'bg-gray-50 text-gray-900 border border-gray-200'
+            <div className={`mt-6 p-4 rounded-lg ${
+              status === 'success' ? 'bg-green-50 border border-green-200' :
+              status === 'error' ? 'bg-red-50 border border-red-200' :
+              'bg-gray-50 border border-gray-200'
             }`}>
-              {result}
-            </pre>
+              <pre className={`overflow-x-auto text-sm ${
+                status === 'success' ? 'text-green-900' :
+                status === 'error' ? 'text-red-900' :
+                'text-gray-900'
+              }`}>
+                {result}
+              </pre>
+            </div>
           )}
+        </div>
+
+        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h2 className="text-lg font-semibold text-blue-900 mb-2">Notas:</h2>
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• Esta página es para pruebas de confirmación de pagos</li>
+            <li>• El endpoint ahora maneja facturas con notas en texto plano</li>
+            <li>• Si la factura no tiene propiedades en JSON, solo actualiza el estado</li>
+          </ul>
         </div>
       </div>
     </div>
