@@ -80,14 +80,14 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({
-      success: !!result.id, // Si tiene ID, fue exitoso
-      message: result.id 
+      success: !!result?.id, // Si tiene ID, fue exitoso
+      message: result?.id 
         ? 'Email enviado correctamente' 
         : 'Error al enviar email',
       details: {
-        id: result.id,
-        error: result.error,
-        skipped: result.skipped,
+        id: result?.id,
+        error: (result as any)?.error || null,
+        skipped: (result as any)?.skipped || false,
         config: {
           hasApiKey: !!process.env.RESEND_API_KEY,
           fromEmail: process.env.RESEND_FROM_EMAIL || 'hola@itineramio.com',
