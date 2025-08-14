@@ -154,3 +154,4 @@ The app auto-deploys to Vercel when pushing to `main` branch.
 
 - Create an issue on GitHub
 - Contact the team lead# Update
+# Force deploy
