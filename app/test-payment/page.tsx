@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 export default function AdminTestPaymentPage() {
-  const [invoiceId, setInvoiceId] = useState('cme81rmqh00017c1voih8z5f0')
+  const [invoiceId, setInvoiceId] = useState('cmebxhi3v00037cp0capgl7s4')
   const [result, setResult] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
