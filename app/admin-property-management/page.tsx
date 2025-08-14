@@ -44,6 +44,11 @@ export default function AdminPropertyManagementPage() {
         const data = await response.json()
         console.log('📊 Properties data:', data)
         setProperties(data.properties || [])
+      } else if (response.status === 401) {
+        // Not authenticated as admin - redirect to admin login
+        console.log('🔐 Not authenticated as admin, redirecting to login')
+        window.location.href = '/admin/login'
+        return
       } else {
         const errorText = await response.text()
         console.error('❌ Error response:', errorText)
@@ -122,6 +127,11 @@ export default function AdminPropertyManagementPage() {
           amount: 299
         })
         await fetchProperties() // Refresh the list
+      } else if (response.status === 401) {
+        // Not authenticated as admin - redirect to admin login
+        console.log('🔐 Admin authentication required, redirecting to login')
+        window.location.href = '/admin/login'
+        return
       } else {
         setMessage({ 
           type: 'error', 
@@ -180,6 +190,12 @@ export default function AdminPropertyManagementPage() {
           <p className="text-gray-600 mt-2">
             Sistema completo de activación/desactivación con notificaciones automáticas
           </p>
+          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-sm text-blue-800">
+              🔐 <strong>Nota:</strong> Esta página requiere autenticación de administrador. 
+              Si no estás autenticado, serás redirigido automáticamente al login.
+            </p>
+          </div>
         </div>
         
         {message && (
