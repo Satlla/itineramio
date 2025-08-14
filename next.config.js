@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
+// Set default DATABASE_URL for build if not provided
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = 'postgresql://build:build@localhost:5432/builddb'
+}
+
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
