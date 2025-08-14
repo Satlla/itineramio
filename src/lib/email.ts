@@ -65,6 +65,53 @@ export async function sendEmail({ to, subject, html, from = 'hola@itineramio.com
 
 // Email templates
 export const emailTemplates = {
+  zoneEvaluationNotification: (propertyName: string, zoneName: string, rating: number, comment: string = '') => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Nueva evaluación - Itineramio</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #2563eb; margin: 0;">Nueva evaluación recibida</h1>
+        <p style="color: #666; margin: 5px 0;">Una nueva evaluación para tu propiedad</p>
+      </div>
+      
+      <div style="background: #f0f9ff; padding: 30px; border-radius: 10px; margin-bottom: 20px;">
+        <h2 style="color: #1e293b; margin-top: 0;">📊 ${propertyName}</h2>
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0;">
+          <p style="margin: 0 0 10px 0;"><strong>Zona evaluada:</strong> ${zoneName}</p>
+          <p style="margin: 0 0 15px 0;">
+            <strong>Puntuación:</strong> 
+            <span style="color: #f59e0b; font-size: 18px;">
+              ${'★'.repeat(rating)}${'☆'.repeat(5-rating)}
+            </span>
+            <span style="color: #2563eb; font-weight: bold; margin-left: 10px;">${rating}/5</span>
+          </p>
+          ${comment ? `
+          <div style="background: #f8fafc; padding: 15px; border-radius: 6px; border-left: 4px solid #2563eb;">
+            <p style="margin: 0; font-style: italic;">"${comment}"</p>
+          </div>
+          ` : ''}
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://www.itineramio.com/main" 
+             style="background: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
+            Ver todas las evaluaciones
+          </a>
+        </div>
+      </div>
+      
+      <div style="text-align: center; color: #94a3b8; font-size: 14px;">
+        <p>Las evaluaciones te ayudan a mejorar la experiencia de tus huéspedes.</p>
+        <p>© 2024 Itineramio. Todos los derechos reservados.</p>
+      </div>
+    </body>
+    </html>
+  `,
   emailVerification: (verificationUrl: string, userName: string) => `
     <!DOCTYPE html>
     <html>

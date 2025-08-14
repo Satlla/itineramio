@@ -80,8 +80,8 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({
-      success: result.success,
-      message: result.success 
+      success: !!result.id, // Si tiene ID, fue exitoso
+      message: result.id 
         ? 'Email enviado correctamente' 
         : 'Error al enviar email',
       details: {
