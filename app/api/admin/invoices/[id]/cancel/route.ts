@@ -35,14 +35,14 @@ export async function POST(
       }, { status: 404 });
     }
 
-    if (invoice.status === 'paid') {
+    if (invoice.status === 'PAID') {
       return NextResponse.json({ 
         success: false, 
         error: 'Cannot cancel a paid invoice' 
       }, { status: 400 });
     }
 
-    if (invoice.status === 'cancelled') {
+    if (invoice.status === 'CANCELLED') {
       return NextResponse.json({ 
         success: false, 
         error: 'Invoice is already cancelled' 
@@ -53,7 +53,7 @@ export async function POST(
     const updatedInvoice = await prisma.invoice.update({
       where: { id: invoiceId },
       data: {
-        status: 'cancelled'
+        status: 'CANCELLED'
       }
     });
 

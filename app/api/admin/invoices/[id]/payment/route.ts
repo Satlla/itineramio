@@ -44,14 +44,14 @@ export async function POST(
       }, { status: 404 });
     }
 
-    if (invoice.status === 'paid') {
+    if (invoice.status === 'PAID') {
       return NextResponse.json({ 
         success: false, 
         error: 'Invoice is already paid' 
       }, { status: 400 });
     }
 
-    if (invoice.status === 'cancelled') {
+    if (invoice.status === 'CANCELLED') {
       return NextResponse.json({ 
         success: false, 
         error: 'Cannot mark a cancelled invoice as paid' 
@@ -62,7 +62,7 @@ export async function POST(
     const updatedInvoice = await prisma.invoice.update({
       where: { id: invoiceId },
       data: {
-        status: 'paid',
+        status: 'PAID',
         paymentMethod,
         paymentReference: paymentReference || null,
         paidDate: paidDate ? new Date(paidDate) : new Date()
@@ -93,7 +93,7 @@ export async function POST(
         invoiceNumber: invoice.invoiceNumber,
         amount: Number(invoice.finalAmount).toFixed(2),
         dueDate: new Date(invoice.dueDate).toLocaleDateString('es-ES'),
-        status: 'paid',
+        status: 'PAID',
         isPaid: true,
         paidDate: updatedInvoice.paidDate?.toLocaleDateString('es-ES') || new Date().toLocaleDateString('es-ES'),
         paymentMethod,
