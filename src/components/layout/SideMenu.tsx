@@ -20,7 +20,7 @@ import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher'
 import { NotificationCenter } from '../ui/NotificationCenter'
-import { useNotifications } from '../../hooks/useNotifications'
+import { useRealNotifications } from '../../hooks/useRealNotifications'
 
 interface SideMenuProps {
   isOpen: boolean
@@ -36,7 +36,7 @@ interface SideMenuProps {
 export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideMenuProps) {
   const { t } = useTranslation('common')
   const [showNotifications, setShowNotifications] = useState(false)
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications()
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useRealNotifications()
 
   const menuItems = [
     {

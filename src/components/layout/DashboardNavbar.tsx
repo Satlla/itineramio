@@ -6,7 +6,7 @@ import { Menu, X, User, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { SideMenu } from './SideMenu'
-import { useNotifications } from '../../hooks/useNotifications'
+import { useRealNotifications } from '../../hooks/useRealNotifications'
 
 interface DashboardNavbarProps {
   user?: {
@@ -20,7 +20,7 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { t } = useTranslation('common')
-  const { unreadCount } = useNotifications()
+  const { unreadCount } = useRealNotifications()
 
   useEffect(() => {
     const handleScroll = () => {
