@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
-import { sendEmail, emailTemplates } from '../../../../src/lib/email'
+import { sendEmail, emailTemplates } from '../../../../src/lib/email-improved'
 import { createNotification } from '../../../../src/lib/notifications'
 
 // POST /api/evaluations/create - Create evaluation (from public widget)
