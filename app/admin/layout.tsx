@@ -18,7 +18,8 @@ import {
   X,
   Tag,
   Star,
-  DollarSign
+  DollarSign,
+  TrendingUp
 } from 'lucide-react'
 
 const navigation = [
@@ -28,6 +29,7 @@ const navigation = [
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { name: 'Reportes', href: '/admin/reports', icon: FileText },
   { name: 'Pagos', href: '/admin/payments', icon: DollarSign },
+  { name: 'Precios', href: '/admin/pricing', icon: TrendingUp },
   { name: 'Cupones', href: '/admin/coupons', icon: Tag },
   { name: 'Planes Custom', href: '/admin/custom-plans', icon: Star },
   { name: 'Planes', href: '/admin/plans', icon: Settings },
