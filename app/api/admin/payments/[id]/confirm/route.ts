@@ -50,24 +50,20 @@ export async function POST(
 
     // Activate properties associated with this payment
     let properties = []
-    try {
-      if (invoice.notes) {
+    let months = 1
+    
+    // Try to parse notes as JSON, but handle plain text gracefully
+    if (invoice.notes) {
+      try {
         const notesData = JSON.parse(invoice.notes)
         properties = notesData.properties || []
-      }
-    } catch (e) {
-      console.error('Error parsing invoice notes:', e)
-    }
-
-    // Calculate subscription end date based on duration
-    let months = 1
-    try {
-      if (invoice.notes) {
-        const notesData = JSON.parse(invoice.notes)
         months = notesData.months || 1
+      } catch (e) {
+        // If notes is not JSON, it's plain text - no properties to activate
+        console.log('Invoice notes is plain text, no properties to activate')
+        properties = []
+        months = 1
       }
-    } catch (e) {
-      months = 1
     }
 
     const subscriptionEnd = new Date()
