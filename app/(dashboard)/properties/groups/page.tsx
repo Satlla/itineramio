@@ -192,7 +192,7 @@ export default function PropertySetsPage() {
                             {propertySet.avgRating > 0 && (
                               <div className="flex items-center text-sm text-gray-600">
                                 <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                                <span>{propertySet.avgRating.toFixed(1)}</span>
+                                <span>{Number(propertySet.avgRating).toFixed(1)}</span>
                               </div>
                             )}
                           </div>

@@ -129,7 +129,7 @@ export function PublicEvaluations({
               <div className="flex items-center gap-1">
                 {renderStars(Math.round(stats.averageRating))}
                 <span className="font-medium ml-1">
-                  {stats.averageRating.toFixed(1)}
+                  {Number(stats.averageRating).toFixed(1)}
                 </span>
               </div>
               <span>•</span>

@@ -371,19 +371,19 @@ export default function BillingPage() {
                             <div>
                               <span className="text-gray-600">Precio original:</span>
                               <span className="font-semibold text-gray-900 ml-1">
-                                €{couponValidation.discount.originalAmount.toFixed(2)}
+                                €{Number(couponValidation.discount.originalAmount).toFixed(2)}
                               </span>
                             </div>
                             <div>
                               <span className="text-gray-600">Descuento:</span>
                               <span className="font-semibold text-red-600 ml-1">
-                                -€{couponValidation.discount.discountAmount.toFixed(2)}
+                                -€{Number(couponValidation.discount.discountAmount).toFixed(2)}
                               </span>
                             </div>
                             <div>
                               <span className="text-gray-600">Precio final:</span>
                               <span className="font-semibold text-green-600 ml-1">
-                                €{couponValidation.discount.finalAmount.toFixed(2)}
+                                €{Number(couponValidation.discount.finalAmount).toFixed(2)}
                               </span>
                             </div>
                           </>
@@ -601,7 +601,7 @@ export default function BillingPage() {
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-green-600">
-                        €{billingData.affiliateCommission?.toFixed(2) || '0.00'}
+                        €{Number(billingData.affiliateCommission || 0).toFixed(2)}
                       </p>
                     </div>
                   </div>

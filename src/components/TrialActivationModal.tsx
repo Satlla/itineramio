@@ -169,7 +169,7 @@ export function TrialActivationModal({
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <h3 className="font-semibold text-blue-900 mb-2">Precio mensual:</h3>
               <div className="text-3xl font-bold text-blue-600">
-                €{monthlyFee.toFixed(2)}/mes
+                €{Number(monthlyFee).toFixed(2)}/mes
               </div>
               <p className="text-sm text-blue-700 mt-1">
                 Por propiedad adicional

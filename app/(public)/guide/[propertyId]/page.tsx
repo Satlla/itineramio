@@ -788,7 +788,7 @@ export default function PropertyGuidePage() {
                   <div className="flex items-center space-x-1 bg-violet-50 px-3 py-1 rounded-full">
                     <Star className="w-4 h-4 text-violet-600 fill-current" />
                     <span className="font-medium text-violet-700">
-                      {evaluationsStats.averageRating ? evaluationsStats.averageRating.toFixed(1) : '0.0'}
+                      {evaluationsStats.averageRating ? Number(evaluationsStats.averageRating).toFixed(1) : '0.0'}
                     </span>
                     <span className="text-violet-500">·</span>
                     <button 
@@ -1339,7 +1339,7 @@ export default function PropertyGuidePage() {
                 <div className="flex items-center space-x-4 mb-6 p-4 bg-violet-50 rounded-lg">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-violet-700">
-                      {evaluationsStats.averageRating ? evaluationsStats.averageRating.toFixed(1) : '0.0'}
+                      {evaluationsStats.averageRating ? Number(evaluationsStats.averageRating).toFixed(1) : '0.0'}
                     </div>
                     <div className="flex items-center justify-center space-x-1 mb-1">
                       {[1, 2, 3, 4, 5].map((star) => (

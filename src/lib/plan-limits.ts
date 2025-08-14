@@ -80,7 +80,7 @@ export class PlanLimitsService {
         planName: 'Growth',
         monthlyFee: monthlyFeePerProperty,
         upgradeRequired: true,
-        upgradeMessage: `Para agregar más propiedades, necesitas activar el Plan Growth por €${monthlyFeePerProperty}/mes por propiedad adicional.`
+        upgradeMessage: `Para agregar más propiedades, necesitas activar el Plan Growth por €${monthlyFeePerProperty.toFixed(2)}/mes por propiedad adicional.`
       }
 
     } catch (error) {

@@ -236,7 +236,7 @@ export default function PaymentsAdminPage() {
             <div className="flex items-center">
               <Euro className="w-8 h-8 text-purple-600 mr-3" />
               <div>
-                <h3 className="font-semibold text-gray-900">€{stats.totalAmount.toFixed(2)}</h3>
+                <h3 className="font-semibold text-gray-900">€{Number(stats.totalAmount).toFixed(2)}</h3>
                 <p className="text-sm text-gray-600">Total pendiente</p>
               </div>
             </div>
@@ -248,7 +248,7 @@ export default function PaymentsAdminPage() {
             <div className="flex items-center">
               <Calendar className="w-8 h-8 text-green-600 mr-3" />
               <div>
-                <h3 className="font-semibold text-gray-900">€{stats.thisMonth.toFixed(2)}</h3>
+                <h3 className="font-semibold text-gray-900">€{Number(stats.thisMonth).toFixed(2)}</h3>
                 <p className="text-sm text-gray-600">Este mes</p>
               </div>
             </div>
@@ -332,17 +332,17 @@ export default function PaymentsAdminPage() {
                         <div className="space-y-1">
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-600">Importe original:</span>
-                            <span>€{payment.amount.toFixed(2)}</span>
+                            <span>€{Number(payment.amount).toFixed(2)}</span>
                           </div>
                           {payment.discountAmount > 0 && (
                             <div className="flex justify-between text-sm">
                               <span className="text-gray-600">Descuento:</span>
-                              <span className="text-red-600">-€{payment.discountAmount.toFixed(2)}</span>
+                              <span className="text-red-600">-€{Number(payment.discountAmount).toFixed(2)}</span>
                             </div>
                           )}
                           <div className="flex justify-between text-sm font-semibold">
                             <span>Total a pagar:</span>
-                            <span>€{payment.finalAmount.toFixed(2)}</span>
+                            <span>€{Number(payment.finalAmount).toFixed(2)}</span>
                           </div>
                         </div>
                       </div>

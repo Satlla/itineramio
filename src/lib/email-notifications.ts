@@ -147,7 +147,7 @@ export class EmailNotificationService {
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Importe:</strong></td>
-                  <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6; color: #059669; font-weight: bold;">€${invoice.finalAmount.toFixed(2)}</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6; color: #059669; font-weight: bold;">€${Number(invoice.finalAmount).toFixed(2)}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Cliente:</strong></td>
@@ -214,7 +214,7 @@ Nueva Solicitud de Pago - ${invoice.invoiceNumber}
 Se ha generado una nueva solicitud de pago que requiere confirmación:
 
 • Factura: ${invoice.invoiceNumber}
-• Importe: €${invoice.finalAmount.toFixed(2)}
+• Importe: €${Number(invoice.finalAmount).toFixed(2)}
 • Cliente: ${invoice.user.name} (${invoice.user.email})
 ${invoice.user.phone ? `• Teléfono: ${invoice.user.phone}` : ''}
 • Propiedades: ${propertiesList}
@@ -227,7 +227,7 @@ Ver en panel admin: ${dashboardUrl}
 
     return await this.sendEmail({
       to: adminEmails,
-      subject: `💳 Nueva solicitud de pago: €${invoice.finalAmount.toFixed(2)} - ${invoice.user.name}`,
+      subject: `💳 Nueva solicitud de pago: €${Number(invoice.finalAmount).toFixed(2)} - ${invoice.user.name}`,
       htmlContent,
       textContent
     })

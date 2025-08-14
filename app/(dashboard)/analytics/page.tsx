@@ -174,7 +174,7 @@ export default function AnalyticsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Tasa Completación</p>
-                    <p className="text-2xl font-bold text-gray-900">{totals.avgCompletionRate.toFixed(1)}%</p>
+                    <p className="text-2xl font-bold text-gray-900">{Number(totals.avgCompletionRate).toFixed(1)}%</p>
                   </div>
                   <TrendingUp className="h-8 w-8 text-green-600" />
                 </div>
@@ -186,7 +186,7 @@ export default function AnalyticsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Valoración Media</p>
-                    <p className="text-2xl font-bold text-gray-900">{totals.avgRating.toFixed(1)}</p>
+                    <p className="text-2xl font-bold text-gray-900">{Number(totals.avgRating).toFixed(1)}</p>
                   </div>
                   <Star className="h-8 w-8 text-yellow-600" />
                 </div>
@@ -238,7 +238,7 @@ export default function AnalyticsPage() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                        label={({ name, percent }) => `${name}: ${Number((percent || 0) * 100).toFixed(0)}%`}
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="views"
@@ -308,13 +308,13 @@ export default function AnalyticsPage() {
                                 property.completionRate >= 80 ? 'text-green-600' : 
                                 property.completionRate >= 60 ? 'text-yellow-600' : 'text-red-600'
                               }`}>
-                                {property.completionRate.toFixed(1)}%
+                                {Number(property.completionRate).toFixed(1)}%
                               </span>
                             </div>
                           </td>
                           <td className="py-4 px-4">
                             <div className="flex items-center">
-                              <span className="font-medium">{property.avgRating.toFixed(1)}</span>
+                              <span className="font-medium">{Number(property.avgRating).toFixed(1)}</span>
                               <Star className="h-4 w-4 text-yellow-500 ml-1" />
                             </div>
                           </td>

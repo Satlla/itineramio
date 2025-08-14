@@ -160,7 +160,7 @@ export default function PlansManagementPage() {
                 </div>
                 {plan.priceYearly && (
                   <p className="text-sm text-gray-600 mt-1">
-                    €{plan.priceYearly}/año (ahorra €{(plan.priceMonthly * 12 - plan.priceYearly).toFixed(2)})
+                    €{plan.priceYearly}/año (ahorra €{(Number(plan.priceMonthly) * 12 - Number(plan.priceYearly)).toFixed(2)})
                   </p>
                 )}
               </div>

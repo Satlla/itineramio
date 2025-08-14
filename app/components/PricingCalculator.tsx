@@ -190,7 +190,7 @@ export default function PricingCalculator() {
                       <div className="flex justify-between items-center">
                         <span className="text-lg font-semibold text-gray-900">Total mensual</span>
                         <span className="text-3xl font-bold text-violet-600">
-                          €{calculation.totalPrice.toFixed(2)}
+                          €{Number(calculation.totalPrice).toFixed(2)}
                         </span>
                       </div>
                     </div>

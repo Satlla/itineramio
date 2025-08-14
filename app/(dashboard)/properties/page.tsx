@@ -1583,7 +1583,7 @@ function PropertiesPageContent() {
                                 {property.avgRating && property.avgRating > 0 && (
                                   <div className="flex items-center text-gray-600">
                                     <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
-                                    <span>{property.avgRating.toFixed(1)}</span>
+                                    <span>{Number(property.avgRating).toFixed(1)}</span>
                                   </div>
                                 )}
                               </div>
@@ -1840,7 +1840,7 @@ function PropertiesPageContent() {
                                   {propertySet.avgRating > 0 && (
                                     <div className="flex items-center text-gray-600">
                                       <Star className="h-4 w-4 mr-1" />
-                                      <span>{propertySet.avgRating.toFixed(1)}</span>
+                                      <span>{Number(propertySet.avgRating).toFixed(1)}</span>
                                     </div>
                                   )}
                                 </div>

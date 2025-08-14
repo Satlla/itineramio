@@ -276,7 +276,7 @@ export function ZoneTemplateSelector({ propertyId, onSelect, onClose, onCreateFr
                         <div className="flex items-center space-x-4 text-xs text-gray-500 mt-2">
                           <div className="flex items-center space-x-1">
                             <Star className="w-3 h-3 fill-current text-yellow-400" />
-                            <span>{template.avgRating.toFixed(1)}</span>
+                            <span>{Number(template.avgRating).toFixed(1)}</span>
                             <span>({template.totalRatings})</span>
                           </div>
                           <div className="flex items-center space-x-1">
@@ -368,7 +368,7 @@ export function ZoneTemplateSelector({ propertyId, onSelect, onClose, onCreateFr
                   <div className="flex items-center space-x-4 text-sm text-gray-500">
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 fill-current text-yellow-400" />
-                      <span>{previewTemplate.avgRating.toFixed(1)}</span>
+                      <span>{Number(previewTemplate.avgRating).toFixed(1)}</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Users className="w-4 h-4" />

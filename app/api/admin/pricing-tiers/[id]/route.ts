@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../../src/lib/prisma';
 import { requireAdminAuth } from '../../../../../src/lib/admin-auth';
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await requireAdminAuth(request)
     if (authResult instanceof Response) {
       return authResult
     }
     
+    const params = await context.params;
     const { id } = params;
     const { 
       minProperties, 
@@ -122,13 +123,14 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await requireAdminAuth(request)
     if (authResult instanceof Response) {
       return authResult
     }
     
+    const params = await context.params;
     const { id } = params;
 
     // Check if tier exists

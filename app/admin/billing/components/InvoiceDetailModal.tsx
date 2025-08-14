@@ -266,18 +266,18 @@ export default function InvoiceDetailModal({ invoice, onClose, onUpdate }: Invoi
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Subtotal:</span>
-                <span className="font-medium">€{invoice.amount.toFixed(2)}</span>
+                <span className="font-medium">€{Number(invoice.amount).toFixed(2)}</span>
               </div>
               {invoice.discountAmount > 0 && (
                 <div className="flex justify-between items-center text-green-600">
                   <span>Descuento:</span>
-                  <span className="font-medium">-€{invoice.discountAmount.toFixed(2)}</span>
+                  <span className="font-medium">-€{Number(invoice.discountAmount).toFixed(2)}</span>
                 </div>
               )}
               <div className="border-t pt-3">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold text-gray-900">Total:</span>
-                  <span className="text-2xl font-bold text-gray-900">€{invoice.finalAmount.toFixed(2)}</span>
+                  <span className="text-2xl font-bold text-gray-900">€{Number(invoice.finalAmount).toFixed(2)}</span>
                 </div>
               </div>
             </div>

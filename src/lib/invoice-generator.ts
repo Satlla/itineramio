@@ -558,9 +558,9 @@ export class InvoiceGenerator {
             <small>Propiedades: ${properties.map(p => p.name).join(', ') || 'N/A'}</small>
           </td>
           <td style="text-align: center;">${properties.length || 1}</td>
-          <td class="amount-right">€${(invoice.amount / (properties.length || 1) / months).toFixed(2)}</td>
+          <td class="amount-right">€${Number(invoice.amount / (properties.length || 1) / months).toFixed(2)}</td>
           <td style="text-align: center;">${months}</td>
-          <td class="amount-right">€${invoice.amount.toFixed(2)}</td>
+          <td class="amount-right">€${Number(invoice.amount).toFixed(2)}</td>
         </tr>
       </tbody>
     </table>
@@ -570,16 +570,16 @@ export class InvoiceGenerator {
       <table class="totals-table">
         <tr>
           <td class="label">Subtotal:</td>
-          <td class="amount">€${invoice.amount.toFixed(2)}</td>
+          <td class="amount">€${Number(invoice.amount).toFixed(2)}</td>
         </tr>
         ${invoice.discountAmount > 0 ? `
         <tr>
           <td class="label">Descuento:</td>
-          <td class="amount" style="color: #dc2626;">-€${invoice.discountAmount.toFixed(2)}</td>
+          <td class="amount" style="color: #dc2626;">-€${Number(invoice.discountAmount).toFixed(2)}</td>
         </tr>` : ''}
         <tr class="total-final">
           <td class="label">TOTAL:</td>
-          <td class="amount">€${invoice.finalAmount.toFixed(2)}</td>
+          <td class="amount">€${Number(invoice.finalAmount).toFixed(2)}</td>
         </tr>
       </table>
     </div>

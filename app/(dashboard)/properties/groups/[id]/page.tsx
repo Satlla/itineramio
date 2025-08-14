@@ -219,7 +219,7 @@ function SortablePropertyCard({
           {property.avgRating !== undefined && property.avgRating > 0 && (
             <div className="flex items-center text-sm text-gray-600">
               <Star className="w-4 h-4 text-yellow-500 mr-1" />
-              <span>{property.avgRating.toFixed(1)}</span>
+              <span>{Number(property.avgRating).toFixed(1)}</span>
             </div>
           )}
         </div>
@@ -866,7 +866,7 @@ export default function PropertySetDetailPage() {
                   <div className="ml-3">
                     <p className="text-sm font-medium text-gray-600">Valoración</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      {propertySet.avgRating > 0 ? propertySet.avgRating.toFixed(1) : '--'}
+                      {propertySet.avgRating > 0 ? Number(propertySet.avgRating).toFixed(1) : '--'}
                     </p>
                   </div>
                 </div>

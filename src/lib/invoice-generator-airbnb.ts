@@ -506,7 +506,7 @@ export class InvoiceGeneratorAirbnb {
                 <div class="item-description">Servicio mensual con acceso completo a la plataforma Itineramio. Incluye todas las funcionalidades para gestionar tu propiedad.</div>
               </td>
               <td>
-                <div class="item-price">€${subtotal.toFixed(2)}</div>
+                <div class="item-price">€${Number(subtotal).toFixed(2)}</div>
               </td>
             </tr>
           `}
@@ -518,25 +518,25 @@ export class InvoiceGeneratorAirbnb {
     <div class="totals-section">
       <div class="total-row subtotal">
         <span class="total-label">Subtotal</span>
-        <span class="total-value">€${subtotal.toFixed(2)}</span>
+        <span class="total-value">€${Number(subtotal).toFixed(2)}</span>
       </div>
       ${discount > 0 ? `
       <div class="total-row">
         <span class="total-label">Descuento</span>
-        <span class="total-value">-€${discount.toFixed(2)}</span>
+        <span class="total-value">-€${Number(discount).toFixed(2)}</span>
       </div>
       ` : ''}
       <div class="total-row">
         <span class="total-label">Base imponible</span>
-        <span class="total-value">€${baseImponible.toFixed(2)}</span>
+        <span class="total-value">€${Number(baseImponible).toFixed(2)}</span>
       </div>
       <div class="total-row">
         <span class="total-label">IVA (21%)</span>
-        <span class="total-value">€${iva.toFixed(2)}</span>
+        <span class="total-value">€${Number(iva).toFixed(2)}</span>
       </div>
       <div class="total-row final-total">
         <span class="total-label">Total</span>
-        <span class="total-value">€${total.toFixed(2)}</span>
+        <span class="total-value">€${Number(total).toFixed(2)}</span>
       </div>
     </div>
     

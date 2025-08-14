@@ -44,7 +44,7 @@ export function PlanLimitsCard({ limits }: PlanLimitsCardProps) {
           Tu Plan: {limits.planName}
           {limits.monthlyFee > 0 && (
             <span className="ml-2 text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
-              €{limits.monthlyFee}/mes por propiedad
+              €{Number(limits.monthlyFee).toFixed(2)}/mes por propiedad
             </span>
           )}
         </CardTitle>
@@ -111,7 +111,7 @@ export function PlanLimitsCard({ limits }: PlanLimitsCardProps) {
                       </Link>
                       
                       <div className="text-xs text-orange-600">
-                        Solo €{limits.monthlyFee}/mes por propiedad adicional
+                        Solo €{Number(limits.monthlyFee).toFixed(2)}/mes por propiedad adicional
                       </div>
                     </div>
                   )}

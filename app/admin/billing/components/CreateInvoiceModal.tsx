@@ -441,7 +441,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Importe final:</span>
                     <span className="text-2xl font-bold text-gray-900">
-                      €{calculateFinalAmount().toFixed(2)}
+                      €{Number(calculateFinalAmount()).toFixed(2)}
                     </span>
                   </div>
                 </div>

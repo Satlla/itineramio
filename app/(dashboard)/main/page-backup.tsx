@@ -167,7 +167,7 @@ export default function DashboardPage(): JSX.Element {
           totalProperties: allProperties.length,
           totalViews: totalViews,
           activeManuals: activeManuals,
-          avgRating: parseFloat(avgRating.toFixed(1))
+          avgRating: parseFloat(Number(avgRating).toFixed(1))
         })
       }
 

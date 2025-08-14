@@ -306,7 +306,7 @@ export default function PropertyEvaluationsPage() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Valoración Media</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.averageRating.toFixed(1)}
+                    {Number(stats.averageRating).toFixed(1)}
                   </p>
                   <div className="flex mt-1">
                     {renderStars(Math.round(stats.averageRating))}

@@ -252,7 +252,7 @@ export default function BillingPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Facturado</p>
-              <p className="text-2xl font-bold text-gray-900">€{stats.total.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-gray-900">€{Number(stats.total).toFixed(2)}</p>
             </div>
             <DollarSign className="w-8 h-8 text-gray-400" />
           </div>
@@ -262,7 +262,7 @@ export default function BillingPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Cobrado</p>
-              <p className="text-2xl font-bold text-green-600">€{stats.paid.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-green-600">€{Number(stats.paid).toFixed(2)}</p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-500" />
           </div>
@@ -272,7 +272,7 @@ export default function BillingPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Pendiente</p>
-              <p className="text-2xl font-bold text-yellow-600">€{stats.pending.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-yellow-600">€{Number(stats.pending).toFixed(2)}</p>
             </div>
             <Clock className="w-8 h-8 text-yellow-500" />
           </div>
@@ -390,10 +390,10 @@ export default function BillingPage() {
                   
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">€{invoice.finalAmount.toFixed(2)}</div>
+                      <div className="text-sm font-medium text-gray-900">€{Number(invoice.finalAmount).toFixed(2)}</div>
                       {invoice.discountAmount > 0 && (
                         <div className="text-xs text-gray-500">
-                          Desc: €{invoice.discountAmount.toFixed(2)}
+                          Desc: €{Number(invoice.discountAmount).toFixed(2)}
                         </div>
                       )}
                     </div>
@@ -480,7 +480,7 @@ export default function BillingPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <p className="text-xs text-gray-500">Importe</p>
-                  <p className="text-sm font-medium text-gray-900">€{invoice.finalAmount.toFixed(2)}</p>
+                  <p className="text-sm font-medium text-gray-900">€{Number(invoice.finalAmount).toFixed(2)}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Vencimiento</p>

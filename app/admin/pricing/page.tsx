@@ -131,7 +131,7 @@ export default function AdminPricingPage() {
           {examples.map(count => (
             <div key={count} className="bg-white/20 rounded-lg p-3 text-center">
               <div className="text-sm opacity-90">{count} propiedad{count > 1 ? 'es' : ''}</div>
-              <div className="text-lg font-bold">€{calculateExamplePrice(count).toFixed(2)}</div>
+              <div className="text-lg font-bold">€{Number(calculateExamplePrice(count)).toFixed(2)}</div>
               <div className="text-xs opacity-75">/mes</div>
             </div>
           ))}
@@ -248,7 +248,7 @@ export default function AdminPricingPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-lg font-bold text-gray-900">
-                      €{tier.pricePerProperty.toFixed(2)}
+                      €{Number(tier.pricePerProperty).toFixed(2)}
                     </span>
                     <span className="text-sm text-gray-500 ml-1">/propiedad/mes</span>
                   </td>
