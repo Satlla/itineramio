@@ -59,6 +59,8 @@ interface CouponValidation {
     finalAmount: number
     freeMonthsGained: number
     percentageOff: number
+    pricePerProperty?: number
+    equivalentValue?: number
   }
   details?: {
     usesRemaining: string | number
@@ -389,12 +391,22 @@ export default function BillingPage() {
                           </>
                         )}
                         {couponValidation.discount.freeMonthsGained > 0 && (
-                          <div>
-                            <span className="text-gray-600">Meses gratis:</span>
-                            <span className="font-semibold text-green-600 ml-1">
-                              {couponValidation.discount.freeMonthsGained}
-                            </span>
-                          </div>
+                          <>
+                            <div>
+                              <span className="text-gray-600">Meses gratis:</span>
+                              <span className="font-semibold text-green-600 ml-1">
+                                {couponValidation.discount.freeMonthsGained}
+                              </span>
+                            </div>
+                            {couponValidation.discount.equivalentValue && (
+                              <div>
+                                <span className="text-gray-600">Valor equivalente:</span>
+                                <span className="font-semibold text-green-600 ml-1">
+                                  €{Number(couponValidation.discount.equivalentValue).toFixed(2)}
+                                </span>
+                              </div>
+                            )}
+                          </>
                         )}
                         {couponValidation.discount.percentageOff > 0 && (
                           <div>

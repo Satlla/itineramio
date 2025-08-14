@@ -14,10 +14,21 @@ interface CalculationResult {
   properties: number
   pricePerProperty: number
   totalPrice: number
+  discountAmount?: number
+  finalPrice?: number
   tier: {
     minProperties: number
     maxProperties: number | null
     pricePerProperty: number
+  }
+  coupon?: {
+    id: string
+    code: string
+    name: string
+    type: string
+    freeMonths?: number
+    equivalentValue?: number
+    applied: boolean
   }
 }
 
@@ -28,6 +39,8 @@ export default function PricingCalculator() {
   const [allTiers, setAllTiers] = useState<PricingTier[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [validatingCoupon, setValidatingCoupon] = useState(false)
+  const [couponError, setCouponError] = useState('')
 
   // Static pricing tiers as fallback
   const staticTiers = [
@@ -66,9 +79,33 @@ export default function PricingCalculator() {
       try {
         setLoading(true)
         setError('')
+        setCouponError('')
         
-        const response = await fetch(`/api/pricing/calculate?properties=${properties}`)
-        const data = await response.json()
+        let response, data
+        
+        // If coupon code is provided, use POST endpoint with coupon
+        if (couponCode.trim()) {
+          setValidatingCoupon(true)
+          response = await fetch(`/api/pricing/calculate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              properties,
+              couponCode: couponCode.trim()
+            })
+          })
+          data = await response.json()
+          
+          if (!data.success) {
+            setCouponError(data.error || 'Cupón no válido')
+            // Still fetch normal pricing without coupon
+            response = await fetch(`/api/pricing/calculate?properties=${properties}`)
+            data = await response.json()
+          }
+        } else {
+          response = await fetch(`/api/pricing/calculate?properties=${properties}`)
+          data = await response.json()
+        }
         
         if (data.success) {
           setCalculation(data.calculation)
@@ -82,11 +119,12 @@ export default function PricingCalculator() {
         calculateLocally()
       } finally {
         setLoading(false)
+        setValidatingCoupon(false)
       }
     }
 
     fetchCalculation()
-  }, [properties])
+  }, [properties, couponCode])
 
   const handlePropertyChange = (change: number) => {
     const newValue = Math.max(1, properties + change)
@@ -157,13 +195,43 @@ export default function PricingCalculator() {
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   Código de cupón (opcional)
                 </label>
-                <input
-                  type="text"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  placeholder="Introduce tu código"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-violet-500 focus:outline-none"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="Introduce tu código"
+                    className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none ${
+                      couponError 
+                        ? 'border-red-300 focus:border-red-500' 
+                        : calculation?.coupon?.applied
+                        ? 'border-green-300 focus:border-green-500'
+                        : 'border-gray-200 focus:border-violet-500'
+                    }`}
+                  />
+                  {validatingCoupon && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full"></div>
+                    </div>
+                  )}
+                </div>
+                
+                {couponError && (
+                  <p className="mt-2 text-sm text-red-600">{couponError}</p>
+                )}
+                
+                {calculation?.coupon?.applied && (
+                  <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm text-green-700 font-medium">
+                      ✓ {calculation.coupon.name} aplicado
+                    </p>
+                    {calculation.coupon.type === 'FREE_MONTHS' && calculation.coupon.freeMonths && (
+                      <p className="text-xs text-green-600">
+                        {calculation.coupon.freeMonths} meses gratis (valor: €{Number(calculation.coupon.equivalentValue || 0).toFixed(2)})
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Calculation Result */}
@@ -186,11 +254,36 @@ export default function PricingCalculator() {
                         €{calculation.pricePerProperty}/propiedad
                       </span>
                     </div>
+                    
+                    {/* Show pricing breakdown if coupon applied */}
+                    {calculation.coupon?.applied && calculation.discountAmount !== undefined && (
+                      <div className="space-y-2 mb-4">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">Precio original:</span>
+                          <span className="text-gray-700">€{Number(calculation.totalPrice).toFixed(2)}</span>
+                        </div>
+                        {calculation.coupon.type !== 'FREE_MONTHS' && (
+                          <>
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="text-gray-600">Descuento:</span>
+                              <span className="text-red-600">-€{Number(calculation.discountAmount).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="text-gray-600">Precio final:</span>
+                              <span className="text-green-600">€{Number(calculation.finalPrice || calculation.totalPrice).toFixed(2)}</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+                    
                     <div className="border-t border-violet-200 pt-4">
                       <div className="flex justify-between items-center">
-                        <span className="text-lg font-semibold text-gray-900">Total mensual</span>
+                        <span className="text-lg font-semibold text-gray-900">
+                          {calculation.coupon?.type === 'FREE_MONTHS' ? 'Total mensual' : 'Total a pagar'}
+                        </span>
                         <span className="text-3xl font-bold text-violet-600">
-                          €{Number(calculation.totalPrice).toFixed(2)}
+                          €{Number(calculation.finalPrice || calculation.totalPrice).toFixed(2)}
                         </span>
                       </div>
                     </div>
