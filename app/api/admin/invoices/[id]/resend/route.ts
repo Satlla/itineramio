@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../../../../src/lib/prisma'
-import { requireAdminAuth } from '../../../../../../../src/lib/admin-auth'
-import { sendEmail, emailTemplates } from '../../../../../../../src/lib/email-improved'
+import { prisma } from '../../../../../../src/lib/prisma'
+import { requireAdminAuth } from '../../../../../../src/lib/admin-auth'
+import { sendEmail, emailTemplates } from '../../../../../../src/lib/email-improved'
 
 export async function POST(
   request: NextRequest,
@@ -65,7 +65,9 @@ export async function POST(
     // Log admin activity
     await prisma.adminActivityLog.create({
       data: {
-        adminId: authResult.adminId,
+        admin: {
+          connect: { id: authResult.adminId }
+        },
         action: 'invoice_resent',
         description: `Reenviada factura ${invoice.invoiceNumber} a ${invoice.user.email}`,
         metadata: {
