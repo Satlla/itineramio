@@ -152,10 +152,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   // Unwrap params Promise
   useEffect(() => {
-    params.then(({ id: paramId }) => {
-      setId(paramId)
-    })
-  }, [params])
+    if (!id) {
+      params.then(({ id: paramId }) => {
+        setId(paramId)
+      })
+    }
+  }, [params, id])
 
 
   const essentialZones = [
