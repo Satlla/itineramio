@@ -65,6 +65,8 @@ model User {
   couponUses              CouponUse[]            @relation("UserCouponUses")
   // Email change tokens
   emailChangeTokens       EmailChangeToken[]
+  // Subscription requests
+  subscriptionRequests    SubscriptionRequest[]  @relation("UserSubscriptionRequests")
 
   @@map("users")
 }
@@ -462,6 +464,7 @@ model SubscriptionPlan {
   createdAt          DateTime           @default(now()) @map("created_at")
   updatedAt          DateTime           @updatedAt @map("updated_at")
   subscriptions      UserSubscription[]
+  requests           SubscriptionRequest[] @relation("PlanRequests")
 
   @@map("subscription_plans")
 }
@@ -866,6 +869,7 @@ model CustomPlan {
   
   // Relaciones con usuarios que usan este plan
   subscriptions    UserSubscription[]
+  requests         SubscriptionRequest[] @relation("CustomPlanRequests")
   
   @@map("custom_plans")
 }
@@ -901,4 +905,42 @@ model PricingTier {
   @@index([minProperties])
   @@index([maxProperties])
   @@map("pricing_tiers")
+}
+
+model SubscriptionRequest {
+  id                String   @id @default(cuid())
+  userId            String   @map("user_id")
+  planId            String?  @map("plan_id")
+  customPlanId      String?  @map("custom_plan_id")
+  
+  // Detalles de la solicitud
+  requestType       String   // "PLAN" | "PROPERTIES"
+  propertiesCount   Int?     @map("properties_count") // Para solicitudes de propiedades individuales
+  totalAmount       Decimal  @map("total_amount")
+  
+  // Estado y pago
+  status            String   @default("PENDING") // PENDING, PAID, APPROVED, REJECTED, CANCELLED
+  paymentMethod     String?  @map("payment_method") // "BIZUM" | "TRANSFER"
+  paymentReference  String?  @map("payment_reference")
+  paymentProofUrl   String?  @map("payment_proof_url") // URL de la imagen del justificante
+  
+  // Fechas
+  requestedAt       DateTime @default(now()) @map("requested_at")
+  paidAt            DateTime? @map("paid_at") // Cuando el usuario dice que pagó
+  approvedAt        DateTime? @map("approved_at") // Cuando admin aprueba
+  rejectedAt        DateTime? @map("rejected_at")
+  
+  // Admin management
+  reviewedBy        String?  @map("reviewed_by") // Admin que revisó
+  adminNotes        String?  @map("admin_notes")
+  
+  // Relaciones
+  user              User              @relation("UserSubscriptionRequests", fields: [userId], references: [id], onDelete: Cascade)
+  plan              SubscriptionPlan? @relation("PlanRequests", fields: [planId], references: [id])
+  customPlan        CustomPlan?       @relation("CustomPlanRequests", fields: [customPlanId], references: [id])
+  
+  @@index([userId])
+  @@index([status])
+  @@index([requestedAt])
+  @@map("subscription_requests")
 }

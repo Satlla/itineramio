@@ -87,8 +87,8 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
   if (propertyMatch) {
     const identifier = propertyMatch[1]
     if (!reservedPropertyRoutes.includes(identifier)) {
-      // If it doesn't look like a CUID, it's likely a slug
-      if (!identifier.match(/^c[a-z0-9]{24,}$/i)) {
+      // If it doesn't look like a CUID or property ID, it's likely a slug
+      if (!identifier.match(/^(c[a-z0-9]{24,}|prop-[0-9]+-[a-z0-9]+)$/i)) {
         // Rewrite to a special slug route
         const url = request.nextUrl.clone()
         url.pathname = `/properties/slug/${identifier}`
@@ -103,7 +103,7 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
     const identifier = propertyZonesMatch[1]
     // Skip reserved routes
     if (!reservedPropertyRoutes.includes(identifier)) {
-      if (!identifier.match(/^c[a-z0-9]{24,}$/i)) {
+      if (!identifier.match(/^(c[a-z0-9]{24,}|prop-[0-9]+-[a-z0-9]+)$/i)) {
         const url = request.nextUrl.clone()
         url.pathname = `/properties/slug/${identifier}/zones`
         return NextResponse.rewrite(url)
@@ -119,8 +119,8 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
     
     // Skip reserved routes
     if (!reservedPropertyRoutes.includes(propertyIdentifier)) {
-      // If either is not a CUID, treat as slug
-      if (!propertyIdentifier.match(/^c[a-z0-9]{24,}$/i) || !zoneIdentifier.match(/^c[a-z0-9]{24,}$/i)) {
+      // If either is not a CUID or property/zone ID, treat as slug
+      if (!propertyIdentifier.match(/^(c[a-z0-9]{24,}|prop-[0-9]+-[a-z0-9]+)$/i) || !zoneIdentifier.match(/^(c[a-z0-9]{24,}|zone-[a-z0-9]+-[0-9]+)$/i)) {
         const url = request.nextUrl.clone()
         url.pathname = `/properties/slug/${propertyIdentifier}/zones/${zoneIdentifier}`
         return NextResponse.rewrite(url)

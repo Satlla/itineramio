@@ -168,16 +168,22 @@ export function ImageUpload({
         formData.append('skipDuplicateCheck', 'true')
       }
       
+      console.log('🌐 ImageUpload: Making fetch request to /api/upload')
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       })
       
+      console.log('📡 ImageUpload: Response status:', response.status, response.statusText)
+      
       if (!response.ok) {
-        throw new Error('Error uploading file')
+        const errorText = await response.text()
+        console.error('❌ ImageUpload: Response not ok:', errorText)
+        throw new Error(`Upload failed: ${response.status} - ${errorText}`)
       }
       
       const result = await response.json()
+      console.log('📄 ImageUpload: Response data:', result)
       
       // Handle duplicate detection
       if (result.duplicate) {

@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     console.log('=== DIRECT UPDATE ===')
     
-    const { email, password, firstName, lastName, phone, newEmail } = await request.json()
+    const { email, password, firstName, lastName, phone, profileImage, newEmail } = await request.json()
     
     if (!email) {
       return NextResponse.json({ error: 'Email requerido' }, { status: 400 })
@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
     // Prepare update data
     const updateData: any = {
       name: `${firstName || ''} ${lastName || ''}`.trim() || 'Usuario',
-      phone: phone || null
+      phone: phone || null,
+      avatar: profileImage || null
     }
     
     // Handle email change
@@ -68,7 +69,8 @@ export async function POST(request: NextRequest) {
         id: updatedUser.id,
         name: updatedUser.name,
         email: updatedUser.email,
-        phone: updatedUser.phone
+        phone: updatedUser.phone,
+        avatar: updatedUser.avatar
       }
     })
     

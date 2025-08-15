@@ -67,6 +67,9 @@ export default function AccountPage() {
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Clear previous errors
+    setErrors(prev => ({ ...prev, image: '' }))
+
     // Validate file
     if (!file.type.startsWith('image/')) {
       setErrors({ image: 'Por favor selecciona una imagen válida' })
@@ -78,14 +81,49 @@ export default function AccountPage() {
       return
     }
 
-    // Preview
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setProfileImage(reader.result as string)
-    }
-    reader.readAsDataURL(file)
+    setLoading(true)
 
-    // TODO: Upload to server
+    try {
+      // Upload to server
+      const formData = new FormData()
+      formData.append('file', file)
+
+      console.log('🌐 Making upload request to /api/upload')
+      console.log('🍪 Current cookies:', document.cookie)
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      console.log('📡 Upload response status:', response.status, response.statusText)
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('❌ Upload response not ok:', errorText)
+        throw new Error(`Upload failed: ${response.status} - ${errorText}`)
+      }
+
+      const result = await response.json()
+      console.log('📄 Upload response data:', result)
+
+      if (result.success) {
+        // Set the uploaded image URL
+        setProfileImage(result.url)
+        console.log('✅ Profile image uploaded successfully:', result.url)
+      } else if (result.duplicate && result.existingMedia?.url) {
+        // Handle duplicate image - use existing media
+        setProfileImage(result.existingMedia.url)
+        console.log('✅ Using existing image from media library:', result.existingMedia.url)
+      } else {
+        console.error('❌ Upload result not successful:', result)
+        throw new Error(result.error || result.message || 'Upload failed')
+      }
+    } catch (error) {
+      console.error('Error uploading profile image:', error)
+      setErrors({ image: 'Error al subir la imagen. Inténtalo de nuevo.' })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const validateBasicForm = () => {
@@ -160,6 +198,7 @@ export default function AccountPage() {
         firstName: formData.firstName?.trim() || '',
         lastName: formData.lastName?.trim() || '',
         phone: formData.phone?.trim() || '',
+        profileImage: profileImage || null,
         newEmail: isEmailChanging ? formData.email?.trim() : undefined
       }
 
@@ -177,7 +216,7 @@ export default function AccountPage() {
         console.log('Success response:', data)
         setShowSuccessToast(true)
         setTimeout(() => setShowSuccessToast(false), 3000)
-        // Don't refresh user, just update form data
+        // Don't refresh user, just update form data and profile image
         if (data.user) {
           const nameParts = data.user.name?.trim().split(' ') || []
           setFormData(prev => ({
@@ -187,7 +226,13 @@ export default function AccountPage() {
             email: data.user.email || '',
             phone: data.user.phone || ''
           }))
+          // Update profile image from response
+          if (data.user.avatar !== undefined) {
+            setProfileImage(data.user.avatar)
+          }
         }
+        // Also refresh the user context
+        await refreshUser()
       } else {
         const data = await response.json().catch(() => ({ error: 'Error desconocido' }))
         console.log('Error response:', data)

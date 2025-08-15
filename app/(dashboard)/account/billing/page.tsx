@@ -17,7 +17,8 @@ import {
   Check,
   Tag,
   Percent,
-  Eye
+  Eye,
+  ArrowRight
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../src/components/ui/Card'
 import { Button } from '../../../../src/components/ui/Button'
@@ -295,11 +296,18 @@ export default function BillingPage() {
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
               <div className="flex items-start">
                 <AlertCircle className="w-5 h-5 text-amber-600 mr-3 mt-0.5" />
-                <div>
+                <div className="flex-1">
                   <h4 className="font-semibold text-amber-900">¡Desbloquea más propiedades!</h4>
-                  <p className="text-sm text-amber-700 mt-1">
+                  <p className="text-sm text-amber-700 mt-1 mb-3">
                     Estás usando tu propiedad gratuita. Para agregar más propiedades, actualiza a nuestro plan Growth por solo €2.50/mes por propiedad adicional.
                   </p>
+                  <a 
+                    href="/account/plans"
+                    className="inline-flex items-center px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors"
+                  >
+                    Ver Planes y Precios
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </a>
                 </div>
               </div>
             </div>

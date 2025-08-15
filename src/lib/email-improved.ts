@@ -609,6 +609,260 @@ export const emailTemplates = {
     </html>
   `,
 
+  // Notificación de nueva solicitud de suscripción para admins
+  subscriptionRequestNotification: (params: {
+    userName: string,
+    userEmail: string,
+    userPhone: string,
+    planName: string,
+    totalAmount: string,
+    paymentMethod: string,
+    paymentReference: string,
+    paymentProofUrl: string,
+    requestId: string,
+    adminDashboardUrl: string
+  }) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>🎯 Nueva Solicitud de Suscripción - Itineramio</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #8b5cf6; margin: 0;">🎯 Nueva Solicitud de Suscripción</h1>
+        <p style="color: #666; margin: 5px 0;">Un usuario ha solicitado una nueva suscripción</p>
+      </div>
+      
+      <div style="background: #f0f9ff; padding: 30px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #0ea5e9;">
+        <h2 style="color: #0c4a6e; margin-top: 0;">Detalles de la Solicitud</h2>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Cliente:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">\${params.userName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Email:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">\${params.userEmail}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Teléfono:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">\${params.userPhone}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Plan:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">\${params.planName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Importe:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6; color: #059669; font-weight: bold;">€\${params.totalAmount}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Método de pago:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">\${params.paymentMethod}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Referencia:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">\${params.paymentReference}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>ID Solicitud:</strong></td>
+              <td style="padding: 8px 0; font-family: monospace; font-size: 12px;">\${params.requestId}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="\${params.paymentProofUrl}" 
+             target="_blank"
+             style="background: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; margin-right: 10px;">
+            📄 Ver Justificante
+          </a>
+          <a href="\${params.adminDashboardUrl}" 
+             style="background: #0ea5e9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            🎛️ Panel Admin
+          </a>
+        </div>
+        
+        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 15px; margin-top: 20px;">
+          <p style="margin: 0; color: #92400e;">
+            <strong>⚠️ Acción requerida:</strong> Revisar el justificante de pago y aprobar/rechazar la solicitud desde el panel de administración.
+          </p>
+        </div>
+      </div>
+      
+      <div style="text-align: center; color: #94a3b8; font-size: 14px;">
+        <p>Si necesitas contactar con el cliente:</p>
+        <ul style="list-style: none; padding: 0;">
+          <li>📧 Email: <a href="mailto:\${params.userEmail}">\${params.userEmail}</a></li>
+          <li>📱 Teléfono: <a href="tel:\${params.userPhone}">\${params.userPhone}</a></li>
+          <li>💬 WhatsApp: <a href="https://wa.me/\${params.userPhone.replace(/\\D/g, '')}" target="_blank">Enviar mensaje</a></li>
+        </ul>
+        <p style="margin-top: 15px;">© 2024 Itineramio. Todos los derechos reservados.</p>
+      </div>
+    </body>
+    </html>
+  `,
+
+  // Notificación de suscripción aprobada
+  subscriptionApproved: (params: {
+    userName: string,
+    planName: string,
+    startDate: string,
+    endDate: string,
+    invoiceNumber: string,
+    totalAmount: string,
+    dashboardUrl: string
+  }) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>🎉 Suscripción Activada - Itineramio</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #22c55e; margin: 0;">🎉 ¡Suscripción Activada!</h1>
+        <p style="color: #666; margin: 5px 0;">Tu pago ha sido confirmado</p>
+      </div>
+      
+      <div style="background: #f0fdf4; padding: 30px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #22c55e;">
+        <h2 style="color: #166534; margin-top: 0;">¡Hola \${params.userName}!</h2>
+        <p style="color: #15803d; margin-bottom: 20px; font-size: 18px;">
+          🎉 ¡Excelentes noticias! Tu suscripción para <strong>\${params.planName}</strong> ha sido activada exitosamente.
+        </p>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #166534; margin-top: 0;">Detalles de tu Suscripción</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Plan:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">\${params.planName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Fecha de inicio:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">\${params.startDate}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Próxima renovación:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">\${params.endDate}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Factura:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">\${params.invoiceNumber}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>Importe:</strong></td>
+              <td style="padding: 8px 0; color: #059669; font-weight: bold;">€\${params.totalAmount}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <h4 style="color: #0c4a6e; margin-top: 0;">🚀 ¿Qué puedes hacer ahora?</h4>
+          <ul style="color: #0369a1; margin: 0; padding-left: 20px;">
+            <li>Crear múltiples propiedades</li>
+            <li>Generar códigos QR ilimitados</li>
+            <li>Acceder a estadísticas avanzadas</li>
+            <li>Recibir soporte prioritario</li>
+          </ul>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="\${params.dashboardUrl}" 
+             style="background: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            🏠 Ir a Mi Dashboard
+          </a>
+        </div>
+      </div>
+      
+      <div style="text-align: center; color: #94a3b8; font-size: 14px;">
+        <p>¡Gracias por confiar en Itineramio!</p>
+        <p>Si tienes alguna pregunta, contáctanos en <a href="mailto:hola@itineramio.com">hola@itineramio.com</a></p>
+        <p style="margin-top: 15px;">© 2024 Itineramio. Todos los derechos reservados.</p>
+      </div>
+    </body>
+    </html>
+  `,
+
+  // Notificación de suscripción rechazada
+  subscriptionRejected: (params: {
+    userName: string,
+    planName: string,
+    rejectionReason: string,
+    totalAmount: string,
+    supportEmail: string,
+    retryUrl: string
+  }) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>❌ Solicitud de Suscripción Rechazada - Itineramio</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #ef4444; margin: 0;">❌ Solicitud Rechazada</h1>
+        <p style="color: #666; margin: 5px 0;">Necesitamos revisar tu pago</p>
+      </div>
+      
+      <div style="background: #fef2f2; padding: 30px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #ef4444;">
+        <h2 style="color: #991b1b; margin-top: 0;">Hola \${params.userName},</h2>
+        <p style="color: #dc2626; margin-bottom: 20px;">
+          Lamentamos informarte que tu solicitud de suscripción para <strong>\${params.planName}</strong> ha sido rechazada.
+        </p>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #991b1b; margin-top: 0;">Motivo del rechazo</h3>
+          <p style="color: #dc2626; margin: 0;">
+            \${params.rejectionReason}
+          </p>
+        </div>
+        
+        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 15px; margin: 20px 0;">
+          <h4 style="color: #92400e; margin-top: 0;">💡 ¿Qué hacer ahora?</h4>
+          <ol style="color: #d97706; margin: 0; padding-left: 20px;">
+            <li>Verifica que el pago se realizó correctamente</li>
+            <li>Asegúrate de usar el concepto correcto: "Itineramio - \${params.planName}"</li>
+            <li>Envía un justificante de pago más claro</li>
+            <li>Contacta con nuestro soporte si necesitas ayuda</li>
+          </ol>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="\${params.retryUrl}" 
+             style="background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; margin-right: 10px;">
+            🔄 Intentar de Nuevo
+          </a>
+          <a href="mailto:\${params.supportEmail}" 
+             style="background: #6b7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            📧 Contactar Soporte
+          </a>
+        </div>
+        
+        <div style="background: #e5e7eb; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="color: #374151; margin: 0; font-size: 14px;">
+            <strong>Información de la solicitud:</strong><br>
+            Plan: \${params.planName}<br>
+            Importe: €\${params.totalAmount}<br>
+            No se ha realizado ningún cargo a tu cuenta.
+          </p>
+        </div>
+      </div>
+      
+      <div style="text-align: center; color: #94a3b8; font-size: 14px;">
+        <p>Estamos aquí para ayudarte. Contacta con nuestro equipo en <a href="mailto:\${params.supportEmail}">\${params.supportEmail}</a></p>
+        <p style="margin-top: 15px;">© 2024 Itineramio. Todos los derechos reservados.</p>
+      </div>
+    </body>
+    </html>
+  `,
+
   // Plantilla simplificada para notificación de evaluación
   zoneEvaluationNotification: (propertyName: string, zoneName: string, rating: number, comment?: string) => `
     <!DOCTYPE html>
