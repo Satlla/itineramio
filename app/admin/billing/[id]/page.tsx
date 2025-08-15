@@ -333,17 +333,17 @@ export default function InvoiceDetailPage() {
               <div className="border-t pt-4">
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">€{invoice.amount.toFixed(2)}</span>
+                  <span className="font-medium">€{Number(invoice.amount).toFixed(2)}</span>
                 </div>
-                {invoice.discountAmount > 0 && (
+                {Number(invoice.discountAmount) > 0 && (
                   <div className="flex justify-between mb-2">
                     <span className="text-gray-600">Descuento</span>
-                    <span className="font-medium text-green-600">-€{invoice.discountAmount.toFixed(2)}</span>
+                    <span className="font-medium text-green-600">-€{Number(invoice.discountAmount).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-lg font-bold border-t pt-2">
                   <span>Total</span>
-                  <span>€{invoice.finalAmount.toFixed(2)}</span>
+                  <span>€{Number(invoice.finalAmount).toFixed(2)}</span>
                 </div>
               </div>
             </div>
