@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { 
   CreditCard, 
   Plus, 
@@ -416,13 +417,13 @@ export default function BillingPage() {
                   
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-3">
-                      <button
-                        onClick={() => setSelectedInvoice(invoice)}
+                      <Link
+                        href={`/admin/billing/${invoice.id}`}
                         className="text-blue-600 hover:text-blue-900"
                         title="Ver detalles"
                       >
                         <Eye className="w-4 h-4" />
-                      </button>
+                      </Link>
                       <button
                         onClick={() => handleDownloadInvoice(invoice.id)}
                         className="text-gray-600 hover:text-gray-900"
@@ -493,13 +494,13 @@ export default function BillingPage() {
 
             <div className="flex items-center justify-between pt-3 border-t border-gray-100">
               <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => setSelectedInvoice(invoice)}
+                <Link
+                  href={`/admin/billing/${invoice.id}`}
                   className="flex items-center text-blue-600 hover:text-blue-900 text-sm"
                 >
                   <Eye className="w-4 h-4 mr-1" />
                   Ver
-                </button>
+                </Link>
                 <button
                   onClick={() => handleDownloadInvoice(invoice.id)}
                   className="flex items-center text-gray-600 hover:text-gray-900 text-sm"
