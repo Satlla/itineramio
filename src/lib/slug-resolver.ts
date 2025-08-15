@@ -36,14 +36,13 @@ export async function resolveProperty(identifier: string): Promise<ResolvedPrope
       return property ? { ...property, slug: null } : null;
     }
     
-    // Treat as slug (temporarily disabled)
-    // const property = await prisma.property.findUnique({
-    //   where: { slug: identifier },
-    //   select: { id: true, slug: true, name: true }
-    // });
-    const property = null; // Temporarily disabled
+    // For properties that aren't CUIDs, also try to find by ID
+    const property = await prisma.property.findUnique({
+      where: { id: identifier },
+      select: { id: true, name: true }
+    });
     
-    return property;
+    return property ? { ...property, slug: null } : null;
   } catch (error) {
     console.error('Error resolving property:', error);
     return null;

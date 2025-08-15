@@ -68,8 +68,8 @@ interface Zone {
   slug?: string
 }
 
-export default function PropertyZonesPage({ params }: { params: Promise<{ id: string }> }) {
-  const [id, setId] = useState<string>('')
+export default function PropertyZonesPage({ params }: { params: { id: string } }) {
+  const { id } = params
   const router = useRouter()
   const { user } = useAuth()
   const { addNotification } = useNotifications()
@@ -150,11 +150,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setIsClient(true)
   }, [])
 
-  useEffect(() => {
-    params.then(({ id: paramId }) => {
-      setId(paramId)
-    })
-  }, [params])
 
   const essentialZones = [
     { id: 'check-in', name: 'Check In', icon: 'key', description: 'Instrucciones de entrada y llaves' },
