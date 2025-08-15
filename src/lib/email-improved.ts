@@ -613,26 +613,25 @@ export const emailTemplates = {
   subscriptionRequestNotification: (params: {
     userName: string,
     userEmail: string,
-    userPhone: string,
     planName: string,
     totalAmount: string,
     paymentMethod: string,
     paymentReference: string,
-    paymentProofUrl: string,
+    requestType?: string,
     requestId: string,
-    adminDashboardUrl: string
+    adminUrl: string
   }) => `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>🎯 Nueva Solicitud de Suscripción - Itineramio</title>
+      <title>🎯 Nueva Solicitud de ${params.requestType || 'Suscripción'} - Itineramio</title>
     </head>
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="text-align: center; margin-bottom: 30px;">
-        <h1 style="color: #8b5cf6; margin: 0;">🎯 Nueva Solicitud de Suscripción</h1>
-        <p style="color: #666; margin: 5px 0;">Un usuario ha solicitado una nueva suscripción</p>
+        <h1 style="color: #8b5cf6; margin: 0;">🎯 Nueva Solicitud de ${params.requestType || 'Suscripción'}</h1>
+        <p style="color: #666; margin: 5px 0;">Un usuario ha solicitado una ${params.requestType?.toLowerCase() || 'nueva suscripción'}</p>
       </div>
       
       <div style="background: #f0f9ff; padding: 30px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #0ea5e9;">
@@ -647,10 +646,6 @@ export const emailTemplates = {
             <tr>
               <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Email:</strong></td>
               <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">\${params.userEmail}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Teléfono:</strong></td>
-              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">\${params.userPhone}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Plan:</strong></td>
@@ -676,12 +671,7 @@ export const emailTemplates = {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="\${params.paymentProofUrl}" 
-             target="_blank"
-             style="background: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; margin-right: 10px;">
-            📄 Ver Justificante
-          </a>
-          <a href="\${params.adminDashboardUrl}" 
+          <a href="\${params.adminUrl}" 
              style="background: #0ea5e9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
             🎛️ Panel Admin
           </a>
@@ -696,11 +686,7 @@ export const emailTemplates = {
       
       <div style="text-align: center; color: #94a3b8; font-size: 14px;">
         <p>Si necesitas contactar con el cliente:</p>
-        <ul style="list-style: none; padding: 0;">
-          <li>📧 Email: <a href="mailto:\${params.userEmail}">\${params.userEmail}</a></li>
-          <li>📱 Teléfono: <a href="tel:\${params.userPhone}">\${params.userPhone}</a></li>
-          <li>💬 WhatsApp: <a href="https://wa.me/\${params.userPhone.replace(/\\D/g, '')}" target="_blank">Enviar mensaje</a></li>
-        </ul>
+        <p>📧 Email: <a href="mailto:\${params.userEmail}">\${params.userEmail}</a></p>
         <p style="margin-top: 15px;">© 2024 Itineramio. Todos los derechos reservados.</p>
       </div>
     </body>
@@ -857,6 +843,88 @@ export const emailTemplates = {
       
       <div style="text-align: center; color: #94a3b8; font-size: 14px;">
         <p>Estamos aquí para ayudarte. Contacta con nuestro equipo en <a href="mailto:\${params.supportEmail}">\${params.supportEmail}</a></p>
+        <p style="margin-top: 15px;">© 2024 Itineramio. Todos los derechos reservados.</p>
+      </div>
+    </body>
+    </html>
+  `,
+
+  // Template para confirmación de solicitud de renovación al usuario
+  subscriptionRequestConfirmation: (params: {
+    userName: string,
+    planName: string,
+    totalAmount: string,
+    paymentMethod: string,
+    paymentReference: string,
+    requestId: string,
+    supportEmail: string,
+    requestType: string
+  }) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>📝 Solicitud de ${params.requestType} recibida - Itineramio</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #3b82f6; margin: 0;">📝 Solicitud Recibida</h1>
+        <p style="color: #666; margin: 5px 0;">Estamos procesando tu ${params.requestType}</p>
+      </div>
+      
+      <div style="background: #eff6ff; padding: 30px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #3b82f6;">
+        <h2 style="color: #1e40af; margin-top: 0;">¡Hola ${params.userName}!</h2>
+        <p style="color: #1d4ed8;">
+          Hemos recibido tu solicitud de ${params.requestType} para <strong>${params.planName}</strong> y la estamos procesando.
+        </p>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #1e40af; margin-top: 0;">Detalles de la solicitud</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Plan:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">${params.planName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Importe:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6; color: #059669; font-weight: bold;">€${params.totalAmount}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Método de pago:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">${params.paymentMethod}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><strong>Referencia:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">${params.paymentReference}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>ID de solicitud:</strong></td>
+              <td style="padding: 8px 0; font-family: monospace; font-size: 12px;">${params.requestId}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 15px; margin: 20px 0;">
+          <h4 style="color: #92400e; margin-top: 0;">⏳ ¿Qué pasa ahora?</h4>
+          <ul style="color: #d97706; margin: 0; padding-left: 20px;">
+            <li>Nuestro equipo verificará tu pago en las próximas 24 horas</li>
+            <li>Recibirás un email de confirmación una vez aprobado</li>
+            <li>Tu ${params.requestType} se activará automáticamente</li>
+            <li>Podrás acceder a todas las características inmediatamente</li>
+          </ul>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://www.itineramio.com/account/subscriptions" 
+             style="background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            📊 Ver mis Suscripciones
+          </a>
+        </div>
+      </div>
+      
+      <div style="text-align: center; color: #94a3b8; font-size: 14px;">
+        <p>Si tienes alguna pregunta, contáctanos en <a href="mailto:${params.supportEmail}">${params.supportEmail}</a></p>
         <p style="margin-top: 15px;">© 2024 Itineramio. Todos los derechos reservados.</p>
       </div>
     </body>

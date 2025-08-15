@@ -83,9 +83,9 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
     },
     {
       icon: <CreditCard className="w-5 h-5" />,
-      label: "Facturación",
-      href: "/account",
-      description: "Gestiona tu suscripción y pagos"
+      label: "Suscripciones",
+      href: "/account/subscriptions",
+      description: "Gestiona tus suscripciones y facturas"
     },
     {
       icon: <BookOpen className="w-5 h-5" />,
