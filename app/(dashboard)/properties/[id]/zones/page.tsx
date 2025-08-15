@@ -68,7 +68,7 @@ interface Zone {
   slug?: string
 }
 
-export default function PropertyZonesPage({ params }: { params: Promise<{ id: string }> }) {
+export default function PropertyZonesPage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
   const [id, setId] = useState<string>('')
   const router = useRouter()
   const { user } = useAuth()
@@ -150,12 +150,18 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setIsClient(true)
   }, [])
 
-  // Unwrap params Promise
+  // Unwrap params (Promise or direct object)
   useEffect(() => {
     if (!id) {
-      params.then(({ id: paramId }) => {
-        setId(paramId)
-      })
+      if (params && typeof params.then === 'function') {
+        // Handle Promise params
+        params.then(({ id: paramId }) => {
+          setId(paramId)
+        })
+      } else {
+        // Handle direct object params
+        setId((params as { id: string }).id)
+      }
     }
   }, [params, id])
 
