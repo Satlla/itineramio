@@ -353,7 +353,7 @@ export const emailTemplates = {
         </p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://www.itineramio.com/account/billing" 
+          <a href="https://www.itineramio.com/subscriptions" 
              style="background: #ef4444; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
             💳 Renovar suscripción
           </a>
@@ -419,7 +419,7 @@ export const emailTemplates = {
         </p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://www.itineramio.com/account/billing" 
+          <a href="https://www.itineramio.com/subscriptions" 
              style="background: #f59e0b; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
             📊 Ver mi plan actual
           </a>
@@ -516,7 +516,7 @@ export const emailTemplates = {
         
         \${!params.isPaid ? \`
         <div style="text-align: center; margin: 20px 0;">
-          <a href="https://itineramio.com/account/billing" 
+          <a href="https://itineramio.com/subscriptions" 
              style="background: #10b981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
             💳 Ver mis facturas
           </a>
@@ -594,7 +594,7 @@ export const emailTemplates = {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://itineramio.com/account/billing" 
+          <a href="https://itineramio.com/subscriptions" 
              style="background: #8b5cf6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
             Ver mis facturas
           </a>
@@ -916,7 +916,7 @@ export const emailTemplates = {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://www.itineramio.com/account/subscriptions" 
+          <a href="https://www.itineramio.com/subscriptions" 
              style="background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
             📊 Ver mis Suscripciones
           </a>

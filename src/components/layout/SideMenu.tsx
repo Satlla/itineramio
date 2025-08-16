@@ -19,7 +19,6 @@ import {
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher'
-import { NotificationCenter } from '../ui/NotificationCenter'
 import { useRealNotifications } from '../../hooks/useRealNotifications'
 
 interface SideMenuProps {
@@ -35,13 +34,7 @@ interface SideMenuProps {
 
 export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideMenuProps) {
   const { t } = useTranslation('common')
-  const [showNotifications, setShowNotifications] = useState(false)
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useRealNotifications()
-
-  // Wrapper function to bridge the compatibility gap between hooks
-  const handleMarkAsRead = (id: string) => {
-    markAsRead([id])
-  }
+  const { unreadCount } = useRealNotifications()
 
   const menuItems = [
     {
@@ -65,7 +58,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
         </div>
       ),
       label: "Notificaciones",
-      onClick: () => setShowNotifications(true),
+      href: "/notifications",
       description: `${unreadCount} notificaciones sin leer`,
       badge: unreadCount
     },
@@ -84,7 +77,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
     {
       icon: <CreditCard className="w-5 h-5" />,
       label: "Suscripciones",
-      href: "/account/subscriptions",
+      href: "/subscriptions",
       description: "Gestiona tus suscripciones y facturas"
     },
     {
@@ -275,17 +268,6 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
                 </p>
               </div>
             </div>
-            
-            {/* Notification Center */}
-            <NotificationCenter
-              isOpen={showNotifications}
-              onClose={() => setShowNotifications(false)}
-              onBack={() => setShowNotifications(false)}
-              notifications={notifications}
-              unreadCount={unreadCount}
-              onMarkAsRead={handleMarkAsRead}
-              onMarkAllAsRead={markAllAsRead}
-            />
           </motion.div>
         )}
       </AnimatePresence>
