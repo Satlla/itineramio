@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
-import { verifyAdminToken } from '../../../../../../src/lib/admin-auth'
+import { getAdminUser } from '../../../../../../src/lib/admin-auth'
 import { sendEmail, emailTemplates } from '../../../../../../src/lib/email-improved'
 
 export async function POST(
@@ -9,8 +9,8 @@ export async function POST(
 ) {
   try {
     // Verify admin authentication
-    const authResult = await verifyAdminToken(request)
-    if (!authResult.isValid || !authResult.admin) {
+    const admin = await getAdminUser(request)
+    if (!admin) {
       return NextResponse.json(
         { error: 'No autorizado' },
         { status: 401 }
@@ -61,8 +61,8 @@ export async function POST(
         status: 'ACTIVE',
         startDate,
         endDate,
-        createdBy: authResult.admin.id,
-        notes: notes || `Aprobado por admin: ${authResult.admin.email}`
+        createdBy: admin.adminId,
+        notes: notes || `Aprobado por admin: ${admin.email}`
       }
     })
 
@@ -81,7 +81,7 @@ export async function POST(
         paymentReference: subscriptionRequest.paymentReference,
         dueDate: startDate,
         paidDate: new Date(),
-        createdBy: authResult.admin.id,
+        createdBy: admin.adminId,
         notes: `Factura generada automáticamente por aprobación de suscripción`
       }
     })
@@ -92,7 +92,7 @@ export async function POST(
       data: {
         status: 'APPROVED',
         approvedAt: new Date(),
-        reviewedBy: authResult.admin.id,
+        reviewedBy: admin.adminId,
         adminNotes: notes
       }
     })
@@ -123,7 +123,7 @@ export async function POST(
     // Log admin activity
     await prisma.adminActivityLog.create({
       data: {
-        adminUserId: authResult.admin.id,
+        adminUserId: admin.adminId,
         action: 'APPROVE_SUBSCRIPTION',
         targetType: 'subscription_request',
         targetId: id,

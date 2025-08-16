@@ -2,18 +2,18 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { BillingOverview } from '../../../../src/components/billing/BillingOverview'
-import { SubscriptionCard } from '../../../../src/components/billing/SubscriptionCard'
-import { PropertySubscriptionStatus } from '../../../../src/components/billing/PropertySubscriptionStatus'
-import { InvoiceTable } from '../../../../src/components/billing/InvoiceTable'
+import { BillingOverview } from '../../../src/components/billing/BillingOverview'
+import { SubscriptionCard } from '../../../src/components/billing/SubscriptionCard'
+import { PropertySubscriptionStatus } from '../../../src/components/billing/PropertySubscriptionStatus'
+import { InvoiceTable } from '../../../src/components/billing/InvoiceTable'
 import { 
   Tabs, 
   TabsContent, 
   TabsList, 
   TabsTrigger 
-} from '../../../../src/components/ui/tabs'
-import { useAuth } from '../../../../src/providers/AuthProvider'
-import { useNotifications } from '../../../../src/hooks/useNotifications'
+} from '../../../src/components/ui/tabs'
+import { useAuth } from '../../../src/providers/AuthProvider'
+import { useNotifications } from '../../../src/hooks/useNotifications'
 
 interface SubscriptionData {
   subscriptions: Array<{

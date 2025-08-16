@@ -21,6 +21,16 @@ import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher'
 import { useRealNotifications } from '../../hooks/useRealNotifications'
 
+interface MenuItem {
+  icon: React.ReactElement
+  label: string
+  href?: string
+  description: string
+  badge?: number
+  mobileOnly?: boolean
+  onClick?: () => void
+}
+
 interface SideMenuProps {
   isOpen: boolean
   onClose: () => void
@@ -36,7 +46,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
   const { t } = useTranslation('common')
   const { unreadCount } = useRealNotifications()
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     {
       icon: <Home className="w-5 h-5" />,
       label: "Mis Propiedades",

@@ -9,9 +9,16 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate",
     "seed": "ts-node prisma/seed.ts",
-    "clean": "rm -rf .next node_modules/.cache .turbo"
+    "clean": "rm -rf .next node_modules/.cache .turbo",
+    "check": "npm run typecheck && npm run lint && npm run build",
+    "check:quick": "npm run typecheck && npm run lint",
+    "safe-push": "node scripts/pre-push-check.js && git push",
+    "dev:safe": "npm run typecheck && npm run dev",
+    "pre-commit": "npm run check:quick",
+    "test:build": "npm run build && npm run start"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

@@ -5,15 +5,25 @@ import { verifyToken } from '../../../../src/lib/auth'
 export async function GET(request: NextRequest) {
   try {
     // Verify user authentication
-    const authResult = await verifyToken(request)
-    if (!authResult.isValid || !authResult.user) {
+    const token = request.cookies.get('token')?.value
+    if (!token) {
       return NextResponse.json(
         { error: 'No autorizado' },
         { status: 401 }
       )
     }
+    
+    let authUser
+    try {
+      authUser = verifyToken(token)
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Token inválido' },
+        { status: 401 }
+      )
+    }
 
-    const userId = authResult.user.id
+    const userId = authUser.userId
 
     // Get user's properties
     const properties = await prisma.property.findMany({
@@ -25,7 +35,7 @@ export async function GET(request: NextRequest) {
         name: true,
         slug: true,
         createdAt: true,
-        isActive: true
+        status: true
       },
       orderBy: {
         createdAt: 'desc'
@@ -60,9 +70,11 @@ export async function GET(request: NextRequest) {
 
     // Calculate total available slots from active subscriptions
     subscriptions.forEach(sub => {
-      const endDate = new Date(sub.endDate)
-      if (endDate > now && sub.status === 'ACTIVE') {
-        activeSubscriptionSlots += sub.plan?.maxProperties || 0
+      if (sub.endDate) {
+        const endDate = new Date(sub.endDate)
+        if (endDate > now && sub.status === 'ACTIVE') {
+          activeSubscriptionSlots += sub.plan?.maxProperties || 0
+        }
       }
     })
 
@@ -76,21 +88,23 @@ export async function GET(request: NextRequest) {
       if (isCovered) {
         let currentSlot = 0
         for (const sub of subscriptions) {
-          const endDate = new Date(sub.endDate)
-          if (endDate > now && sub.status === 'ACTIVE') {
-            const slotsInThisSub = sub.plan?.maxProperties || 0
-            if (index >= currentSlot && index < currentSlot + slotsInThisSub) {
-              const daysUntilExpiration = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-              coveringSubscription = {
-                id: sub.id,
-                planName: sub.plan?.name || 'Plan personalizado',
-                endDate: sub.endDate,
-                daysUntilExpiration,
-                status: daysUntilExpiration <= 7 ? 'EXPIRING_SOON' : 'ACTIVE'
+          if (sub.endDate) {
+            const endDate = new Date(sub.endDate)
+            if (endDate > now && sub.status === 'ACTIVE') {
+              const slotsInThisSub = sub.plan?.maxProperties || 0
+              if (index >= currentSlot && index < currentSlot + slotsInThisSub) {
+                const daysUntilExpiration = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+                coveringSubscription = {
+                  id: sub.id,
+                  planName: sub.plan?.name || 'Plan personalizado',
+                  endDate: sub.endDate,
+                  daysUntilExpiration,
+                  status: daysUntilExpiration <= 7 ? 'EXPIRING_SOON' : 'ACTIVE'
+                }
+                break
               }
-              break
+              currentSlot += slotsInThisSub
             }
-            currentSlot += slotsInThisSub
           }
         }
       }
@@ -127,8 +141,11 @@ export async function GET(request: NextRequest) {
         coveredProperties,
         uncoveredProperties: properties.length - coveredProperties,
         activeSubscriptions: subscriptions.filter(sub => {
-          const endDate = new Date(sub.endDate)
-          return endDate > now && sub.status === 'ACTIVE'
+          if (sub.endDate) {
+            const endDate = new Date(sub.endDate)
+            return endDate > now && sub.status === 'ACTIVE'
+          }
+          return false
         }).length
       }
     })

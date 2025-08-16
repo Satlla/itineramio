@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
-import { verifyAdminToken } from '../../../../src/lib/admin-auth'
+import { getAdminUser } from '../../../../src/lib/admin-auth'
 
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    const authResult = await verifyAdminToken(request)
-    if (!authResult.isValid || !authResult.admin) {
+    const admin = await getAdminUser(request)
+    if (!admin) {
       return NextResponse.json(
         { error: 'No autorizado' },
         { status: 401 }

@@ -5,15 +5,25 @@ import { verifyToken } from '../../../../src/lib/auth'
 export async function GET(request: NextRequest) {
   try {
     // Verify user authentication
-    const authResult = await verifyToken(request)
-    if (!authResult.isValid || !authResult.user) {
+    const token = request.cookies.get('token')?.value
+    if (!token) {
       return NextResponse.json(
         { error: 'No autorizado' },
         { status: 401 }
       )
     }
+    
+    let authUser
+    try {
+      authUser = verifyToken(token)
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Token inválido' },
+        { status: 401 }
+      )
+    }
 
-    const userId = authResult.user.id
+    const userId = authUser.userId
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '50')
     const page = parseInt(searchParams.get('page') || '1')

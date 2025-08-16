@@ -8,7 +8,7 @@ import {
   Info, 
   Trash2,
   Check,
-  MarkAsUnread,
+  MailOpen,
   Clock,
   Calendar,
   User,
@@ -29,10 +29,11 @@ interface Notification {
 }
 
 export default function NotificationsPage() {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useRealNotifications()
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useRealNotifications()
   const [filter, setFilter] = useState<'ALL' | 'UNREAD' | 'READ'>('ALL')
   const [selectedNotifications, setSelectedNotifications] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
+  const [hiddenNotifications, setHiddenNotifications] = useState<string[]>([])
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -93,11 +94,13 @@ export default function NotificationsPage() {
     })
   }
 
-  const filteredNotifications = notifications.filter(notification => {
-    if (filter === 'UNREAD') return !notification.read
-    if (filter === 'READ') return notification.read
-    return true
-  })
+  const filteredNotifications = notifications
+    .filter(n => !hiddenNotifications.includes(n.id))
+    .filter(notification => {
+      if (filter === 'UNREAD') return !notification.read
+      if (filter === 'READ') return notification.read
+      return true
+    })
 
   const handleMarkAsRead = async (notificationIds: string[]) => {
     try {
@@ -123,12 +126,9 @@ export default function NotificationsPage() {
     }
   }
 
-  const handleDeleteNotification = async (notificationId: string) => {
-    try {
-      await deleteNotification(notificationId)
-    } catch (error) {
-      console.error('Error deleting notification:', error)
-    }
+  const handleDeleteNotification = (notificationId: string) => {
+    // Hide notification locally (since we don't have delete API yet)
+    setHiddenNotifications(prev => [...prev, notificationId])
   }
 
   const handleSelectNotification = (notificationId: string) => {
@@ -187,7 +187,7 @@ export default function NotificationsPage() {
           <CardContent className="p-6">
             <div className="flex items-center">
               <div className="p-2 bg-red-100 rounded-lg">
-                <MarkAsUnread className="w-6 h-6 text-red-600" />
+                <MailOpen className="w-6 h-6 text-red-600" />
               </div>
               <div className="ml-4">
                 <div className="text-sm text-gray-600">Sin Leer</div>
@@ -348,7 +348,7 @@ export default function NotificationsPage() {
                           <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
                             <div className="flex items-center">
                               <Calendar className="w-3 h-3 mr-1" />
-                              {formatTimeAgo(notification.createdAt)}
+                              {formatTimeAgo(notification.createdAt.toString())}
                             </div>
                             {!notification.read && (
                               <div className="flex items-center">

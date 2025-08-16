@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
-import { verifyAdminToken } from '../../../../../../src/lib/admin-auth'
+import { getAdminUser } from '../../../../../../src/lib/admin-auth'
 import { sendEmail, emailTemplates } from '../../../../../../src/lib/email-improved'
 
 export async function POST(
@@ -9,8 +9,8 @@ export async function POST(
 ) {
   try {
     // Verify admin authentication
-    const authResult = await verifyAdminToken(request)
-    if (!authResult.isValid || !authResult.admin) {
+    const admin = await getAdminUser(request)
+    if (!admin) {
       return NextResponse.json(
         { error: 'No autorizado' },
         { status: 401 }
@@ -53,7 +53,7 @@ export async function POST(
       data: {
         status: 'REJECTED',
         rejectedAt: new Date(),
-        reviewedBy: authResult.admin.id,
+        reviewedBy: admin.adminId,
         adminNotes: notes || 'Solicitud rechazada por admin'
       }
     })
@@ -76,7 +76,7 @@ export async function POST(
     // Log admin activity
     await prisma.adminActivityLog.create({
       data: {
-        adminUserId: authResult.admin.id,
+        adminUserId: admin.adminId,
         action: 'REJECT_SUBSCRIPTION',
         targetType: 'subscription_request',
         targetId: id,

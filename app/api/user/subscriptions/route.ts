@@ -5,15 +5,25 @@ import { verifyToken } from '../../../../src/lib/auth'
 export async function GET(request: NextRequest) {
   try {
     // Verify user authentication
-    const authResult = await verifyToken(request)
-    if (!authResult.isValid || !authResult.user) {
+    const token = request.cookies.get('token')?.value
+    if (!token) {
       return NextResponse.json(
         { error: 'No autorizado' },
         { status: 401 }
       )
     }
+    
+    let authUser
+    try {
+      authUser = verifyToken(token)
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Token inválido' },
+        { status: 401 }
+      )
+    }
 
-    const userId = authResult.user.id
+    const userId = authUser.userId
 
     // Get active subscriptions with related data
     const subscriptions = await prisma.userSubscription.findMany({
@@ -48,8 +58,8 @@ export async function GET(request: NextRequest) {
     // Calculate subscription status and days until expiration
     const now = new Date()
     const subscriptionsWithStatus = subscriptions.map(sub => {
-      const endDate = new Date(sub.endDate)
-      const daysUntilExpiration = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      const endDate = sub.endDate ? new Date(sub.endDate) : null
+      const daysUntilExpiration = endDate ? Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : 0
       
       let status = sub.status
       if (status === 'ACTIVE') {
@@ -76,7 +86,7 @@ export async function GET(request: NextRequest) {
       where: { id: userId },
       select: {
         subscription: true,
-        subscriptionStatus: true
+        status: true
       }
     })
 
@@ -84,7 +94,7 @@ export async function GET(request: NextRequest) {
       subscriptions: subscriptionsWithStatus,
       propertyCount,
       currentPlan: user?.subscription || 'FREE',
-      planStatus: user?.subscriptionStatus || 'ACTIVE'
+      planStatus: user?.status || 'ACTIVE'
     })
 
   } catch (error) {

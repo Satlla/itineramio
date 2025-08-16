@@ -9,10 +9,20 @@ export async function POST(
 ) {
   try {
     // Verify user authentication
-    const authResult = await verifyToken(request)
-    if (!authResult.isValid || !authResult.user) {
+    const token = request.cookies.get('token')?.value
+    if (!token) {
       return NextResponse.json(
         { error: 'No autorizado' },
+        { status: 401 }
+      )
+    }
+    
+    let authUser
+    try {
+      authUser = verifyToken(token)
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Token inválido' },
         { status: 401 }
       )
     }
@@ -24,7 +34,7 @@ export async function POST(
     const subscription = await prisma.userSubscription.findUnique({
       where: { 
         id,
-        userId: authResult.user.id // Ensure user owns this subscription
+        userId: authUser.userId // Ensure user owns this subscription
       },
       include: {
         plan: {
@@ -60,7 +70,7 @@ export async function POST(
     // Create a subscription renewal request
     const renewalRequest = await prisma.subscriptionRequest.create({
       data: {
-        userId: authResult.user.id,
+        userId: authUser.userId,
         planId: subscription.planId,
         customPlanId: subscription.customPlanId,
         requestType: 'RENEWAL',
@@ -70,8 +80,7 @@ export async function POST(
         paymentProofUrl,
         requestedAt: new Date(),
         paidAt: new Date(),
-        renewalFor: subscription.id,
-        notes: `Renovación de suscripción ${subscription.id}`
+        adminNotes: `Renovación de suscripción ${subscription.id}`
       }
     })
 
@@ -121,7 +130,7 @@ export async function POST(
     // Create notification for user
     await prisma.notification.create({
       data: {
-        userId: authResult.user.id,
+        userId: authUser.userId,
         type: 'subscription_renewal_requested',
         title: '🔄 Renovación solicitada',
         message: `Tu solicitud de renovación para ${subscription.plan.name} ha sido recibida y está siendo procesada.`,

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../src/lib/prisma'
-import { verifyToken } from '../../../src/lib/auth-utils'
+import { verifyToken } from '../../../src/lib/auth'
 import { sendEmail, emailTemplates } from '../../../src/lib/email-improved'
 
 export async function POST(request: NextRequest) {
@@ -102,14 +102,13 @@ export async function POST(request: NextRequest) {
           html: emailTemplates.subscriptionRequestNotification({
             userName: user.name || 'Usuario',
             userEmail: user.email,
-            userPhone: user.phone || 'No especificado',
             planName: planName + propertiesText,
             totalAmount: Number(totalAmount).toFixed(2),
             paymentMethod: paymentMethod === 'BIZUM' ? 'Bizum' : 'Transferencia bancaria',
             paymentReference: paymentReference || 'No especificada',
-            paymentProofUrl,
+            requestType: 'Suscripción',
             requestId: subscriptionRequest.id,
-            adminDashboardUrl: `${process.env.NEXTAUTH_URL || 'https://www.itineramio.com'}/admin/subscription-requests`
+            adminUrl: `${process.env.NEXTAUTH_URL || 'https://www.itineramio.com'}/admin/subscription-requests`
           })
         })
 

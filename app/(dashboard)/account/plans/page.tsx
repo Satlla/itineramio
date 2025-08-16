@@ -12,11 +12,11 @@ import {
   Upload,
   X
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '../../../../../src/components/ui/Card'
-import { Button } from '../../../../../src/components/ui/Button'
-import { Input } from '../../../../../src/components/ui/Input'
-import { useAuth } from '../../../../../src/providers/AuthProvider'
-import { useNotifications } from '../../../../../src/hooks/useNotifications'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../../src/components/ui/Card'
+import { Button } from '../../../../src/components/ui/Button'
+import { Input } from '../../../../src/components/ui/Input'
+import { useAuth } from '../../../../src/providers/AuthProvider'
+import { useNotifications } from '../../../../src/hooks/useNotifications'
 
 interface Plan {
   id: string
