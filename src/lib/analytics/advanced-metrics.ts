@@ -300,7 +300,7 @@ export async function calculateHealthScore(
   const ratingScore = (avgRating / 5) * 10
 
   // 2. ENGAGEMENT SCORE (0-10)
-  const completionRate = property.analytics?.uniqueVisitors > 0
+  const completionRate = (property.analytics?.uniqueVisitors && property.analytics.uniqueVisitors > 0)
     ? (property.analytics.totalViews / property.analytics.uniqueVisitors)
     : 0
   const engagementScore = Math.min(completionRate * 3, 10) // 3+ zones viewed = 10/10

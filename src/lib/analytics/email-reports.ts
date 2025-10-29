@@ -317,7 +317,7 @@ export async function sendWeeklyReport(
     }
 
     // Render email HTML
-    const emailHtml = render(WeeklyReportEmail(reportData))
+    const emailHtml = await render(WeeklyReportEmail(reportData))
 
     // Send email
     const result = await sendEmail({

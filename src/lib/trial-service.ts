@@ -178,7 +178,7 @@ export class TrialService {
         },
         // Sin suscripción activa
         NOT: {
-          UserSubscription: {
+          subscriptions: {
             some: {
               status: 'ACTIVE'
             }
@@ -209,7 +209,7 @@ export class TrialService {
         },
         // Sin suscripción activa
         NOT: {
-          UserSubscription: {
+          subscriptions: {
             some: {
               status: 'ACTIVE'
             }
