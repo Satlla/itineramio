@@ -1319,9 +1319,6 @@ export default function SubscriptionRequestsPage() {
           onClose={() => {
             setShowUserProfileModal(false)
             setSelectedUserForProfile(null)
-          }}
-          onUserUpdated={() => {
-            // Refrescar datos si es necesario
             fetchCanceledSubscriptions()
           }}
         />

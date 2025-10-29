@@ -8,7 +8,7 @@ import { verifyAdminToken } from '../../../../../../src/lib/admin-auth'
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verificar autenticación de admin
@@ -22,7 +22,7 @@ export async function POST(
       return NextResponse.json({ error: 'Token de admin inválido' }, { status: 401 })
     }
 
-    const userId = params.id
+    const { id: userId } = await params
     const body = await request.json()
     const { reason, immediate = false } = body
 

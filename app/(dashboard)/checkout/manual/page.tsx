@@ -199,7 +199,6 @@ function ManualCheckoutContent() {
         setCouponApplied(true)
         setAppliedCoupon(data.coupon)
         setCouponDiscount(data.discount.discountAmount)
-        setFinalPrice(data.discount.finalAmount)
         toast.success(`¡Cupón aplicado! Descuento: €${data.discount.discountAmount.toFixed(2)}`)
       } else {
         setCouponError(data.error || 'Cupón no válido')
@@ -219,7 +218,6 @@ function ManualCheckoutContent() {
     setCouponApplied(false)
     setAppliedCoupon(null)
     setCouponDiscount(0)
-    setFinalPrice(basePrice)
     setCouponError('')
     toast.success('Cupón eliminado')
   }

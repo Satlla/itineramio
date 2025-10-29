@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { POLICY_VERSION, POLICY_LAST_UPDATE, LEGAL_CONTACT } from '@/src/config/policies'
+import { POLICY_VERSION, POLICY_LAST_UPDATE, LEGAL_CONTACT } from '@/config/policies'
 
 export default function LegalNoticePage() {
   return (

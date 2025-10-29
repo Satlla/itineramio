@@ -16,7 +16,7 @@ function getUserIdFromToken(request: NextRequest): string | null {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userId = getUserIdFromToken(request)
@@ -28,9 +28,10 @@ export async function GET(
       )
     }
 
+    const { id } = await params
     const invoice = await prisma.invoice.findFirst({
       where: {
-        id: params.id,
+        id,
         userId
       },
       include: {
