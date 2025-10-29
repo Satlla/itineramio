@@ -52,11 +52,11 @@ export function UpgradeMarketingModal({ preview, onClose, onConfirm }: UpgradeMa
           </div>
           
           <h3 className="text-xl font-bold text-gray-900 mb-2">
-            {messages.title}
+            {messages.headline}
           </h3>
-          
+
           <p className="text-gray-600">
-            {messages.subtitle}
+            {messages.savings}
           </p>
         </div>
 
@@ -97,7 +97,7 @@ export function UpgradeMarketingModal({ preview, onClose, onConfirm }: UpgradeMa
             <div className="text-sm">
               <div className="font-medium text-blue-900 mb-1">Prorrateo automático</div>
               <div className="text-blue-700">
-                {messages.prorationMessage}
+                {messages.proration}
               </div>
             </div>
           </div>
@@ -140,7 +140,7 @@ export function UpgradeMarketingModal({ preview, onClose, onConfirm }: UpgradeMa
             onClick={onConfirm}
             className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium"
           >
-            {messages.ctaText}
+            Confirmar Upgrade
           </button>
         </div>
 

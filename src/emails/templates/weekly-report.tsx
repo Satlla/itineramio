@@ -119,7 +119,7 @@ export const WeeklyReportEmail = ({
     <Html>
       <Head />
       <Preview>
-        Tu semana en Itineramio: {totalStats.totalPreventedCalls} llamadas evitadas, €{totalStats.totalMoneySaved} ahorrado
+        {`Tu semana en Itineramio: ${totalStats.totalPreventedCalls} llamadas evitadas, €${totalStats.totalMoneySaved} ahorrado`}
       </Preview>
       <Body style={main}>
         <Container style={container}>
