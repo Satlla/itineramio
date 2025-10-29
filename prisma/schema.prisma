@@ -1,0 +1,996 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                      String                 @id @default(cuid())
+  email                   String                 @unique
+  name                    String
+  phone                   String?
+  password                String?
+  emailVerified           DateTime?
+  phoneVerified           DateTime?
+  preferredLanguage       String                 @default("es")
+  timezone                String                 @default("Europe/Madrid")
+  role                    String                 @default("HOST")
+  status                  String                 @default("PENDING")
+  subscription            String?                // Plan actual (BASIC, HOST, SUPERHOST, BUSINESS) - null si no tiene plan activo
+  // Trial system - 15 days from registration
+  trialStartedAt          DateTime?              // When trial started (registration date)
+  trialEndsAt             DateTime?              // When trial expires (15 days after registration)
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  lastLoginAt             DateTime?
+  onboardingCompletedAt   DateTime?              // When user completed onboarding tour
+  avatar                  String?
+  companyName             String?
+  // Billing fields
+  billingAddress          String?
+  billingCity             String?
+  billingCountry          String?
+  billingPostalCode       String?
+  vatNumber               String?                // NIF/CIF
+  // Affiliate system
+  referralCode            String?                @unique // Su código para referir
+  referredBy              String?                // Quién lo refirió
+  affiliateCommission     Decimal                @default(0) // Comisiones ganadas
+  createdBy               String?
+  isActive                Boolean                @default(true)
+  isAdmin                 Boolean                @default(false)
+  notes                   String?
+  notificationPreferences Json?                  @default("{}")
+  adminLogs               AdminActivityLog[]
+  assignedErrorReports    ErrorReport[]          @relation("ErrorReportAssignee")
+  invoices                Invoice[]
+  mediaItems              MediaLibrary[]
+  notifications           Notification[]
+  organization_members    organization_members[]
+  properties              Property[]
+  propertySets            PropertySet[]
+  propertyViews           PropertyView[]         @relation("HostPropertyViews")
+  trackingEvents          TrackingEvent[]        @relation("UserTrackingEvents")
+  inspirationState        UserInspirationState?
+  subscriptions           UserSubscription[]
+  creator                 User?                  @relation("UserCreatedBy", fields: [createdBy], references: [id])
+  createdUsers            User[]                 @relation("UserCreatedBy")
+  moderatedComments       ZoneComment[]          @relation("CommentModerator")
+  zoneViews               ZoneView[]             @relation("HostZoneViews")
+  callLogs                CallLog[]
+  userNotes               UserNote[]
+  // Affiliate relations
+  referredUsers           AffiliateTransaction[] @relation("AffiliateReferrer")
+  referralTransactions    AffiliateTransaction[] @relation("AffiliateReferred")
+  // Coupon relations
+  couponUses              CouponUse[]            @relation("UserCouponUses")
+  // Email change tokens
+  emailChangeTokens       EmailChangeToken[]
+  // Subscription requests
+  subscriptionRequests    SubscriptionRequest[]  @relation("UserSubscriptionRequests")
+  // Billing info
+  billingInfo             BillingInfo?
+
+  @@map("users")
+}
+
+model BillingInfo {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  entityType      String   // 'company' | 'self-employed' | 'individual'
+
+  // Contact info
+  email           String
+  phone           String
+  address         String
+  city            String
+  postalCode      String
+  country         String
+
+  // Company fields
+  companyName     String?
+  companyTaxId    String?  // CIF
+
+  // Self-employed fields
+  tradeName       String?
+  taxId           String?  // NIF
+  businessActivity String?
+
+  // Individual fields
+  firstName       String?
+  lastName        String?
+  nationalId      String?  // DNI/NIE
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("billing_info")
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([email, token])
+  @@map("email_verification_tokens")
+}
+
+model PropertySet {
+  id                  String     @id @default(cuid())
+  hostId              String
+  name                String
+  description         String
+  street              String
+  city                String
+  state               String
+  country             String
+  postalCode          String
+  type                String
+  profileImage        String?
+  hostContactName     String
+  hostContactPhone    String
+  hostContactEmail    String
+  hostContactLanguage String     @default("es")
+  hostContactPhoto    String?
+  status              String     @default("DRAFT")
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  properties          Property[]
+  host                User       @relation(fields: [hostId], references: [id], onDelete: Cascade)
+
+  @@map("property_sets")
+}
+
+model Property {
+  id                  String             @id @default(cuid())
+  hostId              String
+  organizationId      String?
+  buildingId          String?
+  propertySetId       String?
+  name                String
+  description         String
+  street              String
+  city                String
+  state               String
+  country             String
+  postalCode          String
+  type                String
+  bedrooms            Int
+  bathrooms           Int
+  maxGuests           Int
+  squareMeters        Int?
+  defaultLanguages    Json               @default("[\"es\", \"en\"]")
+  isPublished         Boolean            @default(false)
+  profileImage        String?
+  hostContactName     String
+  hostContactPhone    String
+  hostContactEmail    String
+  hostContactLanguage String             @default("es")
+  hostContactPhoto    String?
+  status              String             @default("DRAFT") // DRAFT, TRIAL, ACTIVE, SUSPENDED, CANCELLED
+  // Trial system (48 hours)
+  trialStartsAt       DateTime?          // Cuándo empezó el trial
+  trialEndsAt         DateTime?          // Cuándo expira (48h después)
+  trialNotified24h    Boolean            @default(false) // Si ya notificó a las 24h
+  trialNotified6h     Boolean            @default(false) // Si ya notificó a las 6h
+  trialNotified1h     Boolean            @default(false) // Si ya notificó a la 1h
+  // Subscription fields
+  subscriptionEndsAt  DateTime?          // Cuándo expira la suscripción pagada
+  lastPaymentDate     DateTime?          // Último pago realizado
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  publishedAt         DateTime?
+  slug                String?            @unique
+  propertyCode        String?            @unique
+  announcements       Announcement[]
+  buildings           buildings?         @relation(fields: [buildingId], references: [id])
+  host                User               @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  organizations       organizations?     @relation(fields: [organizationId], references: [id])
+  propertySet         PropertySet?       @relation(fields: [propertySetId], references: [id])
+  analytics           PropertyAnalytics?
+  propertyRatings     PropertyRating[]
+  propertyViews       PropertyView[]
+  reviews             Review[]
+  trackingEvents      TrackingEvent[]
+  zoneViews           ZoneView[]         @relation("PropertyZoneViews")
+  zones               Zone[]
+
+  @@index([slug])
+  @@map("properties")
+}
+
+model Zone {
+  id                  String          @id @default(cuid())
+  propertyId          String?
+  organizationId      String?
+  buildingId          String?
+  name                Json
+  description         Json?
+  icon                String
+  color               String?
+  qrCode              String          @unique
+  accessCode          String          @unique
+  whatsappEnabled     Boolean         @default(true)
+  errorReportsEnabled Boolean         @default(true)
+  commentsEnabled     Boolean         @default(true)
+  ratingsEnabled      Boolean         @default(true)
+  status              String          @default("DRAFT")
+  isPublished         Boolean         @default(false)
+  viewCount           Int             @default(0)
+  lastViewedAt        DateTime?
+  avgRating           Float           @default(0)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  publishedAt         DateTime?
+  slug                String?
+  errorReports        ErrorReport[]
+  reviews             Review[]
+  steps               Step[]
+  trackingEvents      TrackingEvent[]
+  analytics           ZoneAnalytics?
+  comments            ZoneComment[]
+  ratings             ZoneRating[]
+  zoneViews           ZoneView[]      @relation("ZoneViews")
+  buildings           buildings?      @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  organizations       organizations?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  property            Property?       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, slug])
+  @@index([propertyId, status])
+  @@index([qrCode])
+  @@index([slug])
+  @@map("zones")
+}
+
+model Step {
+  id          String   @id @default(cuid())
+  zoneId      String
+  type        String
+  title       Json
+  content     Json
+  order       Int      @default(0)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  zones       Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([zoneId, order])
+  @@map("steps")
+}
+
+model ZoneComment {
+  id               String    @id @default(cuid())
+  zoneId           String
+  text             String
+  rating           Int
+  language         String
+  guestName        String?
+  guestCountry     String?
+  guestLanguage    String
+  status           String    @default("PENDING")
+  moderatedAt      DateTime?
+  moderatedBy      String?
+  moderationReason String?
+  helpfulVotes     Int       @default(0)
+  reportedCount    Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  ipAddress        String?
+  userAgent        String?
+  moderator        User?     @relation("CommentModerator", fields: [moderatedBy], references: [id])
+  zone             Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([zoneId, status])
+  @@map("zone_comments")
+}
+
+model ErrorReport {
+  id               String    @id @default(cuid())
+  zoneId           String
+  title            String
+  description      String
+  category         String
+  severity         String
+  affectedStep     String?
+  userAgent        String?
+  browserInfo      String?
+  deviceType       String
+  language         String
+  reporterEmail    String?
+  reporterLanguage String
+  status           String    @default("PENDING")
+  priority         String    @default("MEDIUM")
+  assignedTo       String?
+  hostResponse     String?
+  resolutionNotes  String?
+  resolvedAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  assignee         User?     @relation("ErrorReportAssignee", fields: [assignedTo], references: [id])
+  zone             Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@map("error_reports")
+}
+
+model ZoneRating {
+  id                     String   @id @default(cuid())
+  zoneId                 String
+  overallRating          Int
+  clarity                Int
+  completeness           Int
+  helpfulness            Int
+  upToDate               Int
+  feedback               String?
+  improvementSuggestions String?
+  language               String
+  guestAgeRange          String?
+  guestCountry           String?
+  guestTravelType        String?
+  createdAt              DateTime @default(now())
+  ipAddress              String?
+  visibleToHost          Boolean  @default(true)
+  visibleToGuests        Boolean  @default(false)
+  zone                   Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([zoneId, createdAt])
+  @@map("zone_ratings")
+}
+
+model PropertyAnalytics {
+  id                 String    @id @default(cuid())
+  propertyId         String    @unique
+  totalViews         Int       @default(0)
+  uniqueVisitors     Int       @default(0)
+  avgSessionDuration Int       @default(0)
+  overallRating      Float     @default(0)
+  totalRatings       Int       @default(0)
+  improvementScore   Int       @default(0)
+  whatsappClicks     Int       @default(0)
+  errorReportsCount  Int       @default(0)
+  commentsCount      Int       @default(0)
+  lastCalculatedAt   DateTime  @default(now())
+  lastViewedAt       DateTime?
+  zoneViews          Int       @default(0)
+  property           Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_analytics")
+}
+
+model DailyStats {
+  id                 String   @id @default(cuid())
+  propertyId         String
+  date               DateTime
+  views              Int      @default(0)
+  uniqueVisitors     Int      @default(0)
+  avgSessionDuration Int      @default(0)
+  whatsappClicks     Int      @default(0)
+  errorReports       Int      @default(0)
+  newComments        Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([propertyId, date])
+  @@index([propertyId, date])
+  @@map("daily_stats")
+}
+
+model TrackingEvent {
+  id         String   @id @default(cuid())
+  type       String
+  propertyId String
+  zoneId     String?
+  stepId     String?
+  userId     String?
+  sessionId  String?
+  metadata   Json?
+  timestamp  DateTime @default(now())
+  userAgent  String?
+  ipAddress  String?
+  duration   Int?
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user       User?    @relation("UserTrackingEvents", fields: [userId], references: [id])
+  zone       Zone?    @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, type, timestamp])
+  @@index([zoneId, type, timestamp])
+  @@index([sessionId, timestamp])
+  @@map("tracking_events")
+}
+
+model ZoneAnalytics {
+  id                String    @id @default(cuid())
+  zoneId            String    @unique
+  totalViews        Int       @default(0)
+  uniqueVisitors    Int       @default(0)
+  avgTimeSpent      Int       @default(0)
+  completionRate    Float     @default(0)
+  avgStepsCompleted Float     @default(0)
+  totalCompletions  Int       @default(0)
+  avgRating         Float     @default(0)
+  totalRatings      Int       @default(0)
+  timeSavedMinutes  Int       @default(0)
+  lastCalculatedAt  DateTime  @default(now())
+  lastViewedAt      DateTime?
+  totalTimeSpent    Int       @default(0)
+  zone              Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@map("zone_analytics")
+}
+
+model buildings {
+  id             String        @id
+  organizationId String
+  name           String
+  street         String
+  city           String
+  state          String
+  country        String
+  postalCode     String
+  latitude       Float?
+  longitude      Float?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime
+  organizations  organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  properties     Property[]
+  zones          Zone[]
+}
+
+model organization_members {
+  id             String        @id
+  organizationId String
+  userId         String
+  role           String
+  permissions    Json          @default("[]")
+  joinedAt       DateTime      @default(now())
+  organizations  organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  users          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+}
+
+model organizations {
+  id                   String                 @id
+  name                 String
+  type                 String
+  description          String?
+  website              String?
+  logo                 String?
+  brandColorPrimary    String?
+  brandColorSecondary  String?
+  customDomain         String?                @unique
+  defaultLanguages     Json                   @default("[\"es\", \"en\"]")
+  timezone             String                 @default("Europe/Madrid")
+  status               String                 @default("ACTIVE")
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime
+  buildings            buildings[]
+  organization_members organization_members[]
+  properties           Property[]
+  zones                Zone[]
+}
+
+model UserInspirationState {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  dismissedZones       Json     @default("[]")
+  createdZones         Json     @default("[]")
+  lastShownInspiration String?
+  showInspirations     Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_inspiration_states")
+}
+
+model SubscriptionPlan {
+  id                 String             @id @default(cuid())
+  code               String             @unique // BASIC, HOST, SUPERHOST, BUSINESS
+  name               String
+  description        String?
+  priceMonthly       Decimal            @map("price_monthly") // Precio base mensual
+  priceSemestral     Decimal?           @map("price_semestral") // 6 meses con -10% descuento
+  priceYearly        Decimal?           @map("price_yearly") // 12 meses con -20% descuento
+  aiMessagesIncluded Int                @default(0) @map("ai_messages_included")
+  maxProperties      Int                @default(1) @map("max_properties")
+  features           Json               @default("[]")
+  isActive           Boolean            @default(true) @map("is_active")
+  isVisibleInUI      Boolean            @default(true) @map("is_visible_in_ui") // false for BUSINESS (enterprise)
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+  subscriptions      UserSubscription[]
+  requests           SubscriptionRequest[] @relation("PlanRequests")
+
+  @@map("subscription_plans")
+}
+
+model UserSubscription {
+  id                 String           @id @default(cuid())
+  userId             String           @map("user_id")
+  planId             String?          @map("plan_id") // Ahora opcional
+  customPlanId       String?          @map("custom_plan_id") // Para planes personalizados
+  status             String
+  customPrice        Decimal?         @map("custom_price")
+  discountPercentage Decimal?         @default(0) @map("discount_percentage")
+  discountReason     String?          @map("discount_reason")
+  startDate          DateTime         @map("start_date")
+  endDate            DateTime?        @map("end_date")
+  cancelAtPeriodEnd  Boolean          @default(false) @map("cancel_at_period_end") // Si la suscripción se cancelará al final del período
+  canceledAt         DateTime?        @map("canceled_at") // Cuándo se solicitó la cancelación
+  cancelReason       String?          @map("cancel_reason") // Motivo de la cancelación
+  notes              String?
+  createdBy          String?          @map("created_by")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  invoices           Invoice[]
+  plan               SubscriptionPlan? @relation(fields: [planId], references: [id])
+  customPlan         CustomPlan?      @relation(fields: [customPlanId], references: [id])
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_subscriptions")
+}
+
+model Invoice {
+  id               String            @id @default(cuid())
+  userId           String            @map("user_id")
+  subscriptionId   String?           @map("subscription_id")
+  invoiceNumber    String            @unique @map("invoice_number")
+  amount           Decimal
+  discountAmount   Decimal           @default(0) @map("discount_amount")
+  finalAmount      Decimal           @map("final_amount")
+  status           String
+  paymentMethod    String?           @map("payment_method")
+  paymentReference String?           @map("payment_reference")
+  dueDate          DateTime          @map("due_date")
+  paidDate         DateTime?         @map("paid_date")
+  notes            String?
+  createdBy        String?           @map("created_by")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  subscription     UserSubscription? @relation(fields: [subscriptionId], references: [id])
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("invoices")
+}
+
+model AdminActivityLog {
+  id          String   @id @default(cuid())
+  adminUserId String   @map("admin_user_id")
+  action      String
+  targetType  String?  @map("target_type")
+  targetId    String?  @map("target_id")
+  description String?
+  metadata    Json?    @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+  admin       User     @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([adminUserId, createdAt])
+  @@map("admin_activity_log")
+}
+
+model SystemSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  type        String   @default("string")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("system_settings")
+}
+
+model MediaLibrary {
+  id           String    @id @default(cuid())
+  userId       String
+  type         String
+  url          String
+  thumbnailUrl String?
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  duration     Int?
+  width        Int?
+  height       Int?
+  hash         String
+  tags         String[]  @default([])
+  usageCount   Int       @default(0)
+  isPublic     Boolean   @default(false)
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastUsedAt   DateTime?
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, hash])
+  @@index([userId, type])
+  @@index([hash])
+  @@map("media_library")
+}
+
+model PropertyRating {
+  id         String    @id @default(cuid())
+  propertyId String
+  rating     Int
+  comment    String?
+  guestId    String
+  guestIp    String?
+  status     String    @default("PENDING")
+  createdAt  DateTime  @default(now())
+  reviewedAt DateTime?
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, status])
+  @@index([guestId])
+  @@map("property_ratings")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  data      Json?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model Review {
+  id              String    @id @default(cuid())
+  propertyId      String
+  zoneId          String?
+  rating          Int
+  comment         String?
+  userName        String    @default("Usuario anónimo")
+  userEmail       String?
+  reviewType      String
+  isPublic        Boolean   @default(false)
+  isApproved      Boolean   @default(false)
+  hostResponse    String?
+  hostRespondedAt DateTime?
+  emailSent       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  zone            Zone?     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, isPublic])
+  @@index([zoneId, isPublic])
+  @@index([createdAt])
+  @@index([isApproved, isPublic])
+  @@map("reviews")
+}
+
+model Announcement {
+  id         String    @id @default(cuid())
+  propertyId String
+  title      String
+  message    String
+  category   String
+  priority   String    @default("NORMAL")
+  isActive   Boolean   @default(true)
+  startDate  DateTime?
+  endDate    DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, isActive])
+  @@index([startDate, endDate])
+  @@map("announcements")
+}
+
+model PropertyView {
+  id           String   @id @default(cuid())
+  propertyId   String
+  hostId       String
+  visitorIp    String
+  userAgent    String?
+  referrer     String?
+  language     String   @default("es")
+  timezone     String   @default("UTC")
+  screenWidth  Int?
+  screenHeight Int?
+  viewedAt     DateTime @default(now())
+  host         User     @relation("HostPropertyViews", fields: [hostId], references: [id], onDelete: Cascade)
+  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, viewedAt])
+  @@index([hostId, viewedAt])
+  @@index([visitorIp])
+  @@map("property_views")
+}
+
+model ZoneView {
+  id           String   @id @default(cuid())
+  zoneId       String
+  propertyId   String
+  hostId       String
+  visitorIp    String
+  userAgent    String?
+  referrer     String?
+  language     String   @default("es")
+  timezone     String   @default("UTC")
+  screenWidth  Int?
+  screenHeight Int?
+  timeSpent    Int      @default(0)
+  viewedAt     DateTime @default(now())
+  host         User     @relation("HostZoneViews", fields: [hostId], references: [id], onDelete: Cascade)
+  property     Property @relation("PropertyZoneViews", fields: [propertyId], references: [id], onDelete: Cascade)
+  zone         Zone     @relation("ZoneViews", fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([zoneId, viewedAt])
+  @@index([propertyId, viewedAt])
+  @@index([hostId, viewedAt])
+  @@index([visitorIp])
+  @@map("zone_views")
+}
+
+model Admin {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  name              String
+  password          String
+  role              String             @default("ADMIN") // ADMIN, SUPER_ADMIN, SUPPORT, VIEWER
+  isActive          Boolean            @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  callLogs          CallLog[]
+  userNotes         UserNote[]
+
+  @@map("admins")
+}
+
+model CallLog {
+  id               String    @id @default(cuid())
+  userId           String
+  adminId          String
+  type             String    // INCOMING, OUTGOING
+  duration         Int?      // minutes
+  reason           String
+  resolution       String?
+  notes            String?
+  followUpRequired Boolean   @default(false)
+  followUpDate     DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  admin            Admin     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([adminId])
+  @@index([createdAt])
+  @@map("call_logs")
+}
+
+model UserNote {
+  id              String   @id @default(cuid())
+  userId          String
+  adminId         String
+  type            String   @default("GENERAL") // GENERAL, BEHAVIOR, TECHNICAL, BILLING, COMPLAINT, COMPLIMENT
+  priority        String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  title           String
+  content         String
+  isPrivate       Boolean  @default(false)
+  tags            String[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  admin           Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([adminId])
+  @@index([createdAt])
+  @@map("user_notes")
+}
+
+model AffiliateTransaction {
+  id              String   @id @default(cuid())
+  referrerId      String   @map("referrer_id")   // Quien refirió
+  referredUserId  String   @map("referred_user_id") // Usuario referido
+  type            String   // 'SIGNUP_BONUS', 'MONTHLY_COMMISSION', 'PROPERTY_BONUS'
+  amount          Decimal  // Cantidad ganada
+  status          String   @default("PENDING") // PENDING, PAID, CANCELLED
+  description     String?
+  paidAt          DateTime? @map("paid_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  
+  referrer        User     @relation("AffiliateReferrer", fields: [referrerId], references: [id])
+  referredUser    User     @relation("AffiliateReferred", fields: [referredUserId], references: [id])
+
+  @@index([referrerId])
+  @@index([referredUserId])
+  @@map("affiliate_transactions")
+}
+
+model Coupon {
+  id                String    @id @default(cuid())
+  code              String    @unique // LAUNCH50, HOTEL100, FRIEND6M
+  name              String    // Nombre descriptivo
+  description       String?   // Descripción para el usuario
+  
+  // Tipo de cupón
+  type              String    // PERCENTAGE, FIXED_AMOUNT, FREE_MONTHS, CUSTOM_PLAN
+  
+  // Valores de descuento
+  discountPercent   Int?      // 25 para 25%
+  discountAmount    Decimal?  // 10.00 para €10 fijo
+  freeMonths        Int?      // 6 para 6 meses gratis
+  
+  // Límites de uso
+  maxUses           Int?      // null = ilimitado
+  usedCount         Int       @default(0)
+  maxUsesPerUser    Int       @default(1) // Cuántas veces puede usar cada usuario
+  
+  // Fechas
+  validFrom         DateTime  @default(now())
+  validUntil        DateTime?
+  
+  // Restricciones
+  minAmount         Decimal?  // Monto mínimo para aplicar
+  minDuration       Int?      // Duración mínima en meses
+  applicableToPlans String[]  // ["STANDARD", "HOTEL", "ENTERPRISE"]
+  
+  // Configuración especial
+  isActive          Boolean   @default(true)
+  isPublic          Boolean   @default(false) // Si aparece en listados públicos
+  campaignSource    String?   // "INSTAGRAM", "TIKTOK", "REFERRAL"
+  
+  // Tracking
+  createdBy         String?   // Admin que lo creó
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relaciones
+  uses              CouponUse[]
+  
+  @@index([code])
+  @@index([validFrom, validUntil])
+  @@index([campaignSource])
+  @@map("coupons")
+}
+
+model CouponUse {
+  id          String   @id @default(cuid())
+  couponId    String   @map("coupon_id")
+  userId      String   @map("user_id")
+  orderId     String?  @map("order_id") // Referencia al pedido
+  
+  discountApplied Decimal // Descuento real aplicado
+  originalAmount  Decimal // Monto original
+  finalAmount     Decimal // Monto final tras descuento
+  
+  createdAt   DateTime @default(now())
+  
+  coupon      Coupon   @relation(fields: [couponId], references: [id])
+  user        User     @relation("UserCouponUses", fields: [userId], references: [id])
+  
+  @@index([couponId])
+  @@index([userId])
+  @@map("coupon_uses")
+}
+
+model CustomPlan {
+  id              String   @id @default(cuid())
+  name            String   // "Hotel Premium 100", "Hostel Basic"
+  description     String?
+  
+  // Precios
+  pricePerProperty Decimal // €5.50 por propiedad
+  minProperties    Int     @default(1)
+  maxProperties    Int?    // null = ilimitado
+  
+  // Características especiales
+  features         Json    @default("[]") // ["priority_support", "custom_branding"]
+  restrictions     Json    @default("{}") // {"max_zones_per_property": 5}
+  
+  // Para hoteles
+  isForHotels      Boolean @default(false)
+  maxZonesPerProperty Int? // Límite de zonas por habitación
+  
+  // Configuración
+  isActive         Boolean @default(true)
+  requiresApproval Boolean @default(false) // Si requiere aprobación admin
+  
+  // Tracking
+  createdBy        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relaciones con usuarios que usan este plan
+  subscriptions    UserSubscription[]
+  requests         SubscriptionRequest[] @relation("CustomPlanRequests")
+  
+  @@map("custom_plans")
+}
+
+model EmailChangeToken {
+  id           String    @id @default(cuid())
+  userId       String    @map("user_id")
+  oldEmail     String    @map("old_email")
+  newEmail     String    @map("new_email")
+  token        String    @unique
+  expiresAt    DateTime  @map("expires_at")
+  confirmedAt  DateTime? @map("confirmed_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, newEmail])
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("email_change_tokens")
+}
+
+model PricingTier {
+  id               String   @id @default(cuid())
+  minProperties    Int      @map("min_properties")
+  maxProperties    Int?     @map("max_properties") // null = ilimitado
+  pricePerProperty Decimal  @map("price_per_property")
+  isActive         Boolean  @default(true) @map("is_active")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  
+  @@index([minProperties])
+  @@index([maxProperties])
+  @@map("pricing_tiers")
+}
+
+model SubscriptionRequest {
+  id                String   @id @default(cuid())
+  userId            String   @map("user_id")
+  planId            String?  @map("plan_id")
+  customPlanId      String?  @map("custom_plan_id")
+  
+  // Detalles de la solicitud
+  requestType       String   // "PLAN" | "PROPERTIES"
+  propertiesCount   Int?     @map("properties_count") // Para solicitudes de propiedades individuales
+  totalAmount       Decimal  @map("total_amount")
+  
+  // Estado y pago
+  status            String   @default("PENDING") // PENDING, PAID, APPROVED, REJECTED, CANCELLED
+  paymentMethod     String?  @map("payment_method") // "BIZUM" | "TRANSFER"
+  paymentReference  String?  @map("payment_reference")
+  paymentProofUrl   String?  @map("payment_proof_url") // URL de la imagen del justificante
+  
+  // Fechas
+  requestedAt       DateTime @default(now()) @map("requested_at")
+  paidAt            DateTime? @map("paid_at") // Cuando el usuario dice que pagó
+  approvedAt        DateTime? @map("approved_at") // Cuando admin aprueba
+  rejectedAt        DateTime? @map("rejected_at")
+  
+  // Admin management
+  reviewedBy        String?  @map("reviewed_by") // Admin que revisó
+  adminNotes        String?  @map("admin_notes")
+
+  // Metadata adicional (billing period, coupons, etc.)
+  metadata          Json?
+
+  // Relaciones
+  user              User              @relation("UserSubscriptionRequests", fields: [userId], references: [id], onDelete: Cascade)
+  plan              SubscriptionPlan? @relation("PlanRequests", fields: [planId], references: [id])
+  customPlan        CustomPlan?       @relation("CustomPlanRequests", fields: [customPlanId], references: [id])
+  
+  @@index([userId])
+  @@index([status])
+  @@index([requestedAt])
+  @@map("subscription_requests")
+}

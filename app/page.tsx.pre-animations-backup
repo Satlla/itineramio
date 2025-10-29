@@ -1,0 +1,747 @@
+'use client'
+
+import React from 'react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ChevronLeft, ChevronRight, Plus, Minus, Crown, Check } from 'lucide-react'
+
+// Testimonials data - Clean selection
+const testimonials = [
+  {
+    id: 1,
+    name: "María González",
+    role: "Superhost Airbnb",
+    property: "3 Apartamentos Barcelona",
+    location: "Barcelona, España",
+    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b789?w=100&h=100&fit=crop&crop=face",
+    comment: "Se acabaron las llamadas a las 3 AM. Antes me despertaban 5-6 veces por semana preguntando wifi, parking, llaves... Con Itineramio duermo tranquila.",
+    rating: 5
+  },
+  {
+    id: 2,
+    name: "Carlos Rodríguez",
+    role: "Property Manager",
+    property: "15 Apartamentos Costa del Sol",
+    location: "Málaga, España",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+    comment: "Recuperé 25 horas al mes que dedico a conseguir más propiedades. Los huéspedes aman la experiencia organizada.",
+    rating: 5
+  },
+  {
+    id: 3,
+    name: "Ana Martín",
+    role: "Host independiente",
+    property: "8 Propiedades Turísticas",
+    location: "Sevilla, España",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+    comment: "Lo que más me costaba era crear manuales profesionales. Con Itineramio en 10 minutos tengo guías que parecen de hotel 5 estrellas.",
+    rating: 5
+  }
+]
+
+// Pricing tiers configuration
+const PRICING_TIERS = [
+  { min: 0, max: 2, name: 'BASIC', pricePerProp: 4.50 },
+  { min: 3, max: 5, name: 'HOST', pricePerProp: 3.80 },
+  { min: 6, max: 10, name: 'SUPERHOST', pricePerProp: 2.90 },
+  { min: 11, max: 15, name: 'MANAGER', pricePerProp: 2.60 },
+  { min: 16, max: 999, name: 'ENTERPRISE', pricePerProp: 2.00 }
+]
+
+const PLAN_DETAILS = [
+  {
+    name: 'BASIC',
+    maxProps: 2,
+    price: 9,
+    pricePerProp: 4.50,
+    recommended: true
+  },
+  {
+    name: 'HOST',
+    maxProps: 5,
+    price: 19,
+    pricePerProp: 3.80,
+    recommended: false
+  },
+  {
+    name: 'SUPERHOST',
+    maxProps: 10,
+    price: 29,
+    pricePerProp: 2.90,
+    recommended: false
+  },
+  {
+    name: 'MANAGER',
+    maxProps: 15,
+    price: 39,
+    pricePerProp: 2.60,
+    recommended: false
+  }
+]
+
+export default function LandingPage() {
+  const router = useRouter()
+  const [currentTestimonial, setCurrentTestimonial] = useState(0)
+  const [propertyCount, setPropertyCount] = useState(1)
+
+  // Calculate current tier and price
+  const getCurrentTier = (count: number) => {
+    return PRICING_TIERS.find(tier => count >= tier.min && count <= tier.max) || PRICING_TIERS[0]
+  }
+
+  const currentTier = getCurrentTier(propertyCount)
+  const totalPrice = propertyCount * currentTier.pricePerProp
+
+  // Auto-scroll testimonials
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
+    }, 6000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const nextTestimonial = () => {
+    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
+  }
+
+  const prevTestimonial = () => {
+    setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)
+  }
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me')
+        if (response.ok) {
+          router.push('/main')
+        }
+      } catch (error) {
+        console.error('Auth check error:', error)
+      }
+    }
+
+    checkAuth()
+  }, [router])
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Header - Airbnb Style */}
+      <header className="bg-white">
+        <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+          <div className="flex items-center">
+            <span className="text-2xl font-semibold text-[#FF385C]">Itineramio</span>
+          </div>
+
+          {/* Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            <a href="#how-it-works" className="text-gray-700 hover:text-gray-900 font-medium">
+              Cómo funciona
+            </a>
+            <a href="#pricing" className="text-gray-700 hover:text-gray-900 font-medium">
+              Precios
+            </a>
+          </div>
+
+          {/* User Menu */}
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/login"
+              className="text-gray-700 hover:text-gray-900 font-medium"
+            >
+              Iniciar sesión
+            </Link>
+            <Link
+              href="/register"
+              className="bg-[#FF385C] text-white px-6 py-3 rounded-lg hover:bg-[#E31C5F] transition-all font-medium"
+            >
+              Registrarse
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section - Pure Airbnb Style */}
+      <section className="bg-white pt-20 pb-16 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[85vh]">
+            {/* Left Column - Content */}
+            <div>
+              <h1 className="text-5xl sm:text-6xl lg:text-8xl font-normal text-gray-900 mb-8 leading-tight tracking-tight">
+                No más llamadas a las
+                <span className="block text-[#FF385C]">4:00 AM</span>
+              </h1>
+
+              <p className="text-xl sm:text-2xl text-gray-600 mb-12 leading-relaxed font-light">
+                Automatiza completamente las consultas de tus huéspedes con guías digitales inteligentes.
+              </p>
+
+              {/* Main CTA - Pure Airbnb style */}
+              <div className="mb-16">
+                <Link
+                  href="/register"
+                  className="bg-[#FF385C] text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-[#E31C5F] transition-all inline-block"
+                >
+                  Comenzar
+                </Link>
+              </div>
+
+              {/* Success metrics - Ultra clean */}
+              <div className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-200">
+                <div>
+                  <div className="text-3xl font-semibold text-gray-900">86%</div>
+                  <div className="text-gray-500 text-sm">menos consultas</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-semibold text-gray-900">8 horas</div>
+                  <div className="text-gray-500 text-sm">ahorradas/semana</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-semibold text-gray-900">5 segundos</div>
+                  <div className="text-gray-500 text-sm">check-in QR</div>
+                </div>
+              </div>
+
+              {/* Additional copy from production */}
+              <div className="mt-12 text-gray-600 font-light">
+                <p className="mb-4">
+                  ¿Tus huéspedes quieren entrar antes? ¿Puedes recoger sus maletas? ¿Tienes una consigna con descuento especial?
+                </p>
+                <p>
+                  <span className="font-medium text-gray-900">Perfecto!</span> Mándales el enlace del descuento el día antes para que sepan cómo proceder. Así te da tiempo a terminar de limpiar tu apartamento.
+                </p>
+              </div>
+            </div>
+
+            {/* Right Column - Visual with VIDEO */}
+            <div className="relative">
+              <div className="relative rounded-3xl overflow-hidden bg-gray-100 aspect-[4/5]">
+                <video
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  <source src="/videos/no-calls.mp4" type="video/mp4" />
+                  <div className="w-full h-full bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
+                    <div className="text-center">
+                      <p className="text-gray-600">Video: Pareja despertándose por llamada</p>
+                    </div>
+                  </div>
+                </video>
+
+                {/* Overlay with problem scenario */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end">
+                  <div className="p-8 text-white">
+                    <div className="bg-red-500 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-4">
+                      🚫 Problema real
+                    </div>
+                    <h3 className="text-2xl font-semibold mb-2">
+                      "¿Cuál es la WiFi?"
+                    </h3>
+                    <p className="text-white/90">
+                      4:00 AM • Llamada de huésped
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* NEW SECTION: Adiós a perder el tiempo */}
+      <section className="py-16 bg-gray-50 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="relative">
+              <div className="aspect-[4/3] rounded-3xl overflow-hidden bg-gray-100 relative">
+                <video
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  <source src="/videos/host-preocupado.mp4" type="video/mp4" />
+                  <div className="w-full h-full bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-6xl mb-4">😰</div>
+                      <h3 className="text-2xl font-semibold text-gray-900">Host preocupado</h3>
+                    </div>
+                  </div>
+                </video>
+                <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm rounded-2xl px-4 py-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-900">Estrés constante</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-4xl sm:text-5xl font-normal text-gray-900 mb-6 leading-tight">
+                Adiós a perder el tiempo
+              </h2>
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed font-light">
+                Estar preocupado si conocen cómo funcionan todos los elementos de tu apartamento turístico. Aunque hayas hecho el check-in presencial, no se pueden acordar de todo.
+              </p>
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed font-light">
+                Te ha pasado que aunque les hayas dicho cómo hacer check-out, te lo preguntan justo 5 minutos antes de irse y tienes que darle instrucciones rápidas porque si no pueden cometer un error como por ejemplo dejarse las llaves dentro o no cerrar su cuenta de Netflix.
+              </p>
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed font-light">
+                <span className="font-medium text-gray-900">Di adiós a todas estas preocupaciones</span> y crea instrucciones concretas, automatiza tus mensajes y comienza a disfrutar del tiempo que te mereces como gestor de apartamentos o propietario.
+              </p>
+              <Link
+                href="/register"
+                className="bg-[#FF385C] text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-[#E31C5F] transition-all inline-block"
+              >
+                Crear mi primera guía
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How it Works - Airbnb Clean Style */}
+      <section id="how-it-works" className="py-24 bg-white px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal text-gray-900 mb-6">
+              Cómo funciona
+            </h2>
+            <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto">
+              Tu huésped obtiene respuestas instantáneas sin molestarte
+            </p>
+          </div>
+
+          {/* Clean Grid - Success Scenarios */}
+          <div className="grid lg:grid-cols-2 gap-16 mb-20">
+
+            {/* Step 1 - Check-in */}
+            <div className="space-y-8">
+              <div className="aspect-[4/3] rounded-3xl overflow-hidden bg-gray-100 relative">
+                <video
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  <source src="/videos/famili-check-in.mp4" type="video/mp4" />
+                  <source src="/door_welcome.mp4" type="video/mp4" />
+                  <div className="w-full h-full bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-6xl mb-4">🏠</div>
+                      <h3 className="text-2xl font-semibold text-gray-900">Check-in perfecto</h3>
+                    </div>
+                  </div>
+                </video>
+                <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm rounded-2xl px-4 py-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-900">Check-in automático</span>
+                  </div>
+                </div>
+              </div>
+              <div className="pl-8">
+                <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+                  Llegada perfecta
+                </h3>
+                <p className="text-gray-600 text-lg font-light leading-relaxed">
+                  Tu huésped escanea un QR y accede al manual completo: códigos, instrucciones, todo al instante.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 2 - WiFi */}
+            <div className="space-y-8">
+              <div className="aspect-[4/3] rounded-3xl overflow-hidden bg-gray-100 relative">
+                <video
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  <source src="/videos/wifi.mp4" type="video/mp4" />
+                  <div className="w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-6xl mb-4">📶</div>
+                      <h3 className="text-2xl font-semibold text-gray-900">WiFi instantáneo</h3>
+                    </div>
+                  </div>
+                </video>
+                <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm rounded-2xl px-4 py-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-900">Conectado en segundos</span>
+                  </div>
+                </div>
+              </div>
+              <div className="pl-8">
+                <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+                  WiFi sin consultas
+                </h3>
+                <p className="text-gray-600 text-lg font-light leading-relaxed">
+                  La WiFi es probablemente la pregunta más repetitiva. ¿La tienes puesta en un cuadro? ¿O en un guest book? Ahora con un simple QR o un enlace, envía a tus huéspedes el usuario y contraseña al instante.
+                </p>
+                <p className="text-gray-600 text-lg font-light leading-relaxed mt-4">
+                  <span className="font-medium text-gray-900">Imprime el código QR</span> y pégalo en la pared. ¡Solo tendrán que hacer scan!
+                </p>
+              </div>
+            </div>
+
+            {/* Step 3 - Washing Machine */}
+            <div className="space-y-8">
+              <div className="aspect-[4/3] rounded-3xl overflow-hidden bg-gray-100 relative">
+                <video
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  <source src="/videos/washing-machine.mp4" type="video/mp4" />
+                  <div className="w-full h-full bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-6xl mb-4">🧺</div>
+                      <h3 className="text-2xl font-semibold text-gray-900">Electrodomésticos claros</h3>
+                    </div>
+                  </div>
+                </video>
+                <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm rounded-2xl px-4 py-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-900">Instrucciones visuales</span>
+                  </div>
+                </div>
+              </div>
+              <div className="pl-8">
+                <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+                  Electrodomésticos sin dudas
+                </h3>
+                <p className="text-gray-600 text-lg font-light leading-relaxed">
+                  ¿Instrucciones de tu lavadora? ¿No saben cómo poner un programa? Haz un video de 30 segundos y podrás enviarle el enlace solo de ese electrodoméstico para que sepan cómo funciona.
+                </p>
+                <p className="text-gray-600 text-lg font-light leading-relaxed mt-4">
+                  <span className="font-medium text-gray-900">¡Mejor aún!</span> Imprime el código QR y pégalo en la lavadora. Así solo tendrán que hacer scan y regresa a las cosas de tu gestión que verdaderamente te generan ingresos.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 4 - Vitro */}
+            <div className="space-y-8">
+              <div className="aspect-[4/3] rounded-3xl overflow-hidden bg-gray-100 relative">
+                <video
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  <source src="/videos/vitro.mp4" type="video/mp4" />
+                  <div className="w-full h-full bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-6xl mb-4">🍳</div>
+                      <h3 className="text-2xl font-semibold text-gray-900">Vitrocerámica simple</h3>
+                    </div>
+                  </div>
+                </video>
+                <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm rounded-2xl px-4 py-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-900">Cocina sin dudas</span>
+                  </div>
+                </div>
+              </div>
+              <div className="pl-8">
+                <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+                  Vitrocerámica desbloqueada
+                </h3>
+                <p className="text-gray-600 text-lg font-light leading-relaxed">
+                  Hay muchas vitrocerámicas que están bloqueadas y tu huésped no sabe cómo hacerla funcionar a las 00:00 de la noche.
+                </p>
+                <p className="text-gray-600 text-lg font-light leading-relaxed mt-4">
+                  <span className="font-medium text-gray-900">Crea un video corto</span> o unas instrucciones en Itineramio, y regresa a las cosas de tu gestión que verdaderamente te genera ingresos!
+                </p>
+              </div>
+            </div>
+
+            {/* Step 5 - Control Panel - Full Width Centered */}
+            <div className="lg:col-span-2 space-y-8">
+              <div className="max-w-5xl mx-auto">
+                <div className="aspect-[16/9] rounded-3xl overflow-hidden bg-gradient-to-br from-green-50 to-green-100 relative flex items-center justify-center">
+                  <div className="text-center p-12 max-w-3xl">
+                    <div className="text-8xl mb-6">🏆</div>
+                    <h3 className="text-3xl font-semibold text-gray-900 mb-4">
+                      Un panel para controlarlo todo
+                    </h3>
+                    <p className="text-lg text-gray-600">
+                      La guía de tu apartamento te llevará unos minutos. Si es extensa entre videos, probablemente te lleve una hora, pero ya no tendrás que volver a responder siempre a las mismas preguntas.
+                    </p>
+                  </div>
+                  <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm rounded-2xl px-4 py-3">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm font-medium text-gray-900">Todo automatizado</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-center mt-8 max-w-3xl mx-auto">
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-6">
+                    Tu panel de control completo
+                  </h3>
+                  <div className="space-y-4 text-gray-600 text-lg font-light leading-relaxed">
+                    <p>
+                      <span className="font-medium text-gray-900">🌟 Itineramio Places:</span> Los mejores lugares de la ciudad recomendados por anfitriones como tú. Con solo unos clicks ¡PAM! tu manual creado.
+                    </p>
+                    <p>
+                      Evita que te sigan preguntando dónde pueden ir a comer o cenar, o si el arroz de X restaurante está bueno.
+                      <span className="font-medium text-gray-900"> Crea zonas, recomienda o importa zonas de otros anfitriones.</span>
+                      <span className="text-sm text-orange-600"> (Próximamente)</span>
+                    </p>
+                    <p>
+                      <span className="font-medium text-gray-900">📊 Recibe reseñas</span> de tu apartamento para mejorar tu guía. Tus huéspedes pueden evaluar cada zona para que sepas si las instrucciones están bien.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Simple CTA */}
+          <div className="text-center">
+            <h3 className="text-3xl font-normal text-gray-900 mb-8">
+              ¿Estás listo para probar la versión de prueba?
+            </h3>
+            <p className="text-xl text-gray-600 mb-8 font-light">
+              Accede a tu panel de anfitrión y controla todo desde el mismo lugar.
+            </p>
+            <Link
+              href="/register"
+              className="bg-[#FF385C] text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-[#E31C5F] transition-all inline-block"
+            >
+              Comenzar Trial Gratis
+            </Link>
+            <p className="text-gray-500 mt-6 font-light">
+              Sin compromiso inicial • Configuración en menos de 10 minutos
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing - Production Style with Calculator */}
+      <section id="pricing" className="py-24 bg-gray-50 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal text-gray-900 mb-6">
+              Precios que escalan contigo
+            </h2>
+            <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto">
+              Ahorra 15+ horas al mes gestionando tus propiedades de forma profesional.
+              <span className="block mt-2 text-[#FF385C] font-medium">🎁 Trial de 15 días gratis</span>
+            </p>
+          </div>
+
+          {/* Property Calculator */}
+          <div className="max-w-md mx-auto mb-12 p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
+              ¿Cuántas propiedades gestionarás?
+            </h3>
+            <div className="flex items-center justify-center space-x-4">
+              <button
+                onClick={() => setPropertyCount(Math.max(1, propertyCount - 1))}
+                disabled={propertyCount <= 1}
+                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-gray-900">{propertyCount}</div>
+                <div className="text-sm text-gray-500">propiedades</div>
+              </div>
+              <button
+                onClick={() => setPropertyCount(propertyCount + 1)}
+                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="mt-4 text-center">
+              <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                {currentTier.name} - €{currentTier.pricePerProp}/prop
+              </div>
+            </div>
+          </div>
+
+          {/* Pricing Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {PLAN_DETAILS.map((plan, index) => (
+              <div
+                key={index}
+                className={`relative p-6 rounded-lg border transition-all duration-200 ${
+                  plan.recommended
+                    ? 'ring-2 ring-[#FF385C] bg-red-50 border-red-200'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                {plan.recommended && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-[#FF385C] text-white px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                      <Crown className="w-4 h-4 mr-1" />
+                      Recomendado
+                    </span>
+                  </div>
+                )}
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{plan.name}</h3>
+                  <div className="mb-4">
+                    <span className="text-3xl font-bold text-gray-900">€{plan.price}</span>
+                    <span className="text-sm text-gray-500">/mes</span>
+                    <div className="text-sm text-gray-400">€{plan.pricePerProp.toFixed(2)} por propiedad</div>
+                  </div>
+                  <div className="mb-6">
+                    <div className="text-sm text-gray-600 mb-3">Hasta {plan.maxProps} propiedades</div>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <div className="flex items-center">
+                        <Check className="w-4 h-4 text-green-500 mr-2" />
+                        QR codes ilimitados
+                      </div>
+                      <div className="flex items-center">
+                        <Check className="w-4 h-4 text-green-500 mr-2" />
+                        Guías digitales completas
+                      </div>
+                      <div className="flex items-center">
+                        <Check className="w-4 h-4 text-green-500 mr-2" />
+                        Analytics básicas
+                      </div>
+                      <div className="flex items-center">
+                        <Check className="w-4 h-4 text-green-500 mr-2" />
+                        Trial 15 días gratis
+                      </div>
+                    </div>
+                  </div>
+                  <Link
+                    href="/register"
+                    className={`w-full py-2 px-4 rounded-md font-medium transition-colors inline-block text-center ${
+                      plan.recommended
+                        ? 'bg-[#FF385C] hover:bg-[#E31C5F] text-white'
+                        : 'bg-gray-600 hover:bg-gray-700 text-white'
+                    }`}
+                  >
+                    Comenzar Trial
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials - Clean */}
+      <section className="py-24 bg-white px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal text-gray-900 mb-6">
+              Lo que dicen nuestros hosts
+            </h2>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-12">
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className="space-y-6">
+                <div className="flex items-center space-x-4">
+                  <img
+                    src={testimonial.avatar}
+                    alt={testimonial.name}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                  <div>
+                    <div className="font-medium text-gray-900">{testimonial.name}</div>
+                    <div className="text-sm text-gray-600">{testimonial.location}</div>
+                  </div>
+                </div>
+
+                <blockquote className="text-gray-700 font-light leading-relaxed">
+                  "{testimonial.comment}"
+                </blockquote>
+
+                <div className="flex text-yellow-400">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i}>★</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA - Airbnb Style */}
+      <section className="py-24 bg-gray-50 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl sm:text-5xl font-normal text-gray-900 mb-8">
+            ¿Listo para dormir tranquilo?
+          </h2>
+          <p className="text-xl text-gray-600 font-light mb-12 max-w-2xl mx-auto">
+            Miles de hosts ya automatizaron sus consultas. Es tu turno de recuperar tu tiempo.
+          </p>
+
+          <Link
+            href="/register"
+            className="bg-[#FF385C] text-white px-12 py-4 rounded-lg text-xl font-medium hover:bg-[#E31C5F] transition-all inline-block"
+          >
+            Comenzar ahora
+          </Link>
+
+          <div className="mt-6 text-gray-500 font-light">
+            Sin tarjeta de crédito • Primera propiedad incluida
+          </div>
+        </div>
+      </section>
+
+      {/* Footer - Clean */}
+      <footer className="bg-white border-t border-gray-200 py-12 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8">
+            <div>
+              <div className="flex items-center mb-4">
+                <span className="text-xl font-semibold text-[#FF385C]">Itineramio</span>
+              </div>
+              <p className="text-gray-500 font-light">
+                Automatiza las consultas de tus huéspedes con guías digitales inteligentes.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-medium mb-4 text-gray-900">Producto</h3>
+              <ul className="space-y-2 text-gray-500">
+                <li><a href="#how-it-works" className="hover:text-gray-700">Cómo funciona</a></li>
+                <li><a href="#pricing" className="hover:text-gray-700">Precios</a></li>
+                <li><Link href="/register" className="hover:text-gray-700">Comenzar</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-medium mb-4 text-gray-900">Legal</h3>
+              <ul className="space-y-2 text-gray-500">
+                <li><Link href="/privacy" className="hover:text-gray-700">Privacidad</Link></li>
+                <li><Link href="/terms" className="hover:text-gray-700">Términos</Link></li>
+                <li><Link href="/cookies" className="hover:text-gray-700">Cookies</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-200 mt-8 pt-8 text-center text-gray-500">
+            <p>&copy; 2024 Itineramio. Todos los derechos reservados.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}

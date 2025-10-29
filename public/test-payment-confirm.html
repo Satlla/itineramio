@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Payment Confirm API</title>
+</head>
+<body>
+    <h1>Test Payment Confirm API</h1>
+    <button onclick="testAPI()">Test API Call</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch('/api/admin/payments/cme81rmqh00017c1voih8z5f0/confirm', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        paymentReference: 'TEST-REF-' + Date.now(),
+                        confirmedAt: new Date().toISOString()
+                    })
+                });
+                
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch {
+                    data = text;
+                }
+                
+                resultDiv.textContent = `
+Status: ${response.status} ${response.statusText}
+Headers: ${JSON.stringify([...response.headers.entries()], null, 2)}
+Response: ${typeof data === 'object' ? JSON.stringify(data, null, 2) : data}
+                `;
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

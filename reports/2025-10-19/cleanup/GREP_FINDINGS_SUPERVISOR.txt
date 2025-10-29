@@ -1,0 +1,83 @@
+app/admin/coupons/page.tsx:27:  freeMonths: number | null
+app/admin/coupons/page.tsx:87:      case 'FREE_MONTHS': return 'Meses gratis'
+app/admin/coupons/page.tsx:99:      case 'FREE_MONTHS':
+app/admin/coupons/page.tsx:100:        return `${coupon.freeMonths} meses`
+app/components/PricingCalculator.tsx:29:    freeMonths?: number
+app/components/PricingCalculator.tsx:228:                    {calculation.coupon.type === 'FREE_MONTHS' && calculation.coupon.freeMonths && (
+app/components/PricingCalculator.tsx:230:                        {calculation.coupon.freeMonths} meses gratis (valor: €{Number(calculation.coupon.equivalentValue || 0).toFixed(2)})
+app/components/PricingCalculator.tsx:265:                        {calculation.coupon.type !== 'FREE_MONTHS' && (
+app/components/PricingCalculator.tsx:283:                          {calculation.coupon?.type === 'FREE_MONTHS' ? 'Total mensual' : 'Total a pagar'}
+app/(public)/guide/[propertyId]/page.tsx:199:    progressWarningDesc: 'For a worry-free stay, we recommend reviewing all sections. This will help you know all the services and avoid inconveniences during your trip.',
+app/api/admin/coupons/route.ts:39:        FREE_MONTHS: coupons.filter(c => c.type === 'FREE_MONTHS').length,
+app/api/admin/coupons/route.ts:67:      freeMonths,
+app/api/admin/coupons/route.ts:106:        freeMonths: type === 'FREE_MONTHS' ? freeMonths : null,
+app/api/admin/seed-plans/route.ts:15:        name: 'Gratuito',
+app/api/checkout/request-payment/route.ts:64:    // Calculate base price (excluding free property)
+app/api/checkout/apply-coupon/route.ts:77:    // If it's free months, handle differently
+app/api/checkout/apply-coupon/route.ts:78:    if (coupon.type === 'FREE_MONTHS' && coupon.freeMonths) {
+app/api/checkout/apply-coupon/route.ts:90:        extensionDate.setMonth(extensionDate.getMonth() + coupon.freeMonths)
+app/api/checkout/apply-coupon/route.ts:109:        freeMonthsGained: coupon.type === 'FREE_MONTHS' ? coupon.freeMonths : 0
+app/api/coupons/validate/route.ts:105:    let freeMonthsGained = 0
+app/api/coupons/validate/route.ts:122:      case 'FREE_MONTHS':
+app/api/coupons/validate/route.ts:123:        if (coupon.freeMonths) {
+app/api/coupons/validate/route.ts:124:          freeMonthsGained = coupon.freeMonths
+app/api/coupons/validate/route.ts:125:          // Calculate the discount as the equivalent value of free months
+app/api/coupons/validate/route.ts:126:          discountAmount = propertyCount * pricePerProperty * coupon.freeMonths
+app/api/coupons/validate/route.ts:128:          // The customer pays the same but gets additional months free
+app/api/coupons/validate/route.ts:160:        freeMonthsGained,
+app/api/coupons/validate/route.ts:163:        equivalentValue: coupon.type === 'FREE_MONTHS' ? discountAmount : discountAmount
+app/api/properties/route.ts:224:    const needsTrial = activePropertiesCount > 0 // First property is free
+app/api/properties/[id]/activate-trial/route.ts:46:    // If user has no active properties, this is their free property
+app/api/properties/[id]/activate-trial/route.ts:48:      // First property is completely free - no trial needed
+app/api/account/plan-info/route.ts:24:    let currentPlan = 'Gratuito'
+app/api/account/plan-info/route.ts:58:    case 'Gratuito':
+app/api/pricing/calculate/route.ts:145:        } else if (coupon.type === 'FREE_MONTHS' && coupon.freeMonths) {
+app/api/pricing/calculate/route.ts:146:          // For FREE_MONTHS, calculate the equivalent value but don't reduce current payment
+app/api/pricing/calculate/route.ts:147:          discountAmount = totalPrice * coupon.freeMonths;
+app/api/pricing/calculate/route.ts:148:          // Customer pays the same but gets additional months free
+app/api/pricing/calculate/route.ts:151:        finalPrice = coupon.type === 'FREE_MONTHS' ? totalPrice : totalPrice - discountAmount;
+app/api/pricing/calculate/route.ts:160:          freeMonths: coupon.freeMonths || 0,
+app/(auth)/login/page.tsx:422:                Regístrate gratis
+app/(auth)/login/page.tsx:435:              <span className="font-medium text-violet-600">✨ Primer manual gratis</span> + Solo €5 por manual adicional
+app/(dashboard)/pricing-v2/page.tsx:271:                Puedes introducir un código de cupón durante el registro o en la calculadora de precios. Los cupones pueden ofrecer descuentos porcentuales, meses gratuitos o descuentos fijos.
+app/(dashboard)/subscriptions/page.tsx:54:    freeLimit: number
+app/(dashboard)/properties/new/page.tsx:226:          // First property is free, just redirect
+app/(dashboard)/account/plans/page.tsx:280:    currentPlan: 'Gratuito',
+app/(dashboard)/account/billing/page.tsx:61:    freeMonthsGained: number
+app/(dashboard)/account/billing/page.tsx:97:    currentPlan: 'Gratuito',
+app/(dashboard)/account/billing/page.tsx:295:          {planInfo.currentPlan === 'Gratuito' && planInfo.propertiesCount >= 1 && (
+app/(dashboard)/account/billing/page.tsx:330:              Valida tu cupón para obtener descuentos especiales, meses gratis o acceso a planes personalizados
+app/(dashboard)/account/billing/page.tsx:401:                        {couponValidation.discount.freeMonthsGained > 0 && (
+app/(dashboard)/account/billing/page.tsx:404:                              <span className="text-gray-600">Meses gratis:</span>
+app/(dashboard)/account/billing/page.tsx:406:                                {couponValidation.discount.freeMonthsGained}
+app/legal/legal-notice/page.tsx:121:              El acceso al Sitio Web es gratuito, salvo en lo relativo al coste de la conexión a través de la red
+app/(legal)/terms/page.tsx:89:              <li>Plan gratuito con funcionalidades básicas</li>
+src/config/plans-static.ts:5: * Nunca usar "gratis", "gratuito", "incluida" ni "STARTER" ni "FREE".
+src/config/plans-static.ts:226: * Mensajes de estado de suscripción (nunca usar "gratis"/"gratuito")
+src/components/plan-limits/PlanLimitsCard.tsx:90:                    {limits.planName === 'Gratuito' 
+src/components/plan-limits/PlanLimitsCard.tsx:125:        {limits.planName === 'Gratuito' && limits.currentProperties === 0 && (
+src/components/plan-limits/PlanLimitsCard.tsx:127:            <h4 className="font-semibold text-blue-900 text-sm mb-2">🎉 Plan Gratuito incluye:</h4>
+src/components/plan-limits/PlanLimitsCard.tsx:129:              <li>• 1 propiedad completamente gratis</li>
+src/components/TrialActivationModal.tsx:89:                  ¡Tu primera propiedad es GRATIS!
+src/components/TrialActivationModal.tsx:98:                <h3 className="font-semibold text-green-900 mb-2">Incluido en el plan gratuito:</h3>
+src/components/TrialActivationModal.tsx:183:                  <h4 className="font-semibold text-gray-900">Prueba GRATIS 48 horas</h4>
+src/components/billing/BillingOverview.tsx:56:      case 'FREE':
+src/components/billing/BillingOverview.tsx:57:        return 'Plan Gratuito'
+src/components/billing/BillingOverview.tsx:71:      case 'FREE':
+src/components/billing/BillingOverview.tsx:112:  const freePropertiesLimit = 1
+src/components/billing/BillingOverview.tsx:113:  const usedFreeSlots = Math.min(propertyCount, freePropertiesLimit)
+src/components/billing/BillingOverview.tsx:114:  const uncoveredProperties = Math.max(0, propertyCount - subscriptionsData.totalSlots - freePropertiesLimit)
+src/components/billing/BillingOverview.tsx:164:                    ({subscriptionsData.totalSlots + freePropertiesLimit} slots)
+src/components/billing/PropertySubscriptionStatus.tsx:35:    freeLimit: number
+src/lib/trial-service.ts:11: * - No más "gratis" o "gratuito" - es "período de prueba"
+src/lib/pricing-calculator.ts:17:  effectivePropertyCount: number // Billable properties (total - 1 free)
+src/lib/pricing-calculator.ts:40:    // If only one property, everything is free
+src/i18n/locales/fr/common.json:28:    "tryFree": "Essayer gratuitement"
+src/i18n/locales/en/common.json:28:    "tryFree": "Try for free"
+src/data/zoneInspiration.ts:176:      'Museos gratuitos y días de entrada libre',
+src/data/zoneInspiration.ts:207:      'Ubicación de cafeterías con WiFi gratuito',
+src/data/zoneTemplates.ts:300:    description: 'Días gratuitos, descuentos, etc.',
+src/data/zoneTemplates.ts:304:    tags: ['ahorro', 'gratis', 'descuentos']
+src/data/zoneIcons.tsx:158:  Snowflake as Freezer,
+src/data/zoneIcons.tsx:1224:    id: 'appliance-freezer',
+src/data/zoneIcons.tsx:1226:    icon: Freezer,

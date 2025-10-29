@@ -1,0 +1,87 @@
+app/admin-property-management/page.tsx:28:    plan: 'Growth',
+app/admin-property-management/page.tsx:126:          plan: 'Growth',
+app/admin-property-management/page.tsx:156:      plan: 'Growth',
+app/admin-property-management/page.tsx:167:      plan: 'Growth',
+app/admin/custom-plans/page.tsx:482:                  Precio por Propiedad (€)
+app/admin/custom-plans/page.tsx:576:                Características Incluidas
+app/admin/calendar/page.tsx:349:                placeholder="Buscar por propiedad, huésped..."
+app/admin/plans/page.tsx:132:            plan.name === 'Enterprise' ? 'border-purple-500' :
+app/admin/coupons/page.tsx:87:      case 'FREE_MONTHS': return 'Meses gratis'
+app/admin/pricing/page.tsx:164:                  Precio por Propiedad
+app/admin/analytics/page.tsx:51:    growth: any[]
+app/admin/analytics/page.tsx:340:        {/* User Growth */}
+app/admin/analytics/page.tsx:341:        {analytics.users && analytics.users.growth.length > 0 && (
+app/admin/analytics/page.tsx:348:              <BarChart data={analytics.users.growth}>
+app/admin/reports/page.tsx:32:    userGrowth: { period: string; count: number }[]
+app/admin/reports/page.tsx:33:    propertyGrowth: { period: string; count: number }[]
+app/admin/reports/page.tsx:131:            userGrowth: analytics.users?.growth?.map((item: any) => ({
+app/admin/reports/page.tsx:135:            propertyGrowth: [], // Would need more historical data
+app/components/PricingCalculator.tsx:230:                        {calculation.coupon.freeMonths} meses gratis (valor: €{Number(calculation.coupon.equivalentValue || 0).toFixed(2)})
+app/components/PricingCalculator.tsx:332:                    Por propiedad al mes
+app/property-management/page.tsx:28:    plan: 'Growth',
+app/property-management/page.tsx:105:          plan: 'Growth',
+app/property-management/page.tsx:125:      plan: 'Growth',
+app/property-management/page.tsx:136:      plan: 'Growth',
+app/api/admin/custom-plans/route.ts:78:        error: 'Nombre y precio por propiedad son requeridos' 
+app/api/admin/seed-plans/route.ts:15:        name: 'Gratuito',
+app/api/admin/seed-plans/route.ts:45:        name: 'Enterprise',
+app/api/admin/analytics/route.ts:221:    // User growth analytics
+app/api/admin/analytics/route.ts:247:      const userGrowth = Object.entries(usersByDate).map(([date, data]) => ({
+app/api/admin/analytics/route.ts:273:        growth: userGrowth,
+app/api/account/plan-info/route.ts:24:    let currentPlan = 'Gratuito'
+app/api/account/plan-info/route.ts:34:        currentPlan = 'Growth'
+app/api/account/plan-info/route.ts:58:    case 'Gratuito':
+app/api/account/plan-info/route.ts:59:      return '1 propiedad incluida'
+app/api/account/plan-info/route.ts:60:    case 'Growth':
+app/(auth)/login/page.tsx:422:                Regístrate gratis
+app/(auth)/login/page.tsx:435:              <span className="font-medium text-violet-600">✨ Primer manual gratis</span> + Solo €5 por manual adicional
+app/(dashboard)/pricing-v2/page.tsx:122:              Precios más competitivos con más funcionalidades incluidas
+app/(dashboard)/pricing-v2/page.tsx:271:                Puedes introducir un código de cupón durante el registro o en la calculadora de precios. Los cupones pueden ofrecer descuentos porcentuales, meses gratuitos o descuentos fijos.
+app/(dashboard)/properties/groups/[id]/page.tsx:923:                      <h4 className="font-semibold text-gray-900 mb-3">Desglose por Propiedad</h4>
+app/(dashboard)/account/plans/page.tsx:128:                <span className="text-violet-700">Precio por propiedad:</span>
+app/(dashboard)/account/plans/page.tsx:280:    currentPlan: 'Gratuito',
+app/(dashboard)/account/plans/page.tsx:478:                {plan.name.includes('Growth') && <Building2 className="w-12 h-12 text-violet-600 mx-auto" />}
+app/(dashboard)/account/plans/page.tsx:479:                {plan.name.includes('Enterprise') && <Crown className="w-12 h-12 text-yellow-600 mx-auto" />}
+app/(dashboard)/account/plans/page.tsx:484:                <span className="text-lg text-gray-600 font-normal">/mes por propiedad</span>
+app/(dashboard)/account/billing/page.tsx:97:    currentPlan: 'Gratuito',
+app/(dashboard)/account/billing/page.tsx:295:          {planInfo.currentPlan === 'Gratuito' && planInfo.propertiesCount >= 1 && (
+app/(dashboard)/account/billing/page.tsx:302:                    Estás usando tu propiedad gratuita. Para agregar más propiedades, actualiza a nuestro plan Growth por solo €2.50/mes por propiedad adicional.
+app/(dashboard)/account/billing/page.tsx:330:              Valida tu cupón para obtener descuentos especiales, meses gratis o acceso a planes personalizados
+app/(dashboard)/account/billing/page.tsx:404:                              <span className="text-gray-600">Meses gratis:</span>
+app/(dashboard)/analytics/page.tsx:266:                <CardTitle>Rendimiento por Propiedad</CardTitle>
+app/legal/terms/page.tsx:77:                <li>Creación de manuales digitales personalizados por propiedad</li>
+app/legal/dpa/page.tsx:274:                  incluidas inspecciones, por parte del Responsable o de otro auditor autorizado por dicho Responsable.
+app/legal/legal-notice/page.tsx:112:              y sin reservas de todas y cada una de las disposiciones incluidas en este Aviso Legal.
+app/legal/legal-notice/page.tsx:121:              El acceso al Sitio Web es gratuito, salvo en lo relativo al coste de la conexión a través de la red
+app/(legal)/terms/page.tsx:89:              <li>Plan gratuito con funcionalidades básicas</li>
+src/config/plans-static.ts:5: * Nunca usar "gratis", "gratuito", "incluida" ni "STARTER" ni "FREE".
+src/config/plans-static.ts:28:  isVisibleInUI: boolean         // false para BUSINESS (enterprise)
+src/config/plans-static.ts:107:    description: 'Soluciones enterprise a medida',
+src/config/plans-static.ts:226: * Mensajes de estado de suscripción (nunca usar "gratis"/"gratuito")
+src/components/ui/WelcomeModal.tsx:88:      description: "Tiempo medio ahorrado por propiedad respondiendo consultas"
+src/components/plan-limits/PlanLimitsCard.tsx:47:              €{Number(limits.monthlyFee).toFixed(2)}/mes por propiedad
+src/components/plan-limits/PlanLimitsCard.tsx:90:                    {limits.planName === 'Gratuito' 
+src/components/plan-limits/PlanLimitsCard.tsx:114:                        Solo €{Number(limits.monthlyFee).toFixed(2)}/mes por propiedad adicional
+src/components/plan-limits/PlanLimitsCard.tsx:125:        {limits.planName === 'Gratuito' && limits.currentProperties === 0 && (
+src/components/plan-limits/PlanLimitsCard.tsx:127:            <h4 className="font-semibold text-blue-900 text-sm mb-2">🎉 Plan Gratuito incluye:</h4>
+src/components/plan-limits/PlanLimitsCard.tsx:129:              <li>• 1 propiedad completamente gratis</li>
+src/components/plan-limits/PlanLimitsCard.tsx:139:            <h4 className="font-semibold text-purple-900 text-sm mb-2">🚀 Plan Growth incluye:</h4>
+src/components/TrialActivationModal.tsx:89:                  ¡Tu primera propiedad es GRATIS!
+src/components/TrialActivationModal.tsx:92:                  Como nuevo anfitrión, tu primera propiedad está incluida sin coste.
+src/components/TrialActivationModal.tsx:98:                <h3 className="font-semibold text-green-900 mb-2">Incluido en el plan gratuito:</h3>
+src/components/TrialActivationModal.tsx:175:                Por propiedad adicional
+src/components/TrialActivationModal.tsx:183:                  <h4 className="font-semibold text-gray-900">Prueba GRATIS 48 horas</h4>
+src/components/billing/BillingOverview.tsx:57:        return 'Plan Gratuito'
+src/components/billing/SubscriptionCard.tsx:117:            <div className="text-sm text-gray-600">Propiedades incluidas</div>
+src/lib/email-improved.ts:409:          <h4 style="color: #92400e;">Nuevas características incluidas:</h4>
+src/lib/invoice-generator.ts:557:            <strong>Suscripción Itineramio - Plan Growth</strong><br>
+src/lib/email.ts:538:          <h4 style="color: #92400e;">Nuevas características incluidas:</h4>
+src/lib/email-notifications.ts:405:                <li><strong>Plan Growth:</strong> €2.50/mes por propiedad adicional</li>
+src/lib/email-notifications.ts:437:- Plan Growth: €2.50/mes por propiedad adicional  
+src/lib/invoice-generator-airbnb.ts:495:                <div class="item-name">Plan Growth - ${prop.name}</div>
+src/lib/invoice-generator-airbnb.ts:505:                <div class="item-name">${invoice.description || 'Plan Growth - Gestión de Propiedades'}</div>
+src/lib/trial-service.ts:11: * - No más "gratis" o "gratuito" - es "período de prueba"
+src/data/zoneInspiration.ts:176:      'Museos gratuitos y días de entrada libre',
+src/data/zoneInspiration.ts:207:      'Ubicación de cafeterías con WiFi gratuito',
+src/data/zoneTemplates.ts:300:    description: 'Días gratuitos, descuentos, etc.',
+src/data/zoneTemplates.ts:304:    tags: ['ahorro', 'gratis', 'descuentos']

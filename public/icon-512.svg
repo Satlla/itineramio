@@ -1,0 +1,29 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <circle cx="256" cy="256" r="240" fill="url(#logoGradient)" stroke="url(#logoStroke)" stroke-width="16"/>
+  
+  <!-- Property/Building -->
+  <rect x="128" y="220" width="256" height="184" rx="24" fill="white" opacity="0.95"/>
+  <rect x="128" y="160" width="256" height="68" rx="24" fill="white"/>
+  
+  <!-- Guide Lines/Steps with Timeline -->
+  <line x1="160" y1="264" x2="352" y2="264" stroke="#8B5CF6" stroke-width="16" stroke-linecap="round"/>
+  <line x1="160" y1="304" x2="304" y2="304" stroke="#8B5CF6" stroke-width="16" stroke-linecap="round"/>
+  <line x1="160" y1="344" x2="328" y2="344" stroke="#8B5CF6" stroke-width="16" stroke-linecap="round"/>
+  
+  <!-- Step Numbers -->
+  <circle cx="160" cy="264" r="20" fill="#8B5CF6"/>
+  <circle cx="160" cy="304" r="20" fill="#8B5CF6"/>
+  <circle cx="160" cy="344" r="20" fill="#8B5CF6"/>
+  
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A855F7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="logoStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7C3AED;stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#9333EA;stop-opacity:0.5" />
+    </linearGradient>
+  </defs>
+</svg>

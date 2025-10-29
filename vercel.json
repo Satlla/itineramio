@@ -1,0 +1,25 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "functions": {
+    "app/api/upload/route.ts": {
+      "maxDuration": 30
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/check-trials",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/analytics/reports/weekly?all=true&secret=${CRON_SECRET}",
+      "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/analytics/alerts?all=true&secret=${CRON_SECRET}",
+      "schedule": "0 10 * * *"
+    }
+  ]
+}

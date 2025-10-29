@@ -1,0 +1,233 @@
+/**
+ * FUENTE DE VERDAD ÚNICA - PLANES Y PRECIOS
+ * 
+ * TODO el sistema lee de aquí:
+ * - Landing page pricing
+ * - Stripe checkout 
+ * - Webhooks
+ * - Banners de upgrade
+ * - Modales de pricing
+ * - Analytics de plan
+ */
+
+export const PLAN_CODES = {
+  BASIC: 'BASIC',
+  HOST: 'HOST',
+  SUPERHOST: 'SUPERHOST',
+  MANAGER: 'MANAGER',
+  BUSINESS: 'BUSINESS',
+} as const
+
+export const VALID_PLAN_CODES = new Set(Object.values(PLAN_CODES))
+
+// 🚫 Códigos deprecados que NO deben quedar en el código activo
+export const DEPRECATED_PLAN_CODES = {
+  SCALE: 'SUPERHOST',  // ⬅️ renombrado
+  GROWTH: 'MANAGER',   // ⬅️ renombrado
+  STARTER: 'BASIC',    // (si necesitas mapear legacy a algo)
+  FREE: 'NONE',        // nunca mostrar como plan
+  TRIAL: null,         // ⬅️ NO es plan; usar flags (inTrial)
+} as const
+
+export type PlanCode = 'BASIC' | 'HOST' | 'SUPERHOST' | 'MANAGER' | 'BUSINESS'
+
+export const TRIAL = {
+  enabled: true,
+  days: 15,
+  unlimitedProperties: true, // durante el trial
+} as const
+
+export interface Plan {
+  code: PlanCode
+  name: string
+  priceMonthly: number
+  maxProperties: number
+  features: string[]
+  stripePriceId?: string
+  popular?: boolean
+}
+
+export const PLANS: Record<PlanCode, Plan> = Object.freeze({
+  BASIC: {
+    code: 'BASIC',
+    name: 'BASIC',
+    priceMonthly: 9,
+    maxProperties: 2,
+    features: [
+      'Hasta 2 propiedades',
+      'QRs ilimitados',
+      'Guías digitales completas',
+      'Analytics básicas',
+      'Soporte por email',
+    ],
+    stripePriceId: process.env.STRIPE_PRICE_BASIC?.trim() || 'price_1S5HJNLyPHkKe9l3XvhxrnkP',
+  },
+  HOST: {
+    code: 'HOST',
+    name: 'HOST',
+    priceMonthly: 19,
+    maxProperties: 10, // ✅ SINCRONIZADO CON BD (era 5, ahora 10)
+    popular: true,
+    features: [
+      'Hasta 10 propiedades',
+      'Todo lo de BASIC',
+      'Mejor precio por propiedad',
+      'Analytics avanzadas',
+      'Soporte prioritario',
+    ],
+    stripePriceId: process.env.STRIPE_PRICE_HOST?.trim() || 'price_1S5HJPLyPHkKe9l32NDKN43Q',
+  },
+  SUPERHOST: {
+    code: 'SUPERHOST',
+    name: 'SUPERHOST',
+    priceMonthly: 39, // ✅ SINCRONIZADO CON BD (era €29, ahora €39)
+    maxProperties: 25, // ✅ SINCRONIZADO CON BD (era 10, ahora 25)
+    features: [
+      'Hasta 25 propiedades',
+      'Todo lo de HOST',
+      'Soporte prioritario',
+      'Plantillas premium',
+    ],
+    stripePriceId: process.env.STRIPE_PRICE_SUPERHOST?.trim() || 'price_1S5HJQLyPHkKe9l3yMDaZbQQ',
+  },
+  MANAGER: {
+    code: 'MANAGER',
+    name: 'MANAGER',
+    priceMonthly: 39,
+    maxProperties: 15,
+    features: [
+      'Hasta 15 propiedades',
+      'Todo lo de SUPERHOST',
+      'Gestión profesional',
+      'Opciones de marca blanca',
+      'Soporte prioritario',
+    ],
+    stripePriceId: process.env.STRIPE_PRICE_MANAGER?.trim() || 'price_1S5HJRLyPHkKe9l3sj3eNNcb',
+  },
+  BUSINESS: {
+    code: 'BUSINESS',
+    name: 'BUSINESS',
+    priceMonthly: 79,
+    maxProperties: 60, // ✅ SINCRONIZADO CON BD (era 100, ahora 60)
+    features: [
+      'Hasta 60 propiedades',
+      'Todo lo de MANAGER',
+      'Pensado para gestoras',
+      'Gestión de equipos',
+    ],
+    stripePriceId: process.env.STRIPE_PRICE_BUSINESS?.trim() || 'price_1S5HJSLyPHkKe9l37zRpA2X2',
+  },
+})
+
+/**
+ * Array de planes ordenado por precio (para UI)
+ */
+export const PLANS_ARRAY: Plan[] = Object.values(PLANS)
+
+/**
+ * Array de planes visibles para usuarios (sin BUSINESS)
+ */
+export const VISIBLE_PLANS: Plan[] = PLANS_ARRAY.filter(plan => plan.code !== 'BUSINESS')
+
+/**
+ * Determinar plan recomendado basado en número de propiedades
+ */
+export function planForPropertyCount(count: number): PlanCode {
+  if (count <= PLANS.BASIC.maxProperties) return 'BASIC'
+  if (count <= PLANS.HOST.maxProperties) return 'HOST' 
+  if (count <= PLANS.SUPERHOST.maxProperties) return 'SUPERHOST'
+  if (count <= PLANS.MANAGER.maxProperties) return 'MANAGER'
+  return 'BUSINESS'
+}
+
+/**
+ * Calcular precio por propiedad para un plan
+ */
+export function pricePerProperty(code: PlanCode): number {
+  const plan = PLANS[code]
+  return +(plan.priceMonthly / plan.maxProperties).toFixed(2)
+}
+
+/**
+ * Obtener plan por código con validación
+ */
+export function getPlan(code: PlanCode): Plan {
+  const plan = PLANS[code]
+  if (!plan) {
+    throw new Error(`Plan inválido: ${code}. Planes válidos: ${Object.keys(PLANS).join(', ')}`)
+  }
+  return plan
+}
+
+/**
+ * Verificar si un plan puede manejar X propiedades
+ */
+export function canHandleProperties(planCode: PlanCode, propertyCount: number): boolean {
+  return propertyCount <= PLANS[planCode].maxProperties
+}
+
+/**
+ * Obtener siguiente plan para upgrade
+ */
+export function getNextPlan(currentPlanCode: PlanCode): PlanCode | null {
+  const currentPlan = getPlan(currentPlanCode)
+  const nextPlan = PLANS_ARRAY
+    .filter(plan => plan.priceMonthly > currentPlan.priceMonthly)
+    .sort((a, b) => a.priceMonthly - b.priceMonthly)[0]
+  return nextPlan?.code || null
+}
+
+/**
+ * Calcular diferencia de upgrade
+ */
+export function calculateUpgradeCost(fromPlan: PlanCode, toPlan: PlanCode): number {
+  return PLANS[toPlan].priceMonthly - PLANS[fromPlan].priceMonthly
+}
+
+/**
+ * Detectar si número de propiedades requiere plan change
+ */
+export function detectPlanChange(fromProperties: number, toProperties: number): {
+  requiresChange: boolean
+  fromPlan: PlanCode
+  toPlan: PlanCode
+  isUpgrade: boolean
+} {
+  const fromPlan = planForPropertyCount(fromProperties)
+  const toPlan = planForPropertyCount(toProperties)
+  
+  return {
+    requiresChange: fromPlan !== toPlan,
+    fromPlan,
+    toPlan,
+    isUpgrade: PLANS[toPlan].priceMonthly > PLANS[fromPlan].priceMonthly
+  }
+}
+
+/**
+ * Umbrales donde cambia de plan automáticamente
+ */
+export const PLAN_THRESHOLDS = [3, 6, 11, 16] as const
+
+/**
+ * PLANES PROHIBIDOS - Error si aparecen en código
+ */
+export const BANNED_PLAN_CODES = ['STARTER', 'SCALE', 'ENTERPRISE'] as const
+
+/**
+ * Validar que un código de plan es válido
+ */
+export function isValidPlanCode(code: string): code is PlanCode {
+  return code in PLANS
+}
+
+/**
+ * Guard: detectar referencias prohibidas en código
+ */
+export function validateNoBannedReferences(code: string): void {
+  for (const banned of BANNED_PLAN_CODES) {
+    if (code.includes(banned)) {
+      throw new Error(`❌ REFERENCIA PROHIBIDA DETECTADA: ${banned}`)
+    }
+  }
+}

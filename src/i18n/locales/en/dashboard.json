@@ -1,0 +1,48 @@
+{
+  "welcome": {
+    "title": "Hello, {{name}}!",
+    "subtitle": "Manage your properties and manuals from here",
+    "getStarted": "Get started"
+  },
+  "stats": {
+    "totalProperties": "Total properties",
+    "activeManuals": "Active manuals",
+    "totalViews": "Total views",
+    "thisMonth": "This month"
+  },
+  "quickActions": {
+    "title": "Quick actions",
+    "createProperty": "Create property",
+    "createManual": "Create manual",
+    "uploadMedia": "Upload media",
+    "viewAnalytics": "View analytics"
+  },
+  "recentActivity": {
+    "title": "Recent activity",
+    "noActivity": "No recent activity",
+    "propertyCreated": "Property created",
+    "manualPublished": "Manual published",
+    "mediaUploaded": "Media uploaded",
+    "guestViewed": "Guest viewed manual"
+  },
+  "properties": {
+    "title": "My properties",
+    "viewAll": "View all",
+    "noProperties": "You don't have any properties yet",
+    "createFirst": "Create your first property",
+    "edit": "Edit",
+    "view": "View",
+    "duplicate": "Duplicate",
+    "archive": "Archive",
+    "delete": "Delete"
+  },
+  "navigation": {
+    "overview": "Overview",
+    "properties": "Properties",
+    "analytics": "Analytics",
+    "media": "Media",
+    "settings": "Settings",
+    "billing": "Billing",
+    "support": "Support"
+  }
+}

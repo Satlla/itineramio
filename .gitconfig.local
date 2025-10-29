@@ -1,0 +1,22 @@
+[alias]
+    # Ver estado
+    s = status -s
+    
+    # Commits rápidos
+    cm = commit -m
+    save = !git add . && git commit -m
+    
+    # Ver historial bonito
+    lg = log --oneline --graph --decorate -10
+    
+    # Trabajar con ramas
+    co = checkout
+    br = branch
+    new = checkout -b
+    
+    # Deploy rápido
+    deploy = !./scripts/deploy.sh
+    rollback = !./scripts/rollback.sh
+    
+    # Ver última versión
+    last = describe --tags --abbrev=0

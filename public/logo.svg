@@ -1,0 +1,42 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Icon Part -->
+  <g>
+    <!-- Background Circle with Gradient -->
+    <circle cx="30" cy="30" r="28" fill="url(#logoGradient)" stroke="url(#logoStroke)" stroke-width="2"/>
+    
+    <!-- Property/Building -->
+    <rect x="15" y="26" width="30" height="22" rx="3" fill="white" opacity="0.95"/>
+    <rect x="15" y="19" width="30" height="8" rx="3" fill="white"/>
+    
+    <!-- Guide Lines/Steps with Timeline -->
+    <line x1="19" y1="31" x2="41" y2="31" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round"/>
+    <line x1="19" y1="36" x2="35" y2="36" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round"/>
+    <line x1="19" y1="41" x2="38" y2="41" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round"/>
+    
+    <!-- Step Numbers -->
+    <circle cx="19" cy="31" r="2.5" fill="#8B5CF6"/>
+    <circle cx="19" cy="36" r="2.5" fill="#8B5CF6"/>
+    <circle cx="19" cy="41" r="2.5" fill="#8B5CF6"/>
+    
+    <!-- Connection Lines -->
+    <line x1="19" y1="33.5" x2="19" y2="33.5" stroke="#8B5CF6" stroke-width="1.5"/>
+    <line x1="19" y1="38.5" x2="19" y2="38.5" stroke="#8B5CF6" stroke-width="1.5"/>
+  </g>
+  
+  <!-- Text Part -->
+  <g>
+    <text x="70" y="26" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" fill="#1F2937">Itineramio</text>
+    <text x="70" y="42" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="12" font-weight="400" fill="#6B7280">Property Manual Creator</text>
+  </g>
+  
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A855F7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="logoStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7C3AED;stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#9333EA;stop-opacity:0.5" />
+    </linearGradient>
+  </defs>
+</svg>

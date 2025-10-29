@@ -1,0 +1,348 @@
+'use client'
+
+import React, { useState, useEffect } from 'react'
+import { 
+  DollarSign, 
+  Plus, 
+  Edit3, 
+  Save,
+  X,
+  AlertCircle,
+  TrendingUp,
+  Calculator
+} from 'lucide-react'
+
+interface PricingTier {
+  id: string
+  minProperties: number
+  maxProperties: number | null
+  pricePerProperty: number
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export default function AdminPricingPage() {
+  const [tiers, setTiers] = useState<PricingTier[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({
+    minProperties: 1,
+    maxProperties: null as number | null,
+    pricePerProperty: 8.00
+  })
+
+  useEffect(() => {
+    fetchPricingTiers()
+  }, [])
+
+  const fetchPricingTiers = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/admin/pricing-tiers')
+      const data = await response.json()
+      if (data.success) {
+        setTiers(data.tiers || [])
+      }
+    } catch (error) {
+      console.error('Error fetching pricing tiers:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSave = async (id?: string) => {
+    try {
+      setSaving(true)
+      const url = id ? `/api/admin/pricing-tiers/${id}` : '/api/admin/pricing-tiers'
+      const method = id ? 'PUT' : 'POST'
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm)
+      })
+
+      const data = await response.json()
+      
+      if (data.success) {
+        await fetchPricingTiers()
+        setEditingId(null)
+        setEditForm({ minProperties: 1, maxProperties: null, pricePerProperty: 8.00 })
+      } else {
+        alert(data.error || 'Error al guardar')
+      }
+    } catch (error) {
+      console.error('Error saving tier:', error)
+      alert('Error al guardar')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleEdit = (tier: PricingTier) => {
+    setEditingId(tier.id)
+    setEditForm({
+      minProperties: tier.minProperties,
+      maxProperties: tier.maxProperties,
+      pricePerProperty: tier.pricePerProperty
+    })
+  }
+
+  const calculateExamplePrice = (properties: number) => {
+    const applicableTier = tiers.find(tier => 
+      properties >= tier.minProperties && 
+      (tier.maxProperties === null || properties <= tier.maxProperties)
+    )
+    return applicableTier ? properties * applicableTier.pricePerProperty : 0
+  }
+
+  const examples = [1, 3, 5, 10, 15, 25]
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full"></div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 flex items-center">
+          <DollarSign className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 mr-2 sm:mr-3 text-red-600" />
+          Configuración de Precios
+        </h1>
+        <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1 sm:mt-2">
+          Gestiona los tramos de precios según el número de propiedades
+        </p>
+      </div>
+
+      {/* Pricing Calculator Preview */}
+      <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-lg p-3 sm:p-4 lg:p-6 text-white">
+        <h2 className="text-base sm:text-lg lg:text-xl font-bold mb-3 sm:mb-4 flex items-center">
+          <Calculator className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+          Vista Previa del Calculador
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
+          {examples.map(count => (
+            <div key={count} className="bg-white/20 rounded-lg p-2 sm:p-3 text-center">
+              <div className="text-xs sm:text-sm opacity-90">{count} propiedad{count > 1 ? 'es' : ''}</div>
+              <div className="text-base sm:text-lg font-bold">€{Number(calculateExamplePrice(count)).toFixed(2)}</div>
+              <div className="text-xs opacity-75">/mes</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Pricing Tiers Table */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900">Tramos de Precios</h2>
+            <button
+              onClick={() => setEditingId('new')}
+              className="bg-red-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-red-700 flex items-center text-xs sm:text-sm"
+            >
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+              Nuevo Tramo
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Cards View */}
+        <div className="block lg:hidden divide-y divide-gray-200">
+          {tiers.map((tier) => (
+            <div key={tier.id} className="p-3 sm:p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <TrendingUp className="h-4 w-4 text-gray-400 mr-2" />
+                  <span className="text-sm font-medium text-gray-900">
+                    {tier.minProperties}{tier.maxProperties ? ` - ${tier.maxProperties}` : '+'} propiedades
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleEdit(tier)}
+                  className="text-blue-600 hover:text-blue-900"
+                >
+                  <Edit3 className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-bold text-gray-900">
+                  €{Number(tier.pricePerProperty).toFixed(2)}
+                </span>
+                <span className="text-xs text-gray-500">/propiedad/mes</span>
+              </div>
+              <div>
+                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                  tier.isActive
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {tier.isActive ? 'Activo' : 'Inactivo'}
+                </span>
+              </div>
+            </div>
+          ))}
+          {tiers.length === 0 && !editingId && (
+            <div className="p-6 text-center">
+              <AlertCircle className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+              <p className="text-sm text-gray-500 mb-3">No hay tramos de precios configurados</p>
+              <button
+                onClick={() => setEditingId('new')}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm"
+              >
+                Crear primer tramo
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden lg:block overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Rango de Propiedades
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Precio por Propiedad
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Estado
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {/* New/Edit Row */}
+              {editingId && (
+                <tr className="bg-blue-50">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="number"
+                        min="1"
+                        value={editForm.minProperties}
+                        onChange={(e) => setEditForm({...editForm, minProperties: parseInt(e.target.value) || 1})}
+                        className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                        placeholder="Min"
+                      />
+                      <span>a</span>
+                      <input
+                        type="number"
+                        min="1"
+                        value={editForm.maxProperties || ''}
+                        onChange={(e) => setEditForm({...editForm, maxProperties: e.target.value ? parseInt(e.target.value) : null})}
+                        className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                        placeholder="Max"
+                      />
+                      <span className="text-xs text-gray-500">(vacío = ilimitado)</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center">
+                      <span className="mr-1">€</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        value={editForm.pricePerProperty}
+                        onChange={(e) => setEditForm({...editForm, pricePerProperty: parseFloat(e.target.value) || 0})}
+                        className="w-24 px-2 py-1 border border-gray-300 rounded text-sm"
+                      />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Activo
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleSave(editingId === 'new' ? undefined : editingId)}
+                        disabled={saving}
+                        className="text-green-600 hover:text-green-900 disabled:opacity-50"
+                        title="Guardar"
+                      >
+                        <Save className="h-4 w-4 sm:h-5 sm:w-5" />
+                      </button>
+                      <button
+                        onClick={() => setEditingId(null)}
+                        className="text-gray-600 hover:text-gray-900"
+                        title="Cancelar"
+                      >
+                        <X className="h-4 w-4 sm:h-5 sm:w-5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )}
+
+              {/* Existing Tiers */}
+              {tiers.map((tier) => (
+                <tr key={tier.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <TrendingUp className="w-4 h-4 text-gray-400 mr-2" />
+                      <span className="text-sm font-medium text-gray-900">
+                        {tier.minProperties}{tier.maxProperties ? ` - ${tier.maxProperties}` : '+'} propiedades
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-lg font-bold text-gray-900">
+                      €{Number(tier.pricePerProperty).toFixed(2)}
+                    </span>
+                    <span className="text-sm text-gray-500 ml-1">/propiedad/mes</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      tier.isActive 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {tier.isActive ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => handleEdit(tier)}
+                      className="text-blue-600 hover:text-blue-900 mr-4"
+                      title="Editar"
+                    >
+                      <Edit3 className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+
+              {tiers.length === 0 && !editingId && (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center">
+                    <AlertCircle className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+                    <p className="text-sm sm:text-base text-gray-500 mb-3 sm:mb-4">No hay tramos de precios configurados</p>
+                    <button
+                      onClick={() => setEditingId('new')}
+                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm"
+                    >
+                      Crear primer tramo
+                    </button>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
