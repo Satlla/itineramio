@@ -442,28 +442,6 @@ export default function RegisterPage() {
               </Button>
             </form>
 
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">O continúa con</span>
-              </div>
-            </div>
-
-            {/* Social Login */}
-            <div className="grid grid-cols-2 gap-2 sm:gap-3">
-              <button className="flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
-                <span className="text-xs sm:text-sm font-medium text-gray-700 ml-1.5 sm:ml-0">Google</span>
-              </button>
-              <button className="flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                <img src="https://www.facebook.com/favicon.ico" alt="Facebook" className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
-                <span className="text-xs sm:text-sm font-medium text-gray-700 ml-1.5 sm:ml-0">Facebook</span>
-              </button>
-            </div>
-
             {/* Login Link */}
             <p className="mt-6 text-center text-sm text-gray-600">
               ¿Ya tienes cuenta?{' '}
