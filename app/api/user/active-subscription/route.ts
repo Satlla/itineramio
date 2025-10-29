@@ -49,28 +49,32 @@ export async function GET(request: NextRequest) {
     }
 
     // Calcular billing period basado en la duración
-    const totalDays = Math.floor(
-      (subscription.endDate.getTime() - subscription.startDate.getTime()) / (1000 * 60 * 60 * 24)
-    )
-
     let billingPeriod = 'MONTHLY'
-    if (totalDays > 150 && totalDays < 250) {
-      billingPeriod = 'BIANNUAL'
-    } else if (totalDays > 300) {
-      billingPeriod = 'ANNUAL'
-    }
+    let daysRemaining = 0
 
-    const daysRemaining = Math.max(0, Math.floor(
-      (subscription.endDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-    ))
+    if (subscription.endDate) {
+      const totalDays = Math.floor(
+        (subscription.endDate.getTime() - subscription.startDate.getTime()) / (1000 * 60 * 60 * 24)
+      )
+
+      if (totalDays > 150 && totalDays < 250) {
+        billingPeriod = 'BIANNUAL'
+      } else if (totalDays > 300) {
+        billingPeriod = 'ANNUAL'
+      }
+
+      daysRemaining = Math.max(0, Math.floor(
+        (subscription.endDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+      ))
+    }
 
     // Calcular precio correcto según el período de facturación
     let price = subscription.customPrice || subscription.plan?.priceMonthly
     if (!subscription.customPrice && subscription.plan) {
       if (billingPeriod === 'BIANNUAL') {
-        price = subscription.plan.priceSemestral
+        price = subscription.plan.priceSemestral || subscription.plan.priceMonthly
       } else if (billingPeriod === 'ANNUAL') {
-        price = subscription.plan.priceYearly
+        price = subscription.plan.priceYearly || subscription.plan.priceMonthly
       }
     }
 

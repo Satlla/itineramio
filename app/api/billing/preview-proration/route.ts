@@ -170,14 +170,17 @@ async function handleProrationPreview(
     }
 
     // Calcular duración actual para determinar billing period
-    const existingDuration = activeSubscription.endDate.getTime() - activeSubscription.startDate.getTime()
-    const daysInExisting = existingDuration / (1000 * 60 * 60 * 24)
-
     let currentBillingPeriod: 'monthly' | 'biannual' | 'annual' = 'monthly'
-    if (daysInExisting > 150 && daysInExisting < 250) {
-      currentBillingPeriod = 'biannual'
-    } else if (daysInExisting > 300) {
-      currentBillingPeriod = 'annual'
+
+    if (activeSubscription.endDate) {
+      const existingDuration = activeSubscription.endDate.getTime() - activeSubscription.startDate.getTime()
+      const daysInExisting = existingDuration / (1000 * 60 * 60 * 24)
+
+      if (daysInExisting > 150 && daysInExisting < 250) {
+        currentBillingPeriod = 'biannual'
+      } else if (daysInExisting > 300) {
+        currentBillingPeriod = 'annual'
+      }
     }
 
     // 🔧 FIX CRÍTICO: Calcular el precio TOTAL pagado según el periodo de facturación
@@ -228,11 +231,13 @@ async function handleProrationPreview(
 
     // Si es DOWNGRADE, no permitir cambio inmediato
     if (!isUpgrade && activeSubscription.plan.code !== planCode) {
-      const endDateFormatted = new Date(activeSubscription.endDate).toLocaleDateString('es-ES', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      })
+      const endDateFormatted = activeSubscription.endDate
+        ? new Date(activeSubscription.endDate).toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          })
+        : 'fecha no definida'
 
       return NextResponse.json({
         error: 'No se permite bajar de plan inmediatamente',
@@ -256,7 +261,7 @@ async function handleProrationPreview(
       const newBillingPeriodLowercase = billingPeriod === 'MONTHLY' ? 'monthly'
                                        : billingPeriod === 'BIANNUAL' ? 'biannual'
                                        : billingPeriod === 'ANNUAL' ? 'annual'
-                                       : billingPeriod?.toLowerCase() || 'unknown'
+                                       : 'monthly'
 
       const currentLevel = periodHierarchy[currentBillingPeriod] || 0
       const newLevel = periodHierarchy[newBillingPeriodLowercase] || 0
@@ -270,11 +275,13 @@ async function handleProrationPreview(
 
       // Si el nuevo periodo es menor en la jerarquía, es downgrade
       if (newLevel < currentLevel) {
-        const endDateFormatted = new Date(activeSubscription.endDate).toLocaleDateString('es-ES', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
-        })
+        const endDateFormatted = activeSubscription.endDate
+          ? new Date(activeSubscription.endDate).toLocaleDateString('es-ES', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric'
+            })
+          : 'fecha no definida'
 
         return NextResponse.json({
           error: 'No se permite cambiar a un período de menor compromiso',
@@ -291,6 +298,14 @@ async function handleProrationPreview(
                             : 'monthly') as 'monthly' | 'biannual' | 'annual'
 
     // Calcular prorrateo usando el precio TOTAL correcto
+    if (!activeSubscription.endDate) {
+      return NextResponse.json({
+        error: 'No se puede calcular la prorrata sin fecha de finalización',
+        hasActiveSubscription: true,
+        hasProration: false
+      }, { status: 400 })
+    }
+
     const prorationCalculation = calculateProration({
       currentSubscription: {
         planName: activeSubscription.plan.name,

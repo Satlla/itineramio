@@ -180,7 +180,7 @@ export default function BillingDataModal({ isOpen, onClose, onSaveSuccess }: Bil
       } else {
         const cifValidation = validateCIF(billingInfo.cif)
         if (!cifValidation.valid) {
-          errors.cif = cifValidation.error
+          errors.cif = cifValidation.error || 'CIF inválido'
         }
       }
     } else if (billingInfo.entityType === 'autonomo') {
@@ -192,7 +192,7 @@ export default function BillingDataModal({ isOpen, onClose, onSaveSuccess }: Bil
       } else {
         const validation = billingInfo.nif.match(/^[XYZ]/) ? validateNIE(billingInfo.nif) : validateDNI(billingInfo.nif)
         if (!validation.valid) {
-          errors.nif = validation.error
+          errors.nif = validation.error || 'NIF/NIE inválido'
         }
       }
     } else { // particular
@@ -207,7 +207,7 @@ export default function BillingDataModal({ isOpen, onClose, onSaveSuccess }: Bil
       } else {
         const validation = billingInfo.dni.match(/^[XYZ]/) ? validateNIE(billingInfo.dni) : validateDNI(billingInfo.dni)
         if (!validation.valid) {
-          errors.dni = validation.error
+          errors.dni = validation.error || 'DNI/NIE inválido'
         }
       }
     }
@@ -290,7 +290,8 @@ export default function BillingDataModal({ isOpen, onClose, onSaveSuccess }: Bil
     setBillingInfo({ ...billingInfo, [field]: value })
     // Clear error for this field when user types
     if (validationErrors[field]) {
-      setValidationErrors({ ...validationErrors, [field]: undefined })
+      const { [field]: _, ...rest } = validationErrors
+      setValidationErrors(rest as ValidationErrors)
     }
   }
 

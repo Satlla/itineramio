@@ -24,7 +24,14 @@ export async function GET(request: NextRequest) {
         userId,
         status: 'ACTIVE'
       },
-      include: {
+      select: {
+        id: true,
+        userId: true,
+        planId: true,
+        startDate: true,
+        endDate: true,
+        status: true,
+        customPrice: true,
         plan: true,
         invoices: {
           where: {
@@ -58,13 +65,24 @@ export async function GET(request: NextRequest) {
 
     // Calculate days until expiry
     const now = new Date()
-    const endDate = new Date(activeSubscription.endDate)
-    const daysUntilExpiry = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    const daysUntilExpiry = activeSubscription.endDate
+      ? Math.ceil((activeSubscription.endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      : 0
 
-    // ✅ FIX: Use billingPeriod from database instead of calculating from duration
-    const savedBillingPeriod = activeSubscription.billingPeriod || 'MONTHLY'
+    // Calculate billing period from subscription duration
+    let savedBillingPeriod = 'MONTHLY'
+    if (activeSubscription.endDate) {
+      const totalDays = Math.floor(
+        (activeSubscription.endDate.getTime() - activeSubscription.startDate.getTime()) / (1000 * 60 * 60 * 24)
+      )
+      if (totalDays > 150 && totalDays < 250) {
+        savedBillingPeriod = 'BIANNUAL'
+      } else if (totalDays > 300) {
+        savedBillingPeriod = 'ANNUAL'
+      }
+    }
 
-    console.log('📊 [BILLING-OVERVIEW] Using billingPeriod from database:', {
+    console.log('📊 [BILLING-OVERVIEW] Calculated billingPeriod from duration:', {
       userId,
       subscriptionId: activeSubscription.id,
       savedBillingPeriod,

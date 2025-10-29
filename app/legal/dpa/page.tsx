@@ -74,7 +74,7 @@ export default function DPAPage() {
                 <div>
                   <dt className="font-semibold text-gray-900">Encargado del Tratamiento (Itineramio):</dt>
                   <dd className="text-gray-700 ml-4">
-                    {LEGAL_CONTACT.company}, que trata datos personales por cuenta del Responsable en el marco de la
+                    {LEGAL_CONTACT.companyName}, que trata datos personales por cuenta del Responsable en el marco de la
                     prestación del servicio.
                   </dd>
                 </div>
@@ -117,7 +117,7 @@ export default function DPAPage() {
           <section id="objeto">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Objeto del Acuerdo</h2>
             <p className="text-gray-700 mb-4">
-              El presente Acuerdo establece las condiciones bajo las cuales {LEGAL_CONTACT.company} (Encargado del Tratamiento)
+              El presente Acuerdo establece las condiciones bajo las cuales {LEGAL_CONTACT.companyName} (Encargado del Tratamiento)
               tratará datos personales por cuenta del Cliente (Responsable del Tratamiento) en el marco de la prestación
               del servicio de manuales digitales para alojamientos turísticos.
             </p>
@@ -452,7 +452,7 @@ export default function DPAPage() {
 
             <p className="text-gray-700 text-sm">
               El Cliente puede solicitar una copia de las garantías implementadas para transferencias internacionales
-              contactando con {LEGAL_CONTACT.legal}.
+              contactando con {LEGAL_CONTACT.email}.
             </p>
           </section>
 
@@ -625,8 +625,8 @@ export default function DPAPage() {
               Para cualquier consulta relacionada con este Data Processing Agreement, puede contactarnos en:
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-gray-700 mb-2"><strong>Encargado del Tratamiento:</strong> {LEGAL_CONTACT.company}</p>
-              <p className="text-gray-700 mb-2"><strong>Delegado de Protección de Datos:</strong> {LEGAL_CONTACT.legal}</p>
+              <p className="text-gray-700 mb-2"><strong>Encargado del Tratamiento:</strong> {LEGAL_CONTACT.companyName}</p>
+              <p className="text-gray-700 mb-2"><strong>Delegado de Protección de Datos:</strong> {LEGAL_CONTACT.email}</p>
               <p className="text-gray-700 mb-2"><strong>Email de contacto:</strong> {LEGAL_CONTACT.email}</p>
               <p className="text-gray-700"><strong>Dirección:</strong> {LEGAL_CONTACT.address}</p>
             </div>

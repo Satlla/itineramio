@@ -66,25 +66,15 @@ export async function GET(request: NextRequest) {
     }
 
     if (activeSubscription) {
-      // Calculate expiration date based on subscription period
-      const createdAt = new Date(activeSubscription.createdAt)
-      const billingPeriod = activeSubscription.billingPeriod || 'MONTHLY'
-
-      let expiresAt = new Date(createdAt)
-
-      switch (billingPeriod) {
-        case 'MONTHLY':
-          expiresAt.setMonth(expiresAt.getMonth() + 1)
-          break
-        case 'BIANNUAL':
-          expiresAt.setMonth(expiresAt.getMonth() + 6)
-          break
-        case 'ANNUAL':
-          expiresAt.setFullYear(expiresAt.getFullYear() + 1)
-          break
+      // Use endDate from database if available, otherwise calculate from startDate
+      if (activeSubscription.endDate) {
+        subscriptionInfo.expiresAt = activeSubscription.endDate.toISOString()
+      } else {
+        // Fallback: calculate from startDate (assume monthly)
+        const startDate = new Date(activeSubscription.startDate)
+        startDate.setMonth(startDate.getMonth() + 1)
+        subscriptionInfo.expiresAt = startDate.toISOString()
       }
-
-      subscriptionInfo.expiresAt = expiresAt.toISOString()
       subscriptionInfo.plan = activeSubscription.plan?.name || user.subscription || 'STARTER'
     }
 

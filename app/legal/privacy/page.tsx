@@ -56,13 +56,13 @@ export default function PrivacyPage() {
           <section id="responsable">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Responsable del Tratamiento</h2>
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <p className="text-gray-700 mb-2"><strong>Identidad:</strong> {LEGAL_CONTACT.company}</p>
+              <p className="text-gray-700 mb-2"><strong>Identidad:</strong> {LEGAL_CONTACT.companyName}</p>
               <p className="text-gray-700 mb-2"><strong>Dirección:</strong> {LEGAL_CONTACT.address}</p>
               <p className="text-gray-700 mb-2"><strong>Email de contacto:</strong> {LEGAL_CONTACT.email}</p>
-              <p className="text-gray-700"><strong>Delegado de Protección de Datos:</strong> {LEGAL_CONTACT.legal}</p>
+              <p className="text-gray-700"><strong>Delegado de Protección de Datos:</strong> {LEGAL_CONTACT.email}</p>
             </div>
             <p className="text-gray-700">
-              {LEGAL_CONTACT.company} es el responsable del tratamiento de sus datos personales de acuerdo con el Reglamento General de Protección de Datos (RGPD - UE 2016/679) y la Ley Orgánica 3/2018 de Protección de Datos Personales y garantía de los derechos digitales (LOPDGDD).
+              {LEGAL_CONTACT.companyName} es el responsable del tratamiento de sus datos personales de acuerdo con el Reglamento General de Protección de Datos (RGPD - UE 2016/679) y la Ley Orgánica 3/2018 de Protección de Datos Personales y garantía de los derechos digitales (LOPDGDD).
             </p>
           </section>
 
@@ -326,7 +326,7 @@ export default function PrivacyPage() {
               <p className="text-gray-700 text-sm mb-2">
                 Puede ejercer cualquiera de estos derechos enviando un correo a:
               </p>
-              <p className="text-gray-900 font-semibold">{LEGAL_CONTACT.legal}</p>
+              <p className="text-gray-900 font-semibold">{LEGAL_CONTACT.email}</p>
               <p className="text-gray-600 text-sm mt-2">
                 Incluya: nombre completo, email registrado, copia de DNI/NIE, y descripción de la solicitud.
                 Responderemos en un plazo máximo de 30 días.
@@ -435,7 +435,7 @@ export default function PrivacyPage() {
             </p>
             <p className="text-gray-700">
               Si tiene conocimiento de que un menor ha proporcionado datos personales sin consentimiento parental,
-              contacte inmediatamente con nosotros en {LEGAL_CONTACT.legal} para proceder a su eliminación.
+              contacte inmediatamente con nosotros en {LEGAL_CONTACT.email} para proceder a su eliminación.
             </p>
           </section>
 
@@ -457,9 +457,9 @@ export default function PrivacyPage() {
               Para cualquier consulta sobre esta Política de Privacidad o el tratamiento de sus datos personales, puede contactarnos en:
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-gray-700 mb-2"><strong>Responsable:</strong> {LEGAL_CONTACT.company}</p>
-              <p className="text-gray-700 mb-2"><strong>Email de Privacidad:</strong> {LEGAL_CONTACT.legal}</p>
-              <p className="text-gray-700 mb-2"><strong>Email de Soporte:</strong> {LEGAL_CONTACT.support}</p>
+              <p className="text-gray-700 mb-2"><strong>Responsable:</strong> {LEGAL_CONTACT.companyName}</p>
+              <p className="text-gray-700 mb-2"><strong>Email de Privacidad:</strong> {LEGAL_CONTACT.email}</p>
+              <p className="text-gray-700 mb-2"><strong>Email de Soporte:</strong> {LEGAL_CONTACT.email}</p>
               <p className="text-gray-700"><strong>Dirección:</strong> {LEGAL_CONTACT.address}</p>
             </div>
           </section>

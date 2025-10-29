@@ -66,14 +66,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate current billing period from subscription duration
-    const existingDuration = activeSubscription.endDate.getTime() - activeSubscription.startDate.getTime()
-    const daysInExisting = existingDuration / (1000 * 60 * 60 * 24)
-
     let currentBillingPeriod: 'monthly' | 'semiannual' | 'annual' = 'monthly'
-    if (daysInExisting > 150 && daysInExisting < 250) {
-      currentBillingPeriod = 'semiannual'
-    } else if (daysInExisting > 300) {
-      currentBillingPeriod = 'annual'
+
+    if (activeSubscription.endDate) {
+      const existingDuration = activeSubscription.endDate.getTime() - activeSubscription.startDate.getTime()
+      const daysInExisting = existingDuration / (1000 * 60 * 60 * 24)
+
+      if (daysInExisting > 150 && daysInExisting < 250) {
+        currentBillingPeriod = 'semiannual'
+      } else if (daysInExisting > 300) {
+        currentBillingPeriod = 'annual'
+      }
     }
 
     // Normalize target billing period
@@ -118,11 +121,13 @@ export async function POST(request: NextRequest) {
 
     // If it's a downgrade to a different plan, don't allow immediate change
     if (!isUpgrade && !isSamePlan) {
-      const endDateFormatted = new Date(activeSubscription.endDate).toLocaleDateString('es-ES', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      })
+      const endDateFormatted = activeSubscription.endDate
+        ? new Date(activeSubscription.endDate).toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          })
+        : 'fecha no definida'
 
       console.log('❌ Downgrade not allowed')
       return NextResponse.json({
@@ -154,11 +159,13 @@ export async function POST(request: NextRequest) {
 
       // If downgrading period commitment, don't allow
       if (targetLevel < currentLevel) {
-        const endDateFormatted = new Date(activeSubscription.endDate).toLocaleDateString('es-ES', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
-        })
+        const endDateFormatted = activeSubscription.endDate
+          ? new Date(activeSubscription.endDate).toLocaleDateString('es-ES', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric'
+            })
+          : 'fecha no definida'
 
         console.log('❌ Period downgrade not allowed')
         return NextResponse.json({

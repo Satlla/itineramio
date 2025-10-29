@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
   try {
     const {
       name,
+      code,
       description,
       priceMonthly,
       priceYearly,
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
     const plan = await prisma.subscriptionPlan.create({
       data: {
         name,
+        code,
         description,
         priceMonthly,
         priceYearly,

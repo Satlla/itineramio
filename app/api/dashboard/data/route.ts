@@ -21,7 +21,8 @@ export async function GET(request: NextRequest) {
           id: true,
           trialStartedAt: true,
           trialEndsAt: true,
-          subscription: true
+          subscription: true,
+          onboardingCompletedAt: true
         }
       }),
       // Obtener solo 10 propiedades para mostrar (más que suficiente para mostrar 3)

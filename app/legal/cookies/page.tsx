@@ -384,8 +384,8 @@ export default function CookiesPage() {
               Si tiene preguntas sobre nuestra Política de Cookies, puede contactarnos en:
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-gray-700 mb-2"><strong>Email:</strong> {LEGAL_CONTACT.legal}</p>
-              <p className="text-gray-700 mb-2"><strong>Soporte:</strong> {LEGAL_CONTACT.support}</p>
+              <p className="text-gray-700 mb-2"><strong>Email:</strong> {LEGAL_CONTACT.email}</p>
+              <p className="text-gray-700 mb-2"><strong>Soporte:</strong> {LEGAL_CONTACT.email}</p>
               <p className="text-gray-700"><strong>Dirección:</strong> {LEGAL_CONTACT.address}</p>
             </div>
           </section>

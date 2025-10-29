@@ -166,7 +166,7 @@ export default function TermsPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Propiedad Intelectual</h2>
             <h3 className="text-xl font-semibold text-gray-900 mb-3">6.1 Derechos de Itineramio</h3>
             <p className="text-gray-700 mb-4">
-              Todos los derechos de propiedad intelectual del Servicio, incluyendo pero no limitado a: diseño, código fuente, gráficos, logotipos, marcas comerciales, y el nombre "Itineramio" son propiedad exclusiva de {LEGAL_CONTACT.company} o sus licenciantes.
+              Todos los derechos de propiedad intelectual del Servicio, incluyendo pero no limitado a: diseño, código fuente, gráficos, logotipos, marcas comerciales, y el nombre "Itineramio" son propiedad exclusiva de {LEGAL_CONTACT.companyName} o sus licenciantes.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3">6.2 Licencia de Uso</h3>
@@ -232,7 +232,7 @@ export default function TermsPage() {
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3">9.2 Limitación de Daños</h3>
             <p className="text-gray-700 mb-4">
-              En ningún caso {LEGAL_CONTACT.company} será responsable por daños indirectos, incidentales, especiales, consecuentes o punitivos, incluyendo pérdida de beneficios, datos, uso, fondo de comercio u otras pérdidas intangibles.
+              En ningún caso {LEGAL_CONTACT.companyName} será responsable por daños indirectos, incidentales, especiales, consecuentes o punitivos, incluyendo pérdida de beneficios, datos, uso, fondo de comercio u otras pérdidas intangibles.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3">9.3 Máxima Responsabilidad</h3>
@@ -286,7 +286,7 @@ export default function TermsPage() {
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-gray-700"><strong>Email:</strong> {LEGAL_CONTACT.email}</p>
-              <p className="text-gray-700"><strong>Soporte:</strong> {LEGAL_CONTACT.support}</p>
+              <p className="text-gray-700"><strong>Soporte:</strong> {LEGAL_CONTACT.email}</p>
               <p className="text-gray-700"><strong>Dirección:</strong> {LEGAL_CONTACT.address}</p>
             </div>
           </section>

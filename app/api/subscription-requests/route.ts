@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
         paymentProofUrl,
         status: 'PENDING',
         paidAt: new Date(), // User claims they paid
-        metadata: billingPeriod ? { billingPeriod } : null
+        metadata: billingPeriod ? { billingPeriod } : undefined
       },
       include: {
         user: {

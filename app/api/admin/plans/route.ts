@@ -52,27 +52,29 @@ export async function POST(request: NextRequest) {
       return authResult
     }
     
-    const { 
-      name, 
-      description, 
-      priceMonthly, 
+    const {
+      name,
+      code,
+      description,
+      priceMonthly,
       priceYearly,
       aiMessagesIncluded,
       maxProperties,
-      features 
+      features
     } = await request.json();
 
     // Validations
-    if (!name || priceMonthly === undefined) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Name and priceMonthly are required' 
+    if (!name || !code || priceMonthly === undefined) {
+      return NextResponse.json({
+        success: false,
+        error: 'Name, code and priceMonthly are required'
       }, { status: 400 });
     }
 
     const newPlan = await prisma.subscriptionPlan.create({
       data: {
         name,
+        code,
         description: description || null,
         priceMonthly: parseFloat(priceMonthly),
         priceYearly: priceYearly ? parseFloat(priceYearly) : null,

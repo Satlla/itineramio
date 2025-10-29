@@ -23,10 +23,10 @@ export default function LegalNoticePage() {
           <h2 className="text-lg font-semibold text-blue-900 mb-3">Resumen Ejecutivo</h2>
           <ul className="space-y-2 text-blue-800">
             <li>• Este aviso legal cumple con la Ley 34/2002 (LSSI-CE)</li>
-            <li>• {LEGAL_CONTACT.company} es el titular y responsable del sitio web itineramio.com</li>
+            <li>• {LEGAL_CONTACT.companyName} es el titular y responsable del sitio web itineramio.com</li>
             <li>• El uso del sitio implica la aceptación de estos términos legales</li>
             <li>• Protegemos sus datos según el RGPD y la LOPDGDD</li>
-            <li>• Puede contactarnos en {LEGAL_CONTACT.legal}</li>
+            <li>• Puede contactarnos en {LEGAL_CONTACT.email}</li>
           </ul>
         </div>
 
@@ -62,7 +62,7 @@ export default function LegalNoticePage() {
                 <tbody className="divide-y divide-gray-200">
                   <tr>
                     <td className="py-2 font-semibold text-gray-900 w-1/3">Denominación social:</td>
-                    <td className="py-2 text-gray-700">{LEGAL_CONTACT.company}</td>
+                    <td className="py-2 text-gray-700">{LEGAL_CONTACT.companyName}</td>
                   </tr>
                   <tr>
                     <td className="py-2 font-semibold text-gray-900">Domicilio social:</td>
@@ -74,7 +74,7 @@ export default function LegalNoticePage() {
                   </tr>
                   <tr>
                     <td className="py-2 font-semibold text-gray-900">Email legal:</td>
-                    <td className="py-2 text-gray-700">{LEGAL_CONTACT.legal}</td>
+                    <td className="py-2 text-gray-700">{LEGAL_CONTACT.email}</td>
                   </tr>
                   <tr>
                     <td className="py-2 font-semibold text-gray-900">Sitio web:</td>
@@ -89,7 +89,7 @@ export default function LegalNoticePage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Objeto</h2>
             <p className="text-gray-700 mb-4">
               El presente Aviso Legal regula el uso y utilización del sitio web <strong>itineramio.com</strong>
-              (en adelante, "el Sitio Web"), del que es titular {LEGAL_CONTACT.company}.
+              (en adelante, "el Sitio Web"), del que es titular {LEGAL_CONTACT.companyName}.
             </p>
 
             <div className="bg-blue-50 p-4 rounded-lg mb-4">
@@ -144,7 +144,7 @@ export default function LegalNoticePage() {
             <h3 className="text-xl font-semibold text-gray-900 mb-3">3.3 Responsabilidad del Usuario</h3>
             <p className="text-gray-700">
               El usuario es el único responsable de las infracciones en las que pueda incurrir o de los perjuicios
-              que pueda causar por la utilización del Sitio Web, exonerando a {LEGAL_CONTACT.company} y a sus
+              que pueda causar por la utilización del Sitio Web, exonerando a {LEGAL_CONTACT.companyName} y a sus
               colaboradores de cualquier responsabilidad.
             </p>
           </section>
@@ -154,7 +154,7 @@ export default function LegalNoticePage() {
             <p className="text-gray-700 mb-4">
               Todos los contenidos del Sitio Web, incluyendo pero no limitándose a textos, fotografías, gráficos,
               imágenes, iconos, tecnología, software, links y demás contenidos audiovisuales o sonoros, así como su
-              diseño gráfico y códigos fuente, son propiedad intelectual de {LEGAL_CONTACT.company} o de terceros,
+              diseño gráfico y códigos fuente, son propiedad intelectual de {LEGAL_CONTACT.companyName} o de terceros,
               sin que puedan entenderse cedidos al usuario ninguno de los derechos de explotación reconocidos por la
               normativa vigente en materia de propiedad intelectual sobre los mismos.
             </p>
@@ -163,7 +163,7 @@ export default function LegalNoticePage() {
               <h3 className="font-semibold text-gray-900 mb-2">Marcas y Logotipos:</h3>
               <p className="text-sm text-gray-700 mb-2">
                 Las marcas, nombres comerciales o signos distintivos que aparecen en el Sitio Web son titularidad de
-                {LEGAL_CONTACT.company} o de terceros, sin que pueda entenderse que el acceso al Sitio Web atribuya
+                {LEGAL_CONTACT.companyName} o de terceros, sin que pueda entenderse que el acceso al Sitio Web atribuya
                 al usuario derecho alguno sobre las marcas, nombres comerciales y/o signos distintivos.
               </p>
             </div>
@@ -172,7 +172,7 @@ export default function LegalNoticePage() {
               <h3 className="font-semibold text-gray-900 mb-2">Contenido del Usuario:</h3>
               <p className="text-sm text-gray-700">
                 El contenido que los usuarios suben al Sitio Web (textos, imágenes, vídeos, etc.) es de su exclusiva
-                propiedad. Al subir contenido, el usuario otorga a {LEGAL_CONTACT.company} una licencia mundial, no exclusiva,
+                propiedad. Al subir contenido, el usuario otorga a {LEGAL_CONTACT.companyName} una licencia mundial, no exclusiva,
                 libre de regalías para usar, reproducir y mostrar dicho contenido únicamente con el propósito de prestar
                 el servicio. Esta licencia finaliza cuando el usuario elimina el contenido o cierra su cuenta.
               </p>
@@ -181,14 +181,14 @@ export default function LegalNoticePage() {
             <p className="text-gray-700 text-sm">
               Queda prohibida cualquier reproducción, distribución, comunicación pública, transformación o cualquier
               otra forma de explotación de los contenidos del Sitio Web sin la previa autorización expresa y por
-              escrito de {LEGAL_CONTACT.company}.
+              escrito de {LEGAL_CONTACT.companyName}.
             </p>
           </section>
 
           <section id="proteccion-datos">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Protección de Datos Personales</h2>
             <p className="text-gray-700 mb-4">
-              {LEGAL_CONTACT.company} cumple con el Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo,
+              {LEGAL_CONTACT.companyName} cumple con el Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo,
               de 27 de abril de 2016, relativo a la protección de las personas físicas en lo que respecta al
               tratamiento de datos personales (RGPD) y la Ley Orgánica 3/2018, de 5 de diciembre, de Protección
               de Datos Personales y garantía de los derechos digitales (LOPDGDD).
@@ -204,7 +204,7 @@ export default function LegalNoticePage() {
               </p>
               <p className="text-sm text-gray-700">
                 Si tiene preguntas sobre el tratamiento de sus datos personales o desea ejercer sus derechos,
-                puede contactarnos en: {LEGAL_CONTACT.legal}
+                puede contactarnos en: {LEGAL_CONTACT.email}
               </p>
             </div>
           </section>
@@ -214,21 +214,21 @@ export default function LegalNoticePage() {
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3">6.1 Disponibilidad del Servicio</h3>
             <p className="text-gray-700 mb-4">
-              {LEGAL_CONTACT.company} no garantiza la disponibilidad continua e ininterrumpida del Sitio Web.
+              {LEGAL_CONTACT.companyName} no garantiza la disponibilidad continua e ininterrumpida del Sitio Web.
               Nos esforzamos por mantener el servicio disponible, pero pueden producirse interrupciones debido a
               mantenimientos, actualizaciones o problemas técnicos ajenos a nuestra voluntad.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3">6.2 Exactitud de la Información</h3>
             <p className="text-gray-700 mb-4">
-              {LEGAL_CONTACT.company} excluye cualquier responsabilidad por los daños y perjuicios de toda naturaleza
+              {LEGAL_CONTACT.companyName} excluye cualquier responsabilidad por los daños y perjuicios de toda naturaleza
               que pudieran deberse a la falta de exactitud, exhaustividad, actualidad, así como a los errores u omisiones
               de los que pudieran adolecer las informaciones y servicios contenidos en el Sitio Web.
             </p>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-3">6.3 Virus y Malware</h3>
             <p className="text-gray-700 mb-4">
-              {LEGAL_CONTACT.company} no se hace responsable de los daños que pudieran derivarse de la presencia de
+              {LEGAL_CONTACT.companyName} no se hace responsable de los daños que pudieran derivarse de la presencia de
               virus u otros elementos lesivos en los contenidos que puedan producir alteraciones en los sistemas
               informáticos, documentos electrónicos o ficheros de los usuarios.
             </p>
@@ -236,7 +236,7 @@ export default function LegalNoticePage() {
             <h3 className="text-xl font-semibold text-gray-900 mb-3">6.4 Uso del Sitio Web</h3>
             <p className="text-gray-700">
               El usuario es el único responsable del uso que haga del Sitio Web y de los contenidos que publique.
-              {LEGAL_CONTACT.company} no se hace responsable de los daños que pudieran derivarse de un uso inadecuado
+              {LEGAL_CONTACT.companyName} no se hace responsable de los daños que pudieran derivarse de un uso inadecuado
               del Sitio Web por parte de los usuarios.
             </p>
           </section>
@@ -244,7 +244,7 @@ export default function LegalNoticePage() {
           <section id="enlaces">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Enlaces a Terceros</h2>
             <p className="text-gray-700 mb-4">
-              El Sitio Web puede contener enlaces a otros sitios web de terceros. {LEGAL_CONTACT.company} no controla
+              El Sitio Web puede contener enlaces a otros sitios web de terceros. {LEGAL_CONTACT.companyName} no controla
               ni es responsable del contenido de dichos sitios web ni de las políticas de privacidad o prácticas de
               seguridad de terceros.
             </p>
@@ -252,7 +252,7 @@ export default function LegalNoticePage() {
             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
               <p className="text-sm text-gray-700">
                 <strong>Importante:</strong> La inclusión de enlaces a sitios web de terceros no implica la aprobación,
-                apoyo o recomendación de los mismos por parte de {LEGAL_CONTACT.company}. Le recomendamos leer los
+                apoyo o recomendación de los mismos por parte de {LEGAL_CONTACT.companyName}. Le recomendamos leer los
                 términos y condiciones y políticas de privacidad de cualquier sitio web de terceros que visite.
               </p>
             </div>
@@ -265,20 +265,20 @@ export default function LegalNoticePage() {
               <li>No se utilice frames que alteren nuestro contenido</li>
               <li>No se realicen manifestaciones falsas sobre nuestra empresa o servicios</li>
               <li>El enlace se realice al home principal (no a páginas internas sin autorización)</li>
-              <li>No se implique falsamente que {LEGAL_CONTACT.company} patrocina o apoya el sitio enlazante</li>
+              <li>No se implique falsamente que {LEGAL_CONTACT.companyName} patrocina o apoya el sitio enlazante</li>
             </ul>
           </section>
 
           <section id="modificaciones">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Modificaciones</h2>
             <p className="text-gray-700 mb-4">
-              {LEGAL_CONTACT.company} se reserva el derecho de efectuar sin previo aviso las modificaciones que
+              {LEGAL_CONTACT.companyName} se reserva el derecho de efectuar sin previo aviso las modificaciones que
               considere oportunas en el Sitio Web, pudiendo cambiar, suprimir o añadir tanto los contenidos y
               servicios que se presten a través del mismo como la forma en la que éstos aparezcan presentados
               o localizados.
             </p>
             <p className="text-gray-700">
-              Asimismo, {LEGAL_CONTACT.company} se reserva el derecho de modificar en cualquier momento el presente
+              Asimismo, {LEGAL_CONTACT.companyName} se reserva el derecho de modificar en cualquier momento el presente
               Aviso Legal. Le recomendamos revisar periódicamente este documento.
             </p>
           </section>
@@ -290,7 +290,7 @@ export default function LegalNoticePage() {
             </p>
             <p className="text-gray-700 mb-4">
               Para la resolución de cualquier controversia o conflicto que pueda surgir en relación con el uso del
-              Sitio Web o la interpretación y ejecución de este Aviso Legal, {LEGAL_CONTACT.company} y el usuario
+              Sitio Web o la interpretación y ejecución de este Aviso Legal, {LEGAL_CONTACT.companyName} y el usuario
               se someten, con renuncia expresa a cualquier otro fuero que pudiera corresponderles, a los Juzgados
               y Tribunales de Madrid (España).
             </p>
@@ -313,8 +313,8 @@ export default function LegalNoticePage() {
               Para cualquier consulta relacionada con este Aviso Legal, puede contactarnos en:
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-gray-700 mb-2"><strong>Empresa:</strong> {LEGAL_CONTACT.company}</p>
-              <p className="text-gray-700 mb-2"><strong>Email legal:</strong> {LEGAL_CONTACT.legal}</p>
+              <p className="text-gray-700 mb-2"><strong>Empresa:</strong> {LEGAL_CONTACT.companyName}</p>
+              <p className="text-gray-700 mb-2"><strong>Email legal:</strong> {LEGAL_CONTACT.email}</p>
               <p className="text-gray-700 mb-2"><strong>Email general:</strong> {LEGAL_CONTACT.email}</p>
               <p className="text-gray-700"><strong>Dirección:</strong> {LEGAL_CONTACT.address}</p>
             </div>

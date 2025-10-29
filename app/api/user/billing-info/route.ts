@@ -87,9 +87,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if billing info is complete - all required fields must be present
-    const hasName = billingInfo?.companyName ||
-                    billingInfo?.name ||
-                    (billingInfo?.firstName && billingInfo?.lastName)
+    const hasName = billingInfo?.companyName || billingInfo?.name
 
     const isBillingComplete = !!(
       billingInfo &&

@@ -109,15 +109,18 @@ export async function POST(
 
     // Calculate proration if user has active subscription
     let prorationCalculation: ProrationCalculation | null = null
-    let finalAmountToCharge = subscriptionRequest.totalAmount
+    let finalAmountToCharge: number = Number(subscriptionRequest.totalAmount)
 
     if (existingSubscription && existingSubscription.plan && subscriptionRequest.plan) {
       console.log('🔄 Existing subscription found, calculating proration...')
 
       try {
         // Determine current billing period from existing subscription
-        const existingDuration = existingSubscription.endDate.getTime() - existingSubscription.startDate.getTime()
-        const daysInExisting = existingDuration / (1000 * 60 * 60 * 24)
+        if (!existingSubscription.endDate) {
+          console.log('⚠️ Existing subscription has no end date, skipping proration')
+        } else {
+          const existingDuration = existingSubscription.endDate.getTime() - existingSubscription.startDate.getTime()
+          const daysInExisting = existingDuration / (1000 * 60 * 60 * 24)
 
         let currentBillingPeriod: 'monthly' | 'biannual' | 'annual' = 'monthly'
         if (daysInExisting > 150 && daysInExisting < 250) {
@@ -140,7 +143,7 @@ export async function POST(
           },
           newPlan: {
             name: subscriptionRequest.plan.name,
-            priceMonthly: subscriptionRequest.plan.priceMonthly,
+            priceMonthly: Number(subscriptionRequest.plan.priceMonthly),
             billingPeriod: newBillingPeriod
           },
           today: new Date()
@@ -164,6 +167,7 @@ export async function POST(
             notes: `Reemplazada por upgrade/downgrade. Crédito aplicado: €${prorationCalculation.creditAmount.toFixed(2)}`
           }
         })
+        }
       } catch (prorationError) {
         console.error('❌ Error calculating proration:', prorationError)
         // Continue without proration if calculation fails

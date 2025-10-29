@@ -363,7 +363,7 @@ export default function BillingPage() {
             </div>
 
             <p className="text-gray-700 text-sm mt-4">
-              Para solicitar un reembolso justificado, contacte con {LEGAL_CONTACT.support} indicando su ID de transacción
+              Para solicitar un reembolso justificado, contacte con {LEGAL_CONTACT.email} indicando su ID de transacción
               y motivo. Procesamos solicitudes en un plazo máximo de 10 días laborables.
             </p>
           </section>
@@ -515,7 +515,7 @@ export default function BillingPage() {
               Para consultas sobre facturación, pagos o suscripciones, puede contactarnos en:
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-gray-700 mb-2"><strong>Email de facturación:</strong> {LEGAL_CONTACT.support}</p>
+              <p className="text-gray-700 mb-2"><strong>Email de facturación:</strong> {LEGAL_CONTACT.email}</p>
               <p className="text-gray-700 mb-2"><strong>Email general:</strong> {LEGAL_CONTACT.email}</p>
               <p className="text-gray-700"><strong>Horario de atención:</strong> Lunes a Viernes, 9:00 - 18:00 (CET)</p>
             </div>

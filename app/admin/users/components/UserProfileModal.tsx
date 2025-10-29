@@ -52,6 +52,8 @@ interface UserProfile {
     startDate: string
     endDate: string
     notes: string | null
+    cancelAtPeriodEnd?: boolean
+    planId?: string
     plan: {
       id: string
       name: string

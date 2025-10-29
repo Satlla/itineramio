@@ -60,6 +60,7 @@ export async function GET(request: NextRequest) {
     const upcoming = [] // 15-30 días
 
     for (const subscription of expiringSubscriptions) {
+      if (!subscription.endDate) continue
       const daysRemaining = Math.floor(
         (subscription.endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
       )

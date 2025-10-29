@@ -101,7 +101,7 @@ export async function POST(
       success: true,
       message: immediate
         ? `Suscripción de ${subscription.user.name} cancelada inmediatamente`
-        : `Suscripción de ${subscription.user.name} cancelada. Seguirá activa hasta ${subscription.endDate.toLocaleDateString('es-ES')}`,
+        : `Suscripción de ${subscription.user.name} cancelada. Seguirá activa hasta ${subscription.endDate ? subscription.endDate.toLocaleDateString('es-ES') : 'fecha no definida'}`,
       subscription: {
         id: updatedSubscription.id,
         status: updatedSubscription.status,
