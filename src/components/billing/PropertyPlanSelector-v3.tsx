@@ -279,8 +279,8 @@ export default function PropertyPlanSelectorV3({
         </p>
       </div>
 
-      {/* Property Slider - ONLY DESKTOP */}
-      <div className="hidden lg:block mb-12 bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+      {/* Property Slider - HIDDEN (removed as requested) */}
+      <div className="hidden mb-12 bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
         <div className="flex items-center justify-between mb-6">
           <label className="text-lg font-semibold text-gray-800">
             ¿Cuántas propiedades gestionas?
