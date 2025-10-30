@@ -15,9 +15,10 @@ interface DashboardNavbarProps {
     email: string
     avatar?: string
   }
+  isTrialBarVisible?: boolean
 }
 
-export function DashboardNavbar({ user }: DashboardNavbarProps) {
+export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -107,7 +108,7 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
   return (
     <>
       <motion.nav
-        className={`fixed top-[48px] left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed ${isTrialBarVisible ? 'top-[48px]' : 'top-0'} left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
             ? 'bg-white/90 backdrop-blur-md border-b border-neutral-200/50 shadow-lg'
             : 'bg-white/80 backdrop-blur-sm'
@@ -201,7 +202,7 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 z-50"
+                      className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-white rounded-lg shadow-2xl border border-gray-200 z-50"
                     >
                       <div className="p-4 border-b border-gray-200">
                         <h3 className="font-semibold text-gray-900">Notificaciones</h3>

@@ -55,8 +55,19 @@ export default function PropertyPlanSelectorV3({
   onPlanSelect,
   loading = false
 }: PropertyPlanSelectorProps) {
+  // Map term to billing period
+  const getCurrentBillingPeriod = (): BillingPeriod => {
+    if (!currentPlan?.term) return 'semiannual'
+    const termMap: Record<string, BillingPeriod> = {
+      'monthly': 'monthly',
+      'semiannual': 'semiannual',
+      'annual': 'annual'
+    }
+    return termMap[currentPlan.term.toLowerCase()] || 'semiannual'
+  }
+
   const [propertyCount, setPropertyCount] = useState(Math.max(currentProperties || 1, 1))
-  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('semiannual')
+  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>(getCurrentBillingPeriod())
   const [prorationData, setProrationData] = useState<any>(null)
   const [couponCode, setCouponCode] = useState('')
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null)
@@ -73,6 +84,11 @@ export default function PropertyPlanSelectorV3({
   const requiredPlan = useMemo(() => {
     return allPlans.find(plan => propertyCount <= plan.maxProperties) || allPlans[allPlans.length - 1]
   }, [propertyCount, allPlans])
+
+  // Check if this is the exact same plan + period as current
+  const isCurrentPlanAndPeriod = useMemo(() => {
+    return requiredPlan.code === currentPlan?.code && billingPeriod === getCurrentBillingPeriod()
+  }, [requiredPlan.code, currentPlan?.code, billingPeriod])
 
   // Calculate base price without IVA
   const calculatePriceWithoutIVA = (price: number) => {
@@ -233,7 +249,9 @@ export default function PropertyPlanSelectorV3({
               {/* Plan Name */}
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <p className="text-white/80 text-sm mb-1">Plan</p>
-                <p className="text-white text-xl font-bold">{currentPlan.name}</p>
+                <p className="text-white text-xl font-bold">
+                  {currentPlan.name} {currentPlan.term && BILLING_PERIODS[getCurrentBillingPeriod()].label}
+                </p>
               </div>
 
               {/* Price */}
@@ -705,15 +723,32 @@ export default function PropertyPlanSelectorV3({
         </div>
 
         {/* CTA Button */}
+        {isCurrentPlanAndPeriod && (
+          <div className="mt-6 p-4 bg-green-50 border-2 border-green-200 rounded-xl">
+            <p className="text-center text-green-800 font-medium flex items-center justify-center gap-2">
+              <Check className="w-5 h-5" />
+              Ya tienes este plan activo
+            </p>
+            <p className="text-center text-sm text-green-600 mt-1">
+              Puedes cambiar el período de facturación o elegir un plan superior
+            </p>
+          </div>
+        )}
+
         <button
           onClick={handleSelectPlan}
-          disabled={loading}
+          disabled={loading || isCurrentPlanAndPeriod}
           className="w-full mt-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
         >
           {loading ? (
             <>
               <div className="animate-spin w-5 h-5 border-3 border-white border-t-transparent rounded-full" />
               Procesando...
+            </>
+          ) : isCurrentPlanAndPeriod ? (
+            <>
+              <Check className="w-5 h-5" />
+              Plan Actual
             </>
           ) : (
             <>

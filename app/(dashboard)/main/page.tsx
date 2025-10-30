@@ -90,15 +90,7 @@ export default function DashboardPage(): JSX.Element {
   const [loading, setLoading] = useState(true)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showGuestReportsModal, setShowGuestReportsModal] = useState(false)
-  const [showUnifiedWelcome, setShowUnifiedWelcome] = useState(() => {
-    // Check if user has already seen the unified welcome modal
-    if (typeof window !== 'undefined') {
-      const hasSeenBefore = localStorage.getItem('hasSeenUnifiedWelcome') === 'true'
-      console.log('🔍 Initial state check - hasSeenUnifiedWelcome:', hasSeenBefore)
-      return !hasSeenBefore
-    }
-    return false
-  })
+  const [showUnifiedWelcome, setShowUnifiedWelcome] = useState(false)
   const [showFirstPropertyNotification, setShowFirstPropertyNotification] = useState(false)
   const [showFirstPropertyOnboarding, setShowFirstPropertyOnboarding] = useState(false)
   const [trialStatus, setTrialStatus] = useState<any>(null)
@@ -269,40 +261,61 @@ export default function DashboardPage(): JSX.Element {
 
   // Check for welcome parameter to show unified welcome modal (ONLY ONCE EVER)
   useEffect(() => {
-    // ABSOLUTE GUARD: NEVER show if already seen - check localStorage FIRST
-    if (typeof window !== 'undefined' && localStorage.getItem('hasSeenUnifiedWelcome') === 'true') {
-      console.log('🚫 Unified welcome modal already seen, not showing')
-      setShowUnifiedWelcome(false)
-      return
-    }
-
-    // Only check once per component lifetime
-    if (hasCheckedWelcomeModal.current) {
-      console.log('🚫 Already checked unified welcome modal in this session')
-      return
-    }
-    hasCheckedWelcomeModal.current = true
-
-    // Only show if welcome=true AND user is loaded AND NOT SEEN BEFORE
-    const welcome = searchParams.get('welcome')
-    console.log('🔍 Welcome param:', welcome, 'User:', !!user?.name)
-
-    if (welcome === 'true' && user?.name) {
-      // Double check localStorage one more time
-      if (localStorage.getItem('hasSeenUnifiedWelcome') === 'true') {
-        console.log('🚫 Double-check: already seen, not showing')
+    const checkOnboardingStatus = async () => {
+      // ABSOLUTE GUARD: NEVER show if already seen - check localStorage FIRST
+      if (typeof window !== 'undefined' && localStorage.getItem('hasSeenUnifiedWelcome') === 'true') {
+        console.log('🚫 Unified welcome modal already seen (localStorage), not showing')
         setShowUnifiedWelcome(false)
         return
       }
 
-      console.log('✅ Showing unified welcome modal for first time')
-      setShowUnifiedWelcome(true)
+      // Only check once per component lifetime
+      if (hasCheckedWelcomeModal.current) {
+        console.log('🚫 Already checked unified welcome modal in this session')
+        return
+      }
+      hasCheckedWelcomeModal.current = true
 
-      // Clean up URL immediately
-      const url = new URL(window.location.href)
-      url.searchParams.delete('welcome')
-      window.history.replaceState({}, '', url.toString())
+      // Only show if welcome=true AND user is loaded AND NOT SEEN BEFORE
+      const welcome = searchParams.get('welcome')
+      console.log('🔍 Welcome param:', welcome, 'User:', !!user?.name)
+
+      if (welcome === 'true' && user?.name) {
+        // Check database to see if user has completed onboarding
+        try {
+          const response = await fetch('/api/user/complete-onboarding', {
+            credentials: 'include'
+          })
+          const data = await response.json()
+
+          if (data.hasCompleted) {
+            console.log('🚫 User already completed onboarding (database), not showing')
+            localStorage.setItem('hasSeenUnifiedWelcome', 'true')
+            setShowUnifiedWelcome(false)
+            return
+          }
+        } catch (error) {
+          console.error('Error checking onboarding status:', error)
+        }
+
+        // Double check localStorage one more time
+        if (localStorage.getItem('hasSeenUnifiedWelcome') === 'true') {
+          console.log('🚫 Double-check: already seen, not showing')
+          setShowUnifiedWelcome(false)
+          return
+        }
+
+        console.log('✅ Showing unified welcome modal for first time')
+        setShowUnifiedWelcome(true)
+
+        // Clean up URL immediately
+        const url = new URL(window.location.href)
+        url.searchParams.delete('welcome')
+        window.history.replaceState({}, '', url.toString())
+      }
     }
+
+    checkOnboardingStatus()
   }, [searchParams, user])
 
   // Check if should show first property notification/onboarding
