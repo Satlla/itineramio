@@ -217,7 +217,7 @@ export default function PropertyPlanSelectorV3({
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto overflow-x-hidden">
       {/* Hero Section - Current Plan */}
       {currentPlan?.hasActiveSubscription && (
         <div className="mb-12 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-3xl shadow-2xl overflow-hidden">
@@ -229,7 +229,7 @@ export default function PropertyPlanSelectorV3({
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-4 gap-6 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-6">
               {/* Plan Name */}
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <p className="text-white/80 text-sm mb-1">Plan</p>
@@ -279,8 +279,8 @@ export default function PropertyPlanSelectorV3({
         </p>
       </div>
 
-      {/* Property Slider */}
-      <div className="mb-12 bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+      {/* Property Slider - ONLY DESKTOP */}
+      <div className="hidden lg:block mb-12 bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
         <div className="flex items-center justify-between mb-6">
           <label className="text-lg font-semibold text-gray-800">
             ¿Cuántas propiedades gestionas?
@@ -320,7 +320,87 @@ export default function PropertyPlanSelectorV3({
 
       {/* Plan Cards */}
       <div className="mb-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Mobile: Horizontal scroll with snap */}
+        <div className="lg:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
+          <div className="flex gap-4 pb-4">
+            {allPlans.map((plan) => {
+              const Icon = PLAN_ICONS[plan.code as PlanCode]
+              const isSelected = plan.code === requiredPlan.code
+              const isCurrentPlan = plan.code === currentPlan?.code
+
+              return (
+                <div
+                  key={plan.code}
+                  className={`relative min-w-[280px] aspect-square rounded-2xl border-4 transition-all duration-300 cursor-pointer snap-center ${
+                    isSelected
+                      ? 'border-indigo-600 bg-gradient-to-br from-indigo-50 to-purple-50 shadow-2xl'
+                      : 'border-gray-200 bg-white hover:border-indigo-300 hover:shadow-lg'
+                  }`}
+                  onClick={() => {
+                    const newCount = plan.maxProperties
+                    if (newCount > currentProperties) {
+                      setPropertyCount(newCount)
+                    }
+                  }}
+                >
+                  {/* Badge */}
+                  {isCurrentPlan && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-green-500 text-white text-xs font-bold rounded-full shadow-lg z-10">
+                      Plan Actual
+                    </div>
+                  )}
+
+                  {/* Content */}
+                  <div className="h-full flex flex-col items-center justify-center p-6 text-center">
+                    {/* Icon */}
+                    <div className={`mb-4 p-4 rounded-2xl ${
+                      isSelected ? 'bg-indigo-100' : 'bg-gray-100'
+                    }`}>
+                      <Icon className={`w-12 h-12 ${
+                        isSelected ? 'text-indigo-600' : 'text-gray-600'
+                      }`} />
+                    </div>
+
+                    {/* Plan Name */}
+                    <h3 className={`text-2xl font-bold mb-2 ${
+                      isSelected ? 'text-indigo-900' : 'text-gray-900'
+                    }`}>
+                      {plan.name}
+                    </h3>
+
+                    {/* Price */}
+                    <div className="mb-3">
+                      <span className={`text-3xl font-black ${
+                        isSelected ? 'text-indigo-600' : 'text-gray-900'
+                      }`}>
+                        €{plan.priceMonthly}
+                      </span>
+                      <span className="text-gray-600 text-sm">/mes</span>
+                    </div>
+
+                    {/* Properties */}
+                    <p className="text-sm text-gray-600 mb-4">
+                      Hasta <span className="font-bold text-gray-900">{plan.maxProperties}</span> propiedades
+                    </p>
+
+                    {/* Selected indicator */}
+                    {isSelected && (
+                      <div className="mt-auto">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-full text-sm font-semibold">
+                          <Check className="w-4 h-4" />
+                          Seleccionado
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Desktop: Grid */}
+        <div className="hidden lg:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {allPlans.map((plan) => {
             const Icon = PLAN_ICONS[plan.code as PlanCode]
             const isSelected = plan.code === requiredPlan.code
@@ -385,15 +465,61 @@ export default function PropertyPlanSelectorV3({
       </div>
 
       {/* Billing Period Selector */}
-      <div className="mb-12 bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-        <div className="flex items-center gap-3 mb-6">
-          <Calendar className="w-6 h-6 text-indigo-600" />
-          <h3 className="text-2xl font-bold text-gray-900">
+      <div className="mb-12 bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-8">
+        <div className="flex items-center gap-3 mb-4 md:mb-6 px-2 md:px-0">
+          <Calendar className="w-5 h-5 md:w-6 md:h-6 text-indigo-600" />
+          <h3 className="text-xl md:text-2xl font-bold text-gray-900">
             Período de Facturación
           </h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Mobile: Horizontal scroll with snap */}
+        <div className="md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
+          <div className="flex gap-3 pb-2">
+            {Object.entries(BILLING_PERIODS).map(([key, period]) => {
+              const isActive = billingPeriod === key
+              const discountPercent = Math.round(period.discount * 100)
+
+              return (
+                <button
+                  key={key}
+                  onClick={() => setBillingPeriod(key as BillingPeriod)}
+                  className={`relative min-w-[240px] p-5 rounded-xl border-2 font-medium transition-all snap-center ${
+                    isActive
+                      ? 'border-indigo-600 bg-gradient-to-br from-indigo-50 to-purple-50 shadow-lg'
+                      : 'border-gray-200 bg-white'
+                  }`}
+                >
+                  {discountPercent > 0 && (
+                    <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                      Ahorra {discountPercent}%
+                    </div>
+                  )}
+
+                  {isActive && (
+                    <div className="absolute -top-2 -left-2 bg-indigo-600 text-white rounded-full p-1.5 shadow-lg">
+                      <Check className="w-3 h-3" />
+                    </div>
+                  )}
+
+                  <div className="flex flex-col items-center text-center">
+                    <p className={`text-lg font-bold mb-1 ${
+                      isActive ? 'text-indigo-900' : 'text-gray-900'
+                    }`}>
+                      {period.label}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {period.months} {period.months === 1 ? 'mes' : 'meses'}
+                    </p>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Desktop: Grid */}
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-4">
           {Object.entries(BILLING_PERIODS).map(([key, period]) => {
             const isActive = billingPeriod === key
             const discountPercent = Math.round(period.discount * 100)

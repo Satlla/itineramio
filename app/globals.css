@@ -154,4 +154,25 @@ body {
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  /* Smooth scrolling with snap */
+  .snap-x {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .snap-center {
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
 }

@@ -85,6 +85,11 @@ export default function DashboardLayout({
     setSubscriptionNotification(null)
   }
 
+  // Determinar si el TrialTopBar está visible
+  const isTrialBarVisible = hasActiveSubscription !== null &&
+                            hasActiveSubscription !== true &&
+                            (trialStatus !== null)
+
   return (
     <OnboardingProvider>
       <div className="min-h-screen bg-gray-50">
@@ -94,13 +99,16 @@ export default function DashboardLayout({
           hasActiveSubscription={hasActiveSubscription}
         />
 
-        <DashboardNavbar user={user ? {
-          name: user.name,
-          email: user.email,
-          avatar: user.avatar
-        } : undefined} />
+        <DashboardNavbar
+          user={user ? {
+            name: user.name,
+            email: user.email,
+            avatar: user.avatar
+          } : undefined}
+          isTrialBarVisible={isTrialBarVisible}
+        />
 
-        <main className="pt-[112px]">
+        <main className={`transition-all duration-300 ${isTrialBarVisible ? "pt-[112px]" : "pt-16"}`}>
           {children}
         </main>
 

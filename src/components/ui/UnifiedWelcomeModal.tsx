@@ -139,7 +139,18 @@ export function UnifiedWelcomeModal({
     }
   }
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    // Save to database
+    try {
+      await fetch('/api/user/complete-onboarding', {
+        method: 'POST',
+        credentials: 'include'
+      })
+    } catch (error) {
+      console.error('Error saving onboarding completion:', error)
+    }
+
+    // Save to localStorage as backup
     if (typeof window !== 'undefined') {
       localStorage.setItem('hasSeenUnifiedWelcome', 'true')
       localStorage.setItem('hasSeenWelcomeModal', 'true')
@@ -149,7 +160,18 @@ export function UnifiedWelcomeModal({
     router.push('/properties/new')
   }
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
+    // Save to database
+    try {
+      await fetch('/api/user/complete-onboarding', {
+        method: 'POST',
+        credentials: 'include'
+      })
+    } catch (error) {
+      console.error('Error saving onboarding completion:', error)
+    }
+
+    // Save to localStorage as backup
     if (typeof window !== 'undefined') {
       localStorage.setItem('hasSeenUnifiedWelcome', 'true')
       localStorage.setItem('hasSeenWelcomeModal', 'true')
@@ -192,7 +214,7 @@ export function UnifiedWelcomeModal({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden"
+            className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
@@ -219,7 +241,7 @@ export function UnifiedWelcomeModal({
             </div>
 
             {/* Header with gradient */}
-            <div className={`relative bg-gradient-to-br ${slide.gradient} text-white pt-16 pb-12 px-8`}>
+            <div className={`relative bg-gradient-to-br ${slide.gradient} text-white pt-14 sm:pt-16 pb-8 sm:pb-12 px-4 sm:px-8`}>
               {/* Animated Icon */}
               <motion.div
                 key={currentSlide}
@@ -275,16 +297,16 @@ export function UnifiedWelcomeModal({
                   }}
                   className="text-center"
                 >
-                  <h1 className="text-3xl font-bold mb-2">
+                  <h1 className="text-2xl sm:text-3xl font-bold mb-2">
                     {currentSlide === 0 && userName ? `¡Hola, ${userName}!` : slide.title}
                   </h1>
-                  <p className="text-lg opacity-90">{slide.subtitle}</p>
+                  <p className="text-base sm:text-lg opacity-90">{slide.subtitle}</p>
                 </motion.div>
               </AnimatePresence>
             </div>
 
             {/* Content */}
-            <div className="p-8">
+            <div className="p-4 sm:p-8">
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
                   key={currentSlide}
@@ -298,22 +320,22 @@ export function UnifiedWelcomeModal({
                     opacity: { duration: 0.2 }
                   }}
                 >
-                  <p className="text-gray-600 text-center mb-8 text-lg">
+                  <p className="text-gray-600 text-center mb-6 sm:mb-8 text-sm sm:text-lg">
                     {slide.description}
                   </p>
 
                   {/* Features */}
-                  <div className="space-y-4 mb-8">
+                  <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
                     {slide.features.map((feature, index) => (
                       <motion.div
                         key={index}
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: 0.1 + index * 0.1 }}
-                        className="flex items-center gap-4 bg-gray-50 rounded-2xl p-4 hover:bg-gray-100 transition-colors"
+                        className="flex items-center gap-3 sm:gap-4 bg-gray-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 hover:bg-gray-100 transition-colors"
                       >
-                        <span className="text-2xl">{feature.icon}</span>
-                        <span className="text-gray-700 font-medium">{feature.text}</span>
+                        <span className="text-xl sm:text-2xl flex-shrink-0">{feature.icon}</span>
+                        <span className="text-gray-700 font-medium text-sm sm:text-base">{feature.text}</span>
                       </motion.div>
                     ))}
                   </div>
@@ -321,21 +343,21 @@ export function UnifiedWelcomeModal({
               </AnimatePresence>
 
               {/* Navigation */}
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
                 <Button
                   onClick={handleSkip}
                   variant="ghost"
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 hover:text-gray-700 order-2 sm:order-1 text-sm sm:text-base"
                 >
                   Saltar
                 </Button>
 
-                <div className="flex gap-3">
+                <div className="flex gap-2 sm:gap-3 order-1 sm:order-2">
                   {!isFirstSlide && (
                     <Button
                       onClick={handlePrevious}
                       variant="outline"
-                      className="border-gray-300"
+                      className="border-gray-300 flex-1 sm:flex-none text-sm sm:text-base py-2 sm:py-2"
                     >
                       Anterior
                     </Button>
@@ -344,18 +366,19 @@ export function UnifiedWelcomeModal({
                   {!isLastSlide ? (
                     <Button
                       onClick={handleNext}
-                      className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all"
+                      className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all flex-1 sm:flex-none text-sm sm:text-base py-2 sm:py-2"
                     >
                       Siguiente
-                      <ChevronRight className="w-5 h-5 ml-1" />
+                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1" />
                     </Button>
                   ) : (
                     <Button
                       onClick={handleComplete}
-                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all"
+                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all flex-1 sm:flex-none text-sm sm:text-base py-2 sm:py-2"
                     >
-                      <Check className="w-5 h-5 mr-2" />
-                      Crear primera propiedad
+                      <Check className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">Crear primera propiedad</span>
+                      <span className="sm:hidden">¡Empezar!</span>
                     </Button>
                   )}
                 </div>
