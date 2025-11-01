@@ -927,22 +927,29 @@ function NewPropertyPageContent() {
                     </Button>
                   </div>
                   <div className="flex flex-col items-center sm:items-end order-1 sm:order-2">
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={isSubmitting || !validateStep(3)}
                       loading={isSubmitting}
                       className="w-full sm:w-auto"
                     >
                       <Save className="w-4 h-4 mr-2" />
-                      {isSubmitting 
-                        ? (isEditing ? 'Actualizando...' : 'Creando...') 
+                      {isSubmitting
+                        ? (isEditing ? 'Actualizando...' : 'Creando...')
                         : (isEditing ? 'Actualizar Propiedad' : 'Crear Propiedad')
                       }
                     </Button>
                     {!validateStep(3) && (
-                      <p className="text-sm text-red-600 mt-2 text-center sm:text-right">
-                        Completa todos los campos obligatorios para {isEditing ? 'actualizar' : 'crear'} la propiedad
-                      </p>
+                      <div className="mt-2 text-center sm:text-right">
+                        <p className="text-xs sm:text-sm text-red-600 font-medium mb-1">
+                          Completa todos los campos obligatorios:
+                        </p>
+                        <div className="text-xs text-red-500 space-y-0.5">
+                          {!watchedValues.hostContactName && <p>• Nombre de contacto</p>}
+                          {!watchedValues.hostContactPhone && <p>• Teléfono</p>}
+                          {!watchedValues.hostContactEmail && <p>• Email</p>}
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
