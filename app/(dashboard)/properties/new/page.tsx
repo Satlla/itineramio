@@ -194,31 +194,44 @@ function NewPropertyPageContent() {
 
   const onSubmit = async (data: CreatePropertyFormData) => {
     setIsSubmitting(true)
-    
+
     try {
       const url = isEditing ? `/api/properties/${editId}/safe` : '/api/properties/ultra-safe'
       const method = isEditing ? 'PUT' : 'POST'
-      
+
+      console.log('📤 Enviando propiedad...', { url, method })
+
+      // Create abort controller for timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data)
+        credentials: 'include',
+        body: JSON.stringify(data),
+        signal: controller.signal
       })
-      
+
+      clearTimeout(timeoutId)
+
+      console.log('📥 Respuesta recibida:', response.status)
+
       const result = await response.json()
-      
+      console.log('📦 Resultado:', result)
+
       if (!response.ok) {
         throw new Error(result.error || `Error al ${isEditing ? 'actualizar' : 'crear'} la propiedad`)
       }
-      
-      console.log(`Propiedad ${isEditing ? 'actualizada' : 'creada'} exitosamente:`, result.data)
-      
+
+      console.log(`✅ Propiedad ${isEditing ? 'actualizada' : 'creada'} exitosamente:`, result.data)
+
       // Clear saved data
       if (!isEditing && result.data?.id) {
         clearSavedData()
-        
+
         // Check if trial activation is needed
         if (result.subscription?.needsTrial) {
           setCreatedPropertyData({
@@ -230,16 +243,25 @@ function NewPropertyPageContent() {
           setShowTrialModal(true)
         } else {
           // First property is free, just redirect
+          console.log('🔄 Redirigiendo a:', `/properties/${result.data.id}/zones`)
           router.push(`/properties/${result.data.id}/zones`)
         }
       } else {
         // For edited properties, use the normal flow
         handleSuccessfulSubmit()
       }
-    } catch (error) {
-      console.error(`Error ${isEditing ? 'actualizando' : 'creando'} propiedad:`, error)
-      alert(`Error al ${isEditing ? 'actualizar' : 'crear'} la propiedad. Por favor, inténtalo de nuevo.`)
-    } finally {
+    } catch (error: any) {
+      console.error(`❌ Error ${isEditing ? 'actualizando' : 'creando'} propiedad:`, error)
+
+      let errorMessage = `Error al ${isEditing ? 'actualizar' : 'crear'} la propiedad.`
+
+      if (error.name === 'AbortError') {
+        errorMessage = 'La solicitud tardó demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.'
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+
+      alert(errorMessage + '\n\nSi el problema persiste, contacta con soporte.')
       setIsSubmitting(false)
     }
   }
