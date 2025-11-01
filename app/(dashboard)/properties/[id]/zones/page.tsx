@@ -1870,23 +1870,23 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6 pb-24 lg:pb-6">
+    <div className="max-w-7xl mx-auto p-3 sm:p-6 pb-24 lg:pb-6">
       {/* Inactive Property Banner */}
       {propertyStatus === 'DRAFT' && (
-        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <div className="mb-4 sm:mb-6 bg-amber-50 border border-amber-200 rounded-lg p-3 sm:p-4">
           <div className="flex flex-col md:flex-row items-start gap-3 md:gap-4">
             <div className="flex items-start gap-3 flex-1">
               <div className="flex-shrink-0">
                 <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-medium text-amber-800 mb-1">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xs sm:text-sm font-medium text-amber-800 mb-1">
                   Propiedad Inactiva - No visible para huéspedes
                 </h3>
-                <p className="text-sm text-amber-700 mb-2">
+                <p className="text-xs sm:text-sm text-amber-700 mb-2">
                   Esta propiedad está actualmente inactiva. Los huéspedes no podrán acceder a los manuales hasta que la actives.
                 </p>
-                <p className="text-sm text-amber-700">
+                <p className="text-xs sm:text-sm text-amber-700">
                   <strong>Recomendación:</strong> Completa todas las zonas con sus instrucciones antes de activar la propiedad para ofrecer la mejor experiencia a tus huéspedes.
                 </p>
               </div>
