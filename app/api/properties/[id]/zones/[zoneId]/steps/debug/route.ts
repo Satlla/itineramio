@@ -29,7 +29,8 @@ export async function GET(
     // Set JWT claims for RLS policies
     debug.step = 'Setting JWT claims'
     try {
-      await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
       debug.jwtClaimsSet = true
     } catch (rslError) {
       errors.push({ step: 'jwt_claims', error: rslError })

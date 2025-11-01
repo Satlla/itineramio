@@ -1,0 +1,418 @@
+import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
+import { Calendar, Clock, ArrowLeft, Share2, Heart, Eye, Tag, Twitter, Facebook, Linkedin } from 'lucide-react'
+import { prisma } from '../../../../src/lib/prisma'
+import ReadingProgress from './ReadingProgress'
+
+interface BlogPostPageProps {
+  params: {
+    slug: string
+  }
+}
+
+// Generate metadata for SEO
+export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+  const post = await prisma.blogPost.findUnique({
+    where: {
+      slug: params.slug,
+      status: 'PUBLISHED'
+    }
+  })
+
+  if (!post) {
+    return {
+      title: 'Artículo no encontrado'
+    }
+  }
+
+  return {
+    title: post.metaTitle || post.title,
+    description: post.metaDescription || post.excerpt,
+    keywords: post.keywords,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      images: post.coverImage ? [post.coverImage] : [],
+      type: 'article',
+      publishedTime: post.publishedAt?.toISOString(),
+      authors: [post.authorName]
+    }
+  }
+}
+
+// Generate static paths for all published posts
+export async function generateStaticParams() {
+  const posts = await prisma.blogPost.findMany({
+    where: {
+      status: 'PUBLISHED'
+    },
+    select: {
+      slug: true
+    }
+  })
+
+  return posts.map(post => ({
+    slug: post.slug
+  }))
+}
+
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
+  const post = await prisma.blogPost.findUnique({
+    where: {
+      slug: params.slug,
+      status: 'PUBLISHED'
+    }
+  })
+
+  if (!post) {
+    notFound()
+  }
+
+  // Increment view count (in a real app, you'd want to track unique views properly)
+  await prisma.blogPost.update({
+    where: { id: post.id },
+    data: { views: { increment: 1 } }
+  })
+
+  // Get related posts
+  const relatedPosts = await prisma.blogPost.findMany({
+    where: {
+      status: 'PUBLISHED',
+      category: post.category,
+      id: { not: post.id }
+    },
+    take: 3,
+    orderBy: { publishedAt: 'desc' }
+  })
+
+  // Category display names
+  const categoryNames: Record<string, string> = {
+    'GUIAS': 'Guías',
+    'MEJORES_PRACTICAS': 'Mejores Prácticas',
+    'NORMATIVA': 'Normativa',
+    'AUTOMATIZACION': 'Automatización',
+    'MARKETING': 'Marketing',
+    'OPERACIONES': 'Operaciones',
+    'CASOS_ESTUDIO': 'Casos de Estudio',
+    'NOTICIAS': 'Noticias'
+  }
+
+  // Generate Schema.org structured data for SEO
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt,
+    image: post.coverImage || 'https://itineramio.com/og-image.png',
+    datePublished: post.publishedAt?.toISOString(),
+    dateModified: post.updatedAt?.toISOString(),
+    author: {
+      '@type': 'Person',
+      name: post.authorName,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Itineramio',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://itineramio.com/logo.png',
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://itineramio.com/blog/${post.slug}`,
+    },
+    keywords: post.keywords.join(', '),
+    articleSection: categoryNames[post.category],
+    wordCount: post.content.split(' ').length,
+  }
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Inicio',
+        item: 'https://itineramio.com',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Blog',
+        item: 'https://itineramio.com/blog',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post.title,
+        item: `https://itineramio.com/blog/${post.slug}`,
+      },
+    ],
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Schema.org structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
+      <ReadingProgress />
+
+      {/* Header */}
+      <header className="border-b border-gray-200 bg-white sticky top-0 z-40 backdrop-blur-sm bg-white/90">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <Link href="/blog" className="text-3xl font-serif font-bold text-gray-900">
+              Blog
+            </Link>
+            <Link
+              href="/blog"
+              className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Todos los artículos
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <article>
+        {/* Article Header */}
+        <header className="max-w-3xl mx-auto px-6 pt-12 pb-8">
+          {/* Category */}
+          <Link
+            href="/blog"
+            className="inline-block text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-900 transition-colors mb-6"
+          >
+            {categoryNames[post.category]}
+          </Link>
+
+          {/* Title */}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-gray-900 mb-6 leading-tight">
+            {post.title}
+          </h1>
+
+          {/* Subtitle */}
+          {post.subtitle && (
+            <p className="text-xl md:text-2xl text-gray-600 mb-8 font-light leading-relaxed">
+              {post.subtitle}
+            </p>
+          )}
+
+          {/* Author & Meta */}
+          <div className="flex items-center justify-between py-6 border-y border-gray-200">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                {post.authorName.charAt(0)}
+              </div>
+              <div>
+                <div className="font-medium text-gray-900">{post.authorName}</div>
+                <div className="flex items-center space-x-3 text-sm text-gray-500">
+                  <time dateTime={post.publishedAt?.toISOString()}>
+                    {post.publishedAt?.toLocaleDateString('es-ES', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </time>
+                  <span>·</span>
+                  <span>{post.readTime} min de lectura</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Social Share */}
+            <div className="hidden sm:flex items-center space-x-2">
+              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors" title="Compartir en Twitter">
+                <Twitter className="w-5 h-5 text-gray-600" />
+              </button>
+              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors" title="Compartir en Facebook">
+                <Facebook className="w-5 h-5 text-gray-600" />
+              </button>
+              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors" title="Compartir en LinkedIn">
+                <Linkedin className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Cover Image */}
+        {post.coverImage && (
+          <div className="max-w-4xl mx-auto px-6 mb-12">
+            <div className="relative aspect-[16/9] rounded-lg overflow-hidden bg-gray-100">
+              <Image
+                src={post.coverImage}
+                alt={post.coverImageAlt || post.title}
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Article Content */}
+        <div className="max-w-3xl mx-auto px-6">
+          <div
+            className="prose prose-lg max-w-none
+              prose-headings:font-serif prose-headings:font-bold prose-headings:text-gray-900
+              prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 prose-h2:leading-tight
+              prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
+              prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-6 prose-p:text-lg
+              prose-a:text-gray-900 prose-a:underline prose-a:decoration-gray-300 hover:prose-a:decoration-gray-900
+              prose-strong:text-gray-900 prose-strong:font-semibold
+              prose-ul:my-6 prose-ul:list-disc prose-ul:pl-6
+              prose-li:my-2 prose-li:text-gray-700
+              prose-img:rounded-lg prose-img:my-8
+              prose-blockquote:border-l-4 prose-blockquote:border-gray-900 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-gray-700"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
+
+          {/* Tags */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="mt-12 pt-8 border-t border-gray-200">
+              <div className="flex flex-wrap gap-2">
+                {post.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
+                  >
+                    <Tag className="w-3 h-3 mr-1.5" />
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Engagement Stats */}
+          <div className="mt-8 pt-8 border-t border-gray-200 flex items-center justify-between">
+            <div className="flex items-center space-x-6 text-sm text-gray-500">
+              <span className="flex items-center">
+                <Eye className="w-4 h-4 mr-1.5" />
+                {post.views.toLocaleString()} vistas
+              </span>
+              <span className="flex items-center">
+                <Heart className="w-4 h-4 mr-1.5" />
+                {post.likes} me gusta
+              </span>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <Twitter className="w-5 h-5 text-gray-600" />
+              </button>
+              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <Facebook className="w-5 h-5 text-gray-600" />
+              </button>
+              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <Linkedin className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+          </div>
+
+          {/* Author Bio */}
+          <div className="mt-12 p-6 bg-gray-50 rounded-lg">
+            <div className="flex items-start space-x-4">
+              <div className="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center text-white font-bold text-2xl flex-shrink-0">
+                {post.authorName.charAt(0)}
+              </div>
+              <div>
+                <div className="font-bold text-gray-900 text-lg mb-1">
+                  Escrito por {post.authorName}
+                </div>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Experto en gestión de alojamientos turísticos y automatización de procesos. Ayudando a anfitriones a optimizar sus operaciones desde 2020.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="max-w-3xl mx-auto px-6 mt-16 mb-16">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+            <h2 className="text-2xl font-serif font-bold text-gray-900 mb-3">
+              ¿Listo para automatizar tu gestión?
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Crea tu primer manual digital en menos de 10 minutos.
+            </p>
+            <Link
+              href="/register"
+              className="inline-flex items-center justify-center px-6 py-3 bg-gray-900 text-white text-base font-semibold rounded hover:bg-gray-800 transition-colors"
+            >
+              Empezar gratis
+            </Link>
+          </div>
+        </div>
+
+        {/* Related Articles */}
+        {relatedPosts.length > 0 && (
+          <section className="border-t border-gray-200 bg-gray-50 py-16 px-6">
+            <div className="max-w-6xl mx-auto">
+              <h2 className="text-2xl font-serif font-bold text-gray-900 mb-8 pb-4 border-b border-gray-200">
+                Artículos relacionados
+              </h2>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                {relatedPosts.map((related) => (
+                  <Link
+                    key={related.id}
+                    href={`/blog/${related.slug}`}
+                    className="group block"
+                  >
+                    <article className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all">
+                      <div className="relative aspect-[16/9] bg-gray-100">
+                        {related.coverImage ? (
+                          <Image
+                            src={related.coverImage}
+                            alt={related.coverImageAlt || related.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300" />
+                        )}
+                      </div>
+
+                      <div className="p-5">
+                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
+                          {categoryNames[related.category]}
+                        </span>
+
+                        <h3 className="text-lg font-serif font-bold text-gray-900 mb-2 leading-tight group-hover:text-gray-600 transition-colors line-clamp-2">
+                          {related.title}
+                        </h3>
+
+                        <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                          {related.excerpt}
+                        </p>
+
+                        <div className="flex items-center space-x-3 text-xs text-gray-500">
+                          <span>{related.readTime} min</span>
+                          <span>·</span>
+                          <span>{related.views} vistas</span>
+                        </div>
+                      </div>
+                    </article>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+      </article>
+    </div>
+  )
+}

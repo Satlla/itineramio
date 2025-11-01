@@ -1,0 +1,27 @@
+# Robots.txt for Itineramio
+# https://itineramio.com/robots.txt
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /account/
+Disallow: /dashboard/
+Disallow: /_next/
+Disallow: /static/
+
+# Allow blog and public content
+Allow: /blog/
+Allow: /blog/categoria/
+Allow: /pricing
+Allow: /hub/
+Allow: /knowledge/
+
+# Sitemap location
+Sitemap: https://itineramio.com/sitemap.xml
+
+# Crawl-delay for polite bots
+Crawl-delay: 1

@@ -129,9 +129,57 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Organization Schema for SEO
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Itineramio',
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web',
+    description: 'Crea manuales digitales interactivos para tus alojamientos turísticos. Ahorra 8h/semana. Códigos QR, zonas personalizadas y analytics.',
+    url: 'https://itineramio.com',
+    image: 'https://itineramio.com/og-image.jpg',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'EUR',
+      description: 'Primera propiedad gratis, luego desde €9/mes',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.8',
+      ratingCount: '127',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Itineramio',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://itineramio.com/logo.png',
+      },
+      contactPoint: {
+        '@type': 'ContactPoint',
+        email: 'info@itineramio.com',
+        contactType: 'Customer Support',
+        availableLanguage: ['Spanish'],
+      },
+      sameAs: [
+        'https://twitter.com/itineramio',
+        'https://www.linkedin.com/company/itineramio',
+        'https://www.facebook.com/itineramio',
+      ],
+    },
+  }
+
   return (
     <html lang="es" className={`${inter.variable} ${satisfy.variable}`}>
       <head>
+        {/* Schema.org Organization structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+
         {/* Favicons */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

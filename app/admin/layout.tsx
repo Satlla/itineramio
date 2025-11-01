@@ -20,10 +20,16 @@ import {
   Star,
   DollarSign,
   TrendingUp,
-  Bell
+  Bell,
+  Mail,
+  ChevronDown,
+  ChevronRight,
+  Megaphone,
+  UsersRound
 } from 'lucide-react'
 
-const navigation = [
+// Admin navigation (top section)
+const adminNavigation = [
   { name: 'Dashboard', href: '/admin', icon: Home },
   { name: 'Usuarios', href: '/admin/users', icon: Users },
   { name: 'Suscripciones', href: '/admin/subscription-requests', icon: Bell },
@@ -39,6 +45,12 @@ const navigation = [
   { name: 'Logs', href: '/admin/logs', icon: FileText },
 ]
 
+// Marketing navigation (bottom section)
+const marketingNavigation = [
+  { name: 'Blog', href: '/admin/blog', icon: FileText },
+  { name: 'Suscriptores', href: '/admin/marketing/leads', icon: UsersRound },
+]
+
 export default function AdminLayout({
   children
 }: {
@@ -50,6 +62,7 @@ export default function AdminLayout({
   const [adminName, setAdminName] = useState('')
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [marketingOpen, setMarketingOpen] = useState(true)
   const [pendingRequests, setPendingRequests] = useState(0)
   const [previousPendingCount, setPreviousPendingCount] = useState(-1) // -1 = not initialized
   const [audioEnabled, setAudioEnabled] = useState(false)
@@ -253,7 +266,8 @@ export default function AdminLayout({
             />
             <nav className="fixed top-0 left-0 bottom-0 flex flex-col w-64 max-w-[80vw] bg-white shadow-xl pt-14 sm:pt-16 overflow-hidden">
               <div className="flex-1 px-3 py-4 overflow-y-auto">
-                {navigation.map((item) => {
+                {/* Admin Section */}
+                {adminNavigation.map((item) => {
                   const isActive = pathname === item.href
                   return (
                     <Link
@@ -275,6 +289,52 @@ export default function AdminLayout({
                     </Link>
                   )
                 })}
+
+                {/* Separator */}
+                <div className="my-4 border-t border-gray-300"></div>
+
+                {/* Marketing Section */}
+                <button
+                  onClick={() => setMarketingOpen(!marketingOpen)}
+                  className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-md mb-1 transition-colors"
+                >
+                  <div className="flex items-center">
+                    <Megaphone className="mr-3 h-5 w-5 text-violet-600" />
+                    <span>Marketing</span>
+                  </div>
+                  {marketingOpen ? (
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-gray-400" />
+                  )}
+                </button>
+
+                {marketingOpen && (
+                  <div className="ml-4">
+                    {marketingNavigation.map((item) => {
+                      const isActive = pathname === item.href
+                      return (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          onClick={() => setSidebarOpen(false)}
+                          className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md mb-1 transition-colors ${
+                            isActive
+                              ? 'bg-violet-50 text-violet-700 border-l-4 border-violet-600'
+                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                          }`}
+                        >
+                          <item.icon
+                            className={`mr-3 h-4 w-4 flex-shrink-0 ${
+                              isActive ? 'text-violet-600' : 'text-gray-400 group-hover:text-gray-600'
+                            }`}
+                          />
+                          <span className="truncate">{item.name}</span>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             </nav>
           </div>
@@ -283,7 +343,8 @@ export default function AdminLayout({
         {/* Desktop sidebar */}
         <nav className="hidden lg:block w-64 bg-white border-r border-gray-200 min-h-screen pt-6 sticky top-16">
           <div className="px-3 pb-4 overflow-y-auto max-h-[calc(100vh-4rem)]">
-            {navigation.map((item) => {
+            {/* Admin Section */}
+            {adminNavigation.map((item) => {
               const isActive = pathname === item.href
               return (
                 <Link
@@ -304,6 +365,51 @@ export default function AdminLayout({
                 </Link>
               )
             })}
+
+            {/* Separator */}
+            <div className="my-4 border-t-2 border-gray-300"></div>
+
+            {/* Marketing Section */}
+            <button
+              onClick={() => setMarketingOpen(!marketingOpen)}
+              className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-md mb-1 transition-colors"
+            >
+              <div className="flex items-center">
+                <Megaphone className="mr-3 h-5 w-5 text-violet-600" />
+                <span>Marketing</span>
+              </div>
+              {marketingOpen ? (
+                <ChevronDown className="h-4 w-4 text-gray-400" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-gray-400" />
+              )}
+            </button>
+
+            {marketingOpen && (
+              <div className="ml-4">
+                {marketingNavigation.map((item) => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md mb-1 transition-colors ${
+                        isActive
+                          ? 'bg-violet-50 text-violet-700 border-l-4 border-violet-600'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      }`}
+                    >
+                      <item.icon
+                        className={`mr-3 h-4 w-4 ${
+                          isActive ? 'text-violet-600' : 'text-gray-400 group-hover:text-gray-500'
+                        }`}
+                      />
+                      {item.name}
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
           </div>
         </nav>
 

@@ -46,7 +46,8 @@ export async function POST(
     }
 
     // Set JWT claims for RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
 
     // 1. Get the source zone with all its data
     const sourceZone = await prisma.zone.findFirst({

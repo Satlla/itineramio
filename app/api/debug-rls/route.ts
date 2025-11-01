@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
     console.log('📋 Testing RLS configuration...')
     
     // Set the user context
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
     
     // Check current settings
     const currentUserSetting = await prisma.$queryRaw`SELECT current_setting('app.current_user_id', true) as user_id`

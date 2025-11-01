@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
     console.log('Token decoded successfully:', { userId: decoded.userId, email: decoded.email })
     
     // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${decoded.userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
     
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },

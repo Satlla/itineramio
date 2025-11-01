@@ -73,6 +73,9 @@ model User {
   subscriptionRequests    SubscriptionRequest[]  @relation("UserSubscriptionRequests")
   // Billing info
   billingInfo             BillingInfo?
+  // Customer Journey relations
+  journeyStages           CustomerJourneyStage[]
+  emailEvents             EmailEvent[]
 
   @@map("users")
 }
@@ -993,4 +996,529 @@ model SubscriptionRequest {
   @@index([status])
   @@index([requestedAt])
   @@map("subscription_requests")
+}
+
+// ===================================
+// CENTRO DE CONOCIMIENTO (KNOWLEDGE CENTER)
+// ===================================
+
+model KnowledgeArticle {
+  id                String   @id @default(cuid())
+  slug              String   @unique
+
+  // Contenido
+  title             String
+  subtitle          String?
+  coverImage        String?
+  coverImageAlt     String?
+  content           Json     // Formato tipo Notion (blocks)
+  excerpt           String   @db.Text
+
+  // Categorización
+  category          ArticleCategory
+  tags              String[]
+  difficulty        DifficultyLevel @default(BEGINNER)
+
+  // SEO
+  metaTitle         String?
+  metaDescription   String?
+  keywords          String[]
+
+  // Analytics
+  views             Int      @default(0)
+  uniqueViews       Int      @default(0)
+  avgReadTime       Int      @default(0) // segundos
+  completionRate    Float    @default(0) // % que leyó completo
+  helpfulVotes      Int      @default(0)
+  notHelpfulVotes   Int      @default(0)
+
+  // AI metadata
+  aiGenerated       Boolean  @default(false)
+  aiPrompt          String?  @db.Text
+  sourceQuestions   String[] // IDs de preguntas que inspiraron este artículo
+
+  // Plantillas asociadas
+  hasTemplate       Boolean  @default(false)
+  templates         Template[]
+
+  // Estado
+  status            ArticleStatus @default(DRAFT)
+  publishedAt       DateTime?
+  scheduledFor      DateTime?
+
+  // Relaciones
+  authorId          String
+  relatedArticles   String[] // IDs de artículos relacionados
+
+  // Versioning (para preview)
+  version           Int      @default(1)
+  previousVersions  Json?    // Array de versiones anteriores
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relaciones
+  readSessions      ArticleReadSession[]
+
+  @@index([category, status])
+  @@index([publishedAt])
+  @@index([slug])
+  @@map("knowledge_articles")
+}
+
+model Template {
+  id              String   @id @default(cuid())
+  name            String
+  description     String   @db.Text
+  coverImage      String?
+
+  // Archivos
+  files           Json     // [{ name, url, format, size }]
+
+  // Tipo y precio
+  type            TemplateType
+  price           Float    @default(0) // 0 = gratis
+  isPremium       Boolean  @default(false)
+
+  // Categoría
+  category        ArticleCategory
+  tags            String[]
+
+  // Analytics
+  downloads       Int      @default(0)
+  purchases       Int      @default(0)
+  revenue         Float    @default(0)
+
+  // Relaciones
+  articleId       String?
+  article         KnowledgeArticle? @relation(fields: [articleId], references: [id])
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([isPremium])
+  @@index([category])
+  @@map("templates")
+}
+
+model UserQuestion {
+  id              String   @id @default(cuid())
+
+  // Usuario (opcional, puede ser anónimo)
+  userId          String?
+  anonymousId     String?  // UUID para anónimos
+
+  // Pregunta
+  question        String   @db.Text
+  questionVector  Json?    // Vector embedding para semantic search
+
+  // Respuesta del AI
+  aiResponse      String   @db.Text
+  aiModel         String   @default("gpt-4")
+  responseTime    Int      // milisegundos
+
+  // Contexto
+  category        ArticleCategory?
+  relatedArticles String[] // IDs sugeridos por AI
+
+  // Feedback
+  wasHelpful      Boolean?
+  feedbackText    String?
+
+  // Analytics
+  generatedArticle Boolean @default(false) // ¿Se creó artículo basado en esto?
+  articleId        String?
+
+  // Metadata
+  userAgent       String?
+  ipAddress       String?
+  language        String   @default("es")
+
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([category])
+  @@index([createdAt])
+  @@index([wasHelpful])
+  @@map("user_questions")
+}
+
+model ArticleReadSession {
+  id              String   @id @default(cuid())
+  articleId       String
+
+  // Usuario
+  userId          String?
+  anonymousId     String?
+
+  // Métricas de lectura
+  startedAt       DateTime @default(now())
+  finishedAt      DateTime?
+  timeSpent       Int      @default(0) // segundos
+  scrollDepth     Float    @default(0) // % del artículo leído
+  didComplete     Boolean  @default(false) // leyó hasta el final
+
+  // Interacciones
+  clickedTemplate Boolean  @default(false)
+  clickedCTA      Boolean  @default(false)
+  sharedArticle   Boolean  @default(false)
+
+  // Conversión
+  signedUpAfter   Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+
+  // Relaciones
+  article         KnowledgeArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@index([articleId])
+  @@index([userId])
+  @@map("article_read_sessions")
+}
+
+model FrequentQuestion {
+  id              String   @id @default(cuid())
+  question        String   @db.Text
+  answer          String   @db.Text
+  category        ArticleCategory
+
+  // Analytics
+  timesAsked      Int      @default(1)
+  timesHelpful    Int      @default(0)
+
+  // Relaciones
+  relatedArticle  String?  // ID del artículo
+
+  // Auto-generated
+  isAiGenerated   Boolean  @default(false)
+  needsReview     Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([category])
+  @@index([timesAsked])
+  @@map("frequent_questions")
+}
+
+model NewsletterSubscriber {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  name            String?
+
+  // Estado
+  isActive        Boolean  @default(true)
+  verifiedAt      DateTime?
+  unsubscribedAt  DateTime?
+
+  // Preferencias
+  frequency       String   @default("WEEKLY") // WEEKLY, MONTHLY
+  categories      String[] // Categorías de interés
+
+  // Metadata
+  source          String?  // De dónde se suscribió
+  ipAddress       String?
+  userAgent       String?
+
+  // Para segmentación
+  propertyCount   Int?
+  city            String?
+  tags            String[] // Para segmentación avanzada
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relaciones
+  downloads       LeadMagnetDownload[]
+
+  @@index([email])
+  @@index([isActive])
+  @@map("newsletter_subscribers")
+}
+
+model LeadMagnetDownload {
+  id              String   @id @default(cuid())
+
+  // Subscriber
+  subscriberEmail String
+  subscriber      NewsletterSubscriber @relation(fields: [subscriberEmail], references: [email], onDelete: Cascade)
+
+  // Qué descargó
+  resourceType    String   // "calculator", "template", "guide"
+  resourceName    String   // "calculadora-rentabilidad", "manual-bienvenida-basico"
+
+  // Data capturada en el momento (para analytics)
+  metadata        Json?    // { city: "Madrid", propertyType: "apartment", currentPrice: 85 }
+
+  createdAt       DateTime @default(now())
+
+  @@index([subscriberEmail])
+  @@index([resourceType])
+  @@map("lead_magnet_downloads")
+}
+
+// ===================================
+// BLOG SYSTEM
+// ===================================
+
+model BlogPost {
+  id                String        @id @default(cuid())
+  slug              String        @unique
+
+  // Contenido
+  title             String
+  subtitle          String?
+  excerpt           String        @db.Text
+  content           String        @db.Text // HTML o Markdown
+  coverImage        String?
+  coverImageAlt     String?
+
+  // Categorización
+  category          BlogCategory
+  tags              String[]
+  featured          Boolean       @default(false)
+
+  // SEO
+  metaTitle         String?
+  metaDescription   String?
+  keywords          String[]
+
+  // Publicación
+  status            BlogStatus    @default(DRAFT)
+  publishedAt       DateTime?
+  scheduledFor      DateTime?
+
+  // Autoría
+  authorId          String
+  authorName        String        // Cached author name
+
+  // Analytics
+  views             Int           @default(0)
+  uniqueViews       Int           @default(0)
+  readTime          Int           @default(5) // minutos estimados
+
+  // Engagement
+  likes             Int           @default(0)
+  shares            Int           @default(0)
+
+  // Timestamps
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([slug])
+  @@index([status])
+  @@index([category])
+  @@index([publishedAt])
+  @@index([featured])
+  @@map("blog_posts")
+}
+
+// ===================================
+// ENUMS
+// ===================================
+
+enum BlogCategory {
+  GUIAS                 // Guías
+  MEJORES_PRACTICAS     // Mejores Prácticas
+  NORMATIVA             // Normativa y Legal
+  AUTOMATIZACION        // Automatización
+  MARKETING             // Marketing
+  OPERACIONES           // Operaciones
+  CASOS_ESTUDIO         // Casos de Estudio
+  NOTICIAS              // Noticias del sector
+}
+
+enum BlogStatus {
+  DRAFT                 // Borrador
+  REVIEW                // En revisión
+  SCHEDULED             // Programado
+  PUBLISHED             // Publicado
+  ARCHIVED              // Archivado
+}
+
+enum ArticleCategory {
+  CHECKIN_CHECKOUT
+  WIFI_TECH
+  LEGAL_VUT
+  GUEST_COMMUNICATION
+  REVIEWS_RATINGS
+  EMERGENCIES
+  AMENITIES
+  MAINTENANCE
+  MARKETING
+  OPERATIONS
+  OTROS
+}
+
+enum DifficultyLevel {
+  BEGINNER      // 🟢 Principiante
+  INTERMEDIATE  // 🟡 Intermedio
+  ADVANCED      // 🔴 Avanzado
+}
+
+enum ArticleStatus {
+  DRAFT         // Borrador
+  PREVIEW       // En preview/testing
+  SCHEDULED     // Programado para publicar
+  PUBLISHED     // Publicado
+  ARCHIVED      // Archivado
+}
+
+enum TemplateType {
+  WORD_DOC      // .docx
+  PDF           // .pdf
+  NOTION        // Link a template de Notion
+  SPREADSHEET   // .xlsx
+  FIGMA         // Link a Figma
+  CANVA         // Link a Canva
+  BUNDLE        // Pack de múltiples archivos
+}
+
+// Lead Capture from Hub Tools
+model Lead {
+  id          String                 @id @default(cuid())
+  name        String
+  email       String
+  source      String                 // Tool name: qr-generator, wifi-card, cleaning-checklist, etc.
+  userAgent   String?                // Browser/device info
+  ipAddress   String?                // For analytics/anti-spam
+  metadata    Json?                  // Additional context from each tool
+  createdAt   DateTime               @default(now())
+
+  // Relations
+  journeyStages CustomerJourneyStage[]
+  emailEvents   EmailEvent[]
+
+  @@index([email])
+  @@index([source])
+  @@index([createdAt])
+  @@map("leads")
+}
+
+// Customer Journey System
+model CustomerJourneyStage {
+  id              String       @id @default(cuid())
+  leadId          String?      @map("lead_id")
+  userId          String?      @map("user_id")
+  email           String       // Always store email for tracking
+
+  stage           JourneyStage // VISITOR, LEAD, REGISTERED, MQL, SQL, CUSTOMER, CHURNED
+  score           Int          @default(0) // Lead score (0-100)
+
+  enteredAt       DateTime     @default(now()) @map("entered_at")
+  exitedAt        DateTime?    @map("exited_at")
+
+  metadata        Json?        // Custom data per stage
+
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  lead            Lead?        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user            User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email, stage])
+  @@index([leadId])
+  @@index([userId])
+  @@index([stage, enteredAt])
+  @@map("customer_journey_stages")
+}
+
+// Email Marketing Events
+model EmailEvent {
+  id              String         @id @default(cuid())
+  leadId          String?        @map("lead_id")
+  userId          String?        @map("user_id")
+  email           String
+
+  eventType       EmailEventType // SENT, DELIVERED, OPENED, CLICKED, BOUNCED, COMPLAINED
+  campaignId      String?        @map("campaign_id")
+  templateName    String         @map("template_name")
+  subject         String
+
+  sentAt          DateTime       @default(now()) @map("sent_at")
+  deliveredAt     DateTime?      @map("delivered_at")
+  openedAt        DateTime?      @map("opened_at")
+  clickedAt       DateTime?      @map("clicked_at")
+  bouncedAt       DateTime?      @map("bounced_at")
+
+  clickedUrl      String?        @map("clicked_url")
+  bounceReason    String?        @map("bounce_reason")
+
+  metadata        Json?          // Additional tracking data
+
+  // Relations
+  lead            Lead?          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user            User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign        EmailCampaign? @relation(fields: [campaignId], references: [id])
+
+  @@index([email, eventType])
+  @@index([leadId])
+  @@index([userId])
+  @@index([campaignId])
+  @@index([sentAt])
+  @@map("email_events")
+}
+
+// Email Campaigns
+model EmailCampaign {
+  id              String         @id @default(cuid())
+  name            String
+  description     String?
+
+  trigger         EmailTrigger   // ON_LEAD_CAPTURE, ON_TRIAL_START, ON_SUBSCRIPTION, etc.
+  triggerStages   JourneyStage[] // Which stages this campaign applies to
+
+  templateName    String         @map("template_name")
+  subject         String
+  fromName        String         @default("Itineramio") @map("from_name")
+  fromEmail       String         @default("hola@itineramio.com") @map("from_email")
+
+  delayMinutes    Int            @default(0) @map("delay_minutes") // Delay after trigger
+
+  isActive        Boolean        @default(true) @map("is_active")
+
+  // Analytics
+  sentCount       Int            @default(0) @map("sent_count")
+  openedCount     Int            @default(0) @map("opened_count")
+  clickedCount    Int            @default(0) @map("clicked_count")
+
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  emailEvents     EmailEvent[]
+
+  @@map("email_campaigns")
+}
+
+// Enums for Customer Journey
+enum JourneyStage {
+  VISITOR         // Just visited the site
+  LEAD            // Captured via lead form
+  REGISTERED      // Created account
+  MQL             // Marketing Qualified Lead (engaged, filled profile)
+  SQL             // Sales Qualified Lead (requested demo/pricing)
+  CUSTOMER        // Active paying customer
+  CHURNED         // Cancelled or inactive
+}
+
+enum EmailEventType {
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  COMPLAINED
+  UNSUBSCRIBED
+}
+
+enum EmailTrigger {
+  ON_LEAD_CAPTURE       // When lead downloads resource
+  ON_REGISTRATION       // When user creates account
+  ON_TRIAL_START        // When trial begins
+  ON_SUBSCRIPTION       // When becomes customer
+  ON_INACTIVITY         // After X days inactive
+  ON_CANCELLATION       // When subscription cancelled
+  MANUAL                // Sent manually by admin
 }

@@ -16,7 +16,8 @@ export async function DELETE(request: NextRequest) {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     
     // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${decoded.userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
     
     const body = await request.json()
     const { password } = body

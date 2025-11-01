@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
     }
     const userId = authResult.userId
 
-    // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
 
     // Check plan limits BEFORE processing the request
     const limitsCheck = await planLimitsService.validatePropertyCreation(userId)
@@ -351,8 +351,8 @@ export async function GET(request: NextRequest) {
     }
     const userId = authResult.userId
 
-    // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
 
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')

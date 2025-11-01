@@ -64,7 +64,8 @@ export async function POST(request: NextRequest) {
 
     // Set RLS config (ignore if fails)
     try {
-      await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
     } catch (e) {
       console.log('✅ SAFE POST - RLS skipped:', String(e))
     }

@@ -669,6 +669,131 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Blog Resources Section - Internal Linking */}
+      <section className="py-24 px-6 bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <AnimatedSection className="text-center max-w-3xl mx-auto mb-16">
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", duration: 0.6 }}
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-violet-50 rounded-full border border-blue-100 mb-6"
+            >
+              <Sparkles className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-900">Recursos gratuitos</span>
+            </motion.div>
+
+            <h2 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-6">
+              Aprende más sobre gestión de alojamientos
+            </h2>
+            <p className="text-xl text-gray-600">
+              Guías, plantillas y recursos gratuitos para anfitriones como tú
+            </p>
+          </AnimatedSection>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {/* Article 1: Manual Digital */}
+            <motion.div
+              variants={scaleIn}
+              whileHover={{ y: -10, scale: 1.02 }}
+              className="group"
+            >
+              <Link href="/blog/manual-digital-apartamento-turistico-guia-completa">
+                <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-8 border border-violet-100 hover:shadow-2xl transition-all h-full">
+                  <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-violet-600 transition-colors">
+                    Manual Digital: Guía Completa 2025
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Crea manuales digitales profesionales que eliminan el 86% de consultas. Incluye plantilla descargable gratis.
+                  </p>
+                  <div className="flex items-center text-violet-600 font-semibold group-hover:translate-x-2 transition-transform">
+                    Leer guía <ArrowRight className="ml-2 w-4 h-4" />
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+
+            {/* Article 2: Check-in Remoto */}
+            <motion.div
+              variants={scaleIn}
+              whileHover={{ y: -10, scale: 1.02 }}
+              className="group"
+            >
+              <Link href="/blog/plantilla-check-in-remoto-airbnb">
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-8 border border-blue-100 hover:shadow-2xl transition-all h-full">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center mb-4">
+                    <Shield className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                    Plantilla Check-in Remoto
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Reduce incidencias 67% con check-in automatizado. Descarga plantilla Word + PDF lista para usar.
+                  </p>
+                  <div className="flex items-center text-blue-600 font-semibold group-hover:translate-x-2 transition-transform">
+                    Descargar plantilla <ArrowRight className="ml-2 w-4 h-4" />
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+
+            {/* Article 3: VUT Madrid */}
+            <motion.div
+              variants={scaleIn}
+              whileHover={{ y: -10, scale: 1.02 }}
+              className="group"
+            >
+              <Link href="/blog/vut-madrid-2025-requisitos-normativa-checklist">
+                <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-8 border border-orange-100 hover:shadow-2xl transition-all h-full">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center mb-4">
+                    <Check className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-orange-600 transition-colors">
+                    VUT Madrid 2025: Requisitos
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Guía completa de la nueva normativa VUT Madrid. Manual digital obligatorio desde enero. Evita multas de €30,000.
+                  </p>
+                  <div className="flex items-center text-orange-600 font-semibold group-hover:translate-x-2 transition-transform">
+                    Ver requisitos <ArrowRight className="ml-2 w-4 h-4" />
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          </motion.div>
+
+          {/* CTA to Blog */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="text-center mt-12"
+          >
+            <Link href="/blog">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-full text-lg font-semibold hover:shadow-xl transition-all group"
+              >
+                Ver todos los artículos
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </motion.button>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Pricing Section */}
       <section className="py-24 px-6 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto">

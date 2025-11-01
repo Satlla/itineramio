@@ -1874,20 +1874,22 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Inactive Property Banner */}
       {propertyStatus === 'DRAFT' && (
         <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0">
-              <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-sm font-medium text-amber-800 mb-1">
-                Propiedad Inactiva - No visible para huéspedes
-              </h3>
-              <p className="text-sm text-amber-700 mb-2">
-                Esta propiedad está actualmente inactiva. Los huéspedes no podrán acceder a los manuales hasta que la actives.
-              </p>
-              <p className="text-sm text-amber-700">
-                <strong>Recomendación:</strong> Completa todas las zonas con sus instrucciones antes de activar la propiedad para ofrecer la mejor experiencia a tus huéspedes.
-              </p>
+          <div className="flex flex-col md:flex-row items-start gap-3 md:gap-4">
+            <div className="flex items-start gap-3 flex-1">
+              <div className="flex-shrink-0">
+                <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-amber-800 mb-1">
+                  Propiedad Inactiva - No visible para huéspedes
+                </h3>
+                <p className="text-sm text-amber-700 mb-2">
+                  Esta propiedad está actualmente inactiva. Los huéspedes no podrán acceder a los manuales hasta que la actives.
+                </p>
+                <p className="text-sm text-amber-700">
+                  <strong>Recomendación:</strong> Completa todas las zonas con sus instrucciones antes de activar la propiedad para ofrecer la mejor experiencia a tus huéspedes.
+                </p>
+              </div>
             </div>
             <Button
               onClick={async () => {
@@ -1898,9 +1900,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     credentials: 'include',
                     body: JSON.stringify({ status: 'ACTIVE' })
                   })
-                  
+
                   const result = await response.json()
-                  
+
                   if (response.ok && result.success) {
                     setPropertyStatus('ACTIVE')
                     addNotification({
@@ -1909,7 +1911,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                       message: 'Tu propiedad ya está visible para los huéspedes',
                       read: false
                     })
-                    
+
                     // Reload the page to ensure all data is updated
                     setTimeout(() => {
                       window.location.reload()
@@ -1934,7 +1936,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 }
               }}
               size="sm"
-              className="bg-amber-600 hover:bg-amber-700 text-white"
+              className="bg-amber-600 hover:bg-amber-700 text-white w-full md:w-auto"
             >
               Activar Propiedad
             </Button>

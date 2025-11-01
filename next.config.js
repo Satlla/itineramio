@@ -14,7 +14,7 @@ const nextConfig = {
     esmExternals: true,
   },
   images: {
-    domains: ['k1f4x7ksxbn13s8z.public.blob.vercel-storage.com'],
+    domains: ['k1f4x7ksxbn13s8z.public.blob.vercel-storage.com', 'images.unsplash.com'],
   },
   // Strategic caching headers
   async headers() {

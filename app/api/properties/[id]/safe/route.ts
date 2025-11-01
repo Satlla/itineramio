@@ -18,7 +18,8 @@ export async function GET(
     const userId = authResult.userId
     
     // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
     
     // Use raw SQL to avoid Prisma trying to fetch non-existent columns
     const properties = await prisma.$queryRaw`
@@ -119,7 +120,8 @@ export async function PUT(
     
     // Set RLS config (ignore if fails)
     try {
-      await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
     } catch (e) {
       console.log('✅ SAFE PUT - RLS skipped:', String(e))
     }

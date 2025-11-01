@@ -23,7 +23,8 @@ export async function POST(request: NextRequest) {
     }
     
     // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${decoded.userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
     
     let body: any
     try {

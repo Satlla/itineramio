@@ -35,7 +35,8 @@ export async function GET(request: NextRequest) {
     const userId = decoded.userId
 
     // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
 
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type')
@@ -178,7 +179,8 @@ export async function POST(request: NextRequest) {
     const userId = decoded.userId
 
     // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
 
     const body = await request.json()
     const validatedData = createMediaSchema.parse(body)
@@ -296,7 +298,8 @@ export async function DELETE(request: NextRequest) {
     const userId = decoded.userId
 
     // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
 
     const { ids } = await request.json()
     
@@ -343,7 +346,8 @@ export async function PATCH(request: NextRequest) {
     const userId = decoded.userId
 
     // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
 
     const { id, tags, originalName } = await request.json()
 

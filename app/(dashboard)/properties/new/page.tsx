@@ -31,7 +31,6 @@ import { TrialActivationModal } from '../../../../src/components/TrialActivation
 import { useAuth } from '../../../../src/providers/AuthProvider'
 import { OnboardingPopup } from '../../../../src/components/ui/OnboardingPopup'
 import { useOnboarding } from '../../../../src/contexts/OnboardingContext'
-import { Spotlight } from '../../../../src/components/ui/Spotlight'
 // PropertyType as string literal type
 type PropertyType = 'APARTMENT' | 'HOUSE' | 'ROOM' | 'VILLA'
 
@@ -370,7 +369,7 @@ function NewPropertyPageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 overflow-x-hidden">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6 lg:py-8">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           {/* Back button - always at top */}
@@ -385,7 +384,7 @@ function NewPropertyPageContent() {
           
           {/* Title and subtitle */}
           <div className="mb-4">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
               {isEditing ? 'Editar Propiedad' : 'Nueva Propiedad'}
             </h1>
             <p className="text-gray-600 mt-1 text-sm sm:text-base">
@@ -475,7 +474,7 @@ function NewPropertyPageContent() {
               exit={{ opacity: 0, x: -20 }}
             >
               <Card className="p-4 sm:p-6 lg:p-8">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
+                <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-3 sm:mb-4 md:mb-6">
                   Información Básica
                 </h2>
 
@@ -677,7 +676,7 @@ function NewPropertyPageContent() {
               exit={{ opacity: 0, x: -20 }}
             >
               <Card className="p-4 sm:p-6 lg:p-8">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
+                <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-3 sm:mb-4 md:mb-6">
                   Ubicación
                 </h2>
 
@@ -812,7 +811,7 @@ function NewPropertyPageContent() {
               exit={{ opacity: 0, x: -20 }}
             >
               <Card className="p-4 sm:p-6 lg:p-8">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
+                <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-3 sm:mb-4 md:mb-6">
                   Información de Contacto
                 </h2>
                 
@@ -1011,14 +1010,6 @@ function NewPropertyPageContent() {
           }}
           showNextButton={false}
         />
-
-        {/* Spotlight for onboarding */}
-        {spotlightTarget && (
-          <Spotlight
-            isActive={showSpotlight}
-            targetId={spotlightTarget}
-          />
-        )}
       </div>
     </div>
   )

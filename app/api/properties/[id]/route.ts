@@ -60,7 +60,8 @@ export async function GET(
     userId = authResult.userId
     
     // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
     
     // Handle potential ID truncation
     const properties = await prisma.property.findMany({
@@ -290,7 +291,8 @@ export async function PUT(
     const userId = authResult.userId
     
     // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
     
     // Validate request data
     const validatedData = updatePropertySchema.parse(body)
@@ -362,7 +364,8 @@ export async function PATCH(
     const userId = authResult.userId
     
     // Set JWT claims for PostgreSQL RLS policies
-    await prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}, true)`
+    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
+    // RLS is handled at application level instead
     
     // Simple validation for status update
     if (body.status && !['DRAFT', 'ACTIVE', 'INACTIVE'].includes(body.status)) {
