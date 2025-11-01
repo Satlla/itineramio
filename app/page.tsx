@@ -219,25 +219,24 @@ export default function LandingPage() {
             >
               <motion.div variants={fadeInUp} className="inline-flex items-center space-x-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-violet-500/10 to-pink-500/10 rounded-full border border-violet-500/20">
                 <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-violet-600" />
-                <span className="text-xs sm:text-sm font-medium text-gray-900">Ahorra 8+ horas cada semana</span>
+                <span className="text-xs sm:text-sm font-medium text-gray-900">Plataforma #1 de manuales digitales para Airbnb</span>
               </motion.div>
 
               <motion.h1
                 variants={fadeInUp}
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-gray-900 leading-[0.95] tracking-tight"
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-gray-900 leading-[1.05] tracking-tight"
               >
-                No más llamadas a las
-                <span className="block mt-2 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  4:00 AM
+                <span className="block mb-2">Manuales digitales</span>
+                <span className="block bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  para Airbnb y alquileres
                 </span>
               </motion.h1>
 
               <motion.p
                 variants={fadeInUp}
-                className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-xl"
+                className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-700 leading-relaxed max-w-xl"
               >
-                Crea manuales digitales interactivos para tus alojamientos turísticos.
-                <span className="font-semibold text-gray-900"> Tus huéspedes nunca más te llamarán</span> para preguntar cómo funciona la lavadora.
+                <span className="font-bold text-gray-900">Crea guías digitales con WiFi, códigos, instrucciones y recomendaciones.</span> Todo en un QR que escanean tus huéspedes. Adiós a las llamadas y mensajes repetitivos.
               </motion.p>
 
               <motion.div
@@ -784,65 +783,186 @@ export default function LandingPage() {
 
           {/* Interactive Calculator */}
           <AnimatedSection>
-            <div className="max-w-2xl mx-auto mb-16">
+            <div className="max-w-4xl mx-auto mb-16">
               <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="p-8 bg-white rounded-3xl border-2 border-gray-200 shadow-xl"
+                whileHover={{ scale: 1.01 }}
+                className="p-8 sm:p-10 bg-white rounded-3xl border-2 border-gray-200 shadow-xl relative overflow-hidden"
               >
-                <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                  ¿Cuántas propiedades gestionarás?
+                {/* Trust Badge */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-200"
+                >
+                  <Check className="w-4 h-4 text-green-600" />
+                  <span className="text-xs font-semibold text-green-700">15 días de prueba</span>
+                </motion.div>
+
+                <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 text-center">
+                  Calcula tu precio
                 </h3>
+                <p className="text-gray-600 text-center mb-8">
+                  Ajusta el número de propiedades y descubre tu plan ideal
+                </p>
 
-                <div className="flex items-center justify-center space-x-6 mb-8">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setPropertyCount(Math.max(1, propertyCount - 1))}
-                    disabled={propertyCount <= 1}
-                    className="p-4 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 disabled:opacity-30 disabled:cursor-not-allowed shadow-lg"
-                  >
-                    <Minus className="w-6 h-6 text-gray-700" />
-                  </motion.button>
-
+                {/* Slider Section */}
+                <div className="mb-8">
                   <motion.div
                     key={propertyCount}
-                    initial={{ scale: 0.8, opacity: 0 }}
+                    initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="text-center"
+                    className="text-center mb-6"
                   >
-                    <div className="text-7xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    <div className="text-7xl sm:text-8xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                       {propertyCount}
                     </div>
-                    <div className="text-lg text-gray-500 mt-2">propiedades</div>
+                    <div className="text-xl text-gray-500 mt-2">
+                      {propertyCount === 1 ? 'propiedad' : 'propiedades'}
+                    </div>
                   </motion.div>
 
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setPropertyCount(propertyCount + 1)}
-                    className="p-4 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 shadow-lg"
-                  >
-                    <Plus className="w-6 h-6 text-gray-700" />
-                  </motion.button>
+                  {/* Slider */}
+                  <div className="px-4">
+                    <input
+                      type="range"
+                      min="1"
+                      max="50"
+                      value={propertyCount}
+                      onChange={(e) => setPropertyCount(parseInt(e.target.value))}
+                      className="w-full h-3 bg-gradient-to-r from-violet-200 via-purple-200 to-pink-200 rounded-full appearance-none cursor-pointer slider-thumb"
+                      style={{
+                        background: `linear-gradient(to right,
+                          rgb(139, 92, 246) 0%,
+                          rgb(168, 85, 247) ${((propertyCount - 1) / 49) * 100}%,
+                          rgb(229, 231, 235) ${((propertyCount - 1) / 49) * 100}%,
+                          rgb(229, 231, 235) 100%)`
+                      }}
+                    />
+                    <div className="flex justify-between text-sm text-gray-500 mt-2 px-1">
+                      <span>1</span>
+                      <span>25</span>
+                      <span>50+</span>
+                    </div>
+                  </div>
                 </div>
 
+                {/* Price Display */}
                 <motion.div
                   key={`${currentTier.name}-${totalPrice}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-center p-6 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl border border-violet-500/20"
+                  className="text-center p-8 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl border border-violet-500/20 mb-6"
                 >
                   <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white mb-4">
                     {currentTier.name}
                   </div>
-                  <div className="text-5xl font-bold text-gray-900 mb-2">
+                  <div className="text-5xl sm:text-6xl font-bold text-gray-900 mb-2">
                     €{totalPrice}
                     <span className="text-2xl text-gray-500 font-normal">/mes</span>
                   </div>
-                  <div className="text-gray-600">
+                  <div className="text-gray-600 mb-4">
                     Hasta {currentTier.max} {currentTier.max === 1 ? 'propiedad' : 'propiedades'}
                   </div>
+                  <div className="text-sm text-gray-500">
+                    Solo €{(totalPrice / propertyCount).toFixed(2)} por propiedad al mes
+                  </div>
                 </motion.div>
+
+                {/* ROI Indicator */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="grid grid-cols-3 gap-4 mb-6"
+                >
+                  <div className="text-center p-4 bg-green-50 rounded-xl border border-green-100">
+                    <div className="text-2xl font-bold text-green-600">4.5h</div>
+                    <div className="text-xs text-gray-600 mt-1">Ahorradas por reserva</div>
+                  </div>
+                  <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-100">
+                    <div className="text-2xl font-bold text-blue-600">98%</div>
+                    <div className="text-xs text-gray-600 mt-1">Satisfacción</div>
+                  </div>
+                  <div className="text-center p-4 bg-amber-50 rounded-xl border border-amber-100">
+                    <div className="text-2xl font-bold text-amber-600">-65%</div>
+                    <div className="text-xs text-gray-600 mt-1">Consultas menos</div>
+                  </div>
+                </motion.div>
+
+                {/* CTA */}
+                <Link href="/register">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full py-4 rounded-full font-bold text-lg bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white shadow-xl hover:shadow-2xl transition-all"
+                  >
+                    Probar gratis 15 días
+                  </motion.button>
+                </Link>
+                <p className="text-center text-sm text-gray-500 mt-3">
+                  No requiere tarjeta de crédito • Cancela cuando quieras
+                </p>
+              </motion.div>
+            </div>
+          </AnimatedSection>
+
+          {/* Social Proof Stats */}
+          <AnimatedSection>
+            <div className="max-w-5xl mx-auto mb-16">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="grid grid-cols-2 md:grid-cols-4 gap-6"
+              >
+                <div className="text-center p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
+                  <div className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                    500+
+                  </div>
+                  <div className="text-sm text-gray-600">Anfitriones activos</div>
+                </div>
+                <div className="text-center p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
+                  <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
+                    12K+
+                  </div>
+                  <div className="text-sm text-gray-600">Guías creadas</div>
+                </div>
+                <div className="text-center p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
+                  <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">
+                    4.9/5
+                  </div>
+                  <div className="text-sm text-gray-600">Valoración media</div>
+                </div>
+                <div className="text-center p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
+                  <div className="text-4xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mb-2">
+                    24/7
+                  </div>
+                  <div className="text-sm text-gray-600">Soporte disponible</div>
+                </div>
+              </motion.div>
+            </div>
+          </AnimatedSection>
+
+          {/* Money-back Guarantee */}
+          <AnimatedSection>
+            <div className="max-w-3xl mx-auto mb-16">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="p-8 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-3xl border-2 border-green-200 shadow-xl text-center"
+              >
+                <motion.div
+                  animate={{ rotate: [0, 5, -5, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  className="inline-flex items-center justify-center w-16 h-16 bg-green-500 rounded-full mb-4"
+                >
+                  <Check className="w-8 h-8 text-white" />
+                </motion.div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                  Garantía de satisfacción 100%
+                </h3>
+                <p className="text-gray-700 text-lg">
+                  Si en los primeros 30 días no estás satisfecho, te devolvemos tu dinero. Sin preguntas.
+                </p>
               </motion.div>
             </div>
           </AnimatedSection>

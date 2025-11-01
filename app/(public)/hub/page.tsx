@@ -235,15 +235,24 @@ export default function KnowledgeHub() {
     const description = item.description?.toLowerCase() || ''
     const excerpt = item.excerpt?.toLowerCase() || ''
     const category = item.category?.toLowerCase() || ''
+    const type = item.type?.toLowerCase() || ''
 
-    return title.includes(query) || description.includes(query) || excerpt.includes(query) || category.includes(query)
+    return title.includes(query) || description.includes(query) || excerpt.includes(query) || category.includes(query) || type.includes(query)
   }
 
-  const filteredTools = tools.filter(filterBySearch)
-  const filteredTemplates = templates.filter(filterBySearch)
-  const filteredArticles = articles.filter(filterBySearch)
+  // Add type to each item for unified search
+  const toolsWithType = tools.map(tool => ({ ...tool, type: 'Herramienta', typeColor: 'bg-violet-100 text-violet-700 border-violet-300' }))
+  const templatesWithType = templates.map(template => ({ ...template, type: 'Plantilla', typeColor: 'bg-blue-100 text-blue-700 border-blue-300' }))
+  const articlesWithType = articles.map(article => ({ ...article, type: 'Guía', typeColor: 'bg-green-100 text-green-700 border-green-300' }))
 
-  const hasResults = filteredTools.length > 0 || filteredTemplates.length > 0 || filteredArticles.length > 0
+  const filteredTools = toolsWithType.filter(filterBySearch)
+  const filteredTemplates = templatesWithType.filter(filterBySearch)
+  const filteredArticles = articlesWithType.filter(filterBySearch)
+
+  // Unified search results
+  const allResults = [...filteredTools, ...filteredTemplates, ...filteredArticles]
+  const hasResults = allResults.length > 0
+  const isSearching = searchQuery.trim().length > 0
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -323,7 +332,7 @@ export default function KnowledgeHub() {
               </div>
               {searchQuery && hasResults && (
                 <div className="mt-4 text-center text-white/90 text-sm">
-                  {filteredTools.length + filteredTemplates.length + filteredArticles.length} resultados encontrados
+                  {allResults.length} resultados encontrados
                 </div>
               )}
             </motion.div>
@@ -350,46 +359,148 @@ export default function KnowledgeHub() {
         </div>
       </section>
 
-      {/* Herramientas Interactivas */}
-      <section className="py-24 px-6">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-12"
-          >
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-4xl font-bold text-gray-900 mb-3">
-                  Herramientas Interactivas
-                </h2>
-                <p className="text-xl text-gray-600">
-                  Usa estas herramientas gratis para mejorar tu gestión
-                </p>
-              </div>
-              <Zap className="w-12 h-12 text-violet-600" />
-            </div>
-          </motion.div>
-
-          {/* No results message */}
-          {searchQuery && !hasResults && (
+      {/* Unified Search Results */}
+      {isSearching && (
+        <section className="py-24 px-6">
+          <div className="max-w-7xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16"
+              className="mb-12"
             >
-              <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">No se encontraron resultados</h3>
-              <p className="text-gray-600 mb-4">Intenta con otros términos de búsqueda</p>
-              <button
-                onClick={() => setSearchQuery('')}
-                className="text-violet-600 hover:text-violet-700 font-semibold"
-              >
-                Limpiar búsqueda
-              </button>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-4xl font-bold text-gray-900 mb-3">
+                    Resultados de búsqueda
+                  </h2>
+                  <p className="text-xl text-gray-600">
+                    {allResults.length} {allResults.length === 1 ? 'resultado encontrado' : 'resultados encontrados'} para "{searchQuery}"
+                  </p>
+                </div>
+                <Search className="w-12 h-12 text-violet-600" />
+              </div>
             </motion.div>
-          )}
+
+            {/* No results message */}
+            {!hasResults && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center py-16"
+              >
+                <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">No se encontraron resultados</h3>
+                <p className="text-gray-600 mb-4">Intenta con otros términos de búsqueda</p>
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="text-violet-600 hover:text-violet-700 font-semibold"
+                >
+                  Limpiar búsqueda
+                </button>
+              </motion.div>
+            )}
+
+            {/* Unified Results Grid */}
+            {hasResults && (
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={staggerContainer}
+                className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+              >
+                {allResults.map((item: any) => {
+                  const Icon = item.icon
+                  const isArticle = item.type === 'Guía'
+                  const isTemplate = item.type === 'Plantilla'
+                  const isTool = item.type === 'Herramienta'
+
+                  return (
+                    <motion.div
+                      key={item.id}
+                      variants={scaleIn}
+                      whileHover={{ y: -8, scale: 1.02 }}
+                      className="group"
+                    >
+                      <Link href={item.href || `/blog/${item.slug}`}>
+                        <div className="relative h-full bg-white rounded-2xl p-6 border-2 border-gray-200 hover:border-violet-500 hover:shadow-xl transition-all">
+                          {/* Type Badge */}
+                          <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold border ${item.typeColor}`}>
+                            {item.type}
+                          </div>
+
+                          {/* Icon */}
+                          <div className={`w-12 h-12 rounded-xl ${isTool ? `bg-gradient-to-br ${item.color}` : 'bg-gradient-to-br from-gray-100 to-gray-200'} flex items-center justify-center mb-4`}>
+                            <Icon className={`w-6 h-6 ${isTool ? 'text-white' : 'text-gray-700'}`} />
+                          </div>
+
+                          {/* Title */}
+                          <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-violet-600 transition-colors line-clamp-2">
+                            {item.title}
+                          </h3>
+
+                          {/* Description */}
+                          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                            {item.description || item.excerpt}
+                          </p>
+
+                          {/* Footer */}
+                          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                            {isTemplate && (
+                              <>
+                                <span className="flex items-center text-xs text-gray-500">
+                                  <Download className="w-3 h-3 mr-1" />
+                                  {item.downloads}
+                                </span>
+                                <span className="px-2 py-1 bg-gray-100 rounded-full font-medium text-xs">
+                                  {item.format}
+                                </span>
+                              </>
+                            )}
+                            {isArticle && (
+                              <>
+                                <span className="text-xs text-gray-500">{item.category}</span>
+                                <span className="text-xs text-gray-500">{item.readTime}</span>
+                              </>
+                            )}
+                            {isTool && (
+                              <div className="flex items-center text-violet-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
+                                Usar <ArrowRight className="ml-1 w-4 h-4" />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    </motion.div>
+                  )
+                })}
+              </motion.div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Herramientas Interactivas */}
+      {!isSearching && (
+        <section className="py-24 px-6">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mb-12"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-4xl font-bold text-gray-900 mb-3">
+                    Herramientas Interactivas
+                  </h2>
+                  <p className="text-xl text-gray-600">
+                    Usa estas herramientas gratis para mejorar tu gestión
+                  </p>
+                </div>
+                <Zap className="w-12 h-12 text-violet-600" />
+              </div>
+            </motion.div>
 
           {filteredTools.length > 0 && (
             <motion.div
@@ -448,11 +559,12 @@ export default function KnowledgeHub() {
             })}
             </motion.div>
           )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* Plantillas Descargables */}
-      {filteredTemplates.length > 0 && (
+      {!isSearching && filteredTemplates.length > 0 && (
         <section className="py-24 px-6 bg-gray-50">
           <div className="max-w-7xl mx-auto">
             <motion.div
@@ -522,6 +634,7 @@ export default function KnowledgeHub() {
       )}
 
       {/* Success Stories / Testimonios */}
+      {!isSearching && (
       <section className="py-24 px-6 bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50">
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -707,9 +820,10 @@ export default function KnowledgeHub() {
           </motion.div>
         </div>
       </section>
+      )}
 
       {/* Artículos Destacados */}
-      {filteredArticles.length > 0 && (
+      {!isSearching && filteredArticles.length > 0 && (
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
             <motion.div
@@ -790,6 +904,7 @@ export default function KnowledgeHub() {
       )}
 
       {/* CTA Final */}
+      {!isSearching && (
       <section className="py-24 px-6 bg-gradient-to-br from-violet-600 via-purple-600 to-pink-600">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
@@ -821,6 +936,7 @@ export default function KnowledgeHub() {
           </motion.div>
         </div>
       </section>
+      )}
     </div>
   )
 }
