@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, Plus, Minus, Crown, Check, ArrowRight, Spark
 import { motion, useScroll, useTransform, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { StructuredData } from '../src/components/StructuredData'
+import { Navbar } from '../src/components/layout/Navbar'
 
 // Animation variants for reusable animations
 const fadeInUp = {
@@ -199,44 +200,8 @@ export default function LandingPage() {
       {/* Structured Data for SEO */}
       <StructuredData />
 
-      {/* Navigation */}
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="flex items-center space-x-2"
-          >
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-bold text-lg sm:text-xl">I</span>
-            </div>
-            <span className="text-lg sm:text-xl font-semibold text-gray-900">Itineramio</span>
-          </motion.div>
-
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                href="/login"
-                className="px-3 py-2 sm:px-6 sm:py-2.5 text-sm sm:text-base text-gray-700 hover:text-gray-900 font-medium transition-colors"
-              >
-                Iniciar sesión
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                href="/register"
-                className="px-4 py-2 sm:px-6 sm:py-2.5 text-sm sm:text-base bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-full font-medium hover:shadow-lg hover:shadow-violet-500/25 transition-all"
-              >
-                Empezar gratis
-              </Link>
-            </motion.div>
-          </div>
-        </div>
-      </motion.nav>
+      {/* Unified Navigation */}
+      <Navbar />
 
       {/* Hero Section - with parallax */}
       <section className="relative pt-24 sm:pt-32 pb-4 sm:pb-6 px-4 sm:px-6 overflow-hidden bg-gradient-to-b from-gray-50 to-white">

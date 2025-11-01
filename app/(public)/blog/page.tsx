@@ -1,3 +1,4 @@
+import React from 'react'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -23,6 +24,7 @@ import {
   Flame
 } from 'lucide-react'
 import { prisma } from '../../../src/lib/prisma'
+import { Navbar } from '../../../src/components/layout/Navbar'
 
 export const metadata: Metadata = {
   title: 'Blog - Guías y Consejos para Apartamentos Turísticos | Itineramio',
@@ -137,38 +139,8 @@ export default async function BlogPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      {/* Modern Header with gradient */}
-      <header className="border-b border-gray-200 bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <Link href="/blog" className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                  Blog Itineramio
-                </Link>
-                <p className="text-xs text-gray-500 hidden sm:block">Guías & Recursos para Anfitriones</p>
-              </div>
-            </div>
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link href="/" className="text-sm font-medium text-gray-600 hover:text-violet-600 transition-colors">
-                Inicio
-              </Link>
-              <Link href="/hub/calculadora" className="text-sm font-medium text-gray-600 hover:text-violet-600 transition-colors">
-                Calculadora
-              </Link>
-              <Link
-                href="/register"
-                className="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-sm font-semibold rounded-lg hover:shadow-lg transition-all"
-              >
-                Empezar gratis
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      {/* Unified Navigation */}
+      <Navbar />
 
       {/* Hero Section with Magazine Style */}
       {heroArticle && (
