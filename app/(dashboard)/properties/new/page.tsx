@@ -196,7 +196,8 @@ function NewPropertyPageContent() {
     setIsSubmitting(true)
 
     try {
-      const url = isEditing ? `/api/properties/${editId}/safe` : '/api/properties/ultra-safe'
+      // Use safe endpoint which we know works
+      const url = isEditing ? `/api/properties/${editId}/safe` : '/api/properties/safe'
       const method = isEditing ? 'PUT' : 'POST'
 
       console.log('📤 Enviando propiedad...', { url, method })
@@ -217,7 +218,15 @@ function NewPropertyPageContent() {
 
       clearTimeout(timeoutId)
 
-      console.log('📥 Respuesta recibida:', response.status)
+      console.log('📥 Respuesta recibida:', response.status, response.headers.get('content-type'))
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text()
+        console.error('❌ Respuesta no es JSON:', text.substring(0, 200))
+        throw new Error('El servidor respondió con un formato inválido. Por favor, recarga la página e intenta de nuevo.')
+      }
 
       const result = await response.json()
       console.log('📦 Resultado:', result)
