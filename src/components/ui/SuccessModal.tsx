@@ -41,10 +41,10 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.8, opacity: 0, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+          className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-2xl max-w-[90vw] sm:max-w-sm md:max-w-md w-full overflow-hidden"
         >
           {/* Header con gradiente verde */}
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-8 text-white relative">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-3 sm:p-4 md:p-3 sm:p-4 md:p-6 lg:p-8 text-white relative">
             <button
               onClick={onClose}
               className="absolute top-4 right-4 text-white/80 hover:text-white transition"
@@ -61,17 +61,17 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
               >
                 <CheckCircle2 className="h-16 w-16 text-white" />
               </motion.div>
-              <h2 className="text-2xl font-bold">{title}</h2>
+              <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold">{title}</h2>
             </div>
           </div>
 
           {/* Contenido */}
-          <div className="p-8 text-center">
+          <div className="p-3 sm:p-4 md:p-3 sm:p-4 md:p-6 lg:p-8 text-center">
             <p className="text-gray-700 text-lg leading-relaxed">{message}</p>
 
             <button
               onClick={onClose}
-              className="mt-6 w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-6 rounded-lg font-medium hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl"
+              className="mt-6 w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-3 sm:px-4 md:px-6 rounded-lg font-medium hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl"
             >
               Entendido
             </button>

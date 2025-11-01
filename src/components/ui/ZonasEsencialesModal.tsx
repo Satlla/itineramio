@@ -88,7 +88,7 @@ export function ZonasEsencialesModal({
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-6xl lg:max-w-5xl max-h-[95vh] overflow-y-auto my-4"
+          className="bg-white rounded-xl p-4 sm:p-3 sm:p-4 md:p-6 w-full max-w-6xl lg:max-w-5xl max-h-[95vh] overflow-y-auto my-4"
           style={{
             // Asegurar que el modal funcione en móvil
             minHeight: '300px',
@@ -103,7 +103,7 @@ export function ZonasEsencialesModal({
             <div className="inline-flex items-center justify-center w-16 h-16 bg-violet-100 rounded-full mb-4">
               <Sparkles className="w-8 h-8 text-violet-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900 mb-2">
               ¡Hola {userName}! 👋
             </h2>
             <p className="text-gray-600 text-lg">
@@ -188,7 +188,7 @@ export function ZonasEsencialesModal({
             <Button
               onClick={onKeepZones}
               disabled={isLoading}
-              className="w-full max-w-md bg-violet-600 hover:bg-violet-700 h-12 text-lg font-semibold"
+              className="w-full max-w-[90vw] sm:max-w-sm md:max-w-md bg-violet-600 hover:bg-violet-700 h-12 text-lg font-semibold"
             >
               {isLoading ? (
                 <>

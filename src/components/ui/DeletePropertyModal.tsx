@@ -76,7 +76,7 @@ export function DeletePropertyModal({
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-xl p-6 w-full max-w-md"
+          className="bg-white rounded-xl p-3 sm:p-4 md:p-6 w-full max-w-[90vw] sm:max-w-sm md:max-w-md"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button */}
@@ -95,7 +95,7 @@ export function DeletePropertyModal({
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
                   <AlertTriangle className="w-8 h-8 text-red-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900 mb-2">
                   ⚠️ Eliminar Propiedad
                 </h2>
                 <p className="text-gray-600">
@@ -264,7 +264,7 @@ export function DeletePropertyModal({
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
                   <Trash2 className="w-8 h-8 text-red-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900 mb-2">
                   🔐 Confirmación Final
                 </h2>
                 <p className="text-gray-600">

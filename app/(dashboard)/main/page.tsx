@@ -518,22 +518,22 @@ export default function DashboardPage(): JSX.Element {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <DashboardNavbar user={user || undefined} />
-      
-      <main className="flex-1 pt-20 sm:pt-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+
+      <main className="flex-1 pt-12 sm:pt-14 md:pt-16">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-4 md:py-6 pb-4 sm:pb-6 md:pb-8">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-6 sm:mb-8"
+            className="mb-4 sm:mb-6"
           >
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
                   Hola, {user?.name?.split(' ')[0] || 'Usuario'} 👋
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">
                   Aquí tienes un resumen de tus propiedades y manuales
                 </p>
               </div>
@@ -545,18 +545,18 @@ export default function DashboardPage(): JSX.Element {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8"
+            className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6 mb-4 sm:mb-6"
           >
             <Card>
-              <CardContent className="p-3 sm:p-6">
+              <CardContent className="p-2 sm:p-3 md:p-4 lg:p-6">
                 <button
                   onClick={() => router.push('/properties')}
                   className="flex items-center w-full text-left"
                 >
-                  <Home className="h-6 w-6 sm:h-8 sm:w-8 text-violet-600" />
-                  <div className="ml-3 sm:ml-4">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">Mis Propiedades</p>
-                    <p className="text-xl sm:text-2xl font-bold text-gray-900">
+                  <Home className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 lg:h-8 lg:w-8 text-violet-600 flex-shrink-0" />
+                  <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
+                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 leading-tight">Propiedades</p>
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {stats.totalProperties}
                     </p>
                   </div>
@@ -565,15 +565,15 @@ export default function DashboardPage(): JSX.Element {
             </Card>
 
             <Card>
-              <CardContent className="p-3 sm:p-6">
+              <CardContent className="p-2 sm:p-3 md:p-4 lg:p-6">
                 <button
                   onClick={() => router.push('/analytics')}
                   className="flex items-center w-full text-left"
                 >
-                  <Eye className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
-                  <div className="ml-3 sm:ml-4">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">Visualizaciones totales</p>
-                    <p className="text-xl sm:text-2xl font-bold text-gray-900">
+                  <Eye className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 lg:h-8 lg:w-8 text-blue-600 flex-shrink-0" />
+                  <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
+                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 leading-tight">Vistas</p>
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {stats.totalViews}
                     </p>
                   </div>
@@ -583,12 +583,12 @@ export default function DashboardPage(): JSX.Element {
 
             {/* Minutos Ahorrados card */}
             <Card>
-              <CardContent className="p-3 sm:p-6">
+              <CardContent className="p-2 sm:p-3 md:p-4 lg:p-6">
                 <div className="flex items-center">
-                  <Timer className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
-                  <div className="ml-3 sm:ml-4">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">Minutos ahorrados</p>
-                    <p className="text-xl sm:text-2xl font-bold text-gray-900">
+                  <Timer className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 lg:h-8 lg:w-8 text-orange-600 flex-shrink-0" />
+                  <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
+                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 leading-tight">Min. ahorrados</p>
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {stats.timeSavedMinutes || 0}
                     </p>
                   </div>
@@ -598,12 +598,12 @@ export default function DashboardPage(): JSX.Element {
 
             {/* Zonas Vistas card */}
             <Card>
-              <CardContent className="p-3 sm:p-6">
+              <CardContent className="p-2 sm:p-3 md:p-4 lg:p-6">
                 <div className="flex items-center">
-                  <Eye className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
-                  <div className="ml-3 sm:ml-4">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">Zonas Vistas</p>
-                    <p className="text-xl sm:text-2xl font-bold text-gray-900">
+                  <Eye className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 lg:h-8 lg:w-8 text-green-600 flex-shrink-0" />
+                  <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
+                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 leading-tight">Zonas vistas</p>
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {stats.zonesViewed || 0}
                     </p>
                   </div>
@@ -622,7 +622,7 @@ export default function DashboardPage(): JSX.Element {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="order-1"
               >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 mb-3 sm:mb-4">
                 <div className="flex items-center space-x-2 sm:space-x-3">
                   {/* Minimalist Property Icon - Black vectorial */}
                   <div className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center flex-shrink-0">
@@ -636,7 +636,7 @@ export default function DashboardPage(): JSX.Element {
                       <path d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
                     </svg>
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
                     Mis Propiedades ({loading ? '...' : properties.length})
                   </h2>
                 </div>
@@ -1102,12 +1102,12 @@ export default function DashboardPage(): JSX.Element {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="lg:col-span-1 order-4 lg:order-2 mt-6 lg:mt-0"
             >
-              <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+              <div className="flex items-center space-x-2 mb-3 sm:mb-4">
                 <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900">Actividad Reciente</h2>
+                <h2 className="text-base sm:text-lg font-bold text-gray-900">Actividad Reciente</h2>
               </div>
-              
-              <div className="space-y-3 sm:space-y-4">
+
+              <div className="space-y-2 sm:space-y-3">
                 {recentActivity.length === 0 ? (
                   <div className="text-center py-8 bg-white rounded-lg border border-gray-200">
                     <TrendingUp className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 mx-auto mb-2" />

@@ -153,12 +153,12 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden"
+          className="bg-white rounded-lg max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b">
+          <div className="flex items-center justify-between p-3 sm:p-4 md:p-6 border-b">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Evaluaciones</h2>
+              <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900">Evaluaciones</h2>
               <p className="text-gray-600">{propertyName}</p>
             </div>
             <div className="flex items-center space-x-3">
@@ -188,9 +188,9 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
               exit={{ height: 0 }}
               className="border-b bg-gray-50 overflow-hidden"
             >
-              <div className="p-6">
+              <div className="p-3 sm:p-4 md:p-6">
                 <h3 className="font-semibold text-gray-900 mb-4">Configuración de Notificaciones</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:p-4 md:p-6">
                   {/* Email Notifications */}
                   <div>
                     <h4 className="font-medium text-gray-800 mb-3 flex items-center">
@@ -279,7 +279,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
           <div className="flex border-b">
             <button
               onClick={() => setActiveTab('zone')}
-              className={`flex-1 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex-1 px-3 sm:px-4 md:px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'zone'
                   ? 'border-blue-500 text-blue-600 bg-blue-50'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -290,7 +290,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
             </button>
             <button
               onClick={() => setActiveTab('property')}
-              className={`flex-1 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex-1 px-3 sm:px-4 md:px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'property'
                   ? 'border-blue-500 text-blue-600 bg-blue-50'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -302,13 +302,13 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
           </div>
 
           {/* Content */}
-          <div className="p-6 max-h-96 overflow-y-auto">
+          <div className="p-3 sm:p-4 md:p-6 max-h-96 overflow-y-auto">
             {loading ? (
-              <div className="flex items-center justify-center py-8">
+              <div className="flex items-center justify-center py-3 sm:py-4 md:py-3 sm:py-4 md:py-6 lg:py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
             ) : filteredEvaluations.length === 0 ? (
-              <div className="text-center py-8">
+              <div className="text-center py-3 sm:py-4 md:py-3 sm:py-4 md:py-6 lg:py-8">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Star className="w-8 h-8 text-gray-400" />
                 </div>

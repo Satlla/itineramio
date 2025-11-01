@@ -70,6 +70,20 @@ export function Navbar({ transparent = false }: NavbarProps) {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
+                href="/blog"
+                className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
+              >
+                Blog
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
+              </Link>
+              <Link
+                href="/hub"
+                className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
+              >
+                Recursos
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
+              </Link>
+              <Link
                 href="/#pricing"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
@@ -163,6 +177,20 @@ export function Navbar({ transparent = false }: NavbarProps) {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Funcionalidades
+                  </Link>
+                  <Link
+                    href="/blog"
+                    className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Blog
+                  </Link>
+                  <Link
+                    href="/hub"
+                    className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Recursos
                   </Link>
                   <Link
                     href="/#pricing"

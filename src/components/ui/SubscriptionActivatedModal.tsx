@@ -55,9 +55,9 @@ export const SubscriptionActivatedModal: React.FC<SubscriptionActivatedModalProp
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in duration-300 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-2xl max-w-[90vw] sm:max-w-[90vw] sm:max-w-sm md:max-w-md md:max-w-lg w-full overflow-hidden animate-in fade-in duration-300 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
         {/* Header con gradiente */}
-        <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 sm:p-8 text-white relative">
+        <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 sm:p-3 sm:p-4 md:p-3 sm:p-4 md:p-6 lg:p-8 text-white relative">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-white/80 hover:text-white transition"
@@ -69,7 +69,7 @@ export const SubscriptionActivatedModal: React.FC<SubscriptionActivatedModalProp
             <div className="bg-white/20 backdrop-blur-sm rounded-full p-3 sm:p-4 mb-3 sm:mb-4">
               <CheckCircle2 className="h-8 w-8 sm:h-12 sm:w-12 text-white" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold mb-2">
+            <h2 className="text-base sm:text-lg md:text-xl sm:text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold mb-2">
               ¡Suscripción Activada!
             </h2>
             <p className="text-sm sm:text-base text-green-100">
@@ -79,7 +79,7 @@ export const SubscriptionActivatedModal: React.FC<SubscriptionActivatedModalProp
         </div>
 
         {/* Contenido */}
-        <div className="p-4 sm:p-8 space-y-4 sm:space-y-6">
+        <div className="p-4 sm:p-3 sm:p-4 md:p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-6">
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-start space-x-2 sm:space-x-3">
               <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg flex-shrink-0">

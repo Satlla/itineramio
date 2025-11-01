@@ -160,12 +160,12 @@ export function CopyZoneToPropertyModal({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-lg shadow-xl w-full max-w-2xl h-[600px] flex flex-col"
+        className="bg-white rounded-lg shadow-xl w-full max-w-[95vw] sm:max-w-[95vw] sm:max-w-[90vw] sm:max-w-[90vw] sm:max-w-sm md:max-w-md md:max-w-lg md:max-w-xl md:max-w-2xl h-[600px] flex flex-col"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center justify-between p-3 sm:p-4 md:p-6 border-b">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Copiar Zona</h2>
+            <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Copiar Zona</h2>
             <p className="text-sm text-gray-600 mt-1">
               Selecciona las propiedades donde quieres copiar "{zoneName}"
             </p>
@@ -181,7 +181,7 @@ export function CopyZoneToPropertyModal({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
           {/* Search bar (only show if > 5 properties) */}
           {showSearchBar && (
             <div className="mb-4">
@@ -208,7 +208,7 @@ export function CopyZoneToPropertyModal({
 
           {/* Loading state */}
           {isLoading ? (
-            <div className="flex items-center justify-center py-8">
+            <div className="flex items-center justify-center py-3 sm:py-4 md:py-3 sm:py-4 md:py-6 lg:py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
               <span className="ml-3 text-gray-600">Cargando propiedades...</span>
             </div>
@@ -217,7 +217,7 @@ export function CopyZoneToPropertyModal({
               {/* Properties list */}
               <div className="space-y-3 max-h-80 overflow-y-auto border rounded-lg p-2">
                 {filteredProperties.length === 0 ? (
-                  <div className="text-center py-8">
+                  <div className="text-center py-3 sm:py-4 md:py-3 sm:py-4 md:py-6 lg:py-8">
                     <Home className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500">
                       {searchTerm ? 'No se encontraron propiedades' : 'No tienes otras propiedades disponibles'}
@@ -276,7 +276,7 @@ export function CopyZoneToPropertyModal({
         </div>
 
         {/* Footer */}
-        <div className="flex-shrink-0 flex items-center justify-between p-6 border-t bg-gray-50">
+        <div className="flex-shrink-0 flex items-center justify-between p-3 sm:p-4 md:p-6 border-t bg-gray-50">
           {/* Selected count info */}
           <div className="text-sm text-gray-600">
             {selectedPropertyIds.size > 0 ? (
@@ -302,7 +302,7 @@ export function CopyZoneToPropertyModal({
               onClick={handleCopyZone}
               disabled={selectedPropertyIds.size === 0 || isCopying || isLoading}
               className={cn(
-                "font-medium min-w-[150px] px-6 py-2",
+                "font-medium min-w-[150px] px-3 sm:px-4 md:px-6 py-2",
                 selectedPropertyIds.size === 0 || isCopying || isLoading
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-violet-600 hover:bg-violet-700 text-white shadow-lg hover:shadow-xl transition-all"

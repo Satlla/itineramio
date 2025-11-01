@@ -125,14 +125,14 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+          className="bg-white rounded-xl w-full max-w-[95vw] sm:max-w-[95vw] sm:max-w-[90vw] sm:max-w-[90vw] sm:max-w-sm md:max-w-md md:max-w-lg md:max-w-xl md:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-violet-50 to-purple-50 p-6 border-b">
+          <div className="bg-gradient-to-r from-violet-50 to-purple-50 p-3 sm:p-4 md:p-6 border-b">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Editar Zona</h2>
+                <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900">Editar Zona</h2>
                 <p className="text-gray-600 mt-1">Modifica el nombre e icono de la zona</p>
               </div>
               <button
@@ -145,8 +145,8 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
           </div>
 
           {/* Content */}
-          <div className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="p-3 sm:p-4 md:p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:p-4 md:p-6">
               {/* Form */}
               <div className="lg:col-span-2 space-y-6">
                 {/* Zone Name */}
@@ -179,7 +179,7 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
                           return IconComponent ? (
                             <IconComponent className="w-8 h-8 text-gray-700" />
                           ) : (
-                            <span className="text-2xl">{formData.icon}</span>
+                            <span className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl">{formData.icon}</span>
                           )
                         })()
                       ) : (
@@ -214,7 +214,7 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
                           return IconComponent ? (
                             <IconComponent className="w-7 h-7 text-gray-700" />
                           ) : (
-                            <span className="text-xl">{formData.icon}</span>
+                            <span className="text-base sm:text-lg md:text-xl">{formData.icon}</span>
                           )
                         })()
                       ) : (
@@ -231,7 +231,7 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
           </div>
 
           {/* Footer */}
-          <div className="bg-gray-50 px-6 py-4 border-t flex items-center justify-end space-x-3">
+          <div className="bg-gray-50 px-3 sm:px-4 md:px-6 py-4 border-t flex items-center justify-end space-x-3">
             <Button
               variant="outline"
               onClick={onClose}
@@ -265,9 +265,9 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-xl w-full max-w-2xl max-h-[80vh] overflow-hidden"
+            className="bg-white rounded-xl w-full max-w-[95vw] sm:max-w-[95vw] sm:max-w-[90vw] sm:max-w-[90vw] sm:max-w-sm md:max-w-md md:max-w-lg md:max-w-xl md:max-w-2xl max-h-[80vh] overflow-hidden"
           >
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-3 sm:p-4 md:p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Seleccionar Icono</h3>
                 <button

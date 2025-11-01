@@ -37,7 +37,7 @@ export function UpgradeMarketingModal({ preview, onClose, onConfirm }: UpgradeMa
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-md w-full p-6 relative">
+      <div className="bg-white rounded-lg max-w-[90vw] sm:max-w-sm md:max-w-md w-full p-3 sm:p-4 md:p-6 relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
@@ -51,7 +51,7 @@ export function UpgradeMarketingModal({ preview, onClose, onConfirm }: UpgradeMa
             <TrendingUp className="w-8 h-8 text-white" />
           </div>
           
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
+          <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2">
             {messages.headline}
           </h3>
 
@@ -66,7 +66,7 @@ export function UpgradeMarketingModal({ preview, onClose, onConfirm }: UpgradeMa
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-green-600 font-medium">Ahorro por propiedad</div>
-                <div className="text-2xl font-bold text-green-700">
+                <div className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-green-700">
                   €{preview.savingsPerProperty.toFixed(2)}
                 </div>
               </div>

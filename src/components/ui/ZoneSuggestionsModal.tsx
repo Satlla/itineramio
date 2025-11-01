@@ -93,18 +93,18 @@ export function ZoneSuggestionsModal({
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-hidden my-4"
+          className="bg-white rounded-xl w-full max-w-[95vw] sm:max-w-2xl md:max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden my-4"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 border-b">
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-3 sm:p-4 md:p-6 border-b">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
                   <Lightbulb className="w-6 h-6 text-amber-600" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">{suggestions.title}</h2>
+                  <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900">{suggestions.title}</h2>
                   <p className="text-gray-600 mt-1">{suggestions.description}</p>
                 </div>
               </div>
@@ -120,7 +120,7 @@ export function ZoneSuggestionsModal({
           {/* Content */}
           <div className="overflow-y-auto max-h-[calc(90vh-200px)]">
             {/* Suggestions Section */}
-            <div className="p-6">
+            <div className="p-3 sm:p-4 md:p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <span className="text-amber-500">💡</span> Ideas y Sugerencias
               </h3>
@@ -143,7 +143,7 @@ export function ZoneSuggestionsModal({
             </div>
 
             {/* Examples Section */}
-            <div className="p-6 bg-blue-50 border-t">
+            <div className="p-3 sm:p-4 md:p-6 bg-blue-50 border-t">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <span className="text-blue-500">📝</span> Ejemplo de Pasos
               </h3>
@@ -160,7 +160,7 @@ export function ZoneSuggestionsModal({
             </div>
 
             {/* Tips */}
-            <div className="p-6 bg-green-50 border-t">
+            <div className="p-3 sm:p-4 md:p-6 bg-green-50 border-t">
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
                   <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -179,7 +179,7 @@ export function ZoneSuggestionsModal({
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t bg-gray-50">
+          <div className="p-3 sm:p-4 md:p-6 border-t bg-gray-50">
             <Button
               onClick={onClose}
               className="w-full bg-amber-600 hover:bg-amber-700"

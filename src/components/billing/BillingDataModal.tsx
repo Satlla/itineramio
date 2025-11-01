@@ -315,11 +315,11 @@ export default function BillingDataModal({ isOpen, onClose, onSaveSuccess }: Bil
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
           >
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-2xl w-full max-w-[95vw] sm:max-w-[95vw] sm:max-w-[90vw] sm:max-w-[90vw] sm:max-w-sm md:max-w-md md:max-w-lg md:max-w-xl md:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
               {/* Header */}
-              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-3 sm:px-4 md:px-6 py-4 flex items-center justify-between rounded-t-2xl">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Datos de Facturación</h2>
+                  <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900">Datos de Facturación</h2>
                   <p className="text-sm text-gray-600 mt-1">
                     Necesitamos estos datos para emitir facturas válidas
                   </p>
@@ -333,7 +333,7 @@ export default function BillingDataModal({ isOpen, onClose, onSaveSuccess }: Bil
               </div>
 
               {/* Form */}
-              <div className="p-6 space-y-6">
+              <div className="p-3 sm:p-4 md:p-6 space-y-6">
                 {/* Tipo de entidad */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
@@ -693,10 +693,10 @@ export default function BillingDataModal({ isOpen, onClose, onSaveSuccess }: Bil
               </div>
 
               {/* Footer */}
-              <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 flex gap-3 rounded-b-2xl">
+              <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-3 sm:px-4 md:px-6 py-4 flex gap-3 rounded-b-2xl">
                 <button
                   onClick={onClose}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-100 transition-colors"
+                  className="flex-1 px-3 sm:px-4 md:px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-100 transition-colors"
                   disabled={saving}
                 >
                   Cancelar
@@ -704,7 +704,7 @@ export default function BillingDataModal({ isOpen, onClose, onSaveSuccess }: Bil
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="flex-1 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-3 sm:px-4 md:px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {saving ? (
                     <>

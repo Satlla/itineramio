@@ -72,7 +72,7 @@ export function TrialActivationModal({
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+              className="relative bg-white rounded-xl shadow-2xl max-w-[90vw] sm:max-w-sm md:max-w-md w-full p-3 sm:p-4 md:p-6"
             >
               <button
                 onClick={onClose}
@@ -85,7 +85,7 @@ export function TrialActivationModal({
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Gift className="w-8 h-8 text-green-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900 mb-2">
                   15 días de evaluación incluidos
                 </h2>
                 <p className="text-gray-600">
@@ -145,7 +145,7 @@ export function TrialActivationModal({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative bg-white rounded-xl shadow-2xl max-w-lg w-full p-6"
+            className="relative bg-white rounded-xl shadow-2xl max-w-[90vw] sm:max-w-[90vw] sm:max-w-sm md:max-w-md md:max-w-lg w-full p-3 sm:p-4 md:p-6"
           >
             <button
               onClick={onClose}
@@ -158,7 +158,7 @@ export function TrialActivationModal({
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-8 h-8 text-orange-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900 mb-2">
                 Activa tu nueva propiedad
               </h2>
               <p className="text-gray-600">
@@ -168,7 +168,7 @@ export function TrialActivationModal({
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <h3 className="font-semibold text-blue-900 mb-2">Precio mensual:</h3>
-              <div className="text-3xl font-bold text-blue-600">
+              <div className="text-base sm:text-lg md:text-xl sm:text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl md:text-3xl font-bold text-blue-600">
                 €{Number(monthlyFee).toFixed(2)}/mes
               </div>
               <p className="text-sm text-blue-700 mt-1">

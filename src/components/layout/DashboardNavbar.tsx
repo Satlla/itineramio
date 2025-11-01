@@ -117,18 +117,18 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
-        <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
+        <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-12 sm:h-14 md:h-16">
             {/* Logo */}
             <motion.div
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-1 sm:space-x-2"
               whileHover={{ scale: 1.05 }}
             >
-              <Link href="/main" className="flex items-center space-x-1 sm:space-x-2">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              <Link href="/main" className="flex items-center space-x-1">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white" />
                 </div>
-                <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent hidden xs:block">
+                <span className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent hidden xs:block">
                   Itineramio
                 </span>
               </Link>

@@ -53,11 +53,11 @@ export function DeleteConfirmationModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", duration: 0.3 }}
-            className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden"
+            className="relative bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-2xl max-w-[90vw] sm:max-w-sm md:max-w-md w-full mx-4 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="p-6 pb-4">
+            <div className="p-3 sm:p-4 md:p-6 pb-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
@@ -85,7 +85,7 @@ export function DeleteConfirmationModal({
             </div>
             
             {/* Content */}
-            <div className="px-6 pb-4">
+            <div className="px-3 sm:px-4 md:px-6 pb-4">
               <p className="text-gray-700 text-sm leading-relaxed">
                 {description}
               </p>
@@ -117,7 +117,7 @@ export function DeleteConfirmationModal({
             </div>
             
             {/* Actions */}
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+            <div className="px-3 sm:px-4 md:px-6 py-4 bg-gray-50 border-t border-gray-200">
               <div className="flex space-x-3 justify-end">
                 <Button
                   variant="outline"

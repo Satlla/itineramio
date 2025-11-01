@@ -34,7 +34,7 @@ export function WelcomeTemplatesModal({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-3 sm:p-4 md:p-6 lg:p-8 max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -42,16 +42,16 @@ export function WelcomeTemplatesModal({
               <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-violet-100 to-blue-100 rounded-full mb-6">
                 <Sparkles className="w-10 h-10 text-violet-600" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-3">
+              <h1 className="text-base sm:text-lg md:text-xl sm:text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl md:text-3xl font-bold text-gray-900 mb-3">
                 🎉 ¡Bienvenido a Itineramio, {userName}!
               </h1>
-              <p className="text-xl text-gray-600 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed">
                 Hemos preparado un <span className="font-semibold text-violet-600">manual básico profesional</span> con las zonas más importantes para que veas cómo funciona la plataforma.
               </p>
             </div>
 
             {/* Features highlights */}
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="grid md:grid-cols-3 gap-3 sm:p-4 md:p-6 mb-8">
               <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl">
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <Play className="w-6 h-6 text-blue-600" />
@@ -79,7 +79,7 @@ export function WelcomeTemplatesModal({
 
             {/* Templates preview */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">
+              <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-4 text-center">
                 📋 Tu manual incluye {essentialTemplates.length} zonas esenciales:
               </h3>
               
@@ -109,7 +109,7 @@ export function WelcomeTemplatesModal({
             </div>
 
             {/* Benefits */}
-            <div className="bg-gradient-to-br from-violet-50 to-blue-50 border border-violet-200 rounded-xl p-6 mb-8">
+            <div className="bg-gradient-to-br from-violet-50 to-blue-50 border border-violet-200 rounded-xl p-3 sm:p-4 md:p-6 mb-8">
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Star className="w-5 h-5 text-violet-600" />
@@ -147,14 +147,14 @@ export function WelcomeTemplatesModal({
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   onClick={onAccept}
-                  className="bg-violet-600 hover:bg-violet-700 text-white font-semibold px-8 py-3 text-lg"
+                  className="bg-violet-600 hover:bg-violet-700 text-white font-semibold px-3 sm:px-4 md:px-3 sm:px-4 md:px-6 lg:px-8 py-3 text-lg"
                 >
                   🚀 ¡Perfecto! Ver mi manual
                 </Button>
                 <Button
                   variant="outline"
                   onClick={onClose}
-                  className="px-8 py-3 text-lg border-gray-300"
+                  className="px-3 sm:px-4 md:px-3 sm:px-4 md:px-6 lg:px-8 py-3 text-lg border-gray-300"
                 >
                   Empezar desde cero
                 </Button>

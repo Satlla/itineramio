@@ -60,7 +60,7 @@ export function ShareLanguageModal({
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="w-full max-w-md bg-white rounded-lg shadow-xl p-6 relative"
+                className="w-full max-w-[90vw] sm:max-w-sm md:max-w-md bg-white rounded-lg shadow-xl p-3 sm:p-4 md:p-6 relative"
               >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
@@ -100,7 +100,7 @@ export function ShareLanguageModal({
                     onChange={(e) => setSelectedLanguage(e.target.value)}
                     className="sr-only"
                   />
-                  <span className="text-2xl mr-3">{lang.flag}</span>
+                  <span className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl mr-3">{lang.flag}</span>
                   <span className={`font-medium ${
                     selectedLanguage === lang.code ? 'text-violet-900' : 'text-gray-700'
                   }`}>

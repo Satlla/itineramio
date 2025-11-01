@@ -508,7 +508,7 @@ export function StepEditor({
 
       {/* Mobile Layout: Vertical Timeline with LED Animation */}
       {isMobile ? (
-        <div className="max-w-2xl mx-auto p-4 space-y-6">
+        <div className="max-w-2xl mx-auto p-4 pb-32 space-y-6">
           {/* Steps Timeline with LED effect */}
           <div className="relative">
             {/* Main connecting line */}
@@ -675,7 +675,7 @@ export function StepEditor({
           </div>
           
           {/* Action Buttons - Mobile Layout */}
-          <div className="ml-16 space-y-3">
+          <div className="ml-16 space-y-3 mb-6">
             <Button
               onClick={addStep}
               disabled={isAddingStep}
@@ -685,9 +685,11 @@ export function StepEditor({
               <Plus className="w-5 h-5 mr-2" />
               {isAddingStep ? 'Añadiendo paso...' : 'Añadir paso'}
             </Button>
-            
-            {/* Navigation Buttons */}
-            <div className="flex gap-3">
+          </div>
+
+          {/* Navigation Buttons - Fixed at bottom */}
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-40">
+            <div className="max-w-2xl mx-auto flex gap-3">
               <Button
                 variant="outline"
                 onClick={() => setActiveStep(Math.max(0, activeStep - 1))}
@@ -696,7 +698,7 @@ export function StepEditor({
               >
                 Anterior
               </Button>
-              
+
               {activeStep === steps.length - 1 ? (
                 <Button
                   onClick={() => onSave(steps)}

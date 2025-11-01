@@ -214,19 +214,19 @@ export function UnifiedWelcomeModal({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-xl sm:rounded-lg sm:rounded-xl md:rounded-2xl md:rounded-xl sm:rounded-lg sm:rounded-xl md:rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-[95vw] sm:max-w-[95vw] sm:max-w-[90vw] sm:max-w-[90vw] sm:max-w-sm md:max-w-md md:max-w-lg md:max-w-xl md:max-w-[95vw] sm:max-w-[95vw] sm:max-w-[90vw] sm:max-w-[90vw] sm:max-w-sm md:max-w-md md:max-w-lg md:max-w-xl md:max-w-2xl overflow-hidden max-h-[95vh] sm:max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
             <button
               onClick={handleSkip}
-              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
             >
-              <X className="w-5 h-5 text-gray-600" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
             </button>
 
             {/* Progress dots */}
-            <div className="absolute top-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            <div className="absolute top-3 sm:top-3 sm:p-4 md:p-6 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2 z-10">
               {slides.map((_, index) => (
                 <motion.div
                   key={index}
@@ -241,7 +241,7 @@ export function UnifiedWelcomeModal({
             </div>
 
             {/* Header with gradient */}
-            <div className={`relative bg-gradient-to-br ${slide.gradient} text-white pt-14 sm:pt-16 pb-8 sm:pb-12 px-4 sm:px-8`}>
+            <div className={`relative bg-gradient-to-br ${slide.gradient} text-white pt-10 sm:pt-14 md:pt-16 pb-6 sm:pb-8 md:pb-12 px-3 sm:px-4 md:px-3 sm:px-4 md:px-3 sm:px-4 md:px-6 lg:px-8`}>
               {/* Animated Icon */}
               <motion.div
                 key={currentSlide}
@@ -252,7 +252,7 @@ export function UnifiedWelcomeModal({
                   stiffness: 200,
                   damping: 20
                 }}
-                className="w-20 h-20 mx-auto mb-6 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center"
+                className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto mb-4 sm:mb-5 md:mb-6 bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl md:rounded-2xl sm:rounded-xl sm:rounded-lg sm:rounded-xl md:rounded-2xl md:rounded-3xl flex items-center justify-center"
               >
                 <motion.div
                   animate={{
@@ -265,7 +265,7 @@ export function UnifiedWelcomeModal({
                     ease: "easeInOut"
                   }}
                 >
-                  <IconComponent className="w-10 h-10 text-white" />
+                  <IconComponent className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white" />
                 </motion.div>
               </motion.div>
 
@@ -275,9 +275,9 @@ export function UnifiedWelcomeModal({
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="absolute top-4 left-4 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2"
+                  className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-white/20 backdrop-blur-sm rounded-full px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2"
                 >
-                  <p className="text-sm font-semibold text-white">
+                  <p className="text-xs sm:text-sm font-semibold text-white">
                     ✨ {trialDaysRemaining} días de prueba
                   </p>
                 </motion.div>
@@ -297,16 +297,16 @@ export function UnifiedWelcomeModal({
                   }}
                   className="text-center"
                 >
-                  <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+                  <h1 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl lg:text-base sm:text-lg md:text-xl sm:text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl md:text-3xl font-bold mb-1 sm:mb-2">
                     {currentSlide === 0 && userName ? `¡Hola, ${userName}!` : slide.title}
                   </h1>
-                  <p className="text-base sm:text-lg opacity-90">{slide.subtitle}</p>
+                  <p className="text-sm sm:text-base md:text-lg opacity-90">{slide.subtitle}</p>
                 </motion.div>
               </AnimatePresence>
             </div>
 
             {/* Content */}
-            <div className="p-4 sm:p-8">
+            <div className="p-3 sm:p-4 md:p-3 sm:p-4 md:p-6 lg:p-3 sm:p-4 md:p-3 sm:p-4 md:p-6 lg:p-8">
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
                   key={currentSlide}
@@ -320,7 +320,7 @@ export function UnifiedWelcomeModal({
                     opacity: { duration: 0.2 }
                   }}
                 >
-                  <p className="text-gray-600 text-center mb-6 sm:mb-8 text-sm sm:text-lg">
+                  <p className="text-gray-600 text-center mb-4 sm:mb-6 md:mb-8 text-xs sm:text-sm md:text-base lg:text-lg">
                     {slide.description}
                   </p>
 
@@ -332,10 +332,10 @@ export function UnifiedWelcomeModal({
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: 0.1 + index * 0.1 }}
-                        className="flex items-center gap-3 sm:gap-4 bg-gray-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 hover:bg-gray-100 transition-colors"
+                        className="flex items-center gap-3 sm:gap-4 bg-gray-50 rounded-xl sm:rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 hover:bg-gray-100 transition-colors"
                       >
-                        <span className="text-xl sm:text-2xl flex-shrink-0">{feature.icon}</span>
-                        <span className="text-gray-700 font-medium text-sm sm:text-base">{feature.text}</span>
+                        <span className="text-base sm:text-lg md:text-base sm:text-lg md:text-xl lg:text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl flex-shrink-0">{feature.icon}</span>
+                        <span className="text-gray-700 font-medium text-xs sm:text-sm md:text-base">{feature.text}</span>
                       </motion.div>
                     ))}
                   </div>

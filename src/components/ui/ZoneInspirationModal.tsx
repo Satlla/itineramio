@@ -199,11 +199,11 @@ export function ZoneInspirationModal({
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+            className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className={`relative p-6 bg-gradient-to-r ${getCategoryColor(template.category)} text-white`}>
+            <div className={`relative p-3 sm:p-4 md:p-6 bg-gradient-to-r ${getCategoryColor(template.category)} text-white`}>
               <button
                 onClick={onClose}
                 className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors"
@@ -222,7 +222,7 @@ export function ZoneInspirationModal({
                       Inspiración de zona
                     </span>
                   </div>
-                  <h2 className="text-2xl font-bold mb-2">{template.name}</h2>
+                  <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold mb-2">{template.name}</h2>
                   <p className="text-white/90 mb-4">{template.description}</p>
                   
                   <div className="flex items-center gap-4 text-sm">
@@ -242,7 +242,7 @@ export function ZoneInspirationModal({
 
             {/* Tabs */}
             <div className="border-b border-gray-200">
-              <nav className="flex px-6">
+              <nav className="flex px-3 sm:px-4 md:px-6">
                 {[
                   { id: 'overview', label: 'Resumen', icon: TrendingUp },
                   { id: 'examples', label: 'Ejemplos Reales', icon: Star },
@@ -265,7 +265,7 @@ export function ZoneInspirationModal({
             </div>
 
             {/* Content */}
-            <div className="p-6 max-h-96 overflow-y-auto">
+            <div className="p-3 sm:p-4 md:p-6 max-h-96 overflow-y-auto">
               {activeTab === 'overview' && (
                 <div className="space-y-6">
                   <div className="grid grid-cols-3 gap-4 text-center">
@@ -345,7 +345,7 @@ export function ZoneInspirationModal({
                   </div>
 
                   {/* Selected example */}
-                  <Card className="p-6">
+                  <Card className="p-3 sm:p-4 md:p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <h4 className="font-semibold text-gray-900">
@@ -428,7 +428,7 @@ export function ZoneInspirationModal({
                     </p>
                   </div>
 
-                  <Card className="p-6">
+                  <Card className="p-3 sm:p-4 md:p-6">
                     <h4 className="font-semibold text-gray-900 mb-4">
                       {getDefaultTemplate().title}
                     </h4>
@@ -472,7 +472,7 @@ export function ZoneInspirationModal({
             </div>
 
             {/* Footer */}
-            <div className="border-t border-gray-200 p-6 bg-gray-50">
+            <div className="border-t border-gray-200 p-3 sm:p-4 md:p-6 bg-gray-50">
               <div className="flex justify-between items-center">
                 <div className="text-sm text-gray-600">
                   Esta zona mejorará la experiencia de tus huéspedes

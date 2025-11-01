@@ -252,10 +252,10 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl max-w-[95vw] sm:max-w-[95vw] sm:max-w-[90vw] sm:max-w-[90vw] sm:max-w-sm md:max-w-md md:max-w-lg md:max-w-xl md:max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
-          <h2 className="text-xl font-bold text-gray-900">Método de Pago</h2>
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-3 sm:px-4 md:px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+          <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Método de Pago</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -264,9 +264,9 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-3 sm:p-4 md:p-6 space-y-6">
           {/* Total Amount - Simplified */}
-          <div className="bg-gradient-to-br from-violet-50 to-purple-50 border-2 border-violet-200 rounded-xl p-6">
+          <div className="bg-gradient-to-br from-violet-50 to-purple-50 border-2 border-violet-200 rounded-xl p-3 sm:p-4 md:p-6">
             <div className="text-center">
               <p className="text-sm font-medium text-gray-700 mb-2">
                 Plan {planDetails.name} • {getBillingPeriodText(planDetails.billingPeriod)}
@@ -468,7 +468,7 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
                   onChange={handleFileSelect}
                   className="hidden"
                 />
-                <div className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${
+                <div className={`border-2 border-dashed rounded-lg p-3 sm:p-4 md:p-6 text-center cursor-pointer transition-all ${
                   paymentProof
                     ? 'border-green-500 bg-green-50'
                     : 'border-gray-300 hover:border-violet-500 bg-white'
@@ -518,7 +518,7 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
           <div className="flex gap-3 pt-4">
             <button
               onClick={onClose}
-              className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all"
+              className="flex-1 px-3 sm:px-4 md:px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all"
               disabled={processing || uploading}
             >
               Cancelar
@@ -526,7 +526,7 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
             <button
               onClick={handleSubmit}
               disabled={processing || uploading || ((selectedMethod === 'bizum' || selectedMethod === 'transfer') && !paymentProof)}
-              className="flex-1 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl disabled:bg-gray-300 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2"
+              className="flex-1 px-3 sm:px-4 md:px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl disabled:bg-gray-300 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2"
             >
               {uploading ? (
                 <>

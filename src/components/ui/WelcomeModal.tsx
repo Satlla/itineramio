@@ -144,11 +144,11 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.8, opacity: 0, y: 20 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] flex flex-col"
+            className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[95vh] sm:max-h-[90vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-blue-600 text-white p-4 sm:p-8 rounded-t-2xl flex-shrink-0">
+            <div className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-blue-600 text-white p-4 sm:p-3 sm:p-4 md:p-3 sm:p-4 md:p-6 lg:p-8 rounded-t-2xl flex-shrink-0">
               <button
                 onClick={handleClose}
                 className="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors z-10"
@@ -177,10 +177,10 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                   <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 mx-auto" />
                 </motion.div>
 
-                <h1 className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">
+                <h1 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">
                   ¡Bienvenido{userName ? `, ${userName}` : ''}!
                 </h1>
-                <p className="text-sm sm:text-xl opacity-90">
+                <p className="text-sm sm:text-base sm:text-lg md:text-xl opacity-90">
                   Tu herramienta para crear manuales digitales
                 </p>
               </motion.div>
@@ -206,7 +206,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="mx-4 sm:mx-8 -mt-4 sm:-mt-6 mb-3 sm:mb-6 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-3 sm:p-6 shadow-lg flex-shrink-0"
+                className="mx-4 sm:mx-8 -mt-4 sm:-mt-6 mb-3 sm:mb-6 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-3 sm:p-3 sm:p-4 md:p-6 shadow-lg flex-shrink-0"
               >
                 <div className="flex items-center justify-center gap-2 sm:gap-4">
                   <div className="bg-amber-100 rounded-full p-2 sm:p-3">
@@ -214,7 +214,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                   </div>
                   <div className="text-center">
                     <div className="flex items-baseline justify-center gap-1 sm:gap-2">
-                      <span className="text-2xl sm:text-4xl font-bold text-amber-900">
+                      <span className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl sm:text-4xl font-bold text-amber-900">
                         {trialStatus.daysRemaining}
                       </span>
                       <span className="text-sm sm:text-lg font-semibold text-amber-700">
@@ -233,7 +233,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
             )}
 
             {/* Content Area - Scrollable if needed */}
-            <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-3 sm:px-4 md:px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-3 sm:py-4 md:py-6">
               <AnimatePresence mode="wait">
                 {/* Slide 1: Welcome */}
                 {currentSlide === 0 && (
@@ -245,7 +245,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                     transition={{ duration: 0.3 }}
                     className="h-full flex flex-col justify-center"
                   >
-                    <div className="text-center space-y-4 sm:space-y-6 py-4 sm:py-8">
+                    <div className="text-center space-y-4 sm:space-y-6 py-4 sm:py-3 sm:py-4 md:py-3 sm:py-4 md:py-6 lg:py-8">
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
@@ -261,7 +261,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="text-2xl sm:text-4xl font-bold text-gray-900"
+                        className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl sm:text-4xl font-bold text-gray-900"
                       >
                         Descubre todo lo que puedes hacer con Itineramio
                       </motion.h2>
@@ -270,7 +270,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.4 }}
-                        className="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto px-2"
+                        className="text-base sm:text-base sm:text-lg md:text-xl text-gray-600 max-w-[95vw] sm:max-w-[95vw] sm:max-w-[90vw] sm:max-w-[90vw] sm:max-w-sm md:max-w-md md:max-w-lg md:max-w-xl md:max-w-2xl mx-auto px-2"
                       >
                         Crea manuales digitales interactivos para tus propiedades en minutos.
                         Tus huéspedes accederán a toda la información desde su móvil.
@@ -280,11 +280,11 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.5 }}
-                        className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 sm:p-6 max-w-xl mx-auto"
+                        className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 sm:p-3 sm:p-4 md:p-6 max-w-[95vw] sm:max-w-[90vw] sm:max-w-[90vw] sm:max-w-sm md:max-w-md md:max-w-lg md:max-w-xl mx-auto"
                       >
                         <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
                           <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
-                          <h3 className="text-lg sm:text-xl font-bold text-green-900">
+                          <h3 className="text-lg sm:text-base sm:text-lg md:text-xl font-bold text-green-900">
                             ¡Comienza hoy!
                           </h3>
                         </div>
@@ -310,7 +310,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.2 }}
-                      className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 text-center"
+                      className="text-base sm:text-lg md:text-xl sm:text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 text-center"
                     >
                       Características principales
                     </motion.h2>
@@ -347,7 +347,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
             </div>
 
             {/* Footer with Navigation */}
-            <div className="border-t border-gray-200 p-4 sm:p-6 bg-gray-50 rounded-b-2xl flex-shrink-0">
+            <div className="border-t border-gray-200 p-4 sm:p-3 sm:p-4 md:p-6 bg-gray-50 rounded-b-2xl flex-shrink-0">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
                 {/* Navigation Buttons */}
                 <div className="flex gap-2 order-2 sm:order-1">
@@ -378,7 +378,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                     <>
                       <Button
                         onClick={handleCreateFirstProperty}
-                        className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 sm:px-6 py-2 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto"
+                        className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 sm:px-3 sm:px-4 md:px-6 py-2 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto"
                       >
                         <Home className="w-4 h-4 mr-2" />
                         Crear propiedad
@@ -388,7 +388,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                       <Button
                         onClick={handleExploreDashboard}
                         variant="outline"
-                        className="border-violet-200 text-violet-600 hover:bg-violet-50 px-4 sm:px-6 py-2 text-sm sm:text-base font-semibold w-full sm:w-auto"
+                        className="border-violet-200 text-violet-600 hover:bg-violet-50 px-4 sm:px-3 sm:px-4 md:px-6 py-2 text-sm sm:text-base font-semibold w-full sm:w-auto"
                       >
                         Explorar
                       </Button>

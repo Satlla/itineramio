@@ -69,11 +69,11 @@ export function DuplicateMediaModal({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-2xl max-w-[95vw] sm:max-w-[95vw] sm:max-w-[90vw] sm:max-w-[90vw] sm:max-w-sm md:max-w-md md:max-w-lg md:max-w-xl md:max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-center justify-between p-3 sm:p-4 md:p-6 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
               <AlertCircle className="w-6 h-6 text-orange-600" />
@@ -96,9 +96,9 @@ export function DuplicateMediaModal({
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto flex-1">
+        <div className="p-3 sm:p-4 md:p-6 overflow-y-auto flex-1">
           {/* Upload comparison */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:p-4 md:p-6 mb-6">
             {/* New file */}
             <div className="border-2 border-dashed border-gray-200 rounded-lg p-4">
               <div className="text-center">
@@ -198,7 +198,7 @@ export function DuplicateMediaModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex-shrink-0">
+        <div className="px-3 sm:px-4 md:px-6 py-4 bg-gray-50 rounded-b-2xl flex-shrink-0">
           <div className="flex justify-end space-x-3">
             <Button
               onClick={onClose}
