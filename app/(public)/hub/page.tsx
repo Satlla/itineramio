@@ -635,7 +635,7 @@ export default function KnowledgeHub() {
 
       {/* Success Stories / Testimonios */}
       {!isSearching && (
-      <section className="py-24 px-6 bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50">
+        <section className="py-24 px-6 bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -819,7 +819,7 @@ export default function KnowledgeHub() {
             </Link>
           </motion.div>
         </div>
-      </section>
+        </section>
       )}
 
       {/* Artículos Destacados */}
@@ -905,7 +905,7 @@ export default function KnowledgeHub() {
 
       {/* CTA Final */}
       {!isSearching && (
-      <section className="py-24 px-6 bg-gradient-to-br from-violet-600 via-purple-600 to-pink-600">
+        <section className="py-24 px-6 bg-gradient-to-br from-violet-600 via-purple-600 to-pink-600">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -935,7 +935,7 @@ export default function KnowledgeHub() {
             </p>
           </motion.div>
         </div>
-      </section>
+        </section>
       )}
     </div>
   )
