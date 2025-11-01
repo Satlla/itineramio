@@ -102,21 +102,31 @@ export default async function BlogPage() {
     orderBy: { publishedAt: 'desc' }
   })
 
-  // Fetch other articles
+  // Fetch other articles - MORE for abundance
   const articles = await prisma.blogPost.findMany({
     where: {
       status: 'PUBLISHED',
       id: { not: heroArticle?.id }
     },
     orderBy: { publishedAt: 'desc' },
-    take: 9
+    take: 20 // Increased from 9
   })
 
   // Fetch popular articles (by views)
   const popularArticles = await prisma.blogPost.findMany({
     where: { status: 'PUBLISHED' },
     orderBy: { views: 'desc' },
-    take: 5
+    take: 8 // Increased from 5
+  })
+
+  // Fetch trending (recent popular)
+  const trendingArticles = await prisma.blogPost.findMany({
+    where: {
+      status: 'PUBLISHED',
+      publishedAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } // Last 30 days
+    },
+    orderBy: { views: 'desc' },
+    take: 6
   })
 
   // Get unique categories from articles
