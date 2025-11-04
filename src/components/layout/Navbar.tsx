@@ -56,13 +56,6 @@ export function Navbar({ transparent = false }: NavbarProps) {
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
               <Link
-                href="/#how-it-works"
-                className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
-              >
-                ¿Cómo funciona?
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
-              </Link>
-              <Link
                 href="/funcionalidades"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
@@ -77,6 +70,13 @@ export function Navbar({ transparent = false }: NavbarProps) {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
+                href="/academia"
+                className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
+              >
+                Academia
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
+              </Link>
+              <Link
                 href="/hub"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
@@ -88,7 +88,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
                 {t('navbar.pricing', 'Precios')}
-                <span className="absolute -bottom-1 left-0 w-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
                 href="/#testimonials"
@@ -165,13 +165,6 @@ export function Navbar({ transparent = false }: NavbarProps) {
                 {/* Navigation Links */}
                 <div className="space-y-4">
                   <Link
-                    href="/#how-it-works"
-                    className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    ¿Cómo funciona?
-                  </Link>
-                  <Link
                     href="/funcionalidades"
                     className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
@@ -184,6 +177,13 @@ export function Navbar({ transparent = false }: NavbarProps) {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Blog
+                  </Link>
+                  <Link
+                    href="/academia"
+                    className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Academia
                   </Link>
                   <Link
                     href="/hub"

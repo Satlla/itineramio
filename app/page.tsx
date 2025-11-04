@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, Plus, Minus, Crown, Check, ArrowRight, Sparkles, Zap, Shield, Trophy, Star, BarChart3, DollarSign, Calendar, Rocket } from 'lucide-react'
-import { motion, useScroll, useTransform, useInView } from 'framer-motion'
+import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { StructuredData } from '../src/components/StructuredData'
 import { Navbar } from '../src/components/layout/Navbar'
@@ -76,7 +76,8 @@ const testimonials = [
     location: "Barcelona, España",
     avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b789?w=100&h=100&fit=crop&crop=face",
     comment: "Se acabaron las llamadas a las 3 AM. Antes me despertaban 5-6 veces por semana preguntando wifi, parking, llaves... Con Itineramio duermo tranquila.",
-    rating: 5
+    rating: 5,
+    feature: "Reducción de consultas"
   },
   {
     id: 2,
@@ -86,7 +87,8 @@ const testimonials = [
     location: "Málaga, España",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
     comment: "Recuperé 25 horas al mes que dedico a conseguir más propiedades. Los huéspedes aman la experiencia organizada.",
-    rating: 5
+    rating: 5,
+    feature: "Ahorro de tiempo"
   },
   {
     id: 3,
@@ -96,7 +98,107 @@ const testimonials = [
     location: "Sevilla, España",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
     comment: "Lo que más me costaba era crear manuales profesionales. Con Itineramio en 10 minutos tengo guías que parecen de hotel 5 estrellas.",
-    rating: 5
+    rating: 5,
+    feature: "Manuales profesionales"
+  },
+  {
+    id: 4,
+    name: "Javier Ruiz",
+    role: "Host Airbnb",
+    property: "5 Villas en Ibiza",
+    location: "Ibiza, España",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+    comment: "Los códigos QR personalizados son un game-changer. Cada propiedad tiene su identidad y los huéspedes lo valoran muchísimo en las reviews.",
+    rating: 5,
+    feature: "Códigos QR personalizados"
+  },
+  {
+    id: 5,
+    name: "Laura Sánchez",
+    role: "Superhost",
+    property: "12 Apartamentos Madrid",
+    location: "Madrid, España",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face",
+    comment: "El check-in automático ha transformado mi negocio. Ahora puedo gestionar 12 propiedades sin necesidad de estar presente físicamente.",
+    rating: 5,
+    feature: "Check-in automático"
+  },
+  {
+    id: 6,
+    name: "Diego Fernández",
+    role: "Property Manager",
+    property: "20 Apartamentos Valencia",
+    location: "Valencia, España",
+    avatar: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=100&h=100&fit=crop&crop=face",
+    comment: "La gestión multipropiedad desde un solo panel es increíble. Antes usaba 3 herramientas diferentes, ahora todo está en Itineramio.",
+    rating: 5,
+    feature: "Panel centralizado"
+  },
+  {
+    id: 7,
+    name: "Isabel Torres",
+    role: "Host Booking.com",
+    property: "6 Casas Rurales",
+    location: "Granada, España",
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
+    comment: "Mis reviews han mejorado un 40% desde que uso Itineramio. Los huéspedes destacan lo organizados y profesionales que somos.",
+    rating: 5,
+    feature: "Mejora de reviews"
+  },
+  {
+    id: 8,
+    name: "Roberto Gómez",
+    role: "Superhost",
+    property: "4 Áticos Marbella",
+    location: "Marbella, España",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
+    comment: "El check-out digital es perfecto. Los huéspedes dejan todo organizado y recibo notificaciones automáticas cuando terminan.",
+    rating: 5,
+    feature: "Check-out digital"
+  },
+  {
+    id: 9,
+    name: "Patricia Morales",
+    role: "Host independiente",
+    property: "2 Apartamentos Bilbao",
+    location: "Bilbao, España",
+    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face",
+    comment: "La app es súper intuitiva. Mis padres, que no son muy tecnológicos, pueden gestionar las reservas sin problema alguno.",
+    rating: 5,
+    feature: "Interfaz intuitiva"
+  },
+  {
+    id: 10,
+    name: "Miguel Ángel Pérez",
+    role: "Property Manager",
+    property: "25 Propiedades Canarias",
+    location: "Tenerife, España",
+    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face",
+    comment: "Las traducciones automáticas son perfectas. Tengo huéspedes de todo el mundo y todos reciben la info en su idioma.",
+    rating: 5,
+    feature: "Multiidioma"
+  },
+  {
+    id: 11,
+    name: "Carmen Jiménez",
+    role: "Superhost Airbnb",
+    property: "7 Estudios San Sebastián",
+    location: "San Sebastián, España",
+    avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100&h=100&fit=crop&crop=face",
+    comment: "Los reportes me ayudan a identificar qué propiedades necesitan mejoras. Ahora tomo decisiones basadas en datos reales.",
+    rating: 5,
+    feature: "Reportes y analíticas"
+  },
+  {
+    id: 12,
+    name: "Francisco López",
+    role: "Host Vrbo",
+    property: "10 Cabañas Pirineos",
+    location: "Huesca, España",
+    avatar: "https://images.unsplash.com/photo-1463453091185-61582044d556?w=100&h=100&fit=crop&crop=face",
+    comment: "La integración con mi sistema de reservas existente fue perfecta. En menos de 1 hora estaba todo funcionando.",
+    rating: 5,
+    feature: "Fácil integración"
   }
 ]
 
@@ -148,10 +250,10 @@ export default function LandingPage() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
   const [propertyCount, setPropertyCount] = useState(1)
 
-  // Parallax scroll effect
-  const { scrollY } = useScroll()
-  const heroY = useTransform(scrollY, [0, 500], [0, 150])
-  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0])
+  // Parallax scroll effect - DISABLED to prevent hero from disappearing
+  // const { scrollY } = useScroll()
+  // const heroY = useTransform(scrollY, [0, 500], [0, 150])
+  // const heroOpacity = useTransform(scrollY, [0, 300], [1, 0])
 
   // Calculate current tier and price
   const getCurrentTier = (count: number) => {
@@ -204,9 +306,8 @@ export default function LandingPage() {
       <Navbar />
 
       {/* Hero Section - with parallax */}
-      <section className="relative pt-24 sm:pt-32 pb-4 sm:pb-6 px-4 sm:px-6 overflow-hidden bg-gradient-to-b from-gray-50 to-white">
+      <section className="relative pt-24 sm:pt-32 pb-0 sm:pb-6 px-4 sm:px-6 overflow-hidden bg-gradient-to-b from-gray-50 to-white">
         <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
           className="max-w-7xl mx-auto"
         >
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -327,16 +428,181 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* "Adiós a perder el tiempo" Section */}
-      <AnimatedSection className="py-8 sm:py-12 bg-gradient-to-b from-white to-gray-50 px-6">
+      {/* NEW: Enterprise Features Section - Property Sets & Announcements */}
+      <section className="py-24 px-6 bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <AnimatedSection className="text-center max-w-3xl mx-auto mb-16">
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", duration: 0.6 }}
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-violet-500/10 to-pink-500/10 rounded-full border border-violet-500/20 mb-6"
+            >
+              <Rocket className="w-4 h-4 text-violet-600" />
+              <span className="text-sm font-medium text-violet-900">Nuevas funcionalidades empresariales</span>
+            </motion.div>
+
+            <h2 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-6">
+              Gestiona <span className="bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">decenas de alojamientos</span> con un solo cambio
+            </h2>
+            <p className="text-xl text-gray-600">
+              Si gestionas múltiples propiedades, tenemos funcionalidades que te ahorrarán horas cada semana
+            </p>
+          </AnimatedSection>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Property Sets Feature */}
+            <AnimatedSection>
+              <motion.div
+                whileHover={{ scale: 1.02, y: -5 }}
+                className="bg-white rounded-3xl p-8 shadow-2xl border-2 border-violet-100 h-full"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+
+                <h3 className="text-3xl font-bold text-gray-900 mb-4">
+                  Conjuntos de Propiedades
+                </h3>
+
+                <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                  <span className="font-semibold text-gray-900">¿Tienes 10, 20 o 50 apartamentos?</span> Agrúpalos en conjuntos y <span className="bg-yellow-100 px-2 py-1 rounded">edita todos a la vez</span>.
+                </p>
+
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-start space-x-3">
+                    <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-semibold text-gray-900">Un cambio, 50 propiedades actualizadas</div>
+                      <div className="text-sm text-gray-600">Modifica zonas, avisos e instrucciones en todas tus propiedades simultáneamente</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-semibold text-gray-900">Control granular</div>
+                      <div className="text-sm text-gray-600">Elige si quieres aplicar cambios a todo el conjunto, propiedades específicas o solo una</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-semibold text-gray-900">Perfecto para edificios completos</div>
+                      <div className="text-sm text-gray-600">Ideal para hoteles, aparthoteles, complejos turísticos y edificios enteros</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl p-4 border border-violet-100">
+                  <div className="text-sm text-violet-900 font-medium mb-2">Caso de uso real:</div>
+                  <div className="text-sm text-gray-600 italic">
+                    "Cambié las instrucciones del WiFi en mis 20 apartamentos en menos de 30 segundos. Antes tardaba 2 horas."
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatedSection>
+
+            {/* Announcements Feature */}
+            <AnimatedSection>
+              <motion.div
+                whileHover={{ scale: 1.02, y: -5 }}
+                className="bg-white rounded-3xl p-8 shadow-2xl border-2 border-orange-100 h-full"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center mb-6">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                  </svg>
+                </div>
+
+                <h3 className="text-3xl font-bold text-gray-900 mb-4">
+                  Sistema de Avisos Inteligente
+                </h3>
+
+                <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                  <span className="font-semibold text-gray-900">¿Obras en el edificio? ¿Cambio de horarios?</span> Crea avisos importantes que verán todos tus huéspedes <span className="bg-yellow-100 px-2 py-1 rounded">al instante</span>.
+                </p>
+
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-start space-x-3">
+                    <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-semibold text-gray-900">Avisos urgentes para todas las propiedades</div>
+                      <div className="text-sm text-gray-600">Comunica cortes de agua, obras, cambios de normativa al instante</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-semibold text-gray-900">Fechas de vigencia</div>
+                      <div className="text-sm text-gray-600">Programa inicio y fin de cada aviso, se activan y desactivan automáticamente</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-semibold text-gray-900">Destacados con iconos y colores</div>
+                      <div className="text-sm text-gray-600">Avisos urgentes con estilo visual impactante que llaman la atención</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-100">
+                  <div className="text-sm text-orange-900 font-medium mb-2">Caso de uso real:</div>
+                  <div className="text-sm text-gray-600 italic">
+                    "Hubo un corte de agua en todo el edificio. Publiqué un aviso y TODOS los huéspedes lo vieron antes de que me llamaran. Cero quejas."
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatedSection>
+          </div>
+
+          {/* Stats for Enterprise Features */}
+          <AnimatedSection className="mt-16">
+            <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  Diseñado para property managers profesionales
+                </h3>
+                <p className="text-gray-600">
+                  Funcionalidades que los competidores cobran extra (o no tienen)
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-100">
+                  <div className="text-4xl font-bold text-green-600 mb-2">95%</div>
+                  <div className="text-sm text-gray-600">Menos tiempo gestionando</div>
+                  <div className="text-xs text-gray-500 mt-2">vs actualizar propiedad por propiedad</div>
+                </div>
+                <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border border-blue-100">
+                  <div className="text-4xl font-bold text-blue-600 mb-2">50+</div>
+                  <div className="text-sm text-gray-600">Propiedades soportadas</div>
+                  <div className="text-xs text-gray-500 mt-2">En un solo conjunto</div>
+                </div>
+                <div className="text-center p-6 bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl border border-violet-100">
+                  <div className="text-4xl font-bold text-violet-600 mb-2">30s</div>
+                  <div className="text-sm text-gray-600">Actualización masiva</div>
+                  <div className="text-xs text-gray-500 mt-2">Lo que antes tomaba horas</div>
+                </div>
+              </div>
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* "Adiós a perder el tiempo" Section */}
+      <AnimatedSection className="pt-2 pb-4 sm:py-12 bg-gradient-to-b from-white to-gray-50 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.6 }}
-              className="relative"
+              className="relative order-2 lg:order-1"
             >
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                 <video
@@ -364,7 +630,7 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.6 }}
-              className="space-y-6"
+              className="space-y-6 order-1 lg:order-2"
             >
               <div className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-full border border-blue-100">
                 <Zap className="w-4 h-4 text-blue-600" />
@@ -759,7 +1025,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-24 px-6 bg-gradient-to-b from-gray-50 to-white">
+      <section id="pricing" className="py-24 px-6 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto">
           <AnimatedSection className="text-center max-w-3xl mx-auto mb-16">
             <motion.div
@@ -1075,7 +1341,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-24 px-6 bg-white">
+      <section id="testimonials" className="py-24 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           <AnimatedSection className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-6">

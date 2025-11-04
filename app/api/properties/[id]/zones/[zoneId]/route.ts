@@ -215,25 +215,76 @@ export async function PUT(
 
     console.log('💾 Final update data:', updateData)
 
-    // Update the zone using the actual zone ID
-    const zone = await prisma.zone.update({
-      where: { id: existingZone.id },
-      data: {
-        ...updateData,
-        updatedAt: new Date()
-      },
-      include: {
-        steps: {
-          orderBy: {
-            order: 'asc'
-          }
+    // Check if we should apply to property set (NEW: optional parameters)
+    const applyToPropertySet = body.applyToPropertySet || false
+    const selectedPropertyIds = body.selectedPropertyIds || []
+
+    let updatedZones = []
+
+    if (applyToPropertySet || selectedPropertyIds.length > 0) {
+      // NEW: Multi-property update logic
+      const zoneName = existingZone.name
+
+      let propertyFilter: any = {}
+
+      if (selectedPropertyIds.length > 0) {
+        // Update only selected properties
+        propertyFilter = {
+          id: { in: selectedPropertyIds }
+        }
+      } else if (applyToPropertySet && property.propertySetId) {
+        // Update all properties in the set
+        propertyFilter = {
+          propertySetId: property.propertySetId
         }
       }
-    })
+
+      // Find all zones with the same name in the filtered properties
+      const zonesToUpdate = await prisma.zone.findMany({
+        where: {
+          name: zoneName,
+          property: propertyFilter
+        }
+      })
+
+      console.log(`💾 Updating ${zonesToUpdate.length} zones in property set/selection`)
+
+      // Update all matching zones
+      for (const zoneToUpdate of zonesToUpdate) {
+        await prisma.zone.update({
+          where: { id: zoneToUpdate.id },
+          data: {
+            ...updateData,
+            updatedAt: new Date()
+          }
+        })
+      }
+
+      updatedZones = zonesToUpdate
+    } else {
+      // DEFAULT: Update only the single zone (existing behavior)
+      const zone = await prisma.zone.update({
+        where: { id: existingZone.id },
+        data: {
+          ...updateData,
+          updatedAt: new Date()
+        },
+        include: {
+          steps: {
+            orderBy: {
+              order: 'asc'
+            }
+          }
+        }
+      })
+
+      updatedZones = [zone]
+    }
 
     return NextResponse.json({
       success: true,
-      data: zone
+      data: updatedZones[0], // Return first zone for backward compatibility
+      updatedCount: updatedZones.length
     })
 
   } catch (error) {

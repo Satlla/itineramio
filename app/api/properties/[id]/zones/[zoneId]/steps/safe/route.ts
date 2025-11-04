@@ -142,8 +142,8 @@ export async function PUT(
     const body = await request.json()
     console.log('✅ SAFE - Body keys:', Object.keys(body))
     console.log('✅ SAFE - Steps count:', body.steps?.length)
-    
-    const { steps } = body
+
+    const { steps, applyToPropertySet, selectedPropertyIds } = body
     
     if (!Array.isArray(steps)) {
       return NextResponse.json({

@@ -11,9 +11,12 @@ import {
   Sparkles,
   FileText,
   Tag,
-  Image as ImageIcon
+  Image as ImageIcon,
+  CheckCircle,
+  Rocket
 } from 'lucide-react'
 import ImageUploader from '../components/ImageUploader'
+import { RichTextEditor } from '@/components/admin/RichTextEditor'
 
 const categoryOptions = [
   { value: 'GUIAS', label: 'Guías' },
@@ -75,6 +78,10 @@ export default function NewBlogPostPage() {
         .trim()
       setFormData(prev => ({ ...prev, slug }))
     }
+  }
+
+  const handleContentChange = (html: string) => {
+    setFormData(prev => ({ ...prev, content: html }))
   }
 
   const handleGenerateWithAI = async () => {
@@ -285,46 +292,20 @@ export default function NewBlogPostPage() {
               </div>
             )}
 
-            {/* Content */}
+            {/* Content - Rich Text Editor */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contenido (HTML) *
+                Contenido del Artículo *
               </label>
-              <textarea
-                name="content"
-                value={formData.content}
-                onChange={handleChange}
-                required
-                rows={20}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent font-mono text-sm"
-                placeholder="<h2>Introducción</h2>
-<p>Tu contenido aquí...</p>"
+              <RichTextEditor
+                content={formData.content}
+                onChange={handleContentChange}
+                placeholder="Comienza a escribir tu artículo aquí... Usa el toolbar para dar formato."
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Puedes usar HTML. Usa &lt;h2&gt; para títulos, &lt;p&gt; para párrafos, &lt;ul&gt; y &lt;ol&gt; para listas.
+              <p className="text-xs text-gray-500 mt-2">
+                💡 Usa los botones del toolbar para dar formato. Puedes insertar CTAs de newsletter y cajas destacadas con un solo click.
               </p>
             </div>
-
-            {/* Preview Button */}
-            <button
-              type="button"
-              onClick={() => setShowPreview(!showPreview)}
-              className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              <Eye className="w-4 h-4 mr-2" />
-              {showPreview ? 'Ocultar' : 'Ver'} Preview
-            </button>
-
-            {/* Preview */}
-            {showPreview && formData.content && (
-              <div className="border-2 border-gray-200 rounded-lg p-6 bg-gray-50">
-                <p className="text-sm font-medium text-gray-700 mb-4">Preview del contenido:</p>
-                <div
-                  className="prose prose-violet max-w-none"
-                  dangerouslySetInnerHTML={{ __html: formData.content }}
-                />
-              </div>
-            )}
           </div>
         </div>
 

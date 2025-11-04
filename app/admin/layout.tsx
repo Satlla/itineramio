@@ -25,7 +25,8 @@ import {
   ChevronDown,
   ChevronRight,
   Megaphone,
-  UsersRound
+  UsersRound,
+  GraduationCap
 } from 'lucide-react'
 
 // Admin navigation (top section)
@@ -51,6 +52,12 @@ const marketingNavigation = [
   { name: 'Suscriptores', href: '/admin/marketing/leads', icon: UsersRound },
 ]
 
+// Academy navigation
+const academyNavigation = [
+  { name: 'Usuarios', href: '/admin/academia/users', icon: Users },
+  { name: 'Quiz Leads', href: '/admin/academia/quiz-leads', icon: Mail },
+]
+
 export default function AdminLayout({
   children
 }: {
@@ -63,6 +70,7 @@ export default function AdminLayout({
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [marketingOpen, setMarketingOpen] = useState(true)
+  const [academyOpen, setAcademyOpen] = useState(true)
   const [pendingRequests, setPendingRequests] = useState(0)
   const [previousPendingCount, setPreviousPendingCount] = useState(-1) // -1 = not initialized
   const [audioEnabled, setAudioEnabled] = useState(false)
@@ -145,9 +153,13 @@ export default function AdminLayout({
       if (response.ok) {
         const data = await response.json()
         setPendingRequests(data.count)
+      } else {
+        // Silently fail - not critical
+        setPendingRequests(0)
       }
     } catch (error) {
-      console.error('Error fetching pending requests:', error)
+      // Silently fail - notification badge not critical for admin functionality
+      setPendingRequests(0)
     }
   }
 
@@ -335,6 +347,52 @@ export default function AdminLayout({
                     })}
                   </div>
                 )}
+
+                {/* Separator */}
+                <div className="my-4 border-t border-gray-300"></div>
+
+                {/* Academy Section */}
+                <button
+                  onClick={() => setAcademyOpen(!academyOpen)}
+                  className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-md mb-1 transition-colors"
+                >
+                  <div className="flex items-center">
+                    <GraduationCap className="mr-3 h-5 w-5 text-purple-600" />
+                    <span>Academia</span>
+                  </div>
+                  {academyOpen ? (
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-gray-400" />
+                  )}
+                </button>
+
+                {academyOpen && (
+                  <div className="ml-4">
+                    {academyNavigation.map((item) => {
+                      const isActive = pathname === item.href
+                      return (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          onClick={() => setSidebarOpen(false)}
+                          className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md mb-1 transition-colors ${
+                            isActive
+                              ? 'bg-purple-50 text-purple-700 border-l-4 border-purple-600'
+                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                          }`}
+                        >
+                          <item.icon
+                            className={`mr-3 h-4 w-4 flex-shrink-0 ${
+                              isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600'
+                            }`}
+                          />
+                          <span className="truncate">{item.name}</span>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             </nav>
           </div>
@@ -402,6 +460,51 @@ export default function AdminLayout({
                       <item.icon
                         className={`mr-3 h-4 w-4 ${
                           isActive ? 'text-violet-600' : 'text-gray-400 group-hover:text-gray-500'
+                        }`}
+                      />
+                      {item.name}
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Separator */}
+            <div className="my-4 border-t-2 border-gray-300"></div>
+
+            {/* Academy Section */}
+            <button
+              onClick={() => setAcademyOpen(!academyOpen)}
+              className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-md mb-1 transition-colors"
+            >
+              <div className="flex items-center">
+                <GraduationCap className="mr-3 h-5 w-5 text-purple-600" />
+                <span>Academia</span>
+              </div>
+              {academyOpen ? (
+                <ChevronDown className="h-4 w-4 text-gray-400" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-gray-400" />
+              )}
+            </button>
+
+            {academyOpen && (
+              <div className="ml-4">
+                {academyNavigation.map((item) => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md mb-1 transition-colors ${
+                        isActive
+                          ? 'bg-purple-50 text-purple-700 border-l-4 border-purple-600'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      }`}
+                    >
+                      <item.icon
+                        className={`mr-3 h-4 w-4 ${
+                          isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-500'
                         }`}
                       />
                       {item.name}

@@ -9,8 +9,15 @@ import {
   Eye,
   Trash2,
   FileText,
-  Tag
+  Tag,
+  CheckCircle,
+  Rocket,
+  AlertCircle,
+  ExternalLink,
+  X,
+  Sparkles
 } from 'lucide-react'
+import { RichTextEditor } from '@/components/admin/RichTextEditor'
 
 const categoryOptions = [
   { value: 'GUIAS', label: 'Guías' },
@@ -31,11 +38,29 @@ const statusOptions = [
   { value: 'ARCHIVED', label: 'Archivado' }
 ]
 
-export default function EditBlogPostPage({ params }: { params: { id: string } }) {
+interface Author {
+  id: string
+  name: string
+  email: string
+  avatar: string | null
+  notes: string | null
+}
+
+export default function EditBlogPostPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
+  const [postId, setPostId] = useState<string | null>(null)
+  const [authors, setAuthors] = useState<Author[]>([])
+
+  // Modal states
+  const [showPublishModal, setShowPublishModal] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [showErrorModal, setShowErrorModal] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
+  const [publishedUrl, setPublishedUrl] = useState('')
 
   const [formData, setFormData] = useState({
     title: '',
@@ -47,7 +72,9 @@ export default function EditBlogPostPage({ params }: { params: { id: string } })
     tags: '',
     featured: false,
     status: 'DRAFT',
+    authorId: '',
     authorName: 'Equipo Itineramio',
+    authorImage: '',
     coverImage: '',
     coverImageAlt: '',
     metaTitle: '',
@@ -56,12 +83,40 @@ export default function EditBlogPostPage({ params }: { params: { id: string } })
   })
 
   useEffect(() => {
-    fetchPost()
-  }, [params.id])
+    params.then(p => {
+      setPostId(p.id)
+    })
+  }, [params])
+
+  useEffect(() => {
+    fetchAuthors()
+  }, [])
+
+  useEffect(() => {
+    if (postId) {
+      fetchPost()
+    }
+  }, [postId])
+
+  const fetchAuthors = async () => {
+    try {
+      const response = await fetch('/api/admin/blog/authors', {
+        credentials: 'include'
+      })
+      if (response.ok) {
+        const { authors: authorsList } = await response.json()
+        setAuthors(authorsList)
+      }
+    } catch (error) {
+      console.error('Error fetching authors:', error)
+    }
+  }
 
   const fetchPost = async () => {
+    if (!postId) return
+
     try {
-      const response = await fetch(`/api/admin/blog/${params.id}`, {
+      const response = await fetch(`/api/admin/blog/${postId}`, {
         credentials: 'include'
       })
 
@@ -77,7 +132,9 @@ export default function EditBlogPostPage({ params }: { params: { id: string } })
           tags: post.tags.join(', '),
           featured: post.featured,
           status: post.status,
+          authorId: post.authorId || '',
           authorName: post.authorName,
+          authorImage: post.authorImage || '',
           coverImage: post.coverImage || '',
           coverImageAlt: post.coverImageAlt || '',
           metaTitle: post.metaTitle || '',
@@ -105,47 +162,102 @@ export default function EditBlogPostPage({ params }: { params: { id: string } })
     }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleAuthorChange = (e: any) => {
+    const selectedAuthorId = e.target.value
+    const selectedAuthor = authors.find(a => a.id === selectedAuthorId)
+
+    if (selectedAuthor) {
+      setFormData(prev => ({
+        ...prev,
+        authorId: selectedAuthor.id,
+        authorName: selectedAuthor.name,
+        authorImage: selectedAuthor.avatar || ''
+      }))
+    }
+  }
+
+  const handleContentChange = (html: string) => {
+    setFormData(prev => ({ ...prev, content: html }))
+  }
+
+  const handleSaveWithStatus = async (newStatus: string) => {
+    if (!postId) return
     setSaving(true)
 
     try {
       const tagsArray = formData.tags.split(',').map(t => t.trim()).filter(Boolean)
       const keywordsArray = formData.keywords.split(',').map(k => k.trim()).filter(Boolean)
 
-      const response = await fetch(`/api/admin/blog/${params.id}`, {
+      const response = await fetch(`/api/admin/blog/${postId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
           ...formData,
+          status: newStatus,
           tags: tagsArray,
           keywords: keywordsArray
         })
       })
 
       if (response.ok) {
-        alert('Artículo actualizado exitosamente!')
-        router.push('/admin/blog')
+        // Update local state
+        setFormData(prev => ({ ...prev, status: newStatus }))
+
+        if (newStatus === 'PUBLISHED') {
+          // Show success modal with published URL
+          const productionUrl = `https://itineramio.com/blog/${formData.slug}`
+          setPublishedUrl(productionUrl)
+          setSuccessMessage('¡Artículo publicado exitosamente!')
+          setShowSuccessModal(true)
+        } else {
+          const statusMessages: Record<string, string> = {
+            'DRAFT': 'Artículo guardado como borrador',
+            'REVIEW': 'Artículo marcado como listo para revisar',
+            'SCHEDULED': 'Artículo programado para publicación'
+          }
+          setSuccessMessage(statusMessages[newStatus] || 'Artículo actualizado exitosamente!')
+          setShowSuccessModal(true)
+
+          // Auto-close after 2 seconds for non-published statuses
+          setTimeout(() => {
+            setShowSuccessModal(false)
+          }, 2000)
+        }
       } else {
         const error = await response.json()
-        alert(`Error: ${error.error}`)
+        setErrorMessage(error.error || 'Error al actualizar el artículo')
+        setShowErrorModal(true)
       }
     } catch (error) {
       console.error('Error updating post:', error)
-      alert('Error al actualizar el artículo')
+      setErrorMessage('Error al actualizar el artículo')
+      setShowErrorModal(true)
     } finally {
       setSaving(false)
     }
   }
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await handleSaveWithStatus(formData.status)
+  }
+
+  const handlePublish = async () => {
+    if (!confirm('¿Estás seguro de publicar este artículo? Se hará visible para todos los usuarios.')) {
+      return
+    }
+    await handleSaveWithStatus('PUBLISHED')
+  }
+
   const handleDelete = async () => {
+    if (!postId) return
     if (!confirm('¿Estás seguro de eliminar este artículo? Esta acción no se puede deshacer.')) {
       return
     }
 
     try {
-      const response = await fetch(`/api/admin/blog/${params.id}`, {
+      const response = await fetch(`/api/admin/blog/${postId}`, {
         method: 'DELETE',
         credentials: 'include'
       })
@@ -273,41 +385,20 @@ export default function EditBlogPostPage({ params }: { params: { id: string } })
               />
             </div>
 
-            {/* Content */}
+            {/* Content - Rich Text Editor */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contenido (HTML) *
+                Contenido del Artículo *
               </label>
-              <textarea
-                name="content"
-                value={formData.content}
-                onChange={handleChange}
-                required
-                rows={20}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent font-mono text-sm"
+              <RichTextEditor
+                content={formData.content}
+                onChange={handleContentChange}
+                placeholder="Comienza a escribir tu artículo aquí... Usa el toolbar para dar formato."
               />
+              <p className="text-xs text-gray-500 mt-2">
+                💡 Usa los botones del toolbar para dar formato. Puedes insertar CTAs de newsletter y cajas destacadas con un solo click.
+              </p>
             </div>
-
-            {/* Preview Button */}
-            <button
-              type="button"
-              onClick={() => setShowPreview(!showPreview)}
-              className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              <Eye className="w-4 h-4 mr-2" />
-              {showPreview ? 'Ocultar' : 'Ver'} Preview
-            </button>
-
-            {/* Preview */}
-            {showPreview && formData.content && (
-              <div className="border-2 border-gray-200 rounded-lg p-6 bg-gray-50">
-                <p className="text-sm font-medium text-gray-700 mb-4">Preview del contenido:</p>
-                <div
-                  className="prose prose-violet max-w-none"
-                  dangerouslySetInnerHTML={{ __html: formData.content }}
-                />
-              </div>
-            )}
           </div>
         </div>
 
@@ -372,15 +463,46 @@ export default function EditBlogPostPage({ params }: { params: { id: string } })
             {/* Author */}
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Autor
+                Autor del artículo
               </label>
-              <input
-                type="text"
-                name="authorName"
-                value={formData.authorName}
-                onChange={handleChange}
+              <select
+                name="authorId"
+                value={formData.authorId}
+                onChange={handleAuthorChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-              />
+              >
+                <option value="">Seleccionar autor...</option>
+                {authors.map(author => (
+                  <option key={author.id} value={author.id}>
+                    {author.name} ({author.email})
+                  </option>
+                ))}
+              </select>
+              {formData.authorId && (
+                <div className="mt-3 flex items-center gap-3 p-3 bg-violet-50 rounded-lg border border-violet-100">
+                  {formData.authorImage && (
+                    <img
+                      src={formData.authorImage}
+                      alt={formData.authorName}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-violet-200"
+                    />
+                  )}
+                  <div>
+                    <p className="font-medium text-gray-900">{formData.authorName}</p>
+                    {(() => {
+                      const author = authors.find(a => a.id === formData.authorId)
+                      if (author?.notes) {
+                        const firstLine = author.notes.split('\n')[0]
+                        return <p className="text-xs text-gray-600 mt-0.5">{firstLine}</p>
+                      }
+                      return null
+                    })()}
+                  </div>
+                </div>
+              )}
+              <p className="text-xs text-gray-500 mt-1.5">
+                Selecciona el miembro del equipo que escribe este artículo. La foto y datos se completarán automáticamente.
+              </p>
             </div>
 
             {/* Featured */}
@@ -453,16 +575,23 @@ export default function EditBlogPostPage({ params }: { params: { id: string } })
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-6">
-          <Link
-            href="/admin/blog"
-            className="text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            Cancelar
-          </Link>
+        {/* Status Indicator */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <AlertCircle className="w-5 h-5 text-gray-400" />
+              <div>
+                <p className="text-sm font-medium text-gray-700">Estado actual del artículo:</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {formData.status === 'DRAFT' && '📝 Borrador'}
+                  {formData.status === 'REVIEW' && '👀 Listo para Revisar'}
+                  {formData.status === 'PUBLISHED' && '✅ Publicado'}
+                  {formData.status === 'SCHEDULED' && '📅 Programado'}
+                  {formData.status === 'ARCHIVED' && '📦 Archivado'}
+                </p>
+              </div>
+            </div>
 
-          <div className="flex items-center space-x-3">
             {formData.status === 'PUBLISHED' && (
               <a
                 href={`/blog/${formData.slug}`}
@@ -474,15 +603,62 @@ export default function EditBlogPostPage({ params }: { params: { id: string } })
                 Ver Publicado
               </a>
             )}
+          </div>
+        </div>
 
-            <button
-              type="submit"
-              disabled={saving}
-              className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
+        {/* Actions */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <Link
+              href="/admin/blog"
+              className="text-gray-600 hover:text-gray-900 transition-colors text-center sm:text-left"
             >
-              <Save className="w-4 h-4 mr-2" />
-              {saving ? 'Guardando...' : 'Guardar Cambios'}
-            </button>
+              ← Volver sin guardar
+            </Link>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              {/* Save as Draft */}
+              <button
+                type="button"
+                onClick={() => handleSaveWithStatus('DRAFT')}
+                disabled={saving}
+                className="inline-flex items-center justify-center px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium disabled:opacity-50"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {saving ? 'Guardando...' : 'Guardar Borrador'}
+              </button>
+
+              {/* Ready for Review */}
+              <button
+                type="button"
+                onClick={() => handleSaveWithStatus('REVIEW')}
+                disabled={saving}
+                className="inline-flex items-center justify-center px-4 py-2.5 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors font-medium disabled:opacity-50"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                {saving ? 'Guardando...' : 'Listo para Revisar'}
+              </button>
+
+              {/* Publish to Production */}
+              <button
+                type="button"
+                onClick={handlePublish}
+                disabled={saving}
+                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all font-bold disabled:opacity-50 shadow-lg"
+              >
+                <Rocket className="w-4 h-4 mr-2" />
+                {saving ? 'Publicando...' : '🚀 Publicar a Producción'}
+              </button>
+            </div>
+          </div>
+
+          {/* Help text */}
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <p className="text-xs text-gray-500">
+              💡 <strong>Guardar Borrador:</strong> Guarda tus cambios pero el artículo sigue siendo privado.
+              <strong className="ml-2">Listo para Revisar:</strong> Marca el artículo como completo para revisión final.
+              <strong className="ml-2">Publicar:</strong> El artículo se hará público inmediatamente.
+            </p>
           </div>
         </div>
       </form>

@@ -24,6 +24,7 @@ import {
 import { Button } from '../../../../../src/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '../../../../../src/components/ui/Card'
 import { Input } from '../../../../../src/components/ui/Input'
+import { PropertySetUpdateModal } from '../../../../../src/components/ui/PropertySetUpdateModal'
 import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
 import { useNotifications } from '../../../../../src/hooks/useNotifications'
@@ -116,6 +117,14 @@ export default function PropertyAnnouncementsPage() {
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null)
   const [propertyName, setPropertyName] = useState('')
 
+  // Property set states
+  const [propertySetId, setPropertySetId] = useState<string | null>(null)
+  const [propertySetProperties, setPropertySetProperties] = useState<Array<{ id: string; name: string }>>([])
+  const [showPropertySetModal, setShowPropertySetModal] = useState(false)
+  const [pendingOperation, setPendingOperation] = useState<'create' | 'update' | 'delete' | null>(null)
+  const [pendingAnnouncementData, setPendingAnnouncementData] = useState<any>(null)
+  const [announcementToDelete, setAnnouncementToDelete] = useState<string | null>(null)
+
   // Form state
   const [formData, setFormData] = useState({
     title: '',
@@ -148,7 +157,36 @@ export default function PropertyAnnouncementsPage() {
       const response = await fetch(`/api/properties/${propertyId}`)
       if (response.ok) {
         const data = await response.json()
-        setPropertyName(data.name || 'Propiedad')
+        setPropertyName(data.data.name || 'Propiedad')
+        setPropertySetId(data.data.propertySetId || null)
+
+        // Fetch property set properties if this property belongs to a set
+        if (data.data.propertySetId) {
+          try {
+            console.log('🔗 Property belongs to set:', data.data.propertySetId)
+            const setResponse = await fetch(`/api/property-sets/${data.data.propertySetId}`)
+            if (setResponse.ok) {
+              const setData = await setResponse.json()
+              if (setData.success && setData.data && setData.data.properties) {
+                console.log('🔗 Property set has', setData.data.properties.length, 'properties:', setData.data.properties.map((p: any) => p.name))
+                setPropertySetProperties(
+                  setData.data.properties.map((p: any) => ({
+                    id: p.id,
+                    name: p.name
+                  }))
+                )
+              } else {
+                console.log('⚠️ Property set data not found in response')
+              }
+            } else {
+              console.log('⚠️ Failed to fetch property set data, status:', setResponse.status)
+            }
+          } catch (error) {
+            console.error('Error fetching property set:', error)
+          }
+        } else {
+          console.log('🏠 Property is NOT in a set (standalone property)')
+        }
       }
     } catch (error) {
       console.error('Error loading property:', error)
@@ -184,34 +222,21 @@ export default function PropertyAnnouncementsPage() {
       return
     }
 
-    try {
-      setSaving(true)
-      const response = await fetch('/api/announcements', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          propertyId,
-          ...formData,
-          startDate: formData.startDate || null,
-          endDate: formData.endDate || null
-        })
-      })
+    console.log('📢 CREATE ANNOUNCEMENT - Starting')
+    console.log('📢 propertySetId:', propertySetId)
+    console.log('📢 propertySetProperties.length:', propertySetProperties.length)
 
-      if (response.ok) {
-        addNotification({ title: 'Éxito', message: 'Anuncio creado correctamente', type: 'success', read: false })
-        setShowCreateForm(false)
-        resetForm()
-        loadAnnouncements()
-      } else {
-        const data = await response.json()
-        addNotification({ title: 'Error', message: data.error || 'Error al crear aviso', type: 'error', read: false })
-      }
-    } catch (error) {
-      console.error('Error creating announcement:', error)
-      addNotification({ title: 'Error', message: 'Error al crear aviso', type: 'error', read: false })
-    } finally {
-      setSaving(false)
+    // If property is in a set with multiple properties, show PropertySetUpdateModal
+    if (propertySetId && propertySetProperties.length > 1) {
+      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for CREATE')
+      setPendingOperation('create')
+      setPendingAnnouncementData(formData)
+      setShowPropertySetModal(true)
+      return
     }
+
+    console.log('⚠️ NOT showing modal. Creating directly.')
+    await performCreateAnnouncement('single')
   }
 
   const handleUpdateAnnouncement = async () => {
@@ -220,33 +245,21 @@ export default function PropertyAnnouncementsPage() {
       return
     }
 
-    try {
-      setSaving(true)
-      const response = await fetch(`/api/announcements/${editingAnnouncement.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          startDate: formData.startDate || null,
-          endDate: formData.endDate || null
-        })
-      })
+    console.log('📢 UPDATE ANNOUNCEMENT - Starting')
+    console.log('📢 propertySetId:', propertySetId)
+    console.log('📢 propertySetProperties.length:', propertySetProperties.length)
 
-      if (response.ok) {
-        addNotification({ title: 'Éxito', message: 'Anuncio actualizado correctamente', type: 'success', read: false })
-        setEditingAnnouncement(null)
-        resetForm()
-        loadAnnouncements()
-      } else {
-        const data = await response.json()
-        addNotification({ title: 'Error', message: data.error || 'Error al actualizar anuncio', type: 'error', read: false })
-      }
-    } catch (error) {
-      console.error('Error updating announcement:', error)
-      addNotification({ title: 'Error', message: 'Error al actualizar anuncio', type: 'error', read: false })
-    } finally {
-      setSaving(false)
+    // If property is in a set with multiple properties, show PropertySetUpdateModal
+    if (propertySetId && propertySetProperties.length > 1) {
+      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for UPDATE')
+      setPendingOperation('update')
+      setPendingAnnouncementData({ ...formData, announcementId: editingAnnouncement.id })
+      setShowPropertySetModal(true)
+      return
     }
+
+    console.log('⚠️ NOT showing modal. Updating directly.')
+    await performUpdateAnnouncement('single')
   }
 
   const handleDeleteAnnouncement = async (id: string) => {
@@ -254,22 +267,21 @@ export default function PropertyAnnouncementsPage() {
       return
     }
 
-    try {
-      const response = await fetch(`/api/announcements/${id}`, {
-        method: 'DELETE'
-      })
+    console.log('📢 DELETE ANNOUNCEMENT - Starting')
+    console.log('📢 propertySetId:', propertySetId)
+    console.log('📢 propertySetProperties.length:', propertySetProperties.length)
 
-      if (response.ok) {
-        addNotification({ title: 'Éxito', message: 'Anuncio eliminado correctamente', type: 'success', read: false })
-        loadAnnouncements()
-      } else {
-        const data = await response.json()
-        addNotification({ title: 'Error', message: data.error || 'Error al eliminar anuncio', type: 'error', read: false })
-      }
-    } catch (error) {
-      console.error('Error deleting announcement:', error)
-      addNotification({ title: 'Error', message: 'Error al eliminar anuncio', type: 'error', read: false })
+    // If property is in a set with multiple properties, show PropertySetUpdateModal
+    if (propertySetId && propertySetProperties.length > 1) {
+      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for DELETE')
+      setPendingOperation('delete')
+      setAnnouncementToDelete(id)
+      setShowPropertySetModal(true)
+      return
     }
+
+    console.log('⚠️ NOT showing modal. Deleting directly.')
+    await performDeleteAnnouncement('single', [id])
   }
 
   const handleToggleActive = async (announcement: Announcement) => {
@@ -298,6 +310,188 @@ export default function PropertyAnnouncementsPage() {
       console.error('Error toggling announcement:', error)
       addNotification({ title: 'Error', message: 'Error al actualizar anuncio', type: 'error', read: false })
     }
+  }
+
+  // Multi-property CREATE function
+  const performCreateAnnouncement = async (
+    scope: 'single' | 'all' | 'selected',
+    selectedPropertyIds?: string[]
+  ) => {
+    try {
+      setSaving(true)
+      const propertiesToCreate = scope === 'single'
+        ? [propertyId]
+        : scope === 'all'
+          ? propertySetProperties.map(p => p.id)
+          : selectedPropertyIds || []
+
+      let successCount = 0
+      for (const propId of propertiesToCreate) {
+        const response = await fetch('/api/announcements', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            propertyId: propId,
+            ...formData,
+            startDate: formData.startDate || null,
+            endDate: formData.endDate || null
+          })
+        })
+        if (response.ok) successCount++
+      }
+
+      if (successCount > 0) {
+        const message = successCount > 1
+          ? (scope === 'all'
+              ? 'Se ha creado el aviso para todo el conjunto'
+              : `Se ha creado el aviso en ${successCount} propiedades`)
+          : 'Aviso creado correctamente'
+
+        addNotification({ title: 'Éxito', message, type: 'success', read: false })
+        setShowCreateForm(false)
+        resetForm()
+        loadAnnouncements()
+      }
+    } catch (error) {
+      addNotification({ title: 'Error', message: 'Error al crear aviso', type: 'error', read: false })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // Multi-property UPDATE function
+  const performUpdateAnnouncement = async (
+    scope: 'single' | 'all' | 'selected',
+    selectedPropertyIds?: string[]
+  ) => {
+    if (!editingAnnouncement) return
+
+    try {
+      setSaving(true)
+      const propertiesToUpdate = scope === 'single'
+        ? [propertyId]
+        : scope === 'all'
+          ? propertySetProperties.map(p => p.id)
+          : selectedPropertyIds || []
+
+      let successCount = 0
+      // For each property, find matching announcement by title and update it
+      for (const propId of propertiesToUpdate) {
+        // Get announcements for this property
+        const announcementsResponse = await fetch(`/api/announcements?propertyId=${propId}`)
+        if (!announcementsResponse.ok) continue
+
+        const announcementsData = await announcementsResponse.json()
+        const matchingAnnouncement = announcementsData.data?.find((a: Announcement) =>
+          a.title === editingAnnouncement.title
+        )
+
+        if (matchingAnnouncement) {
+          const response = await fetch(`/api/announcements/${matchingAnnouncement.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...formData,
+              startDate: formData.startDate || null,
+              endDate: formData.endDate || null
+            })
+          })
+          if (response.ok) successCount++
+        }
+      }
+
+      if (successCount > 0) {
+        const message = successCount > 1
+          ? (scope === 'all'
+              ? `Se ha actualizado "${formData.title}" en todo el conjunto`
+              : `Se ha actualizado "${formData.title}" en ${successCount} propiedades`)
+          : 'Aviso actualizado correctamente'
+
+        addNotification({ title: 'Éxito', message, type: 'success', read: false })
+        setEditingAnnouncement(null)
+        resetForm()
+        loadAnnouncements()
+      }
+    } catch (error) {
+      addNotification({ title: 'Error', message: 'Error al actualizar aviso', type: 'error', read: false })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // Multi-property DELETE function
+  const performDeleteAnnouncement = async (
+    scope: 'single' | 'all' | 'selected',
+    announcementIds: string[],
+    selectedPropertyIds?: string[]
+  ) => {
+    if (announcementIds.length === 0) return
+
+    try {
+      const propertiesToDelete = scope === 'single'
+        ? [propertyId]
+        : scope === 'all'
+          ? propertySetProperties.map(p => p.id)
+          : selectedPropertyIds || []
+
+      // Get the announcement title for the message
+      let announcementTitle = ''
+      const firstAnnouncement = announcements.find(a => a.id === announcementIds[0])
+      if (firstAnnouncement) announcementTitle = firstAnnouncement.title
+
+      let successCount = 0
+      // For each property, find and delete matching announcements
+      for (const propId of propertiesToDelete) {
+        const announcementsResponse = await fetch(`/api/announcements?propertyId=${propId}`)
+        if (!announcementsResponse.ok) continue
+
+        const announcementsData = await announcementsResponse.json()
+        const matchingAnnouncement = announcementsData.data?.find((a: Announcement) =>
+          a.title === announcementTitle
+        )
+
+        if (matchingAnnouncement) {
+          const response = await fetch(`/api/announcements/${matchingAnnouncement.id}`, {
+            method: 'DELETE'
+          })
+          if (response.ok) successCount++
+        }
+      }
+
+      if (successCount > 0) {
+        const message = successCount > 1
+          ? (scope === 'all'
+              ? `Se ha eliminado "${announcementTitle}" de todo el conjunto`
+              : `Se ha eliminado "${announcementTitle}" de ${successCount} propiedades`)
+          : 'Aviso eliminado correctamente'
+
+        addNotification({ title: 'Éxito', message, type: 'success', read: false })
+        loadAnnouncements()
+      }
+    } catch (error) {
+      addNotification({ title: 'Error', message: 'Error al eliminar aviso', type: 'error', read: false })
+    }
+  }
+
+  // Modal handler
+  const handlePropertySetConfirm = async (
+    scope: 'single' | 'all' | 'selected',
+    selectedPropertyIds?: string[]
+  ) => {
+    setShowPropertySetModal(false)
+
+    if (pendingOperation === 'create') {
+      await performCreateAnnouncement(scope, selectedPropertyIds)
+    } else if (pendingOperation === 'update') {
+      await performUpdateAnnouncement(scope, selectedPropertyIds)
+    } else if (pendingOperation === 'delete' && announcementToDelete) {
+      await performDeleteAnnouncement(scope, [announcementToDelete], selectedPropertyIds)
+    }
+
+    // Clear pending states
+    setPendingOperation(null)
+    setPendingAnnouncementData(null)
+    setAnnouncementToDelete(null)
   }
 
   const startEdit = (announcement: Announcement) => {
@@ -704,6 +898,16 @@ export default function PropertyAnnouncementsPage() {
           </div>
         )}
       </div>
+
+      {/* Property Set Update Modal */}
+      <PropertySetUpdateModal
+        isOpen={showPropertySetModal}
+        onClose={() => setShowPropertySetModal(false)}
+        onConfirm={handlePropertySetConfirm}
+        currentPropertyId={propertyId}
+        currentPropertyName={propertyName}
+        propertySetProperties={propertySetProperties}
+      />
     </div>
   )
 }

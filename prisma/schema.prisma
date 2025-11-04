@@ -76,6 +76,15 @@ model User {
   // Customer Journey relations
   journeyStages           CustomerJourneyStage[]
   emailEvents             EmailEvent[]
+  // Academia relations
+  username                String?                @unique // Nombre de usuario único para la academia
+  academyEnrolledAt       DateTime?              // Cuando se inscribió a la academia
+  academyProgress         AcademyProgress[]      // Progreso en lecciones
+  quizAttempts            QuizAttempt[]          // Intentos de exámenes
+  achievements            UserAchievement[]      // Logros conseguidos
+  academyPoints           Int                    @default(0) // Puntos totales en la academia
+  academyStreak           Int                    @default(0) // Días consecutivos activo
+  lastAcademyActivityAt   DateTime?              // Última actividad en la academia
 
   @@map("users")
 }
@@ -999,265 +1008,6 @@ model SubscriptionRequest {
 }
 
 // ===================================
-// CENTRO DE CONOCIMIENTO (KNOWLEDGE CENTER)
-// ===================================
-
-model KnowledgeArticle {
-  id                String   @id @default(cuid())
-  slug              String   @unique
-
-  // Contenido
-  title             String
-  subtitle          String?
-  coverImage        String?
-  coverImageAlt     String?
-  content           Json     // Formato tipo Notion (blocks)
-  excerpt           String   @db.Text
-
-  // Categorización
-  category          ArticleCategory
-  tags              String[]
-  difficulty        DifficultyLevel @default(BEGINNER)
-
-  // SEO
-  metaTitle         String?
-  metaDescription   String?
-  keywords          String[]
-
-  // Analytics
-  views             Int      @default(0)
-  uniqueViews       Int      @default(0)
-  avgReadTime       Int      @default(0) // segundos
-  completionRate    Float    @default(0) // % que leyó completo
-  helpfulVotes      Int      @default(0)
-  notHelpfulVotes   Int      @default(0)
-
-  // AI metadata
-  aiGenerated       Boolean  @default(false)
-  aiPrompt          String?  @db.Text
-  sourceQuestions   String[] // IDs de preguntas que inspiraron este artículo
-
-  // Plantillas asociadas
-  hasTemplate       Boolean  @default(false)
-  templates         Template[]
-
-  // Estado
-  status            ArticleStatus @default(DRAFT)
-  publishedAt       DateTime?
-  scheduledFor      DateTime?
-
-  // Relaciones
-  authorId          String
-  relatedArticles   String[] // IDs de artículos relacionados
-
-  // Versioning (para preview)
-  version           Int      @default(1)
-  previousVersions  Json?    // Array de versiones anteriores
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  // Relaciones
-  readSessions      ArticleReadSession[]
-
-  @@index([category, status])
-  @@index([publishedAt])
-  @@index([slug])
-  @@map("knowledge_articles")
-}
-
-model Template {
-  id              String   @id @default(cuid())
-  name            String
-  description     String   @db.Text
-  coverImage      String?
-
-  // Archivos
-  files           Json     // [{ name, url, format, size }]
-
-  // Tipo y precio
-  type            TemplateType
-  price           Float    @default(0) // 0 = gratis
-  isPremium       Boolean  @default(false)
-
-  // Categoría
-  category        ArticleCategory
-  tags            String[]
-
-  // Analytics
-  downloads       Int      @default(0)
-  purchases       Int      @default(0)
-  revenue         Float    @default(0)
-
-  // Relaciones
-  articleId       String?
-  article         KnowledgeArticle? @relation(fields: [articleId], references: [id])
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@index([isPremium])
-  @@index([category])
-  @@map("templates")
-}
-
-model UserQuestion {
-  id              String   @id @default(cuid())
-
-  // Usuario (opcional, puede ser anónimo)
-  userId          String?
-  anonymousId     String?  // UUID para anónimos
-
-  // Pregunta
-  question        String   @db.Text
-  questionVector  Json?    // Vector embedding para semantic search
-
-  // Respuesta del AI
-  aiResponse      String   @db.Text
-  aiModel         String   @default("gpt-4")
-  responseTime    Int      // milisegundos
-
-  // Contexto
-  category        ArticleCategory?
-  relatedArticles String[] // IDs sugeridos por AI
-
-  // Feedback
-  wasHelpful      Boolean?
-  feedbackText    String?
-
-  // Analytics
-  generatedArticle Boolean @default(false) // ¿Se creó artículo basado en esto?
-  articleId        String?
-
-  // Metadata
-  userAgent       String?
-  ipAddress       String?
-  language        String   @default("es")
-
-  createdAt       DateTime @default(now())
-
-  @@index([userId])
-  @@index([category])
-  @@index([createdAt])
-  @@index([wasHelpful])
-  @@map("user_questions")
-}
-
-model ArticleReadSession {
-  id              String   @id @default(cuid())
-  articleId       String
-
-  // Usuario
-  userId          String?
-  anonymousId     String?
-
-  // Métricas de lectura
-  startedAt       DateTime @default(now())
-  finishedAt      DateTime?
-  timeSpent       Int      @default(0) // segundos
-  scrollDepth     Float    @default(0) // % del artículo leído
-  didComplete     Boolean  @default(false) // leyó hasta el final
-
-  // Interacciones
-  clickedTemplate Boolean  @default(false)
-  clickedCTA      Boolean  @default(false)
-  sharedArticle   Boolean  @default(false)
-
-  // Conversión
-  signedUpAfter   Boolean  @default(false)
-
-  createdAt       DateTime @default(now())
-
-  // Relaciones
-  article         KnowledgeArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
-
-  @@index([articleId])
-  @@index([userId])
-  @@map("article_read_sessions")
-}
-
-model FrequentQuestion {
-  id              String   @id @default(cuid())
-  question        String   @db.Text
-  answer          String   @db.Text
-  category        ArticleCategory
-
-  // Analytics
-  timesAsked      Int      @default(1)
-  timesHelpful    Int      @default(0)
-
-  // Relaciones
-  relatedArticle  String?  // ID del artículo
-
-  // Auto-generated
-  isAiGenerated   Boolean  @default(false)
-  needsReview     Boolean  @default(true)
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@index([category])
-  @@index([timesAsked])
-  @@map("frequent_questions")
-}
-
-model NewsletterSubscriber {
-  id              String   @id @default(cuid())
-  email           String   @unique
-  name            String?
-
-  // Estado
-  isActive        Boolean  @default(true)
-  verifiedAt      DateTime?
-  unsubscribedAt  DateTime?
-
-  // Preferencias
-  frequency       String   @default("WEEKLY") // WEEKLY, MONTHLY
-  categories      String[] // Categorías de interés
-
-  // Metadata
-  source          String?  // De dónde se suscribió
-  ipAddress       String?
-  userAgent       String?
-
-  // Para segmentación
-  propertyCount   Int?
-  city            String?
-  tags            String[] // Para segmentación avanzada
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // Relaciones
-  downloads       LeadMagnetDownload[]
-
-  @@index([email])
-  @@index([isActive])
-  @@map("newsletter_subscribers")
-}
-
-model LeadMagnetDownload {
-  id              String   @id @default(cuid())
-
-  // Subscriber
-  subscriberEmail String
-  subscriber      NewsletterSubscriber @relation(fields: [subscriberEmail], references: [email], onDelete: Cascade)
-
-  // Qué descargó
-  resourceType    String   // "calculator", "template", "guide"
-  resourceName    String   // "calculadora-rentabilidad", "manual-bienvenida-basico"
-
-  // Data capturada en el momento (para analytics)
-  metadata        Json?    // { city: "Madrid", propertyType: "apartment", currentPrice: 85 }
-
-  createdAt       DateTime @default(now())
-
-  @@index([subscriberEmail])
-  @@index([resourceType])
-  @@map("lead_magnet_downloads")
-}
-
-// ===================================
 // BLOG SYSTEM
 // ===================================
 
@@ -1291,6 +1041,7 @@ model BlogPost {
   // Autoría
   authorId          String
   authorName        String        // Cached author name
+  authorImage       String?       // Author profile image URL
 
   // Analytics
   views             Int           @default(0)
@@ -1334,44 +1085,6 @@ enum BlogStatus {
   SCHEDULED             // Programado
   PUBLISHED             // Publicado
   ARCHIVED              // Archivado
-}
-
-enum ArticleCategory {
-  CHECKIN_CHECKOUT
-  WIFI_TECH
-  LEGAL_VUT
-  GUEST_COMMUNICATION
-  REVIEWS_RATINGS
-  EMERGENCIES
-  AMENITIES
-  MAINTENANCE
-  MARKETING
-  OPERATIONS
-  OTROS
-}
-
-enum DifficultyLevel {
-  BEGINNER      // 🟢 Principiante
-  INTERMEDIATE  // 🟡 Intermedio
-  ADVANCED      // 🔴 Avanzado
-}
-
-enum ArticleStatus {
-  DRAFT         // Borrador
-  PREVIEW       // En preview/testing
-  SCHEDULED     // Programado para publicar
-  PUBLISHED     // Publicado
-  ARCHIVED      // Archivado
-}
-
-enum TemplateType {
-  WORD_DOC      // .docx
-  PDF           // .pdf
-  NOTION        // Link a template de Notion
-  SPREADSHEET   // .xlsx
-  FIGMA         // Link a Figma
-  CANVA         // Link a Canva
-  BUNDLE        // Pack de múltiples archivos
 }
 
 // Lead Capture from Hub Tools
@@ -1521,4 +1234,744 @@ enum EmailTrigger {
   ON_INACTIVITY         // After X days inactive
   ON_CANCELLATION       // When subscription cancelled
   MANUAL                // Sent manually by admin
+}
+
+// ============================================
+// ACADEMIA MODELS
+// ============================================
+
+// Curso principal (Academia Itineramio)
+model Course {
+  id              String    @id @default(cuid())
+  title           String
+  slug            String    @unique
+  description     String    @db.Text
+  coverImage      String?
+  difficulty      String    @default("INTERMEDIATE") // BEGINNER, INTERMEDIATE, ADVANCED
+  duration        Int       // Duración estimada en horas
+  passingScore    Int       @default(80) // Nota mínima para aprobar (%)
+  published       Boolean   @default(false)
+  enrollmentCount Int       @default(0) // Contador de inscritos
+
+  // Sistema de pago (inactivo por defecto)
+  isPaid          Boolean   @default(false)
+  price           Decimal   @default(0)
+  paymentMethods  String[]  @default([]) // ["stripe", "bizum", "transfer"]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  modules         Module[]
+  diplomas        AcademyUserDiploma[]
+  reviews         AcademyReview[]
+  payments        AcademyPayment[]
+
+  @@map("academy_courses")
+}
+
+// Módulos del curso (temáticas principales)
+model Module {
+  id              String    @id @default(cuid())
+  courseId        String
+  title           String
+  slug            String
+  description     String    @db.Text
+  icon            String?   // Nombre del icono de lucide-react
+  order           Int       // Orden de aparición
+  unlockDate      DateTime? // Fecha de desbloqueo (null = desbloqueado desde inicio)
+  estimatedTime   Int       // Tiempo estimado en minutos
+  published       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  course          Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons         Lesson[]
+  quiz            Quiz?
+
+  @@unique([courseId, slug])
+  @@map("academy_modules")
+}
+
+// Lecciones (presentaciones interactivas con slides)
+model Lesson {
+  id              String    @id @default(cuid())
+  moduleId        String
+  title           String
+  slug            String
+  description     String?   @db.Text // Descripción corta
+  slides          Json      // Array de slides: [{type, title, content, image, notes}]
+  coverImage      String?   // Imagen de portada
+  videoUrl        String?   // URL de video intro (opcional)
+  duration        Int       // Duración estimada en minutos
+  order           Int       // Orden dentro del módulo
+  points          Int       @default(10) // Puntos por completar
+  published       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  module          Module                  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress        AcademyProgress[]
+  academyProgress AcademyUserProgress[]
+
+  @@unique([moduleId, slug])
+  @@map("academy_lessons")
+}
+
+// Quizzes (exámenes al final de cada módulo)
+model Quiz {
+  id              String    @id @default(cuid())
+  moduleId        String    @unique
+  title           String
+  description     String?   @db.Text
+  passingScore    Int       @default(80) // % mínimo para aprobar
+  timeLimit       Int?      // Tiempo límite en minutos (null = sin límite)
+  maxAttempts     Int?      // Intentos máximos (null = ilimitados)
+  points          Int       @default(50) // Puntos por aprobar
+  published       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  module          Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  questions       Question[]
+  attempts        QuizAttempt[]
+  academyAttempts AcademyUserQuizAttempt[]
+
+  @@map("academy_quizzes")
+}
+
+// Preguntas del quiz
+model Question {
+  id              String    @id @default(cuid())
+  quizId          String
+  question        String    @db.Text
+  type            String    @default("MULTIPLE_CHOICE") // MULTIPLE_CHOICE, TRUE_FALSE
+  options         Json      // Array de opciones ["opción 1", "opción 2", ...]
+  correctAnswer   Int       // Índice de la respuesta correcta (0-based)
+  explanation     String?   @db.Text // Explicación de por qué es correcta
+  order           Int       // Orden de la pregunta
+  points          Int       @default(1)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  quiz            Quiz      @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers         QuizAnswer[]
+  academyAnswers  AcademyUserQuizAnswer[]
+
+  @@map("academy_questions")
+}
+
+// Intentos de quiz por usuario
+model QuizAttempt {
+  id              String    @id @default(cuid())
+  userId          String
+  quizId          String
+  score           Float     // Puntuación obtenida (%)
+  passed          Boolean   // Si aprobó o no
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  timeSpent       Int?      // Tiempo usado en segundos
+
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz            Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers         QuizAnswer[]
+
+  @@map("academy_quiz_attempts")
+}
+
+// Respuestas individuales de usuario
+model QuizAnswer {
+  id              String    @id @default(cuid())
+  attemptId       String
+  questionId      String
+  selectedAnswer  Int       // Índice de la respuesta seleccionada
+  isCorrect       Boolean
+  answeredAt      DateTime  @default(now())
+
+  attempt         QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question        Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@map("academy_quiz_answers")
+}
+
+// Quiz Leads - Captura de todos los resultados del quiz (registrados y no registrados)
+model QuizLead {
+  id              String    @id @default(cuid())
+  email           String
+  fullName        String?   // Nombre completo del usuario
+  score           Int       // Puntuación obtenida (0-100)
+  level           String    // Nivel: BASIC, INTERMEDIATE, ADVANCED
+  answers         Json      // Array de respuestas con detalles
+  completedAt     DateTime  @default(now())
+  timeElapsed     Int       // Tiempo en segundos
+  converted       Boolean   @default(false) // Si se registró después del quiz
+  academyUserId   String?   // Link a AcademyUser si se registra
+  source          String    @default("QUIZ_PUBLIC") // QUIZ_PUBLIC, QUIZ_ACADEMY
+
+  // Datos adicionales para marketing
+  userAgent       String?   // Para analytics
+  ipAddress       String?   // Para analytics y anti-fraud
+
+  // Email verification (double opt-in)
+  emailVerified             Boolean   @default(false)
+  verificationToken         String?   @unique
+  verificationTokenExpires  DateTime?
+  verifiedAt                DateTime?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([email])
+  @@index([completedAt])
+  @@index([converted])
+  @@index([emailVerified])
+  @@index([verificationToken])
+  @@map("quiz_leads")
+}
+
+// Progreso del usuario en lecciones
+model AcademyProgress {
+  id              String    @id @default(cuid())
+  userId          String
+  lessonId        String
+  completed       Boolean   @default(false)
+  completedAt     DateTime?
+  timeSpent       Int       @default(0) // Tiempo en segundos
+  lastAccessedAt  DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson          Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("academy_progress")
+}
+
+// Logros/Achievements
+model Achievement {
+  id              String    @id @default(cuid())
+  code            String    @unique // Código único (ej: "FIRST_LESSON", "PERFECT_SCORE")
+  title           String
+  description     String    @db.Text
+  icon            String?   // Nombre del icono
+  badge           String?   // URL de imagen del badge
+  points          Int       @default(0)
+  rarity          String    @default("COMMON") // COMMON, RARE, EPIC, LEGENDARY
+  createdAt       DateTime  @default(now())
+
+  users           UserAchievement[]
+  academyUsers    AcademyUserAchievement[]
+
+  @@map("academy_achievements")
+}
+
+// Logros desbloqueados por usuario
+model UserAchievement {
+  id              String    @id @default(cuid())
+  userId          String
+  achievementId   String
+  unlockedAt      DateTime  @default(now())
+
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement     Achievement  @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+// Diplomas generados
+model Diploma {
+  id              String    @id @default(cuid())
+  userId          String
+  courseId        String
+  fullName        String    // Nombre completo para el diploma
+  certificateCode String    @unique // Código único para verificación
+  finalScore      Float     // Puntuación final (%)
+  rank            Int?      // Posición en el ranking al momento de obtenerlo
+  totalStudents   Int?      // Total de estudiantes al momento
+  completedAt     DateTime  @default(now())
+  pdfUrl          String?   // URL del PDF generado
+  sharedToFacebook Boolean  @default(false)
+  viewCount       Int       @default(0) // Veces que se ha visto/compartido
+
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([finalScore])
+  @@index([completedAt])
+  @@map("academy_diplomas")
+}
+
+// Usuarios separados de Academia (no activan trial de Itineramio)
+model AcademyUser {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  password          String
+  fullName          String    // Nombre completo para diplomas
+  username          String?   @unique
+  avatar            String?
+  bio               String?   @db.Text
+
+  // Email verification
+  emailVerified              Boolean   @default(false)
+  emailVerificationToken     String?   @unique
+  emailVerificationExpires   DateTime?
+
+  // Quiz de nivel inicial
+  quizScore         Int?      // Puntuación del quiz 0-100
+  quizLevel         String?   // BASIC, INTERMEDIATE, ADVANCED
+  quizCompletedAt   DateTime? // Cuándo completó el quiz
+  quizAnswers       Json?     // Respuestas del quiz para análisis
+
+  // Customer Journey
+  journeyStage      String    @default("QUIZ_COMPLETED") // QUIZ_COMPLETED, REGISTERED, MODULE_1_STARTED, etc
+  tags              String[]  @default([]) // Tags para segmentación ["high-engagement", "needs-nudge"]
+
+  // Email tracking
+  welcomeEmailSent       Boolean @default(false)
+  day2EmailSent          Boolean @default(false)
+  day5EmailSent          Boolean @default(false)
+  day10EmailSent         Boolean @default(false)
+  emailOpens             Int     @default(0)
+  emailClicks            Int     @default(0)
+  lastEmailOpenedAt      DateTime?
+  lastEmailClickedAt     DateTime?
+
+  // Academia stats
+  academyPoints     Int       @default(0)
+  academyStreak     Int       @default(0)
+  lastActivityAt    DateTime  @default(now())
+  enrolledAt        DateTime  @default(now())
+
+  // Relations
+  progress          AcademyUserProgress[]
+  quizAttempts      AcademyUserQuizAttempt[]
+  achievements      AcademyUserAchievement[]
+  diplomas          AcademyUserDiploma[]
+  reviews           AcademyReview[]
+  payments          AcademyPayment[]
+  emailLogs         AcademyEmailLog[]
+  events            AcademyUserEvent[]
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("academy_users")
+}
+
+// Progreso de usuarios de Academia
+model AcademyUserProgress {
+  id              String    @id @default(cuid())
+  userId          String
+  lessonId        String
+  completed       Boolean   @default(false)
+  completedAt     DateTime?
+  timeSpent       Int       @default(0)
+  lastAccessedAt  DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+
+  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson          Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("academy_user_progress")
+}
+
+// Intentos de quiz de usuarios de Academia
+model AcademyUserQuizAttempt {
+  id              String    @id @default(cuid())
+  userId          String
+  quizId          String
+  score           Float
+  passed          Boolean
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  timeSpent       Int?
+
+  user            AcademyUser           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz            Quiz                  @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers         AcademyUserQuizAnswer[]
+
+  @@map("academy_user_quiz_attempts")
+}
+
+// Respuestas de quiz de usuarios de Academia
+model AcademyUserQuizAnswer {
+  id              String    @id @default(cuid())
+  attemptId       String
+  questionId      String
+  selectedAnswer  Int
+  isCorrect       Boolean
+  answeredAt      DateTime  @default(now())
+
+  attempt         AcademyUserQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question        Question               @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@map("academy_user_quiz_answers")
+}
+
+// Logros de usuarios de Academia
+model AcademyUserAchievement {
+  id              String    @id @default(cuid())
+  userId          String
+  achievementId   String
+  unlockedAt      DateTime  @default(now())
+
+  user            AcademyUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement     Achievement  @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@map("academy_user_achievements")
+}
+
+// Diplomas de usuarios de Academia
+model AcademyUserDiploma {
+  id              String    @id @default(cuid())
+  userId          String
+  courseId        String
+  fullName        String
+  certificateCode String    @unique
+  finalScore      Float
+  rank            Int?
+  totalStudents   Int?
+  completedAt     DateTime  @default(now())
+  pdfUrl          String?
+  sharedToFacebook Boolean  @default(false)
+  viewCount       Int       @default(0)
+  createdAt       DateTime  @default(now())
+
+  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course          Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([finalScore])
+  @@map("academy_user_diplomas")
+}
+
+// Reviews de usuarios al completar el curso
+model AcademyReview {
+  id              String    @id @default(cuid())
+  userId          String
+  courseId        String
+  rating          Int       // 1-5 estrellas
+  testimonial     String?   @db.Text
+  isPublic        Boolean   @default(false) // Si el usuario permite publicarlo
+  isApproved      Boolean   @default(false) // Si admin lo aprueba para mostrar
+  createdAt       DateTime  @default(now())
+
+  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course          Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, isApproved, isPublic])
+  @@map("academy_reviews")
+}
+
+// Sistema de pagos para cursos de pago
+model AcademyPayment {
+  id              String    @id @default(cuid())
+  userId          String
+  courseId        String
+  amount          Decimal
+  method          String    // "stripe", "bizum", "transfer"
+  status          String    @default("pending") // pending, completed, failed
+
+  // Stripe
+  stripeSessionId String?   @unique
+  stripePaymentId String?
+
+  // Bizum/Transfer
+  reference       String?   // Referencia de pago
+  proofUrl        String?   // URL del comprobante
+
+  paidAt          DateTime?
+  createdAt       DateTime  @default(now())
+
+  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course          Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("academy_payments")
+}
+
+// Log de emails enviados a usuarios de academia
+model AcademyEmailLog {
+  id              String    @id @default(cuid())
+  userId          String
+  emailType       String    // "WELCOME", "DAY_2_NUDGE", "DAY_5_CONTENT", etc
+  subject         String
+  sentAt          DateTime  @default(now())
+
+  // Métricas
+  opened          Boolean   @default(false)
+  openedAt        DateTime?
+  clicked         Boolean   @default(false)
+  clickedAt       DateTime?
+  bounced         Boolean   @default(false)
+  complained      Boolean   @default(false)
+
+  // Resend ID para tracking
+  resendId        String?   @unique
+
+  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([emailType])
+  @@index([sentAt])
+  @@map("academy_email_logs")
+}
+
+// Eventos de usuario para customer journey
+model AcademyUserEvent {
+  id              String    @id @default(cuid())
+  userId          String
+  eventType       String    // "QUIZ_STARTED", "QUIZ_COMPLETED", "REGISTERED", "EMAIL_OPENED", etc
+  eventData       Json?     // Datos extra del evento
+  createdAt       DateTime  @default(now())
+
+  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([eventType])
+  @@map("academy_user_events")
+}
+
+// ============================================
+// CEREBELLUM - Sistema de Knowledge Base
+// ============================================
+
+// Categorías de conocimiento (Fundamentos, Optimización, Legal, etc.)
+model KnowledgeCategory {
+  id              String              @id @default(cuid())
+  name            String              @unique
+  slug            String              @unique
+  description     String?
+  icon            String?             // Emoji o nombre de icono
+  color           String?             // Color hex para UI
+  order           Int                 @default(0)
+  parentId        String?             // Para subcategorías
+
+  // Segmentación
+  country         String?             // null = global, "ES", "MX", "AR", etc.
+  language        String              @default("es")
+
+  // Metadata
+  isActive        Boolean             @default(true)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  // Relaciones
+  parent          KnowledgeCategory?  @relation("SubCategories", fields: [parentId], references: [id])
+  subcategories   KnowledgeCategory[] @relation("SubCategories")
+  articles        KnowledgeArticle[]
+
+  @@index([slug])
+  @@index([country])
+  @@index([order])
+  @@map("knowledge_categories")
+}
+
+// Tags para clasificar artículos
+model KnowledgeTag {
+  id              String              @id @default(cuid())
+  name            String              @unique
+  slug            String              @unique
+  color           String?
+
+  articles        KnowledgeArticle[]  @relation("ArticleTags")
+
+  @@index([slug])
+  @@map("knowledge_tags")
+}
+
+// Artículos de conocimiento (el cerebro de CEREBELLUM)
+model KnowledgeArticle {
+  id              String              @id @default(cuid())
+  title           String
+  slug            String              @unique
+  excerpt         String?             // Resumen corto
+  content         String              @db.Text // Markdown
+
+  // Clasificación
+  categoryId      String
+  tags            KnowledgeTag[]      @relation("ArticleTags")
+
+  // Metadata
+  author          String?             // Nombre del autor
+  sourceUrl       String?             // URL de origen si viene de web externa
+  sourceType      String              @default("MANUAL") // MANUAL, WEB_SCRAPE, AI_GENERATED
+
+  // Versioning
+  version         Int                 @default(1)
+  previousVersionId String?           // Para historial de versiones
+
+  // Estado
+  status          String              @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  publishedAt     DateTime?
+
+  // Segmentación geográfica
+  country         String?             // null = global
+  language        String              @default("es")
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[]            @default([])
+
+  // Embeddings para chatbot (Vector search)
+  embedding       Json?               // Vector embeddings de OpenAI
+  embeddingModel  String?             // "text-embedding-3-small", etc.
+
+  // Analytics
+  views           Int                 @default(0)
+  upvotes         Int                 @default(0)
+  downvotes       Int                 @default(0)
+
+  // Timestamps
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  lastReviewedAt  DateTime?
+
+  // Relaciones
+  category        KnowledgeCategory   @relation(fields: [categoryId], references: [id])
+  sources         KnowledgeSource[]
+  chatbotQueries  CerebellumQuery[]
+  relatedQuizQuestions QuizQuestion[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([categoryId])
+  @@index([country])
+  @@index([publishedAt])
+  @@map("knowledge_articles")
+}
+
+// Fuentes de conocimiento (URLs, PDFs, etc.)
+model KnowledgeSource {
+  id              String              @id @default(cuid())
+  articleId       String?             // Puede ser independiente o asociado a artículo
+
+  url             String?
+  title           String
+  type            String              // "WEB_PAGE", "PDF", "VIDEO", "AIRBNB_POLICY", "MANUAL"
+  description     String?
+
+  // Contenido extraído
+  rawContent      String?             @db.Text
+  extractedAt     DateTime?
+
+  // Metadata
+  author          String?
+  publishedDate   DateTime?
+  language        String              @default("es")
+  country         String?
+
+  // Estado de procesamiento
+  status          String              @default("PENDING") // PENDING, PROCESSED, ERROR
+  errorMessage    String?
+
+  // Timestamps
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  // Relaciones
+  article         KnowledgeArticle?   @relation(fields: [articleId], references: [id])
+
+  @@index([url])
+  @@index([status])
+  @@index([type])
+  @@map("knowledge_sources")
+}
+
+// Preguntas de quiz vinculadas a artículos de conocimiento
+model QuizQuestion {
+  id              String              @id @default(cuid())
+  question        String
+  category        String              // FUNDAMENTOS, OPTIMIZACIÓN, AVANZADO
+  difficulty      String              // BASIC, INTERMEDIATE, ADVANCED
+  points          Int                 @default(1)
+  type            String              // single-choice, multiple-choice
+
+  options         Json                // Array de opciones con respuestas correctas
+  explanation     String?
+
+  // Vinculación con knowledge base
+  relatedArticleId String?
+  relatedArticle  KnowledgeArticle?   @relation(fields: [relatedArticleId], references: [id])
+
+  // Metadata
+  isActive        Boolean             @default(true)
+  order           Int                 @default(0)
+
+  // Analytics
+  timesAsked      Int                 @default(0)
+  timesCorrect    Int                 @default(0)
+  averageTime     Float?              // Tiempo promedio en segundos
+
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@index([category])
+  @@index([difficulty])
+  @@index([isActive])
+  @@map("quiz_questions")
+}
+
+// Queries del chatbot (CEREBELLUM)
+model CerebellumQuery {
+  id              String              @id @default(cuid())
+  userId          String?             // null si es anónimo
+  query           String              // Pregunta del usuario
+  response        String              @db.Text // Respuesta generada
+
+  // Artículos usados para responder
+  sourceArticles  KnowledgeArticle[]
+
+  // Metadata
+  model           String              @default("gpt-4") // Modelo usado
+  tokens          Int?                // Tokens consumidos
+  responseTime    Float?              // Tiempo de respuesta en ms
+
+  // Feedback del usuario
+  wasHelpful      Boolean?
+  feedback        String?
+  rating          Int?                // 1-5 estrellas
+
+  // Analytics
+  country         String?
+  language        String?
+
+  createdAt       DateTime            @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([wasHelpful])
+  @@map("cerebellum_queries")
+}
+
+// Subscripciones al chatbot (premium vs free)
+model CerebellumSubscription {
+  id              String              @id @default(cuid())
+  userId          String              @unique
+
+  tier            String              @default("FREE") // FREE, BASIC, PRO
+  queriesLimit    Int                 @default(10)     // Queries por mes
+  queriesUsed     Int                 @default(0)
+
+  // Billing
+  resetDate       DateTime            // Cuando resetea el contador mensual
+
+  // Premium features
+  hasPrioritySupport Boolean           @default(false)
+  hasAdvancedAnalytics Boolean         @default(false)
+
+  isActive        Boolean             @default(true)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@index([userId])
+  @@map("cerebellum_subscriptions")
 }

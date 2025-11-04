@@ -8,9 +8,9 @@ import { BlogCategory } from '@prisma/client'
 import CategoryNewsletterForm from './CategoryNewsletterForm'
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     category: string
-  }
+  }>
 }
 
 // Category metadata for SEO
@@ -74,7 +74,8 @@ const categoryMeta: Record<string, {
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
-  const category = categoryMeta[params.category]
+  const { category: categorySlug } = await params
+  const category = categoryMeta[categorySlug]
 
   if (!category) {
     return {
@@ -102,7 +103,8 @@ export async function generateStaticParams() {
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const categoryInfo = categoryMeta[params.category]
+  const { category } = await params
+  const categoryInfo = categoryMeta[category]
 
   if (!categoryInfo) {
     notFound()
@@ -280,7 +282,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 </h3>
                 <div className="space-y-3">
                   {Object.entries(categoryMeta)
-                    .filter(([slug]) => slug !== params.category)
+                    .filter(([slug]) => slug !== category)
                     .map(([slug, info]) => (
                       <Link
                         key={slug}

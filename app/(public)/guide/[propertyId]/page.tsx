@@ -432,6 +432,7 @@ export default function PropertyGuidePage() {
   const [loadingEvaluations, setLoadingEvaluations] = useState(false)
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [showAnnouncementsModal, setShowAnnouncementsModal] = useState(false)
+  const [showAnnouncementsInline, setShowAnnouncementsInline] = useState(true)
   const [showShareModal, setShowShareModal] = useState(false)
 
   useEffect(() => {
@@ -558,7 +559,13 @@ export default function PropertyGuidePage() {
         const data = await response.json()
         const activeAnnouncements = data.data || []
         setAnnouncements(activeAnnouncements)
-        
+
+        // Check if inline announcements were dismissed
+        const dismissedInline = localStorage.getItem(`announcements-inline-dismissed-${propertyId}`)
+        if (dismissedInline === 'true') {
+          setShowAnnouncementsInline(false)
+        }
+
         // Show modal if there are active announcements and user hasn't dismissed them
         if (activeAnnouncements.length > 0) {
           const dismissedAnnouncements = localStorage.getItem(`announcements-dismissed-${propertyId}`)
@@ -581,6 +588,11 @@ export default function PropertyGuidePage() {
     // Set a cookie/localStorage flag to not show announcements again for this property
     localStorage.setItem(`announcements-dismissed-${propertyId}`, 'true')
     setShowAnnouncementsModal(false)
+  }
+
+  const handleCloseInlineAnnouncements = () => {
+    localStorage.setItem(`announcements-inline-dismissed-${propertyId}`, 'true')
+    setShowAnnouncementsInline(false)
   }
 
   const submitSuggestion = async () => {
@@ -1023,94 +1035,7 @@ export default function PropertyGuidePage() {
           </motion.div>
         )}
 
-        {/* Important Announcements */}
-        {announcements.length > 0 && (
-          <div className="border-b border-gray-200 pb-8 mb-8">
-            <div className="mb-6">
-              <h3 className="text-xl font-semibold text-gray-900 flex items-center mb-2">
-                <Bell className="w-6 h-6 mr-2 text-orange-600" />
-                {language === 'es' ? 'Anuncios Importantes' : language === 'en' ? 'Important Announcements' : 'Annonces Importantes'}
-              </h3>
-              <p className="text-gray-600 text-sm">
-                {language === 'es' ? 'Información importante que debes conocer antes de tu llegada' : 
-                 language === 'en' ? 'Important information you should know before your arrival' : 
-                 'Informations importantes à connaître avant votre arrivée'}
-              </p>
-            </div>
-            
-            <div className="space-y-4">
-              {announcements
-                .sort((a, b) => {
-                  // Sort by priority first (URGENT > HIGH > NORMAL > LOW)
-                  const priorityOrder = { 'URGENT': 4, 'HIGH': 3, 'NORMAL': 2, 'LOW': 1 }
-                  const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 1
-                  const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 1
-                  if (aPriority !== bPriority) return bPriority - aPriority
-                  // Then by creation date (newest first)
-                  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-                })
-                .map((announcement, index) => {
-                  const IconComponent = getAnnouncementIcon(announcement.category)
-                  const colorName = getAnnouncementColor(announcement.priority)
-                  
-                  return (
-                    <motion.div
-                      key={announcement.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <Card className={`p-4 border-l-4 border-l-${colorName}-500 bg-${colorName}-50/30`}>
-                        <div className="flex items-start space-x-3">
-                          <div className={`p-2 rounded-lg bg-${colorName}-100 flex-shrink-0`}>
-                            <IconComponent className={`w-5 h-5 text-${colorName}-600`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-1">
-                              <h4 className="font-semibold text-gray-900 text-sm">
-                                {announcement.title}
-                              </h4>
-                              {announcement.priority !== 'NORMAL' && (
-                                <span className={`px-2 py-1 text-xs rounded-full bg-${colorName}-100 text-${colorName}-700 font-medium`}>
-                                  {getPriorityText(announcement.priority, language)}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-gray-700 text-sm leading-relaxed mb-2">
-                              {announcement.message}
-                            </p>
-                            {(announcement.startDate || announcement.endDate) && (
-                              <div className="flex items-center text-xs text-gray-500">
-                                <Clock className="w-3 h-3 mr-1" />
-                                {announcement.startDate && announcement.endDate ? (
-                                  <span>
-                                    {new Date(announcement.startDate).toLocaleDateString()} - {new Date(announcement.endDate).toLocaleDateString()}
-                                  </span>
-                                ) : announcement.startDate ? (
-                                  <span>
-                                    {language === 'es' ? 'Desde: ' : language === 'en' ? 'From: ' : 'Depuis: '}
-                                    {new Date(announcement.startDate).toLocaleDateString()}
-                                  </span>
-                                ) : (
-                                  <span>
-                                    {language === 'es' ? 'Hasta: ' : language === 'en' ? 'Until: ' : "Jusqu'au: "}
-                                    {new Date(announcement.endDate!).toLocaleDateString()}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </Card>
-                    </motion.div>
-                  )
-                })
-              }
-            </div>
-          </div>
-        )}
-
-        {/* Manual Sections */}
+        {/* Manual Sections - MOVED TO FIRST POSITION */}
         <div className="border-b border-gray-200 pb-8 mb-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-gray-900">
@@ -1191,6 +1116,101 @@ export default function PropertyGuidePage() {
             </>
           )}
         </div>
+
+        {/* Important Announcements - WITH CLOSE BUTTON */}
+        {announcements.length > 0 && showAnnouncementsInline && (
+          <div className="border-b border-gray-200 pb-8 mb-8">
+            <div className="mb-6 flex items-start justify-between">
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold text-gray-900 flex items-center mb-2">
+                  <Bell className="w-6 h-6 mr-2 text-orange-600" />
+                  {language === 'es' ? 'Anuncios Importantes' : language === 'en' ? 'Important Announcements' : 'Annonces Importantes'}
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  {language === 'es' ? 'Información importante que debes conocer' :
+                   language === 'en' ? 'Important information you should know' :
+                   'Informations importantes à connaître'}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCloseInlineAnnouncements}
+                className="text-gray-400 hover:text-gray-600 ml-4"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              {announcements
+                .sort((a, b) => {
+                  const priorityOrder = { 'URGENT': 4, 'HIGH': 3, 'NORMAL': 2, 'LOW': 1 }
+                  const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 1
+                  const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 1
+                  if (aPriority !== bPriority) return bPriority - aPriority
+                  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                })
+                .map((announcement, index) => {
+                  const IconComponent = getAnnouncementIcon(announcement.category)
+                  const colorName = getAnnouncementColor(announcement.priority)
+
+                  return (
+                    <motion.div
+                      key={announcement.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Card className={`p-4 border-l-4 border-l-${colorName}-500 bg-${colorName}-50/30`}>
+                        <div className="flex items-start space-x-3">
+                          <div className={`p-2 rounded-lg bg-${colorName}-100 flex-shrink-0`}>
+                            <IconComponent className={`w-5 h-5 text-${colorName}-600`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <h4 className="font-semibold text-gray-900 text-sm">
+                                {announcement.title}
+                              </h4>
+                              {announcement.priority !== 'NORMAL' && (
+                                <span className={`px-2 py-1 text-xs rounded-full bg-${colorName}-100 text-${colorName}-700 font-medium`}>
+                                  {getPriorityText(announcement.priority, language)}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-gray-700 text-sm leading-relaxed mb-2">
+                              {announcement.message}
+                            </p>
+                            {(announcement.startDate || announcement.endDate) && (
+                              <div className="flex items-center text-xs text-gray-500">
+                                <Clock className="w-3 h-3 mr-1" />
+                                {announcement.startDate && announcement.endDate ? (
+                                  <span>
+                                    {new Date(announcement.startDate).toLocaleDateString()} - {new Date(announcement.endDate).toLocaleDateString()}
+                                  </span>
+                                ) : announcement.startDate ? (
+                                  <span>
+                                    {language === 'es' ? 'Desde: ' : language === 'en' ? 'From: ' : 'Depuis: '}
+                                    {new Date(announcement.startDate).toLocaleDateString()}
+                                  </span>
+                                ) : (
+                                  <span>
+                                    {language === 'es' ? 'Hasta: ' : language === 'en' ? 'Until: ' : "Jusqu'au: "}
+                                    {new Date(announcement.endDate!).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </Card>
+                    </motion.div>
+                  )
+                })
+              }
+            </div>
+          </div>
+        )}
 
         {/* Guest Reviews Section - Solo mostrar si hay evaluaciones reales */}
         {/* TODO: Implementar carga de evaluaciones reales desde la base de datos */}

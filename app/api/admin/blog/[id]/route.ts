@@ -112,7 +112,9 @@ export async function PUT(
         ...(body.scheduledFor !== undefined && {
           scheduledFor: body.scheduledFor ? new Date(body.scheduledFor) : null
         }),
+        ...(body.authorId && { authorId: body.authorId }),
         ...(body.authorName && { authorName: body.authorName }),
+        ...(body.authorImage !== undefined && { authorImage: body.authorImage }),
         publishedAt
       }
     })

@@ -49,6 +49,7 @@ import { createBatchZones } from '../../../../../src/utils/createBatchZones'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
 import { CopyZoneToPropertyModal } from '../../../../../src/components/ui/CopyZoneToPropertyModal'
 import { EvaluationsModal } from '../../../../../src/components/ui/EvaluationsModal'
+import { PropertySetUpdateModal } from '../../../../../src/components/ui/PropertySetUpdateModal'
 // Removed unused imports
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
@@ -138,7 +139,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [isReordering, setIsReordering] = useState(false)
   const [showCopiedBadge, setShowCopiedBadge] = useState(false)
   const [showEvaluationsModal, setShowEvaluationsModal] = useState(false)
-  
+
+  // Property Set Update Modal state
+  const [showPropertySetModal, setShowPropertySetModal] = useState(false)
+  const [propertySetProperties, setPropertySetProperties] = useState<Array<{ id: string; name: string }>>([])
+  const [pendingStepsToSave, setPendingStepsToSave] = useState<Step[]>([])
+  const [pendingZoneForSave, setPendingZoneForSave] = useState<Zone | null>(null)
+  const [pendingOperation, setPendingOperation] = useState<'create' | 'update' | 'delete' | null>(null)
+  const [pendingZoneData, setPendingZoneData] = useState<any>(null)
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -275,6 +284,34 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setPropertyLocation(`${propResult.data.city}, ${propResult.data.state}`)
         setPropertyStatus(propResult.data.status || 'DRAFT')
         setPropertySetId(propResult.data.propertySetId || null)
+
+        // Fetch property set properties if this property belongs to a set
+        if (propResult.data.propertySetId) {
+          try {
+            console.log('🔗 Property belongs to set:', propResult.data.propertySetId)
+            const setResponse = await fetch(`/api/property-sets/${propResult.data.propertySetId}`)
+            if (setResponse.ok) {
+              const setData = await setResponse.json()
+              if (setData.success && setData.data && setData.data.properties) {
+                console.log('🔗 Property set has', setData.data.properties.length, 'properties:', setData.data.properties.map((p: any) => p.name))
+                setPropertySetProperties(
+                  setData.data.properties.map((p: any) => ({
+                    id: p.id,
+                    name: p.name
+                  }))
+                )
+              } else {
+                console.log('⚠️ Property set data not found in response')
+              }
+            } else {
+              console.log('⚠️ Failed to fetch property set data, status:', setResponse.status)
+            }
+          } catch (error) {
+            console.error('Error fetching property set:', error)
+          }
+        } else {
+          console.log('🏠 Property is NOT in a set (standalone property)')
+        }
 
         // Skip notifications for now to avoid 500 errors
         // Will be re-enabled once notification system is properly set up
@@ -476,10 +513,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleCreateZone = async () => {
     if (!formData.name || !formData.iconId) return
 
+    console.log('🆕 CREATE ZONE - Starting')
+    console.log('🆕 propertySetId:', propertySetId)
+    console.log('🆕 propertySetProperties.length:', propertySetProperties.length)
+
     // Check for duplicate zones
     const nameNormalized = formData.name.toLowerCase().trim();
     const nameClean = nameNormalized.replace(/[\s-_]/g, '');
-    
+
     const isDuplicate = zones.some(zone => {
       const existingName = getZoneText(zone.name).toLowerCase().trim();
       const existingClean = existingName.replace(/[\s-_]/g, '');
@@ -496,16 +537,31 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       return;
     }
 
+    const zoneData = {
+      name: formData.name,
+      description: formData.description || 'Nueva zona personalizada',
+      icon: formData.iconId,
+      color: 'bg-gray-100',
+      status: 'ACTIVE'
+    }
+
+    // If property is in a set with multiple properties, show PropertySetUpdateModal
+    if (propertySetId && propertySetProperties.length > 1) {
+      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for CREATE')
+      setPendingOperation('create')
+      setPendingZoneData(zoneData)
+      setShowPropertySetModal(true)
+      return
+    }
+
+    console.log('⚠️ NOT showing modal. Reason:', {
+      noPropertySetId: !propertySetId,
+      notEnoughProperties: propertySetProperties.length <= 1
+    })
+
+    // Otherwise, create directly
     setIsCreatingZone(true)
     try {
-      const zoneData = {
-        name: formData.name,
-        description: formData.description || 'Nueva zona personalizada',
-        icon: formData.iconId,
-        color: 'bg-gray-100',
-        status: 'ACTIVE'
-      }
-
       const success = await createBatchZones(id, [zoneData])
 
       if (success) {
@@ -515,16 +571,33 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         if (zonesResult.success) {
           setZones(zonesResult.data)
         }
-        
+
         setFormData({ name: '', description: '', iconId: '' })
         setShowCreateForm(false)
         setShowIconSelector(false)
+
+        addNotification({
+          type: 'success',
+          title: '✅ Zona creada',
+          message: `La zona "${zoneData.name}" se ha creado correctamente`,
+          read: false
+        })
       } else {
-        alert('Error al crear la zona')
+        addNotification({
+          type: 'error',
+          title: '❌ Error al crear zona',
+          message: 'No se pudo crear la zona. Inténtalo de nuevo.',
+          read: false
+        })
       }
     } catch (error) {
       console.error('Error creating zone:', error)
-      alert('Error al crear la zona')
+      addNotification({
+        type: 'error',
+        title: '❌ Error al crear zona',
+        message: 'Error de conexión. Inténtalo de nuevo.',
+        read: false
+      })
     } finally {
       setIsCreatingZone(false)
     }
@@ -609,8 +682,29 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleConfirmDelete = async () => {
     if (!zoneToDelete) return
 
+    console.log('🗑️ DELETE ZONE - Starting')
+    console.log('🗑️ propertySetId:', propertySetId)
+    console.log('🗑️ propertySetProperties.length:', propertySetProperties.length)
+
+    // Close the initial delete confirmation modal
+    setShowDeleteModal(false)
+
+    // If property is in a set with multiple properties, show PropertySetUpdateModal
+    if (propertySetId && propertySetProperties.length > 1) {
+      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for DELETE')
+      setPendingOperation('delete')
+      setShowPropertySetModal(true)
+      return
+    }
+
+    console.log('⚠️ NOT showing modal. Reason:', {
+      noPropertySetId: !propertySetId,
+      notEnoughProperties: propertySetProperties.length <= 1
+    })
+
+    // Otherwise, delete directly
     setIsDeletingZone(true)
-    
+
     try {
       const response = await fetch(`/api/properties/${id}/zones/${zoneToDelete.id}`, {
         method: 'DELETE'
@@ -621,7 +715,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       if (response.ok && result.success) {
         const newZones = zones.filter(zone => zone.id !== zoneToDelete.id)
         setZones(newZones)
-        
+
         // If user deletes all zones, mark that they have manually cleared them
         if (newZones.length === 0) {
           const propertyZonesKey = `property_${id}_zones_created`
@@ -631,14 +725,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             window.localStorage.setItem(propertyWelcomeKey, 'true') // Prevent welcome banner
           }
         }
-        
+
         addNotification({
           type: 'info',
           title: '✅ Zona eliminada',
           message: `La zona "${getZoneText(zoneToDelete.name)}" ha sido eliminada correctamente`,
           read: false
         })
-        setShowDeleteModal(false)
         setZoneToDelete(null)
       } else {
         console.error('Error deleting zone:', result.error)
@@ -1330,14 +1423,36 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     console.log('🚨 editingZoneForSteps:', editingZoneForSteps)
     console.log('🚨 steps received:', steps)
     console.log('🚨 steps length:', steps?.length)
-    
+    console.log('🚨 propertySetId:', propertySetId)
+    console.log('🚨 propertySetProperties:', propertySetProperties)
+
     if (!editingZoneForSteps) {
       console.log('❌ No editingZoneForSteps, returning early')
       return
     }
-    
-    console.log('💾 handleSaveSteps called with:', steps.length, 'steps')
+
+    // Check if property is in a set with multiple properties
+    if (propertySetId && propertySetProperties.length > 1) {
+      console.log('🔗 Property is in a set, showing PropertySetUpdateModal')
+      // Save steps to pending state
+      setPendingStepsToSave(steps)
+      setPendingZoneForSave(editingZoneForSteps)
+      setPendingOperation('update')
+      // Show modal
+      setShowPropertySetModal(true)
+      return
+    }
+
+    console.log('⚡ Calling performSaveSteps directly (not in a set)')
+    // If not in a set or only one property, save directly
+    await performSaveSteps(steps, editingZoneForSteps, 'single')
+  }
+
+  const performSaveSteps = async (steps: Step[], zone: Zone, scope: 'single' | 'all' | 'selected', selectedPropertyIds?: string[]) => {
+    console.log('💾 performSaveSteps called with:', steps.length, 'steps')
     console.log('🔍 Raw steps data:', steps)
+    console.log('🎯 Scope:', scope)
+    console.log('🎯 Selected properties:', selectedPropertyIds)
 
     try {
       // Transform steps to match API expectations
@@ -1382,7 +1497,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           body: JSON.stringify({
             originalSteps: steps,
             transformedSteps: transformedSteps,
-            zoneId: editingZoneForSteps.id,
+            zoneId: zone.id,
             timestamp: new Date().toISOString()
           })
         })
@@ -1392,33 +1507,418 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         console.log('🐛 Debug endpoint failed:', debugError)
       }
 
-      const response = await fetch(`/api/properties/${id}/zones/${editingZoneForSteps.id}/steps/safe`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ steps: transformedSteps })
-      })
+      // Determine which zones to update
+      let zonesToUpdate: Array<{ propertyId: string; zoneId: string; zoneName: string }> = []
 
-      const result = await response.json()
+      if (scope === 'single') {
+        // Update only the current zone
+        zonesToUpdate = [{ propertyId: id, zoneId: zone.id, zoneName: zone.name }]
+      } else if (scope === 'all' && propertySetId) {
+        // Update all zones with same name in all properties of the set
+        const currentZoneName = getZoneText(zone.name).toLowerCase()
 
-      if (response.ok && result.success) {
-        // Update zone steps count
-        setZones(zones.map(zone => 
-          zone.id === editingZoneForSteps.id 
-            ? { ...zone, stepsCount: steps.length, lastUpdated: new Date().toISOString().split('T')[0] }
-            : zone
+        for (const prop of propertySetProperties) {
+          // Find zone with same name in this property
+          try {
+            const zonesResponse = await fetch(`/api/properties/${prop.id}/zones`)
+            if (zonesResponse.ok) {
+              const zonesData = await zonesResponse.json()
+              if (zonesData.success && zonesData.data) {
+                const matchingZone = zonesData.data.find((z: any) =>
+                  getZoneText(z.name).toLowerCase() === currentZoneName
+                )
+                if (matchingZone) {
+                  zonesToUpdate.push({
+                    propertyId: prop.id,
+                    zoneId: matchingZone.id,
+                    zoneName: matchingZone.name
+                  })
+                }
+              }
+            }
+          } catch (error) {
+            console.error(`Error fetching zones for property ${prop.id}:`, error)
+          }
+        }
+      } else if (scope === 'selected' && selectedPropertyIds && selectedPropertyIds.length > 0) {
+        // Update zones with same name in selected properties
+        const currentZoneName = getZoneText(zone.name).toLowerCase()
+
+        for (const propId of selectedPropertyIds) {
+          try {
+            const zonesResponse = await fetch(`/api/properties/${propId}/zones`)
+            if (zonesResponse.ok) {
+              const zonesData = await zonesResponse.json()
+              if (zonesData.success && zonesData.data) {
+                const matchingZone = zonesData.data.find((z: any) =>
+                  getZoneText(z.name).toLowerCase() === currentZoneName
+                )
+                if (matchingZone) {
+                  zonesToUpdate.push({
+                    propertyId: propId,
+                    zoneId: matchingZone.id,
+                    zoneName: matchingZone.name
+                  })
+                }
+              }
+            }
+          } catch (error) {
+            console.error(`Error fetching zones for property ${propId}:`, error)
+          }
+        }
+      }
+
+      console.log(`🎯 Found ${zonesToUpdate.length} existing zones`)
+
+      // For properties without the zone, we need to create it first if scope is 'all' or 'selected'
+      const propertiesToCheck = scope === 'all'
+        ? propertySetProperties
+        : scope === 'selected' && selectedPropertyIds
+          ? propertySetProperties.filter(p => selectedPropertyIds.includes(p.id))
+          : []
+
+      const zonesCreated = []
+      for (const prop of propertiesToCheck) {
+        const hasZone = zonesToUpdate.some(z => z.propertyId === prop.id)
+        if (!hasZone) {
+          // Create the zone in this property
+          try {
+            console.log(`🆕 Creating zone "${getZoneText(zone.name)}" in property ${prop.id}`)
+            const createResponse = await fetch(`/api/properties/${prop.id}/zones`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: zone.name,
+                icon: zone.icon || zone.iconId || '',
+                color: zone.color || 'bg-gray-100'
+              })
+            })
+
+            if (createResponse.ok) {
+              const createResult = await createResponse.json()
+              if (createResult.success && createResult.data) {
+                zonesCreated.push({
+                  propertyId: prop.id,
+                  zoneId: createResult.data.id,
+                  zoneName: createResult.data.name
+                })
+                console.log(`✅ Zone created in property ${prop.id}`)
+              }
+            }
+          } catch (error) {
+            console.error(`❌ Error creating zone in property ${prop.id}:`, error)
+          }
+        }
+      }
+
+      // Add newly created zones to the update list
+      const allZonesToUpdate = [...zonesToUpdate, ...zonesCreated]
+      console.log(`🎯 Total zones to update (including newly created): ${allZonesToUpdate.length}`)
+
+      // Update all zones (existing and newly created)
+      let successCount = 0
+      const updatedPropertyIds = new Set<string>()
+
+      for (const zoneInfo of allZonesToUpdate) {
+        try {
+          const response = await fetch(`/api/properties/${zoneInfo.propertyId}/zones/${zoneInfo.zoneId}/steps/safe`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ steps: transformedSteps })
+          })
+
+          const result = await response.json()
+
+          if (response.ok && result.success) {
+            successCount++
+            updatedPropertyIds.add(zoneInfo.propertyId)
+            console.log(`✅ Updated zone ${zoneInfo.zoneId} in property ${zoneInfo.propertyId}`)
+          } else {
+            console.error(`❌ Error updating zone ${zoneInfo.zoneId}:`, result.error)
+          }
+        } catch (error) {
+          console.error(`❌ Error updating zone ${zoneInfo.zoneId}:`, error)
+        }
+      }
+
+      if (successCount > 0) {
+        // Update zone steps count for current property
+        setZones(zones.map(z =>
+          z.id === zone.id
+            ? { ...z, stepsCount: steps.length, lastUpdated: new Date().toISOString().split('T')[0] }
+            : z
         ))
-        
+
         setShowStepEditor(false)
         setEditingZoneForSteps(null)
+
+        // Show improved success message
+        const zoneName = getZoneText(zone.name)
+        const propertyCount = updatedPropertyIds.size
+
+        console.log('🔔 NOTIFICATION DEBUG:')
+        console.log('🔔 successCount:', successCount)
+        console.log('🔔 propertyCount:', propertyCount)
+        console.log('🔔 zoneName:', zoneName)
+        console.log('🔔 updatedPropertyIds:', Array.from(updatedPropertyIds))
+
+        if (propertyCount > 1) {
+          console.log('🔔 Showing multi-property notification')
+          addNotification({
+            type: 'success',
+            title: '✅ Cambios guardados',
+            message: `Se han guardado los cambios de "${zoneName}" en ${propertyCount} propiedades`,
+            read: false
+          })
+          console.log('🔔 Multi-property notification call completed')
+        } else {
+          console.log('🔔 Showing single-property notification')
+          addNotification({
+            type: 'success',
+            title: '✅ Instrucciones guardadas',
+            message: 'Tus instrucciones se han guardado correctamente',
+            read: false
+          })
+          console.log('🔔 Single-property notification call completed')
+        }
       } else {
-        console.error('Error saving steps:', result.error)
-        alert(result.error || 'Error al guardar las instrucciones')
+        addNotification({
+          type: 'error',
+          title: '❌ Error al guardar',
+          message: 'No se pudieron guardar las instrucciones. Inténtalo de nuevo.',
+          read: false
+        })
       }
     } catch (error) {
       console.error('Error saving steps:', error)
-      alert('Error al guardar las instrucciones')
+      addNotification({
+        type: 'error',
+        title: '❌ Error al guardar',
+        message: 'Error de conexión. Inténtalo de nuevo.',
+        read: false
+      })
+    }
+  }
+
+  // Unified function to CREATE zone across property set
+  const performCreateZone = async (
+    zoneData: any,
+    scope: 'single' | 'all' | 'selected',
+    selectedPropertyIds?: string[]
+  ) => {
+    console.log('🆕 performCreateZone called with scope:', scope)
+
+    try {
+      const propertiesToCreate = scope === 'single'
+        ? [{ id, name: propertyName }]
+        : scope === 'all'
+          ? propertySetProperties
+          : propertySetProperties.filter(p => selectedPropertyIds?.includes(p.id))
+
+      console.log(`🎯 Creating zone in ${propertiesToCreate.length} properties`)
+
+      let successCount = 0
+      for (const prop of propertiesToCreate) {
+        try {
+          const success = await createBatchZones(prop.id, [zoneData])
+          if (success) {
+            successCount++
+            console.log(`✅ Zone created in property ${prop.id}`)
+          }
+        } catch (error) {
+          console.error(`❌ Error creating zone in property ${prop.id}:`, error)
+        }
+      }
+
+      if (successCount > 0) {
+        // Refresh zones list for current property
+        const zonesResponse = await fetch(`/api/properties/${id}/zones`)
+        const zonesResult = await zonesResponse.json()
+        if (zonesResult.success) {
+          setZones(zonesResult.data)
+        }
+
+        setFormData({ name: '', description: '', iconId: '' })
+        setShowCreateForm(false)
+        setShowIconSelector(false)
+
+        // Show success message with improved text
+        console.log('🔔 CREATE NOTIFICATION DEBUG:')
+        console.log('🔔 successCount:', successCount)
+        console.log('🔔 scope:', scope)
+        console.log('🔔 zoneData.name:', zoneData.name)
+
+        if (successCount > 1) {
+          const message = scope === 'all'
+            ? 'Se ha creado una zona nueva para todo el conjunto'
+            : `Se ha creado una zona nueva para ${successCount} propiedades`
+
+          console.log('🔔 Showing multi-property creation notification:', message)
+          addNotification({
+            type: 'success',
+            title: '✅ Zona creada con éxito',
+            message: message,
+            read: false
+          })
+          console.log('🔔 Multi-property creation notification call completed')
+        } else {
+          console.log('🔔 Showing single-property creation notification')
+          addNotification({
+            type: 'success',
+            title: '✅ Zona creada',
+            message: `La zona "${zoneData.name}" se ha creado correctamente`,
+            read: false
+          })
+          console.log('🔔 Single-property creation notification call completed')
+        }
+      } else {
+        addNotification({
+          type: 'error',
+          title: '❌ Error al crear zona',
+          message: 'No se pudo crear la zona. Inténtalo de nuevo.',
+          read: false
+        })
+      }
+    } catch (error) {
+      console.error('Error creating zone:', error)
+      addNotification({
+        type: 'error',
+        title: '❌ Error al crear zona',
+        message: 'Error de conexión. Inténtalo de nuevo.',
+        read: false
+      })
+    }
+  }
+
+  // Unified function to DELETE zone across property set
+  const performDeleteZone = async (
+    zone: Zone,
+    scope: 'single' | 'all' | 'selected',
+    selectedPropertyIds?: string[]
+  ) => {
+    console.log('🗑️ performDeleteZone called with scope:', scope)
+
+    try {
+      const zoneName = getZoneText(zone.name)
+
+      // Find matching zones to delete
+      const zonesToDelete: Array<{ propertyId: string; zoneId: string }> = []
+
+      if (scope === 'single') {
+        zonesToDelete.push({ propertyId: id, zoneId: zone.id })
+      } else {
+        const propertiesToCheck = scope === 'all'
+          ? propertySetProperties
+          : propertySetProperties.filter(p => selectedPropertyIds?.includes(p.id))
+
+        for (const prop of propertiesToCheck) {
+          try {
+            const zonesResponse = await fetch(`/api/properties/${prop.id}/zones`)
+            if (zonesResponse.ok) {
+              const zonesData = await zonesResponse.json()
+              if (zonesData.success && zonesData.data) {
+                const matchingZone = zonesData.data.find((z: any) =>
+                  getZoneText(z.name).toLowerCase() === zoneName.toLowerCase()
+                )
+                if (matchingZone) {
+                  zonesToDelete.push({
+                    propertyId: prop.id,
+                    zoneId: matchingZone.id
+                  })
+                }
+              }
+            }
+          } catch (error) {
+            console.error(`Error fetching zones for property ${prop.id}:`, error)
+          }
+        }
+      }
+
+      console.log(`🎯 Deleting ${zonesToDelete.length} zones`)
+
+      let successCount = 0
+      for (const zoneInfo of zonesToDelete) {
+        try {
+          const response = await fetch(`/api/properties/${zoneInfo.propertyId}/zones/${zoneInfo.zoneId}`, {
+            method: 'DELETE'
+          })
+
+          const result = await response.json()
+
+          if (response.ok && result.success) {
+            successCount++
+            console.log(`✅ Deleted zone ${zoneInfo.zoneId} in property ${zoneInfo.propertyId}`)
+          }
+        } catch (error) {
+          console.error(`❌ Error deleting zone ${zoneInfo.zoneId}:`, error)
+        }
+      }
+
+      if (successCount > 0) {
+        // Remove zone from current property's list
+        const newZones = zones.filter(z => z.id !== zone.id)
+        setZones(newZones)
+
+        // Handle empty zones state
+        if (newZones.length === 0) {
+          const propertyZonesKey = `property_${id}_zones_created`
+          const propertyWelcomeKey = `property_${id}_welcome_shown`
+          if (typeof window !== 'undefined') {
+            window.localStorage.setItem(propertyZonesKey, 'true')
+            window.localStorage.setItem(propertyWelcomeKey, 'true')
+          }
+        }
+
+        setShowDeleteModal(false)
+        setZoneToDelete(null)
+
+        // Show success message with improved text
+        console.log('🔔 DELETE NOTIFICATION DEBUG:')
+        console.log('🔔 successCount:', successCount)
+        console.log('🔔 scope:', scope)
+        console.log('🔔 zoneName:', zoneName)
+
+        if (successCount > 1) {
+          const message = scope === 'all'
+            ? `Se ha eliminado "${zoneName}" de todo el conjunto`
+            : `Se ha eliminado "${zoneName}" de ${successCount} propiedades`
+
+          console.log('🔔 Showing multi-property deletion notification:', message)
+          addNotification({
+            type: 'info',
+            title: '✅ Zonas eliminadas',
+            message: message,
+            read: false
+          })
+          console.log('🔔 Multi-property deletion notification call completed')
+        } else {
+          console.log('🔔 Showing single-property deletion notification')
+          addNotification({
+            type: 'info',
+            title: '✅ Zona eliminada',
+            message: `La zona "${zoneName}" ha sido eliminada correctamente`,
+            read: false
+          })
+          console.log('🔔 Single-property deletion notification call completed')
+        }
+      } else {
+        addNotification({
+          type: 'error',
+          title: '❌ Error al eliminar',
+          message: 'No se pudo eliminar la zona. Inténtalo de nuevo.',
+          read: false
+        })
+      }
+    } catch (error) {
+      console.error('Error deleting zone:', error)
+      addNotification({
+        type: 'error',
+        title: '❌ Error al eliminar',
+        message: 'Error de conexión. Inténtalo de nuevo.',
+        read: false
+      })
     }
   }
 
@@ -1864,6 +2364,48 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     )
   }
 
+  // Handler for PropertySetUpdateModal confirmation
+  const handlePropertySetConfirm = async (
+    scope: 'single' | 'all' | 'selected',
+    selectedPropertyIds?: string[]
+  ) => {
+    console.log('🔗 PropertySetUpdateModal confirmed with:', { scope, operation: pendingOperation })
+    setShowPropertySetModal(false)
+
+    try {
+      if (pendingOperation === 'update' && pendingStepsToSave && pendingZoneForSave) {
+        await performSaveSteps(pendingStepsToSave, pendingZoneForSave, scope, selectedPropertyIds)
+      } else if (pendingOperation === 'create' && pendingZoneData) {
+        setIsCreatingZone(true)
+        await performCreateZone(pendingZoneData, scope, selectedPropertyIds)
+      } else if (pendingOperation === 'delete' && zoneToDelete) {
+        setIsDeletingZone(true)
+        await performDeleteZone(zoneToDelete, scope, selectedPropertyIds)
+      }
+    } catch (error) {
+      console.error('Error in handlePropertySetConfirm:', error)
+    } finally {
+      // Clear all pending states
+      setPendingStepsToSave([])
+      setPendingZoneForSave(null)
+      setPendingOperation(null)
+      setPendingZoneData(null)
+      setIsCreatingZone(false)
+      setIsDeletingZone(false)
+    }
+  }
+
+  // Handler for PropertySetUpdateModal close/cancel
+  const handlePropertySetModalClose = () => {
+    console.log('🔗 PropertySetUpdateModal cancelled')
+    setShowPropertySetModal(false)
+    // Clear all pending states
+    setPendingStepsToSave([])
+    setPendingZoneForSave(null)
+    setPendingOperation(null)
+    setPendingZoneData(null)
+  }
+
   // Show loading spinner when loading zones
   if (isLoadingZones) {
     return <AnimatedLoadingSpinner text="Cargando zonas..." type="zones" />
@@ -2156,7 +2698,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               <div className="ml-3 sm:ml-4 min-w-0">
                 <p className="text-xs sm:text-sm font-medium text-gray-600">Total Steps</p>
                 <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">
-                  {zones.reduce((acc, zone) => acc + zone.stepsCount, 0)}
+                  {zones.reduce((acc, zone) => acc + (zone.stepsCount || 0), 0)}
                 </p>
               </div>
             </div>
@@ -3083,6 +3625,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         onClose={() => setShowEvaluationsModal(false)}
         propertyId={id}
         propertyName={propertyName || 'Propiedad'}
+      />
+
+      {/* Property Set Update Modal */}
+      <PropertySetUpdateModal
+        isOpen={showPropertySetModal}
+        onClose={handlePropertySetModalClose}
+        onConfirm={handlePropertySetConfirm}
+        currentPropertyId={id}
+        currentPropertyName={propertyName}
+        propertySetProperties={propertySetProperties}
       />
 
     </div>
