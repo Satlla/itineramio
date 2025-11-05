@@ -20,6 +20,7 @@ export default function QuizPage() {
   const [showTimeoutModal, setShowTimeoutModal] = useState(false)
   const [emailError, setEmailError] = useState('')
   const [isValidatingEmail, setIsValidatingEmail] = useState(false)
+  const [showConfirmation, setShowConfirmation] = useState(false) // New confirmation screen
 
   const currentQuestion = quizStarted ? quizQuestions[currentQuestionIndex] : null
   const progress = quizStarted ? ((currentQuestionIndex + 1) / quizQuestions.length) * 100 : 0
@@ -129,10 +130,9 @@ export default function QuizPage() {
         return
       }
 
-      // All validation passed - start quiz
+      // All validation passed - show confirmation screen
       setIsValidatingEmail(false)
-      setShowEmailCapture(false)
-      setQuizStarted(true)
+      setShowConfirmation(true)
     } catch (error) {
       console.error('Email validation error:', error)
       setEmailError('Error de conexión. Por favor intenta nuevamente.')
@@ -317,7 +317,102 @@ export default function QuizPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <AnimatePresence mode="wait">
-          {showEmailCapture ? (
+          {showConfirmation ? (
+            // Confirmation Screen - AFTER EMAIL VALIDATION
+            <motion.div
+              key="confirmation"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="relative"
+            >
+              <div className="absolute -top-4 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+              <div className="absolute -bottom-4 -right-4 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+
+              <div className="relative bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 p-8 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+                  <div className="relative">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl mb-4">
+                      <CheckCircle2 className="text-white" size={40} />
+                    </div>
+                    <h2 className="text-3xl font-bold mb-2 text-white">
+                      ¡Email registrado!
+                    </h2>
+                    <p className="text-purple-100 text-lg">
+                      {email}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-8">
+                  {/* Warning Message */}
+                  <div className="mb-8">
+                    <div className="flex items-start gap-4 p-5 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-2xl mb-6">
+                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center">
+                        <AlertCircle className="text-white" size={28} />
+                      </div>
+                      <div>
+                        <p className="text-base font-bold text-amber-900 mb-2">Importante: Lee antes de comenzar</p>
+                        <ul className="space-y-2 text-sm text-amber-800">
+                          <li className="flex items-start gap-2">
+                            <span className="text-amber-600 mt-0.5">•</span>
+                            <span>Tienes <strong>15 minutos</strong> para completar 20 preguntas</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-amber-600 mt-0.5">•</span>
+                            <span>Si no completas el quiz a tiempo, <strong>no podrás acceder a tus resultados</strong></span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-amber-600 mt-0.5">•</span>
+                            <span>Este email ya está registrado, <strong>solo puedes hacer el quiz una vez</strong></span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                      <div className="flex-shrink-0 w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <Clock className="text-white" size={20} />
+                      </div>
+                      <p className="text-sm text-blue-900">
+                        <strong>Recomendación:</strong> Asegúrate de tener 15 minutos disponibles ahora
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => {
+                        setShowConfirmation(false)
+                        setShowEmailCapture(false)
+                        setQuizStarted(true)
+                      }}
+                      className="w-full px-6 py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-purple-500/50 transition-all group relative overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="relative z-10 flex items-center justify-center gap-2">
+                        <span>Estoy listo - Comenzar ahora</span>
+                        <ChevronRight size={24} className="group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowConfirmation(false)
+                        setShowEmailCapture(true)
+                      }}
+                      className="w-full px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
+                    >
+                      Volver atrás
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ) : showEmailCapture ? (
             // Email Capture Form - START OF QUIZ
             <motion.div
               key="email-capture"
@@ -348,26 +443,14 @@ export default function QuizPage() {
                 </div>
 
                 <div className="p-8">
-                  {/* Info Badges */}
-                  <div className="space-y-3 mb-8">
-                    <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl">
-                      <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center">
-                        <Clock className="text-white" size={24} />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-amber-900">15 minutos • 20 preguntas</p>
-                        <p className="text-xs text-amber-700">Tu nivel se determinará al finalizar</p>
-                      </div>
+                  {/* Info Badge */}
+                  <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl mb-8">
+                    <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center">
+                      <Clock className="text-white" size={24} />
                     </div>
-
-                    <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-2xl">
-                      <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-xl flex items-center justify-center">
-                        <AlertCircle className="text-white" size={24} />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-blue-900 mb-1">Tu email ha sido registrado</p>
-                        <p className="text-xs text-blue-700">Si no completas el quiz en 15 minutos, no podrás acceder a tus resultados y beneficios. ¡Asegúrate de tener tiempo antes de comenzar!</p>
-                      </div>
+                    <div>
+                      <p className="text-sm font-semibold text-amber-900">15 minutos • 20 preguntas</p>
+                      <p className="text-xs text-amber-700">Tu nivel se determinará al finalizar</p>
                     </div>
                   </div>
 
