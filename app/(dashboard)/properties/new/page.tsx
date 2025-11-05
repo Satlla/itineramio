@@ -399,8 +399,8 @@ function NewPropertyPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
-      <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6 lg:py-8">
+    <div className="fixed inset-0 md:static md:min-h-screen bg-white md:bg-gray-50 overflow-y-auto md:overflow-x-hidden z-50 md:z-auto">
+      <div className="h-full md:max-w-4xl md:mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           {/* Back button - always at top */}

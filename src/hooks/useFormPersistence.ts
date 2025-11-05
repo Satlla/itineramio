@@ -56,8 +56,7 @@ export function useFormPersistence({
           const defaultValues = {
             'country': 'España',
             'hostContactLanguage': 'es',
-            'type': 'APARTMENT',
-            'hostContactName': 'Alejandro Satlla'
+            'type': 'APARTMENT'
           }
 
           // Fields that indicate real user input
@@ -158,8 +157,7 @@ export function useFormPersistence({
           const defaultValues = {
             'country': 'España',
             'hostContactLanguage': 'es',
-            'type': 'APARTMENT',
-            'hostContactName': 'Alejandro Satlla'
+            'type': 'APARTMENT'
           }
 
           // Check if there's meaningful data
