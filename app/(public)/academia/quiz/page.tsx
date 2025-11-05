@@ -16,7 +16,7 @@ export default function QuizPage() {
   const [showEmailCapture, setShowEmailCapture] = useState(true) // Start with email capture
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [quizStarted, setQuizStarted] = useState(false)
-  const [timeRemaining, setTimeRemaining] = useState(20 * 60) // 20 minutes in seconds
+  const [timeRemaining, setTimeRemaining] = useState(15 * 60) // 15 minutes in seconds
   const [showTimeoutModal, setShowTimeoutModal] = useState(false)
   const [emailError, setEmailError] = useState('')
   const [isValidatingEmail, setIsValidatingEmail] = useState(false)
@@ -206,7 +206,7 @@ export default function QuizPage() {
           fullName,
           score: totalScore,
           answers: answerDetails,
-          timeElapsed: 20 * 60 - timeRemaining
+          timeElapsed: 15 * 60 - timeRemaining
         })
       })
     } catch (error) {
@@ -285,26 +285,26 @@ export default function QuizPage() {
       {/* Timeout Modal */}
       <AnimatePresence>
         {showTimeoutModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-white md:bg-black md:bg-opacity-50 md:flex md:items-center md:justify-center z-50">
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="h-full md:h-auto bg-white md:rounded-2xl md:shadow-2xl p-6 md:p-8 md:max-w-md w-full flex items-center justify-center"
             >
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-                  <AlertCircle className="text-red-600" size={32} />
+              <div className="text-center max-w-sm">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-6">
+                  <AlertCircle className="text-red-600" size={40} />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-3xl md:text-2xl font-bold text-gray-900 mb-3">
                   ¡Tiempo agotado!
                 </h2>
-                <p className="text-gray-600 mb-6">
+                <p className="text-lg md:text-base text-gray-600 mb-8">
                   Se acabó el tiempo para completar el quiz. Tus respuestas hasta el momento han sido guardadas.
                 </p>
                 <button
                   onClick={() => router.push('/academia/quiz/resultados')}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
+                  className="w-full px-6 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all text-lg"
                 >
                   Ver mis resultados
                 </button>
@@ -348,14 +348,26 @@ export default function QuizPage() {
                 </div>
 
                 <div className="p-8">
-                  {/* Info Badge */}
-                  <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl mb-8">
-                    <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center">
-                      <Clock className="text-white" size={24} />
+                  {/* Info Badges */}
+                  <div className="space-y-3 mb-8">
+                    <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl">
+                      <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center">
+                        <Clock className="text-white" size={24} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-amber-900">15 minutos • 20 preguntas</p>
+                        <p className="text-xs text-amber-700">Tu nivel se determinará al finalizar</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-amber-900">20 minutos • 20 preguntas</p>
-                      <p className="text-xs text-amber-700">Tu nivel se determinará al finalizar</p>
+
+                    <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-2xl">
+                      <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-xl flex items-center justify-center">
+                        <AlertCircle className="text-white" size={24} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-blue-900 mb-1">Tu email ha sido registrado</p>
+                        <p className="text-xs text-blue-700">Si no completas el quiz en 15 minutos, no podrás acceder a tus resultados y beneficios. ¡Asegúrate de tener tiempo antes de comenzar!</p>
+                      </div>
                     </div>
                   </div>
 
@@ -414,22 +426,22 @@ export default function QuizPage() {
                     <button
                       onClick={handleStartQuiz}
                       disabled={!email || !fullName || isValidatingEmail}
-                      className="w-full px-6 py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-purple-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group relative overflow-hidden"
+                      className="w-full px-6 py-3 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-purple-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <span className="relative z-10">
+                      <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="relative z-10 flex items-center justify-center gap-2">
                         {isValidatingEmail ? (
                           <>
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-2 inline-block"></div>
-                            Validando email...
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                            <span>Validando email...</span>
                           </>
                         ) : (
                           <>
-                            Comenzar Quiz
-                            <ChevronRight size={24} className="group-hover:translate-x-1 transition-transform" />
+                            <span>Comenzar Quiz</span>
+                            <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
                           </>
                         )}
-                      </span>
+                      </div>
                     </button>
 
                     <p className="text-xs text-gray-500 text-center pt-2">

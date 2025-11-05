@@ -1,22 +1,26 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Trophy, Target, BookOpen, ArrowRight, Sparkles, CheckCircle2, XCircle, Check, AlertTriangle } from 'lucide-react'
+import { Trophy, Target, BookOpen, ArrowRight, Sparkles, CheckCircle2, XCircle, Check, AlertTriangle, Mail, Lock } from 'lucide-react'
 import { calculateLevel } from '../../../../../src/data/quiz-questions'
 
 interface QuizResults {
   score: number
   answers: any[]
   email: string
+  fullName?: string
   completedAt: string
 }
 
 export default function ResultadosPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [results, setResults] = useState<QuizResults | null>(null)
   const [loading, setLoading] = useState(true)
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [checkingVerification, setCheckingVerification] = useState(true)
 
   useEffect(() => {
     // Get results from sessionStorage
@@ -30,13 +34,135 @@ export default function ResultadosPage() {
 
     const parsed = JSON.parse(storedResults)
     setResults(parsed)
-    setLoading(false)
-  }, [router])
+
+    // Check if user came from verification page
+    const verified = searchParams.get('verified') === 'true'
+
+    if (verified) {
+      // User just verified their email
+      setEmailVerified(true)
+      setCheckingVerification(false)
+      setLoading(false)
+    } else {
+      // Check verification status in database
+      checkEmailVerification(parsed.email)
+    }
+  }, [router, searchParams])
+
+  const checkEmailVerification = async (email: string) => {
+    try {
+      const response = await fetch('/api/academia/quiz/check-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+
+      const data = await response.json()
+      setEmailVerified(data.verified || false)
+    } catch (error) {
+      console.error('Error checking verification:', error)
+      setEmailVerified(false)
+    } finally {
+      setCheckingVerification(false)
+      setLoading(false)
+    }
+  }
 
   if (loading || !results) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-white to-purple-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
+      </div>
+    )
+  }
+
+  // Show email verification screen if email is not verified
+  if (!checkingVerification && !emailVerified) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-2xl w-full"
+        >
+          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-violet-600 to-purple-600 p-8 text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full mb-4">
+                <Mail className="text-white" size={40} />
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                ¡Quiz completado!
+              </h1>
+              <p className="text-purple-100">
+                Solo falta un último paso
+              </p>
+            </div>
+
+            {/* Content */}
+            <div className="p-8">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                  <Lock className="text-blue-600" size={32} />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                  Verifica tu email para ver los resultados
+                </h2>
+                <p className="text-gray-600 text-lg">
+                  Te hemos enviado un correo electrónico a:
+                </p>
+                <p className="text-violet-600 font-semibold text-lg mt-2">
+                  {results.email}
+                </p>
+              </div>
+
+              <div className="space-y-4 mb-8">
+                <div className="flex items-start gap-3 p-4 bg-violet-50 rounded-xl">
+                  <div className="flex-shrink-0 w-8 h-8 bg-violet-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                    1
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 mb-1">Revisa tu bandeja de entrada</p>
+                    <p className="text-sm text-gray-600">Busca el email de verificación de Academia Itineramio</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 bg-purple-50 rounded-xl">
+                  <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                    2
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 mb-1">Haz click en el enlace de verificación</p>
+                    <p className="text-sm text-gray-600">El enlace te llevará directamente a tus resultados</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 bg-pink-50 rounded-xl">
+                  <div className="flex-shrink-0 w-8 h-8 bg-pink-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                    3
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 mb-1">Descubre tu nivel y recomendaciones</p>
+                    <p className="text-sm text-gray-600">Accede a tu puntuación completa y contenido personalizado</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl mb-6">
+                <p className="text-sm text-amber-900 text-center">
+                  <span className="font-semibold">¿No ves el email?</span> Revisa tu carpeta de spam o correo no deseado
+                </p>
+              </div>
+
+              <button
+                onClick={() => checkEmailVerification(results.email)}
+                className="w-full px-6 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-xl transition-all"
+              >
+                Ya verifiqué mi email - Ver resultados
+              </button>
+            </div>
+          </div>
+        </motion.div>
       </div>
     )
   }
