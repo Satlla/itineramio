@@ -45,7 +45,7 @@ export default function FirstPropertyNotification({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -100, scale: 0.9 }}
           transition={{ type: "spring", damping: 20, stiffness: 300 }}
-          className="fixed top-4 left-1/2 -translate-x-1/2 z-[10001] w-full max-w-md mx-4 sm:mx-0"
+          className="fixed top-4 left-1/2 -translate-x-1/2 z-[10001] w-[calc(100%-2rem)] sm:w-full max-w-md"
         >
           <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-2xl shadow-2xl overflow-hidden">
             {/* Animated background glow */}
@@ -118,9 +118,9 @@ export default function FirstPropertyNotification({
               </div>
 
               {/* Bottom tip */}
-              <div className="mt-4 pt-4 border-t border-amber-200 flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
-                <p className="text-xs text-amber-700">
+              <div className="mt-4 pt-4 border-t border-amber-200 flex items-start gap-2">
+                <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse flex-shrink-0 mt-1" />
+                <p className="text-xs text-amber-700 leading-relaxed">
                   También verás un icono de bombilla en el botón de crear propiedad
                 </p>
               </div>
