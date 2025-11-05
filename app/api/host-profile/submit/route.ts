@@ -10,6 +10,8 @@ interface AnswerData {
 
 interface SubmitRequest {
   answers: AnswerData[]
+  email: string
+  name?: string
   gender?: 'M' | 'F' | 'O'
 }
 
@@ -156,6 +158,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validar que el email es requerido y válido
+    if (!body.email || !body.email.includes('@')) {
+      return NextResponse.json(
+        { error: 'Email válido es requerido para ver los resultados' },
+        { status: 400 }
+      )
+    }
+
     // Calcular scores por dimensión
     const dimensionScores = calculateDimensionScores(body.answers)
 
@@ -165,6 +175,8 @@ export async function POST(request: NextRequest) {
     // Guardar en base de datos
     const testResult = await prisma.hostProfileTest.create({
       data: {
+        email: body.email,
+        name: body.name || null,
         gender: body.gender || null,
         answers: body.answers,
         scoreHospitalidad: dimensionScores.HOSPITALIDAD,
@@ -178,7 +190,7 @@ export async function POST(request: NextRequest) {
         archetype,
         topStrength,
         criticalGap,
-        emailConsent: false,
+        emailConsent: true, // True porque dieron email para ver resultados
         shareConsent: false
       }
     })

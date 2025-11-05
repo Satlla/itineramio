@@ -16,8 +16,10 @@ export default function HostProfileTestPage() {
   const router = useRouter()
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<number, number>>({})
+  const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
   const [gender, setGender] = useState<'M' | 'F' | 'O' | ''>('')
-  const [showGenderModal, setShowGenderModal] = useState(false)
+  const [showLeadModal, setShowLeadModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const currentQuestion = questions[currentQuestionIndex]
@@ -37,8 +39,8 @@ export default function HostProfileTestPage() {
     if (canGoNext && !isLastQuestion) {
       setCurrentQuestionIndex(prev => prev + 1)
     } else if (canGoNext && isLastQuestion) {
-      // Última pregunta respondida, mostrar modal de género
-      setShowGenderModal(true)
+      // Última pregunta respondida, mostrar modal de captura de lead
+      setShowLeadModal(true)
     }
   }
 
@@ -51,6 +53,12 @@ export default function HostProfileTestPage() {
   const handleSubmit = async () => {
     if (Object.keys(answers).length !== questions.length) {
       alert('Por favor responde todas las preguntas')
+      return
+    }
+
+    // Validar email obligatorio
+    if (!email || !email.includes('@')) {
+      alert('Por favor ingresa un email válido')
       return
     }
 
@@ -70,6 +78,8 @@ export default function HostProfileTestPage() {
         },
         body: JSON.stringify({
           answers: answersArray,
+          email: email,
+          name: name || undefined,
           gender: gender || undefined
         })
       })
@@ -240,15 +250,15 @@ export default function HostProfileTestPage() {
         </div>
       </div>
 
-      {/* Gender Modal */}
+      {/* Lead Capture Modal */}
       <AnimatePresence>
-        {showGenderModal && (
+        {showLeadModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-            onClick={() => setShowGenderModal(false)}
+            onClick={() => setShowLeadModal(false)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -258,55 +268,96 @@ export default function HostProfileTestPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Una última pregunta
+                Ingresa tu email para ver tus resultados
               </h3>
               <p className="text-gray-600 mb-6">
-                (Opcional) ¿Con qué género te identificas? Esto nos ayuda a mejorar nuestras estadísticas.
+                Te enviaremos un análisis detallado de tu perfil operativo y recomendaciones personalizadas.
               </p>
 
-              <div className="space-y-3 mb-6">
-                <button
-                  onClick={() => setGender('M')}
-                  className={`w-full text-left px-6 py-4 rounded-xl border-2 transition-all ${
-                    gender === 'M'
-                      ? 'border-purple-600 bg-purple-50'
-                      : 'border-gray-200 hover:border-purple-300'
-                  }`}
-                >
-                  <span className="text-lg font-medium text-gray-900">Masculino</span>
-                </button>
-                <button
-                  onClick={() => setGender('F')}
-                  className={`w-full text-left px-6 py-4 rounded-xl border-2 transition-all ${
-                    gender === 'F'
-                      ? 'border-purple-600 bg-purple-50'
-                      : 'border-gray-200 hover:border-purple-300'
-                  }`}
-                >
-                  <span className="text-lg font-medium text-gray-900">Femenino</span>
-                </button>
-                <button
-                  onClick={() => setGender('O')}
-                  className={`w-full text-left px-6 py-4 rounded-xl border-2 transition-all ${
-                    gender === 'O'
-                      ? 'border-purple-600 bg-purple-50'
-                      : 'border-gray-200 hover:border-purple-300'
-                  }`}
-                >
-                  <span className="text-lg font-medium text-gray-900">Otro / Prefiero no decir</span>
-                </button>
+              <div className="space-y-4 mb-6">
+                {/* Email Input - REQUIRED */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Email <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="tu@email.com"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-purple-600 transition-colors"
+                    required
+                  />
+                </div>
+
+                {/* Name Input - Optional */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Nombre (opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Tu nombre"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-purple-600 transition-colors"
+                  />
+                </div>
+
+                {/* Gender Selection - Optional */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Género (opcional)
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      onClick={() => setGender('M')}
+                      className={`px-4 py-2 rounded-lg border-2 transition-all text-sm font-medium ${
+                        gender === 'M'
+                          ? 'border-purple-600 bg-purple-50 text-purple-900'
+                          : 'border-gray-200 hover:border-purple-300 text-gray-700'
+                      }`}
+                    >
+                      M
+                    </button>
+                    <button
+                      onClick={() => setGender('F')}
+                      className={`px-4 py-2 rounded-lg border-2 transition-all text-sm font-medium ${
+                        gender === 'F'
+                          ? 'border-purple-600 bg-purple-50 text-purple-900'
+                          : 'border-gray-200 hover:border-purple-300 text-gray-700'
+                      }`}
+                    >
+                      F
+                    </button>
+                    <button
+                      onClick={() => setGender('O')}
+                      className={`px-4 py-2 rounded-lg border-2 transition-all text-sm font-medium ${
+                        gender === 'O'
+                          ? 'border-purple-600 bg-purple-50 text-purple-900'
+                          : 'border-gray-200 hover:border-purple-300 text-gray-700'
+                      }`}
+                    >
+                      Otro
+                    </button>
+                  </div>
+                </div>
               </div>
+
+              <p className="text-xs text-gray-500 mb-4">
+                Al continuar, aceptas recibir tu análisis y comunicaciones relacionadas. Puedes darte de baja en cualquier momento.
+              </p>
 
               <button
                 onClick={handleSubmit}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !email}
                 className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Procesando...' : 'Ver mis resultados'}
               </button>
 
               <button
-                onClick={() => setShowGenderModal(false)}
+                onClick={() => setShowLeadModal(false)}
                 className="w-full mt-3 text-gray-600 hover:text-gray-800 font-medium py-2"
               >
                 Volver
