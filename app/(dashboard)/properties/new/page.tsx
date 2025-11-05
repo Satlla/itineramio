@@ -124,7 +124,7 @@ function NewPropertyPageContent() {
       country: 'España',
       hostContactLanguage: 'es',
       type: 'APARTMENT',
-      hostContactName: 'Alejandro Satlla',
+      hostContactName: user?.name || '',
       hostContactPhoto: undefined
     },
     mode: 'onChange'
