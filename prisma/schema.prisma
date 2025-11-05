@@ -85,6 +85,8 @@ model User {
   academyPoints           Int                    @default(0) // Puntos totales en la academia
   academyStreak           Int                    @default(0) // Días consecutivos activo
   lastAcademyActivityAt   DateTime?              // Última actividad en la academia
+  // Host Profile Test relation
+  hostProfileTests        HostProfileTest[]
 
   @@map("users")
 }
@@ -1974,4 +1976,50 @@ model CerebellumSubscription {
 
   @@index([userId])
   @@map("cerebellum_subscriptions")
+}
+
+// ============================================
+// HOST PROFILE TEST - Test de Perfil Operativo
+// ============================================
+
+model HostProfileTest {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Datos personales (opcionales hasta que den email)
+  email     String?
+  name      String?
+  gender    String?  // 'M', 'F', 'O'
+
+  // Consentimientos
+  emailConsent  Boolean @default(false)
+  shareConsent  Boolean @default(false)
+
+  // Respuestas del test (JSON con las 45 respuestas)
+  answers   Json
+
+  // Scores calculados
+  scoreHospitalidad    Float
+  scoreComunicacion    Float
+  scoreOperativa       Float
+  scoreCrisis          Float
+  scoreData            Float
+  scoreLimites         Float
+  scoreMkt             Float
+  scoreBalance         Float
+
+  // Resultado final
+  archetype String  // 'ESTRATEGA', 'SISTEMATICO', etc.
+  topStrength String
+  criticalGap String
+
+  // Relación con usuario (si está registrado)
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id])
+
+  @@index([archetype])
+  @@index([email])
+  @@index([createdAt])
+  @@map("host_profile_tests")
 }
