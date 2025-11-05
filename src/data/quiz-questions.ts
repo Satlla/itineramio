@@ -184,31 +184,41 @@ export const quizQuestions: QuizQuestion[] = [
     category: 'FUNDAMENTOS',
     difficulty: 'BASIC',
     points: 3,
-    question: 'Un huésped te envía su número de teléfono por el chat de Airbnb y te pide que le llames "para coordinar la llegada". ¿Qué riesgo corres si lo llamas?',
+    question: 'Un huésped que todavía NO ha reservado te está haciendo preguntas sobre tu alojamiento. Te planteas saltarte la plataforma para evitar comisiones y decides mandarle tu teléfono. Señala la afirmación INCORRECTA:',
     type: 'single-choice',
     options: [
       {
         id: 'q6-a',
-        text: 'Ninguno, es normal coordinar por teléfono',
+        text: 'Si no reserva por Airbnb, corres el riesgo de no marcar el calendario y recibir reservas duplicadas',
         isCorrect: false
       },
       {
         id: 'q6-b',
-        text: 'Hay maneras de enviar el teléfono por el chat de Airbnb, pero el algoritmo puede detectarlo como intercambio de contactos y saltar una alerta, incluso podrían penalizarte o cerrar tu anuncio',
-        isCorrect: true
+        text: 'No estarás cubierto por el seguro AirCover ni las garantías de la plataforma',
+        isCorrect: false
       },
       {
         id: 'q6-c',
-        text: 'Solo hay riesgo si tú compartes tu número primero',
+        text: 'Es posible que tengas problemas con el cobro o que el huésped cancele sin penalización',
         isCorrect: false
       },
       {
         id: 'q6-d',
-        text: 'No hay problema tras la confirmación de reserva',
+        text: 'El algoritmo podría detectarte y sugerirle al huésped que te denuncie por incumplimiento de normas',
         isCorrect: false
+      },
+      {
+        id: 'q6-e',
+        text: 'Puedes ser suspendido o expulsado permanentemente de la plataforma',
+        isCorrect: false
+      },
+      {
+        id: 'q6-f',
+        text: 'No hay problema, puedes gestionar reservas fuera de Airbnb sin consecuencias',
+        isCorrect: true
       }
     ],
-    explanation: 'Aunque hay maneras de compartir el teléfono por el chat de Airbnb, el algoritmo está diseñado para detectar intercambio de contactos y puede penalizarte severamente, incluso cerrando tu anuncio temporalmente.'
+    explanation: 'Intentar saltarse la plataforma para evitar comisiones es una violación grave de las normas de Airbnb. Los riesgos incluyen: pérdida de cobertura del seguro, problemas con doble reserva, dificultades de cobro, detección algorítmica que puede resultar en denuncias del huésped, y suspensión o expulsión permanente de la plataforma. Las comisiones de Airbnb cubren servicios vitales como seguros, soporte 24/7, procesamiento de pagos seguros y protección legal.'
   },
   {
     id: 7,

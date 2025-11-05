@@ -1,7 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Mail, TrendingUp, Users, UserCheck, Download, Search, Filter } from 'lucide-react'
+import { Mail, TrendingUp, Users, UserCheck, Download, Search, Filter, ChevronDown, ChevronRight, CheckCircle2, XCircle } from 'lucide-react'
+
+interface QuizAnswer {
+  questionId: number
+  question: string
+  category: string
+  selectedOptions: string[]
+  correctOptions: string[]
+  isCorrect: boolean
+  points: number
+  earnedPoints: number
+}
 
 interface QuizLead {
   id: string
@@ -15,6 +26,7 @@ interface QuizLead {
   source: string
   emailVerified: boolean
   verifiedAt: string | null
+  answers: QuizAnswer[]
 }
 
 export default function QuizLeadsPage() {
@@ -24,6 +36,7 @@ export default function QuizLeadsPage() {
   const [filterLevel, setFilterLevel] = useState<string>('ALL')
   const [filterConverted, setFilterConverted] = useState<string>('ALL')
   const [filterVerified, setFilterVerified] = useState<string>('ALL')
+  const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchLeads()
@@ -109,6 +122,34 @@ export default function QuizLeadsPage() {
       case 'ADVANCED': return 'Avanzado'
       default: return level
     }
+  }
+
+  const getCategoryBadgeColor = (category: string) => {
+    switch (category) {
+      case 'FUNDAMENTOS': return 'bg-blue-100 text-blue-800'
+      case 'OPTIMIZACIÓN': return 'bg-orange-100 text-orange-800'
+      case 'AVANZADO': return 'bg-purple-100 text-purple-800'
+      default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getAnswerStats = (answers: QuizAnswer[]) => {
+    const correct = answers.filter(a => a.isCorrect).length
+    const incorrect = answers.length - correct
+    const byCategory = answers.reduce((acc, answer) => {
+      if (!acc[answer.category]) {
+        acc[answer.category] = { correct: 0, total: 0 }
+      }
+      acc[answer.category].total++
+      if (answer.isCorrect) acc[answer.category].correct++
+      return acc
+    }, {} as Record<string, { correct: number, total: number }>)
+
+    return { correct, incorrect, byCategory }
+  }
+
+  const toggleExpand = (leadId: string) => {
+    setExpandedLeadId(expandedLeadId === leadId ? null : leadId)
   }
 
   if (loading) {
@@ -267,6 +308,9 @@ export default function QuizLeadsPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Usuario
                   </th>
@@ -275,6 +319,9 @@ export default function QuizLeadsPage() {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Nivel
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Aciertos
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Tiempo
@@ -290,54 +337,159 @@ export default function QuizLeadsPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredLeads.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                       No se encontraron leads
                     </td>
                   </tr>
                 ) : (
-                  filteredLeads.map((lead) => (
-                    <tr key={lead.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {lead.fullName || 'Sin nombre'}
-                          </div>
-                          <div className="text-sm text-gray-500">{lead.email}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-semibold text-gray-900">{lead.score}/100</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getLevelBadgeColor(lead.level)}`}>
-                          {getLevelLabel(lead.level)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {Math.floor(lead.timeElapsed / 60)}:{(lead.timeElapsed % 60).toString().padStart(2, '0')}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {lead.converted ? (
-                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                            ✓ Registrado
-                          </span>
-                        ) : (
-                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800">
-                            ⏳ Pendiente
-                          </span>
+                  filteredLeads.map((lead) => {
+                    const isExpanded = expandedLeadId === lead.id
+                    const stats = getAnswerStats(lead.answers || [])
+
+                    return (
+                      <>
+                        <tr key={lead.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <button
+                              onClick={() => toggleExpand(lead.id)}
+                              className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                              {isExpanded ? (
+                                <ChevronDown className="w-5 h-5" />
+                              ) : (
+                                <ChevronRight className="w-5 h-5" />
+                              )}
+                            </button>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {lead.fullName || 'Sin nombre'}
+                              </div>
+                              <div className="text-sm text-gray-500">{lead.email}</div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-semibold text-gray-900">{lead.score}/100</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getLevelBadgeColor(lead.level)}`}>
+                              {getLevelLabel(lead.level)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">
+                              <span className="text-green-600 font-semibold">{stats.correct}</span>
+                              {' / '}
+                              <span className="text-red-600">{stats.incorrect}</span>
+                              <span className="text-gray-500 text-xs ml-1">({lead.answers?.length || 0})</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {Math.floor(lead.timeElapsed / 60)}:{(lead.timeElapsed % 60).toString().padStart(2, '0')}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {lead.converted ? (
+                              <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                ✓ Registrado
+                              </span>
+                            ) : (
+                              <span className="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800">
+                                ⏳ Pendiente
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(lead.completedAt).toLocaleDateString('es-ES', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </td>
+                        </tr>
+
+                        {/* Expanded Row */}
+                        {isExpanded && lead.answers && lead.answers.length > 0 && (
+                          <tr key={`${lead.id}-expanded`}>
+                            <td colSpan={8} className="px-6 py-6 bg-gray-50">
+                              <div className="space-y-4">
+                                {/* Stats by Category */}
+                                <div className="grid grid-cols-3 gap-4 mb-4">
+                                  {Object.entries(stats.byCategory).map(([category, data]) => (
+                                    <div key={category} className="bg-white rounded-lg p-3 shadow-sm">
+                                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getCategoryBadgeColor(category)}`}>
+                                        {category}
+                                      </span>
+                                      <div className="mt-2 text-sm">
+                                        <span className="text-green-600 font-semibold">{data.correct}</span>
+                                        <span className="text-gray-500"> / {data.total}</span>
+                                        <span className="text-gray-400 text-xs ml-1">
+                                          ({Math.round((data.correct / data.total) * 100)}%)
+                                        </span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                {/* Detailed Answers */}
+                                <div className="bg-white rounded-lg p-4 shadow-sm">
+                                  <h4 className="font-semibold text-gray-900 mb-3">Desglose de respuestas</h4>
+                                  <div className="space-y-3">
+                                    {lead.answers.map((answer, idx) => (
+                                      <div
+                                        key={idx}
+                                        className={`p-3 rounded-lg border-l-4 ${
+                                          answer.isCorrect
+                                            ? 'bg-green-50 border-green-500'
+                                            : 'bg-red-50 border-red-500'
+                                        }`}
+                                      >
+                                        <div className="flex items-start justify-between">
+                                          <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              {answer.isCorrect ? (
+                                                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                                              ) : (
+                                                <XCircle className="w-4 h-4 text-red-600" />
+                                              )}
+                                              <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${getCategoryBadgeColor(answer.category)}`}>
+                                                {answer.category}
+                                              </span>
+                                              <span className="text-xs text-gray-500">
+                                                Pregunta {answer.questionId}
+                                              </span>
+                                            </div>
+                                            <p className="text-sm text-gray-700 mb-2">{answer.question}</p>
+                                            {!answer.isCorrect && (
+                                              <div className="text-xs text-gray-600 mt-1">
+                                                <div className="mb-1">
+                                                  <span className="font-medium">Respuesta(s) correcta(s):</span> {answer.correctOptions.join(', ')}
+                                                </div>
+                                                <div>
+                                                  <span className="font-medium">Seleccionó:</span> {answer.selectedOptions.join(', ') || 'Ninguna'}
+                                                </div>
+                                              </div>
+                                            )}
+                                          </div>
+                                          <div className="text-right ml-4">
+                                            <div className={`text-sm font-semibold ${answer.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                                              {answer.earnedPoints}/{answer.points} pts
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
                         )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(lead.completedAt).toLocaleDateString('es-ES', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </td>
-                    </tr>
-                  ))
+                      </>
+                    )
+                  })
                 )}
               </tbody>
             </table>

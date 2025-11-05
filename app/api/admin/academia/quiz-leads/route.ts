@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
 import { verifyAdminToken } from '../../../../../src/lib/admin-auth'
 import { cookies } from 'next/headers'
+import { quizQuestions } from '../../../../../src/data/quiz-questions'
 
 /**
  * GET /api/admin/academia/quiz-leads
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all quiz leads
-    const leads = await prisma.quizLead.findMany({
+    const rawLeads = await prisma.quizLead.findMany({
       orderBy: {
         completedAt: 'desc'
       },
@@ -45,7 +46,43 @@ export async function GET(request: NextRequest) {
         source: true,
         academyUserId: true,
         emailVerified: true,
-        verifiedAt: true
+        verifiedAt: true,
+        answers: true
+      }
+    })
+
+    // Format answers with question details
+    const leads = rawLeads.map(lead => {
+      const answers = (lead.answers as any[])?.map((answer: any) => {
+        const question = quizQuestions.find(q => q.id === answer.questionId)
+        if (!question) return null
+
+        // Get selected option texts
+        const selectedOptions = answer.selectedOptions?.map((optId: string) => {
+          const option = question.options.find(o => o.id === optId)
+          return option?.text || optId
+        }) || []
+
+        // Get correct option texts
+        const correctOptions = question.options
+          .filter(o => o.isCorrect)
+          .map(o => o.text)
+
+        return {
+          questionId: answer.questionId,
+          question: question.question,
+          category: question.category,
+          selectedOptions,
+          correctOptions,
+          isCorrect: answer.isCorrect || false,
+          points: question.points,
+          earnedPoints: answer.earnedPoints || (answer.isCorrect ? question.points : 0)
+        }
+      }).filter(Boolean) || []
+
+      return {
+        ...lead,
+        answers
       }
     })
 
