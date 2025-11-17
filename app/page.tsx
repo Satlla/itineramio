@@ -1166,7 +1166,7 @@ export default function LandingPage() {
                   </motion.button>
                 </Link>
                 <p className="text-center text-sm text-gray-500 mt-3">
-                  No requiere tarjeta de crédito • Cancela cuando quieras
+                  No requiere tarjeta de crédito • Prueba 15 días sin compromiso
                 </p>
               </motion.div>
             </div>

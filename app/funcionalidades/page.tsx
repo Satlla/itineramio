@@ -735,7 +735,7 @@ export default function FuncionalidadesPage() {
             viewport={{ once: true }}
             transition={{ delay: 0.6 }}
           >
-            Sin compromisos. Cancela cuando quieras.
+            Sin compromisos. Prueba 15 días sin compromiso.
           </motion.p>
         </div>
       </section>

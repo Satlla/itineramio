@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Mail, TrendingUp, Users, UserCheck, Download, Search, Filter, ChevronDown, ChevronRight, CheckCircle2, XCircle } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Mail, TrendingUp, Users, UserCheck, Download, Search, Filter, ChevronDown, ChevronRight, CheckCircle2, XCircle, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 
 interface QuizAnswer {
   questionId: number
@@ -54,6 +55,24 @@ export default function QuizLeadsPage() {
     }
   }
 
+  const filteredLeads = leads.filter(lead => {
+    const matchesSearch =
+      lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (lead.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || false)
+
+    const matchesLevel = filterLevel === 'ALL' || lead.level === filterLevel
+    const matchesConverted =
+      filterConverted === 'ALL' ||
+      (filterConverted === 'CONVERTED' && lead.converted) ||
+      (filterConverted === 'NOT_CONVERTED' && !lead.converted)
+    const matchesVerified =
+      filterVerified === 'ALL' ||
+      (filterVerified === 'VERIFIED' && lead.emailVerified) ||
+      (filterVerified === 'NOT_VERIFIED' && !lead.emailVerified)
+
+    return matchesSearch && matchesLevel && matchesConverted && matchesVerified
+  })
+
   const exportToCSV = () => {
     const headers = ['Email', 'Nombre', 'Puntuación', 'Nivel', 'Verificado', 'Convertido', 'Tiempo (seg)', 'Fecha']
     const rows = filteredLeads.map(lead => [
@@ -79,24 +98,6 @@ export default function QuizLeadsPage() {
     a.download = `quiz-leads-${new Date().toISOString().split('T')[0]}.csv`
     a.click()
   }
-
-  const filteredLeads = leads.filter(lead => {
-    const matchesSearch =
-      lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (lead.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || false)
-
-    const matchesLevel = filterLevel === 'ALL' || lead.level === filterLevel
-    const matchesConverted =
-      filterConverted === 'ALL' ||
-      (filterConverted === 'CONVERTED' && lead.converted) ||
-      (filterConverted === 'NOT_CONVERTED' && !lead.converted)
-    const matchesVerified =
-      filterVerified === 'ALL' ||
-      (filterVerified === 'VERIFIED' && lead.emailVerified) ||
-      (filterVerified === 'NOT_VERIFIED' && !lead.emailVerified)
-
-    return matchesSearch && matchesLevel && matchesConverted && matchesVerified
-  })
 
   const stats = {
     total: leads.length,
@@ -165,6 +166,15 @@ export default function QuizLeadsPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Link
+              href="/admin/marketing"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>Volver a Embudos</span>
+            </Link>
+          </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Quiz Leads</h1>
           <p className="text-gray-600">Todos los usuarios que han completado el quiz de Airbnb</p>
         </div>
@@ -347,8 +357,8 @@ export default function QuizLeadsPage() {
                     const stats = getAnswerStats(lead.answers || [])
 
                     return (
-                      <>
-                        <tr key={lead.id} className="hover:bg-gray-50">
+                      <React.Fragment key={lead.id}>
+                        <tr className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <button
                               onClick={() => toggleExpand(lead.id)}
@@ -412,7 +422,7 @@ export default function QuizLeadsPage() {
 
                         {/* Expanded Row */}
                         {isExpanded && lead.answers && lead.answers.length > 0 && (
-                          <tr key={`${lead.id}-expanded`}>
+                          <tr>
                             <td colSpan={8} className="px-6 py-6 bg-gray-50">
                               <div className="space-y-4">
                                 {/* Stats by Category */}
@@ -487,7 +497,7 @@ export default function QuizLeadsPage() {
                             </td>
                           </tr>
                         )}
-                      </>
+                      </React.Fragment>
                     )
                   })
                 )}

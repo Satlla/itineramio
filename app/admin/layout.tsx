@@ -48,6 +48,8 @@ const adminNavigation = [
 
 // Marketing navigation (bottom section)
 const marketingNavigation = [
+  { name: 'Embudos', href: '/admin/marketing', icon: Megaphone },
+  { name: 'Host Profiles', href: '/admin/host-profiles', icon: UsersRound },
   { name: 'Blog', href: '/admin/blog', icon: FileText },
   { name: 'Suscriptores', href: '/admin/marketing/leads', icon: UsersRound },
 ]

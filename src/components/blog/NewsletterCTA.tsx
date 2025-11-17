@@ -103,7 +103,7 @@ export function NewsletterCTA({
             {title || '¿Listo para crear tu manual digital profesional?'}
           </h3>
           <p className="text-xl text-white/90 mb-8">
-            {description || 'Prueba Itineramio gratis durante 15 días. Sin tarjeta de crédito. Cancela cuando quieras.'}
+            {description || 'Prueba Itineramio gratis durante 15 días. Sin tarjeta de crédito. Prueba 15 días sin compromiso.'}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -236,7 +236,7 @@ export function NewsletterCTA({
         </form>
 
         <p className="mt-6 text-sm text-gray-500 text-center">
-          📬 1 email semanal · Sin spam · Cancela cuando quieras
+          📬 1 email semanal · Sin spam · Prueba 15 días sin compromiso
         </p>
 
         <div className="mt-8 pt-6 border-t border-gray-200">

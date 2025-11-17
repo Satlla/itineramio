@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Del Modo Bombero al Modo CEO</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+    * { font-family: 'Inter', sans-serif; }
+    @page { size: A4; margin: 0; }
+    body { margin: 0; padding: 0; }
+    .page { width: 210mm; height: 297mm; padding: 20mm; page-break-after: always; }
+    .page:last-child { page-break-after: avoid; }
+    .gradient-bg { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); }
+    .gradient-text { background: linear-gradient(135deg, #EF4444 0%, #F97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  </style>
+</head>
+<body>
+
+<div class="page gradient-bg flex items-center justify-center">
+  <div class="text-center text-white">
+    <div class="text-6xl mb-4">🔥</div>
+    <h1 class="text-5xl font-bold mb-4">Del Modo Bombero<br/>al Modo CEO</h1>
+    <div class="text-3xl font-light mb-8">Guía del Ejecutor</div>
+    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-2xl mx-auto">
+      <p class="text-xl mb-6">Deja de apagar fuegos. Recupera tu vida.</p>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white/10 rounded-lg p-4">
+          <div class="font-bold text-2xl">15h</div>
+          <div>recuperadas/semana</div>
+        </div>
+        <div class="bg-white/10 rounded-lg p-4">
+          <div class="font-bold text-2xl">70%</div>
+          <div>tareas delegables</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white font-bold">1</div>
+    <h2 class="text-3xl font-bold gradient-text">Tu Perfil como Ejecutor</h2>
+  </div>
+
+  <div class="bg-red-50 rounded-xl p-6 mb-6">
+    <h3 class="text-xl font-bold mb-3">Las 5 Señales de Burnout</h3>
+    <div class="space-y-3">
+      <div class="bg-white p-4 rounded-lg">
+        <div class="font-bold">1. Respondes emails a las 2 AM</div>
+        <div class="text-sm text-gray-600">¿Último email nocturno? ___</div>
+      </div>
+      <div class="bg-white p-4 rounded-lg">
+        <div class="font-bold">2. Ansiedad antes de cada reserva</div>
+        <div class="text-sm text-gray-600">"¿Qué saldrá mal esta vez?"</div>
+      </div>
+      <div class="bg-white p-4 rounded-lg">
+        <div class="font-bold">3. No recuerdas tu último día libre</div>
+        <div class="text-sm text-gray-600">¿Cuándo fue? ___</div>
+      </div>
+      <div class="bg-white p-4 rounded-lg">
+        <div class="font-bold">4. Tu familia se queja</div>
+        <div class="text-sm text-gray-600">"Siempre estás con el teléfono"</div>
+      </div>
+      <div class="bg-white p-4 rounded-lg">
+        <div class="font-bold">5. Piensas en "dejar todo"</div>
+        <div class="text-sm text-gray-600">Más de 2 veces al mes = señal roja</div>
+      </div>
+    </div>
+    <div class="mt-4 p-4 bg-red-100 rounded-lg border-2 border-red-500">
+      <div class="font-bold text-center">Test: ¿Cuántas señales tienes?</div>
+      <div class="text-center text-sm mt-2">
+        0-1: Estás bien | 2-3: Cuidado | 4-5: Burnout crítico
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-gray-50 rounded-xl p-6">
+    <h3 class="text-lg font-bold mb-3">Fortalezas vs Gap</h3>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <div class="font-bold text-green-600 mb-2">Fortalezas:</div>
+        <ul class="text-sm space-y-1">
+          <li>⚡ Fast action</li>
+          <li>🔨 Resolutivo</li>
+          <li>🎯 Multi-tasking</li>
+        </ul>
+      </div>
+      <div>
+        <div class="font-bold text-red-600 mb-2">Gap crítico:</div>
+        <p class="text-sm">Trabajas EN el negocio, no SOBRE él. Si no delegos, no creces.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white font-bold">2</div>
+    <h2 class="text-2xl font-bold gradient-text">Matriz de Eisenhower para Anfitriones</h2>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="bg-red-50 border-2 border-red-500 rounded-lg p-5">
+      <div class="font-bold text-lg mb-3">Q1: URGENTE + IMPORTANTE</div>
+      <div class="text-sm mb-2">Acción: <strong>Hacer YA</strong></div>
+      <ul class="text-xs space-y-1">
+        <li>• Crisis (fuga agua, huésped locked out)</li>
+        <li>• Emergencias</li>
+        <li>• Deadlines críticos</li>
+      </ul>
+      <div class="mt-3 p-2 bg-red-100 rounded">
+        <strong>Objetivo:</strong> Minimizar tiempo aquí
+      </div>
+    </div>
+
+    <div class="bg-green-50 border-2 border-green-500 rounded-lg p-5">
+      <div class="font-bold text-lg mb-3">Q2: NO URGENTE + IMPORTANTE</div>
+      <div class="text-sm mb-2">Acción: <strong>CRECER AQUÍ</strong></div>
+      <ul class="text-xs space-y-1">
+        <li>• Planificación estratégica</li>
+        <li>• Sistemas y automatizaciones</li>
+        <li>• Relaciones importantes</li>
+        <li>• Formación y mejora</li>
+      </ul>
+      <div class="mt-3 p-2 bg-green-100 rounded">
+        <strong>Objetivo:</strong> Pasar 60% tiempo aquí
+      </div>
+    </div>
+
+    <div class="bg-yellow-50 border-2 border-yellow-500 rounded-lg p-5">
+      <div class="font-bold text-lg mb-3">Q3: URGENTE + NO IMPORTANTE</div>
+      <div class="text-sm mb-2">Acción: <strong>Delegar</strong></div>
+      <ul class="text-xs space-y-1">
+        <li>• Interrupciones</li>
+        <li>• Emails rutinarios</li>
+        <li>• Tareas operativas</li>
+      </ul>
+      <div class="mt-3 p-2 bg-yellow-100 rounded">
+        <strong>Trampa:</strong> Parece urgente pero no mueve la aguja
+      </div>
+    </div>
+
+    <div class="bg-gray-100 border-2 border-gray-400 rounded-lg p-5">
+      <div class="font-bold text-lg mb-3">Q4: NO URGENTE + NO IMPORTANTE</div>
+      <div class="text-sm mb-2">Acción: <strong>ELIMINAR</strong></div>
+      <ul class="text-xs space-y-1">
+        <li>• Distracciones</li>
+        <li>• Redes sociales</li>
+        <li>• Tareas busywork</li>
+      </ul>
+      <div class="mt-3 p-2 bg-gray-200 rounded">
+        <strong>Objetivo:</strong> Decir NO sin culpa
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-5">
+    <h3 class="text-base font-bold mb-3">Ejercicio: Clasifica tus tareas</h3>
+    <div class="grid grid-cols-2 gap-3 text-xs">
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold mb-1">Tarea: Responder mensajes huéspedes</div>
+        <div>¿Q1, Q2, Q3 o Q4? → <span class="text-red-600">Q1/Q3</span> (depende del mensaje)</div>
+      </div>
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold mb-1">Tarea: Optimizar pricing</div>
+        <div>¿Q1, Q2, Q3 o Q4? → <span class="text-green-600">Q2</span> (importante, no urgente)</div>
+      </div>
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold mb-1">Tarea: Scroll Instagram competencia</div>
+        <div>¿Q1, Q2, Q3 o Q4? → <span class="text-gray-600">Q4</span> (eliminar)</div>
+      </div>
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold mb-1">Tarea: Supervisar limpieza</div>
+        <div>¿Q1, Q2, Q3 o Q4? → <span class="text-yellow-600">Q3</span> (delegar)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white font-bold">3</div>
+    <h2 class="text-2xl font-bold gradient-text">Qué Delegar Primero</h2>
+  </div>
+
+  <div class="bg-orange-50 rounded-xl p-5 mb-5">
+    <h3 class="text-lg font-bold mb-3">Las 10 Tareas que Puedes Delegar HOY</h3>
+    <div class="grid grid-cols-2 gap-3 text-xs">
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold">1. Limpieza</div>
+        <div class="text-gray-600">Coste: €30-50 | Ahorro: 3h</div>
+      </div>
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold">2. Mensajería rutinaria</div>
+        <div class="text-gray-600">Coste: €30/mes (Hospitable) | Ahorro: 4h/semana</div>
+      </div>
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold">3. Check-in físico</div>
+        <div class="text-gray-600">Coste: €200 (smart lock) | Ahorro: 2h/semana</div>
+      </div>
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold">4. Mantenimiento</div>
+        <div class="text-gray-600">Coste: €40/visita | Ahorro: 3h + stress</div>
+      </div>
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold">5. Gestión de ropa blanca</div>
+        <div class="text-gray-600">Coste: €5/set | Ahorro: 2h/semana</div>
+      </div>
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold">6. Reposición consumibles</div>
+        <div class="text-gray-600">Coste: €0 (incluir en limpieza) | Ahorro: 1h/semana</div>
+      </div>
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold">7. Contabilidad básica</div>
+        <div class="text-gray-600">Coste: €50/mes (gestor) | Ahorro: 3h/mes</div>
+      </div>
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold">8. Dynamic pricing</div>
+        <div class="text-gray-600">Coste: €20/mes (PriceLabs) | Ahorro: 2h/semana</div>
+      </div>
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold">9. Gestión calendario</div>
+        <div class="text-gray-600">Coste: €40/mes (PMS) | Ahorro: 3h/semana</div>
+      </div>
+      <div class="bg-white p-3 rounded">
+        <div class="font-bold">10. Fotos profesionales</div>
+        <div class="text-gray-600">Coste: €150 one-time | Ahorro: 4h + calidad</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-5">
+    <h3 class="font-bold mb-2">Cálculo ROI de tu tiempo</h3>
+    <div class="text-sm space-y-2">
+      <div>Si ganas €2,000/mes y trabajas 60h/semana:</div>
+      <div class="font-mono">€2,000 / (60h × 4 semanas) = <strong>€8.33/hora</strong></div>
+      <div class="mt-3">Si delegas limpieza a €40 y te ahorra 3h:</div>
+      <div class="font-mono">ROI = €40 / (3h × €8.33) = <strong>€40 vs €25</strong></div>
+      <div class="mt-2 p-2 bg-white rounded">
+        <strong>¿Cuesta más? SÍ. ¿Vale la pena? SIEMPRE.</strong><br/>
+        <span class="text-xs">Porque recuperas tiempo para crecer (Q2)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-5">
+    <h3 class="text-base font-bold mb-3">Plan de Balance Semanal</h3>
+    <div class="space-y-2 text-xs">
+      <div class="bg-white p-3 rounded flex justify-between">
+        <div><strong>Lunes 9-11h:</strong> Revisión + planificación semana</div>
+        <div class="text-purple-600">Q2</div>
+      </div>
+      <div class="bg-white p-3 rounded flex justify-between">
+        <div><strong>Martes-Jueves:</strong> Bloques trabajo profundo (pricing, estrategia)</div>
+        <div class="text-purple-600">Q2</div>
+      </div>
+      <div class="bg-white p-3 rounded flex justify-between">
+        <div><strong>Viernes 16-18h:</strong> Cierre semana + admin</div>
+        <div class="text-blue-600">Q1/Q3</div>
+      </div>
+      <div class="bg-white p-3 rounded flex justify-between">
+        <div><strong>Sábado-Domingo:</strong> OFF (de verdad)</div>
+        <div class="text-green-600">Vida</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white font-bold">4</div>
+    <h2 class="text-2xl font-bold gradient-text">De 60h/semana a 15h/semana</h2>
+  </div>
+
+  <div class="bg-green-50 rounded-xl p-6 mb-5">
+    <h3 class="text-xl font-bold mb-3">Caso: Pedro de Valencia</h3>
+    <div class="grid grid-cols-2 gap-5">
+      <div>
+        <div class="font-bold mb-2">Antes (Modo Bombero):</div>
+        <ul class="text-sm space-y-1">
+          <li>• 5 apartamentos</li>
+          <li>• 60h/semana trabajadas</li>
+          <li>• Ganaba €4,500/mes</li>
+          <li>• Burnout nivel 5/5</li>
+          <li>• 0 vacaciones en 2 años</li>
+        </ul>
+      </div>
+      <div>
+        <div class="font-bold mb-2">Después (Modo CEO):</div>
+        <ul class="text-sm space-y-1">
+          <li>• 5 apartamentos (igual)</li>
+          <li>• 15h/semana (solo Q2)</li>
+          <li>• Gana €5,200/mes (+15%)</li>
+          <li>• Estrés: 2/5</li>
+          <li>• 4 semanas vacaciones/año</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-4 p-4 bg-white rounded-lg">
+      <div class="font-bold mb-2">Qué implementó:</div>
+      <ol class="text-sm space-y-1">
+        <li>1. Delegó limpieza (€200/mes ahorró 12h/semana)</li>
+        <li>2. Smart locks (€1,000 one-time ahorró 8h/semana)</li>
+        <li>3. PMS automatizado (€60/mes ahorró 10h/semana)</li>
+        <li>4. Contrató VA part-time (€400/mes ahorró 15h/semana)</li>
+      </ol>
+      <div class="mt-3 p-3 bg-green-100 rounded text-center">
+        <strong>Total invertido:</strong> €660/mes | <strong>Ahorro:</strong> 45h/semana
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-5">
+    <h3 class="text-lg font-bold mb-3">Tu Próximo Paso</h3>
+    <div class="space-y-3 text-sm">
+      <div class="bg-white p-4 rounded-lg">
+        <div class="font-bold mb-1">🎯 Esta semana:</div>
+        <p>Haz el test de burnout. Clasifica tus tareas en la matriz de Eisenhower.</p>
+      </div>
+      <div class="bg-white p-4 rounded-lg">
+        <div class="font-bold mb-1">🎯 Próximos 7 días:</div>
+        <p>Delega UNA tarea de la lista de 10. Empieza con limpieza.</p>
+      </div>
+      <div class="bg-white p-4 rounded-lg">
+        <div class="font-bold mb-1">🎯 Este mes:</div>
+        <p>Implementa calendario CEO. Bloques Q2 protegidos.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="gradient-bg rounded-xl p-4 text-white text-center mt-5">
+    <h3 class="text-lg font-bold mb-2">Automatiza lo operativo. Enfócate en crecer.</h3>
+    <p class="text-sm mb-3">Itineramio te ahorra 8h/semana en gestión de huéspedes</p>
+    <div class="bg-white text-red-600 font-bold py-2 px-4 rounded-lg inline-block">
+      itineramio.com/signup
+    </div>
+  </div>
+
+  <div class="text-center mt-4 text-xs text-gray-500">
+    © 2025 Itineramio - Del caos a la libertad
+  </div>
+</div>
+
+</body>
+</html>

@@ -91,7 +91,7 @@ export default function PricingV2Page() {
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Sin compromisos</h3>
               <p className="text-gray-600">
-                Cancela cuando quieras. Sin penalizaciones ni preguntas.
+                Prueba 15 días sin compromiso. Sin penalizaciones ni preguntas.
               </p>
             </div>
 
@@ -303,7 +303,7 @@ export default function PricingV2Page() {
             Comienza tu evaluación de 15 días
           </a>
           <p className="mt-4 text-violet-200 text-sm">
-            Sin tarjeta requerida • Cancela cuando quieras
+            Sin tarjeta requerida • Prueba 15 días sin compromiso
           </p>
         </div>
       </section>

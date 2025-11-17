@@ -11,6 +11,7 @@ import { validateEnvironmentVariables } from '../src/lib/env-validation'
 import { ErrorBoundary } from '../src/components/ErrorBoundary'
 import { ChunkErrorHandler } from '../src/components/ChunkErrorHandler'
 import { Analytics } from '@vercel/analytics/next'
+import { GoogleAnalytics } from '../src/components/GoogleAnalytics'
 
 // Validate environment variables on startup
 if (typeof window === 'undefined') {
@@ -200,6 +201,11 @@ export default function RootLayout({
         <meta name="msapplication-tap-highlight" content="no" />
       </head>
       <body className={`${inter.className} antialiased`}>
+        {/* Google Analytics 4 */}
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+        )}
+
         <ChunkErrorHandler />
         <ErrorBoundary>
           <I18nProvider>
@@ -229,6 +235,8 @@ export default function RootLayout({
             </Providers>
           </I18nProvider>
         </ErrorBoundary>
+
+        {/* Vercel Analytics */}
         <Analytics />
       </body>
     </html>

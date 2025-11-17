@@ -1,17 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-  Users, 
-  Search, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Users,
+  Search,
+  CheckCircle,
+  XCircle,
   Building2,
   Calendar,
   Mail,
   Phone,
-  Eye
+  Eye,
+  ArrowLeft
 } from 'lucide-react'
+import Link from 'next/link'
 import UserProfileModal from './components/UserProfileModal'
 
 interface User {
@@ -87,6 +89,15 @@ export default function AdminUsersPage() {
     <div>
       {/* Header */}
       <div className="mb-4 sm:mb-6">
+        <div className="flex items-center gap-4 mb-4">
+          <Link
+            href="/admin"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Volver al Dashboard</span>
+          </Link>
+        </div>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">

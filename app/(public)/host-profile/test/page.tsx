@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react'
-import { questions, type Dimension } from '@/src/data/hostProfileQuestions'
+import { questions, type Dimension } from '@/data/hostProfileQuestions'
 
 interface Answer {
   questionId: number
@@ -29,10 +29,25 @@ export default function HostProfileTestPage() {
   const canGoPrevious = currentQuestionIndex > 0
 
   const handleAnswer = (value: number) => {
-    setAnswers(prev => ({
-      ...prev,
+    const newAnswers = {
+      ...answers,
       [currentQuestion.id]: value
-    }))
+    }
+    setAnswers(newAnswers)
+
+    // Verificar si todas las preguntas están completas (45 preguntas)
+    const allComplete = Object.keys(newAnswers).length === questions.length
+
+    // Auto-advance después de un pequeño delay para mostrar la selección
+    setTimeout(() => {
+      if (allComplete) {
+        // Todas las preguntas completas, mostrar modal
+        setShowLeadModal(true)
+      } else if (!isLastQuestion) {
+        // Avanzar a la siguiente pregunta
+        setCurrentQuestionIndex(prev => prev + 1)
+      }
+    }, 400)
   }
 
   const goToNext = () => {
@@ -65,6 +80,34 @@ export default function HostProfileTestPage() {
     setIsSubmitting(true)
 
     try {
+      // Primero verificar si el email ya hizo el test
+      const checkResponse = await fetch('/api/host-profile/check-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email.toLowerCase() })
+      })
+
+      const checkData = await checkResponse.json()
+
+      if (checkData.exists) {
+        // Email ya existe, preguntar si quiere ver resultados anteriores o hacer de nuevo
+        const wantToRetake = confirm(
+          `Ya completaste este test anteriormente (${new Date(checkData.completedAt).toLocaleDateString()}).\n\n` +
+          `Tu arquetipo actual es: ${checkData.archetype}\n\n` +
+          `¿Quieres hacer el test de nuevo? (Esto actualizará tus resultados)\n\n` +
+          `Presiona OK para continuar o Cancelar para ver tus resultados anteriores.`
+        )
+
+        if (!wantToRetake) {
+          // Redirigir a resultados anteriores
+          router.push(`/host-profile/results/${checkData.resultId}`)
+          return
+        }
+      }
+
+      // Continuar con el envío del test (nuevo o repetición)
       const answersArray: Answer[] = questions.map(q => ({
         questionId: q.id,
         dimension: q.dimension,
@@ -78,7 +121,7 @@ export default function HostProfileTestPage() {
         },
         body: JSON.stringify({
           answers: answersArray,
-          email: email,
+          email: email.toLowerCase(),
           name: name || undefined,
           gender: gender || undefined
         })
@@ -195,13 +238,13 @@ export default function HostProfileTestPage() {
 
             {/* Helper text */}
             <p className="mt-6 text-sm text-gray-500 text-center">
-              Usa las teclas 1-5 o haz clic para responder
+              Selecciona tu respuesta y avanzarás automáticamente
             </p>
           </motion.div>
         </AnimatePresence>
 
         {/* Navigation Buttons */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-start">
           <button
             onClick={goToPrevious}
             disabled={!canGoPrevious}
@@ -213,19 +256,6 @@ export default function HostProfileTestPage() {
           >
             <ChevronLeft className="w-5 h-5" />
             Anterior
-          </button>
-
-          <button
-            onClick={goToNext}
-            disabled={!canGoNext}
-            className={`flex items-center gap-2 px-8 py-3 rounded-xl font-semibold transition-all ${
-              canGoNext
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            {isLastQuestion ? 'Finalizar' : 'Siguiente'}
-            <ChevronRight className="w-5 h-5" />
           </button>
         </div>
 

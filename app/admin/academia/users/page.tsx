@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Trash2, Users, Mail, Trophy, Flame, AlertCircle } from 'lucide-react'
+import { Trash2, Users, Mail, Trophy, Flame, AlertCircle, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 
 interface AcademyUser {
   id: string
@@ -30,7 +31,7 @@ export default function AdminAcademyUsersPage() {
 
   async function fetchUsers() {
     try {
-      const res = await fetch('/api/admin/academy/users')
+      const res = await fetch('/api/admin/academia/users')
       const data = await res.json()
 
       if (res.ok) {
@@ -54,7 +55,7 @@ export default function AdminAcademyUsersPage() {
     setError('')
 
     try {
-      const res = await fetch(`/api/admin/academy/users?id=${userId}`, {
+      const res = await fetch(`/api/admin/academia/users?id=${userId}`, {
         method: 'DELETE'
       })
 
@@ -89,6 +90,15 @@ export default function AdminAcademyUsersPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Link
+              href="/admin"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>Volver al Dashboard</span>
+            </Link>
+          </div>
           <div className="flex items-center space-x-3 mb-2">
             <Users className="w-8 h-8 text-violet-600" />
             <h1 className="text-3xl font-bold text-gray-900">Usuarios de Academia</h1>

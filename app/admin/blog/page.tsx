@@ -14,7 +14,8 @@ import {
   FileText,
   CheckCircle,
   Clock,
-  Archive
+  Archive,
+  ArrowLeft
 } from 'lucide-react'
 
 interface BlogPost {
@@ -145,6 +146,15 @@ export default function AdminBlogPage() {
     <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
+        <div className="flex items-center gap-4 mb-4">
+          <Link
+            href="/admin"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Volver al Dashboard</span>
+          </Link>
+        </div>
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Gestión de Blog</h1>

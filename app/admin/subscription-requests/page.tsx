@@ -18,8 +18,10 @@ import {
   Euro,
   Bell,
   AlertTriangle,
-  UserX
+  UserX,
+  ArrowLeft
 } from 'lucide-react'
+import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../src/components/ui/Card'
 import { Button } from '../../../src/components/ui/Button'
 import { Input } from '../../../src/components/ui/Input'
@@ -848,6 +850,15 @@ export default function SubscriptionRequestsPage() {
 
   return (
     <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
+      <div className="flex items-center gap-4 mb-4">
+        <Link
+          href="/admin"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span>Volver al Dashboard</span>
+        </Link>
+      </div>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 flex items-center">

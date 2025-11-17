@@ -71,9 +71,11 @@
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.294.0",
     "next": "^15.3.3",
+    "next-auth": "^4.24.13",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.4",
     "postcss": "^8.4.31",
+    "puppeteer": "^24.29.1",
     "qr-code-styling": "^1.9.2",
     "qrcode": "^1.5.4",
     "react": "^18.2.0",
@@ -113,6 +115,7 @@
     "eslint": "^8.54.0",
     "eslint-config-next": "14.0.3",
     "prisma": "^6.9.0",
+    "tsx": "^4.20.6",
     "typescript": "^5.2.2"
   }
 }

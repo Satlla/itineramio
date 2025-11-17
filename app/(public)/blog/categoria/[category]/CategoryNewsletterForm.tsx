@@ -126,7 +126,7 @@ export default function CategoryNewsletterForm({ category, categoryName }: Categ
         </button>
 
         <p className="text-xs text-gray-500 text-center">
-          Sin spam. Cancela cuando quieras.
+          Sin spam. Prueba 15 días sin compromiso.
         </p>
       </form>
     </div>

@@ -73,11 +73,42 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Enriquecer con datos de EmailSubscriber (funnel tracking)
+    const enrichedProfiles = await Promise.all(
+      profiles.map(async (profile) => {
+        if (!profile.email) {
+          return { ...profile, subscriber: null }
+        }
+
+        const subscriber = await prisma.emailSubscriber.findUnique({
+          where: { email: profile.email },
+          select: {
+            engagementScore: true,
+            currentJourneyStage: true,
+            emailsSent: true,
+            emailsOpened: true,
+            emailsClicked: true,
+            downloadedGuide: true,
+            day3SentAt: true,
+            day7SentAt: true,
+            day10SentAt: true,
+            day14SentAt: true,
+            sequenceStatus: true,
+            lastEngagement: true,
+            openRate: true,
+            clickRate: true,
+          }
+        })
+
+        return { ...profile, subscriber }
+      })
+    )
+
     // CSV Export
     if (export_format === 'csv') {
-      const csvHeader = 'ID,Fecha,Email,Nombre,Género,Arquetipo,Fortaleza,Gap Crítico,Hospitalidad,Comunicación,Operativa,Crisis,Data,Límites,Mkt,Balance,Consent Email,Consent Compartir\n'
+      const csvHeader = 'ID,Fecha,Email,Nombre,Género,Arquetipo,Fortaleza,Gap Crítico,Hospitalidad,Comunicación,Operativa,Crisis,Data,Límites,Mkt,Balance,Consent Email,Consent Compartir,Engagement,Journey,Emails Enviados,Emails Abiertos,Descargó Guía\n'
 
-      const csvRows = profiles.map(p =>
+      const csvRows = enrichedProfiles.map(p =>
         [
           p.id,
           p.createdAt.toISOString(),
@@ -96,7 +127,12 @@ export async function GET(request: NextRequest) {
           p.scoreMkt.toFixed(2),
           p.scoreBalance.toFixed(2),
           p.emailConsent ? 'Sí' : 'No',
-          p.shareConsent ? 'Sí' : 'No'
+          p.shareConsent ? 'Sí' : 'No',
+          p.subscriber?.engagementScore || '-',
+          p.subscriber?.currentJourneyStage || '-',
+          p.subscriber?.emailsSent || 0,
+          p.subscriber?.emailsOpened || 0,
+          p.subscriber?.downloadedGuide ? 'Sí' : 'No'
         ].join(',')
       ).join('\n')
 
@@ -112,17 +148,37 @@ export async function GET(request: NextRequest) {
 
     // Stats
     const stats = {
-      total: profiles.length,
-      withEmail: profiles.filter(p => p.email).length,
-      withoutEmail: profiles.filter(p => !p.email).length,
-      byArchetype: profiles.reduce((acc, p) => {
+      total: enrichedProfiles.length,
+      withEmail: enrichedProfiles.filter(p => p.email).length,
+      withoutEmail: enrichedProfiles.filter(p => !p.email).length,
+      byArchetype: enrichedProfiles.reduce((acc, p) => {
         acc[p.archetype] = (acc[p.archetype] || 0) + 1
         return acc
-      }, {} as Record<string, number>)
+      }, {} as Record<string, number>),
+      // Nuevas stats
+      withSubscriber: enrichedProfiles.filter(p => p.subscriber).length,
+      downloadedGuide: enrichedProfiles.filter(p => p.subscriber?.downloadedGuide).length,
+      byEngagement: {
+        hot: enrichedProfiles.filter(p => p.subscriber?.engagementScore === 'hot').length,
+        warm: enrichedProfiles.filter(p => p.subscriber?.engagementScore === 'warm').length,
+        cold: enrichedProfiles.filter(p => p.subscriber?.engagementScore === 'cold').length,
+      },
+      // Email metrics
+      emailMetrics: {
+        totalSent: enrichedProfiles.reduce((sum, p) => sum + (p.subscriber?.emailsSent || 0), 0),
+        totalOpened: enrichedProfiles.reduce((sum, p) => sum + (p.subscriber?.emailsOpened || 0), 0),
+        totalClicked: enrichedProfiles.reduce((sum, p) => sum + (p.subscriber?.emailsClicked || 0), 0),
+        avgOpenRate: enrichedProfiles.filter(p => p.subscriber?.emailsSent > 0).length > 0
+          ? enrichedProfiles
+              .filter(p => p.subscriber && p.subscriber.emailsSent > 0)
+              .reduce((sum, p) => sum + (p.subscriber.openRate || 0), 0) /
+            enrichedProfiles.filter(p => p.subscriber?.emailsSent > 0).length
+          : 0
+      }
     }
 
     return NextResponse.json({
-      profiles,
+      profiles: enrichedProfiles,
       stats
     })
 
@@ -130,6 +186,57 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching profiles:', error)
     return NextResponse.json(
       { error: 'Error al obtener perfiles' },
+      { status: 500 }
+    )
+  }
+}
+
+/**
+ * DELETE - Eliminar un perfil por email
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    // Check admin auth
+    const session = await getServerSession(authOptions)
+
+    if (!session || session.user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'No autorizado' },
+        { status: 401 }
+      )
+    }
+
+    const { searchParams } = new URL(request.url)
+    const email = searchParams.get('email')
+
+    if (!email) {
+      return NextResponse.json(
+        { error: 'Email requerido' },
+        { status: 400 }
+      )
+    }
+
+    // Eliminar de ambas tablas
+    const deletedTest = await prisma.hostProfileTest.deleteMany({
+      where: { email }
+    })
+
+    const deletedSubscriber = await prisma.emailSubscriber.deleteMany({
+      where: { email }
+    })
+
+    return NextResponse.json({
+      success: true,
+      deleted: {
+        tests: deletedTest.count,
+        subscribers: deletedSubscriber.count
+      }
+    })
+
+  } catch (error) {
+    console.error('Error deleting profile:', error)
+    return NextResponse.json(
+      { error: 'Error al eliminar perfil' },
       { status: 500 }
     )
   }

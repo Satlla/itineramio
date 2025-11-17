@@ -3,9 +3,21 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Loader2, Mail, CheckCircle2, TrendingUp, AlertCircle, BookOpen } from 'lucide-react'
-import ResultCard from '@/src/components/host-profile/ResultCard'
-import { archetypeDescriptions, dimensionLabels, type Archetype, type Dimension } from '@/src/data/hostProfileQuestions'
+import { Loader2, Mail, CheckCircle2, Award, AlertCircle, BookOpen, Sparkles, ArrowRight } from 'lucide-react'
+import ResultCard from '@/components/host-profile/ResultCard'
+import { archetypeDescriptions, dimensionLabels, type Archetype, type Dimension } from '@/data/hostProfileQuestions'
+
+// Mapeo de arquetipos a slugs de lead magnets
+const archetypeToSlug: Record<Archetype, string> = {
+  ESTRATEGA: 'estratega-5-kpis',
+  SISTEMATICO: 'sistematico-47-tareas',
+  DIFERENCIADOR: 'diferenciador-storytelling',
+  EJECUTOR: 'ejecutor-modo-ceo',
+  RESOLUTOR: 'resolutor-27-crisis',
+  EXPERIENCIAL: 'experiencial-corazon-escalable',
+  EQUILIBRADO: 'equilibrado-versatil-excepcional',
+  IMPROVISADOR: 'improvisador-kit-anti-caos'
+}
 
 interface TestResult {
   id: string
@@ -346,17 +358,110 @@ export default function ResultsPage() {
           </div>
         </motion.div>
 
+        {/* Lead Magnet CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mb-12"
+        >
+          <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl shadow-2xl p-8 md:p-12 text-white">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-4">
+                <Sparkles className="w-4 h-4" />
+                <span className="text-sm font-medium">Guía Personalizada · 100% Gratis</span>
+              </div>
+              <h3 className="text-3xl md:text-4xl font-bold mb-4">
+                ¿Listo para llevar tu perfil al siguiente nivel?
+              </h3>
+              <p className="text-lg text-white/90 max-w-2xl mx-auto">
+                Hemos preparado una guía específica para anfitriones como tú:
+                <span className="font-bold"> {archetypeInfo.name}</span>
+              </p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-6">
+              <h4 className="font-bold text-xl mb-3">📚 Tu guía incluye:</h4>
+              <ul className="space-y-2">
+                {archetypeInfo.name === 'Estratega' && (
+                  <>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span>5 KPIs esenciales para maximizar tu RevPAR</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span>Dashboard Excel + Calculadora de RevPAN</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span>Benchmarks reales del sector</span>
+                    </li>
+                  </>
+                )}
+                {archetypeInfo.name === 'Sistemático' && (
+                  <>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span>47 tareas automatizables priorizadas</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span>Excel con las 47 tareas + Template de SOPs</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span>Ahorra 25-30 horas al mes</span>
+                    </li>
+                  </>
+                )}
+                {/* Otros arquetipos siguen el mismo patrón */}
+                {!['Estratega', 'Sistemático'].includes(archetypeInfo.name) && (
+                  <>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span>Contenido práctico y accionable</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span>Plantillas y recursos descargables</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span>Estrategias específicas para tu perfil</span>
+                    </li>
+                  </>
+                )}
+              </ul>
+            </div>
+
+            <div className="text-center">
+              <a
+                href={`/recursos/${archetypeToSlug[result.archetype]}`}
+                className="inline-flex items-center gap-2 bg-white text-purple-600 font-bold text-lg py-4 px-8 rounded-xl hover:bg-gray-100 transition-all shadow-xl"
+              >
+                <BookOpen className="w-6 h-6" />
+                Descargar mi guía personalizada gratis
+                <ArrowRight className="w-6 h-6" />
+              </a>
+              <p className="text-sm text-white/70 mt-4">
+                Sin spam · Descarga inmediata · Prueba 15 días sin compromiso
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Detailed Results */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.7 }}
           className="grid md:grid-cols-2 gap-8 mb-12"
         >
           {/* Strengths */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <TrendingUp className="w-8 h-8 text-green-600" />
+              <Award className="w-8 h-8 text-green-600" />
               <h3 className="text-2xl font-bold text-gray-900">Fortalezas</h3>
             </div>
             <ul className="space-y-3">

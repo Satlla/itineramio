@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>El Sistema del Sistemático: 47 Tareas Automatizables</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+    * { font-family: 'Inter', sans-serif; }
+
+    @page { size: A4; margin: 0; }
+    body { margin: 0; padding: 0; background: white; }
+
+    .page {
+      width: 210mm;
+      height: 297mm;
+      padding: 20mm;
+      page-break-after: always;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page:last-child { page-break-after: avoid; }
+
+    .gradient-bg { background: linear-gradient(135deg, #9333EA 0%, #7C3AED 100%); }
+    .gradient-text {
+      background: linear-gradient(135deg, #9333EA 0%, #EC4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-box {
+      background: linear-gradient(135deg, #FAF5FF 0%, #F3E8FF 100%);
+      border-left: 4px solid #9333EA;
+    }
+
+    .task-box {
+      background: #FDF4FF;
+      border: 2px solid #E9D5FF;
+    }
+
+    .action-box {
+      background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+      border-left: 4px solid #F97316;
+    }
+
+    table { border-collapse: collapse; width: 100%; }
+    th { background: #9333EA; color: white; font-weight: 600; }
+    td, th { border: 1px solid #E5E7EB; padding: 6px 10px; text-align: left; font-size: 12px; }
+    tr:nth-child(even) { background: #F9FAFB; }
+
+    .priority-p0 { background: #FEE2E2; color: #991B1B; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+    .priority-p1 { background: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+    .priority-p2 { background: #D1FAE5; color: #065F46; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<!-- PÁGINA 1: PORTADA -->
+<div class="page gradient-bg flex items-center justify-center">
+  <div class="text-center text-white">
+    <div class="mb-8">
+      <div class="text-6xl mb-4">⚙️</div>
+      <h1 class="text-5xl font-bold mb-4 leading-tight">El Sistema del<br/>Sistemático</h1>
+      <div class="text-3xl font-light mb-8">47 Tareas Automatizables</div>
+    </div>
+
+    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-2xl mx-auto">
+      <p class="text-xl mb-6">Para anfitriones que creen que todo tiene un proceso</p>
+      <div class="grid grid-cols-3 gap-4 text-sm">
+        <div class="bg-white/10 rounded-lg p-4">
+          <div class="font-bold text-2xl">72%</div>
+          <div class="text-white/80">tareas automatizables</div>
+        </div>
+        <div class="bg-white/10 rounded-lg p-4">
+          <div class="font-bold text-2xl">6-8h</div>
+          <div class="text-white/80">ahorradas/semana</div>
+        </div>
+        <div class="bg-white/10 rounded-lg p-4">
+          <div class="font-bold text-2xl">30 días</div>
+          <div class="text-white/80">implementación</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-12 text-sm opacity-80">itineramio.com</div>
+  </div>
+</div>
+
+<!-- PÁGINA 2: INTRODUCCIÓN -->
+<div class="page">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white text-xl font-bold">1</div>
+    <h2 class="text-3xl font-bold gradient-text">Bienvenido/a, Sistemático</h2>
+  </div>
+
+  <div class="mb-6 text-base leading-relaxed text-gray-700">
+    <p class="mb-3">Si estás leyendo esto, hay un 90% de probabilidad de que:</p>
+    <ul class="space-y-2 ml-6 mb-4">
+      <li>✓ Tienes una checklist para todo</li>
+      <li>✓ Te frustras cuando algo "se te olvida"</li>
+      <li>✓ Disfrutas creando SOPs</li>
+      <li>✓ Sueñas con que todo funcione "solo"</li>
+    </ul>
+    <p class="mb-3"><strong>Y tienes razón.</strong> Los sistemas no son aburridos. Los sistemas son <strong class="text-purple-600">libertad</strong>.</p>
+  </div>
+
+  <div class="stat-box rounded-xl p-5 mb-5">
+    <h3 class="text-lg font-bold text-purple-900 mb-3">Esta guía te da:</h3>
+    <ul class="space-y-2 text-sm">
+      <li class="flex items-start gap-2">
+        <span>✅</span>
+        <span>Las 47 tareas críticas que DEBES sistematizar</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <span>✅</span>
+        <span>Priorización: qué automatizar primero</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <span>✅</span>
+        <span>Templates probados (copia-pega)</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <span>✅</span>
+        <span>Stack de herramientas minimalista</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="bg-gray-50 rounded-xl p-5">
+    <h3 class="text-lg font-bold mb-3 text-gray-900">Tu Perfil como Sistemático</h3>
+    <div class="grid grid-cols-2 gap-4 text-sm">
+      <div>
+        <div class="font-semibold text-purple-600 mb-2">Fortalezas:</div>
+        <ul class="space-y-1 text-gray-700 text-xs">
+          <li>📋 Consistencia</li>
+          <li>⚙️ Escalabilidad</li>
+          <li>🤖 Automatización</li>
+          <li>🎯 Eficiencia</li>
+        </ul>
+      </div>
+      <div>
+        <div class="font-semibold text-orange-600 mb-2">Gap crítico:</div>
+        <p class="text-gray-700 text-xs">Te enfocas tanto en "cómo" que pierdes de vista "por qué". Los sistemas son medios, no fines.</p>
+      </div>
+    </div>
+    <div class="mt-4 p-3 bg-white rounded-lg border-l-4 border-purple-600">
+      <p class="text-xs italic text-gray-700">"Si lo haces dos veces, sistematízalo. Si lo haces diez veces, automatízalo."</p>
+    </div>
+  </div>
+
+  <div class="mt-5">
+    <h3 class="text-base font-bold mb-2">Las 3 Fases del Sistemático</h3>
+    <div class="grid grid-cols-3 gap-2 text-xs">
+      <div class="bg-red-50 p-3 rounded-lg">
+        <div class="font-bold mb-1">Fase 1: Caos ordenado</div>
+        <div class="text-gray-600">0-3 meses<br/>Checklists en tu cabeza</div>
+      </div>
+      <div class="bg-yellow-50 p-3 rounded-lg">
+        <div class="font-bold mb-1">Fase 2: Procesos</div>
+        <div class="text-gray-600">3-12 meses<br/>SOPs básicos escritos</div>
+      </div>
+      <div class="bg-green-50 p-3 rounded-lg border-2 border-green-500">
+        <div class="font-bold mb-1">Fase 3: Máquina ✓</div>
+        <div class="text-gray-600">12+ meses<br/>Todo automatizado</div>
+      </div>
+    </div>
+    <p class="text-center mt-2 text-sm font-bold text-purple-600">→ Llegarás a Fase 3 en 30 días con esta guía</p>
+  </div>
+</div>
+
+<!-- PÁGINA 3: VISTA GENERAL DE LAS 47 TAREAS -->
+<div class="page">
+  <div class="flex items-center gap-3 mb-5">
+    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white text-xl font-bold">2</div>
+    <h2 class="text-3xl font-bold gradient-text">Las 47 Tareas - Vista General</h2>
+  </div>
+
+  <div class="mb-5">
+    <h3 class="text-lg font-bold mb-3">Matriz de Priorización</h3>
+    <table class="mb-4">
+      <thead>
+        <tr>
+          <th>Prioridad</th>
+          <th>Tareas</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="priority-p0">🔴 P0 ALTA</span></td>
+          <td class="font-bold">12 tareas</td>
+          <td>Automatizar YA</td>
+        </tr>
+        <tr>
+          <td><span class="priority-p1">🟡 P1 MEDIA</span></td>
+          <td class="font-bold">18 tareas</td>
+          <td>Automatizar mes 1</td>
+        </tr>
+        <tr>
+          <td><span class="priority-p2">🟢 P2 BAJA</span></td>
+          <td class="font-bold">17 tareas</td>
+          <td>Sistematizar (sin automatizar)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="stat-box rounded-xl p-5 mb-5">
+    <h3 class="text-base font-bold text-purple-900 mb-3">Las 12 Tareas P0 (Automatizar primero)</h3>
+    <div class="grid grid-cols-2 gap-3 text-xs">
+      <div>
+        <div class="font-semibold mb-2 text-purple-700">Pre-llegada:</div>
+        <ol class="space-y-1 ml-4">
+          <li>1. Confirmación de reserva</li>
+          <li>2. Instrucciones de acceso</li>
+          <li>3. Recordatorio 24h antes</li>
+        </ol>
+      </div>
+      <div>
+        <div class="font-semibold mb-2 text-purple-700">Check-in:</div>
+        <ol class="space-y-1 ml-4" start="4">
+          <li>4. Código smart lock</li>
+          <li>5. Manual digital</li>
+        </ol>
+      </div>
+      <div>
+        <div class="font-semibold mb-2 text-purple-700">Durante:</div>
+        <ol class="space-y-1 ml-4" start="6">
+          <li>6. Check-in automático</li>
+          <li>7. Sensores de monitoreo</li>
+        </ol>
+      </div>
+      <div>
+        <div class="font-semibold mb-2 text-purple-700">Check-out:</div>
+        <ol class="space-y-1 ml-4" start="8">
+          <li>8. Recordatorio instrucciones</li>
+          <li>9. Verificación salida</li>
+          <li>10. Solicitud de review</li>
+        </ol>
+      </div>
+      <div class="col-span-2">
+        <div class="font-semibold mb-2 text-purple-700">Post-estancia:</div>
+        <ol class="space-y-1 ml-4" start="11">
+          <li>11. Review del huésped</li>
+          <li>12. Email día 30 (volver)</li>
+        </ol>
+      </div>
+    </div>
+    <div class="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-300">
+      <div class="text-center font-bold text-sm">
+        <div class="text-purple-900 mb-1">ROI de automatizar P0:</div>
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <div>Ahorro: <span class="text-green-600 font-bold">6-8h/semana</span></div>
+          <div>Coste: <span class="text-blue-600 font-bold">€200-400</span></div>
+          <div>Break-even: <span class="text-orange-600 font-bold">4-6 semanas</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-box rounded-xl p-4">
+    <h3 class="text-sm font-bold mb-2 text-center">Visualización del Sistema Completo</h3>
+    <div class="text-xs leading-relaxed font-mono text-gray-700">
+<div class="text-center">
+RESERVA → [AUTO] Email bienvenida → 24h ANTES → [AUTO] Email instrucciones<br/>
+→ CHECK-IN → [AUTO] Smart lock + Manual → DURANTE → [AUTO] Check-in día 2<br/>
+→ CHECK-OUT → [AUTO] Email recordatorio → POST → [AUTO] Solicitud review<br/>
+→ DÍA 30 → [AUTO] Invitación a volver
+</div>
+    </div>
+  </div>
+</div>
+
+<!-- PÁGINA 4: PRE-LLEGADA (12 TAREAS) -->
+<div class="page">
+  <div class="flex items-center gap-3 mb-4">
+    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white text-xl font-bold">3</div>
+    <h2 class="text-2xl font-bold gradient-text">Checklist Pre-llegada (12 tareas)</h2>
+  </div>
+
+  <div class="mb-4">
+    <div class="bg-purple-50 p-3 rounded-lg mb-3">
+      <h3 class="text-sm font-bold mb-1">GRUPO 1: Confirmación (inmediato)</h3>
+    </div>
+
+    <div class="task-box rounded-lg p-3 mb-3">
+      <div class="flex justify-between items-start mb-2">
+        <div class="font-bold text-sm">Tarea 1: Email de confirmación</div>
+        <span class="priority-p0">P0</span>
+      </div>
+      <div class="text-xs space-y-1">
+        <div><strong>Trigger:</strong> Nueva reserva confirmada</div>
+        <div><strong>Timing:</strong> Inmediato</div>
+        <div><strong>Automatizable:</strong> 100%</div>
+        <div class="bg-gray-50 p-2 rounded mt-2">
+          <div class="font-semibold mb-1">Template:</div>
+          <div class="italic text-gray-700">
+            "¡Reserva confirmada! Tu estancia en [Propiedad]<br/>
+            Check-in: [Fecha] 15:00h | Check-out: [Fecha] 11:00h<br/>
+            Instrucciones 24h antes. Manual: [Link]"
+          </div>
+        </div>
+        <div class="mt-2"><strong>Herramienta:</strong> Hospitable / Hostaway</div>
+      </div>
+    </div>
+
+    <div class="task-box rounded-lg p-3 mb-3">
+      <div class="flex justify-between items-start mb-2">
+        <div class="font-bold text-sm">Tarea 2-3: Calendar sync + Block channels</div>
+        <div class="flex gap-1">
+          <span class="priority-p1">P1</span>
+          <span class="priority-p0">P0</span>
+        </div>
+      </div>
+      <div class="text-xs space-y-1">
+        <div><strong>Acción:</strong> Sincronizar con Google Calendar y bloquear en otros canales</div>
+        <div><strong>Automatizable:</strong> 100%</div>
+        <div><strong>Herramienta:</strong> iCal sync o Channel Manager</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <div class="bg-purple-50 p-3 rounded-lg mb-3">
+      <h3 class="text-sm font-bold mb-1">GRUPO 2: Preparación (7-3 días antes)</h3>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2 text-xs">
+      <div class="task-box rounded p-2">
+        <div class="font-bold mb-1">Tarea 5: Verificar servicios <span class="priority-p2">P2</span></div>
+        <div>□ WiFi □ Electrodomésticos □ AC/Calefacción</div>
+      </div>
+      <div class="task-box rounded p-2">
+        <div class="font-bold mb-1">Tarea 6: Check stock <span class="priority-p1">P1</span></div>
+        <div>□ Papel □ Jabón □ Café □ Sal/aceite □ Bolsas basura</div>
+      </div>
+      <div class="task-box rounded p-2">
+        <div class="font-bold mb-1">Tarea 7: Revisar reseñas <span class="priority-p2">P2</span></div>
+        <div>Lee últimas 5 reseñas, identifica problemas recurrentes</div>
+      </div>
+      <div class="task-box rounded p-2">
+        <div class="font-bold mb-1">Tarea 8: Personalizar <span class="priority-p1">P1</span></div>
+        <div>Niños → juguetes | Trabajo → WiFi | Aniversario → nota</div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="bg-purple-50 p-3 rounded-lg mb-3">
+      <h3 class="text-sm font-bold mb-1">GRUPO 3: 24h antes</h3>
+    </div>
+
+    <div class="task-box rounded-lg p-3">
+      <div class="flex justify-between items-start mb-2">
+        <div class="font-bold text-sm">Tarea 9: Envío de instrucciones <span class="priority-p0">P0</span></div>
+      </div>
+      <div class="text-xs">
+        <div class="bg-gray-50 p-2 rounded">
+          <div class="font-semibold mb-1">Template completo:</div>
+          <div class="italic text-gray-700">
+            "¡Ya queda poco! 🏠 DIRECCIÓN: [+ Google Maps]<br/>
+            🔑 ACCESO: Código [XXXX] en cerradura<br/>
+            📱 MANUAL: [Link] | 📞 EMERGENCIAS: [Tel]"
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2 mt-2 text-xs">
+      <div class="task-box rounded p-2">
+        <div class="font-bold mb-1">Tarea 10: Smart home <span class="priority-p1">P1</span></div>
+        <div>Código temporal + Termostato + Luces ON</div>
+      </div>
+      <div class="task-box rounded p-2">
+        <div class="font-bold mb-1">Tarea 11-12: Verificaciones <span class="priority-p2">P2</span></div>
+        <div>Notificar vecinos (si requerido) + Check final</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PÁGINA 5: CHECK-IN (8 TAREAS) -->
+<div class="page">
+  <div class="flex items-center gap-3 mb-4">
+    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white text-xl font-bold">4</div>
+    <h2 class="text-2xl font-bold gradient-text">Checklist Check-in (8 tareas)</h2>
+  </div>
+
+  <div class="stat-box rounded-xl p-4 mb-4">
+    <div class="text-center font-bold text-purple-900 mb-2">6 de 8 tareas son 100% automatizables</div>
+    <div class="text-xs text-center text-gray-600">Ahorro: 2-3h/semana</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 text-xs">
+    <div class="task-box rounded p-3">
+      <div class="font-bold mb-2 flex justify-between">
+        <span>Tarea 13: Entrega llaves/código</span>
+        <span class="priority-p0">P0</span>
+      </div>
+      <div class="space-y-1">
+        <div><strong>Método preferido:</strong> Smart lock</div>
+        <div>• Código temporal por reserva</div>
+        <div>• Activo: 15:00h check-in</div>
+        <div>• Desactiva: 11:00h check-out</div>
+        <div>• Notificación cuando entran</div>
+        <div class="mt-2"><strong>Herramienta:</strong> Nuki, Yale, Schlage</div>
+      </div>
+    </div>
+
+    <div class="task-box rounded p-3">
+      <div class="font-bold mb-2 flex justify-between">
+        <span>Tarea 14: Bienvenida digital</span>
+        <span class="priority-p0">P0</span>
+      </div>
+      <div class="space-y-1">
+        <div><strong>Trigger:</strong> Código usado / QR escaneado</div>
+        <div>• Redirect a manual digital</div>
+        <div>• Email: "Ya estás dentro"</div>
+        <div>• Timing: Inmediato</div>
+        <div class="mt-2"><strong>Herramienta:</strong> Itineramio + QR</div>
+      </div>
+    </div>
+
+    <div class="task-box rounded p-3">
+      <div class="font-bold mb-2 flex justify-between">
+        <span>Tarea 15: Verificar entrada</span>
+        <span class="priority-p1">P1</span>
+      </div>
+      <div class="space-y-1">
+        <div>• Smart lock alerta</div>
+        <div>• Cámara exterior confirma</div>
+        <div>• Solo para tu tranquilidad</div>
+        <div>• No requiere acción</div>
+      </div>
+    </div>
+
+    <div class="task-box rounded p-3">
+      <div class="font-bold mb-2 flex justify-between">
+        <span>Tarea 16: Welcome message</span>
+        <span class="priority-p1">P1</span>
+      </div>
+      <div class="space-y-1">
+        <div><strong>Timing:</strong> 30 min después</div>
+        <div class="bg-gray-50 p-2 rounded italic text-gray-700 text-xs">
+          "¡Bienvenido/a! ¿Todo bien?<br/>
+          WiFi en manual | Café en cocina<br/>
+          Cualquier cosa, responde"
+        </div>
+        <div class="mt-1"><strong>Auto:</strong> Hospitable delayed msg</div>
+      </div>
+    </div>
+
+    <div class="task-box rounded p-3">
+      <div class="font-bold mb-2 flex justify-between">
+        <span>Tarea 17: Orientación rápida</span>
+        <span class="priority-p2">P2</span>
+      </div>
+      <div class="space-y-1">
+        <div><strong>Solo si check-in presencial</strong></div>
+        <div>• Tour rápido (5 min)</div>
+        <div>• "Todo en el manual"</div>
+        <div>• Salir rápido</div>
+        <div>• <strong>No automatizable</strong></div>
+      </div>
+    </div>
+
+    <div class="task-box rounded p-3">
+      <div class="font-bold mb-2 flex justify-between">
+        <span>Tarea 18: Verificar satisfacción</span>
+        <span class="priority-p2">P2</span>
+      </div>
+      <div class="space-y-1">
+        <div><strong>Timing:</strong> 2-3h después</div>
+        <div class="bg-gray-50 p-2 rounded italic text-gray-700 text-xs">
+          "¿Cómo va todo?<br/>
+          ¿Cumplió expectativas?<br/>
+          Avisa si algo mejoramos"
+        </div>
+        <div class="mt-1">Objetivo: Detectar problemas antes de review</div>
+      </div>
+    </div>
+
+    <div class="task-box rounded p-3">
+      <div class="font-bold mb-2 flex justify-between">
+        <span>Tarea 19: Activar monitoreo</span>
+        <span class="priority-p1">P1</span>
+      </div>
+      <div class="space-y-1">
+        <div>• Sensor ruido (Minut)</div>
+        <div>• Sensor humo</div>
+        <div>• Detector fugas</div>
+        <div class="mt-1"><strong>Alertas solo si:</strong></div>
+        <div>Ruido >85db (22h+) | Humo | Agua</div>
+      </div>
+    </div>
+
+    <div class="task-box rounded p-3">
+      <div class="font-bold mb-2 flex justify-between">
+        <span>Tarea 20: Update calendar</span>
+        <span class="priority-p1">P1</span>
+      </div>
+      <div class="space-y-1">
+        <div>• Marcar "Occupied"</div>
+        <div>• Google Calendar ✓</div>
+        <div>• Notificar limpiadora</div>
+        <div>• <strong>Auto:</strong> PMS</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-box rounded-xl p-4 mt-4">
+    <div class="font-bold mb-2 flex items-center gap-2">
+      <span>🎯</span>
+      <span>Acción inmediata:</span>
+    </div>
+    <p class="text-sm">Implementa primero las 5 tareas P0 de check-in. Setup: 2-3 horas. Ahorro: 2h/semana para siempre.</p>
+  </div>
+</div>
+
+<!-- PÁGINA 6-7: DURANTE ESTANCIA + CHECK-OUT (Resumen) -->
+<div class="page">
+  <div class="flex items-center gap-3 mb-4">
+    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white text-xl font-bold">5</div>
+    <h2 class="text-2xl font-bold gradient-text">Durante Estancia + Check-out</h2>
+  </div>
+
+  <div class="mb-4">
+    <h3 class="text-lg font-bold mb-3">Durante Estancia (15 tareas)</h3>
+    <div class="grid grid-cols-3 gap-2 text-xs">
+      <div class="bg-purple-50 p-3 rounded">
+        <div class="font-bold mb-2">Día 1-2 (3 tareas)</div>
+        <div>• Check-in telefónico <span class="priority-p0">P0</span></div>
+        <div>• Resolver problemas <span class="priority-p1">P1</span></div>
+        <div>• Verificar uso <span class="priority-p2">P2</span></div>
+      </div>
+      <div class="bg-purple-50 p-3 rounded">
+        <div class="font-bold mb-2">Mitad estancia (3)</div>
+        <div>• Mid-stay check (+5 días) <span class="priority-p1">P1</span></div>
+        <div>• Reposición (+7 días) <span class="priority-p1">P1</span></div>
+        <div>• Limpieza (+7 días) <span class="priority-p2">P2</span></div>
+      </div>
+      <div class="bg-purple-50 p-3 rounded">
+        <div class="font-bold mb-2">Continuo (3)</div>
+        <div>• Monitoreo sensores <span class="priority-p0">P0</span></div>
+        <div>• Responder (<2h) <span class="priority-p0">P0</span></div>
+        <div>• Update calendario <span class="priority-p1">P1</span></div>
+      </div>
+    </div>
+
+    <div class="mt-3 task-box rounded p-3">
+      <div class="font-bold mb-2">Protocolos de Emergencia (6 tareas)</div>
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div>• Fuga agua <span class="priority-p2">P2</span></div>
+        <div>• Fuego/humo <span class="priority-p2">P2</span></div>
+        <div>• Ruido excesivo <span class="priority-p1">P1</span></div>
+        <div>• Locked out <span class="priority-p1">P1</span></div>
+        <div>• Electrodoméstico roto <span class="priority-p1">P1</span></div>
+        <div>• Vecino molesto <span class="priority-p2">P2</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-bold mb-3">Check-out (7 tareas)</h3>
+
+    <div class="task-box rounded p-3 mb-3">
+      <div class="font-bold mb-2">Tarea 36: Recordatorio instrucciones <span class="priority-p0">P0</span></div>
+      <div class="text-xs bg-gray-50 p-2 rounded">
+        <div class="font-semibold mb-1">Template (24h antes, 12:00h):</div>
+        <div class="italic text-gray-700">
+          "Check-out mañana 11:00h<br/>
+          □ Llaves en mesa | □ Basuras | □ Apagar AC/luces | □ Cerrar ventanas<br/>
+          ¿Te gustó? Nos encantaría tu review"
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2 text-xs">
+      <div class="task-box rounded p-2">
+        <div class="font-bold mb-1">Tarea 37: Desactivar lock <span class="priority-p1">P1</span></div>
+        <div>Código expira 11:00h automático</div>
+      </div>
+      <div class="task-box rounded p-2">
+        <div class="font-bold mb-1">Tarea 38: Confirmar salida <span class="priority-p1">P1</span></div>
+        <div>Cámara + Smart lock + Manual (si no tech)</div>
+      </div>
+      <div class="task-box rounded p-2">
+        <div class="font-bold mb-1">Tarea 39: Inspección rápida <span class="priority-p2">P2</span></div>
+        <div>11:30h | 10 min | □ Inventario □ Daños □ Fotos</div>
+      </div>
+      <div class="task-box rounded p-2">
+        <div class="font-bold mb-1">Tarea 40: Activar limpieza <span class="priority-p0">P0</span></div>
+        <div>Notificación auto a limpiadora con detalles</div>
+      </div>
+      <div class="task-box rounded p-2">
+        <div class="font-bold mb-1">Tarea 41: Verificar limpieza <span class="priority-p1">P1</span></div>
+        <div>Checklist Google Forms + foto → auto-OK</div>
+      </div>
+      <div class="task-box rounded p-2">
+        <div class="font-bold mb-1">Tarea 42: Solicitud review <span class="priority-p0">P0</span></div>
+        <div>2h después | "¿Cómo fue?" + [Link directo]</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-box rounded-xl p-4 mt-4">
+    <div class="text-center">
+      <div class="font-bold text-purple-900 mb-2">Resumen Check-out</div>
+      <div class="text-sm">6 de 7 tareas automatizables | Ahorro: 1.5h por checkout</div>
+    </div>
+  </div>
+</div>
+
+<!-- PÁGINA 8: POST-ESTANCIA (5 TAREAS) -->
+<div class="page">
+  <div class="flex items-center gap-3 mb-4">
+    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white text-xl font-bold">6</div>
+    <h2 class="text-2xl font-bold gradient-text">Post-estancia (5 tareas)</h2>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 mb-4 text-xs">
+    <div class="task-box rounded p-3">
+      <div class="font-bold mb-2 flex justify-between">
+        <span>Tarea 43: Review al huésped</span>
+        <span class="priority-p0">P0</span>
+      </div>
+      <div class="space-y-2">
+        <div><strong>Timing:</strong> Mismo día check-out</div>
+        <div><strong>Automatizable:</strong> 80%</div>
+        <div class="bg-green-50 p-2 rounded">
+          <div class="font-semibold">Template positivo (95%):</div>
+          <div class="italic text-gray-700">
+            "[Nombre] fue un/a huésped fantástico/a. Dejó el apartamento impecable. ¡Bienvenido/a siempre!"
+          </div>
+        </div>
+        <div class="bg-yellow-50 p-2 rounded">
+          <div class="font-semibold">Template neutral (mini-problemas):</div>
+          <div class="italic text-gray-700">
+            "[Nombre] fue un/a buen/a huésped. Espero que haya disfrutado."
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-box rounded p-3">
+      <div class="font-bold mb-2 flex justify-between">
+        <span>Tarea 44: Update disponibilidad</span>
+        <span class="priority-p1">P1</span>
+      </div>
+      <div class="space-y-1">
+        <div><strong>Trigger:</strong> Después de limpieza</div>
+        <div><strong>Automatizable:</strong> 100%</div>
+        <div class="mt-2">Acciones automáticas:</div>
+        <div>• Marcar "Available"</div>
+        <div>• Sync todos los canales</div>
+        <div>• Ajustar precio (dynamic)</div>
+        <div class="mt-2"><strong>Herramienta:</strong> PMS + PriceLabs</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-box rounded p-4 mb-4">
+    <div class="font-bold mb-3 flex justify-between items-center">
+      <span>Tarea 45: Secuencia de nurturing</span>
+      <span class="priority-p0">P0</span>
+    </div>
+    <div class="text-xs">
+      <div class="mb-2"><strong>Objetivo:</strong> Convertir en repeat guest | <strong>Automatizable:</strong> 100%</div>
+      <div class="grid grid-cols-3 gap-2">
+        <div class="bg-blue-50 p-3 rounded">
+          <div class="font-bold mb-1">Email 1 (Día 7)</div>
+          <div class="text-gray-700">Gracias + recurso útil local</div>
+        </div>
+        <div class="bg-purple-50 p-3 rounded">
+          <div class="font-bold mb-1">Email 2 (Día 30)</div>
+          <div class="text-gray-700">¿Vuelves? Descuento 10% directo</div>
+        </div>
+        <div class="bg-orange-50 p-3 rounded">
+          <div class="font-bold mb-1">Email 3 (Día 90)</div>
+          <div class="text-gray-700">Recordatorio + ofertas especiales</div>
+        </div>
+      </div>
+      <div class="mt-3 p-2 bg-green-50 rounded">
+        <strong>Resultado:</strong> 15-25% de repeat guests con esta secuencia
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 text-xs">
+    <div class="task-box rounded p-3">
+      <div class="font-bold mb-2 flex justify-between">
+        <span>Tarea 46: Añadir a CRM</span>
+        <span class="priority-p1">P1</span>
+      </div>
+      <div class="space-y-1">
+        <div><strong>Automatizable:</strong> 100%</div>
+        <div class="mt-2">Datos a guardar:</div>
+        <div>• Nombre, email</div>
+        <div>• Fechas estancia</div>
+        <div>• Valoración</div>
+        <div>• Notas especiales</div>
+        <div>• Tags: "VIP" / "Repeat" / etc.</div>
+        <div class="mt-2"><strong>Tool:</strong> Airtable/Notion + Zapier</div>
+      </div>
+    </div>
+
+    <div class="task-box rounded p-3">
+      <div class="font-bold mb-2 flex justify-between">
+        <span>Tarea 47: Análisis rentabilidad</span>
+        <span class="priority-p2">P2</span>
+      </div>
+      <div class="space-y-1">
+        <div><strong>Timing:</strong> Fin de mes</div>
+        <div><strong>Automatizable:</strong> 80%</div>
+        <div class="mt-2">Calcular:</div>
+        <div>• Ingresos brutos</div>
+        <div>• Costes (limpieza, fees)</div>
+        <div>• Margen neto</div>
+        <div>• ROI vs tiempo</div>
+        <div class="mt-2"><strong>Tool:</strong> Google Sheets + Data Studio</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-box rounded-xl p-4 mt-4">
+    <div class="text-center font-bold text-purple-900">
+      Post-estancia: 4 de 5 tareas 100% automatizables
+      <div class="text-sm font-normal text-gray-700 mt-2">
+        La única tarea manual: análisis mensual de rentabilidad (1h/mes)
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PÁGINA 9: STACK DE HERRAMIENTAS -->
+<div class="page">
+  <div class="flex items-center gap-3 mb-4">
+    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white text-xl font-bold">7</div>
+    <h2 class="text-2xl font-bold gradient-text">Tu Stack Minimalista</h2>
+  </div>
+
+  <div class="mb-4">
+    <h3 class="text-base font-bold mb-2">El problema de tener 15 apps</h3>
+    <div class="bg-red-50 border-l-4 border-red-500 p-3 text-xs mb-3">
+      <div class="font-bold mb-1">Síntomas de tool bloat:</div>
+      <ul class="space-y-1 ml-4">
+        <li>• Pagas 10+ suscripciones</li>
+        <li>• No recuerdas dónde está qué dato</li>
+        <li>• Las herramientas no se hablan</li>
+        <li>• Más tiempo "gestionando tools" que guests</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <h3 class="text-base font-bold mb-3">La solución: 3 Tiers</h3>
+
+    <div class="task-box rounded-lg p-3 mb-3">
+      <div class="font-bold mb-2 text-purple-900">TIER 1: ESENCIALES (obligatorios)</div>
+      <table class="text-xs">
+        <thead>
+          <tr>
+            <th>Herramienta</th>
+            <th>Opciones</th>
+            <th>Coste/mes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>PMS (Property Mgmt)</td>
+            <td>Hospitable o Hostaway</td>
+            <td class="font-bold">€30-60</td>
+          </tr>
+          <tr>
+            <td>Manual digital</td>
+            <td>Itineramio</td>
+            <td class="font-bold">€0-9</td>
+          </tr>
+          <tr>
+            <td>Smart lock</td>
+            <td>Nuki o Yale</td>
+            <td class="font-bold">€200 one-time</td>
+          </tr>
+          <tr>
+            <td>Comunicación</td>
+            <td>WhatsApp Business</td>
+            <td class="font-bold">Gratis</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="task-box rounded-lg p-3 mb-3">
+      <div class="font-bold mb-2 text-purple-900">TIER 2: RECOMENDADOS (mejoran ROI)</div>
+      <table class="text-xs">
+        <thead>
+          <tr>
+            <th>Herramienta</th>
+            <th>Opciones</th>
+            <th>Coste/mes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Gestión limpieza</td>
+            <td>TurnoverBnB</td>
+            <td class="font-bold">€15</td>
+          </tr>
+          <tr>
+            <td>Dynamic pricing</td>
+            <td>PriceLabs</td>
+            <td class="font-bold">€20</td>
+          </tr>
+          <tr>
+            <td>Sensor ruido</td>
+            <td>Minut</td>
+            <td class="font-bold">€150 one-time</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bg-gray-50 rounded-lg p-3 text-xs">
+      <div class="font-bold mb-2">TIER 3: OPCIONALES (solo si >3 propiedades)</div>
+      <div>• CRM: Airtable (€10/mes)</div>
+      <div>• Analytics: Google Data Studio (Gratis)</div>
+      <div>• Channel Manager: Guesty (€40+/mes)</div>
+    </div>
+  </div>
+
+  <div class="stat-box rounded-xl p-4 mb-4">
+    <div class="text-center">
+      <div class="font-bold text-lg text-purple-900 mb-2">Coste Total Setup Fase 3</div>
+      <div class="grid grid-cols-3 gap-3 text-sm">
+        <div>
+          <div class="text-gray-600">Inversión inicial</div>
+          <div class="font-bold text-xl text-blue-600">€400-500</div>
+        </div>
+        <div>
+          <div class="text-gray-600">Coste mensual</div>
+          <div class="font-bold text-xl text-purple-600">€65-95</div>
+        </div>
+        <div>
+          <div class="text-gray-600">Ahorro tiempo</div>
+          <div class="font-bold text-xl text-green-600">25-30h/mes</div>
+        </div>
+      </div>
+      <div class="mt-3 p-2 bg-green-50 rounded">
+        <strong>ROI:</strong> Break-even en 2-3 meses | Después: puro ahorro
+      </div>
+    </div>
+  </div>
+
+  <div class="task-box rounded-lg p-3">
+    <div class="font-bold mb-2 text-sm">Integraciones clave (vía Zapier)</div>
+    <div class="text-xs font-mono text-center bg-gray-50 p-3 rounded">
+Nueva reserva (Airbnb) → [Zapier] →<br/>
+├── Google Calendar<br/>
+├── WhatsApp notificación<br/>
+├── Smart lock (código temporal)<br/>
+├── CRM (nuevo contacto)<br/>
+└── Email sequence (activar nurturing)
+    </div>
+  </div>
+</div>
+
+<!-- PÁGINA 10: SOP TEMPLATE + CONCLUSIÓN -->
+<div class="page">
+  <div class="flex items-center gap-3 mb-4">
+    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white text-xl font-bold">8</div>
+    <h2 class="text-2xl font-bold gradient-text">Tu SOP Master + Conclusión</h2>
+  </div>
+
+  <div class="mb-4">
+    <div class="task-box rounded-lg p-4 text-xs">
+      <div class="font-bold mb-2">Standard Operating Procedure Template</div>
+      <div class="bg-gray-50 p-3 rounded font-mono">
+<div class="space-y-2">
+<div><strong>SOP:</strong> [Nombre de la tarea]</div>
+<div><strong>TRIGGER:</strong> ¿Qué inicia esta tarea?</div>
+<div><strong>TIMING:</strong> ¿Cuándo exactamente?</div>
+<div><strong>RESPONSABLE:</strong> ¿Quién la hace?</div>
+<div><strong>TIEMPO ESTIMADO:</strong> X minutos</div>
+<div><strong>PASOS:</strong></div>
+<div>  1. [Acción específica]</div>
+<div>  2. [Acción específica]</div>
+<div><strong>HERRAMIENTAS:</strong> [App/tool]</div>
+<div><strong>CHECKLIST:</strong> □ Item 1  □ Item 2</div>
+<div><strong>BACKUP PLAN:</strong> Si falla X → Y</div>
+</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <h3 class="text-base font-bold mb-2">Resumen: Del caos a la máquina</h3>
+    <div class="grid grid-cols-5 gap-2 text-xs text-center">
+      <div class="bg-purple-50 p-2 rounded">
+        <div class="font-bold">Pre-llegada</div>
+        <div class="text-2xl font-bold text-purple-600">12</div>
+        <div class="text-gray-600">10 auto</div>
+      </div>
+      <div class="bg-purple-50 p-2 rounded">
+        <div class="font-bold">Check-in</div>
+        <div class="text-2xl font-bold text-purple-600">8</div>
+        <div class="text-gray-600">6 auto</div>
+      </div>
+      <div class="bg-purple-50 p-2 rounded">
+        <div class="font-bold">Durante</div>
+        <div class="text-2xl font-bold text-purple-600">15</div>
+        <div class="text-gray-600">8 auto</div>
+      </div>
+      <div class="bg-purple-50 p-2 rounded">
+        <div class="font-bold">Check-out</div>
+        <div class="text-2xl font-bold text-purple-600">7</div>
+        <div class="text-gray-600">6 auto</div>
+      </div>
+      <div class="bg-purple-50 p-2 rounded">
+        <div class="font-bold">Post</div>
+        <div class="text-2xl font-bold text-purple-600">5</div>
+        <div class="text-gray-600">4 auto</div>
+      </div>
+    </div>
+    <div class="mt-3 p-3 bg-green-50 border-2 border-green-500 rounded-lg text-center">
+      <div class="font-bold text-lg text-green-900">TOTAL: 34 de 47 tareas automatizables (72%)</div>
+    </div>
+  </div>
+
+  <div class="action-box rounded-xl p-4 mb-4">
+    <h3 class="font-bold mb-3 text-orange-900">Tu Plan de Implementación</h3>
+    <div class="space-y-2 text-xs">
+      <div class="flex items-start gap-2">
+        <span class="font-bold">🎯 Semana 1:</span>
+        <div>
+          <strong>Implementa las 12 tareas P0</strong><br/>
+          Invierte: 1 día setup | Ahorra: 6-8h/semana para siempre
+        </div>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="font-bold">🎯 Semana 2-3:</span>
+        <div>
+          <strong>Añade tareas P1</strong><br/>
+          Invierte: 2-3 horas | Ahorra: 4-5h/semana adicionales
+        </div>
+      </div>
+      <div class="flex items-start gap-2">
+        <span class="font-bold">🎯 Semana 4:</span>
+        <div>
+          <strong>Documenta todo en SOPs</strong><br/>
+          Invierte: 3-4 horas | Resultado: Puedes delegar TODO
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <h3 class="text-sm font-bold mb-2">Recursos incluidos</h3>
+    <div class="grid grid-cols-2 gap-2 text-xs">
+      <div class="bg-blue-50 p-2 rounded">✅ Excel 47 tareas priorizadas</div>
+      <div class="bg-blue-50 p-2 rounded">✅ Template SOPs (Google Doc)</div>
+      <div class="bg-blue-50 p-2 rounded">✅ Checklists imprimibles</div>
+      <div class="bg-blue-50 p-2 rounded">✅ Comparativa herramientas</div>
+    </div>
+  </div>
+
+  <div class="gradient-bg rounded-xl p-4 text-white text-center mb-3">
+    <h3 class="text-lg font-bold mb-2">El siguiente nivel</h3>
+    <p class="text-sm mb-3">Automatiza tu manual de huésped con Itineramio:<br/>
+    Se actualiza en tiempo real | Funciona offline | Trackea lecturas</p>
+    <div class="bg-white text-purple-600 font-bold py-2 px-4 rounded-lg inline-block text-sm">
+      itineramio.com/signup
+    </div>
+    <div class="text-xs mt-2 opacity-90">Primera propiedad gratis</div>
+  </div>
+
+  <div class="text-center text-xs text-gray-500">
+    © 2025 Itineramio - Construyendo sistemas desde 2024
+  </div>
+</div>
+
+</body>
+</html>

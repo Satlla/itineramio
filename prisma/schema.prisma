@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // Necesario para migraciones con Supabase
 }
 
 model User {
@@ -1976,6 +1977,84 @@ model CerebellumSubscription {
 
   @@index([userId])
   @@map("cerebellum_subscriptions")
+}
+
+// ============================================
+// EMAIL MARKETING SUBSCRIBERS
+// ============================================
+
+model EmailSubscriber {
+  id                  String   @id @default(cuid())
+  email               String   @unique
+  name                String?
+
+  // Segmentación por arquetipo (del test de personalidad)
+  archetype           String?  // ESTRATEGA, SISTEMÁTICO, etc.
+
+  // Fuente de captura
+  source              String   // "host_profile_test" | "qr_code" | "blog_lead_magnet" | "manual"
+  sourceMetadata      Json?    // Info adicional de la fuente
+
+  // Estado de suscripción
+  status              String   @default("active") // "active" | "unsubscribed" | "bounced"
+  unsubscribedAt      DateTime?
+  unsubscribeReason   String?
+
+  // Engagement metrics
+  openRate            Float    @default(0) // % de emails abiertos
+  clickRate           Float    @default(0) // % de emails con click
+  lastEmailOpenedAt   DateTime?
+  lastEmailClickedAt  DateTime?
+  engagementScore     String   @default("warm") // "hot" | "warm" | "cold"
+
+  // Journey tracking
+  currentJourneyStage String   @default("subscribed") // "subscribed" | "engaged" | "course_enrolled" | "customer"
+  tags                String[] @default([]) // Tags dinámicos para segmentación
+
+  // Productos interactuados
+  downloadedGuide     Boolean  @default(false)
+  enrolledCourse      Boolean  @default(false)
+  purchasedManual     Boolean  @default(false)
+  purchasedCourse     Boolean  @default(false)
+
+  // Email sequence tracking
+  emailsSent          Int      @default(0)
+  emailsDelivered     Int      @default(0) // Emails entregados con éxito
+  emailsOpened        Int      @default(0)
+  emailsClicked       Int      @default(0)
+  emailsBounced       Int      @default(0) // Emails rebotados
+  lastEmailSentAt     DateTime?
+  firstOpenedAt       DateTime? // Primera vez que abrió un email
+  bouncedAt           DateTime? // Cuando se marcó como bounced
+  lastEngagement      DateTime? // Última interacción (open/click)
+  becameHotAt         DateTime? // Cuando se volvió hot lead
+
+  // Nurturing sequence tracking (5-email sequence)
+  sequenceStartedAt   DateTime? // Cuando empezó la secuencia (Día 0 - Welcome)
+  day3SentAt          DateTime? // Día 3 - "3 errores comunes"
+  day7SentAt          DateTime? // Día 7 - Case study
+  day10SentAt         DateTime? // Día 10 - Trial invitation
+  day14SentAt         DateTime? // Día 14 - Last chance
+  sequenceStatus      String    @default("active") // "active" | "completed" | "paused" | "converted"
+
+  // Vinculación con otros modelos
+  leadId              String?  // Si viene de un Lead
+  userId              String?  // Si se convirtió en User
+  hostProfileTestId   String?  // Si completó el test
+
+  // Timestamps
+  subscribedAt        DateTime @default(now())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([email])
+  @@index([archetype])
+  @@index([source])
+  @@index([status])
+  @@index([engagementScore])
+  @@index([currentJourneyStage])
+  @@index([subscribedAt])
+  @@map("email_subscribers")
 }
 
 // ============================================

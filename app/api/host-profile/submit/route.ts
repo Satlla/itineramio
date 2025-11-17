@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { Archetype, Dimension } from '@/src/data/hostProfileQuestions'
+import { Archetype, Dimension } from '@/data/hostProfileQuestions'
+import { sendWelcomeTestEmail } from '@/lib/resend'
 
 interface AnswerData {
   questionId: number
@@ -76,45 +77,59 @@ function determineArchetype(scores: Record<Dimension, number>): {
   // Identificar fortaleza principal (dimensión con score más alto)
   const sortedDimensions = Object.entries(scores).sort((a, b) => b[1] - a[1])
   const topStrength = sortedDimensions[0][0] as Dimension
+  const secondStrength = sortedDimensions[1][0] as Dimension
   const criticalGap = sortedDimensions[sortedDimensions.length - 1][0] as Dimension
 
-  // Lógica de asignación de arquetipo
+  // Calcular diferencia entre máximo y mínimo para detectar perfiles balanceados
+  const maxScore = Math.max(...Object.values(scores))
+  const minScore = Math.min(...Object.values(scores))
+  const scoreRange = maxScore - minScore
+
+  // Lógica de asignación de arquetipo (ordenada por especificidad)
   let archetype: Archetype = 'EQUILIBRADO'
 
-  // EL ESTRATEGA: Alto en DATA, MKT, y razonable en OPERATIVA
-  if (DATA >= 4.0 && MKT >= 3.5 && OPERATIVA >= 3.0) {
-    archetype = 'ESTRATEGA'
-  }
-  // EL SISTEMÁTICO: Alto en OPERATIVA, bajo en improvisación (no bajo en BALANCE)
-  else if (OPERATIVA >= 4.0 && BALANCE >= 3.0) {
-    archetype = 'SISTEMATICO'
-  }
-  // EL DIFERENCIADOR: Alto en MKT, COMUNICACION
-  else if (MKT >= 4.0 && COMUNICACION >= 3.5) {
-    archetype = 'DIFERENCIADOR'
-  }
-  // EL EJECUTOR: Alto en OPERATIVA y CRISIS, rápido pero puede ser bajo en BALANCE
-  else if (OPERATIVA >= 3.5 && CRISIS >= 3.5 && BALANCE < 3.5) {
-    archetype = 'EJECUTOR'
-  }
-  // EL RESOLUTOR: Muy alto en CRISIS
-  else if (CRISIS >= 4.5) {
+  // PASO 1: Perfiles con patrones claros y específicos (alta prioridad)
+
+  // EL RESOLUTOR: Muy alto en CRISIS, es su superpoder
+  if (CRISIS >= 4.2 && topStrength === 'CRISIS') {
     archetype = 'RESOLUTOR'
   }
-  // EL EXPERIENCIAL: Muy alto en HOSPITALIDAD, COMUNICACION
-  else if (HOSPITALIDAD >= 4.5 && COMUNICACION >= 4.0) {
+  // EL EXPERIENCIAL: Alto en HOSPITALIDAD, enfocado en la experiencia del huésped
+  else if (HOSPITALIDAD >= 4.0 && COMUNICACION >= 3.5 && topStrength === 'HOSPITALIDAD') {
     archetype = 'EXPERIENCIAL'
   }
-  // EL EQUILIBRADO: Scores balanceados, alto en BALANCE
-  else if (BALANCE >= 4.0 && Math.max(...Object.values(scores)) - Math.min(...Object.values(scores)) < 1.5) {
-    archetype = 'EQUILIBRADO'
-  }
-  // EL IMPROVISADOR: Bajo en OPERATIVA, BALANCE, pero adaptable (CRISIS razonable)
+  // EL IMPROVISADOR: Bajo en estructura pero adaptable
   else if (OPERATIVA < 3.0 && BALANCE < 3.0 && CRISIS >= 3.0) {
     archetype = 'IMPROVISADOR'
   }
-  // Por defecto, si no encaja en ninguno, determinar por fortaleza principal
-  else {
+  // EL EJECUTOR: Alto en OPERATIVA/LIMITES pero bajo BALANCE (riesgo burnout)
+  else if ((OPERATIVA >= 3.8 || LIMITES >= 3.8) && BALANCE < 3.3 && (topStrength === 'OPERATIVA' || topStrength === 'LIMITES')) {
+    archetype = 'EJECUTOR'
+  }
+
+  // PASO 2: Perfiles estratégicos y de diferenciación (requieren combinaciones)
+
+  // EL SISTEMÁTICO: Alto en OPERATIVA con buenos procesos (debe ir antes de ESTRATEGA)
+  else if (OPERATIVA >= 4.0 && BALANCE >= 3.0 && topStrength === 'OPERATIVA') {
+    archetype = 'SISTEMATICO'
+  }
+  // EL ESTRATEGA: Alto en DATA + MKT (analítico y orientado al negocio)
+  else if (DATA >= 4.0 && MKT >= 3.8 && (topStrength === 'DATA' || secondStrength === 'DATA')) {
+    archetype = 'ESTRATEGA'
+  }
+  // EL DIFERENCIADOR: Alto en MKT + COMUNICACION (marketing y storytelling)
+  else if (MKT >= 4.0 && COMUNICACION >= 3.5 && (topStrength === 'MKT' || topStrength === 'COMUNICACION')) {
+    archetype = 'DIFERENCIADOR'
+  }
+
+  // PASO 3: Perfil equilibrado (muy balanceado en todas las dimensiones)
+  else if (scoreRange < 1.2 && minScore >= 3.2) {
+    archetype = 'EQUILIBRADO'
+  }
+
+  // PASO 4: Fallback más estricto basado en fortaleza principal
+  // Solo si la fortaleza es significativa (>= 4.0)
+  else if (maxScore >= 4.0) {
     if (topStrength === 'HOSPITALIDAD') archetype = 'EXPERIENCIAL'
     else if (topStrength === 'COMUNICACION') archetype = 'DIFERENCIADOR'
     else if (topStrength === 'OPERATIVA') archetype = 'SISTEMATICO'
@@ -123,6 +138,10 @@ function determineArchetype(scores: Record<Dimension, number>): {
     else if (topStrength === 'LIMITES') archetype = 'EJECUTOR'
     else if (topStrength === 'MKT') archetype = 'DIFERENCIADOR'
     else if (topStrength === 'BALANCE') archetype = 'EQUILIBRADO'
+  }
+  // PASO 5: Si ningún score es >= 4.0, es EQUILIBRADO por defecto
+  else {
+    archetype = 'EQUILIBRADO'
   }
 
   return {
@@ -149,6 +168,7 @@ function getDimensionLabel(dimension: Dimension): string {
 export async function POST(request: NextRequest) {
   try {
     const body: SubmitRequest = await request.json()
+    console.log('🚀 HOST PROFILE SUBMIT - START')
 
     // Validar que tenemos 45 respuestas
     if (!body.answers || body.answers.length !== 45) {
@@ -166,6 +186,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Normalizar email a lowercase
+    const normalizedEmail = body.email.toLowerCase().trim()
+
     // Calcular scores por dimensión
     const dimensionScores = calculateDimensionScores(body.answers)
 
@@ -175,7 +198,7 @@ export async function POST(request: NextRequest) {
     // Guardar en base de datos
     const testResult = await prisma.hostProfileTest.create({
       data: {
-        email: body.email,
+        email: normalizedEmail,
         name: body.name || null,
         gender: body.gender || null,
         answers: body.answers,
@@ -195,13 +218,103 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Crear o actualizar EmailSubscriber para el funnel de email marketing
+    let subscriber = null
+    try {
+      subscriber = await prisma.emailSubscriber.upsert({
+        where: { email: normalizedEmail },
+        create: {
+          email: normalizedEmail,
+          name: body.name || null,
+          archetype,
+          source: 'host_profile_test',
+          sourceMetadata: {
+            testResultId: testResult.id,
+            completedAt: new Date().toISOString(),
+            scores: dimensionScores,
+            gender: body.gender || null, // Guardamos gender en metadata
+          },
+          status: 'active',
+          currentJourneyStage: 'subscribed',
+          tags: [archetype, 'test_completed'],
+          hostProfileTestId: testResult.id,
+          // IMPORTANTE: Iniciar la secuencia de nurturing
+          sequenceStartedAt: new Date(),
+          sequenceStatus: 'active',
+        },
+        update: {
+          // Si ya existe, actualizar con el nuevo test
+          name: body.name || null,
+          archetype,
+          sourceMetadata: {
+            testResultId: testResult.id,
+            completedAt: new Date().toISOString(),
+            scores: dimensionScores,
+            gender: body.gender || null, // Guardamos gender en metadata
+          },
+          tags: [archetype, 'test_completed'],
+          hostProfileTestId: testResult.id,
+          // Reiniciar secuencia si hicieron el test de nuevo
+          sequenceStartedAt: new Date(),
+          sequenceStatus: 'active',
+          day3SentAt: null,
+          day7SentAt: null,
+          day10SentAt: null,
+          day14SentAt: null,
+        }
+      })
+      console.log('✅ Subscriber created/updated:', subscriber?.id)
+    } catch (emailSubError) {
+      // No fallar la request si hay error en EmailSubscriber (tabla puede no existir aún)
+      console.error('❌ Could not create EmailSubscriber:', emailSubError)
+      subscriber = null
+    }
+
+    // Enviar email de bienvenida con resultados del test
+    let emailSent = false
+    let emailError = null
+    try {
+      const emailResult = await sendWelcomeTestEmail({
+        email: normalizedEmail,
+        name: body.name || 'Anfitrión',
+        gender: body.gender,
+        archetype,
+        subscriberId: subscriber?.id // Pasar el ID para generar token
+      })
+
+      emailSent = emailResult.success
+
+      // Si el email se envió exitosamente, actualizar tracking
+      if (emailResult.success && subscriber) {
+        await prisma.emailSubscriber.update({
+          where: { id: subscriber.id },
+          data: {
+            emailsSent: { increment: 1 },
+            lastEmailSentAt: new Date()
+          }
+        })
+      }
+    } catch (err) {
+      // No fallar la request si hay error enviando email
+      emailError = err instanceof Error ? err.message : 'Unknown error'
+      console.error('Error sending welcome email:', err)
+    }
+
     return NextResponse.json({
       success: true,
       resultId: testResult.id,
       archetype,
       scores: dimensionScores,
       topStrength,
-      criticalGap
+      criticalGap,
+      // DEBUG INFO - versión 2
+      debug: {
+        version: 2,
+        emailSent,
+        emailError,
+        subscriberId: subscriber?.id,
+        hasSubscriber: !!subscriber
+      }
     })
 
   } catch (error) {

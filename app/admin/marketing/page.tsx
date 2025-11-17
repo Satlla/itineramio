@@ -2,167 +2,122 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import {
   Megaphone,
-  BookOpen,
-  FileText,
-  BarChart3,
   TrendingUp,
   Users,
-  Eye,
-  Download,
-  MessageSquare,
   Mail,
-  Share2,
-  PlusCircle,
-  Sparkles,
+  Target,
+  Flame,
+  CheckCircle,
+  Clock,
   ArrowRight,
-  Calendar,
-  Target
+  BarChart3,
+  Award,
+  Brain,
+  PlayCircle,
+  MessageSquare
 } from 'lucide-react'
 
-export default function MarketingHub() {
-  const [stats, setStats] = useState({
-    // Centro de Conocimiento
-    knowledgeArticles: 145,
-    knowledgeViews: 8234,
-    knowledgeQuestions: 1234,
-
-    // Blog
-    blogPosts: 23,
-    blogViews: 3456,
-    blogSubscribers: 567,
-
-    // General
-    totalDownloads: 890,
-    conversionRate: 12.5,
-    engagement: 67
-  })
-
-  // Marketing sections/modules
-  const marketingSections = [
-    {
-      id: 'knowledge',
-      title: 'Centro de Conocimiento',
-      description: 'Guías técnicas y tutoriales para usuarios',
-      icon: BookOpen,
-      color: 'violet',
-      stats: [
-        { label: 'Artículos', value: stats.knowledgeArticles, icon: FileText },
-        { label: 'Visitas', value: stats.knowledgeViews.toLocaleString(), icon: Eye },
-        { label: 'Preguntas', value: stats.knowledgeQuestions.toLocaleString(), icon: MessageSquare }
-      ],
-      actions: [
-        { label: 'Ver artículos', href: '/admin/marketing/knowledge', variant: 'primary' },
-        { label: 'Nuevo artículo', href: '/admin/marketing/knowledge/new', variant: 'secondary' }
-      ]
-    },
-    {
-      id: 'blog',
-      title: 'Blog',
-      description: 'Noticias, casos de éxito y contenido de marca',
-      icon: FileText,
-      color: 'blue',
-      stats: [
-        { label: 'Posts', value: stats.blogPosts, icon: FileText },
-        { label: 'Visitas', value: stats.blogViews.toLocaleString(), icon: Eye },
-        { label: 'Suscriptores', value: stats.blogSubscribers, icon: Users }
-      ],
-      actions: [
-        { label: 'Ver posts', href: '/admin/marketing/blog', variant: 'primary' },
-        { label: 'Nuevo post', href: '/admin/marketing/blog/new', variant: 'secondary' }
-      ]
-    },
-    {
-      id: 'analytics',
-      title: 'Analytics de Contenido',
-      description: 'Métricas y rendimiento de todo el contenido',
-      icon: BarChart3,
-      color: 'green',
-      stats: [
-        { label: 'Descargas', value: stats.totalDownloads, icon: Download },
-        { label: 'Conversión', value: `${stats.conversionRate}%`, icon: Target },
-        { label: 'Engagement', value: `${stats.engagement}%`, icon: TrendingUp }
-      ],
-      actions: [
-        { label: 'Ver analytics', href: '/admin/marketing/analytics', variant: 'primary' }
-      ]
-    }
-  ]
-
-  // Quick actions
-  const quickActions = [
-    {
-      title: 'Generar artículo con IA',
-      description: 'Crea contenido automáticamente con OpenAI',
-      icon: Sparkles,
-      href: '/admin/marketing/knowledge/generate',
-      color: 'purple'
-    },
-    {
-      title: 'Programar publicación',
-      description: 'Calendario de contenido planificado',
-      icon: Calendar,
-      href: '/admin/marketing/calendar',
-      color: 'orange'
-    },
-    {
-      title: 'Newsletter',
-      description: 'Gestionar lista y envíos',
-      icon: Mail,
-      href: '/admin/marketing/newsletter',
-      color: 'pink'
-    },
-    {
-      title: 'Compartir en redes',
-      description: 'Distribuir contenido en RRSS',
-      icon: Share2,
-      href: '/admin/marketing/social',
-      color: 'cyan'
-    }
-  ]
-
-  // Recent activity (mock)
-  const recentActivity = [
-    { type: 'knowledge', title: 'Check-in Remoto Sin Llaves', action: 'publicado', time: '2 horas', views: 127 },
-    { type: 'blog', title: 'Nuevo sistema de pricing', action: 'borrador', time: '5 horas', views: 0 },
-    { type: 'knowledge', title: 'VUT Madrid 2025', action: 'actualizado', time: '1 día', views: 342 },
-    { type: 'blog', title: 'Caso de éxito: 50 propiedades', action: 'publicado', time: '2 días', views: 89 }
-  ]
-
-  const getColorClasses = (color: string) => {
-    const colors: Record<string, { bg: string, text: string, border: string, hover: string }> = {
-      violet: { bg: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-200', hover: 'hover:border-violet-400' },
-      blue: { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-200', hover: 'hover:border-blue-400' },
-      green: { bg: 'bg-green-50', text: 'text-green-600', border: 'border-green-200', hover: 'hover:border-green-400' },
-      purple: { bg: 'bg-purple-50', text: 'text-purple-600', border: 'border-purple-200', hover: 'hover:border-purple-400' },
-      orange: { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-200', hover: 'hover:border-orange-400' },
-      pink: { bg: 'bg-pink-50', text: 'text-pink-600', border: 'border-pink-200', hover: 'hover:border-pink-400' },
-      cyan: { bg: 'bg-cyan-50', text: 'text-cyan-600', border: 'border-cyan-200', hover: 'hover:border-cyan-400' }
-    }
-    return colors[color] || colors.violet
+interface FunnelStats {
+  quiz: {
+    total: number
+    converted: number
+    pending: number
+    avgScore: number
   }
+  hostProfile: {
+    total: number
+    withEmail: number
+    downloadedGuide: number
+    hotLeads: number
+    warmLeads: number
+    coldLeads: number
+  }
+  emailSequences: {
+    activeSubscribers: number
+    totalSent: number
+    totalOpened: number
+    avgOpenRate: number
+  }
+}
+
+export default function MarketingFunnelsHub() {
+  const [stats, setStats] = useState<FunnelStats | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchStats()
+  }, [])
+
+  const fetchStats = async () => {
+    setLoading(true)
+    try {
+      // Fetch de múltiples endpoints en paralelo
+      const [quizRes, hostProfileRes] = await Promise.all([
+        fetch('/api/admin/academia/quiz-leads'),
+        fetch('/api/admin/host-profiles')
+      ])
+
+      const quizData = await quizRes.json()
+      const hostProfileData = await hostProfileRes.json()
+
+      setStats({
+        quiz: {
+          total: quizData.stats?.total || 0,
+          converted: quizData.stats?.converted || 0,
+          pending: quizData.stats?.pending || 0,
+          avgScore: quizData.stats?.avgScore || 0
+        },
+        hostProfile: {
+          total: hostProfileData.stats?.total || 0,
+          withEmail: hostProfileData.stats?.withEmail || 0,
+          downloadedGuide: hostProfileData.stats?.downloadedGuide || 0,
+          hotLeads: hostProfileData.stats?.byEngagement?.hot || 0,
+          warmLeads: hostProfileData.stats?.byEngagement?.warm || 0,
+          coldLeads: hostProfileData.stats?.byEngagement?.cold || 0
+        },
+        emailSequences: {
+          activeSubscribers: hostProfileData.stats?.withSubscriber || 0,
+          totalSent: hostProfileData.stats?.emailMetrics?.totalSent || 0,
+          totalOpened: hostProfileData.stats?.emailMetrics?.totalOpened || 0,
+          avgOpenRate: hostProfileData.stats?.emailMetrics?.avgOpenRate || 0
+        }
+      })
+    } catch (error) {
+      console.error('Error fetching funnel stats:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Calcular métricas globales
+  const totalLeads = (stats?.quiz.total || 0) + (stats?.hostProfile.total || 0)
+  const totalConverted = (stats?.quiz.converted || 0) + (stats?.hostProfile.downloadedGuide || 0)
+  const globalConversionRate = totalLeads > 0 ? ((totalConverted / totalLeads) * 100).toFixed(1) : '0'
+  const totalActiveInFunnel = (stats?.quiz.pending || 0) + (stats?.hostProfile.withEmail || 0) - (stats?.hostProfile.downloadedGuide || 0)
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-                <Megaphone className="w-8 h-8 mr-3 text-violet-600" />
-                Marketing Hub
+              <h1 className="text-3xl font-bold flex items-center">
+                <Target className="w-8 h-8 mr-3" />
+                Embudos de Conversión
               </h1>
-              <p className="text-gray-600 mt-1">
-                Gestiona todo tu contenido, blog y analytics en un solo lugar
+              <p className="text-purple-100 mt-2">
+                Vista unificada de todos los embudos de marketing y conversión
               </p>
             </div>
             <Link
               href="/admin"
-              className="text-gray-600 hover:text-gray-900 flex items-center"
+              className="text-white/80 hover:text-white flex items-center"
             >
-              Volver al Dashboard
+              Volver
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
           </div>
@@ -170,166 +125,331 @@ export default function MarketingHub() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Global Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Total Contenido</span>
-              <FileText className="w-5 h-5 text-gray-400" />
-            </div>
-            <p className="text-3xl font-bold text-gray-900">{stats.knowledgeArticles + stats.blogPosts}</p>
-            <p className="text-sm text-green-600 mt-1">+12 este mes</p>
+        {/* Global Metrics */}
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+            <p className="text-gray-500 mt-4">Cargando estadísticas...</p>
           </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-xl shadow-lg p-6"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <Users className="w-6 h-6 text-purple-600" />
+                  <h3 className="text-sm font-semibold text-gray-600">Total Leads</h3>
+                </div>
+                <p className="text-3xl font-bold text-gray-900">{totalLeads}</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Todos los embudos combinados
+                </p>
+              </motion.div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Visitas Totales</span>
-              <Eye className="w-5 h-5 text-gray-400" />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white rounded-xl shadow-lg p-6"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                  <h3 className="text-sm font-semibold text-gray-600">Convertidos</h3>
+                </div>
+                <p className="text-3xl font-bold text-gray-900">{totalConverted}</p>
+                <p className="text-sm text-green-600 mt-1">
+                  {globalConversionRate}% tasa de conversión
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white rounded-xl shadow-lg p-6"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <Clock className="w-6 h-6 text-orange-600" />
+                  <h3 className="text-sm font-semibold text-gray-600">En Progreso</h3>
+                </div>
+                <p className="text-3xl font-bold text-gray-900">{totalActiveInFunnel}</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Activos en algún embudo
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white rounded-xl shadow-lg p-6"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <Flame className="w-6 h-6 text-red-600" />
+                  <h3 className="text-sm font-semibold text-gray-600">Hot Leads</h3>
+                </div>
+                <p className="text-3xl font-bold text-gray-900">{stats?.hostProfile.hotLeads || 0}</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Alto engagement
+                </p>
+              </motion.div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">{(stats.knowledgeViews + stats.blogViews).toLocaleString()}</p>
-            <p className="text-sm text-green-600 mt-1">+23% vs mes anterior</p>
-          </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Tasa de Conversión</span>
-              <Target className="w-5 h-5 text-gray-400" />
-            </div>
-            <p className="text-3xl font-bold text-gray-900">{stats.conversionRate}%</p>
-            <p className="text-sm text-green-600 mt-1">+2.3% este mes</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Engagement</span>
-              <TrendingUp className="w-5 h-5 text-gray-400" />
-            </div>
-            <p className="text-3xl font-bold text-gray-900">{stats.engagement}%</p>
-            <p className="text-sm text-green-600 mt-1">+5% este mes</p>
-          </div>
-        </div>
-
-        {/* Marketing Sections */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Secciones de Marketing</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {marketingSections.map((section) => {
-              const Icon = section.icon
-              const colors = getColorClasses(section.color)
-
-              return (
-                <div
-                  key={section.id}
-                  className={`bg-white rounded-xl shadow-sm border-2 ${colors.border} ${colors.hover} transition-all duration-200`}
-                >
+            {/* Funnel Cards */}
+            <div className="space-y-6">
+              {/* Quiz Airbnb Funnel */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="bg-white rounded-xl shadow-lg overflow-hidden"
+              >
+                <div className="border-l-4 border-blue-500">
                   <div className="p-6">
-                    <div className="flex items-center mb-4">
-                      <div className={`p-3 ${colors.bg} rounded-lg`}>
-                        <Icon className={`w-6 h-6 ${colors.text}`} />
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                          <Brain className="w-7 h-7 text-blue-600" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-gray-900">Quiz de Airbnb</h2>
+                          <p className="text-gray-600">Test de conocimiento para generar leads educativos</p>
+                        </div>
                       </div>
-                      <div className="ml-4">
-                        <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
-                        <p className="text-sm text-gray-600">{section.description}</p>
-                      </div>
+                      <Link
+                        href="/admin/academia/quiz-leads"
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        Ver Embudo
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
                     </div>
 
-                    {/* Stats */}
-                    <div className="space-y-3 mb-6">
-                      {section.stats.map((stat, index) => {
-                        const StatIcon = stat.icon
-                        return (
-                          <div key={index} className="flex items-center justify-between">
-                            <div className="flex items-center text-sm text-gray-600">
-                              <StatIcon className="w-4 h-4 mr-2" />
-                              {stat.label}
-                            </div>
-                            <span className="font-semibold text-gray-900">{stat.value}</span>
-                          </div>
-                        )
-                      })}
-                    </div>
+                    {/* Funnel Flow */}
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <PlayCircle className="w-5 h-5 text-blue-600" />
+                          <span className="text-sm font-medium text-blue-900">Completados</span>
+                        </div>
+                        <div className="text-2xl font-bold text-blue-900">{stats?.quiz.total}</div>
+                        <div className="text-xs text-blue-700 mt-1">100%</div>
+                      </div>
 
-                    {/* Actions */}
-                    <div className="space-y-2">
-                      {section.actions.map((action, index) => (
-                        <Link
-                          key={index}
-                          href={action.href}
-                          className={`block w-full text-center px-4 py-2 rounded-lg font-medium transition-colors ${
-                            action.variant === 'primary'
-                              ? `${colors.bg} ${colors.text} hover:opacity-80`
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          {action.label}
-                        </Link>
-                      ))}
+                      <div className="bg-orange-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Clock className="w-5 h-5 text-orange-600" />
+                          <span className="text-sm font-medium text-orange-900">Pendientes</span>
+                        </div>
+                        <div className="text-2xl font-bold text-orange-900">{stats?.quiz.pending}</div>
+                        <div className="text-xs text-orange-700 mt-1">
+                          {stats?.quiz.total > 0 ? ((stats.quiz.pending / stats.quiz.total) * 100).toFixed(0) : 0}%
+                        </div>
+                      </div>
+
+                      <div className="bg-green-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          <span className="text-sm font-medium text-green-900">Convertidos</span>
+                        </div>
+                        <div className="text-2xl font-bold text-green-900">{stats?.quiz.converted}</div>
+                        <div className="text-xs text-green-700 mt-1">
+                          {stats?.quiz.total > 0 ? ((stats.quiz.converted / stats.quiz.total) * 100).toFixed(0) : 0}%
+                        </div>
+                      </div>
+
+                      <div className="bg-purple-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Award className="w-5 h-5 text-purple-600" />
+                          <span className="text-sm font-medium text-purple-900">Puntuación Media</span>
+                        </div>
+                        <div className="text-2xl font-bold text-purple-900">{stats?.quiz.avgScore}/100</div>
+                        <div className="text-xs text-purple-700 mt-1">Promedio</div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        </div>
+              </motion.div>
 
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Acciones Rápidas</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {quickActions.map((action) => {
-              const Icon = action.icon
-              const colors = getColorClasses(action.color)
-
-              return (
-                <Link
-                  key={action.title}
-                  href={action.href}
-                  className={`bg-white rounded-lg shadow-sm border-2 ${colors.border} ${colors.hover} p-4 transition-all duration-200 hover:shadow-md`}
-                >
-                  <div className={`w-10 h-10 ${colors.bg} rounded-lg flex items-center justify-center mb-3`}>
-                    <Icon className={`w-5 h-5 ${colors.text}`} />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-1">{action.title}</h3>
-                  <p className="text-sm text-gray-600">{action.description}</p>
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Actividad Reciente</h2>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="divide-y divide-gray-200">
-              {recentActivity.map((item, index) => (
-                <div key={index} className="p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        item.type === 'knowledge'
-                          ? 'bg-violet-100 text-violet-700'
-                          : 'bg-blue-100 text-blue-700'
-                      }`}>
-                        {item.type === 'knowledge' ? 'Knowledge' : 'Blog'}
-                      </span>
-                      <div>
-                        <p className="font-medium text-gray-900">{item.title}</p>
-                        <p className="text-sm text-gray-600">
-                          {item.action} hace {item.time}
-                        </p>
+              {/* Host Profile Test Funnel */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="bg-white rounded-xl shadow-lg overflow-hidden"
+              >
+                <div className="border-l-4 border-purple-500">
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                          <Target className="w-7 h-7 text-purple-600" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-gray-900">Test de Perfil Operativo</h2>
+                          <p className="text-gray-600">Test de personalidad para segmentar anfitriones</p>
+                        </div>
                       </div>
+                      <Link
+                        href="/admin/host-profiles"
+                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                      >
+                        Ver Embudo
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
                     </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Eye className="w-4 h-4 mr-1" />
-                      {item.views} vistas
+
+                    {/* Funnel Flow */}
+                    <div className="grid grid-cols-5 gap-4">
+                      <div className="bg-purple-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <PlayCircle className="w-5 h-5 text-purple-600" />
+                          <span className="text-sm font-medium text-purple-900">Tests</span>
+                        </div>
+                        <div className="text-2xl font-bold text-purple-900">{stats?.hostProfile.total}</div>
+                        <div className="text-xs text-purple-700 mt-1">100%</div>
+                      </div>
+
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Mail className="w-5 h-5 text-blue-600" />
+                          <span className="text-sm font-medium text-blue-900">Con Email</span>
+                        </div>
+                        <div className="text-2xl font-bold text-blue-900">{stats?.hostProfile.withEmail}</div>
+                        <div className="text-xs text-blue-700 mt-1">
+                          {stats?.hostProfile.total > 0 ? ((stats.hostProfile.withEmail / stats.hostProfile.total) * 100).toFixed(0) : 0}%
+                        </div>
+                      </div>
+
+                      <div className="bg-green-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          <span className="text-sm font-medium text-green-900">Descargaron</span>
+                        </div>
+                        <div className="text-2xl font-bold text-green-900">{stats?.hostProfile.downloadedGuide}</div>
+                        <div className="text-xs text-green-700 mt-1">
+                          {stats?.hostProfile.withEmail > 0 ? ((stats.hostProfile.downloadedGuide / stats.hostProfile.withEmail) * 100).toFixed(0) : 0}%
+                        </div>
+                      </div>
+
+                      <div className="bg-red-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Flame className="w-5 h-5 text-red-600" />
+                          <span className="text-sm font-medium text-red-900">Hot</span>
+                        </div>
+                        <div className="text-2xl font-bold text-red-900">{stats?.hostProfile.hotLeads}</div>
+                        <div className="text-xs text-red-700 mt-1">Alto engage</div>
+                      </div>
+
+                      <div className="bg-yellow-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <TrendingUp className="w-5 h-5 text-yellow-600" />
+                          <span className="text-sm font-medium text-yellow-900">Warm</span>
+                        </div>
+                        <div className="text-2xl font-bold text-yellow-900">{stats?.hostProfile.warmLeads}</div>
+                        <div className="text-xs text-yellow-700 mt-1">Medio engage</div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              ))}
+              </motion.div>
+
+              {/* Email Sequences */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="bg-white rounded-xl shadow-lg overflow-hidden"
+              >
+                <div className="border-l-4 border-green-500">
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                          <MessageSquare className="w-7 h-7 text-green-600" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-gray-900">Secuencias de Email</h2>
+                          <p className="text-gray-600">Nurturing automático de leads captados</p>
+                        </div>
+                      </div>
+                      <Link
+                        href="/admin/blog/suscriptores"
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                      >
+                        Ver Suscriptores
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+
+                    {/* Email Stats */}
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="bg-green-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Users className="w-5 h-5 text-green-600" />
+                          <span className="text-sm font-medium text-green-900">Activos</span>
+                        </div>
+                        <div className="text-2xl font-bold text-green-900">{stats?.emailSequences.activeSubscribers}</div>
+                        <div className="text-xs text-green-700 mt-1">Suscriptores</div>
+                      </div>
+
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Mail className="w-5 h-5 text-blue-600" />
+                          <span className="text-sm font-medium text-blue-900">Enviados</span>
+                        </div>
+                        <div className="text-2xl font-bold text-blue-900">{stats?.emailSequences.totalSent}</div>
+                        <div className="text-xs text-blue-700 mt-1">Total emails</div>
+                      </div>
+
+                      <div className="bg-purple-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CheckCircle className="w-5 h-5 text-purple-600" />
+                          <span className="text-sm font-medium text-purple-900">Abiertos</span>
+                        </div>
+                        <div className="text-2xl font-bold text-purple-900">{stats?.emailSequences.totalOpened}</div>
+                        <div className="text-xs text-purple-700 mt-1">Total opens</div>
+                      </div>
+
+                      <div className="bg-orange-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <BarChart3 className="w-5 h-5 text-orange-600" />
+                          <span className="text-sm font-medium text-orange-900">Open Rate</span>
+                        </div>
+                        <div className="text-2xl font-bold text-orange-900">{stats?.emailSequences.avgOpenRate.toFixed(1)}%</div>
+                        <div className="text-xs text-orange-700 mt-1">Promedio</div>
+                      </div>
+                    </div>
+
+                    {/* Sequence Timeline */}
+                    <div className="mt-6 bg-gray-50 rounded-lg p-4">
+                      <h3 className="text-sm font-semibold text-gray-700 mb-3">Secuencia Activa:</h3>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span>Día 0: Bienvenida</span>
+                        <span className="mx-2">→</span>
+                        <Clock className="w-4 h-4 text-gray-400" />
+                        <span>Día 3: Errores comunes</span>
+                        <span className="mx-2">→</span>
+                        <Clock className="w-4 h-4 text-gray-400" />
+                        <span>Día 7: Case study</span>
+                        <span className="mx-2">→</span>
+                        <Clock className="w-4 h-4 text-gray-400" />
+                        <span>Día 10: Trial</span>
+                        <span className="mx-2">→</span>
+                        <Clock className="w-4 h-4 text-gray-400" />
+                        <span>Día 14: Urgencia</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </div>
   )

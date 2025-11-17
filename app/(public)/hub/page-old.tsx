@@ -379,7 +379,7 @@ export default function KnowledgeCenterLanding() {
             </form>
 
             <p className="text-sm text-gray-500 mt-4">
-              Sin spam. Cancela cuando quieras. 🔒
+              Sin spam. Prueba 15 días sin compromiso. 🔒
             </p>
           </div>
         </div>

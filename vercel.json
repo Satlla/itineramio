@@ -16,6 +16,10 @@
     {
       "path": "/api/analytics/reports/weekly?all=true&secret=${CRON_SECRET}",
       "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/cron/send-sequence-emails",
+      "schedule": "0 9 * * *"
     }
   ]
 }
