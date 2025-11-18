@@ -18,13 +18,13 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.toLowerCase().trim()
 
     // Verificar si ya existe
-    const existing = await prisma.newsletterSubscriber.findUnique({
+    const existing = await prisma.emailSubscriber.findUnique({
       where: { email: normalizedEmail }
     })
 
     if (existing) {
       // Si ya está suscrito y activo
-      if (existing.isActive) {
+      if (existing.status === 'active') {
         return NextResponse.json(
           { message: 'Ya estás suscrito', alreadySubscribed: true },
           { status: 200 }
@@ -32,11 +32,11 @@ export async function POST(request: NextRequest) {
       }
 
       // Si estaba unsubscribed, reactivar
-      if (!existing.isActive) {
-        await prisma.newsletterSubscriber.update({
+      if (existing.status === 'unsubscribed') {
+        await prisma.emailSubscriber.update({
           where: { email: normalizedEmail },
           data: {
-            isActive: true,
+            status: 'active',
             unsubscribedAt: null,
             source,
             tags
@@ -51,10 +51,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Crear nuevo suscriptor
-    await prisma.newsletterSubscriber.create({
+    await prisma.emailSubscriber.create({
       data: {
         email: normalizedEmail,
-        isActive: true,
+        status: 'active',
         source,
         tags
       }
@@ -97,10 +97,10 @@ export async function DELETE(request: NextRequest) {
 
     const normalizedEmail = email.toLowerCase().trim()
 
-    await prisma.newsletterSubscriber.update({
+    await prisma.emailSubscriber.update({
       where: { email: normalizedEmail },
       data: {
-        isActive: false,
+        status: 'unsubscribed',
         unsubscribedAt: new Date()
       }
     })

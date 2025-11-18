@@ -37,12 +37,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   useEffect(() => {
-    // Don't check auth for admin routes
-    if (pathname?.startsWith('/admin')) {
+    // Lista de rutas públicas que NO necesitan auth check
+    const publicRoutes = [
+      '/academia',
+      '/blog',
+      '/recursos',
+      '/host-profile',
+      '/funcionalidades',
+      '/pricing',
+      '/legal',
+      '/terms',
+      '/privacy',
+      '/login',
+      '/register',
+      '/',
+    ]
+
+    // Lista de rutas admin
+    const isAdminRoute = pathname?.startsWith('/admin')
+
+    // Verificar si es ruta pública
+    const isPublicRoute = publicRoutes.some(route =>
+      pathname === route || pathname?.startsWith(`${route}/`)
+    )
+
+    // Solo verificar auth si NO es admin y NO es pública
+    if (isAdminRoute || isPublicRoute) {
       setLoading(false)
       return
     }
-    
+
+    // Solo verificar auth en rutas privadas (ej: /account, /dashboard)
     checkAuthStatus()
   }, [pathname])
 
