@@ -12,10 +12,6 @@
     {
       "path": "/api/cron/check-trials",
       "schedule": "0 12 * * *"
-    },
-    {
-      "path": "/api/cron/send-sequence-emails",
-      "schedule": "0 9 * * *"
     }
   ]
 }
