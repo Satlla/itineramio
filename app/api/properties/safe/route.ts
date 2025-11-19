@@ -51,16 +51,31 @@ const createPropertySchema = z.object({
 // POST /api/properties/safe - Safe create property
 export async function POST(request: NextRequest) {
   console.log('✅ SAFE POST /properties endpoint called')
-  
+
   try {
     // Get authenticated user
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
-      console.log('✅ SAFE POST - Auth failed')
+      console.log('✅ SAFE POST - Auth failed, returning 401')
       return authResult
     }
     const userId = authResult.userId
     console.log('✅ SAFE POST - Auth success, userId:', userId)
+
+    // Verificar que el usuario existe en la base de datos
+    const userExists = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true }
+    })
+
+    if (!userExists) {
+      console.log('✅ SAFE POST - User not found in database, returning 401')
+      return NextResponse.json({
+        success: false,
+        error: 'Usuario no encontrado. Por favor, inicia sesión nuevamente.',
+        requiresLogin: true
+      }, { status: 401 })
+    }
 
     // Set RLS config (ignore if fails)
     try {

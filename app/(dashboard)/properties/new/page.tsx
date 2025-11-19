@@ -232,6 +232,12 @@ function NewPropertyPageContent() {
       console.log('📦 Resultado:', result)
 
       if (!response.ok) {
+        // Si requiere login, redirigir al login
+        if (result.requiresLogin || response.status === 401) {
+          alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.')
+          router.push('/login')
+          return
+        }
         throw new Error(result.error || `Error al ${isEditing ? 'actualizar' : 'crear'} la propiedad`)
       }
 

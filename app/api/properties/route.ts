@@ -40,13 +40,28 @@ const createPropertySchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     console.log('POST /api/properties - Start')
-    
+
     // Get authenticated user
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
       return authResult
     }
     const userId = authResult.userId
+
+    // Verificar que el usuario existe en la base de datos
+    const userExists = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true }
+    })
+
+    if (!userExists) {
+      console.log('POST /api/properties - User not found in database')
+      return NextResponse.json({
+        success: false,
+        error: 'Usuario no encontrado. Por favor, inicia sesión nuevamente.',
+        requiresLogin: true
+      }, { status: 401 })
+    }
 
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
     // RLS is handled at application level instead
