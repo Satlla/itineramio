@@ -432,7 +432,7 @@ export function MobileStepEditor({
       </div>
 
       {/* Main Content - Scrollable */}
-      <div className="flex-1 overflow-y-auto p-4 pb-20">
+      <div className="flex-1 overflow-y-auto p-4 pb-24">
         <div className="max-w-md mx-auto">
           {/* Steps Timeline */}
           <div className="space-y-0">
@@ -622,34 +622,35 @@ export function MobileStepEditor({
                 </div>
               </motion.div>
             ))}
-            
-            {/* Add Step Button */}
-            <motion.button
-              onClick={addNewStep}
-              className="w-full py-4 border-2 border-dashed border-violet-400 rounded-2xl text-violet-600 hover:border-violet-500 hover:text-violet-700 transition-colors flex items-center justify-center gap-2"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Plus className="w-5 h-5" />
-              <span className="font-medium">Añadir paso</span>
-            </motion.button>
           </div>
         </div>
       </div>
 
-      {/* Bottom Navigation - Fixed */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
-        <div className="max-w-md mx-auto flex gap-3">
+      {/* Bottom Navigation - Fixed with 3 buttons */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 safe-area-bottom">
+        <div className="max-w-md mx-auto grid grid-cols-3 gap-2">
+          {/* Atrás Button */}
           <button
             onClick={() => {
               console.log('🔙 Cancel button clicked');
               onCancel();
             }}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50"
+            className="px-3 py-2.5 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 flex items-center justify-center gap-1.5 text-sm font-medium"
           >
-            Anterior
+            <ChevronLeft className="w-4 h-4" />
+            <span>Atrás</span>
           </button>
-          
+
+          {/* Añadir Paso Button */}
+          <button
+            onClick={addNewStep}
+            className="px-3 py-2.5 border-2 border-violet-500 bg-violet-50 rounded-lg text-violet-700 hover:bg-violet-100 flex items-center justify-center gap-1.5 text-sm font-semibold transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Añadir</span>
+          </button>
+
+          {/* Finalizar Button */}
           <button
             type="button"
             onClick={(e) => {
@@ -657,16 +658,8 @@ export function MobileStepEditor({
               e.stopPropagation();
               try {
                 console.log('🎯 MobileStepEditor BOTTOM: Finalizar clicked');
-                console.log('🎯 Event:', e);
                 console.log('🎯 Steps to save:', steps);
-                console.log('🎯 Steps count:', steps.length);
-                console.log('🎯 Steps content:', steps.map(s => ({ type: s.type, content: s.content })));
-                
-                // Send all steps to the parent component
-                console.log('🎯 Total steps:', steps.length);
-                console.log('🎯 onSave function exists:', typeof onSave === 'function');
-                console.log('🎯 Steps to save:', JSON.stringify(steps, null, 2));
-                
+
                 if (steps.length > 0 && typeof onSave === 'function') {
                   console.log('🎯 Calling onSave with all steps...');
                   onSave(steps);
@@ -678,14 +671,14 @@ export function MobileStepEditor({
                 }
               } catch (error) {
                 console.error('❌ Error in Finalizar BOTTOM click:', error);
-                console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack');
               }
             }}
             style={{ backgroundColor: '#484848' }}
-            className="flex-1 px-4 py-2 rounded-lg text-white hover:bg-gray-700 disabled:opacity-50"
+            className="px-3 py-2.5 rounded-lg text-white hover:bg-gray-700 disabled:opacity-50 flex items-center justify-center gap-1.5 text-sm font-semibold"
             disabled={steps.every(step => !step.content.es?.trim())}
           >
-            Finalizar
+            <CheckCircle className="w-4 h-4" />
+            <span>Finalizar</span>
           </button>
         </div>
       </div>
