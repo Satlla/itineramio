@@ -176,11 +176,9 @@ export async function POST(request: NextRequest) {
     const analyticsId = `analytics-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
     await prisma.$executeRaw`
       INSERT INTO property_analytics (
-        id, "propertyId", "totalViews", "overallRating",
-        "createdAt", "updatedAt"
+        id, "propertyId", "totalViews", "overallRating", "lastCalculatedAt"
       ) VALUES (
-        ${analyticsId}, ${propertyId}, 0, 0,
-        NOW(), NOW()
+        ${analyticsId}, ${propertyId}, 0, 0, NOW()
       )
     `
     
