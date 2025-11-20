@@ -2565,6 +2565,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       <div className="flex items-center justify-between mb-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
+            {/* Botón Volver al Dashboard - Siempre visible */}
+            <Button
+              onClick={() => router.push('/dashboard')}
+              variant="ghost"
+              size="sm"
+              className="hover:bg-gray-100 rounded-full p-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
             <h1 className="text-3xl font-bold text-gray-900">
               Zonas de {propertyName || 'la Propiedad'}
             </h1>
@@ -3460,22 +3469,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      {/* Floating scroll button - Mobile only - Always visible */}
-      <motion.button
-        onClick={scrollToZones}
-        className="lg:hidden fixed right-6 bottom-24 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-500 text-white shadow-lg flex items-center justify-center"
-        style={{
-          boxShadow: '0 0 20px rgba(250, 204, 21, 0.6), 0 0 40px rgba(250, 204, 21, 0.3)'
-        }}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        aria-label="Ir a zonas"
-      >
-        <ChevronDown className="w-6 h-6" />
-      </motion.button>
 
       <DeleteConfirmationModal
         isOpen={showDeleteModal}

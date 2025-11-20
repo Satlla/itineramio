@@ -434,6 +434,28 @@ export default function PropertyGuidePage() {
   const [showAnnouncementsModal, setShowAnnouncementsModal] = useState(false)
   const [showAnnouncementsInline, setShowAnnouncementsInline] = useState(true)
   const [showShareModal, setShowShareModal] = useState(false)
+  const [showScrollArrow, setShowScrollArrow] = useState(true)
+
+  // Detectar scroll para ocultar la flecha cuando llegue a las zonas
+  useEffect(() => {
+    const handleScroll = () => {
+      const zonasElement = document.getElementById('zonas')
+      if (zonasElement) {
+        const rect = zonasElement.getBoundingClientRect()
+        // Si las zonas están en el viewport o arriba, ocultar la flecha
+        if (rect.top <= window.innerHeight) {
+          setShowScrollArrow(false)
+        } else {
+          setShowScrollArrow(true)
+        }
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    handleScroll() // Check initial position
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   useEffect(() => {
     fetchPropertyData()
@@ -637,6 +659,13 @@ export default function PropertyGuidePage() {
         behavior: 'smooth'
       })
       setCarouselScrollPosition(newPosition)
+    }
+  }
+
+  const scrollToZones = () => {
+    const zonasElement = document.getElementById('zonas')
+    if (zonasElement) {
+      zonasElement.scrollIntoView({ behavior: 'smooth' })
     }
   }
 
@@ -1036,7 +1065,7 @@ export default function PropertyGuidePage() {
         )}
 
         {/* Manual Sections - MOVED TO FIRST POSITION */}
-        <div className="border-b border-gray-200 pb-8 mb-8">
+        <div id="zonas" className="border-b border-gray-200 pb-8 mb-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-gray-900">
               {getManualTitle(property, language)}
@@ -1749,6 +1778,39 @@ export default function PropertyGuidePage() {
             </div>
           </motion.div>
         </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating scroll arrow - Mobile only */}
+      <AnimatePresence>
+        {showScrollArrow && (
+          <motion.button
+            onClick={scrollToZones}
+            className="lg:hidden fixed right-6 bottom-24 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-500 text-white shadow-lg flex items-center justify-center"
+            style={{
+              boxShadow: '0 0 20px rgba(250, 204, 21, 0.6), 0 0 40px rgba(250, 204, 21, 0.3)'
+            }}
+            initial={{ opacity: 0, scale: 0.8, y: -10 }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: [0, -10, 0]
+            }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{
+              y: {
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut"
+              },
+              opacity: { duration: 0.3 },
+              scale: { duration: 0.3 }
+            }}
+            whileTap={{ scale: 0.95 }}
+            aria-label="Ir a zonas"
+          >
+            <ChevronRight className="w-6 h-6 rotate-90" />
+          </motion.button>
         )}
       </AnimatePresence>
 
