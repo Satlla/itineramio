@@ -28,6 +28,7 @@ import { Input } from './Input'
 import { Badge } from './Badge'
 import { VideoUploadSimple } from './VideoUploadSimple'
 import { ImageUpload } from './ImageUpload'
+import { LoadingSpinner } from './LoadingSpinner'
 
 export interface Step {
   id: string
@@ -88,6 +89,7 @@ export function MobileStepEditor({
   )
   const [showMediaModal, setShowMediaModal] = useState(false)
   const [activeLanguage, setActiveLanguage] = useState<'es' | 'en' | 'fr'>('es')
+  const [isSaving, setIsSaving] = useState(false)
 
   // Current step being displayed (carousel style)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
@@ -443,7 +445,7 @@ export function MobileStepEditor({
                 console.log('🎯 Steps to save:', steps);
                 console.log('🎯 Steps count:', steps.length);
                 console.log('🎯 Steps content:', steps.map(s => ({ type: s.type, content: s.content })));
-                
+
                 // Send only valid steps to the parent component
                 const validSteps = getValidSteps()
                 console.log('🎯 Total steps:', steps.length);
@@ -453,6 +455,7 @@ export function MobileStepEditor({
 
                 if (validSteps.length > 0 && typeof onSave === 'function') {
                   console.log('🎯 Calling onSave with valid steps...');
+                  setIsSaving(true);
                   onSave(validSteps);
                   console.log('🎯 onSave called successfully');
                 } else if (validSteps.length === 0) {
@@ -464,13 +467,21 @@ export function MobileStepEditor({
               } catch (error) {
                 console.error('❌ Error in Finalizar click:', error);
                 console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack');
+                setIsSaving(false);
               }
             }}
             style={{ backgroundColor: '#484848' }}
-            className="px-4 py-2 text-sm rounded-lg text-white hover:bg-gray-700 disabled:opacity-50"
-            disabled={steps.every(step => !step.content.es?.trim())}
+            className="px-4 py-2 text-sm rounded-lg text-white hover:bg-gray-700 disabled:opacity-50 flex items-center gap-2"
+            disabled={steps.every(step => !step.content.es?.trim()) || isSaving}
           >
-            Finalizar
+            {isSaving ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Guardando...</span>
+              </>
+            ) : (
+              'Finalizar'
+            )}
           </button>
         </div>
       </div>
@@ -771,6 +782,7 @@ export function MobileStepEditor({
 
                 if (validSteps.length > 0 && typeof onSave === 'function') {
                   console.log('🎯 Calling onSave with valid steps...');
+                  setIsSaving(true);
                   onSave(validSteps);
                   console.log('🎯 onSave called successfully');
                 } else if (validSteps.length === 0) {
@@ -781,14 +793,24 @@ export function MobileStepEditor({
                 }
               } catch (error) {
                 console.error('❌ Error in Finalizar BOTTOM click:', error);
+                setIsSaving(false);
               }
             }}
             style={{ backgroundColor: '#484848' }}
             className="flex-1 px-3 py-2.5 rounded-lg text-white hover:bg-gray-700 disabled:opacity-50 flex items-center justify-center gap-1.5 text-sm font-semibold"
-            disabled={steps.every(step => !step.content.es?.trim())}
+            disabled={steps.every(step => !step.content.es?.trim()) || isSaving}
           >
-            <CheckCircle className="w-4 h-4" />
-            <span>Finalizar</span>
+            {isSaving ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Guardando...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-4 h-4" />
+                <span>Finalizar</span>
+              </>
+            )}
           </button>
         </div>
       </div>
