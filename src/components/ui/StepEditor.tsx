@@ -134,11 +134,26 @@ export function StepEditor({
   }
   
   // Only use mobile editor for actual mobile devices (not tablets or desktop)
-  const shouldUseMobileEditor = window.innerWidth <= 768 && 
-    (/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 'ontouchstart' in window)
-  
+  const windowWidth = window.innerWidth
+  const userAgent = navigator.userAgent
+  const hasTouch = 'ontouchstart' in window
+  const isMobileUserAgent = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)
+
+  console.log('🔍 Mobile Detection Debug:', {
+    windowWidth,
+    widthCheck: windowWidth <= 768,
+    userAgent,
+    isMobileUserAgent,
+    hasTouch,
+    touchOrMobile: isMobileUserAgent || hasTouch
+  })
+
+  const shouldUseMobileEditor = windowWidth <= 768 && (isMobileUserAgent || hasTouch)
+
+  console.log('📱 shouldUseMobileEditor:', shouldUseMobileEditor)
+
   if (shouldUseMobileEditor) {
-    console.log('📱 Rendering MobileStepEditor (width:', window.innerWidth, ', touch:', 'ontouchstart' in window, ')')
+    console.log('✅ Rendering MobileStepEditor (CAROUSEL MODE)')
     
     return (
       <MobileStepEditorNew

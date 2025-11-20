@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown } from 'lucide-react'
 import {
   DndContext,
   closestCenter,
@@ -50,6 +50,7 @@ import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsen
 import { CopyZoneToPropertyModal } from '../../../../../src/components/ui/CopyZoneToPropertyModal'
 import { EvaluationsModal } from '../../../../../src/components/ui/EvaluationsModal'
 import { PropertySetUpdateModal } from '../../../../../src/components/ui/PropertySetUpdateModal'
+import { LanguageCompletionModal } from '../../../../../src/components/ui/LanguageCompletionModal'
 // Removed unused imports
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
@@ -121,13 +122,22 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showZonasEsencialesModal, setShowZonasEsencialesModal] = useState(false)
   const [hasCreatedEssentialZones, setHasCreatedEssentialZones] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  const [zoneCreationProgress, setZoneCreationProgress] = useState(0)
+  const [totalZonesToCreate, setTotalZonesToCreate] = useState(11)
   
   // Evaluations modal state
   const [evaluationsModalOpen, setEvaluationsModalOpen] = useState(false)
   const [propertyEvaluations, setPropertyEvaluations] = useState<any[]>([])
   const [loadingEvaluations, setLoadingEvaluations] = useState(false)
   const [debugModalShow, setDebugModalShow] = useState(false) // For testing modal visibility
-  
+
+  // Ref for zones section scroll
+  const zonesContainerRef = useRef<HTMLDivElement>(null)
+
+  // Language completion modal state
+  const [showLanguageModal, setShowLanguageModal] = useState(false)
+  const [completedZoneName, setCompletedZoneName] = useState('')
+
   const [isCreatingZone, setIsCreatingZone] = useState(false)
   const [isUpdatingZone, setIsUpdatingZone] = useState(false)
   const [isLoadingZones, setIsLoadingZones] = useState(true)
@@ -396,7 +406,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               // Create zones in background
               setTimeout(async () => {
                 try {
-                  const success = await crearZonasEsenciales(id)
+                  // Reset progress
+                  setZoneCreationProgress(0)
+
+                  const success = await crearZonasEsenciales(id, (current, total) => {
+                    console.log(`📊 Progress: ${current}/${total}`)
+                    setZoneCreationProgress(current)
+                    setTotalZonesToCreate(total)
+                  })
                   if (success) {
                     // Mark that we've created zones for this property
                     if (typeof window !== 'undefined') {
@@ -891,7 +908,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     console.log('🚀 handleOpenMultiSelect called')
     console.log('🚀 zones.length:', zones.length)
     console.log('🚀 hasShownEssentialZones:', hasShownEssentialZones)
-    
+
     // Show essential zones modal when creating first zone
     if (zones.length === 0) {
       console.log('🚀 Showing essential zones modal')
@@ -902,6 +919,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     } else {
       console.log('🚀 Showing element selector')
       setShowElementSelector(true)
+    }
+  }
+
+  // Scroll to zones section (mobile only)
+  const scrollToZones = () => {
+    if (zonesContainerRef.current) {
+      zonesContainerRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      })
     }
   }
 
@@ -1654,8 +1681,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setShowStepEditor(false)
         setEditingZoneForSteps(null)
 
-        // Show improved success message
+        // Get zone name and show language completion modal
         const zoneName = getZoneText(zone.name)
+        setCompletedZoneName(zoneName)
+        setShowLanguageModal(true)
+
+        // Show improved success message
         const propertyCount = updatedPropertyIds.size
 
         console.log('🔔 NOTIFICATION DEBUG:')
@@ -2719,7 +2750,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Main Content Layout */}
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Left Section - Zones (2/3 width) */}
-        <div className="lg:col-span-2 space-y-4">
+        <div ref={zonesContainerRef} className="lg:col-span-2 space-y-4">
 
           {/* Mobile header for zones */}
           <div className="lg:hidden mb-4">
@@ -3410,6 +3441,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         onKeepZones={handleKeepEssentialZones}
         userName={user?.name || user?.email || 'Usuario'}
         isLoading={isCreatingZone}
+        currentZoneIndex={zoneCreationProgress}
+        totalZones={totalZonesToCreate}
       />
 
       {/* Debug button to test modal in mobile - remove in production */}
@@ -3427,6 +3460,22 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
+      {/* Floating scroll button - Mobile only - Always visible */}
+      <motion.button
+        onClick={scrollToZones}
+        className="lg:hidden fixed right-6 bottom-24 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-500 text-white shadow-lg flex items-center justify-center"
+        style={{
+          boxShadow: '0 0 20px rgba(250, 204, 21, 0.6), 0 0 40px rgba(250, 204, 21, 0.3)'
+        }}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        aria-label="Ir a zonas"
+      >
+        <ChevronDown className="w-6 h-6" />
+      </motion.button>
 
       <DeleteConfirmationModal
         isOpen={showDeleteModal}
@@ -3443,6 +3492,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           'Toda la configuración de la zona'
         ] : []}
         isLoading={isDeletingZone}
+      />
+
+      <LanguageCompletionModal
+        isOpen={showLanguageModal}
+        onClose={() => setShowLanguageModal(false)}
+        zoneName={completedZoneName}
       />
 
       <DeletePropertyModal

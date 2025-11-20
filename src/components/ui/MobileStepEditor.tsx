@@ -88,7 +88,10 @@ export function MobileStepEditor({
   )
   const [showMediaModal, setShowMediaModal] = useState(false)
   const [activeLanguage, setActiveLanguage] = useState<'es' | 'en' | 'fr'>('es')
-  
+
+  // Current step being displayed (carousel style)
+  const [currentStepIndex, setCurrentStepIndex] = useState(0)
+
   // Find the index of the step being edited, or default to null
   const getInitialSelectedStep = () => {
     if (editingStepId && initialSteps.length > 0) {
@@ -97,7 +100,7 @@ export function MobileStepEditor({
         console.log('📱 MobileStepEditor: Focusing on new step at index:', initialSteps.length - 1)
         return initialSteps.length - 1
       }
-      
+
       const stepIndex = initialSteps.findIndex(step => step.id === editingStepId)
       console.log('📱 MobileStepEditor: Looking for step with ID:', editingStepId)
       console.log('📱 MobileStepEditor: Steps IDs:', initialSteps.map(s => s.id))
@@ -106,9 +109,10 @@ export function MobileStepEditor({
     }
     return null
   }
-  
+
   const [selectedStep, setSelectedStep] = useState<number | null>(getInitialSelectedStep())
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const stepRefs = useRef<(HTMLDivElement | null)[]>([])
 
   function createNewStep(order: number): Step {
     return {
@@ -133,14 +137,43 @@ export function MobileStepEditor({
   }, [showMediaModal])
 
   const addNewStep = () => {
+    // Validar que el paso actual tenga contenido antes de añadir uno nuevo
+    const currentStep = steps[currentStepIndex]
+    if (!isStepValid(currentStep)) {
+      alert('Por favor, completa el paso actual antes de añadir uno nuevo')
+      return
+    }
+
     const newStep = createNewStep(steps.length)
-    setSteps([...steps, newStep])
+    const newSteps = [...steps, newStep]
+    setSteps(newSteps)
+
+    // Navegar automáticamente al nuevo paso (carousel)
+    setCurrentStepIndex(newSteps.length - 1)
+  }
+
+  // Navegación entre pasos
+  const goToNextStep = () => {
+    if (currentStepIndex < steps.length - 1) {
+      setCurrentStepIndex(currentStepIndex + 1)
+    }
+  }
+
+  const goToPreviousStep = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(currentStepIndex - 1)
+    }
   }
 
   const removeStep = (stepIndex: number) => {
     if (steps.length <= 1) return
     const newSteps = steps.filter((_, index) => index !== stepIndex)
     setSteps(newSteps)
+
+    // Ajustar currentStepIndex si es necesario
+    if (currentStepIndex >= newSteps.length) {
+      setCurrentStepIndex(newSteps.length - 1)
+    }
   }
 
   const updateStep = (stepIndex: number, updates: Partial<Step>) => {
@@ -166,17 +199,44 @@ export function MobileStepEditor({
   
   const updateStepTitle = (stepIndex: number, language: 'es' | 'en' | 'fr', title: string) => {
     console.log(`📝 Updating step ${stepIndex} title for ${language}:`, title)
-    setSteps(steps.map((step, index) => 
-      index === stepIndex 
-        ? { 
-            ...step, 
-            title: { 
-              ...step.title || { es: '', en: '', fr: '' }, 
-              [language]: title 
-            } 
-          } 
+    setSteps(steps.map((step, index) =>
+      index === stepIndex
+        ? {
+            ...step,
+            title: {
+              ...step.title || { es: '', en: '', fr: '' },
+              [language]: title
+            }
+          }
         : step
     ))
+  }
+
+  // Función para validar si un paso tiene contenido válido
+  const isStepValid = (step: Step): boolean => {
+    // Para pasos de tipo text, youtube o link: debe tener contenido en al menos un idioma
+    if (step.type === 'text' || step.type === 'youtube' || step.type === 'link') {
+      const hasContent = Boolean(
+        step.content.es?.trim() ||
+        step.content.en?.trim() ||
+        step.content.fr?.trim()
+      )
+      return hasContent
+    }
+
+    // Para pasos de tipo image o video: debe tener media.url
+    if (step.type === 'image' || step.type === 'video') {
+      return Boolean(step.media?.url)
+    }
+
+    return false
+  }
+
+  // Filtrar pasos válidos antes de guardar
+  const getValidSteps = (): Step[] => {
+    const validSteps = steps.filter(isStepValid)
+    console.log(`📊 Total steps: ${steps.length}, Valid steps: ${validSteps.length}`)
+    return validSteps
   }
 
   const handleMediaSelect = (type: 'image' | 'video' | 'text' | 'youtube' | 'link') => {
@@ -342,6 +402,11 @@ export function MobileStepEditor({
   
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col">
+      {/* DEBUG BANNER - Remove after testing */}
+      <div className="bg-gradient-to-r from-violet-600 to-purple-600 text-white text-center py-2 px-4 text-xs font-bold">
+        🎠 MODO CAROUSEL ACTIVO - Editor Mobile Nuevo
+      </div>
+
       {/* Header - Fixed */}
       <div className="bg-white border-b border-gray-200 px-4 py-3">
         <div className="flex items-center justify-between">
@@ -379,17 +444,20 @@ export function MobileStepEditor({
                 console.log('🎯 Steps count:', steps.length);
                 console.log('🎯 Steps content:', steps.map(s => ({ type: s.type, content: s.content })));
                 
-                // Send all steps to the parent component
+                // Send only valid steps to the parent component
+                const validSteps = getValidSteps()
                 console.log('🎯 Total steps:', steps.length);
+                console.log('🎯 Valid steps:', validSteps.length);
                 console.log('🎯 onSave function exists:', typeof onSave === 'function');
-                console.log('🎯 Steps to save:', JSON.stringify(steps, null, 2));
-                
-                if (steps.length > 0 && typeof onSave === 'function') {
-                  console.log('🎯 Calling onSave with all steps...');
-                  onSave(steps);
+                console.log('🎯 Steps to save:', JSON.stringify(validSteps, null, 2));
+
+                if (validSteps.length > 0 && typeof onSave === 'function') {
+                  console.log('🎯 Calling onSave with valid steps...');
+                  onSave(validSteps);
                   console.log('🎯 onSave called successfully');
-                } else if (steps.length === 0) {
-                  console.log('⚠️ No steps to save');
+                } else if (validSteps.length === 0) {
+                  console.log('⚠️ No valid steps to save');
+                  alert('Por favor, completa al menos un paso con contenido válido antes de guardar');
                 } else {
                   console.log('⚠️ onSave is not a function');
                 }
@@ -431,26 +499,60 @@ export function MobileStepEditor({
         </div>
       </div>
 
-      {/* Main Content - Scrollable */}
+      {/* Main Content - Carousel Style */}
       <div className="flex-1 overflow-y-auto p-4 pb-24">
         <div className="max-w-md mx-auto">
-          {/* Steps Timeline */}
-          <div className="space-y-0">
-            {steps.map((step, index) => (
-              <motion.div
-                key={step.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="relative"
-              >
-                {/* Timeline Line */}
-                {index < steps.length - 1 && (
-                  <div className="absolute left-5 top-12 w-0.5 h-16 border-l-2 border-dashed" style={{ borderColor: '#f1f1f1' }} />
-                )}
-                
-                {/* Step Container */}
-                <div className="bg-white rounded-2xl border border-gray-200 p-4 mb-4 shadow-sm">
+          {/* Step Indicator */}
+          <div className="flex justify-center items-center gap-2 mb-6">
+            <button
+              onClick={goToPreviousStep}
+              disabled={currentStepIndex === 0}
+              className="p-2 rounded-lg border border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+              aria-label="Paso anterior"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-700" />
+            </button>
+
+            <div className="flex items-center gap-2">
+              {steps.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentStepIndex(index)}
+                  className={`h-2 rounded-full transition-all ${
+                    index === currentStepIndex
+                      ? 'w-8 bg-violet-600'
+                      : 'w-2 bg-gray-300'
+                  }`}
+                  aria-label={`Ir al paso ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={goToNextStep}
+              disabled={currentStepIndex === steps.length - 1}
+              className="p-2 rounded-lg border border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+              aria-label="Paso siguiente"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-700" />
+            </button>
+          </div>
+
+          {/* Current Step Only (Carousel) */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStepIndex}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              {steps[currentStepIndex] && (() => {
+                const step = steps[currentStepIndex]
+                const index = currentStepIndex
+
+                return (
+                  <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
                   {/* Step Header */}
                   <div className="flex items-center gap-3 mb-3">
                     {/* Step Number Badge */}
@@ -624,9 +726,10 @@ export function MobileStepEditor({
                     </div>
                   )}
                 </div>
-              </motion.div>
-            ))}
-          </div>
+                )
+              })()}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
 
@@ -663,12 +766,16 @@ export function MobileStepEditor({
                 console.log('🎯 MobileStepEditor BOTTOM: Finalizar clicked');
                 console.log('🎯 Steps to save:', steps);
 
-                if (steps.length > 0 && typeof onSave === 'function') {
-                  console.log('🎯 Calling onSave with all steps...');
-                  onSave(steps);
+                const validSteps = getValidSteps()
+                console.log('🎯 Valid steps:', validSteps.length);
+
+                if (validSteps.length > 0 && typeof onSave === 'function') {
+                  console.log('🎯 Calling onSave with valid steps...');
+                  onSave(validSteps);
                   console.log('🎯 onSave called successfully');
-                } else if (steps.length === 0) {
-                  console.log('⚠️ No steps to save');
+                } else if (validSteps.length === 0) {
+                  console.log('⚠️ No valid steps to save');
+                  alert('Por favor, completa al menos un paso con contenido válido antes de guardar');
                 } else {
                   console.log('⚠️ onSave is not a function');
                 }
