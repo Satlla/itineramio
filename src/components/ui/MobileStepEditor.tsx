@@ -628,26 +628,25 @@ export function MobileStepEditor({
 
       {/* Bottom Navigation - Fixed with 3 buttons */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 safe-area-bottom">
-        <div className="max-w-md mx-auto grid grid-cols-3 gap-2">
-          {/* Atrás Button */}
+        <div className="max-w-md mx-auto flex gap-2">
+          {/* Atrás Button - Icon only */}
           <button
             onClick={() => {
               console.log('🔙 Cancel button clicked');
               onCancel();
             }}
-            className="px-3 py-2.5 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 flex items-center justify-center gap-1.5 text-sm font-medium"
+            className="w-12 h-12 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 flex items-center justify-center flex-shrink-0"
           >
-            <ChevronLeft className="w-4 h-4" />
-            <span>Atrás</span>
+            <ChevronLeft className="w-5 h-5" />
           </button>
 
           {/* Añadir Paso Button */}
           <button
             onClick={addNewStep}
-            className="px-3 py-2.5 border-2 border-violet-500 bg-violet-50 rounded-lg text-violet-700 hover:bg-violet-100 flex items-center justify-center gap-1.5 text-sm font-semibold transition-colors"
+            className="flex-1 px-3 py-2.5 border-2 border-violet-500 bg-violet-50 rounded-lg text-violet-700 hover:bg-violet-100 flex items-center justify-center gap-1.5 text-sm font-semibold transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>Añadir</span>
+            <span>Añadir paso</span>
           </button>
 
           {/* Finalizar Button */}
@@ -674,7 +673,7 @@ export function MobileStepEditor({
               }
             }}
             style={{ backgroundColor: '#484848' }}
-            className="px-3 py-2.5 rounded-lg text-white hover:bg-gray-700 disabled:opacity-50 flex items-center justify-center gap-1.5 text-sm font-semibold"
+            className="flex-1 px-3 py-2.5 rounded-lg text-white hover:bg-gray-700 disabled:opacity-50 flex items-center justify-center gap-1.5 text-sm font-semibold"
             disabled={steps.every(step => !step.content.es?.trim())}
           >
             <CheckCircle className="w-4 h-4" />
