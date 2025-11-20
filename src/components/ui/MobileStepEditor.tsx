@@ -504,7 +504,8 @@ export function MobileStepEditor({
                       value={step.title?.[activeLanguage] || ''}
                       onChange={(e) => updateStepTitle(index, activeLanguage, e.target.value)}
                       placeholder="Título del paso..."
-                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
+                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent text-base"
+                      style={{ fontSize: '16px' }}
                     />
                   </div>
 
@@ -516,7 +517,8 @@ export function MobileStepEditor({
                         value={step.content[activeLanguage] || ''}
                         onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
                         placeholder="Escribe las instrucciones para este paso..."
-                        className="w-full min-h-[200px] h-48 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-y text-sm leading-relaxed"
+                        className="w-full min-h-[200px] h-48 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-y text-base leading-relaxed"
+                        style={{ fontSize: '16px' }}
                         rows={4}
                       />
                     </div>
@@ -552,7 +554,8 @@ export function MobileStepEditor({
                         value={step.content[activeLanguage] || ''}
                         onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
                         placeholder="Descripción de la imagen (opcional)"
-                        className="w-full min-h-[120px] h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-y text-sm leading-relaxed"
+                        className="w-full min-h-[120px] h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-y text-base leading-relaxed"
+                        style={{ fontSize: '16px' }}
                         rows={4}
                       />
                     </div>
@@ -594,7 +597,8 @@ export function MobileStepEditor({
                         value={step.content[activeLanguage] || ''}
                         onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
                         placeholder="Descripción del video (opcional)"
-                        className="w-full min-h-[120px] h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-y text-sm leading-relaxed"
+                        className="w-full min-h-[120px] h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-y text-base leading-relaxed"
+                        style={{ fontSize: '16px' }}
                         rows={4}
                       />
                     </div>
