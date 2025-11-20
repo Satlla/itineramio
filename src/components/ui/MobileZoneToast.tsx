@@ -194,7 +194,7 @@ export function MobileZoneToast({
               <X className="w-4 h-4 text-gray-400" />
             </button>
           </div>
-          
+
           <Button
             onClick={() => setShowModal(true)}
             variant="outline"
@@ -207,6 +207,89 @@ export function MobileZoneToast({
         </div>
       </motion.div>
 
+      {/* Modal con sugerencias */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50 flex items-end"
+            onClick={() => setShowModal(false)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              className="bg-white w-full rounded-t-2xl max-h-[80vh] overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Zonas Sugeridas</h2>
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="p-2 hover:bg-gray-100 rounded-full"
+                  >
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-4 overflow-y-auto max-h-[calc(80vh-80px)]">
+                <div className="space-y-3">
+                  {availableZones.slice(0, 10).map((template) => (
+                    <div
+                      key={template.id}
+                      className="bg-gray-50 rounded-lg p-3 flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="p-2 bg-white rounded-lg">
+                          <ZoneIconDisplay iconId={template.icon} size="sm" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-medium text-sm text-gray-900">
+                            {getText(template.name, 'Zona')}
+                          </h3>
+                          <p className="text-xs text-gray-600 line-clamp-1">
+                            {getText(template.description, '')}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 ml-2">
+                        {/* Botón Ver más grande */}
+                        <Button
+                          onClick={() => {
+                            // Aquí se puede mostrar más detalles si es necesario
+                            console.log('Ver detalles:', template)
+                          }}
+                          variant="outline"
+                          size="sm"
+                          className="text-xs px-3 py-1"
+                        >
+                          Ver más
+                        </Button>
+                        {/* Botón Añadir más pequeño */}
+                        <Button
+                          onClick={() => {
+                            onCreateZone(template)
+                            setShowModal(false)
+                            setIsOpen(false)
+                          }}
+                          size="sm"
+                          className="bg-violet-600 hover:bg-violet-700 text-white text-xs px-2 py-1"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }
