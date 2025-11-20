@@ -133,7 +133,7 @@ function NewPropertyPageContent() {
   const watchedValues = watch()
 
   // Setup form persistence with user-specific key
-  const { clearSavedData, hasSavedData, getSavedDataInfo, lastSaved } = useFormPersistence({
+  const { clearSavedData, hasSavedData, getSavedDataInfo, lastSaved, isSaving } = useFormPersistence({
     storageKey: user?.id ? `itineramio-property-draft-${user.id}` : 'itineramio-property-draft-temp',
     watch,
     setValue,
@@ -1003,9 +1003,10 @@ function NewPropertyPageContent() {
         />
 
         {/* Auto Save Indicator */}
-        <AutoSaveIndicator 
+        <AutoSaveIndicator
           isVisible={Object.values(watchedValues).some(value => value && value !== '' && value !== 0)}
           lastSaved={lastSaved || undefined}
+          isSaving={isSaving}
         />
 
         {/* Trial Activation Modal */}

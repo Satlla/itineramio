@@ -21,6 +21,7 @@ export function useFormPersistence({
   const watchedValues = watch()
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   // Load data from localStorage on component mount (only once)
   useEffect(() => {
@@ -50,6 +51,9 @@ export function useFormPersistence({
   // Save data to localStorage whenever form values change (with debounce)
   useEffect(() => {
     if (typeof window !== 'undefined' && watchedValues && isInitialized) {
+      // Set saving state immediately when values change
+      setIsSaving(true)
+
       const timeoutId = setTimeout(() => {
         try {
           // Default values that don't count as "real data"
@@ -113,10 +117,16 @@ export function useFormPersistence({
           }
         } catch (error) {
           console.error('Error saving form data:', error)
+        } finally {
+          // Always clear saving state after save attempt
+          setIsSaving(false)
         }
-      }, 500) // 500ms debounce
+      }, 1500) // 1500ms debounce - longer to avoid constant saving
 
-      return () => clearTimeout(timeoutId)
+      return () => {
+        clearTimeout(timeoutId)
+        setIsSaving(false)
+      }
     }
   }, [watchedValues, storageKey, excludeFields, isInitialized])
 
@@ -216,6 +226,7 @@ export function useFormPersistence({
     clearSavedData,
     hasSavedData,
     getSavedDataInfo,
-    lastSaved
+    lastSaved,
+    isSaving
   }
 }
