@@ -30,16 +30,20 @@ export function useFormPersistence({
         const savedData = localStorage.getItem(storageKey)
         if (savedData) {
           const parsedData = JSON.parse(savedData)
-          
+          console.log('📥 Loading saved form data:', Object.keys(parsedData))
+
           // Only restore non-excluded fields
           Object.keys(parsedData).forEach(key => {
             if (!excludeFields.includes(key) && parsedData[key] !== undefined && parsedData[key] !== null) {
               setValue(key, parsedData[key])
             }
           })
+          console.log('✅ Form data restored successfully')
+        } else {
+          console.log('ℹ️  No saved form data found')
         }
       } catch (error) {
-        console.error('Error loading saved form data:', error)
+        console.error('❌ Error loading saved form data:', error)
         // If there's an error, remove the corrupted data
         localStorage.removeItem(storageKey)
       } finally {
@@ -65,16 +69,18 @@ export function useFormPersistence({
 
           // Fields that indicate real user input
           const significantFields = [
-            'name', 'description', 'address', 'city', 'state',
-            'bedrooms', 'bathrooms', 'maxGuests', 'profileImage',
+            'name', 'description', 'street', 'city', 'state', 'postalCode',
+            'bedrooms', 'bathrooms', 'maxGuests', 'squareMeters', 'profileImage',
+            'hostContactName', 'hostContactPhone', 'hostContactEmail', 'hostContactPhoto',
             'checkInInstructions', 'checkOutInstructions', 'houseRules',
-            'wifiName', 'wifiPassword', 'hostContactPhone', 'hostContactEmail'
+            'wifiName', 'wifiPassword'
           ]
 
-          // Filter out excluded fields and empty values
+          // Filter out excluded fields and empty values (keep 0 for numbers)
           const dataToSave = Object.keys(watchedValues).reduce((acc, key) => {
             const value = watchedValues[key]
-            if (!excludeFields.includes(key) && value !== undefined && value !== null && value !== '') {
+            // Keep value if it's not undefined/null, and either it's a number (including 0) or non-empty string
+            if (!excludeFields.includes(key) && value !== undefined && value !== null && (typeof value === 'number' || value !== '')) {
               acc[key] = value
             }
             return acc
@@ -109,19 +115,21 @@ export function useFormPersistence({
               const now = new Date()
               setLastSaved(now)
               localStorage.setItem(`${storageKey}_timestamp`, now.toISOString())
+              console.log('✅ Form data saved to localStorage:', Object.keys(dataToSave))
             }
           } else {
             // If there's no meaningful data, remove any saved data
             localStorage.removeItem(storageKey)
             localStorage.removeItem(`${storageKey}_timestamp`)
+            console.log('🧹 No meaningful data, cleared localStorage')
           }
         } catch (error) {
-          console.error('Error saving form data:', error)
+          console.error('❌ Error saving form data:', error)
         } finally {
           // Always clear saving state after save attempt
           setIsSaving(false)
         }
-      }, 1500) // 1500ms debounce - longer to avoid constant saving
+      }, 800) // 800ms debounce - balance between responsiveness and performance
 
       return () => {
         clearTimeout(timeoutId)
@@ -158,10 +166,11 @@ export function useFormPersistence({
 
           // Same logic as when saving - check for significant fields
           const significantFields = [
-            'name', 'description', 'address', 'city', 'state',
-            'bedrooms', 'bathrooms', 'maxGuests', 'profileImage',
+            'name', 'description', 'street', 'city', 'state', 'postalCode',
+            'bedrooms', 'bathrooms', 'maxGuests', 'squareMeters', 'profileImage',
+            'hostContactName', 'hostContactPhone', 'hostContactEmail', 'hostContactPhoto',
             'checkInInstructions', 'checkOutInstructions', 'houseRules',
-            'wifiName', 'wifiPassword', 'hostContactPhone', 'hostContactEmail'
+            'wifiName', 'wifiPassword'
           ]
 
           const defaultValues = {

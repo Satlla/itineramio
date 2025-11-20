@@ -124,7 +124,7 @@ function NewPropertyPageContent() {
       country: 'España',
       hostContactLanguage: 'es',
       type: 'APARTMENT',
-      hostContactName: user?.name || '',
+      hostContactName: '', // Dejar vacío para que el usuario ingrese su nombre
       hostContactPhoto: undefined
     },
     mode: 'onChange'
