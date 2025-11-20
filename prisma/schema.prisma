@@ -2102,3 +2102,181 @@ model HostProfileTest {
   @@index([createdAt])
   @@map("host_profile_tests")
 }
+
+// ============================================
+// EMAIL SEQUENCES - Sistema de Secuencias Automatizadas
+// ============================================
+
+// Secuencia de emails (Ej: Onboarding, Nurturing por arquetipo)
+model EmailSequence {
+  id              String   @id @default(cuid())
+  name            String   // "Onboarding Estratega", "Nurturing Blog"
+  description     String?  @db.Text
+
+  // Trigger de la secuencia
+  triggerEvent    String   // "SUBSCRIBER_CREATED", "TEST_COMPLETED", "BLOG_DOWNLOAD"
+
+  // Segmentación (quién recibe esta secuencia)
+  targetArchetype String?  // null = todos, "ESTRATEGA", "SISTEMATICO", etc.
+  targetSource    String?  // null = todos, "host_profile_test", "blog", etc.
+  targetTags      String[] @default([]) // Tags adicionales
+
+  // Configuración
+  isActive        Boolean  @default(true)
+  priority        Int      @default(0) // Si hay múltiples secuencias, mayor = más prioridad
+
+  // Estadísticas
+  subscribersEnrolled Int   @default(0) // Cuántos han entrado
+  subscribersCompleted Int  @default(0) // Cuántos completaron
+  subscribersActive   Int   @default(0) // Cuántos están activos
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relaciones
+  steps           EmailSequenceStep[]
+  enrollments     SequenceEnrollment[]
+
+  @@index([triggerEvent])
+  @@index([isActive])
+  @@map("email_sequences")
+}
+
+// Pasos dentro de una secuencia
+model EmailSequenceStep {
+  id              String   @id @default(cuid())
+  sequenceId      String
+
+  name            String   // "Email 1: Bienvenida", "Email 3: Caso de uso"
+  subject         String   // Asunto del email
+
+  // Contenido
+  templateName    String   // Nombre del template React Email (ej: "welcome-test.tsx")
+  templateData    Json?    // Datos dinámicos para el template
+
+  // Timing
+  delayDays       Int      @default(0) // Días después del trigger o del email anterior
+  delayHours      Int      @default(0) // Horas adicionales
+  sendAtHour      Int?     // Hora específica del día (0-23), null = enviar inmediatamente
+
+  // Orden en la secuencia
+  order           Int      @default(0)
+
+  // Condiciones
+  requiresPreviousOpen Boolean @default(false) // ¿Requiere que hayan abierto el email anterior?
+  requiresPreviousClick Boolean @default(false) // ¿Requiere click en anterior?
+
+  // Estado
+  isActive        Boolean  @default(true)
+
+  // Estadísticas
+  emailsSent      Int      @default(0)
+  emailsDelivered Int      @default(0)
+  emailsOpened    Int      @default(0)
+  emailsClicked   Int      @default(0)
+  emailsBounced   Int      @default(0)
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relaciones
+  sequence        EmailSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  scheduledEmails ScheduledEmail[]
+
+  @@index([sequenceId, order])
+  @@map("email_sequence_steps")
+}
+
+// Inscripción de un subscriber a una secuencia
+model SequenceEnrollment {
+  id                String   @id @default(cuid())
+  subscriberId      String   // EmailSubscriber.id
+  sequenceId        String
+
+  status            String   @default("active") // "active" | "completed" | "paused" | "unsubscribed"
+
+  currentStepOrder  Int      @default(0) // En qué paso está
+
+  // Tracking
+  enrolledAt        DateTime @default(now())
+  completedAt       DateTime?
+  pausedAt          DateTime?
+  unsubscribedAt    DateTime?
+
+  // Engagement
+  emailsSent        Int      @default(0)
+  emailsOpened      Int      @default(0)
+  emailsClicked     Int      @default(0)
+
+  // Metadata
+  metadata          Json?    // Datos adicionales
+
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relaciones
+  sequence          EmailSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  scheduledEmails   ScheduledEmail[]
+
+  @@unique([subscriberId, sequenceId])
+  @@index([subscriberId])
+  @@index([sequenceId, status])
+  @@map("sequence_enrollments")
+}
+
+// Emails programados para envío
+model ScheduledEmail {
+  id                String   @id @default(cuid())
+
+  // Relaciones
+  enrollmentId      String
+  stepId            String
+  subscriberId      String   // Denormalized para queries rápidas
+
+  // Email info
+  recipientEmail    String
+  recipientName     String?
+  subject           String
+  templateName      String
+  templateData      Json?
+
+  // Scheduling
+  scheduledFor      DateTime // Cuándo se debe enviar
+  sendAttempts      Int      @default(0)
+
+  // Estado
+  status            String   @default("pending") // "pending" | "sending" | "sent" | "failed" | "cancelled"
+
+  // Resultado del envío
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  failedAt          DateTime?
+  errorMessage      String?
+
+  // Tracking (vinculado con Resend)
+  resendId          String?  @unique // ID de Resend para tracking
+
+  // Engagement
+  openedAt          DateTime?
+  clickedAt         DateTime?
+  bouncedAt         DateTime?
+  complainedAt      DateTime?
+  unsubscribedAt    DateTime?
+
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relaciones
+  enrollment        SequenceEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  step              EmailSequenceStep  @relation(fields: [stepId], references: [id], onDelete: Cascade)
+
+  @@index([status, scheduledFor])
+  @@index([subscriberId])
+  @@index([enrollmentId])
+  @@index([resendId])
+  @@map("scheduled_emails")
+}

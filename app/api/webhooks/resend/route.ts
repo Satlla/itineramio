@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { trackEmailEvent, EmailEventType } from '@/lib/email-sequences'
 
 /**
  * Webhook de Resend para trackear eventos de email
@@ -54,11 +55,40 @@ export async function POST(request: NextRequest) {
 
     console.log('📨 Resend Webhook recibido:', {
       type: payload.type,
+      emailId: payload.data.email_id,
       to: payload.data.to,
       timestamp: payload.created_at
     })
 
-    // Extraer el email del destinatario
+    const emailId = payload.data.email_id
+
+    // PRIORIDAD 1: Trackear en el sistema de secuencias automatizadas
+    if (emailId) {
+      const eventType = payload.type.replace('email.', '') as EmailEventType
+      const metadata: any = {}
+
+      if (eventType === 'clicked' && payload.data.click?.link) {
+        metadata.url = payload.data.click.link
+      }
+
+      if (eventType === 'bounced' && payload.data.bounce_type) {
+        metadata.reason = payload.data.bounce_type
+      }
+
+      // Intentar trackear en secuencias
+      const sequenceResult = await trackEmailEvent(emailId, eventType, metadata)
+
+      if (sequenceResult.success) {
+        console.log('✅ Evento trackeado en sistema de secuencias')
+        return NextResponse.json({
+          received: true,
+          tracked: 'sequence',
+          event: payload.type
+        })
+      }
+    }
+
+    // PRIORIDAD 2: Si no está en secuencias, trackear en EmailSubscriber legacy
     const recipientEmail = payload.data.to[0] // Resend envía array de emails
 
     if (!recipientEmail) {

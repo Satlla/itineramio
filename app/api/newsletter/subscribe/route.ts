@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
+import { enrollSubscriberInSequences } from '../../../../src/lib/email-sequences'
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Crear nuevo suscriptor
-    await prisma.emailSubscriber.create({
+    const newSubscriber = await prisma.emailSubscriber.create({
       data: {
         email: normalizedEmail,
         status: 'active',
@@ -60,14 +61,17 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // TODO: Aquí puedes integrar con tu servicio de email marketing
-    // Ejemplos: Brevo (Sendinblue), Resend, Mailchimp, etc.
-    /*
-    await sendWelcomeEmail(normalizedEmail)
-    await addToEmailService(normalizedEmail, tags)
-    */
-
     console.log(`✅ New newsletter subscriber: ${normalizedEmail} (source: ${source})`)
+
+    // Enrollar automáticamente en secuencias según el source
+    await enrollSubscriberInSequences(
+      newSubscriber.id,
+      'SUBSCRIBER_CREATED',
+      {
+        source,
+        tags
+      }
+    )
 
     return NextResponse.json({
       success: true,

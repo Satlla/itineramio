@@ -18,18 +18,12 @@ interface Lead {
   id: string
   email: string
   name: string | null
-  city: string | null
   source: string | null
-  propertyCount: number | null
   tags: string[]
+  archetype: string | null
   createdAt: string
-  downloads: Array<{
-    id: string
-    resourceType: string
-    resourceName: string
-    createdAt: string
-    metadata: any
-  }>
+  currentJourneyStage: string
+  engagementScore: string
 }
 
 interface Response {
@@ -189,6 +183,9 @@ export default function AdminLeadsPage() {
                 'newsletter-footer': { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
                 'landing-page': { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200' },
                 'blog': { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' },
+                'academia-coming-soon': { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', border: 'border-fuchsia-200' },
+                'host_profile_test': { bg: 'bg-pink-50', text: 'text-pink-700', border: 'border-pink-200' },
+                'test': { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200' },
                 'unknown': { bg: 'bg-gray-50', text: 'text-gray-700', border: 'border-gray-200' }
               }
               const colors = sourceColors[source] || sourceColors['unknown']
@@ -271,22 +268,22 @@ export default function AdminLeadsPage() {
                   Lead
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ciudad
+                  Arquetipo
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Fuente
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Propiedades
+                  Journey Stage
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Engagement
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Tags
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Fecha
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Descargas
                 </th>
               </tr>
             </thead>
@@ -320,12 +317,11 @@ export default function AdminLeadsPage() {
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center text-sm text-gray-900">
-                        {lead.city ? (
-                          <>
-                            <MapPin className="h-4 w-4 text-gray-400 mr-1" />
-                            {lead.city}
-                          </>
+                      <div className="text-sm text-gray-900">
+                        {lead.archetype ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {lead.archetype}
+                          </span>
                         ) : (
                           <span className="text-gray-400">-</span>
                         )}
@@ -336,8 +332,19 @@ export default function AdminLeadsPage() {
                         {lead.source || 'unknown'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {lead.propertyCount || 0}
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {lead.currentJourneyStage || 'subscribed'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        lead.engagementScore === 'hot' ? 'bg-red-100 text-red-800' :
+                        lead.engagementScore === 'warm' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {lead.engagementScore || 'warm'}
+                      </span>
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex flex-wrap gap-1">
@@ -360,18 +367,6 @@ export default function AdminLeadsPage() {
                       <div className="flex items-center text-sm text-gray-900">
                         <Calendar className="h-4 w-4 text-gray-400 mr-1" />
                         {formatDate(lead.createdAt)}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-sm">
-                        <div className="font-medium text-gray-900">
-                          {lead.downloads.length} descargas
-                        </div>
-                        {lead.downloads[0] && (
-                          <div className="text-xs text-gray-500">
-                            Última: {formatDate(lead.downloads[0].createdAt)}
-                          </div>
-                        )}
                       </div>
                     </td>
                   </tr>

@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
     // Build where clause
     const where: any = {
-      isActive: true
+      status: 'active' // EmailSubscriber usa 'status' no 'isActive'
     }
 
     if (source) {
@@ -18,15 +18,8 @@ export async function GET(req: NextRequest) {
     }
 
     // Get all leads
-    const leads = await prisma.newsletterSubscriber.findMany({
+    const leads = await prisma.emailSubscriber.findMany({
       where,
-      include: {
-        downloads: {
-          orderBy: {
-            createdAt: 'desc'
-          }
-        }
-      },
       orderBy: {
         createdAt: 'desc'
       }
@@ -36,27 +29,28 @@ export async function GET(req: NextRequest) {
     const headers = [
       'Email',
       'Nombre',
-      'Ciudad',
       'Fuente',
-      'Propiedades',
+      'Arquetipo',
+      'Journey Stage',
+      'Engagement Score',
       'Tags',
       'Fecha Registro',
-      'Descargas',
-      'Última Descarga'
+      'Emails Enviados',
+      'Emails Abiertos'
     ]
 
     const rows = leads.map(lead => {
-      const lastDownload = lead.downloads[0]
       return [
         lead.email,
         lead.name || '',
-        lead.city || '',
         lead.source || '',
-        lead.propertyCount?.toString() || '0',
+        lead.archetype || '',
+        lead.currentJourneyStage || 'subscribed',
+        lead.engagementScore || 'warm',
         lead.tags?.join(', ') || '',
         new Date(lead.createdAt).toLocaleDateString('es-ES'),
-        lead.downloads.length.toString(),
-        lastDownload ? new Date(lastDownload.createdAt).toLocaleDateString('es-ES') : ''
+        lead.emailsSent?.toString() || '0',
+        lead.emailsOpened?.toString() || '0'
       ]
     })
 

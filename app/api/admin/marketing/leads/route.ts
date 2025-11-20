@@ -15,14 +15,13 @@ export async function GET(req: NextRequest) {
 
     // Build where clause
     const where: any = {
-      isActive: true
+      status: 'active' // EmailSubscriber usa 'status' no 'isActive'
     }
 
     if (search) {
       where.OR = [
         { email: { contains: search, mode: 'insensitive' } },
-        { name: { contains: search, mode: 'insensitive' } },
-        { city: { contains: search, mode: 'insensitive' } }
+        { name: { contains: search, mode: 'insensitive' } }
       ]
     }
 
@@ -30,33 +29,23 @@ export async function GET(req: NextRequest) {
       where.source = source
     }
 
-    // Get leads with their downloads
+    // Get leads (EmailSubscriber no tiene downloads, esos son del modelo Lead)
     const [leads, total] = await Promise.all([
-      prisma.newsletterSubscriber.findMany({
+      prisma.emailSubscriber.findMany({
         where,
-        include: {
-          downloads: {
-            orderBy: {
-              createdAt: 'desc'
-            }
-          }
-        },
         orderBy: {
           createdAt: 'desc'
         },
         skip,
         take: limit
       }),
-      prisma.newsletterSubscriber.count({ where })
+      prisma.emailSubscriber.count({ where })
     ])
 
-    // Get unique sources for filter
-    const sources = await prisma.newsletterSubscriber.findMany({
+    // Get unique sources for filter (exclude empty sources)
+    const sourcesRaw = await prisma.emailSubscriber.findMany({
       where: {
-        isActive: true,
-        source: {
-          not: null
-        }
+        status: 'active'
       },
       select: {
         source: true
@@ -64,10 +53,13 @@ export async function GET(req: NextRequest) {
       distinct: ['source']
     })
 
+    // Filter out null/empty sources
+    const sources = sourcesRaw.filter(s => s.source)
+
     // Get stats by source
-    const allLeads = await prisma.newsletterSubscriber.findMany({
+    const allLeads = await prisma.emailSubscriber.findMany({
       where: {
-        isActive: true
+        status: 'active'
       },
       select: {
         source: true
@@ -89,7 +81,7 @@ export async function GET(req: NextRequest) {
         total,
         totalPages: Math.ceil(total / limit)
       },
-      sources: sources.map(s => s.source).filter(Boolean),
+      sources: sources.map(s => s.source!), // sources already filtered to exclude null
       stats: {
         bySource,
         total: allLeads.length

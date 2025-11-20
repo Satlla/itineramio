@@ -200,6 +200,79 @@ export default function MarketingFunnelsHub() {
 
             {/* Funnel Cards */}
             <div className="space-y-6">
+              {/* Base de Datos de Leads - Card Principal */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl shadow-lg overflow-hidden"
+              >
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <Users className="w-7 h-7 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-white">Base de Datos de Leads</h2>
+                        <p className="text-purple-100">Todos los leads unificados de todos los embudos</p>
+                      </div>
+                    </div>
+                    <Link
+                      href="/admin/marketing/leads"
+                      className="flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-lg hover:bg-purple-50 transition-colors font-semibold"
+                    >
+                      Ver Todos los Leads
+                      <ArrowRight className="w-5 h-5" />
+                    </Link>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-4">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Mail className="w-5 h-5 text-white" />
+                        <span className="text-sm font-medium text-white">Total Leads</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{totalLeads}</div>
+                      <div className="text-xs text-purple-100 mt-1">Todos los embudos</div>
+                    </div>
+
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Target className="w-5 h-5 text-white" />
+                        <span className="text-sm font-medium text-white">Con Email</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{(stats?.hostProfile.withEmail || 0)}</div>
+                      <div className="text-xs text-purple-100 mt-1">Emails activos</div>
+                    </div>
+
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Flame className="w-5 h-5 text-white" />
+                        <span className="text-sm font-medium text-white">Hot Leads</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{stats?.hostProfile.hotLeads || 0}</div>
+                      <div className="text-xs text-purple-100 mt-1">Alto engagement</div>
+                    </div>
+
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="w-5 h-5 text-white" />
+                        <span className="text-sm font-medium text-white">Fuentes</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">4+</div>
+                      <div className="text-xs text-purple-100 mt-1">Canales activos</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                    <p className="text-sm text-purple-100">
+                      💡 <strong className="text-white">Tip:</strong> Filtra por fuente (academia, test personalidad, quiz) y exporta en CSV
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+
               {/* Quiz Airbnb Funnel */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
