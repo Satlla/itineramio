@@ -18,8 +18,17 @@ export async function POST(request: NextRequest) {
       maxAge: 0,
       path: '/'
     })
-    
-    console.log('✅ Admin logout successful')
+
+    // Clear admin impersonation cookie if exists
+    response.cookies.set('admin-impersonation', '', {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 0,
+      path: '/'
+    })
+
+    console.log('✅ Admin logout successful (impersonation cookie también limpiado)')
     return response
 
   } catch (error) {

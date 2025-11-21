@@ -22,6 +22,16 @@ export async function POST(request: NextRequest) {
       maxAge: 0
     })
 
+    // Clear admin impersonation cookie if exists
+    response.cookies.set('admin-impersonation', '', {
+      httpOnly: false,
+      secure: true,
+      sameSite: 'lax',
+      expires: new Date(0),
+      path: '/',
+      maxAge: 0
+    })
+
     return response
   } catch (error) {
     console.error('Logout error:', error)
