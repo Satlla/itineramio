@@ -117,13 +117,14 @@ export function AddressAutocomplete({
           value={manualInput}
           onChange={(e) => {
             setManualInput(e.target.value)
-            // Para el fallback, solo actualizamos el campo street
+            // Para el fallback manual, intentar parsear la dirección
+            const parts = e.target.value.split(',').map(p => p.trim())
             onChange({
-              street: e.target.value,
-              city: '',
-              state: '',
+              street: parts[0] || e.target.value,
+              city: parts[1] || 'Sin especificar',
+              state: parts[2] || parts[1] || 'Sin especificar',
               country: 'España',
-              postalCode: '',
+              postalCode: '00000',
               formattedAddress: e.target.value
             })
           }}
@@ -256,32 +257,55 @@ function AddressAutocompleteWithGoogle({
 
         const fullStreet = streetNumber ? `${street} ${streetNumber}` : street
 
+        // Try to extract missing fields from formatted_address as fallback
+        const formattedParts = place.formatted_address.split(',').map((p: string) => p.trim())
+
+        // If city is missing, try to get it from formatted address
+        if (!city && formattedParts.length >= 2) {
+          city = formattedParts[formattedParts.length - 2]
+        }
+
+        // If state is missing, use city as fallback
+        if (!state && city) {
+          state = city
+        }
+
         const addressData: AddressData = {
-          street: fullStreet || description,
-          city: city || '',
-          state: state || '',
+          street: fullStreet || formattedParts[0] || description,
+          city: city || 'Sin especificar',
+          state: state || 'Sin especificar',
           country: country || 'España',
-          postalCode: postalCode || '',
+          postalCode: postalCode || '00000',
           lat: latLng.lat,
           lng: latLng.lng,
           formattedAddress: place.formatted_address
         }
 
-        onChange(addressData)
-
         console.log('📍 Dirección seleccionada:', addressData)
+        console.log('📍 Componentes encontrados:', {
+          street: !!fullStreet,
+          city: !!city,
+          state: !!state,
+          country: !!country,
+          postalCode: !!postalCode
+        })
+
+        onChange(addressData)
       }
     } catch (error) {
-      console.error('Error al obtener geocode:', error)
-      // Fallback: al menos guardar lo que escribió el usuario
-      onChange({
-        street: description,
-        city: '',
-        state: '',
+      console.error('❌ Error al obtener geocode:', error)
+      // Fallback: parse manually from description
+      const parts = description.split(',').map(p => p.trim())
+      const fallbackData = {
+        street: parts[0] || description,
+        city: parts[1] || 'Sin especificar',
+        state: parts[2] || parts[1] || 'Sin especificar',
         country: 'España',
-        postalCode: '',
+        postalCode: '00000',
         formattedAddress: description
-      })
+      }
+      console.log('⚠️ Usando datos fallback:', fallbackData)
+      onChange(fallbackData)
     }
   }
 
