@@ -142,14 +142,14 @@ export const TrialTopBar: React.FC<TrialTopBarProps> = ({
                 </div>
 
                 {/* Inline countdown */}
-                <div className="hidden sm:flex items-center gap-1.5 text-sm">
+                <div className="flex items-center gap-1.5 text-sm">
                   <span className="font-semibold tabular-nums">{timeRemaining.days}d</span>
                   <span className="text-gray-400">:</span>
                   <span className="font-semibold tabular-nums">{String(timeRemaining.hours).padStart(2, '0')}h</span>
                   <span className="text-gray-400">:</span>
                   <span className="font-semibold tabular-nums">{String(timeRemaining.minutes).padStart(2, '0')}m</span>
-                  <span className="text-gray-400">:</span>
-                  <span className="font-semibold tabular-nums">{String(timeRemaining.seconds).padStart(2, '0')}s</span>
+                  <span className="text-gray-400 hidden sm:inline">:</span>
+                  <span className="font-semibold tabular-nums hidden sm:inline">{String(timeRemaining.seconds).padStart(2, '0')}s</span>
                 </div>
               </>
             ) : (

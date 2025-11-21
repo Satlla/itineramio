@@ -11,6 +11,8 @@ interface ZonasEsencialesModalProps {
   onKeepZones: () => void
   userName: string
   isLoading?: boolean
+  currentZoneIndex?: number
+  totalZones?: number
 }
 
 const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
@@ -46,7 +48,9 @@ export function ZonasEsencialesModal({
   onClose,
   onKeepZones,
   userName,
-  isLoading = false
+  isLoading = false,
+  currentZoneIndex = 0,
+  totalZones = 11
 }: ZonasEsencialesModalProps) {
   // Debug logging for mobile
   React.useEffect(() => {
@@ -111,24 +115,86 @@ export function ZonasEsencialesModal({
             </p>
           </div>
 
+          {/* Progress Bar */}
+          {isLoading && (
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-gray-700">
+                  Creando zonas: {currentZoneIndex} de {totalZones}
+                </span>
+                <span className="text-sm font-semibold text-violet-600">
+                  {Math.round((currentZoneIndex / totalZones) * 100)}%
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-violet-500 to-purple-600 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(currentZoneIndex / totalZones) * 100}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Zones Created - Responsive Grid */}
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <h3 className="font-semibold text-gray-900 mb-4 text-center">
               🚀 Zonas esenciales que estamos creando:
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {zonesInfo.map((zone) => {
+              {zonesInfo.map((zone, index) => {
                 const IconComponent = iconMap[zone.icon]
+                const isCreated = isLoading && index < currentZoneIndex
+                const isCreating = isLoading && index === currentZoneIndex
+
                 return (
-                  <div key={zone.name} className="flex items-center space-x-3 p-2 bg-white rounded-lg">
-                    <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <IconComponent className="w-4 h-4 text-violet-600" />
+                  <motion.div
+                    key={zone.name}
+                    className={`flex items-center space-x-3 p-2 rounded-lg transition-all ${
+                      isCreated
+                        ? 'bg-green-50 border border-green-200'
+                        : isCreating
+                        ? 'bg-violet-50 border border-violet-200 animate-pulse'
+                        : 'bg-white'
+                    }`}
+                    initial={{ opacity: 0.5 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                      isCreated
+                        ? 'bg-green-100'
+                        : isCreating
+                        ? 'bg-violet-100'
+                        : 'bg-violet-100'
+                    }`}>
+                      {isCreated ? (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="text-green-600"
+                        >
+                          ✓
+                        </motion.div>
+                      ) : (
+                        <IconComponent className={`w-4 h-4 ${
+                          isCreating ? 'text-violet-600' : 'text-violet-600'
+                        }`} />
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-sm text-gray-900 truncate">{zone.name}</div>
-                      <div className="text-xs text-gray-500 truncate">{zone.description}</div>
+                      <div className={`font-medium text-sm truncate ${
+                        isCreated ? 'text-green-900' : 'text-gray-900'
+                      }`}>
+                        {zone.name}
+                      </div>
+                      <div className={`text-xs truncate ${
+                        isCreated ? 'text-green-600' : 'text-gray-500'
+                      }`}>
+                        {isCreating ? 'Creando...' : zone.description}
+                      </div>
                     </div>
-                  </div>
+                  </motion.div>
                 )
               })}
             </div>

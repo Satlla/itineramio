@@ -133,6 +133,7 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
   const [notes, setNotes] = useState<any[]>([])
   const [loadingCalls, setLoadingCalls] = useState(false)
   const [loadingNotes, setLoadingNotes] = useState(false)
+  const [impersonating, setImpersonating] = useState(false)
 
   useEffect(() => {
     if (isOpen && userId) {
@@ -253,6 +254,54 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
   const handleDeleteSuccess = () => {
     // Refresh parent component after successful deletion
     window.location.reload()
+  }
+
+  const handleImpersonate = async (propertyId: string) => {
+    if (!userId) {
+      console.error('❌ No hay userId disponible')
+      return
+    }
+
+    console.log('👤 UserID del prop:', userId)
+    console.log('🏠 PropertyID:', propertyId)
+    console.log('📧 Email del usuario del modal:', user?.email)
+
+    setImpersonating(true)
+
+    try {
+      console.log('🔄 Iniciando impersonation para userId:', userId)
+
+      // Llamar a la API de impersonation
+      const response = await fetch('/api/admin/impersonate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          userId: userId
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Error al iniciar suplantación')
+      }
+
+      const result = await response.json()
+      console.log('✅ Impersonation iniciada:', result)
+      console.log('👤 Usuario objetivo:', result.user)
+      console.log('👮 Suplantado por:', result.impersonatedBy)
+
+      // IMPORTANTE: Usar window.location.replace() para forzar recarga completa
+      // Esto elimina la página actual del historial y fuerza una recarga completa
+      // Asegurando que las nuevas cookies se lean correctamente
+      window.location.replace(`/properties/${propertyId}/zones`)
+    } catch (error) {
+      console.error('❌ Error en impersonation:', error)
+      alert(error instanceof Error ? error.message : 'Error al iniciar suplantación')
+      setImpersonating(false)
+    }
   }
 
   const handleCancelSubscription = async () => {
@@ -546,11 +595,21 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
                               {property.isPublished ? 'Publicada' : 'Borrador'}
                             </span>
                             <button
-                              onClick={() => window.open(`/properties/${property.id}/zones`, '_blank')}
-                              className="flex items-center space-x-1 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                              onClick={() => handleImpersonate(property.id)}
+                              disabled={impersonating}
+                              className="flex items-center space-x-1 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              <Wrench className="h-4 w-4" />
-                              <span>Gestionar</span>
+                              {impersonating ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  <span>Conectando...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Wrench className="h-4 w-4" />
+                                  <span>Gestionar</span>
+                                </>
+                              )}
                             </button>
                           </div>
                         </div>

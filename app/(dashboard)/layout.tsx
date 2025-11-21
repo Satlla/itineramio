@@ -5,6 +5,7 @@ import { DashboardNavbar } from '../../src/components/layout/DashboardNavbar'
 import { useAuth } from '../../src/providers/AuthProvider'
 import { SubscriptionActivatedModal } from '../../src/components/ui/SubscriptionActivatedModal'
 import { TrialTopBar } from '../../src/components/ui/TrialTopBar'
+import { ImpersonationBanner } from '../../src/components/ui/ImpersonationBanner'
 import { CookieBanner } from '../../src/components/ui/CookieBanner'
 import { OnboardingProvider } from '../../src/contexts/OnboardingContext'
 
@@ -93,6 +94,9 @@ export default function DashboardLayout({
   return (
     <OnboardingProvider>
       <div className="min-h-screen bg-gray-50">
+        {/* Banner de impersonation (siempre al tope) */}
+        <ImpersonationBanner />
+
         {/* Top bar encima del navbar */}
         <TrialTopBar
           trialStatus={trialStatus}

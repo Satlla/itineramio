@@ -68,21 +68,27 @@ export const zonasEsenciales = [
   }
 ]
 
-export async function crearZonasEsenciales(propertyId: string): Promise<boolean> {
+export async function crearZonasEsenciales(
+  propertyId: string,
+  onProgress?: (current: number, total: number) => void
+): Promise<boolean> {
   try {
     console.log('🏠 Creando zonas esenciales básicas para:', propertyId)
-    
+
     // First, get existing zones to avoid duplicates
     const existingResponse = await fetch(`/api/properties/${propertyId}/zones`)
     const existingResult = await existingResponse.json()
-    const existingZoneNames = existingResult.success ? 
+    const existingZoneNames = existingResult.success ?
       existingResult.data.map((zone: any) => {
         const name = typeof zone.name === 'string' ? zone.name : zone.name?.es || zone.name?.en || ''
         return name.toLowerCase()
       }) : []
-    
+
     console.log('Existing zones:', existingZoneNames)
-    
+
+    let createdCount = 0
+    const totalZones = zonasEsenciales.length
+
     for (const zona of zonasEsenciales) {
       // Skip if zone already exists
       if (existingZoneNames.includes(zona.name.toLowerCase())) {
@@ -123,6 +129,11 @@ export async function crearZonasEsenciales(propertyId: string): Promise<boolean>
       const result = await response.json()
       if (result.success && result.data?.zones?.length > 0) {
         console.log(`✅ Zona "${zona.name}" creada via batch:`, result.data.zones[0].id)
+        createdCount++
+        // Call progress callback
+        if (onProgress) {
+          onProgress(createdCount, totalZones)
+        }
       } else {
         console.error(`❌ Batch result failed for "${zona.name}":`, result)
       }

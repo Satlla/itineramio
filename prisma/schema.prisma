@@ -769,6 +769,7 @@ model Admin {
   updatedAt         DateTime           @updatedAt
   callLogs          CallLog[]
   userNotes         UserNote[]
+  auditLogs         AdminAuditLog[]
 
   @@map("admins")
 }
@@ -2279,4 +2280,47 @@ model ScheduledEmail {
   @@index([enrollmentId])
   @@index([resendId])
   @@map("scheduled_emails")
+}
+
+// Admin Audit Logs - Registro de todas las acciones de admins
+model AdminAuditLog {
+  id            String   @id @default(cuid())
+
+  // Admin que realizó la acción
+  adminId       String
+  adminName     String
+  adminEmail    String
+
+  // Usuario afectado (para impersonation)
+  targetUserId  String?
+  targetUserEmail String?
+  targetUserName String?
+
+  // Acción realizada
+  action        String   // "IMPERSONATE_START", "IMPERSONATE_END", "PROPERTY_EDIT", "ZONE_EDIT", "ZONE_DELETE", etc.
+
+  // Contexto de la acción
+  propertyId    String?
+  propertyName  String?
+  zoneId        String?
+  zoneName      String?
+
+  // Metadata adicional
+  metadata      Json?    // Datos adicionales sobre la acción
+
+  // Información técnica
+  ipAddress     String?
+  userAgent     String?
+
+  // Timestamps
+  createdAt     DateTime @default(now())
+
+  // Relación con Admin
+  admin         Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId, createdAt])
+  @@index([targetUserId, createdAt])
+  @@index([action, createdAt])
+  @@index([propertyId, createdAt])
+  @@map("admin_audit_logs")
 }

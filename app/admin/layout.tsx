@@ -37,6 +37,7 @@ const adminNavigation = [
   { name: 'Propiedades', href: '/admin/properties', icon: Building2 },
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { name: 'Reportes', href: '/admin/reports', icon: FileText },
+  { name: 'Audit Logs', href: '/admin/audit-logs', icon: Shield },
   { name: 'Pagos', href: '/admin/payments', icon: DollarSign },
   { name: 'Precios', href: '/admin/pricing', icon: TrendingUp },
   { name: 'Cupones', href: '/admin/coupons', icon: Tag },

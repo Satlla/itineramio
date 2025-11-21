@@ -24,7 +24,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Button, Input, Card, ImageUpload, PropertyPreview, SavedDataBanner } from '../../../../src/components/ui'
+import { Button, Input, Card, ImageUpload, PropertyPreview, SavedDataBanner, AddressAutocomplete } from '../../../../src/components/ui'
 import { AutoSaveIndicator } from '../../../../src/components/ui/AutoSaveIndicator'
 import { useFormPersistence } from '../../../../src/hooks/useFormPersistence'
 import { TrialActivationModal } from '../../../../src/components/TrialActivationModal'
@@ -719,27 +719,36 @@ function NewPropertyPageContent() {
 
                 <div className="bg-blue-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-blue-800">
-                    <strong>Información importante:</strong> Introduce la dirección completa de la propiedad. Esta información ayudará a los huéspedes a encontrarla.
+                    <strong>Autocompletado Google Maps:</strong> Comienza a escribir la dirección y selecciona de las sugerencias. Los campos de ciudad, provincia y código postal se rellenarán automáticamente con información verificada.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Dirección */}
+                  {/* Dirección con Google Maps Autocomplete */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Dirección completa *
                     </label>
-                    <Input
-                      {...register('street')}
-                      placeholder="Ej: Calle Gran Vía 123, 2º A"
+                    <AddressAutocomplete
+                      value={watchedValues.street}
+                      onChange={(addressData) => {
+                        // Usar la dirección formateada completa de Google Maps en el input visual
+                        // Esto muestra "Calle Gran Vía 123, Madrid, España" en el input
+                        setValue('street', addressData.formattedAddress || addressData.street, { shouldValidate: true })
+                        setValue('city', addressData.city, { shouldValidate: true })
+                        setValue('state', addressData.state, { shouldValidate: true })
+                        setValue('country', addressData.country, { shouldValidate: true })
+                        if (addressData.postalCode) {
+                          setValue('postalCode', addressData.postalCode, { shouldValidate: true })
+                        }
+                        console.log('📍 Dirección autocompletada:', addressData)
+                      }}
                       error={!!errors.street}
+                      placeholder="Ej: Calle Gran Vía 123, Madrid"
                     />
                     {errors.street && (
                       <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.street)}</p>
                     )}
-                    <p className="mt-1 text-xs text-gray-500">
-                      Incluye calle, número, piso y puerta si corresponde
-                    </p>
                   </div>
 
                   {/* Ciudad */}
