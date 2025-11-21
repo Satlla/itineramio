@@ -894,8 +894,57 @@ export default function PropertyGuidePage() {
                   </div>
                   <Button
                     onClick={() => {
-                      const address = encodeURIComponent(`${property.street}, ${getText(property.city, language, '')}, ${getText(property.state, language, '')}`)
-                      window.open(`https://maps.google.com/maps?q=${address}`, '_blank')
+                      try {
+                        // DEBUG: Log raw property data
+                        console.log('🗺️ DEBUG - Raw property data:', {
+                          street: property.street,
+                          city: property.city,
+                          state: property.state,
+                          cityType: typeof property.city,
+                          stateType: typeof property.state
+                        })
+
+                        // Validar que tengamos datos de ubicación
+                        const street = property.street?.trim()
+                        const city = getText(property.city, language, '')?.trim()
+                        const state = getText(property.state, language, '')?.trim()
+
+                        console.log('🗺️ DEBUG - Processed data:', {
+                          street,
+                          city,
+                          state,
+                          hasStreet: !!street,
+                          hasCity: !!city,
+                          hasState: !!state
+                        })
+
+                        if (!street || !city || !state) {
+                          console.error('❌ Missing location data:', { street, city, state })
+                          alert('Lo sentimos, no hay información de ubicación disponible para esta propiedad.')
+                          return
+                        }
+
+                        // Construir la dirección completa
+                        const address = `${street}, ${city}, ${state}`
+                        const encodedAddress = encodeURIComponent(address)
+                        const mapsUrl = `https://maps.google.com/maps?q=${encodedAddress}`
+
+                        console.log('✅ Opening maps with address:', address)
+                        console.log('🌐 Maps URL:', mapsUrl)
+
+                        // Abrir Google Maps
+                        const newWindow = window.open(mapsUrl, '_blank', 'noopener,noreferrer')
+
+                        // Verificar si se bloqueó el popup
+                        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                          console.warn('⚠️ Popup bloqueado, intentando alternativa')
+                          // Fallback: navegar en la misma pestaña
+                          window.location.href = mapsUrl
+                        }
+                      } catch (error) {
+                        console.error('💥 Error opening maps:', error)
+                        alert('No se pudo abrir el mapa. Por favor, intenta de nuevo.')
+                      }
                     }}
                     variant="outline"
                     className="border-violet-200 text-violet-700 hover:bg-violet-50 ml-4"
