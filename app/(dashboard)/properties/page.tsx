@@ -2291,15 +2291,36 @@ function PropertiesPageContent() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       ¿Cuántas propiedades quieres crear?
                     </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="50"
-                      value={duplicateCount}
-                      onChange={(e) => setDuplicateCount(parseInt(e.target.value) || 1)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
+
+                    {/* Mobile-friendly counter with large buttons */}
+                    <div className="flex items-center justify-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <button
+                        type="button"
+                        onClick={() => setDuplicateCount(Math.max(1, duplicateCount - 1))}
+                        disabled={duplicateCount <= 1}
+                        className="w-12 h-12 flex items-center justify-center rounded-full bg-white border-2 border-gray-300 text-gray-700 text-2xl font-bold hover:bg-gray-100 hover:border-violet-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 shadow-sm"
+                      >
+                        −
+                      </button>
+
+                      <div className="flex-1 text-center">
+                        <div className="text-4xl font-bold text-violet-600">{duplicateCount}</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {duplicateCount === 1 ? 'propiedad' : 'propiedades'}
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setDuplicateCount(Math.min(50, duplicateCount + 1))}
+                        disabled={duplicateCount >= 50}
+                        className="w-12 h-12 flex items-center justify-center rounded-full bg-white border-2 border-gray-300 text-gray-700 text-2xl font-bold hover:bg-gray-100 hover:border-violet-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 shadow-sm"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <p className="mt-2 text-xs text-gray-500 text-center">
                       Se crearán como: {getText(propertyToDuplicate.name, 'Propiedad')} 2, {getText(propertyToDuplicate.name, 'Propiedad')} 3, etc.
                     </p>
                   </div>
