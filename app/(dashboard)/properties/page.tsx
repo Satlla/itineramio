@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  Plus, 
-  Home, 
-  MapPin, 
-  Eye, 
-  Star, 
-  Edit, 
-  Edit2, 
-  Trash2, 
+import {
+  Plus,
+  Home,
+  MapPin,
+  Eye,
+  Star,
+  Edit,
+  Edit2,
+  Trash2,
   Share2,
   Bell,
   AlertCircle,
@@ -32,7 +32,10 @@ import {
   MessageCircle,
   ExternalLink,
   Search,
-  Hash
+  Hash,
+  Minus,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react'
 import { Button } from '../../../src/components/ui/Button'
 import { Card, CardContent } from '../../../src/components/ui/Card'
@@ -2292,31 +2295,36 @@ function PropertiesPageContent() {
                       ¿Cuántas propiedades quieres crear?
                     </label>
 
-                    {/* Mobile-friendly counter with large buttons */}
-                    <div className="flex items-center justify-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    {/* Mobile-friendly counter with icon buttons */}
+                    <div className="flex items-center justify-between gap-3 p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl border-2 border-violet-200">
+                      {/* Minus button - Left */}
                       <button
                         type="button"
                         onClick={() => setDuplicateCount(Math.max(1, duplicateCount - 1))}
                         disabled={duplicateCount <= 1}
-                        className="w-12 h-12 flex items-center justify-center rounded-full bg-white border-2 border-gray-300 text-gray-700 text-2xl font-bold hover:bg-gray-100 hover:border-violet-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 shadow-sm"
+                        className="w-14 h-14 flex items-center justify-center rounded-xl bg-white border-2 border-violet-300 text-violet-600 hover:bg-violet-100 hover:border-violet-500 hover:scale-105 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 active:scale-95 shadow-md"
+                        aria-label="Disminuir"
                       >
-                        −
+                        <Minus className="w-8 h-8 stroke-[3]" />
                       </button>
 
-                      <div className="flex-1 text-center">
-                        <div className="text-4xl font-bold text-violet-600">{duplicateCount}</div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {duplicateCount === 1 ? 'propiedad' : 'propiedades'}
+                      {/* Number display - Center */}
+                      <div className="flex-1 text-center px-2">
+                        <div className="text-5xl font-black text-violet-600 tracking-tight">{duplicateCount}</div>
+                        <div className="text-xs font-medium text-violet-700 mt-1 uppercase tracking-wide">
+                          {duplicateCount === 1 ? 'Propiedad' : 'Propiedades'}
                         </div>
                       </div>
 
+                      {/* Plus button - Right */}
                       <button
                         type="button"
                         onClick={() => setDuplicateCount(Math.min(50, duplicateCount + 1))}
                         disabled={duplicateCount >= 50}
-                        className="w-12 h-12 flex items-center justify-center rounded-full bg-white border-2 border-gray-300 text-gray-700 text-2xl font-bold hover:bg-gray-100 hover:border-violet-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 shadow-sm"
+                        className="w-14 h-14 flex items-center justify-center rounded-xl bg-violet-600 border-2 border-violet-700 text-white hover:bg-violet-700 hover:border-violet-800 hover:scale-105 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 active:scale-95 shadow-md"
+                        aria-label="Aumentar"
                       >
-                        +
+                        <Plus className="w-8 h-8 stroke-[3]" />
                       </button>
                     </div>
 

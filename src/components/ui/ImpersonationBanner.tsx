@@ -31,32 +31,44 @@ export function ImpersonationBanner() {
           const value = impersonationCookie.split('=')[1]
           const data = JSON.parse(decodeURIComponent(value))
 
-          // Verificar que el usuario actual sea el admin que está impersonando
+          // Verificar que haya un admin-token (no auth-token)
+          const adminToken = cookies.find(c => c.trim().startsWith('admin-token='))
           const authToken = cookies.find(c => c.trim().startsWith('auth-token='))
 
-          if (!authToken) {
-            // No hay sesión activa, limpiar cookie huérfano
-            console.warn('⚠️ Found orphaned admin-impersonation cookie, cleaning up...')
-            document.cookie = 'admin-impersonation=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC'
+          // Si hay auth-token pero NO admin-token, es un usuario normal con cookie huérfano
+          if (authToken && !adminToken) {
+            console.warn('⚠️ User session with orphaned admin-impersonation cookie, cleaning up...')
+            document.cookie = 'admin-impersonation=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; sameSite=lax'
             setImpersonationData(null)
             return
           }
 
-          // Verificar que realmente es una sesión de impersonation válida
-          const response = await fetch('/api/admin/auth/check')
-          if (!response.ok) {
-            // No es una sesión de admin válida, limpiar cookie
-            console.warn('⚠️ Invalid impersonation session detected, cleaning up...')
-            document.cookie = 'admin-impersonation=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC'
+          // Si no hay ningún token, limpiar
+          if (!adminToken && !authToken) {
+            console.warn('⚠️ No session found, cleaning up admin-impersonation cookie...')
+            document.cookie = 'admin-impersonation=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; sameSite=lax'
             setImpersonationData(null)
             return
           }
 
-          setImpersonationData(data)
+          // Verificar que realmente es una sesión de impersonation válida (solo si hay admin-token)
+          if (adminToken) {
+            const response = await fetch('/api/admin/auth/check')
+            if (!response.ok) {
+              // No es una sesión de admin válida, limpiar cookie
+              console.warn('⚠️ Invalid admin session detected, cleaning up...')
+              document.cookie = 'admin-impersonation=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; sameSite=lax'
+              setImpersonationData(null)
+              return
+            }
+
+            // Todo OK, mostrar el banner
+            setImpersonationData(data)
+          }
         } catch (error) {
           console.error('Error parsing impersonation cookie:', error)
           // En caso de error, limpiar el cookie
-          document.cookie = 'admin-impersonation=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC'
+          document.cookie = 'admin-impersonation=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; secure; sameSite=lax'
           setImpersonationData(null)
         }
       } else {
@@ -66,8 +78,8 @@ export function ImpersonationBanner() {
 
     checkImpersonation()
 
-    // Verificar cada 5 segundos por si cambia
-    const interval = setInterval(checkImpersonation, 5000)
+    // Verificar cada 3 segundos por si cambia
+    const interval = setInterval(checkImpersonation, 3000)
 
     return () => clearInterval(interval)
   }, [])

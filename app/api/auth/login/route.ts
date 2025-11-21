@@ -85,6 +85,16 @@ export async function POST(request: NextRequest) {
     })
     console.log('Auth cookie set successfully')
 
+    // Clear admin impersonation cookie if exists (user login should clean this up)
+    response.cookies.set('admin-impersonation', '', {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 0,
+      path: '/',
+      expires: new Date(0)
+    })
+
     return response
   } catch (error) {
     console.error('Login error:', error)
