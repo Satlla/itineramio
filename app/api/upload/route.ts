@@ -57,7 +57,7 @@ async function getMediaUsage(mediaUrl: string) {
 }
 
 // Route configuration for large file uploads
-export const maxDuration = 30 // 30 seconds timeout
+export const maxDuration = 60 // 60 seconds timeout for mobile uploads
 export const dynamic = 'force-dynamic' // Ensure dynamic rendering
 export const runtime = 'nodejs' // Use Node.js runtime
 
@@ -90,22 +90,43 @@ export async function POST(request: NextRequest) {
 
     console.log(`📁 File details: ${file.name}, size: ${file.size}, type: ${file.type}`)
 
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime']
+    if (!validTypes.includes(file.type)) {
+      console.log('❌ Invalid file type:', file.type)
+      return NextResponse.json({
+        error: `Tipo de archivo no permitido: ${file.type}. Usa JPG, PNG, GIF, WebP, MP4 o MOV.`,
+        receivedType: file.type
+      }, { status: 400 })
+    }
+
     // Validate file size (50MB max - increased for video uploads)
     if (file.size > 50 * 1024 * 1024) {
       console.log('❌ File too large:', file.size)
-      return NextResponse.json({ 
-        error: "Archivo demasiado grande. Máximo 50MB. Intenta comprimir el video o usar menor calidad.", 
+      return NextResponse.json({
+        error: "Archivo demasiado grande. Máximo 50MB. Intenta comprimir el video o usar menor calidad.",
         maxSize: "50MB",
         currentSize: `${(file.size / (1024 * 1024)).toFixed(1)}MB`
       }, { status: 413 })
     }
 
-    // Generate file hash for duplicate detection
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    const fileHash = createHash('sha256').update(buffer).digest('hex')
-    
-    console.log(`🔍 Generated file hash: ${fileHash}`)
+    // Generate file hash for duplicate detection with better memory handling
+    let bytes: ArrayBuffer
+    let buffer: Buffer
+    let fileHash: string
+
+    try {
+      console.log('🔄 Converting file to buffer for hash calculation...')
+      bytes = await file.arrayBuffer()
+      buffer = Buffer.from(bytes)
+      fileHash = createHash('sha256').update(buffer).digest('hex')
+      console.log(`✅ Generated file hash: ${fileHash}`)
+    } catch (hashError) {
+      console.error('❌ Error generating file hash:', hashError)
+      return NextResponse.json({
+        error: `Error procesando archivo: ${hashError instanceof Error ? hashError.message : 'Error desconocido'}. Intenta con una imagen más pequeña.`,
+      }, { status: 500 })
+    }
 
     // Check for duplicates unless explicitly skipped
     if (!skipDuplicateCheck) {
@@ -197,12 +218,24 @@ export async function POST(request: NextRequest) {
       }
       console.log('✅ Blob token found, proceeding with upload')
 
-      const blob = await put(uniqueFilename, file, {
-        access: 'public',
-        token: blobToken,
-      })
-      
-      fileUrl = blob.url
+      try {
+        console.log('📤 Uploading to Vercel Blob...')
+        const blob = await put(uniqueFilename, file, {
+          access: 'public',
+          token: blobToken,
+        })
+        fileUrl = blob.url
+        console.log('✅ Upload to Vercel Blob successful:', fileUrl)
+      } catch (blobError) {
+        console.error('❌ Error uploading to Vercel Blob:', blobError)
+        return NextResponse.json(
+          {
+            error: `Error al subir archivo: ${blobError instanceof Error ? blobError.message : 'Error desconocido'}. Intenta nuevamente o usa una imagen más pequeña.`,
+            details: blobError instanceof Error ? blobError.stack : undefined
+          },
+          { status: 500 }
+        )
+      }
     }
 
     // Save to media library with hash - check for existing first
