@@ -108,11 +108,16 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
   return (
     <>
       <motion.nav
-        className={`fixed ${isTrialBarVisible ? 'top-[48px]' : 'top-0'} left-0 right-0 z-50 safe-top transition-all duration-300 ${
+        className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
             ? 'bg-white/90 backdrop-blur-md border-b border-neutral-200/50 shadow-lg'
             : 'bg-white/80 backdrop-blur-sm'
         }`}
+        style={{
+          top: isTrialBarVisible
+            ? 'calc(48px + env(safe-area-inset-top))'
+            : 'env(safe-area-inset-top)'
+        }}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
