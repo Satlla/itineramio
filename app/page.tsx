@@ -306,7 +306,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* Hero Section - with parallax */}
-      <section className="relative pt-24 sm:pt-32 pb-0 sm:pb-6 px-4 sm:px-6 overflow-hidden bg-gradient-to-b from-gray-50 to-white">
+      <section className="relative pt-28 sm:pt-36 md:pt-32 pb-0 sm:pb-6 px-4 sm:px-6 overflow-hidden bg-gradient-to-b from-gray-50 to-white">
         <motion.div
           className="max-w-7xl mx-auto"
         >
