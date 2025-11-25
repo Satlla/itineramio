@@ -349,7 +349,7 @@ export default function PropertyPlanSelectorV3({
               return (
                 <div
                   key={plan.code}
-                  className={`relative min-w-[280px] aspect-square rounded-2xl border-4 transition-all duration-300 cursor-pointer snap-center ${
+                  className={`relative min-w-[280px] aspect-square rounded-2xl border-4 transition-all duration-300 cursor-pointer snap-center overflow-visible ${
                     isSelected
                       ? 'border-indigo-600 bg-gradient-to-br from-indigo-50 to-purple-50 shadow-2xl'
                       : 'border-gray-200 bg-white hover:border-indigo-300 hover:shadow-lg'
@@ -427,7 +427,7 @@ export default function PropertyPlanSelectorV3({
             return (
               <div
                 key={plan.code}
-                className={`relative aspect-square rounded-2xl border-4 transition-all duration-300 cursor-pointer ${
+                className={`relative aspect-square rounded-2xl border-4 transition-all duration-300 cursor-pointer overflow-visible ${
                   isSelected
                     ? 'border-indigo-600 bg-gradient-to-br from-indigo-50 to-purple-50 shadow-2xl scale-105'
                     : isCurrentPlan
