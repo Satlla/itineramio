@@ -418,7 +418,7 @@ export default function PropertyPlanSelectorV3({
         </div>
 
         {/* Desktop: Grid */}
-        <div className="hidden lg:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-6 max-w-7xl mx-auto">
+        <div className="hidden lg:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-6 max-w-7xl mx-auto px-4">
           {allPlans.map((plan) => {
             const Icon = PLAN_ICONS[plan.code as PlanCode]
             const isSelected = plan.code === requiredPlan.code
