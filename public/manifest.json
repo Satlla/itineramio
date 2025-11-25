@@ -3,6 +3,7 @@
   "short_name": "Itineramio",
   "description": "Create beautiful interactive property manuals for your guests",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "fullscreen"],
   "background_color": "#ffffff",
