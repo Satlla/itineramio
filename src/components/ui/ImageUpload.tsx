@@ -311,6 +311,7 @@ export function ImageUpload({
         type="file"
         accept={accept}
         onChange={handleChange}
+        capture="environment"
         className="hidden"
       />
       
