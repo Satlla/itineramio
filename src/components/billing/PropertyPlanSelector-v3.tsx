@@ -363,7 +363,7 @@ export default function PropertyPlanSelectorV3({
                 >
                   {/* Badge */}
                   {isCurrentPlan && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-green-500 text-white text-xs font-bold rounded-full shadow-lg z-10">
+                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-green-500 text-white text-xs font-bold rounded-full shadow-lg z-10 whitespace-nowrap">
                       Plan Actual
                     </div>
                   )}
@@ -418,7 +418,7 @@ export default function PropertyPlanSelectorV3({
         </div>
 
         {/* Desktop: Grid */}
-        <div className="hidden lg:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="hidden lg:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-6 max-w-7xl mx-auto">
           {allPlans.map((plan) => {
             const Icon = PLAN_ICONS[plan.code as PlanCode]
             const isSelected = plan.code === requiredPlan.code
@@ -437,13 +437,13 @@ export default function PropertyPlanSelectorV3({
                 onClick={() => setPropertyCount(plan.maxProperties)}
               >
                 {isSelected && (
-                  <div className="absolute -top-3 -right-3 bg-indigo-600 text-white rounded-full p-2 shadow-lg">
+                  <div className="absolute -top-3 -right-3 bg-indigo-600 text-white rounded-full p-2 shadow-lg z-10">
                     <Check className="w-5 h-5" />
                   </div>
                 )}
 
                 {isCurrentPlan && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-10 whitespace-nowrap">
                     Plan Actual
                   </div>
                 )}
