@@ -4,6 +4,7 @@
   "description": "Create beautiful interactive property manuals for your guests",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["standalone", "fullscreen"],
   "background_color": "#ffffff",
   "theme_color": "#8B5CF6",
   "icons": [

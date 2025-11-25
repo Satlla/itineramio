@@ -111,6 +111,12 @@ export const metadata: Metadata = {
     google: 'your-google-verification-code', // TODO: Replace with actual code from Google Search Console
   },
   category: 'Software',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Itineramio',
+  },
+  manifest: '/manifest.json',
 }
 
 export const viewport: Viewport = {
@@ -118,11 +124,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#3B82F6' },
-    { media: '(prefers-color-scheme: dark)', color: '#1E40AF' }
-  ],
-  viewportFit: 'cover', // Support for notched devices
+  viewportFit: 'cover',
+  themeColor: '#8B5CF6',
 }
 
 export default function RootLayout({
