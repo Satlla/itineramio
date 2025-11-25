@@ -340,7 +340,7 @@ export default function PropertyPlanSelectorV3({
       <div className="mb-12 pt-6">
         {/* Mobile: Horizontal scroll with snap */}
         <div className="lg:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
-          <div className="flex gap-4 pb-4 pt-2">
+          <div className="flex gap-4 pb-4 pt-6">
             {allPlans.map((plan) => {
               const Icon = PLAN_ICONS[plan.code as PlanCode]
               const isSelected = plan.code === requiredPlan.code
