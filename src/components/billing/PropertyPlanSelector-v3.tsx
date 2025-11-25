@@ -233,7 +233,7 @@ export default function PropertyPlanSelectorV3({
   }
 
   return (
-    <div className="max-w-7xl mx-auto overflow-x-hidden">
+    <div className="max-w-7xl mx-auto">
       {/* Hero Section - Current Plan */}
       {currentPlan?.hasActiveSubscription && (
         <div className="mb-12 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-3xl shadow-2xl overflow-hidden">
@@ -337,10 +337,10 @@ export default function PropertyPlanSelectorV3({
       </div>
 
       {/* Plan Cards */}
-      <div className="mb-12">
+      <div className="mb-12 pt-6">
         {/* Mobile: Horizontal scroll with snap */}
         <div className="lg:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
-          <div className="flex gap-4 pb-4">
+          <div className="flex gap-4 pb-4 pt-2">
             {allPlans.map((plan) => {
               const Icon = PLAN_ICONS[plan.code as PlanCode]
               const isSelected = plan.code === requiredPlan.code
