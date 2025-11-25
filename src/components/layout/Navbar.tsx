@@ -29,9 +29,9 @@ export function Navbar({ transparent = false }: NavbarProps) {
   return (
     <>
       <motion.nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 safe-top transition-all duration-300 ${
           scrolled || !transparent
-            ? 'bg-white/90 backdrop-blur-md border-b border-neutral-200/50 shadow-lg' 
+            ? 'bg-white/90 backdrop-blur-md border-b border-neutral-200/50 shadow-lg'
             : 'bg-transparent'
         }`}
         initial={{ y: -100 }}
