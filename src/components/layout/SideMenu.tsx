@@ -118,13 +118,16 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="fixed top-0 right-0 h-full w-[85vw] sm:w-80 max-w-sm bg-white shadow-2xl z-50 overflow-y-auto safe-top"
+            className="fixed top-0 right-0 h-full w-[85vw] sm:w-80 max-w-sm bg-white shadow-2xl z-50 overflow-y-auto"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            style={{
+              paddingTop: 'max(env(safe-area-inset-top), 1rem)',
+            }}
           >
-            <div className="p-4 sm:p-6 pt-6 sm:pt-8">
+            <div className="px-4 sm:px-6 pb-4 sm:pb-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-6 sm:mb-8">
                 <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Menú</h2>
