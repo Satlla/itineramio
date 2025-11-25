@@ -363,7 +363,7 @@ export default function PropertyPlanSelectorV3({
                 >
                   {/* Badge */}
                   {isCurrentPlan && (
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-green-500 text-white text-xs font-bold rounded-full shadow-lg z-10 whitespace-nowrap">
+                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-green-500 text-white text-xs font-bold rounded-full shadow-lg z-50 whitespace-nowrap">
                       Plan Actual
                     </div>
                   )}
@@ -437,13 +437,13 @@ export default function PropertyPlanSelectorV3({
                 onClick={() => setPropertyCount(plan.maxProperties)}
               >
                 {isSelected && (
-                  <div className="absolute -top-3 -right-3 bg-indigo-600 text-white rounded-full p-2 shadow-lg z-10">
+                  <div className="absolute -top-3 -right-3 bg-indigo-600 text-white rounded-full p-2 shadow-lg z-50">
                     <Check className="w-5 h-5" />
                   </div>
                 )}
 
                 {isCurrentPlan && (
-                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-10 whitespace-nowrap">
+                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-50 whitespace-nowrap">
                     Plan Actual
                   </div>
                 )}
