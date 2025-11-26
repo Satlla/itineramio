@@ -124,11 +124,11 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             style={{
-              paddingTop: 'max(4rem, env(safe-area-inset-top, 0px))',
-              paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 0px))'
+              paddingTop: 'env(safe-area-inset-top, 0px)',
+              paddingBottom: 'env(safe-area-inset-bottom, 0px)'
             }}
           >
-            <div className="px-4 sm:px-6 pb-4 sm:pb-6" style={{ paddingTop: '1rem' }}>
+            <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-4">
               {/* Header */}
               <div className="flex items-center justify-between mb-6 sm:mb-8">
                 <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Menú</h2>
