@@ -197,7 +197,7 @@ export function ImageUpload({
       if (result.success) {
         const imageUrl = result.url
         console.log('✅ ImageUpload: Upload successful, URL:', imageUrl)
-        
+
         // No need to save to media library separately - already done in upload endpoint
         setPreviewUrl(imageUrl)
         onChange(imageUrl)
@@ -207,8 +207,27 @@ export function ImageUpload({
         throw new Error(result.error || 'Upload failed')
       }
     } catch (error) {
-      console.error('Error uploading file:', error)
-      alert('Error al subir la imagen. Por favor, inténtalo de nuevo.')
+      console.error('❌ Error uploading file:', error)
+
+      // Show specific error message to user
+      let errorMessage = 'Error al subir la imagen. Por favor, inténtalo de nuevo.'
+
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else if (typeof error === 'string') {
+        errorMessage = error
+      }
+
+      // Add more helpful context for common errors
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+        errorMessage = 'Error de conexión. Verifica tu conexión a internet e inténtalo de nuevo.'
+      } else if (errorMessage.includes('timeout')) {
+        errorMessage = 'La carga tomó demasiado tiempo. Intenta con una imagen más pequeña.'
+      } else if (errorMessage.includes('401') || errorMessage.includes('No autorizado')) {
+        errorMessage = 'Sesión expirada. Por favor, vuelve a iniciar sesión.'
+      }
+
+      alert(errorMessage)
     } finally {
       setUploading(false)
     }
