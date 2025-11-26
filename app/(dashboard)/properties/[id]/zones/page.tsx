@@ -2443,7 +2443,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-3 sm:p-6 pb-24 lg:pb-6">
+    <div
+      className="max-w-7xl mx-auto px-3 sm:px-6 pt-16 sm:pt-20 md:pt-24 pb-24 lg:pb-6"
+      style={{
+        paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))'
+      }}
+    >
       {/* Inactive Property Banner */}
       {propertyStatus === 'DRAFT' && (
         <div className="mb-4 sm:mb-6 bg-amber-50 border border-amber-200 rounded-lg p-3 sm:p-4">
