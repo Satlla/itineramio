@@ -2570,9 +2570,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       <div className="flex items-center justify-between mb-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            {/* Botón Volver al Dashboard - Siempre visible */}
+            {/* Botón Volver a Propiedades - Siempre visible */}
             <Button
-              onClick={() => router.push('/dashboard')}
+              onClick={() => router.push('/properties')}
               variant="ghost"
               size="sm"
               className="hover:bg-gray-100 rounded-full p-2"
