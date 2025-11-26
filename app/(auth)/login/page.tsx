@@ -110,7 +110,10 @@ function LoginContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          rememberMe
+        }),
       })
       
       const data = await response.json()

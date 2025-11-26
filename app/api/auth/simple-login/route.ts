@@ -6,9 +6,9 @@ import { prisma } from '../../../../src/lib/prisma'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, password } = body
+    const { email, password, rememberMe = false } = body
 
-    console.log('🔐 Login attempt for:', email)
+    console.log('🔐 Login attempt for:', email, '| Remember me:', rememberMe)
 
     // Find user
     const user = await prisma.user.findUnique({
@@ -69,13 +69,16 @@ export async function POST(request: NextRequest) {
       }, { status: 401 })
     }
 
-    // Create token
+    // Create token with appropriate expiration based on rememberMe
     const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
+    const tokenExpiration = rememberMe ? '30d' : '24h'
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: tokenExpiration }
     )
+
+    console.log('🔑 Token created with expiration:', tokenExpiration)
 
     // Create response
     const response = NextResponse.json({
@@ -90,11 +93,17 @@ export async function POST(request: NextRequest) {
       token
     })
 
-    // Set cookie - trying different approach
+    // Set cookie with appropriate duration based on rememberMe
+    // If rememberMe: 30 days, otherwise 24 hours
+    const cookieMaxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24
+    const isProduction = process.env.NODE_ENV === 'production'
+
     response.headers.set(
       'Set-Cookie',
-      `auth-token=${token}; Path=/; Max-Age=${60 * 60 * 24 * 7}; SameSite=Lax${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+      `auth-token=${token}; Path=/; Max-Age=${cookieMaxAge}; SameSite=${isProduction ? 'None' : 'Lax'}${isProduction ? '; Secure' : ''}`
     )
+
+    console.log('🍪 Cookie set with Max-Age:', cookieMaxAge, 'seconds =', rememberMe ? '30 days' : '24 hours')
 
     return response
 
