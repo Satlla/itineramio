@@ -405,10 +405,15 @@ function NewPropertyPageContent() {
   }
 
   return (
-    <div className="fixed inset-0 md:static md:min-h-screen bg-white md:bg-gray-50 overflow-y-auto md:overflow-x-hidden z-[70] md:z-auto">
+    <div
+      className="fixed inset-0 md:static md:min-h-screen bg-white md:bg-gray-50 overflow-y-auto md:overflow-x-hidden z-[70] md:z-auto"
+      style={{
+        paddingTop: 'env(safe-area-inset-top, 0px)'
+      }}
+    >
       <div className="h-full md:max-w-4xl md:mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
         {/* Header */}
-        <div className="mb-6 sm:mb-8 safe-top">
+        <div className="mb-6 sm:mb-8">
           {/* Back button - always at top */}
           <div className="mb-4">
             <Link href="/properties">

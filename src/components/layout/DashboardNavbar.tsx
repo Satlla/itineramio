@@ -115,8 +115,8 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
         }`}
         style={{
           top: isTrialBarVisible
-            ? 'calc(48px + env(safe-area-inset-top))'
-            : 'env(safe-area-inset-top)'
+            ? 'calc(48px + env(safe-area-inset-top, 0px))'
+            : 'env(safe-area-inset-top, 0px)'
         }}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
