@@ -94,26 +94,21 @@ body {
 }
 
 @layer components {
-  /* iOS Safe Area Support for PWA - AGGRESSIVE MODE */
+  /* iOS Safe Area Support for PWA - FINE-TUNED MODE */
   .safe-top {
-    padding-top: max(env(safe-area-inset-top, 0px), 1rem) !important;
+    padding-top: max(env(safe-area-inset-top, 0px), 0.5rem) !important;
   }
 
   .safe-bottom {
-    padding-bottom: max(env(safe-area-inset-bottom, 0px), 1rem) !important;
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.5rem) !important;
   }
 
   .safe-left {
-    padding-left: max(env(safe-area-inset-left, 0px), 1rem) !important;
+    padding-left: max(env(safe-area-inset-left, 0px), 0.5rem) !important;
   }
 
   .safe-right {
-    padding-right: max(env(safe-area-inset-right, 0px), 1rem) !important;
-  }
-
-  /* Guarantee ALL fixed/sticky elements respect safe area */
-  .fixed, .sticky, [class*="fixed"], [class*="sticky"] {
-    padding-top: max(env(safe-area-inset-top, 0px), 1rem);
+    padding-right: max(env(safe-area-inset-right, 0px), 0.5rem) !important;
   }
 
   /* Airbnb-style button variants */
