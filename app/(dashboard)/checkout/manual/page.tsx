@@ -350,7 +350,7 @@ function ManualCheckoutContent() {
   // Loading state
   if (checkingBillingData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
           <p className="text-gray-600">Verificando datos de facturación...</p>
@@ -375,7 +375,7 @@ function ManualCheckoutContent() {
     }
 
     return (
-      <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-12">
+      <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-12" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
         <div className="max-w-2xl mx-auto px-3 sm:px-4">
           <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
             <div className="text-center">
@@ -430,7 +430,7 @@ function ManualCheckoutContent() {
 
   if (showSuccess) {
     return (
-      <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-12">
+      <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-12" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
         <div className="max-w-2xl mx-auto px-3 sm:px-4">
           <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
             <div className="text-center">
@@ -454,7 +454,7 @@ function ManualCheckoutContent() {
   }
   
   return (
-    <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-12">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-12" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
       <div className="max-w-2xl mx-auto px-3 sm:px-4">
         <button
           onClick={() => router.push('/account/plans')}
@@ -758,7 +758,7 @@ function ManualCheckoutContent() {
 export default function ManualCheckoutPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Cargando...</p>

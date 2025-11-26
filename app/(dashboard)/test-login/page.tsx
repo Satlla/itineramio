@@ -17,7 +17,7 @@ export default function TestLoginPage() {
   }, [router])
   
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-4">Setting up test login...</h1>
         <p className="text-gray-600">Redirecting to dashboard...</p>

@@ -31,7 +31,7 @@ export default function PricingV2Page() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 text-white py-20">
         <div className="max-w-6xl mx-auto px-4">

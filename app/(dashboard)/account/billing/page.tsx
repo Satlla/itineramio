@@ -295,7 +295,7 @@ export default function BillingPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-12 px-3 sm:px-4">
+      <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-12 px-3 sm:px-4" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
         <div className="max-w-6xl mx-auto">
           <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
             <div className="animate-pulse space-y-4">
@@ -309,7 +309,7 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-12 px-3 sm:px-4">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-12 px-3 sm:px-4" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-4 sm:mb-6">

@@ -63,6 +63,7 @@
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
     "framer-motion": "^10.18.0",
     "html2canvas": "^1.4.1",
     "i18next": "^25.2.1",

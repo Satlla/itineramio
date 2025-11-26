@@ -724,7 +724,7 @@ export default function PropertySetDetailPage() {
 
   if (!propertySet) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Conjunto no encontrado</h2>
           <p className="text-gray-600 mb-4">El conjunto que buscas no existe o no tienes acceso.</p>
@@ -737,7 +737,7 @@ export default function PropertySetDetailPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
       <DashboardNavbar user={user || undefined} />
       
       <main className="flex-1 pt-6 sm:pt-16">

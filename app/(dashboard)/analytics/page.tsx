@@ -103,7 +103,7 @@ export default function AnalyticsPage() {
   const trends = data?.trends || []
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
       <DashboardNavbar user={user || undefined} />
       
       <main className="pt-16">

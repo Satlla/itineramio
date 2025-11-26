@@ -175,7 +175,7 @@ export default function SubscriptionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
           <div className="animate-pulse space-y-8">
             <div className="h-12 bg-gray-200 rounded-lg w-1/3"></div>
@@ -205,7 +205,7 @@ export default function SubscriptionsPage() {
     : 0
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
       {/* Header */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">

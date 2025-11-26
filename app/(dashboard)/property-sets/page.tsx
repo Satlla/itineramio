@@ -69,7 +69,7 @@ export default function PropertySetsPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
       <DashboardNavbar user={user || undefined} />
       
       <main className="flex-1 pt-6 sm:pt-16">
