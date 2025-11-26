@@ -124,7 +124,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             style={{
-              paddingTop: 'calc(env(safe-area-inset-top) + 2rem)',
+              paddingTop: 'calc(env(safe-area-inset-top) + 4rem)',
             }}
           >
             <div className="px-4 sm:px-6 pb-4 sm:pb-6">
