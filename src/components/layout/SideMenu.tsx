@@ -64,7 +64,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
     {
       icon: <Settings className="w-5 h-5" />,
       label: "Configuración",
-      href: "/account/settings",
+      href: "/account/notifications",
       description: "Editar tu perfil y preferencias"
     },
     {
@@ -82,7 +82,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
     {
       icon: <BookOpen className="w-5 h-5" />,
       label: "Recursos del Host",
-      href: "/resources",
+      href: "/recursos",
       description: "Guías y mejores prácticas"
     },
     {
