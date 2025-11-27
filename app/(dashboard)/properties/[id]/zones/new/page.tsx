@@ -143,7 +143,7 @@ export default function NewZonePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ paddingTop: \'calc(4rem + env(safe-area-inset-top, 0px))\' }}>
+    <div className="min-h-screen bg-gray-50" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
