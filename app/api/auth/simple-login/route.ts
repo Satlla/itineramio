@@ -98,12 +98,16 @@ export async function POST(request: NextRequest) {
     const cookieMaxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24
     const isProduction = process.env.NODE_ENV === 'production'
 
+    // Get domain from request URL for proper cookie domain setting
+    const domain = isProduction ? '.itineramio.com' : undefined
+    const domainStr = domain ? `; Domain=${domain}` : ''
+
     response.headers.set(
       'Set-Cookie',
-      `auth-token=${token}; Path=/; HttpOnly; Max-Age=${cookieMaxAge}; SameSite=${isProduction ? 'None' : 'Lax'}${isProduction ? '; Secure' : ''}`
+      `auth-token=${token}; Path=/; HttpOnly; Max-Age=${cookieMaxAge}; SameSite=${isProduction ? 'None' : 'Lax'}${isProduction ? '; Secure' : ''}${domainStr}`
     )
 
-    console.log('🍪 Cookie set with Max-Age:', cookieMaxAge, 'seconds =', rememberMe ? '30 days' : '24 hours', '| HttpOnly: true | SameSite:', isProduction ? 'None' : 'Lax')
+    console.log('🍪 Cookie set with Max-Age:', cookieMaxAge, 'seconds =', rememberMe ? '30 days' : '24 hours', '| HttpOnly: true | SameSite:', isProduction ? 'None' : 'Lax', '| Domain:', domain || 'default')
 
     return response
 
