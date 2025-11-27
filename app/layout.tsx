@@ -65,12 +65,12 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://itineramio.com'),
+  metadataBase: new URL('https://www.itineramio.com'),
   alternates: {
-    canonical: 'https://itineramio.com',
+    canonical: 'https://www.itineramio.com',
     languages: {
-      'es-ES': 'https://itineramio.com',
-      'es': 'https://itineramio.com',
+      'es-ES': 'https://www.itineramio.com',
+      'es': 'https://www.itineramio.com',
     },
   },
   openGraph: {
