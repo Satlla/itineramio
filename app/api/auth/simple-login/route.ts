@@ -100,10 +100,10 @@ export async function POST(request: NextRequest) {
 
     response.headers.set(
       'Set-Cookie',
-      `auth-token=${token}; Path=/; Max-Age=${cookieMaxAge}; SameSite=${isProduction ? 'None' : 'Lax'}${isProduction ? '; Secure' : ''}`
+      `auth-token=${token}; Path=/; HttpOnly; Max-Age=${cookieMaxAge}; SameSite=${isProduction ? 'None' : 'Lax'}${isProduction ? '; Secure' : ''}`
     )
 
-    console.log('🍪 Cookie set with Max-Age:', cookieMaxAge, 'seconds =', rememberMe ? '30 days' : '24 hours')
+    console.log('🍪 Cookie set with Max-Age:', cookieMaxAge, 'seconds =', rememberMe ? '30 days' : '24 hours', '| HttpOnly: true | SameSite:', isProduction ? 'None' : 'Lax')
 
     return response
 

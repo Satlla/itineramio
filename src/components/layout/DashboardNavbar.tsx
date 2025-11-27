@@ -108,10 +108,10 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
   return (
     <>
       <motion.nav
-        className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed left-0 right-0 z-[100] transition-all duration-300 ${
           scrolled
-            ? 'bg-white/90 backdrop-blur-md border-b border-neutral-200/50 shadow-lg'
-            : 'bg-white/80 backdrop-blur-sm'
+            ? 'bg-white border-b border-neutral-200/50 shadow-lg'
+            : 'bg-white border-b border-neutral-100'
         }`}
         style={{
           top: isTrialBarVisible
