@@ -2,6 +2,7 @@
   "name": "Itineramio - Property Manual Creator",
   "short_name": "Itineramio",
   "description": "Create beautiful interactive property manuals for your guests",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -11,6 +12,21 @@
   "theme_color": "#8B5CF6",
   "categories": ["business", "productivity"],
   "prefer_related_applications": false,
+  "scope_extensions": [
+    {
+      "origin": "https://itineramio.com"
+    },
+    {
+      "origin": "https://www.itineramio.com"
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+itineramio",
+      "url": "/?protocol=%s"
+    }
+  ],
+  "handle_links": "preferred",
   "icons": [
     {
       "src": "/icon-72x72.png",
