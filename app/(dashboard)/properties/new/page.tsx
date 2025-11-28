@@ -204,7 +204,7 @@ function NewPropertyPageContent() {
 
       // Create abort controller for timeout
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 70000) // 70 second timeout (backend has 60s)
 
       const response = await fetch(url, {
         method,

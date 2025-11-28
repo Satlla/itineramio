@@ -9,6 +9,9 @@
     },
     "app/api/properties/route.ts": {
       "maxDuration": 60
+    },
+    "app/api/properties/safe/route.ts": {
+      "maxDuration": 60
     }
   },
   "crons": [
