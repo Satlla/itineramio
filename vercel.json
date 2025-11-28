@@ -6,6 +6,9 @@
   "functions": {
     "app/api/upload/route.ts": {
       "maxDuration": 30
+    },
+    "app/api/properties/route.ts": {
+      "maxDuration": 60
     }
   },
   "crons": [
