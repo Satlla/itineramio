@@ -98,14 +98,16 @@ export async function POST(request: NextRequest) {
     const cookieMaxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24
     const isProduction = process.env.NODE_ENV === 'production'
 
-    // For PWA compatibility, we need SameSite=None and Secure in production
-    // Do NOT use Domain attribute - it can cause issues with cookie reading
+    // CRITICAL: Using SameSite=Lax instead of None for better iOS Safari compatibility
+    // SameSite=Lax works well for installed PWAs since they're treated as first-party
+    // SameSite=None can be blocked by Safari's ITP (Intelligent Tracking Prevention)
     response.headers.set(
       'Set-Cookie',
-      `auth-token=${token}; Path=/; HttpOnly; Max-Age=${cookieMaxAge}; SameSite=${isProduction ? 'None' : 'Lax'}${isProduction ? '; Secure' : ''}`
+      `auth-token=${token}; Path=/; HttpOnly; Max-Age=${cookieMaxAge}; SameSite=Lax${isProduction ? '; Secure' : ''}`
     )
 
-    console.log('🍪 Cookie set with Max-Age:', cookieMaxAge, 'seconds =', rememberMe ? '30 days' : '24 hours', '| HttpOnly: true | SameSite:', isProduction ? 'None' : 'Lax', '| Secure:', isProduction)
+    console.log('🍪 Cookie set with Max-Age:', cookieMaxAge, 'seconds =', rememberMe ? '30 days' : '24 hours', '| HttpOnly: true | SameSite: Lax | Secure:', isProduction)
+    console.log('📱 If PWA cookie issues persist, user may need to clear Safari cache or reinstall PWA')
 
     return response
 
