@@ -26,11 +26,12 @@ interface BackupData {
     steps: any[]
     subscriptions: any[]
     subscriptionRequests: any[]
-    aiMessages: any[]
-    hostProfiles: any[]
-    hostProfileResults: any[]
-    emailSequenceStatus: any[]
-    emailSequenceEmails: any[]
+    hostProfileTests: any[]
+    emailSubscribers: any[]
+    emailSequences: any[]
+    emailSequenceSteps: any[]
+    sequenceEnrollments: any[]
+    scheduledEmails: any[]
   }
 }
 
@@ -41,24 +42,11 @@ async function backupDatabase() {
     // Obtener todos los datos
     console.log('📊 Extrayendo datos de las tablas...')
 
-    const users = await prisma.user.findMany({
-      include: {
-        properties: true,
-        subscriptions: true,
-        hostProfiles: true,
-      }
-    })
+    // Obtener datos sin relaciones complejas para evitar errores
+    const users = await prisma.user.findMany()
     console.log(`✓ Users: ${users.length} registros`)
 
-    const properties = await prisma.property.findMany({
-      include: {
-        zones: {
-          include: {
-            steps: true
-          }
-        }
-      }
-    })
+    const properties = await prisma.property.findMany()
     console.log(`✓ Properties: ${properties.length} registros`)
 
     const zones = await prisma.zone.findMany()
@@ -67,32 +55,35 @@ async function backupDatabase() {
     const steps = await prisma.step.findMany()
     console.log(`✓ Steps: ${steps.length} registros`)
 
-    const subscriptions = await prisma.subscription.findMany()
-    console.log(`✓ Subscriptions: ${subscriptions.length} registros`)
+    const subscriptions = await prisma.userSubscription.findMany()
+    console.log(`✓ User Subscriptions: ${subscriptions.length} registros`)
 
     const subscriptionRequests = await prisma.subscriptionRequest.findMany()
     console.log(`✓ Subscription Requests: ${subscriptionRequests.length} registros`)
 
-    const aiMessages = await prisma.aIMessage.findMany()
-    console.log(`✓ AI Messages: ${aiMessages.length} registros`)
+    const hostProfileTests = await prisma.hostProfileTest.findMany()
+    console.log(`✓ Host Profile Tests: ${hostProfileTests.length} registros`)
 
-    const hostProfiles = await prisma.hostProfile.findMany()
-    console.log(`✓ Host Profiles: ${hostProfiles.length} registros`)
+    const emailSubscribers = await prisma.emailSubscriber.findMany()
+    console.log(`✓ Email Subscribers: ${emailSubscribers.length} registros`)
 
-    const hostProfileResults = await prisma.hostProfileResult.findMany()
-    console.log(`✓ Host Profile Results: ${hostProfileResults.length} registros`)
+    const emailSequences = await prisma.emailSequence.findMany()
+    console.log(`✓ Email Sequences: ${emailSequences.length} registros`)
 
-    const emailSequenceStatus = await prisma.emailSequenceStatus.findMany()
-    console.log(`✓ Email Sequence Status: ${emailSequenceStatus.length} registros`)
+    const emailSequenceSteps = await prisma.emailSequenceStep.findMany()
+    console.log(`✓ Email Sequence Steps: ${emailSequenceSteps.length} registros`)
 
-    const emailSequenceEmails = await prisma.emailSequenceEmail.findMany()
-    console.log(`✓ Email Sequence Emails: ${emailSequenceEmails.length} registros`)
+    const sequenceEnrollments = await prisma.sequenceEnrollment.findMany()
+    console.log(`✓ Sequence Enrollments: ${sequenceEnrollments.length} registros`)
+
+    const scheduledEmails = await prisma.scheduledEmail.findMany()
+    console.log(`✓ Scheduled Emails: ${scheduledEmails.length} registros`)
 
     // Calcular totales
     const totalRecords = users.length + properties.length + zones.length +
                         steps.length + subscriptions.length + subscriptionRequests.length +
-                        aiMessages.length + hostProfiles.length + hostProfileResults.length +
-                        emailSequenceStatus.length + emailSequenceEmails.length
+                        hostProfileTests.length + emailSubscribers.length + emailSequences.length +
+                        emailSequenceSteps.length + sequenceEnrollments.length + scheduledEmails.length
 
     // Crear objeto de backup
     const backup: BackupData = {
@@ -105,13 +96,14 @@ async function backupDatabase() {
           'properties',
           'zones',
           'steps',
-          'subscriptions',
+          'userSubscriptions',
           'subscriptionRequests',
-          'aiMessages',
-          'hostProfiles',
-          'hostProfileResults',
-          'emailSequenceStatus',
-          'emailSequenceEmails'
+          'hostProfileTests',
+          'emailSubscribers',
+          'emailSequences',
+          'emailSequenceSteps',
+          'sequenceEnrollments',
+          'scheduledEmails'
         ],
         totalRecords
       },
@@ -122,11 +114,12 @@ async function backupDatabase() {
         steps,
         subscriptions,
         subscriptionRequests,
-        aiMessages,
-        hostProfiles,
-        hostProfileResults,
-        emailSequenceStatus,
-        emailSequenceEmails
+        hostProfileTests,
+        emailSubscribers,
+        emailSequences,
+        emailSequenceSteps,
+        sequenceEnrollments,
+        scheduledEmails
       }
     }
 
@@ -156,11 +149,12 @@ async function backupDatabase() {
         steps: steps.length,
         subscriptions: subscriptions.length,
         subscriptionRequests: subscriptionRequests.length,
-        aiMessages: aiMessages.length,
-        hostProfiles: hostProfiles.length,
-        hostProfileResults: hostProfileResults.length,
-        emailSequenceStatus: emailSequenceStatus.length,
-        emailSequenceEmails: emailSequenceEmails.length
+        hostProfileTests: hostProfileTests.length,
+        emailSubscribers: emailSubscribers.length,
+        emailSequences: emailSequences.length,
+        emailSequenceSteps: emailSequenceSteps.length,
+        sequenceEnrollments: sequenceEnrollments.length,
+        scheduledEmails: scheduledEmails.length
       },
       backupFile: filename
     }
@@ -189,13 +183,14 @@ DESGLOSE POR TABLA:
 ✓ Properties: ${properties.length}
 ✓ Zones: ${zones.length}
 ✓ Steps: ${steps.length}
-✓ Subscriptions: ${subscriptions.length}
+✓ User Subscriptions: ${subscriptions.length}
 ✓ Subscription Requests: ${subscriptionRequests.length}
-✓ AI Messages: ${aiMessages.length}
-✓ Host Profiles: ${hostProfiles.length}
-✓ Host Profile Results: ${hostProfileResults.length}
-✓ Email Sequence Status: ${emailSequenceStatus.length}
-✓ Email Sequence Emails: ${emailSequenceEmails.length}
+✓ Host Profile Tests: ${hostProfileTests.length}
+✓ Email Subscribers: ${emailSubscribers.length}
+✓ Email Sequences: ${emailSequences.length}
+✓ Email Sequence Steps: ${emailSequenceSteps.length}
+✓ Sequence Enrollments: ${sequenceEnrollments.length}
+✓ Scheduled Emails: ${scheduledEmails.length}
 
 ARCHIVOS GENERADOS:
 ------------------
