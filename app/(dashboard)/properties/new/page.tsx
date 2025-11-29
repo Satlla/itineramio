@@ -256,6 +256,9 @@ function NewPropertyPageContent() {
 
       console.log(`✅ Propiedad ${isEditing ? 'actualizada' : 'creada'} exitosamente:`, result.data)
 
+      // Stop loading spinner immediately on success
+      setIsSubmitting(false)
+
       // Clear saved data
       if (!isEditing && result.data?.id) {
         clearSavedData()
