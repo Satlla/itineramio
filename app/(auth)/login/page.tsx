@@ -110,6 +110,7 @@ function LoginContent() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Critical for PWA cookie persistence
         body: JSON.stringify({
           ...formData,
           rememberMe
