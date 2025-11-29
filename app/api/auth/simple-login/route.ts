@@ -94,18 +94,25 @@ export async function POST(request: NextRequest) {
     })
 
     // Set cookie with appropriate duration based on rememberMe
-    // If rememberMe: 30 days, otherwise 24 hours
-    const cookieMaxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24
+    const cookieMaxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24 // 30 days or 24 hours
     const isProduction = process.env.NODE_ENV === 'production'
 
-    // For PWA compatibility, we need SameSite=None and Secure in production
-    // Do NOT use Domain attribute - it can cause issues with cookie reading
-    response.headers.set(
-      'Set-Cookie',
-      `auth-token=${token}; Path=/; HttpOnly; Max-Age=${cookieMaxAge}; SameSite=${isProduction ? 'None' : 'Lax'}${isProduction ? '; Secure' : ''}`
-    )
+    // Use Next.js cookies API (NOT manual headers.set) for proper cookie handling
+    response.cookies.set('auth-token', token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      maxAge: cookieMaxAge,
+      path: '/'
+    })
 
-    console.log('🍪 Cookie set with Max-Age:', cookieMaxAge, 'seconds =', rememberMe ? '30 days' : '24 hours', '| HttpOnly: true | SameSite:', isProduction ? 'None' : 'Lax', '| Secure:', isProduction)
+    console.log('🍪 Cookie configured:', {
+      maxAge: `${cookieMaxAge}s (${rememberMe ? '30 days' : '24 hours'})`,
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/'
+    })
 
     return response
 
