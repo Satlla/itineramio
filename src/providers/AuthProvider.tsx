@@ -73,9 +73,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuthStatus = async () => {
     try {
+      // Get token from localStorage for PWA persistence fallback
+      const headers: HeadersInit = {}
+
+      try {
+        const localToken = localStorage.getItem('auth-token')
+        if (localToken) {
+          headers['Authorization'] = `Bearer ${localToken}`
+          console.log('📱 Sending localStorage token via Authorization header')
+        }
+      } catch (e) {
+        console.warn('⚠️ Could not access localStorage:', e)
+      }
+
       const response = await fetch('/api/auth/me', {
         credentials: 'include',
-        cache: 'no-cache'
+        cache: 'no-cache',
+        headers
       })
 
       if (response.ok) {

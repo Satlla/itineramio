@@ -5,12 +5,26 @@ import { verifyToken } from '../../../../src/lib/auth'
 export async function GET(request: NextRequest) {
   try {
     console.log('=== AUTH ME REQUEST ===')
-    const token = request.cookies.get('auth-token')?.value
+
+    // Try to get token from cookie first, then from Authorization header (for PWA localStorage)
+    let token = request.cookies.get('auth-token')?.value
+    let tokenSource = 'cookie'
+
+    if (!token) {
+      // Fallback to Authorization header for PWA localStorage persistence
+      const authHeader = request.headers.get('Authorization')
+      if (authHeader?.startsWith('Bearer ')) {
+        token = authHeader.substring(7)
+        tokenSource = 'Authorization header (localStorage fallback)'
+      }
+    }
+
+    console.log('Token source:', tokenSource)
     console.log('Token present:', !!token)
     console.log('Token length:', token?.length)
 
     if (!token) {
-      console.log('No token provided')
+      console.log('No token provided in cookie or Authorization header')
       return NextResponse.json({
         success: false,
         error: 'No authentication token provided'
