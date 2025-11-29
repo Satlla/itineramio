@@ -202,15 +202,28 @@ function NewPropertyPageContent() {
 
       console.log('📤 Enviando propiedad...', { url, method })
 
+      // Prepare headers with localStorage token for PWA persistence
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      }
+
+      try {
+        const localToken = localStorage.getItem('auth-token')
+        if (localToken) {
+          headers['Authorization'] = `Bearer ${localToken}`
+          console.log('📱 Including localStorage token in request')
+        }
+      } catch (e) {
+        console.warn('⚠️ Could not access localStorage:', e)
+      }
+
       // Create abort controller for timeout
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 70000) // 70 second timeout (backend has 60s)
 
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         credentials: 'include',
         body: JSON.stringify(data),
         signal: controller.signal
