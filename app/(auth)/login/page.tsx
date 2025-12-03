@@ -135,7 +135,17 @@ function LoginContent() {
       }
       
       if (data.success) {
-        // Success - redirect to dashboard
+        // Success - save token to localStorage for PWA persistence
+        if (data.token) {
+          try {
+            localStorage.setItem('auth-token', data.token)
+            console.log('✅ Token saved to localStorage for PWA')
+          } catch (e) {
+            console.warn('⚠️ Failed to save token to localStorage:', e)
+          }
+        }
+
+        // Redirect to dashboard
         console.log('Login successful, redirecting to dashboard')
         router.push('/main')
       } else {

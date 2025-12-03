@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Cookies - Itineramio</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 800px; margin: 0 auto; }
+        h1 { color: #8B5CF6; }
+        .section { margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 8px; }
+        .info { color: #666; font-size: 14px; }
+        button { background: #8B5CF6; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #7C3AED; }
+        pre { background: white; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .status { padding: 5px 10px; border-radius: 4px; display: inline-block; }
+        .success { background: #10b981; color: white; }
+        .error { background: #ef4444; color: white; }
+    </style>
+</head>
+<body>
+    <h1>🍪 Debug de Cookies - Itineramio</h1>
+
+    <div class="section">
+        <h2>Información del Navegador</h2>
+        <div id="browser-info"></div>
+    </div>
+
+    <div class="section">
+        <h2>Cookies Actuales</h2>
+        <button onclick="checkCookies()">Verificar Cookies</button>
+        <button onclick="clearCookies()">Limpiar Cookies</button>
+        <div id="cookies-info" class="info"></div>
+        <pre id="cookies-detail"></pre>
+    </div>
+
+    <div class="section">
+        <h2>LocalStorage</h2>
+        <button onclick="checkStorage()">Verificar LocalStorage</button>
+        <div id="storage-info"></div>
+    </div>
+
+    <div class="section">
+        <h2>Prueba de Login</h2>
+        <p>Ingresa tus credenciales para probar el login:</p>
+        <input type="email" id="email" placeholder="Email" style="width: 100%; padding: 8px; margin: 5px 0;">
+        <input type="password" id="password" placeholder="Contraseña" style="width: 100%; padding: 8px; margin: 5px 0;">
+        <label><input type="checkbox" id="rememberMe" checked> Recordarme (30 días)</label><br>
+        <button onclick="testLogin()">Probar Login</button>
+        <div id="login-result"></div>
+    </div>
+
+    <script>
+        // Browser info
+        const browserInfo = {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            cookieEnabled: navigator.cookieEnabled,
+            language: navigator.language,
+            online: navigator.onLine,
+            url: window.location.href,
+            protocol: window.location.protocol,
+            isHTTPS: window.location.protocol === 'https:',
+            isPWA: window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
+        };
+
+        document.getElementById('browser-info').innerHTML = `
+            <pre>${JSON.stringify(browserInfo, null, 2)}</pre>
+            ${!browserInfo.isHTTPS ? '<p style="color: red;">⚠️ NO estás en HTTPS. Las cookies Secure no funcionarán!</p>' : ''}
+            ${browserInfo.isPWA ? '<p style="color: green;">✅ Estás en modo PWA</p>' : '<p style="color: orange;">⚠️ No estás en modo PWA</p>'}
+        `;
+
+        function checkCookies() {
+            const cookies = document.cookie;
+            const cookiesDiv = document.getElementById('cookies-info');
+            const cookiesDetail = document.getElementById('cookies-detail');
+
+            if (!cookies) {
+                cookiesDiv.innerHTML = '<span class="status error">No hay cookies</span>';
+                cookiesDetail.textContent = 'No se encontraron cookies';
+                return;
+            }
+
+            const cookiesList = cookies.split(';').map(c => c.trim());
+            const hasAuthToken = cookiesList.some(c => c.startsWith('auth-token='));
+
+            cookiesDiv.innerHTML = hasAuthToken
+                ? '<span class="status success">✅ auth-token encontrado</span>'
+                : '<span class="status error">❌ auth-token NO encontrado</span>';
+
+            cookiesDetail.textContent = cookiesList.join('\n');
+        }
+
+        function clearCookies() {
+            document.cookie.split(';').forEach(cookie => {
+                const name = cookie.split('=')[0].trim();
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            });
+            alert('Cookies limpiadas');
+            checkCookies();
+        }
+
+        function checkStorage() {
+            const storageDiv = document.getElementById('storage-info');
+            try {
+                const items = {};
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    items[key] = localStorage.getItem(key);
+                }
+                storageDiv.innerHTML = '<pre>' + JSON.stringify(items, null, 2) + '</pre>';
+            } catch (e) {
+                storageDiv.innerHTML = '<span class="status error">Error: ' + e.message + '</span>';
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const resultDiv = document.getElementById('login-result');
+
+            if (!email || !password) {
+                resultDiv.innerHTML = '<p style="color: red;">Por favor ingresa email y contraseña</p>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<p>Intentando login...</p>';
+
+            try {
+                const response = await fetch('/api/auth/simple-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password, rememberMe }),
+                    credentials: 'include' // IMPORTANTE para recibir cookies
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <p style="color: green;">✅ Login exitoso!</p>
+                        <p>Usuario: ${data.user.email}</p>
+                        <p>Token recibido: ${data.token ? 'Sí' : 'No'}</p>
+                        <button onclick="checkCookies()">Verificar si la cookie se guardó</button>
+                    `;
+
+                    // Verificar cookies después de 1 segundo
+                    setTimeout(checkCookies, 1000);
+                } else {
+                    resultDiv.innerHTML = `<p style="color: red;">❌ Error: ${data.error || data.message}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">❌ Error de conexión: ${error.message}</p>`;
+            }
+        }
+
+        // Auto-check al cargar
+        checkCookies();
+        checkStorage();
+    </script>
+</body>
+</html>
