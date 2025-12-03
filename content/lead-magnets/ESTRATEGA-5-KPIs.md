@@ -263,11 +263,11 @@ NOI = Ingresos totales - Gastos operativos
 Ingresos mensuales: €3,000
 - Limpieza: €400
 - Servicios (agua, luz, internet): €150
-- Reposición (ropa, menaje): €100
-- Mantenimiento: €200
-- Comisiones OTA: €450
-- Seguros: €80
-= NOI: €1,620
+- Reposición (ropa, menaje): €50
+- Mantenimiento: €60
+- Comisiones OTA: €150
+- Seguros: €25
+= NOI: €2,165
 ```
 
 ### ¿Por qué importa?
@@ -280,7 +280,7 @@ NOI Margin = (NOI / Ingresos) × 100
 ```
 
 En el ejemplo anterior:
-- NOI Margin = (€1,620 / €3,000) × 100 = **54%**
+- NOI Margin = (€2,165 / €3,000) × 100 = **72%**
 
 ### Benchmarks de NOI Margin
 
