@@ -19,6 +19,7 @@ export default function HostProfileTestPage() {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [gender, setGender] = useState<'M' | 'F' | 'O' | ''>('')
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [showLeadModal, setShowLeadModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -62,6 +63,18 @@ export default function HostProfileTestPage() {
   const goToPrevious = () => {
     if (canGoPrevious) {
       setCurrentQuestionIndex(prev => prev - 1)
+    }
+  }
+
+  const toggleInterest = (interest: string) => {
+    if (selectedInterests.includes(interest)) {
+      // Remover si ya está seleccionado
+      setSelectedInterests(selectedInterests.filter(i => i !== interest))
+    } else {
+      // Agregar si no está seleccionado (máximo 3)
+      if (selectedInterests.length < 3) {
+        setSelectedInterests([...selectedInterests, interest])
+      }
     }
   }
 
@@ -123,7 +136,8 @@ export default function HostProfileTestPage() {
           answers: answersArray,
           email: email.toLowerCase(),
           name: name || undefined,
-          gender: gender || undefined
+          gender: gender || undefined,
+          interests: selectedInterests.length > 0 ? selectedInterests : undefined
         })
       })
 
@@ -371,6 +385,46 @@ export default function HostProfileTestPage() {
                       Otro
                     </button>
                   </div>
+                </div>
+
+                {/* Interests Selection - Optional */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    ¿En qué áreas necesitas ayuda? (opcional, máx. 3)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { value: 'reviews', label: 'Reviews' },
+                      { value: 'pricing', label: 'Pricing' },
+                      { value: 'occupancy', label: 'Ocupación' },
+                      { value: 'automation', label: 'Automatización' },
+                      { value: 'communication', label: 'Comunicación' },
+                      { value: 'calendar', label: 'Calendario' },
+                      { value: 'design', label: 'Diseño' },
+                      { value: 'legal', label: 'Legal' }
+                    ].map((interest) => (
+                      <button
+                        key={interest.value}
+                        type="button"
+                        onClick={() => toggleInterest(interest.value)}
+                        disabled={!selectedInterests.includes(interest.value) && selectedInterests.length >= 3}
+                        className={`px-3 py-2 rounded-lg border-2 transition-all text-sm font-medium ${
+                          selectedInterests.includes(interest.value)
+                            ? 'border-purple-600 bg-purple-50 text-purple-900'
+                            : selectedInterests.length >= 3
+                            ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                            : 'border-gray-200 hover:border-purple-300 text-gray-700'
+                        }`}
+                      >
+                        {interest.label}
+                      </button>
+                    ))}
+                  </div>
+                  {selectedInterests.length > 0 && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      {selectedInterests.length}/3 seleccionados
+                    </p>
+                  )}
                 </div>
               </div>
 

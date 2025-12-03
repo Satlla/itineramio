@@ -2012,6 +2012,11 @@ model EmailSubscriber {
   currentJourneyStage String   @default("subscribed") // "subscribed" | "engaged" | "course_enrolled" | "customer"
   tags                String[] @default([]) // Tags dinámicos para segmentación
 
+  // Interest-based segmentation (capturado en test de personalidad)
+  interests           String[] @default([]) // Hasta 3 intereses: "reviews" | "pricing" | "occupancy" | "automation" | "communication" | "calendar" | "design" | "legal"
+  topPriority         String?  // Primer interés seleccionado = contenido prioritario
+  contentTrack        String?  // Track de contenido: "reviews_focused" | "automation_focused" | etc.
+
   // Productos interactuados
   downloadedGuide     Boolean  @default(false)
   enrolledCourse      Boolean  @default(false)

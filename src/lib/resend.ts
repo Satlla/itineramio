@@ -89,19 +89,21 @@ export async function sendWelcomeTestEmail({
   gender,
   archetype,
   subscriberId,
+  interests,
 }: {
   email: string
   name: string
   gender?: 'M' | 'F' | 'O'
   archetype: EmailArchetype
   subscriberId?: string
+  interests?: string[]
 }) {
   const { WelcomeTestEmail } = await import('@/emails/templates/welcome-test')
 
   return sendEmail({
     to: email,
     subject: `🎯 Tu perfil completo: ${archetype}`,
-    react: WelcomeTestEmail({ name, gender, archetype, subscriberId }),
+    react: WelcomeTestEmail({ name, gender, archetype, subscriberId, interests }),
     tags: ['welcome', 'test', archetype.toLowerCase()],
   })
 }

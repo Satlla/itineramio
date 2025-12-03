@@ -14,6 +14,7 @@ interface SubmitRequest {
   email: string
   name?: string
   gender?: 'M' | 'F' | 'O'
+  interests?: string[]
 }
 
 // Algoritmo de cálculo de scores por dimensión
@@ -241,6 +242,10 @@ export async function POST(request: NextRequest) {
           // IMPORTANTE: Iniciar la secuencia de nurturing
           sequenceStartedAt: new Date(),
           sequenceStatus: 'active',
+          // Interest-based segmentation
+          interests: body.interests || [],
+          topPriority: body.interests?.[0] || null,
+          contentTrack: body.interests?.[0] ? `${body.interests[0]}_focused` : null,
         },
         update: {
           // Si ya existe, actualizar con el nuevo test
@@ -261,6 +266,10 @@ export async function POST(request: NextRequest) {
           day7SentAt: null,
           day10SentAt: null,
           day14SentAt: null,
+          // Interest-based segmentation
+          interests: body.interests || [],
+          topPriority: body.interests?.[0] || null,
+          contentTrack: body.interests?.[0] ? `${body.interests[0]}_focused` : null,
         }
       })
       console.log('✅ Subscriber created/updated:', subscriber?.id)
@@ -279,7 +288,8 @@ export async function POST(request: NextRequest) {
         name: body.name || 'Anfitrión',
         gender: body.gender,
         archetype,
-        subscriberId: subscriber?.id // Pasar el ID para generar token
+        subscriberId: subscriber?.id, // Pasar el ID para generar token
+        interests: body.interests // Intereses seleccionados en el test
       })
 
       emailSent = emailResult.success

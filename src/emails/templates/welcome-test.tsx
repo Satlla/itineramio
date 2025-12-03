@@ -8,6 +8,7 @@ interface WelcomeTestEmailProps {
   gender?: 'M' | 'F' | 'O'
   archetype: EmailArchetype
   subscriberId?: string // ID del EmailSubscriber para generar token
+  interests?: string[] // Intereses capturados en el test (máx 3)
 }
 
 const ARCHETYPE_INFO: Record<EmailArchetype, { emoji: string; strength: string; gap: string; guide: string; slug: string }> = {
@@ -69,11 +70,24 @@ const ARCHETYPE_INFO: Record<EmailArchetype, { emoji: string; strength: string; 
   }
 }
 
+// Mapeo de intereses a descripciones user-friendly
+const INTEREST_LABELS: Record<string, string> = {
+  reviews: 'Mejorar tus reviews y calificaciones',
+  pricing: 'Optimizar tu estrategia de precios',
+  occupancy: 'Aumentar tu tasa de ocupación',
+  automation: 'Automatizar tareas repetitivas',
+  communication: 'Mejorar la comunicación con huéspedes',
+  calendar: 'Optimizar la gestión de tu calendario',
+  design: 'Perfeccionar el diseño de tu espacio',
+  legal: 'Cumplir con normativas legales'
+}
+
 export const WelcomeTestEmail: React.FC<WelcomeTestEmailProps> = ({
   name,
   gender,
   archetype,
-  subscriberId
+  subscriberId,
+  interests
 }) => {
   const info = ARCHETYPE_INFO[archetype]
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
@@ -318,9 +332,21 @@ export const WelcomeTestEmail: React.FC<WelcomeTestEmailProps> = ({
               lineHeight: '1.8',
               paddingLeft: '20px'
             }}>
-              <li>3 estrategias específicas para {archetype}s</li>
-              <li>Casos de éxito de anfitriones como tú</li>
-              <li>Plantillas descargables gratuitas</li>
+              {interests && interests.length > 0 ? (
+                <>
+                  {interests.map((interest, index) => (
+                    <li key={index}>{INTEREST_LABELS[interest] || interest}</li>
+                  ))}
+                  <li>Casos de éxito de anfitriones como tú</li>
+                  <li>Plantillas descargables gratuitas</li>
+                </>
+              ) : (
+                <>
+                  <li>3 estrategias específicas para {archetype}s</li>
+                  <li>Casos de éxito de anfitriones como tú</li>
+                  <li>Plantillas descargables gratuitas</li>
+                </>
+              )}
             </ul>
 
             <p style={{
