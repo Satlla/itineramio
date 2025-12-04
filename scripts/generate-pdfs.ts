@@ -81,17 +81,24 @@ function getHTMLTemplate(
       box-sizing: border-box;
     }
 
+    @page {
+      size: A4;
+      margin: 25mm 20mm 25mm 20mm;
+    }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 11pt;
-      line-height: 1.65;
+      font-size: 10.5pt;
+      line-height: 1.7;
       color: #374151;
       background: white;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
 
     .page {
-      width: 210mm;
-      padding: 20mm;
+      width: 100%;
+      max-width: 170mm;
       margin: 0 auto;
       background: white;
       position: relative;
@@ -102,13 +109,13 @@ function getHTMLTemplate(
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 25px;
-      padding-bottom: 12px;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
       border-bottom: 2px solid ${color};
     }
 
     .logo {
-      font-size: 22pt;
+      font-size: 20pt;
       font-weight: 900;
       color: #8B5CF6;
       letter-spacing: -0.5px;
@@ -117,73 +124,98 @@ function getHTMLTemplate(
     .archetype-badge {
       background: ${color};
       color: white;
-      padding: 5px 14px;
+      padding: 6px 16px;
       border-radius: 20px;
-      font-size: 9pt;
+      font-size: 8.5pt;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    /* Tipografía */
+    /* Tipografía con márgenes profesionales */
     h1 {
-      font-size: 26pt;
+      font-size: 22pt;
       font-weight: 900;
       color: #1F2937;
-      margin: 25px 0 18px 0;
-      line-height: 1.2;
+      margin: 28px 0 20px 0;
+      line-height: 1.3;
       border-left: 5px solid ${color};
-      padding-left: 18px;
+      padding-left: 20px;
       page-break-after: avoid;
+      page-break-inside: avoid;
     }
 
     h2 {
-      font-size: 18pt;
+      font-size: 16pt;
       font-weight: 800;
       color: ${color};
-      margin: 22px 0 14px 0;
-      line-height: 1.3;
+      margin: 26px 0 16px 0;
+      line-height: 1.4;
       page-break-after: avoid;
+      page-break-inside: avoid;
+      clear: both;
     }
 
     h3 {
-      font-size: 13pt;
+      font-size: 12.5pt;
       font-weight: 700;
       color: #1F2937;
-      margin: 18px 0 11px 0;
+      margin: 22px 0 14px 0;
+      line-height: 1.4;
       page-break-after: avoid;
+      page-break-inside: avoid;
     }
 
     h4 {
-      font-size: 11.5pt;
+      font-size: 11pt;
       font-weight: 600;
       color: ${color};
-      margin: 14px 0 9px 0;
+      margin: 18px 0 12px 0;
+      line-height: 1.4;
       page-break-after: avoid;
+      page-break-inside: avoid;
     }
 
     p {
-      margin: 0 0 11px 0;
+      margin: 0 0 14px 0;
       text-align: justify;
+      text-indent: 0;
+      line-height: 1.7;
       orphans: 3;
       widows: 3;
+      hyphens: auto;
+      -webkit-hyphens: auto;
     }
 
-    /* Listas */
+    /* Listas con mejor espaciado */
     ul, ol {
-      margin: 10px 0 14px 24px;
-      padding: 0;
+      margin: 16px 0 20px 0;
+      padding-left: 28px;
     }
 
     li {
-      margin: 5px 0;
-      padding-left: 6px;
-      line-height: 1.6;
+      margin: 8px 0;
+      padding-left: 8px;
+      line-height: 1.7;
+    }
+
+    ul li {
+      list-style-type: disc;
     }
 
     ul li::marker {
       color: ${color};
-      font-size: 13pt;
+      font-size: 11pt;
+    }
+
+    ol li::marker {
+      color: ${color};
+      font-weight: 600;
+    }
+
+    /* Sublistas */
+    li > ul, li > ol {
+      margin: 8px 0 8px 0;
     }
 
     /* Énfasis */
@@ -197,36 +229,42 @@ function getHTMLTemplate(
       color: ${color};
     }
 
-    /* Cajas destacadas */
+    /* Cajas destacadas con mejor espaciado */
     blockquote {
       background: linear-gradient(135deg, #F9FAFB 0%, #FEF3C7 100%);
       border-left: 4px solid ${color};
-      padding: 18px 22px;
-      margin: 18px 0;
-      border-radius: 7px;
+      padding: 20px 24px;
+      margin: 20px 0;
+      border-radius: 8px;
       font-style: italic;
       page-break-inside: avoid;
-      font-size: 10.5pt;
+      font-size: 10pt;
+      line-height: 1.6;
+    }
+
+    blockquote p:last-child {
+      margin-bottom: 0;
     }
 
     /* Código y ejemplos */
     code {
       background: #F3F4F6;
-      padding: 2px 5px;
-      border-radius: 3px;
+      padding: 3px 6px;
+      border-radius: 4px;
       font-family: 'Courier New', monospace;
-      font-size: 9.5pt;
+      font-size: 9pt;
       color: ${color};
     }
 
     pre {
       background: #F9FAFB;
-      padding: 14px;
-      border-radius: 7px;
+      padding: 16px;
+      border-radius: 8px;
       overflow-x: auto;
-      margin: 14px 0;
+      margin: 18px 0;
       border: 1px solid #E5E7EB;
       page-break-inside: avoid;
+      line-height: 1.5;
     }
 
     pre code {
@@ -234,11 +272,11 @@ function getHTMLTemplate(
       padding: 0;
     }
 
-    /* Tablas */
+    /* Tablas con mejor espaciado */
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 18px 0;
+      margin: 20px 0;
       font-size: 9.5pt;
       page-break-inside: avoid;
     }
@@ -246,15 +284,16 @@ function getHTMLTemplate(
     th {
       background: ${color};
       color: white;
-      padding: 11px;
+      padding: 12px;
       text-align: left;
       font-weight: 600;
       font-size: 10pt;
     }
 
     td {
-      padding: 9px 11px;
+      padding: 10px 12px;
       border-bottom: 1px solid #E5E7EB;
+      vertical-align: top;
     }
 
     tr:nth-child(even) {
@@ -265,20 +304,21 @@ function getHTMLTemplate(
     hr {
       border: none;
       border-top: 2px solid ${color};
-      margin: 25px 0;
+      margin: 30px 0;
       opacity: 0.3;
+      page-break-after: avoid;
     }
 
     /* Footer */
     .footer {
       position: fixed;
-      bottom: 13mm;
+      bottom: 15mm;
       left: 20mm;
       right: 20mm;
       text-align: center;
-      font-size: 8.5pt;
+      font-size: 8pt;
       color: #9CA3AF;
-      padding-top: 9px;
+      padding-top: 10px;
       border-top: 1px solid #E5E7EB;
     }
 
@@ -291,10 +331,16 @@ function getHTMLTemplate(
     /* Evitar rupturas de página problemáticas */
     h1, h2, h3, h4, h5, h6 {
       page-break-after: avoid;
+      page-break-inside: avoid;
     }
 
     ul, ol, table, blockquote, pre {
       page-break-inside: avoid;
+    }
+
+    /* Mantener títulos con su contenido */
+    h2 + p, h3 + p, h4 + p {
+      page-break-before: avoid;
     }
 
     /* Primera página especial (portada) */
@@ -307,8 +353,8 @@ function getHTMLTemplate(
       text-align: center;
       background: linear-gradient(135deg, ${color} 0%, #8B5CF6 100%);
       color: white;
-      margin: -20mm;
-      padding: 40mm;
+      margin: -25mm -20mm;
+      padding: 40mm 20mm;
       page-break-after: always;
     }
 
@@ -316,36 +362,47 @@ function getHTMLTemplate(
       color: white;
       border: none;
       padding: 0;
-      font-size: 38pt;
-      margin: 18px 0;
+      font-size: 36pt;
+      margin: 20px 0;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+      line-height: 1.2;
     }
 
     .cover .archetype-badge {
       background: white;
       color: ${color};
-      font-size: 13pt;
-      padding: 9px 26px;
-      margin-bottom: 26px;
+      font-size: 12pt;
+      padding: 10px 28px;
+      margin-bottom: 28px;
     }
 
     .cover .subtitle {
-      font-size: 15pt;
-      margin-top: 18px;
+      font-size: 14pt;
+      margin-top: 20px;
       opacity: 0.95;
       font-weight: 400;
+      line-height: 1.5;
     }
 
     .cover .logo {
       color: white;
-      font-size: 32pt;
-      margin-top: 45px;
+      font-size: 30pt;
+      margin-top: 50px;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
 
     /* Ajuste de espaciado para contenido */
     .content {
-      padding-bottom: 40px;
+      padding-bottom: 50px;
+    }
+
+    /* Eliminar espacios extra innecesarios */
+    .content > :first-child {
+      margin-top: 0;
+    }
+
+    .content > :last-child {
+      margin-bottom: 0;
     }
   </style>
 </head>
