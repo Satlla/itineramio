@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { EmailVerificationService } from '../../../../src/lib/auth-email'
 import { POLICY_VERSION } from '../../../../src/config/policies'
+import { notifyNewUserRegistration } from '../../../../src/lib/notifications/admin-notifications'
 
 const registerSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -132,6 +133,15 @@ export async function POST(request: NextRequest) {
       console.error('🚨 CRITICAL: Error sending verification email:', emailError)
       console.error('📊 Error details:', JSON.stringify(emailError, null, 2))
     }
+
+    // Send admin notification (async, don't block response)
+    notifyNewUserRegistration({
+      email: user.email,
+      name: user.name,
+      source: 'Registro directo'
+    }).catch(error => {
+      console.error('Failed to send admin notification:', error)
+    })
     
     return NextResponse.json({
       message: '¡Enhorabuena! Gracias por registrarte en Itineramio. Te hemos enviado un correo de confirmación.',

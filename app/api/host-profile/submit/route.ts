@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Archetype, Dimension } from '@/data/hostProfileQuestions'
 import { sendWelcomeTestEmail } from '@/lib/resend'
+import { notifyHostProfileTestCompleted } from '@/lib/notifications/admin-notifications'
 
 interface AnswerData {
   questionId: number
@@ -309,6 +310,16 @@ export async function POST(request: NextRequest) {
       emailError = err instanceof Error ? err.message : 'Unknown error'
       console.error('Error sending welcome email:', err)
     }
+
+    // Send admin notification (async, don't block response)
+    notifyHostProfileTestCompleted({
+      email: normalizedEmail,
+      name: body.name,
+      archetype,
+      score: Object.values(dimensionScores).reduce((a, b) => a + b, 0)
+    }).catch(error => {
+      console.error('Failed to send admin notification:', error)
+    })
 
     return NextResponse.json({
       success: true,

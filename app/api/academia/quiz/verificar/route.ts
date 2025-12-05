@@ -3,6 +3,7 @@ import { prisma } from '../../../../../src/lib/prisma'
 import { isTokenExpired } from '../../../../../src/lib/academy/verification-token'
 import { sendQuizResultsEmail } from '../../../../../src/lib/academy/quiz-emails'
 import { quizQuestions } from '../../../../../src/data/quiz-questions'
+import { notifyQuizEmailVerified } from '../../../../../src/lib/notifications/admin-notifications'
 
 /**
  * GET /api/academia/quiz/verificar?token=xxx
@@ -94,6 +95,14 @@ export async function GET(request: NextRequest) {
       timeElapsed: lead.timeElapsed
     }).catch(error => {
       console.error('Failed to send quiz results email after verification:', error)
+    })
+
+    // Send admin notification (async, don't block response)
+    notifyQuizEmailVerified({
+      email: lead.email,
+      fullName: lead.fullName
+    }).catch(error => {
+      console.error('Failed to send admin notification:', error)
     })
 
     return NextResponse.json({

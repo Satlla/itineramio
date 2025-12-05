@@ -3,6 +3,7 @@ import { prisma } from '../../../src/lib/prisma'
 import { verifyToken } from '../../../src/lib/auth'
 import { sendEmail, emailTemplates } from '../../../src/lib/email-improved'
 import { generatePaymentReference } from '../../../src/lib/property-number-generator'
+import { notifySubscriptionRequest } from '../../../src/lib/notifications/admin-notifications'
 
 export async function POST(request: NextRequest) {
   try {
@@ -206,36 +207,16 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Send notification email to admins
-    try {
-      const adminEmails = await getAdminEmails()
-      
-      if (adminEmails.length > 0) {
-        const planName = planInfo?.name || 'Plan personalizado'
-        const propertiesText = propertiesCount ? ` (${propertiesCount} propiedades)` : ''
-        
-        await sendEmail({
-          to: adminEmails,
-          subject: `🎯 Nueva solicitud de suscripción: €${Number(totalAmount).toFixed(2)} - ${user.name}`,
-          html: emailTemplates.subscriptionRequestNotification({
-            userName: user.name || 'Usuario',
-            userEmail: user.email,
-            planName: planName + propertiesText,
-            totalAmount: Number(totalAmount).toFixed(2),
-            paymentMethod: paymentMethod === 'BIZUM' ? 'Bizum' : 'Transferencia bancaria',
-            paymentReference: paymentReference || 'No especificada',
-            requestType: 'Suscripción',
-            requestId: subscriptionRequest.id,
-            adminUrl: `${process.env.NEXTAUTH_URL || 'https://www.itineramio.com'}/admin/subscription-requests`
-          })
-        })
-
-        console.log('✅ Admin notification email sent for subscription request:', subscriptionRequest.id)
-      }
-    } catch (emailError) {
-      console.error('❌ Error sending admin notification email:', emailError)
-      // Continue without email - request still created
-    }
+    // Send admin notification using new notification system (async, don't block response)
+    notifySubscriptionRequest({
+      userId: user.id,
+      userName: user.name || 'Usuario',
+      userEmail: user.email,
+      requestedPlan: planInfo?.name || 'Plan personalizado',
+      status: 'PENDING'
+    }).catch(error => {
+      console.error('Failed to send admin notification:', error)
+    })
 
     // Create notification for user
     await prisma.notification.create({

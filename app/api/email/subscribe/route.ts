@@ -7,6 +7,7 @@ import {
 } from '@/lib/resend'
 import { getLeadMagnetBySlug } from '@/data/lead-magnets'
 import { generateDownloadToken } from '@/lib/tokens'
+import { notifyEmailSubscriber } from '@/lib/notifications/admin-notifications'
 
 const prisma = new PrismaClient()
 
@@ -129,6 +130,16 @@ export async function POST(request: NextRequest) {
         currentJourneyStage: 'subscribed',
         engagementScore: 'warm'
       }
+    })
+
+    // Send admin notification (async, don't block response)
+    notifyEmailSubscriber({
+      email,
+      source,
+      downloadedGuide: source === 'lead_magnet',
+      leadMagnetSlug: metadata.leadMagnetSlug || undefined
+    }).catch(error => {
+      console.error('Failed to send admin notification:', error)
     })
 
     // Enviar email correspondiente según el source

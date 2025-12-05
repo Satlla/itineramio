@@ -3,6 +3,7 @@ import { prisma } from '../../../../../src/lib/prisma'
 import { calculateLevel, quizQuestions } from '../../../../../src/data/quiz-questions'
 import { sendVerificationEmail } from '../../../../../src/lib/academy/quiz-emails'
 import { generateVerificationToken, getTokenExpiration } from '../../../../../src/lib/academy/verification-token'
+import { notifyQuizLeadCaptured } from '../../../../../src/lib/notifications/admin-notifications'
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     // ✅ ALWAYS save to QuizLead table (for ALL users)
     // Lead starts as NOT verified - must confirm email first
-    await prisma.quizLead.create({
+    const quizLead = await prisma.quizLead.create({
       data: {
         email,
         fullName: fullName || null,
@@ -46,6 +47,17 @@ export async function POST(request: NextRequest) {
         verificationToken,
         verificationTokenExpires
       }
+    })
+
+    // Send admin notification (async, don't block response)
+    notifyQuizLeadCaptured({
+      email,
+      fullName: fullName || null,
+      score,
+      level: levelData.level,
+      emailVerified: false
+    }).catch(error => {
+      console.error('Failed to send admin notification:', error)
     })
 
     // Check if user already exists in AcademyUser
