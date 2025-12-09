@@ -8,6 +8,7 @@ import {
 import { getLeadMagnetBySlug } from '@/data/lead-magnets'
 import { generateDownloadToken } from '@/lib/tokens'
 import { notifyEmailSubscriber } from '@/lib/notifications/admin-notifications'
+import { enrollSubscriberInSequences } from '@/lib/email-sequences'
 
 const prisma = new PrismaClient()
 
@@ -162,15 +163,17 @@ export async function POST(request: NextRequest) {
           downloadables: leadMagnet.downloadables,
         })
       }
-    } else if (archetype) {
-      // Otros sources: secuencia de onboarding normal
-      await scheduleOnboardingSequence({
-        email,
-        name: name || '',
-        archetype: archetype as EmailArchetype,
-        source: source as any
-      })
     }
+
+    // Enrollar en secuencias de email (nuevo sistema basado en prioridades y tags)
+    await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
+      archetype,
+      source,
+      tags
+    }).catch(error => {
+      console.error('Failed to enroll subscriber in sequences:', error)
+      // No bloqueamos la respuesta si falla el enrollment
+    })
 
     // Generar token si es lead magnet para redirigir directamente
     let downloadToken = null

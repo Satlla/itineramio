@@ -246,22 +246,83 @@ export default function BlogContent({ articles, categories }: BlogContentProps) 
                             </h3>
 
                             <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-                              Únete a más de <strong className="text-emerald-600">1,000 anfitriones</strong> que reciben consejos exclusivos cada semana para optimizar sus alojamientos turísticos.
+                              Únete a más de <strong className="text-emerald-600">1,000 anfitriones</strong> que reciben guías y artículos personalizados según tu nivel de experiencia.
                             </p>
 
-                            <div className="pt-2">
-                              <Link
-                                href="/register"
-                                className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-base font-bold rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                            {/* Newsletter Form */}
+                            <form
+                              action="/api/email/subscribe"
+                              method="POST"
+                              className="space-y-4 pt-2"
+                              onSubmit={async (e) => {
+                                e.preventDefault()
+                                const form = e.currentTarget
+                                const formData = new FormData(form)
+
+                                try {
+                                  const response = await fetch('/api/email/subscribe', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      email: formData.get('email'),
+                                      name: formData.get('name'),
+                                      source: 'blog_cta',
+                                      tags: ['blog_subscriber', `nivel_${formData.get('nivel')}`]
+                                    })
+                                  })
+
+                                  if (response.ok) {
+                                    form.reset()
+                                    alert('¡Suscrito! Revisa tu email para confirmar.')
+                                  } else {
+                                    alert('Error al suscribirse. Intenta de nuevo.')
+                                  }
+                                } catch (error) {
+                                  alert('Error al suscribirse. Intenta de nuevo.')
+                                }
+                              }}
+                            >
+                              <div className="grid sm:grid-cols-2 gap-3">
+                                <input
+                                  type="email"
+                                  name="email"
+                                  placeholder="Tu email"
+                                  required
+                                  className="px-4 py-3 rounded-lg border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
+                                />
+                                <input
+                                  type="text"
+                                  name="name"
+                                  placeholder="Tu nombre"
+                                  required
+                                  className="px-4 py-3 rounded-lg border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
+                                />
+                              </div>
+
+                              <select
+                                name="nivel"
+                                required
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
+                              >
+                                <option value="">¿Cuál es tu nivel como anfitrión?</option>
+                                <option value="principiante">🌱 Principiante - Menos de 6 meses</option>
+                                <option value="intermedio">🚀 Intermedio - 6 meses a 2 años</option>
+                                <option value="avanzado">⭐ Avanzado - 2 a 5 años</option>
+                                <option value="profesional">🏆 Profesional - Más de 5 años o +10 propiedades</option>
+                              </select>
+
+                              <button
+                                type="submit"
+                                className="w-full inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-base font-bold rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
                               >
                                 <Sparkles className="w-5 h-5 mr-2" />
-                                Recibir guías exclusivas
+                                Recibir guías personalizadas
                                 <ArrowRight className="w-5 h-5 ml-2" />
-                              </Link>
-                            </div>
+                              </button>
+                            </form>
 
                             <p className="text-xs text-gray-500">
-                              ✓ Guías exclusivas · ✓ Plantillas descargables · ✓ Sin spam
+                              ✓ Guías según tu nivel · ✓ Artículos personalizados · ✓ Sin spam
                             </p>
                           </div>
                         </div>

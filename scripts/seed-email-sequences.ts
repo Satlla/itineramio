@@ -216,15 +216,125 @@ async function main() {
     console.log(`  ✅ Step creado: ${step.name}`)
   }
 
+  // ============================================
+  // SECUENCIA 3: Onboarding por Nivel (TOFU)
+  // ============================================
+
+  const nivelOnboardingSequence = await prisma.emailSequence.upsert({
+    where: { id: 'nivel-onboarding' },
+    update: {},
+    create: {
+      id: 'nivel-onboarding',
+      name: 'Onboarding por Nivel',
+      description: 'Secuencia TOFU: contenido educativo según nivel de anfitrión (principiante, intermedio, avanzado, profesional)',
+      triggerEvent: 'SUBSCRIBER_CREATED',
+      targetArchetype: null,
+      targetSource: null,
+      targetTags: ['blog_subscriber'], // Solo para suscriptores del blog
+      isActive: true,
+      priority: 0 // Máxima prioridad - se ejecuta antes que onboarding genérico
+    }
+  })
+
+  console.log(`✅ Secuencia creada: ${nivelOnboardingSequence.name}`)
+
+  const nivelSteps = [
+    {
+      id: 'nivel-1-bienvenida',
+      sequenceId: nivelOnboardingSequence.id,
+      name: 'Email 1: Bienvenida con recursos personalizados por nivel',
+      subject: 'Dynamic - set per nivel', // Se establece dinámicamente según nivel
+      templateName: 'nivel-day1-bienvenida.tsx',
+      templateData: {},
+      delayDays: 0,
+      delayHours: 0,
+      sendAtHour: null,
+      order: 1,
+      requiresPreviousOpen: false,
+      requiresPreviousClick: false,
+      isActive: true
+    },
+    {
+      id: 'nivel-2-mejores-practicas',
+      sequenceId: nivelOnboardingSequence.id,
+      name: 'Email 2: Mejores prácticas por nivel',
+      subject: 'Dynamic - set per nivel',
+      templateName: 'nivel-day2-mejores-practicas.tsx',
+      templateData: {},
+      delayDays: 1,
+      delayHours: 0,
+      sendAtHour: 10, // 10 AM
+      order: 2,
+      requiresPreviousOpen: false,
+      requiresPreviousClick: false,
+      isActive: true
+    },
+    {
+      id: 'nivel-3-test-cta',
+      sequenceId: nivelOnboardingSequence.id,
+      name: 'Email 3: CTA fuerte al test de personalidad',
+      subject: 'Dynamic - set per nivel',
+      templateName: 'nivel-day3-test-cta.tsx',
+      templateData: {},
+      delayDays: 2,
+      delayHours: 0,
+      sendAtHour: 10,
+      order: 3,
+      requiresPreviousOpen: false,
+      requiresPreviousClick: false,
+      isActive: true
+    },
+    {
+      id: 'nivel-5-caso-estudio',
+      sequenceId: nivelOnboardingSequence.id,
+      name: 'Email 5: Caso de estudio según nivel',
+      subject: 'Dynamic - set per nivel',
+      templateName: 'nivel-day5-caso-estudio.tsx',
+      templateData: {},
+      delayDays: 4,
+      delayHours: 0,
+      sendAtHour: 10,
+      order: 5,
+      requiresPreviousOpen: false,
+      requiresPreviousClick: false,
+      isActive: true
+    },
+    {
+      id: 'nivel-7-recurso-avanzado',
+      sequenceId: nivelOnboardingSequence.id,
+      name: 'Email 7: Recursos avanzados + soft pitch Itineramio/Academia',
+      subject: 'Dynamic - set per nivel',
+      templateName: 'nivel-day7-recurso-avanzado.tsx',
+      templateData: {},
+      delayDays: 6,
+      delayHours: 0,
+      sendAtHour: 10,
+      order: 7,
+      requiresPreviousOpen: false,
+      requiresPreviousClick: false,
+      isActive: true
+    }
+  ]
+
+  for (const step of nivelSteps) {
+    await prisma.emailSequenceStep.upsert({
+      where: { id: step.id },
+      update: step,
+      create: step
+    })
+    console.log(`  ✅ Step creado: ${step.name}`)
+  }
+
   console.log('\n🎉 Seed completed!')
   console.log('\n📊 Resumen:')
   console.log(`- ${steps.length} steps creados en Onboarding Genérico`)
   console.log(`- ${postTrialSteps.length} steps creados en Post-Trial Nurturing`)
+  console.log(`- ${nivelSteps.length} steps creados en Onboarding por Nivel (TOFU)`)
   console.log('\n💡 Próximos pasos:')
-  console.log('1. Crear los templates de email faltantes')
-  console.log('2. Configurar el cron job en Vercel: vercel.json')
-  console.log('3. Configurar webhook de Resend: https://resend.com/webhooks')
-  console.log('4. Probar con un subscriber de prueba')
+  console.log('1. Actualizar /api/email/subscribe para asignar tag blog_subscriber')
+  console.log('2. Actualizar email-sequences.ts para manejar subject dinámico por nivel')
+  console.log('3. Configurar el cron job en Vercel: vercel.json')
+  console.log('4. Probar con un subscriber de prueba con nivel')
 }
 
 main()

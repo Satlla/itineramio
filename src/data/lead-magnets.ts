@@ -362,9 +362,15 @@ export const LEAD_MAGNETS: Record<LeadMagnetArchetype, LeadMagnet> = {
   },
 }
 
-// Helper para obtener lead magnet por slug
-export function getLeadMagnetBySlug(slug: string): LeadMagnet | undefined {
-  return Object.values(LEAD_MAGNETS).find((lm) => lm.slug === slug)
+// Helper para obtener lead magnet por slug (busca en arquetipos y plantillas genéricas)
+export function getLeadMagnetBySlug(slug: string): LeadMagnet | GenericTemplate | undefined {
+  const archetypeLM = Object.values(LEAD_MAGNETS).find((lm) => lm.slug === slug)
+  if (archetypeLM) return archetypeLM
+
+  const genericTemplate = GENERIC_TEMPLATES[slug]
+  if (genericTemplate) return genericTemplate
+
+  return undefined
 }
 
 // Helper para obtener lead magnet por archetype
@@ -374,7 +380,47 @@ export function getLeadMagnetByArchetype(
   return LEAD_MAGNETS[archetype]
 }
 
+// Plantillas genéricas (no ligadas a arquetipo)
+interface GenericTemplate extends Omit<LeadMagnet, 'archetype'> {
+  archetype?: never
+}
+
+export const GENERIC_TEMPLATES: Record<string, GenericTemplate> = {
+  'instrucciones-wifi': {
+    slug: 'instrucciones-wifi',
+    title: 'Template Instrucciones WiFi',
+    subtitle: 'Elimina las Llamadas a las 3 AM',
+    description:
+      'Plantilla completa y profesional para dejar instrucciones claras de WiFi que tus huéspedes entenderán a la primera. Incluye ejemplos reales, troubleshooting común y versión imprimible.',
+    pages: 3,
+    downloadables: [
+      'Template PDF editable',
+      'Versión para imprimir',
+      'Troubleshooting común (7 problemas)',
+      'Iconos y diseños visuales',
+    ],
+    cta: 'Descargar Template Gratis',
+    color: 'blue',
+    icon: '📶',
+    preview: {
+      chapter1: 'Template de instrucciones',
+      chapter2: 'Troubleshooting común',
+      chapter3: 'Versión imprimible',
+    },
+    benefits: [
+      'Reduce llamadas/mensajes sobre WiFi en 90%',
+      'Template 100% editable (PDF + Word)',
+      'Incluye QR code personalizable',
+      'Ejemplos de 15+ anfitriones reales',
+      'Listo para usar en 5 minutos',
+    ],
+    downloadUrl: '/downloads/plantillas/instrucciones-wifi.pdf',
+  },
+}
+
 // Obtener todos los slugs para generación estática
 export function getAllLeadMagnetSlugs(): string[] {
-  return Object.values(LEAD_MAGNETS).map((lm) => lm.slug)
+  const archetypeSlugs = Object.values(LEAD_MAGNETS).map((lm) => lm.slug)
+  const templateSlugs = Object.values(GENERIC_TEMPLATES).map((t) => t.slug)
+  return [...archetypeSlugs, ...templateSlugs]
 }

@@ -67,27 +67,10 @@ export async function enrollSubscriberInSequences(
   }
 
   // Buscar secuencias activas que correspondan
-  const sequences = await prisma.emailSequence.findMany({
+  const allSequences = await prisma.emailSequence.findMany({
     where: {
       isActive: true,
-      triggerEvent,
-      // Filtrar por segmentación
-      OR: [
-        // Secuencias sin segmentación (para todos)
-        {
-          targetArchetype: null,
-          targetSource: null,
-          targetTags: { isEmpty: true }
-        },
-        // Secuencias por arquetipo
-        {
-          targetArchetype: metadata?.archetype || subscriber.archetype
-        },
-        // Secuencias por source
-        {
-          targetSource: metadata?.source || subscriber.source
-        },
-      ]
+      triggerEvent
     },
     include: {
       steps: {
@@ -96,6 +79,36 @@ export async function enrollSubscriberInSequences(
       }
     },
     orderBy: { priority: 'desc' } // Mayor prioridad primero
+  })
+
+  // Filtrar secuencias que apliquen según segmentación
+  const sequences = allSequences.filter((seq) => {
+    // Si la secuencia tiene targetTags, verificar que el subscriber tenga al menos uno
+    if (seq.targetTags && seq.targetTags.length > 0) {
+      const subscriberTags = metadata?.tags || subscriber.tags || []
+      const hasMatchingTag = seq.targetTags.some((tag: string) => subscriberTags.includes(tag))
+      if (!hasMatchingTag) return false
+    }
+
+    // Si la secuencia tiene targetArchetype, verificar que coincida
+    if (seq.targetArchetype) {
+      const arch = metadata?.archetype || subscriber.archetype
+      if (seq.targetArchetype !== arch) return false
+    }
+
+    // Si la secuencia tiene targetSource, verificar que coincida
+    if (seq.targetSource) {
+      const src = metadata?.source || subscriber.source
+      if (seq.targetSource !== src) return false
+    }
+
+    // Si no tiene ningún target específico, aplica a todos
+    if (!seq.targetArchetype && !seq.targetSource && (!seq.targetTags || seq.targetTags.length === 0)) {
+      return true
+    }
+
+    // Si llegamos aquí, al menos un criterio coincidió
+    return true
   })
 
   console.log(`[EMAIL SEQUENCES] Found ${sequences.length} matching sequences`)
@@ -184,7 +197,7 @@ async function scheduleSequenceEmails(
       }
     }
 
-    // Determinar subject (dinámico para día 2 personalizado)
+    // Determinar subject (dinámico para día 2 personalizado y emails por nivel)
     let emailSubject = step.subject
     let templateData = step.templateData || {}
 
@@ -194,6 +207,44 @@ async function scheduleSequenceEmails(
       const { getDay2Subject } = await import('../emails/templates/sequence-day2-personalized')
       emailSubject = getDay2Subject(subscriber.archetype as any)
       templateData = { ...templateData, archetype: subscriber.archetype }
+    }
+
+    // Emails personalizados por nivel (TOFU funnel)
+    const nivelFromTags = subscriber.tags?.find((tag: string) => tag.startsWith('nivel_'))?.replace('nivel_', '') as
+      | 'principiante'
+      | 'intermedio'
+      | 'avanzado'
+      | 'profesional'
+      | undefined
+
+    if (step.templateName === 'nivel-day1-bienvenida.tsx' && nivelFromTags) {
+      const { getNivelDay1Subject } = await import('../emails/templates/nivel-day1-bienvenida')
+      emailSubject = getNivelDay1Subject(nivelFromTags)
+      templateData = { ...templateData, nivel: nivelFromTags }
+    }
+
+    if (step.templateName === 'nivel-day2-mejores-practicas.tsx' && nivelFromTags) {
+      const { getNivelDay2Subject } = await import('../emails/templates/nivel-day2-mejores-practicas')
+      emailSubject = getNivelDay2Subject(nivelFromTags)
+      templateData = { ...templateData, nivel: nivelFromTags }
+    }
+
+    if (step.templateName === 'nivel-day3-test-cta.tsx' && nivelFromTags) {
+      const { getNivelDay3Subject } = await import('../emails/templates/nivel-day3-test-cta')
+      emailSubject = getNivelDay3Subject(nivelFromTags)
+      templateData = { ...templateData, nivel: nivelFromTags }
+    }
+
+    if (step.templateName === 'nivel-day5-caso-estudio.tsx' && nivelFromTags) {
+      const { getNivelDay5Subject } = await import('../emails/templates/nivel-day5-caso-estudio')
+      emailSubject = getNivelDay5Subject(nivelFromTags)
+      templateData = { ...templateData, nivel: nivelFromTags }
+    }
+
+    if (step.templateName === 'nivel-day7-recurso-avanzado.tsx' && nivelFromTags) {
+      const { getNivelDay7Subject } = await import('../emails/templates/nivel-day7-recurso-avanzado')
+      emailSubject = getNivelDay7Subject(nivelFromTags)
+      templateData = { ...templateData, nivel: nivelFromTags }
     }
 
     // Crear scheduled email
