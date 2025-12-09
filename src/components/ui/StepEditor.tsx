@@ -25,6 +25,7 @@ import { ImageUpload } from './ImageUpload'
 import { VideoUploadSimple } from './VideoUploadSimple'
 import { MobileStepEditor as MobileStepEditorNew } from './MobileStepEditor'
 import { MobileStepEditorSimple } from './MobileStepEditorSimple'
+import { clearTextSelection } from '../../utils/clearTextSelection'
 
 export interface Step {
   id: string
@@ -373,6 +374,8 @@ export function StepEditor({
               type="text"
               value={step.title?.[activeLanguage] || ''}
               onChange={(e) => updateStepTitle(step.id, activeLanguage, e.target.value)}
+              onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+              onBlur={() => clearTextSelection()}
               placeholder={`Título del paso...`}
               className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm"
             />
@@ -382,6 +385,8 @@ export function StepEditor({
             <textarea
               value={step.content[activeLanguage] || ''}
               onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
+              onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+              onBlur={() => clearTextSelection()}
               placeholder={`Escribe las instrucciones detalladas...`}
               className="w-full min-h-[200px] h-64 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y text-sm leading-relaxed"
               rows={10}
@@ -417,6 +422,8 @@ export function StepEditor({
               type="text"
               value={step.title?.[activeLanguage] || ''}
               onChange={(e) => updateStepTitle(step.id, activeLanguage, e.target.value)}
+              onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+              onBlur={() => clearTextSelection()}
               placeholder="Título de la imagen..."
               className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm"
             />
@@ -426,6 +433,8 @@ export function StepEditor({
             <textarea
               value={step.content[activeLanguage] || ''}
               onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
+              onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+              onBlur={() => clearTextSelection()}
               placeholder="Describe la imagen o agrega instrucciones..."
               className="w-full min-h-[150px] h-48 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y text-sm leading-relaxed"
             />
@@ -464,6 +473,8 @@ export function StepEditor({
               type="text"
               value={step.title?.[activeLanguage] || ''}
               onChange={(e) => updateStepTitle(step.id, activeLanguage, e.target.value)}
+              onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+              onBlur={() => clearTextSelection()}
               placeholder="Título del video..."
               className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm"
             />
@@ -473,6 +484,8 @@ export function StepEditor({
             <textarea
               value={step.content[activeLanguage] || ''}
               onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
+              onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+              onBlur={() => clearTextSelection()}
               placeholder="Describe el video o agrega instrucciones..."
               className="w-full min-h-[150px] h-48 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y text-sm leading-relaxed"
             />
@@ -860,6 +873,8 @@ export function StepEditor({
                                 type="text"
                                 value={steps[activeStep].title?.[activeLanguage] || ''}
                                 onChange={(e) => updateStepTitle(steps[activeStep].id, activeLanguage, e.target.value)}
+                                onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+                                onBlur={() => clearTextSelection()}
                                 placeholder={`Título en ${languages.find(l => l.code === activeLanguage)?.label}...`}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                               />
@@ -871,6 +886,8 @@ export function StepEditor({
                               <textarea
                                 value={steps[activeStep].content[activeLanguage] || ''}
                                 onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
+                                onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+                                onBlur={() => clearTextSelection()}
                                 placeholder={`Escribe las instrucciones detalladas en ${languages.find(l => l.code === activeLanguage)?.label}...`}
                                 className="w-full min-h-[300px] h-80 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-y leading-relaxed"
                               />
@@ -909,6 +926,8 @@ export function StepEditor({
                                 type="text"
                                 value={steps[activeStep].title?.[activeLanguage] || ''}
                                 onChange={(e) => updateStepTitle(steps[activeStep].id, activeLanguage, e.target.value)}
+                                onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+                                onBlur={() => clearTextSelection()}
                                 placeholder={`Título de la imagen en ${languages.find(l => l.code === activeLanguage)?.label}...`}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                               />
@@ -920,6 +939,8 @@ export function StepEditor({
                               <textarea
                                 value={steps[activeStep].content[activeLanguage] || ''}
                                 onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
+                                onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+                                onBlur={() => clearTextSelection()}
                                 placeholder="Describe la imagen o agrega instrucciones..."
                                 className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                               />
@@ -962,6 +983,8 @@ export function StepEditor({
                                 type="text"
                                 value={steps[activeStep].title?.[activeLanguage] || ''}
                                 onChange={(e) => updateStepTitle(steps[activeStep].id, activeLanguage, e.target.value)}
+                                onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+                                onBlur={() => clearTextSelection()}
                                 placeholder={`Título del video en ${languages.find(l => l.code === activeLanguage)?.label}...`}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                               />
@@ -973,6 +996,8 @@ export function StepEditor({
                               <textarea
                                 value={steps[activeStep].content[activeLanguage] || ''}
                                 onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
+                                onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+                                onBlur={() => clearTextSelection()}
                                 placeholder="Describe el video o agrega instrucciones..."
                                 className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                               />

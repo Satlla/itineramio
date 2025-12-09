@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { clearTextSelection } from '../../utils/clearTextSelection'
 
 interface SimpleStep {
   id: string
@@ -107,6 +108,8 @@ export function MobileStepEditorSimple({
             <textarea
               value={step.content}
               onChange={(e) => handleContentChange(index, e.target.value)}
+              onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+              onBlur={() => clearTextSelection()}
               placeholder="Escribe el contenido..."
               className="w-full p-2 border rounded"
               rows={3}

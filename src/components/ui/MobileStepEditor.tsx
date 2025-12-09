@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { clearTextSelection } from '../../utils/clearTextSelection'
 import { 
   Plus, 
   Trash2, 
@@ -629,6 +630,8 @@ export function MobileStepEditor({
                       <textarea
                         value={step.content[activeLanguage] || ''}
                         onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
+                        onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+                        onBlur={() => clearTextSelection()}
                         placeholder="Escribe las instrucciones para este paso..."
                         className="w-full min-h-[200px] h-48 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-y text-base leading-relaxed"
                         style={{ fontSize: '16px' }}
@@ -666,6 +669,8 @@ export function MobileStepEditor({
                       <textarea
                         value={step.content[activeLanguage] || ''}
                         onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
+                        onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+                        onBlur={() => clearTextSelection()}
                         placeholder="Descripción de la imagen (opcional)"
                         className="w-full min-h-[120px] h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-y text-base leading-relaxed"
                         style={{ fontSize: '16px' }}
@@ -709,6 +714,8 @@ export function MobileStepEditor({
                       <textarea
                         value={step.content[activeLanguage] || ''}
                         onChange={(e) => updateStepContent(index, activeLanguage, e.target.value)}
+                        onPaste={() => setTimeout(() => clearTextSelection(), 100)}
+                        onBlur={() => clearTextSelection()}
                         placeholder="Descripción del video (opcional)"
                         className="w-full min-h-[120px] h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-y text-base leading-relaxed"
                         style={{ fontSize: '16px' }}
