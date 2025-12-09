@@ -93,16 +93,12 @@ export default function CategoryFilter({ categories, onCategoryChange }: Categor
                 setSelectedCategory(null)
                 onCategoryChange(null)
               }}
-              className={`flex-shrink-0 group transition-all ${
-                selectedCategory === null
-                  ? 'ring-2 ring-violet-600'
-                  : ''
-              }`}
+              className="flex-shrink-0 group transition-all"
             >
               <div className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
                 selectedCategory === null
-                  ? 'bg-gradient-to-br from-violet-600 to-purple-600 text-white shadow-md'
-                  : 'bg-gradient-to-br from-gray-100 to-gray-200 hover:shadow-md'
+                  ? 'bg-gradient-to-br from-violet-600 to-purple-600 text-white shadow-md border-2 border-violet-700'
+                  : 'bg-gradient-to-br from-gray-100 to-gray-200 hover:shadow-md border-2 border-transparent'
               }`}>
                 <span className="text-sm font-semibold whitespace-nowrap">
                   Todos
@@ -120,14 +116,12 @@ export default function CategoryFilter({ categories, onCategoryChange }: Categor
                 <button
                   key={cat}
                   onClick={() => handleCategoryClick(cat)}
-                  className={`flex-shrink-0 group transition-all ${
-                    isSelected ? 'ring-2 ring-violet-600' : ''
-                  }`}
+                  className="flex-shrink-0 group transition-all"
                 >
                   <div className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
                     isSelected
-                      ? 'bg-gradient-to-br from-violet-600 to-purple-600 shadow-md'
-                      : `bg-gradient-to-br ${config?.gradient || 'from-gray-100 to-gray-200'} hover:shadow-md`
+                      ? 'bg-gradient-to-br from-violet-600 to-purple-600 shadow-md border-2 border-violet-700'
+                      : `bg-gradient-to-br ${config?.gradient || 'from-gray-100 to-gray-200'} hover:shadow-md border-2 border-transparent`
                   }`}>
                     <Icon className={`w-4 h-4 ${
                       isSelected ? 'text-white' : config?.color || 'text-gray-600'

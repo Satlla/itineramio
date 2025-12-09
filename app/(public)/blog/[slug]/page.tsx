@@ -282,10 +282,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               prose-blockquote:border-l-4 prose-blockquote:border-violet-600 prose-blockquote:pl-8 prose-blockquote:py-4 prose-blockquote:my-10 prose-blockquote:bg-violet-50 prose-blockquote:rounded-r-lg prose-blockquote:not-italic prose-blockquote:text-gray-800
               prose-code:text-violet-700 prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-code:before:content-none prose-code:after:content-none
               prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:rounded-xl prose-pre:my-10 prose-pre:shadow-xl
-              prose-table:my-10 prose-table:border-collapse
+              [&_table]:w-full [&_table]:block [&_table]:overflow-x-auto [&_table]:my-10
+              [&_table_table]:w-full [&_table_table]:border-collapse [&_table_table]:table
               prose-thead:bg-gray-100
-              prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-3 prose-th:font-semibold
-              prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-3"
+              prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-3 prose-th:font-semibold prose-th:text-sm prose-th:whitespace-nowrap
+              prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-3 prose-td:text-sm"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
