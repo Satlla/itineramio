@@ -1,0 +1,438 @@
+,
+
+  // MEJORES_PRACTICAS - Article 11
+  {
+    title: 'Las 10 Mejores Prácticas para Superanfitriones de Airbnb',
+    slug: 'mejores-practicas-superanfitriones-airbnb',
+    excerpt: 'Las estrategias probadas que distinguen a los Superanfitriones del resto. Aprende los secretos para mantener tu estatus y maximizar tus ingresos.',
+    category: BlogCategory.MEJORES_PRACTICAS,
+    readTime: 9,
+    content: `
+      <h2>¿Qué es un Superanfitrión?</h2>
+      <p>El programa Superanfitrión de Airbnb reconoce a los anfitriones que ofrecen experiencias excepcionales de forma consistente. <strong>Solo el 20% de los anfitriones alcanzan este estatus</strong>, pero los beneficios valen la pena el esfuerzo.</p>
+
+      <h2>Beneficios de ser Superanfitrión</h2>
+      <ul>
+        <li><strong>Mayor visibilidad:</strong> Tu anuncio aparece antes en los resultados de búsqueda</li>
+        <li><strong>Badge de reconocimiento:</strong> Insignia visible que genera confianza</li>
+        <li><strong>Mayor tasa de conversión:</strong> +20-30% más reservas que anfitriones normales</li>
+        <li><strong>Bonos trimestrales:</strong> Cupones y recompensas exclusivas</li>
+        <li><strong>Soporte prioritario:</strong> Atención al cliente más rápida</li>
+        <li><strong>Acceso a promociones exclusivas:</strong> Oportunidades especiales de Airbnb</li>
+      </ul>
+
+      <h2>Requisitos para ser Superanfitrión</h2>
+      <p>Airbnb evalúa cada 3 meses (trimestre) basándose en:</p>
+      <ul>
+        <li><strong>Valoración global:</strong> Mínimo 4.8 de 5.0</li>
+        <li><strong>Tasa de respuesta:</strong> Mínimo 90%</li>
+        <li><strong>Tasa de cancelación:</strong> Máximo 1% (menos del 1% de reservas canceladas por ti)</li>
+        <li><strong>Número de reservas:</strong> Mínimo 10 estancias o 100 noches completadas en el último año</li>
+        <li><strong>Tiempo de respuesta:</strong> Responder en menos de 24 horas al 90% de los mensajes</li>
+      </ul>
+
+      <h2>Las 10 Mejores Prácticas</h2>
+
+      <h3>1. Responde inmediatamente (objetivo: menos de 1 hora)</h3>
+      <p><strong>Por qué importa:</strong> Los huéspedes contactan múltiples propiedades. El primero que responde suele conseguir la reserva.</p>
+      <p><strong>Cómo implementarlo:</strong></p>
+      <ul>
+        <li>Activa notificaciones push en tu móvil</li>
+        <li>Configura respuestas rápidas para preguntas frecuentes</li>
+        <li>Usa mensajes automáticos para confirmaciones instantáneas</li>
+        <li>Si no puedes responder detalladamente, envía mensaje rápido: "Gracias por tu mensaje, te respondo en detalle en [tiempo]"</li>
+      </ul>
+      <p><strong>Impacto:</strong> Responder en menos de 1 hora aumenta probabilidad de reserva en 60%</p>
+
+      <h3>2. Comunicación proactiva en cada fase</h3>
+      <p><strong>Timeline de comunicación perfecta:</strong></p>
+      <ul>
+        <li><strong>Al confirmar:</strong> Mensaje de agradecimiento y bienvenida</li>
+        <li><strong>7 días antes:</strong> Consejos y recomendaciones locales</li>
+        <li><strong>3 días antes:</strong> Recordatorio y pregunta por necesidades especiales</li>
+        <li><strong>24h antes:</strong> Instrucciones detalladas de check-in</li>
+        <li><strong>Día de llegada:</strong> Mensaje de bienvenida y disponibilidad</li>
+        <li><strong>Durante estancia:</strong> Check-in silencioso (solo si hay problema)</li>
+        <li><strong>Noche anterior a salida:</strong> Recordatorio de check-out</li>
+        <li><strong>Post check-out:</strong> Agradecimiento y solicitud de review</li>
+      </ul>
+
+      <h3>3. Supera expectativas con detalles</h3>
+      <p><strong>Pequeños gestos, gran impacto:</strong></p>
+      <ul>
+        <li><strong>Welcome pack:</strong> Botella de agua, snacks, café/té</li>
+        <li><strong>Guía personalizada:</strong> Recomendaciones escritas de restaurantes, sitios</li>
+        <li><strong>Amenities inesperados:</strong> Cargadores extra, paraguas, adaptadores</li>
+        <li><strong>Productos de calidad:</strong> No escatimes en papel higiénico, toallas, sábanas</li>
+        <li><strong>Extras estacionales:</strong> Ventilador en verano, manta extra en invierno</li>
+        <li><strong>Bienvenida personalizada:</strong> Nota escrita a mano para ocasiones especiales</li>
+      </ul>
+      <p><strong>Coste:</strong> 3-5€ por reserva | <strong>Retorno:</strong> Reviews 5 estrellas y recomendaciones</p>
+
+      <h3>4. Limpieza impecable (nivel obsesivo)</h3>
+      <p><strong>La limpieza es el factor número 1 en reviews negativas.</strong></p>
+      <p><strong>Checklist de limpieza profunda:</strong></p>
+      <ul>
+        <li>Superficies: Sin polvo en rincones, ventiladores, marcos</li>
+        <li>Suelos: Aspirar y fregar (especial atención bajo camas y muebles)</li>
+        <li>Baño: Desinfectar todo, sin manchas de cal, juntas limpias</li>
+        <li>Cocina: Electrodomésticos por dentro y fuera, nevera limpia</li>
+        <li>Ropa de cama: Sábanas recién lavadas, sin arrugas</li>
+        <li>Cristales y espejos: Sin huellas ni manchas</li>
+        <li>Olor: Ventilar bien, evitar ambientadores artificiales fuertes</li>
+      </ul>
+      <p><strong>Truco de Superanfitriones:</strong> Entra como huésped antes de cada llegada. Si algo te molesta a ti, le molestará al huésped.</p>
+
+      <h3>5. Check-in sin fricción (experiencia fluida)</h3>
+      <p><strong>El check-in marca el tono de toda la estancia.</strong></p>
+      <p><strong>Opciones recomendadas:</strong></p>
+      <ul>
+        <li><strong>Check-in autónomo:</strong> Cajita con llave + código o Smart Lock</li>
+        <li><strong>Instrucciones cristalinas:</strong> Fotos paso a paso en el mensaje</li>
+        <li><strong>Video tutorial:</strong> Grabación de 2 minutos mostrando el acceso</li>
+        <li><strong>Disponibilidad:</strong> Teléfono disponible durante franja de check-in</li>
+      </ul>
+      <p><strong>Evita:</strong> Hacer esperar al huésped, instrucciones confusas, cambios de última hora</p>
+
+      <h3>6. Manual de la casa completo y visual</h3>
+      <p><strong>Un manual bien hecho reduce mensajes en 70%.</strong></p>
+      <p><strong>Contenido esencial:</strong></p>
+      <ul>
+        <li><strong>WiFi:</strong> Nombre de red y contraseña (en lugar visible)</li>
+        <li><strong>Electrodomésticos:</strong> Cómo usar lavadora, cafetera, calefacción, TV</li>
+        <li><strong>Normas:</strong> Hora de check-out, ruido, fumar, invitados</li>
+        <li><strong>Emergencias:</strong> Contactos (urgencias, anfitrión, cerrajero)</li>
+        <li><strong>Recomendaciones:</strong> Restaurantes, supermercados, transporte</li>
+        <li><strong>Basura y reciclaje:</strong> Dónde y cuándo tirar la basura</li>
+      </ul>
+      <p><strong>Formato:</strong> Digital (PDF en tablet o QR) + Físico (carpeta visible)</p>
+
+      <h3>7. Fotos profesionales y actualizadas</h3>
+      <p><strong>Las fotos son tu única oportunidad de causar primera impresión.</strong></p>
+      <p><strong>Estándares Superanfitrión:</strong></p>
+      <ul>
+        <li>Mínimo 20-30 fotos de alta calidad</li>
+        <li>Luz natural abundante en todas las fotos</li>
+        <li>Espacios ordenados, despersonalizados</li>
+        <li>Foto principal espectacular (la que más vistas recibe)</li>
+        <li>Mostrar cada espacio desde 2-3 ángulos</li>
+        <li>Actualizar si cambias decoración o mejoras</li>
+      </ul>
+      <p><strong>Inversión recomendada:</strong> Fotógrafo profesional cada 1-2 años (150-300€) vale la pena</p>
+
+      <h3>8. Precio dinámico y competitivo</h3>
+      <p><strong>Precio óptimo = Máxima ocupación × Mejor tarifa posible</strong></p>
+      <p><strong>Estrategia de precios Superanfitrión:</strong></p>
+      <ul>
+        <li><strong>Temporada baja:</strong> Baja precios para mantener ocupación (mejor ingreso bajo que 0)</li>
+        <li><strong>Temporada media:</strong> Precio competitivo vs propiedades similares</li>
+        <li><strong>Temporada alta:</strong> Sube precios gradualmente según demanda</li>
+        <li><strong>Eventos:</strong> Anticipa eventos locales y ajusta precios 2-3 meses antes</li>
+        <li><strong>Last minute:</strong> Descuento de 15-20% para huecos con menos de 7 días</li>
+        <li><strong>Estancias largas:</strong> Descuentos 10% (7 noches), 15% (14 noches), 20% (30 noches)</li>
+      </ul>
+      <p><strong>Herramientas:</strong> Airbnb Smart Pricing (base) + ajustes manuales semanales</p>
+
+      <h3>9. Gestiona reviews como oro</h3>
+      <p><strong>Las reviews son tu activo más valioso.</strong></p>
+      <p><strong>Cómo conseguir reviews 5 estrellas:</strong></p>
+      <ul>
+        <li><strong>Pide la review:</strong> El 70% de huéspedes solo dejan review si se lo pides</li>
+        <li><strong>Timing perfecto:</strong> Pide 2-3 horas después del check-out (cuando experiencia está fresca)</li>
+        <li><strong>Facilita el proceso:</strong> "Solo te llevará 2 minutos y me ayuda muchísimo"</li>
+        <li><strong>Devuelve el favor:</strong> Deja review positiva tú primero (aumenta reciprocidad)</li>
+      </ul>
+      <p><strong>Gestión de reviews negativas:</strong></p>
+      <ul>
+        <li>Responde siempre de forma profesional y empática</li>
+        <li>Reconoce el problema sin excusas</li>
+        <li>Explica qué has hecho para solucionarlo</li>
+        <li>Nunca seas defensivo o agresivo</li>
+      </ul>
+
+      <h3>10. Mejora continua basada en feedback</h3>
+      <p><strong>Los mejores anfitriones nunca dejan de mejorar.</strong></p>
+      <p><strong>Sistema de mejora:</strong></p>
+      <ul>
+        <li><strong>Revisa todas las reviews:</strong> Incluso las 5 estrellas tienen feedback útil</li>
+        <li><strong>Identifica patrones:</strong> Si 3 huéspedes mencionan lo mismo, actúa</li>
+        <li><strong>Pregunta directamente:</strong> "¿Qué puedo mejorar?" en mensaje de despedida</li>
+        <li><strong>Visita competencia:</strong> Reserva en propiedades similares, aprende de ellos</li>
+        <li><strong>Invierte regularmente:</strong> Destina 5-10% ingresos a mejoras (colchón nuevo, mejores toallas, decoración)</li>
+      </ul>
+
+      <h2>Errores que te hacen perder Superanfitrión</h2>
+      <ul>
+        <li>❌ <strong>Cancelar reservas:</strong> Un solo cancelación puede costarte el estatus</li>
+        <li>❌ <strong>Ignorar mensajes:</strong> Responde aunque sea "no disponible"</li>
+        <li>❌ <strong>Sobrevender:</strong> Prometer más de lo que ofreces genera decepciones</li>
+        <li>❌ <strong>Descuidar mantenimiento:</strong> Un WiFi lento o calefacción rota arruina reviews</li>
+        <li>❌ <strong>No tener plan B:</strong> Siempre ten backup para emergencias (cerrajero, fontanero, limpiador de respaldo)</li>
+      </ul>
+
+      <h2>Checklist mensual del Superanfitrión</h2>
+      <ul>
+        <li>✅ Revisar estadísticas: valoración, tasa de respuesta, cancelaciones</li>
+        <li>✅ Actualizar calendario y precios para próximos 3 meses</li>
+        <li>✅ Revisar todas las reviews del mes y actuar sobre feedback</li>
+        <li>✅ Inspeccionar propiedad en persona (o vía equipo de limpieza)</li>
+        <li>✅ Reponer amenities y productos de bienvenida</li>
+        <li>✅ Verificar que electrodomésticos funcionan correctamente</li>
+        <li>✅ Actualizar manual de la casa con nueva info relevante</li>
+        <li>✅ Comparar precios con competencia similar</li>
+      </ul>
+
+      <h2>Cómo recuperar el estatus si lo pierdes</h2>
+      <p>Si pierdes Superanfitrión, no te desanimes:</p>
+      <ol>
+        <li><strong>Analiza qué métrica fallaste:</strong> Airbnb te dice cuál fue el problema</li>
+        <li><strong>Crea plan de acción:</strong> Enfócate obsesivamente en esa métrica</li>
+        <li><strong>Implementa mejoras:</strong> No esperes al próximo trimestre para mejorar</li>
+        <li><strong>Comunica cambios:</strong> Menciona mejoras en descripción y mensajes</li>
+        <li><strong>Monitoriza progreso:</strong> Revisa tus stats semanalmente</li>
+      </ol>
+      <p>El 80% de anfitriones que pierden el estatus lo recuperan en 1-2 trimestres.</p>
+
+      <p><em>Última actualización: Enero 2025</em></p>
+    `
+  },
+
+  // MEJORES_PRACTICAS - Article 12
+  {
+    title: 'Cómo Conseguir Reviews de 5 Estrellas Consistentemente',
+    slug: 'conseguir-reviews-5-estrellas',
+    excerpt: 'El sistema probado para obtener valoraciones máximas en cada reserva. Estrategias psicológicas y prácticas para convertir cada huésped en un fan.',
+    category: BlogCategory.MEJORES_PRACTICAS,
+    readTime: 8,
+    content: `
+      <h2>Por qué las reviews son críticas</h2>
+      <p>En Airbnb y Booking, las reviews son tu credibilidad:</p>
+      <ul>
+        <li><strong>Mayor del 90% de huéspedes</strong> lee reviews antes de reservar</li>
+        <li>Propiedades con 4.8+ estrellas reciben <strong>2-3x más reservas</strong></li>
+        <li>Una review de 3 estrellas puede bajar tu valoración global de 4.9 a 4.7</li>
+        <li><strong>Airbnb penaliza</strong> algorítmicamente propiedades bajo 4.7</li>
+      </ul>
+
+      <h2>La anatomía de una review de 5 estrellas</h2>
+      <p>Airbnb evalúa 6 categorías (todas deben estar en 5 estrellas):</p>
+      <ul>
+        <li><strong>Limpieza:</strong> La más importante - factor crítico</li>
+        <li><strong>Comunicación:</strong> Rapidez y claridad de respuestas</li>
+        <li><strong>Llegada (Check-in):</strong> Facilidad y experiencia de entrada</li>
+        <li><strong>Exactitud:</strong> Coincidencia entre anuncio y realidad</li>
+        <li><strong>Ubicación:</strong> Difícil de cambiar, pero contexto importa</li>
+        <li><strong>Relación calidad-precio:</strong> Percepción de valor recibido</li>
+      </ul>
+
+      <h2>El sistema de 5 estrellas garantizadas</h2>
+
+      <h3>Fase 1: Antes de la llegada (sembrando expectativas)</h3>
+
+      <h4>Confirma la reserva inmediatamente (menos de 1 hora)</h4>
+      <p>Mensaje modelo:</p>
+      <p><em>"Hola [Nombre], ¡gracias por elegir mi alojamiento! Estoy encantado de recibirte. He confirmado tu reserva para [fechas]. Te mantendré informado con todos los detalles antes de tu llegada. Si tienes alguna pregunta, escríbeme cuando quieras. ¡Nos vemos pronto!"</em></p>
+
+      <h4>7 días antes: Crea conexión emocional</h4>
+      <p>Pregunta sobre el propósito del viaje y ofrece recomendaciones personalizadas:</p>
+      <p><em>"Hola [Nombre], faltan solo 7 días para tu llegada. ¿Es tu primera vez en [ciudad]? ¿Vienes por trabajo, vacaciones, o alguna ocasión especial? Me encantaría darte recomendaciones personalizadas."</em></p>
+      <p><strong>Truco psicológico:</strong> Cuando el huésped comparte información personal, se siente más conectado contigo.</p>
+
+      <h4>24-48h antes: Instrucciones impecables</h4>
+      <p>Envía mensaje detallado con:</p>
+      <ul>
+        <li>Dirección exacta (calle, número, piso, puerta)</li>
+        <li>Instrucciones de parking (si aplica)</li>
+        <li>Códigos de acceso paso a paso (portal, buzón, puerta)</li>
+        <li>Fotos del edificio y entrada</li>
+        <li>WiFi y contraseña</li>
+        <li>Tu número de teléfono para emergencias</li>
+      </ul>
+
+      <h3>Fase 2: Durante la estancia (cumpliendo promesas)</h3>
+
+      <h4>Día de llegada: Mensaje de bienvenida 2-3h después del check-in</h4>
+      <p><em>"Hola [Nombre], espero que hayas llegado bien y que todo esté perfecto. Si necesitas cualquier cosa, no dudes en escribirme. También te he dejado una guía con mis recomendaciones favoritas de la zona. ¡Disfruta!"</em></p>
+      <p><strong>Importante:</strong> No seas invasivo. Un solo mensaje, no llames a menos que sea necesario.</p>
+
+      <h4>Durante estancia: Disponibilidad silenciosa</h4>
+      <p>Estrategia de "disponible pero invisible":</p>
+      <ul>
+        <li>No contactes a menos que el huésped lo haga primero</li>
+        <li>Responde en menos de 1 hora a cualquier mensaje</li>
+        <li>Si hay problema, resuelve inmediatamente (o ofrece compensación)</li>
+      </ul>
+
+      <h4>Gestión de incidencias: Convierte problemas en 5 estrellas</h4>
+      <p><strong>Regla de oro:</strong> Un problema bien gestionado genera mejor review que no tener problemas.</p>
+      <p><strong>Protocolo de incidencias:</strong></p>
+      <ol>
+        <li><strong>Responde en menos de 30 minutos</strong> (urgente)</li>
+        <li><strong>Empatiza antes de solucionar:</strong> "Lamento muchísimo esto, lo soluciono ya"</li>
+        <li><strong>Solución inmediata + compensación:</strong> Arregla + descuento o regalo</li>
+        <li><strong>Seguimiento:</strong> "¿Está todo bien ahora? ¿Algo más que pueda hacer?"</li>
+      </ol>
+      <p><strong>Ejemplos de compensación:</strong></p>
+      <ul>
+        <li>WiFi caído: Reembolso 1 noche + compartir datos móviles</li>
+        <li>Calefacción averiada: Calentador eléctrico en 1h + reembolso parcial</li>
+        <li>Ruido exterior imprevisto: Tapones para oídos + descuento 10%</li>
+      </ul>
+
+      <h3>Fase 3: Check-out (cerrando la experiencia)</h3>
+
+      <h4>Noche antes del check-out: Recordatorio amigable</h4>
+      <p><em>"Hola [Nombre], espero que hayas disfrutado tu estancia. Mañana es el check-out a las [hora]. Instrucciones: deja las llaves en [lugar], apaga luces y AC, cierra ventanas. No hace falta que limpies. ¡Ha sido un placer tenerte!"</em></p>
+
+      <h4>Inspección post-salida: Verifica antes de pedir review</h4>
+      <p><strong>Crucial:</strong> Nunca pidas review antes de inspeccionar. Si hay daños no reportados, tendrás conflicto.</p>
+
+      <h3>Fase 4: Post-estancia (consiguiendo la review)</h3>
+
+      <h4>2-3 horas después del check-out: Pide la review</h4>
+      <p><strong>Este es el momento óptimo:</strong> Experiencia fresca, huésped aún emocionalmente conectado.</p>
+      <p><strong>Mensaje modelo (altamente efectivo):</strong></p>
+      <p><em>"Hola [Nombre], ha sido un placer absoluto tenerte como huésped. Espero que tu estancia haya sido perfecta y que [ciudad] te haya encantado. Si todo ha ido bien, ¿podrías dejarme una review? Tu opinión significa muchísimo para mí y me ayuda a seguir mejorando. Por supuesto, yo también te dejaré una valoración positiva. ¡Espero volver a verte pronto!"</em></p>
+
+      <h4>Si no responde: Recordatorio suave a los 5-7 días</h4>
+      <p><em>"Hola [Nombre], solo un recordatorio amigable sobre la review. Sé que estás ocupado, pero me ayudaría mucho si pudieras dejar tu valoración. ¡Gracias!"</em></p>
+
+      <h2>Técnicas psicológicas para reviews positivas</h2>
+
+      <h3>1. Efecto de reciprocidad</h3>
+      <p><strong>Principio:</strong> Las personas sienten necesidad de devolver favores.</p>
+      <p><strong>Aplicación:</strong></p>
+      <ul>
+        <li>Deja tú la review primero (siempre positiva)</li>
+        <li>Menciona en tu mensaje que ya dejaste la tuya</li>
+        <li>Ofrece pequeños regalos (welcome pack, late check-out gratis)</li>
+      </ul>
+
+      <h3>2. Efecto de anclaje</h3>
+      <p><strong>Principio:</strong> La primera información presentada marca las expectativas.</p>
+      <p><strong>Aplicación:</strong></p>
+      <ul>
+        <li>En tu primer mensaje, menciona: "Mi objetivo es que tengas una estancia de 5 estrellas"</li>
+        <li>En manual de la casa: "Si algo no está perfecto, avísame inmediatamente para solucionarlo"</li>
+      </ul>
+
+      <h3>3. Consistencia y compromiso</h3>
+      <p><strong>Principio:</strong> La gente actúa consistentemente con sus compromisos anteriores.</p>
+      <p><strong>Aplicación:</strong></p>
+      <ul>
+        <li>Durante estancia, pregunta: "¿Está todo perfecto?"</li>
+        <li>Si dicen "sí", es más probable que lo reflejen en review</li>
+      </ul>
+
+      <h3>4. Prueba social</h3>
+      <p><strong>Principio:</strong> La gente sigue el comportamiento de otros.</p>
+      <p><strong>Aplicación:</strong></p>
+      <ul>
+        <li>En mensaje pidiendo review: "El 95% de mis huéspedes dejan review positiva"</li>
+        <li>Menciona tu estatus Superanfitrión o valoración actual</li>
+      </ul>
+
+      <h2>Cómo manejar reviews negativas inevitables</h2>
+
+      <h3>Responde siempre (en menos de 24-48h)</h3>
+      <p><strong>Estructura de respuesta ideal:</strong></p>
+      <ol>
+        <li><strong>Agradece:</strong> "Gracias [Nombre] por tu feedback"</li>
+        <li><strong>Empatiza:</strong> "Lamento que [problema] no haya cumplido tus expectativas"</li>
+        <li><strong>Explica (sin excusas):</strong> Contexto breve si aplica</li>
+        <li><strong>Solución implementada:</strong> "He [acción concreta] para que no vuelva a pasar"</li>
+        <li><strong>Invitación futura:</strong> "Espero que me des otra oportunidad en el futuro"</li>
+      </ol>
+
+      <h3>Ejemplo de respuesta profesional</h3>
+      <p><em>"Gracias Ana por tu feedback. Lamento sinceramente que el WiFi no haya funcionado correctamente durante tu estancia. Entiendo lo frustrante que es, especialmente cuando viajas por trabajo. Inmediatamente después de tu salida, contacté con mi proveedor y han reemplazado el router. He verificado personalmente que ahora funciona perfectamente. Tu comentario me ha ayudado a mejorar la experiencia para futuros huéspedes. Espero que me des otra oportunidad en tu próxima visita."</em></p>
+
+      <h2>Elementos que garantizan 5 estrellas en cada categoría</h2>
+
+      <h3>Limpieza: 5 estrellas</h3>
+      <ul>
+        <li>Limpieza profesional después de cada huésped</li>
+        <li>Inspección personal o checklist con fotos</li>
+        <li>Sábanas y toallas blancas (muestran limpieza)</li>
+        <li>Olor neutro y fresco (ventilación, no ambientadores fuertes)</li>
+        <li>Cero polvo, cero manchas, cero pelos</li>
+      </ul>
+
+      <h3>Comunicación: 5 estrellas</h3>
+      <ul>
+        <li>Responder en menos de 1 hora (siempre)</li>
+        <li>Mensajes claros, amigables, con info completa</li>
+        <li>Proactividad (anticiparse a preguntas)</li>
+        <li>Disponibilidad visible durante estancia</li>
+      </ul>
+
+      <h3>Check-in: 5 estrellas</h3>
+      <ul>
+        <li>Instrucciones enviadas 24-48h antes</li>
+        <li>Proceso autónomo o presencial puntual</li>
+        <li>Cero esperas, cero complicaciones</li>
+        <li>Welcome pack visible al entrar</li>
+      </ul>
+
+      <h3>Exactitud: 5 estrellas</h3>
+      <ul>
+        <li>Fotos recientes y realistas (no filtros excesivos)</li>
+        <li>Descripción honesta de amenities</li>
+        <li>Mencionar limitaciones (ruido, escaleras, etc.)</li>
+        <li>Cumplir todo lo prometido en el anuncio</li>
+      </ul>
+
+      <h3>Ubicación: 5 estrellas</h3>
+      <ul>
+        <li>No puedes cambiar ubicación, pero sí la percepción</li>
+        <li>Destaca ventajas: "Zona tranquila", "Bien comunicado"</li>
+        <li>Ofrece información de transporte detallada</li>
+        <li>Menciona sitios de interés cercanos</li>
+      </ul>
+
+      <h3>Relación calidad-precio: 5 estrellas</h3>
+      <ul>
+        <li>Precio competitivo vs propiedades similares</li>
+        <li>Sorprende con extras (no esperados)</li>
+        <li>Calidad visible (muebles, decoración, electrodomésticos)</li>
+        <li>Pequeños detalles que marcan diferencia</li>
+      </ul>
+
+      <h2>Qué hacer si recibes 4 estrellas (el peor escenario)</h2>
+      <p>4 estrellas es review negativa en Airbnb (aunque suene bien).</p>
+      <p><strong>Plan de acción:</strong></p>
+      <ol>
+        <li>Lee la review completa y comentarios privados</li>
+        <li>Identifica la categoría que bajó (Airbnb te lo muestra)</li>
+        <li>Contacta al huésped (mensaje privado): "Gracias por tu feedback. Me encantaría entender qué podría haber hecho para que fuera 5 estrellas"</li>
+        <li>Implementa la mejora inmediatamente</li>
+        <li>Menciona la mejora en tu respuesta pública</li>
+      </ol>
+
+      <h2>Errores que te cuestan 5 estrellas</h2>
+      <ul>
+        <li>❌ <strong>Expectativas no cumplidas:</strong> Prometer más de lo que ofreces</li>
+        <li>❌ <strong>Comunicación tardía:</strong> Responder al día siguiente o ignorar mensajes</li>
+        <li>❌ <strong>Problemas no resueltos:</strong> Ignorar quejas durante estancia</li>
+        <li>❌ <strong>Limpieza mediocre:</strong> "Casi limpio" no es suficiente</li>
+        <li>❌ <strong>Ser tacaño con amenities:</strong> Papel higiénico de mala calidad, toallas viejas</li>
+        <li>❌ <strong>No pedir la review:</strong> El 60% de huéspedes no dejan review si no se les pide</li>
+      </ul>
+
+      <h2>Checklist pre-llegada para 5 estrellas garantizadas</h2>
+      <ul>
+        <li>✅ Limpieza profunda verificada con fotos</li>
+        <li>✅ Todos los electrodomésticos funcionando</li>
+        <li>✅ WiFi testeado (velocidad adecuada)</li>
+        <li>✅ Ropa de cama fresca y sin arrugas</li>
+        <li>✅ Welcome pack preparado</li>
+        <li>✅ Manual de la casa actualizado y visible</li>
+        <li>✅ Productos de baño y cocina repu estos</li>
+        <li>✅ Ventanas limpias, cortinas sin polvo</li>
+        <li>✅ Olor fresco (ventilar 2-3 horas antes)</li>
+        <li>✅ Temperatura agradable (calefacción/AC encendido)</li>
+      </ul>
+
+      <p><em>Última actualización: Enero 2025</em></p>
+    `
+  }

@@ -67,6 +67,21 @@ async function main() {
       isActive: true
     },
     {
+      id: 'onboarding-2.5-personalized',
+      sequenceId: onboardingSequence.id,
+      name: 'Email 2.5: Contenido personalizado por arquetipo',
+      subject: 'Dynamic - set per archetype', // Se establece dinámicamente según arquetipo
+      templateName: 'sequence-day2-personalized.tsx',
+      templateData: {},
+      delayDays: 2,
+      delayHours: 0,
+      sendAtHour: 10,
+      order: 2.5, // Entre día 1 y día 3
+      requiresPreviousOpen: false,
+      requiresPreviousClick: false,
+      isActive: true
+    },
+    {
       id: 'onboarding-3-mistakes',
       sequenceId: onboardingSequence.id,
       name: 'Email 3: 3 errores comunes',

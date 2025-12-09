@@ -5,7 +5,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL") // Necesario para migraciones con Supabase
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -20,33 +20,46 @@ model User {
   timezone                String                 @default("Europe/Madrid")
   role                    String                 @default("HOST")
   status                  String                 @default("PENDING")
-  subscription            String?                // Plan actual (BASIC, HOST, SUPERHOST, BUSINESS) - null si no tiene plan activo
-  // Trial system - 15 days from registration
-  trialStartedAt          DateTime?              // When trial started (registration date)
-  trialEndsAt             DateTime?              // When trial expires (15 days after registration)
+  subscription            String?
+  trialStartedAt          DateTime?
+  trialEndsAt             DateTime?
   createdAt               DateTime               @default(now())
   updatedAt               DateTime               @updatedAt
   lastLoginAt             DateTime?
-  onboardingCompletedAt   DateTime?              // When user completed onboarding tour
   avatar                  String?
   companyName             String?
-  // Billing fields
   billingAddress          String?
   billingCity             String?
   billingCountry          String?
   billingPostalCode       String?
-  vatNumber               String?                // NIF/CIF
-  // Affiliate system
-  referralCode            String?                @unique // Su código para referir
-  referredBy              String?                // Quién lo refirió
-  affiliateCommission     Decimal                @default(0) // Comisiones ganadas
+  vatNumber               String?
+  referralCode            String?                @unique
+  referredBy              String?
+  affiliateCommission     Decimal                @default(0)
   createdBy               String?
   isActive                Boolean                @default(true)
   isAdmin                 Boolean                @default(false)
   notes                   String?
   notificationPreferences Json?                  @default("{}")
+  onboardingCompletedAt   DateTime?
+  academyEnrolledAt       DateTime?
+  academyPoints           Int                    @default(0)
+  academyStreak           Int                    @default(0)
+  lastAcademyActivityAt   DateTime?
+  username                String?                @unique
+  academyProgress         AcademyProgress[]
+  quizAttempts            QuizAttempt[]
   adminLogs               AdminActivityLog[]
+  referralTransactions    AffiliateTransaction[] @relation("AffiliateReferred")
+  referredUsers           AffiliateTransaction[] @relation("AffiliateReferrer")
+  billingInfo             BillingInfo?
+  callLogs                CallLog[]
+  couponUses              CouponUse[]            @relation("UserCouponUses")
+  journeyStages           CustomerJourneyStage[]
+  emailChangeTokens       EmailChangeToken[]
+  emailEvents             EmailEvent[]
   assignedErrorReports    ErrorReport[]          @relation("ErrorReportAssignee")
+  hostProfileTests        HostProfileTest[]
   invoices                Invoice[]
   mediaItems              MediaLibrary[]
   notifications           Notification[]
@@ -54,75 +67,41 @@ model User {
   properties              Property[]
   propertySets            PropertySet[]
   propertyViews           PropertyView[]         @relation("HostPropertyViews")
+  subscriptionRequests    SubscriptionRequest[]  @relation("UserSubscriptionRequests")
   trackingEvents          TrackingEvent[]        @relation("UserTrackingEvents")
+  achievements            UserAchievement[]
   inspirationState        UserInspirationState?
+  userNotes               UserNote[]
   subscriptions           UserSubscription[]
   creator                 User?                  @relation("UserCreatedBy", fields: [createdBy], references: [id])
   createdUsers            User[]                 @relation("UserCreatedBy")
   moderatedComments       ZoneComment[]          @relation("CommentModerator")
   zoneViews               ZoneView[]             @relation("HostZoneViews")
-  callLogs                CallLog[]
-  userNotes               UserNote[]
-  // Affiliate relations
-  referredUsers           AffiliateTransaction[] @relation("AffiliateReferrer")
-  referralTransactions    AffiliateTransaction[] @relation("AffiliateReferred")
-  // Coupon relations
-  couponUses              CouponUse[]            @relation("UserCouponUses")
-  // Email change tokens
-  emailChangeTokens       EmailChangeToken[]
-  // Subscription requests
-  subscriptionRequests    SubscriptionRequest[]  @relation("UserSubscriptionRequests")
-  // Billing info
-  billingInfo             BillingInfo?
-  // Customer Journey relations
-  journeyStages           CustomerJourneyStage[]
-  emailEvents             EmailEvent[]
-  // Academia relations
-  username                String?                @unique // Nombre de usuario único para la academia
-  academyEnrolledAt       DateTime?              // Cuando se inscribió a la academia
-  academyProgress         AcademyProgress[]      // Progreso en lecciones
-  quizAttempts            QuizAttempt[]          // Intentos de exámenes
-  achievements            UserAchievement[]      // Logros conseguidos
-  academyPoints           Int                    @default(0) // Puntos totales en la academia
-  academyStreak           Int                    @default(0) // Días consecutivos activo
-  lastAcademyActivityAt   DateTime?              // Última actividad en la academia
-  // Host Profile Test relation
-  hostProfileTests        HostProfileTest[]
 
   @@map("users")
 }
 
 model BillingInfo {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  entityType      String   // 'company' | 'self-employed' | 'individual'
-
-  // Contact info
-  email           String
-  phone           String
-  address         String
-  city            String
-  postalCode      String
-  country         String
-
-  // Company fields
-  companyName     String?
-  companyTaxId    String?  // CIF
-
-  // Self-employed fields
-  tradeName       String?
-  taxId           String?  // NIF
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  entityType       String
+  email            String
+  phone            String
+  address          String
+  city             String
+  postalCode       String
+  country          String
+  companyName      String?
+  companyTaxId     String?
+  tradeName        String?
+  taxId            String?
   businessActivity String?
-
-  // Individual fields
-  firstName       String?
-  lastName        String?
-  nationalId      String?  // DNI/NIE
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName        String?
+  lastName         String?
+  nationalId       String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("billing_info")
 }
@@ -190,16 +169,14 @@ model Property {
   hostContactEmail    String
   hostContactLanguage String             @default("es")
   hostContactPhoto    String?
-  status              String             @default("DRAFT") // DRAFT, TRIAL, ACTIVE, SUSPENDED, CANCELLED
-  // Trial system (48 hours)
-  trialStartsAt       DateTime?          // Cuándo empezó el trial
-  trialEndsAt         DateTime?          // Cuándo expira (48h después)
-  trialNotified24h    Boolean            @default(false) // Si ya notificó a las 24h
-  trialNotified6h     Boolean            @default(false) // Si ya notificó a las 6h
-  trialNotified1h     Boolean            @default(false) // Si ya notificó a la 1h
-  // Subscription fields
-  subscriptionEndsAt  DateTime?          // Cuándo expira la suscripción pagada
-  lastPaymentDate     DateTime?          // Último pago realizado
+  status              String             @default("DRAFT")
+  trialStartsAt       DateTime?
+  trialEndsAt         DateTime?
+  trialNotified24h    Boolean            @default(false)
+  trialNotified6h     Boolean            @default(false)
+  trialNotified1h     Boolean            @default(false)
+  subscriptionEndsAt  DateTime?
+  lastPaymentDate     DateTime?
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
   publishedAt         DateTime?
@@ -508,48 +485,48 @@ model UserInspirationState {
 }
 
 model SubscriptionPlan {
-  id                 String             @id @default(cuid())
-  code               String             @unique // BASIC, HOST, SUPERHOST, BUSINESS
+  id                 String                @id @default(cuid())
+  code               String                @unique
   name               String
   description        String?
-  priceMonthly       Decimal            @map("price_monthly") // Precio base mensual
-  priceSemestral     Decimal?           @map("price_semestral") // 6 meses con -10% descuento
-  priceYearly        Decimal?           @map("price_yearly") // 12 meses con -20% descuento
-  aiMessagesIncluded Int                @default(0) @map("ai_messages_included")
-  maxProperties      Int                @default(1) @map("max_properties")
-  features           Json               @default("[]")
-  isActive           Boolean            @default(true) @map("is_active")
-  isVisibleInUI      Boolean            @default(true) @map("is_visible_in_ui") // false for BUSINESS (enterprise)
-  createdAt          DateTime           @default(now()) @map("created_at")
-  updatedAt          DateTime           @updatedAt @map("updated_at")
-  subscriptions      UserSubscription[]
+  priceMonthly       Decimal               @map("price_monthly")
+  priceSemestral     Decimal?              @map("price_semestral")
+  priceYearly        Decimal?              @map("price_yearly")
+  aiMessagesIncluded Int                   @default(0) @map("ai_messages_included")
+  maxProperties      Int                   @default(1) @map("max_properties")
+  features           Json                  @default("[]")
+  isActive           Boolean               @default(true) @map("is_active")
+  isVisibleInUI      Boolean               @default(true) @map("is_visible_in_ui")
+  createdAt          DateTime              @default(now()) @map("created_at")
+  updatedAt          DateTime              @updatedAt @map("updated_at")
   requests           SubscriptionRequest[] @relation("PlanRequests")
+  subscriptions      UserSubscription[]
 
   @@map("subscription_plans")
 }
 
 model UserSubscription {
-  id                 String           @id @default(cuid())
-  userId             String           @map("user_id")
-  planId             String?          @map("plan_id") // Ahora opcional
-  customPlanId       String?          @map("custom_plan_id") // Para planes personalizados
+  id                 String            @id @default(cuid())
+  userId             String            @map("user_id")
+  planId             String?           @map("plan_id")
+  customPlanId       String?           @map("custom_plan_id")
   status             String
-  customPrice        Decimal?         @map("custom_price")
-  discountPercentage Decimal?         @default(0) @map("discount_percentage")
-  discountReason     String?          @map("discount_reason")
-  startDate          DateTime         @map("start_date")
-  endDate            DateTime?        @map("end_date")
-  cancelAtPeriodEnd  Boolean          @default(false) @map("cancel_at_period_end") // Si la suscripción se cancelará al final del período
-  canceledAt         DateTime?        @map("canceled_at") // Cuándo se solicitó la cancelación
-  cancelReason       String?          @map("cancel_reason") // Motivo de la cancelación
+  customPrice        Decimal?          @map("custom_price")
+  discountPercentage Decimal?          @default(0) @map("discount_percentage")
+  discountReason     String?           @map("discount_reason")
+  startDate          DateTime          @map("start_date")
+  endDate            DateTime?         @map("end_date")
   notes              String?
-  createdBy          String?          @map("created_by")
-  createdAt          DateTime         @default(now()) @map("created_at")
-  updatedAt          DateTime         @updatedAt @map("updated_at")
+  createdBy          String?           @map("created_by")
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+  cancelAtPeriodEnd  Boolean           @default(false) @map("cancel_at_period_end")
+  cancelReason       String?           @map("cancel_reason")
+  canceledAt         DateTime?         @map("canceled_at")
   invoices           Invoice[]
+  customPlan         CustomPlan?       @relation(fields: [customPlanId], references: [id])
   plan               SubscriptionPlan? @relation(fields: [planId], references: [id])
-  customPlan         CustomPlan?      @relation(fields: [customPlanId], references: [id])
-  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_subscriptions")
 }
@@ -758,18 +735,18 @@ model ZoneView {
 }
 
 model Admin {
-  id                String             @id @default(cuid())
-  email             String             @unique
-  name              String
-  password          String
-  role              String             @default("ADMIN") // ADMIN, SUPER_ADMIN, SUPPORT, VIEWER
-  isActive          Boolean            @default(true)
-  lastLoginAt       DateTime?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  callLogs          CallLog[]
-  userNotes         UserNote[]
-  auditLogs         AdminAuditLog[]
+  id          String          @id @default(cuid())
+  email       String          @unique
+  name        String
+  password    String
+  role        String          @default("ADMIN")
+  isActive    Boolean         @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  auditLogs   AdminAuditLog[]
+  callLogs    CallLog[]
+  userNotes   UserNote[]
 
   @@map("admins")
 }
@@ -778,8 +755,8 @@ model CallLog {
   id               String    @id @default(cuid())
   userId           String
   adminId          String
-  type             String    // INCOMING, OUTGOING
-  duration         Int?      // minutes
+  type             String
+  duration         Int?
   reason           String
   resolution       String?
   notes            String?
@@ -787,8 +764,8 @@ model CallLog {
   followUpDate     DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   admin            Admin     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([adminId])
@@ -797,19 +774,19 @@ model CallLog {
 }
 
 model UserNote {
-  id              String   @id @default(cuid())
-  userId          String
-  adminId         String
-  type            String   @default("GENERAL") // GENERAL, BEHAVIOR, TECHNICAL, BILLING, COMPLAINT, COMPLIMENT
-  priority        String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
-  title           String
-  content         String
-  isPrivate       Boolean  @default(false)
-  tags            String[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  admin           Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  userId    String
+  adminId   String
+  type      String   @default("GENERAL")
+  priority  String   @default("MEDIUM")
+  title     String
+  content   String
+  isPrivate Boolean  @default(false)
+  tags      String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([adminId])
@@ -818,18 +795,17 @@ model UserNote {
 }
 
 model AffiliateTransaction {
-  id              String   @id @default(cuid())
-  referrerId      String   @map("referrer_id")   // Quien refirió
-  referredUserId  String   @map("referred_user_id") // Usuario referido
-  type            String   // 'SIGNUP_BONUS', 'MONTHLY_COMMISSION', 'PROPERTY_BONUS'
-  amount          Decimal  // Cantidad ganada
-  status          String   @default("PENDING") // PENDING, PAID, CANCELLED
-  description     String?
-  paidAt          DateTime? @map("paid_at")
-  createdAt       DateTime @default(now()) @map("created_at")
-  
-  referrer        User     @relation("AffiliateReferrer", fields: [referrerId], references: [id])
-  referredUser    User     @relation("AffiliateReferred", fields: [referredUserId], references: [id])
+  id             String    @id @default(cuid())
+  referrerId     String    @map("referrer_id")
+  referredUserId String    @map("referred_user_id")
+  type           String
+  amount         Decimal
+  status         String    @default("PENDING")
+  description    String?
+  paidAt         DateTime? @map("paid_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  referredUser   User      @relation("AffiliateReferred", fields: [referredUserId], references: [id])
+  referrer       User      @relation("AffiliateReferrer", fields: [referrerId], references: [id])
 
   @@index([referrerId])
   @@index([referredUserId])
@@ -837,46 +813,30 @@ model AffiliateTransaction {
 }
 
 model Coupon {
-  id                String    @id @default(cuid())
-  code              String    @unique // LAUNCH50, HOTEL100, FRIEND6M
-  name              String    // Nombre descriptivo
-  description       String?   // Descripción para el usuario
-  
-  // Tipo de cupón
-  type              String    // PERCENTAGE, FIXED_AMOUNT, FREE_MONTHS, CUSTOM_PLAN
-  
-  // Valores de descuento
-  discountPercent   Int?      // 25 para 25%
-  discountAmount    Decimal?  // 10.00 para €10 fijo
-  freeMonths        Int?      // 6 para 6 meses gratis
-  
-  // Límites de uso
-  maxUses           Int?      // null = ilimitado
-  usedCount         Int       @default(0)
-  maxUsesPerUser    Int       @default(1) // Cuántas veces puede usar cada usuario
-  
-  // Fechas
-  validFrom         DateTime  @default(now())
+  id                String      @id @default(cuid())
+  code              String      @unique
+  name              String
+  description       String?
+  type              String
+  discountPercent   Int?
+  discountAmount    Decimal?
+  freeMonths        Int?
+  maxUses           Int?
+  usedCount         Int         @default(0)
+  maxUsesPerUser    Int         @default(1)
+  validFrom         DateTime    @default(now())
   validUntil        DateTime?
-  
-  // Restricciones
-  minAmount         Decimal?  // Monto mínimo para aplicar
-  minDuration       Int?      // Duración mínima en meses
-  applicableToPlans String[]  // ["STANDARD", "HOTEL", "ENTERPRISE"]
-  
-  // Configuración especial
-  isActive          Boolean   @default(true)
-  isPublic          Boolean   @default(false) // Si aparece en listados públicos
-  campaignSource    String?   // "INSTAGRAM", "TIKTOK", "REFERRAL"
-  
-  // Tracking
-  createdBy         String?   // Admin que lo creó
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  
-  // Relaciones
+  minAmount         Decimal?
+  minDuration       Int?
+  applicableToPlans String[]
+  isActive          Boolean     @default(true)
+  isPublic          Boolean     @default(false)
+  campaignSource    String?
+  createdBy         String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
   uses              CouponUse[]
-  
+
   @@index([code])
   @@index([validFrom, validUntil])
   @@index([campaignSource])
@@ -884,71 +844,55 @@ model Coupon {
 }
 
 model CouponUse {
-  id          String   @id @default(cuid())
-  couponId    String   @map("coupon_id")
-  userId      String   @map("user_id")
-  orderId     String?  @map("order_id") // Referencia al pedido
-  
-  discountApplied Decimal // Descuento real aplicado
-  originalAmount  Decimal // Monto original
-  finalAmount     Decimal // Monto final tras descuento
-  
-  createdAt   DateTime @default(now())
-  
-  coupon      Coupon   @relation(fields: [couponId], references: [id])
-  user        User     @relation("UserCouponUses", fields: [userId], references: [id])
-  
+  id              String   @id @default(cuid())
+  couponId        String   @map("coupon_id")
+  userId          String   @map("user_id")
+  orderId         String?  @map("order_id")
+  discountApplied Decimal
+  originalAmount  Decimal
+  finalAmount     Decimal
+  createdAt       DateTime @default(now())
+  coupon          Coupon   @relation(fields: [couponId], references: [id])
+  user            User     @relation("UserCouponUses", fields: [userId], references: [id])
+
   @@index([couponId])
   @@index([userId])
   @@map("coupon_uses")
 }
 
 model CustomPlan {
-  id              String   @id @default(cuid())
-  name            String   // "Hotel Premium 100", "Hostel Basic"
-  description     String?
-  
-  // Precios
-  pricePerProperty Decimal // €5.50 por propiedad
-  minProperties    Int     @default(1)
-  maxProperties    Int?    // null = ilimitado
-  
-  // Características especiales
-  features         Json    @default("[]") // ["priority_support", "custom_branding"]
-  restrictions     Json    @default("{}") // {"max_zones_per_property": 5}
-  
-  // Para hoteles
-  isForHotels      Boolean @default(false)
-  maxZonesPerProperty Int? // Límite de zonas por habitación
-  
-  // Configuración
-  isActive         Boolean @default(true)
-  requiresApproval Boolean @default(false) // Si requiere aprobación admin
-  
-  // Tracking
-  createdBy        String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  
-  // Relaciones con usuarios que usan este plan
-  subscriptions    UserSubscription[]
-  requests         SubscriptionRequest[] @relation("CustomPlanRequests")
-  
+  id                  String                @id @default(cuid())
+  name                String
+  description         String?
+  pricePerProperty    Decimal
+  minProperties       Int                   @default(1)
+  maxProperties       Int?
+  features            Json                  @default("[]")
+  restrictions        Json                  @default("{}")
+  isForHotels         Boolean               @default(false)
+  maxZonesPerProperty Int?
+  isActive            Boolean               @default(true)
+  requiresApproval    Boolean               @default(false)
+  createdBy           String?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  requests            SubscriptionRequest[] @relation("CustomPlanRequests")
+  subscriptions       UserSubscription[]
+
   @@map("custom_plans")
 }
 
 model EmailChangeToken {
-  id           String    @id @default(cuid())
-  userId       String    @map("user_id")
-  oldEmail     String    @map("old_email")
-  newEmail     String    @map("new_email")
-  token        String    @unique
-  expiresAt    DateTime  @map("expires_at")
-  confirmedAt  DateTime? @map("confirmed_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id          String    @id @default(cuid())
+  userId      String    @map("user_id")
+  oldEmail    String    @map("old_email")
+  newEmail    String    @map("new_email")
+  token       String    @unique
+  expiresAt   DateTime  @map("expires_at")
+  confirmedAt DateTime? @map("confirmed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, newEmail])
   @@index([userId])
   @@index([token])
@@ -959,106 +903,74 @@ model EmailChangeToken {
 model PricingTier {
   id               String   @id @default(cuid())
   minProperties    Int      @map("min_properties")
-  maxProperties    Int?     @map("max_properties") // null = ilimitado
+  maxProperties    Int?     @map("max_properties")
   pricePerProperty Decimal  @map("price_per_property")
   isActive         Boolean  @default(true) @map("is_active")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
-  
+
   @@index([minProperties])
   @@index([maxProperties])
   @@map("pricing_tiers")
 }
 
 model SubscriptionRequest {
-  id                String   @id @default(cuid())
-  userId            String   @map("user_id")
-  planId            String?  @map("plan_id")
-  customPlanId      String?  @map("custom_plan_id")
-  
-  // Detalles de la solicitud
-  requestType       String   // "PLAN" | "PROPERTIES"
-  propertiesCount   Int?     @map("properties_count") // Para solicitudes de propiedades individuales
-  totalAmount       Decimal  @map("total_amount")
-  
-  // Estado y pago
-  status            String   @default("PENDING") // PENDING, PAID, APPROVED, REJECTED, CANCELLED
-  paymentMethod     String?  @map("payment_method") // "BIZUM" | "TRANSFER"
-  paymentReference  String?  @map("payment_reference")
-  paymentProofUrl   String?  @map("payment_proof_url") // URL de la imagen del justificante
-  
-  // Fechas
-  requestedAt       DateTime @default(now()) @map("requested_at")
-  paidAt            DateTime? @map("paid_at") // Cuando el usuario dice que pagó
-  approvedAt        DateTime? @map("approved_at") // Cuando admin aprueba
-  rejectedAt        DateTime? @map("rejected_at")
-  
-  // Admin management
-  reviewedBy        String?  @map("reviewed_by") // Admin que revisó
-  adminNotes        String?  @map("admin_notes")
+  id               String            @id @default(cuid())
+  userId           String            @map("user_id")
+  planId           String?           @map("plan_id")
+  customPlanId     String?           @map("custom_plan_id")
+  requestType      String
+  propertiesCount  Int?              @map("properties_count")
+  totalAmount      Decimal           @map("total_amount")
+  status           String            @default("PENDING")
+  paymentMethod    String?           @map("payment_method")
+  paymentReference String?           @map("payment_reference")
+  paymentProofUrl  String?           @map("payment_proof_url")
+  requestedAt      DateTime          @default(now()) @map("requested_at")
+  paidAt           DateTime?         @map("paid_at")
+  approvedAt       DateTime?         @map("approved_at")
+  rejectedAt       DateTime?         @map("rejected_at")
+  reviewedBy       String?           @map("reviewed_by")
+  adminNotes       String?           @map("admin_notes")
+  metadata         Json?
+  customPlan       CustomPlan?       @relation("CustomPlanRequests", fields: [customPlanId], references: [id])
+  plan             SubscriptionPlan? @relation("PlanRequests", fields: [planId], references: [id])
+  user             User              @relation("UserSubscriptionRequests", fields: [userId], references: [id], onDelete: Cascade)
 
-  // Metadata adicional (billing period, coupons, etc.)
-  metadata          Json?
-
-  // Relaciones
-  user              User              @relation("UserSubscriptionRequests", fields: [userId], references: [id], onDelete: Cascade)
-  plan              SubscriptionPlan? @relation("PlanRequests", fields: [planId], references: [id])
-  customPlan        CustomPlan?       @relation("CustomPlanRequests", fields: [customPlanId], references: [id])
-  
   @@index([userId])
   @@index([status])
   @@index([requestedAt])
   @@map("subscription_requests")
 }
 
-// ===================================
-// BLOG SYSTEM
-// ===================================
-
 model BlogPost {
-  id                String        @id @default(cuid())
-  slug              String        @unique
-
-  // Contenido
-  title             String
-  subtitle          String?
-  excerpt           String        @db.Text
-  content           String        @db.Text // HTML o Markdown
-  coverImage        String?
-  coverImageAlt     String?
-
-  // Categorización
-  category          BlogCategory
-  tags              String[]
-  featured          Boolean       @default(false)
-
-  // SEO
-  metaTitle         String?
-  metaDescription   String?
-  keywords          String[]
-
-  // Publicación
-  status            BlogStatus    @default(DRAFT)
-  publishedAt       DateTime?
-  scheduledFor      DateTime?
-
-  // Autoría
-  authorId          String
-  authorName        String        // Cached author name
-  authorImage       String?       // Author profile image URL
-
-  // Analytics
-  views             Int           @default(0)
-  uniqueViews       Int           @default(0)
-  readTime          Int           @default(5) // minutos estimados
-
-  // Engagement
-  likes             Int           @default(0)
-  shares            Int           @default(0)
-
-  // Timestamps
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  id              String       @id @default(cuid())
+  slug            String       @unique
+  title           String
+  subtitle        String?
+  excerpt         String
+  content         String
+  coverImage      String?
+  coverImageAlt   String?
+  category        BlogCategory
+  tags            String[]
+  featured        Boolean      @default(false)
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[]
+  status          BlogStatus   @default(DRAFT)
+  publishedAt     DateTime?
+  scheduledFor    DateTime?
+  authorId        String
+  authorName      String
+  views           Int          @default(0)
+  uniqueViews     Int          @default(0)
+  readTime        Int          @default(5)
+  likes           Int          @default(0)
+  shares          Int          @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  authorImage     String?
 
   @@index([slug])
   @@index([status])
@@ -1068,41 +980,15 @@ model BlogPost {
   @@map("blog_posts")
 }
 
-// ===================================
-// ENUMS
-// ===================================
-
-enum BlogCategory {
-  GUIAS                 // Guías
-  MEJORES_PRACTICAS     // Mejores Prácticas
-  NORMATIVA             // Normativa y Legal
-  AUTOMATIZACION        // Automatización
-  MARKETING             // Marketing
-  OPERACIONES           // Operaciones
-  CASOS_ESTUDIO         // Casos de Estudio
-  NOTICIAS              // Noticias del sector
-}
-
-enum BlogStatus {
-  DRAFT                 // Borrador
-  REVIEW                // En revisión
-  SCHEDULED             // Programado
-  PUBLISHED             // Publicado
-  ARCHIVED              // Archivado
-}
-
-// Lead Capture from Hub Tools
 model Lead {
-  id          String                 @id @default(cuid())
-  name        String
-  email       String
-  source      String                 // Tool name: qr-generator, wifi-card, cleaning-checklist, etc.
-  userAgent   String?                // Browser/device info
-  ipAddress   String?                // For analytics/anti-spam
-  metadata    Json?                  // Additional context from each tool
-  createdAt   DateTime               @default(now())
-
-  // Relations
+  id            String                 @id @default(cuid())
+  name          String
+  email         String
+  source        String
+  userAgent     String?
+  ipAddress     String?
+  metadata      Json?
+  createdAt     DateTime               @default(now())
   journeyStages CustomerJourneyStage[]
   emailEvents   EmailEvent[]
 
@@ -1112,27 +998,20 @@ model Lead {
   @@map("leads")
 }
 
-// Customer Journey System
 model CustomerJourneyStage {
-  id              String       @id @default(cuid())
-  leadId          String?      @map("lead_id")
-  userId          String?      @map("user_id")
-  email           String       // Always store email for tracking
-
-  stage           JourneyStage // VISITOR, LEAD, REGISTERED, MQL, SQL, CUSTOMER, CHURNED
-  score           Int          @default(0) // Lead score (0-100)
-
-  enteredAt       DateTime     @default(now()) @map("entered_at")
-  exitedAt        DateTime?    @map("exited_at")
-
-  metadata        Json?        // Custom data per stage
-
-  createdAt       DateTime     @default(now()) @map("created_at")
-  updatedAt       DateTime     @updatedAt @map("updated_at")
-
-  // Relations
-  lead            Lead?        @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  user            User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String       @id @default(cuid())
+  leadId    String?      @map("lead_id")
+  userId    String?      @map("user_id")
+  email     String
+  stage     JourneyStage
+  score     Int          @default(0)
+  enteredAt DateTime     @default(now()) @map("entered_at")
+  exitedAt  DateTime?    @map("exited_at")
+  metadata  Json?
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  lead      Lead?        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user      User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([email, stage])
   @@index([leadId])
@@ -1141,33 +1020,26 @@ model CustomerJourneyStage {
   @@map("customer_journey_stages")
 }
 
-// Email Marketing Events
 model EmailEvent {
-  id              String         @id @default(cuid())
-  leadId          String?        @map("lead_id")
-  userId          String?        @map("user_id")
-  email           String
-
-  eventType       EmailEventType // SENT, DELIVERED, OPENED, CLICKED, BOUNCED, COMPLAINED
-  campaignId      String?        @map("campaign_id")
-  templateName    String         @map("template_name")
-  subject         String
-
-  sentAt          DateTime       @default(now()) @map("sent_at")
-  deliveredAt     DateTime?      @map("delivered_at")
-  openedAt        DateTime?      @map("opened_at")
-  clickedAt       DateTime?      @map("clicked_at")
-  bouncedAt       DateTime?      @map("bounced_at")
-
-  clickedUrl      String?        @map("clicked_url")
-  bounceReason    String?        @map("bounce_reason")
-
-  metadata        Json?          // Additional tracking data
-
-  // Relations
-  lead            Lead?          @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  user            User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  campaign        EmailCampaign? @relation(fields: [campaignId], references: [id])
+  id           String         @id @default(cuid())
+  leadId       String?        @map("lead_id")
+  userId       String?        @map("user_id")
+  email        String
+  eventType    EmailEventType
+  campaignId   String?        @map("campaign_id")
+  templateName String         @map("template_name")
+  subject      String
+  sentAt       DateTime       @default(now()) @map("sent_at")
+  deliveredAt  DateTime?      @map("delivered_at")
+  openedAt     DateTime?      @map("opened_at")
+  clickedAt    DateTime?      @map("clicked_at")
+  bouncedAt    DateTime?      @map("bounced_at")
+  clickedUrl   String?        @map("clicked_url")
+  bounceReason String?        @map("bounce_reason")
+  metadata     Json?
+  campaign     EmailCampaign? @relation(fields: [campaignId], references: [id])
+  lead         Lead?          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user         User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([email, eventType])
   @@index([leadId])
@@ -1177,47 +1049,871 @@ model EmailEvent {
   @@map("email_events")
 }
 
-// Email Campaigns
 model EmailCampaign {
-  id              String         @id @default(cuid())
-  name            String
-  description     String?
-
-  trigger         EmailTrigger   // ON_LEAD_CAPTURE, ON_TRIAL_START, ON_SUBSCRIPTION, etc.
-  triggerStages   JourneyStage[] // Which stages this campaign applies to
-
-  templateName    String         @map("template_name")
-  subject         String
-  fromName        String         @default("Itineramio") @map("from_name")
-  fromEmail       String         @default("hola@itineramio.com") @map("from_email")
-
-  delayMinutes    Int            @default(0) @map("delay_minutes") // Delay after trigger
-
-  isActive        Boolean        @default(true) @map("is_active")
-
-  // Analytics
-  sentCount       Int            @default(0) @map("sent_count")
-  openedCount     Int            @default(0) @map("opened_count")
-  clickedCount    Int            @default(0) @map("clicked_count")
-
-  createdAt       DateTime       @default(now()) @map("created_at")
-  updatedAt       DateTime       @updatedAt @map("updated_at")
-
-  // Relations
-  emailEvents     EmailEvent[]
+  id            String         @id @default(cuid())
+  name          String
+  description   String?
+  trigger       EmailTrigger
+  triggerStages JourneyStage[]
+  templateName  String         @map("template_name")
+  subject       String
+  fromName      String         @default("Itineramio") @map("from_name")
+  fromEmail     String         @default("hola@itineramio.com") @map("from_email")
+  delayMinutes  Int            @default(0) @map("delay_minutes")
+  isActive      Boolean        @default(true) @map("is_active")
+  sentCount     Int            @default(0) @map("sent_count")
+  openedCount   Int            @default(0) @map("opened_count")
+  clickedCount  Int            @default(0) @map("clicked_count")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  emailEvents   EmailEvent[]
 
   @@map("email_campaigns")
 }
 
-// Enums for Customer Journey
+model Course {
+  id              String               @id @default(cuid())
+  title           String
+  slug            String               @unique
+  description     String
+  coverImage      String?
+  difficulty      String               @default("INTERMEDIATE")
+  duration        Int
+  passingScore    Int                  @default(80)
+  published       Boolean              @default(false)
+  enrollmentCount Int                  @default(0)
+  isPaid          Boolean              @default(false)
+  price           Decimal              @default(0)
+  paymentMethods  String[]             @default([])
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  modules         Module[]
+  payments        AcademyPayment[]
+  reviews         AcademyReview[]
+  diplomas        AcademyUserDiploma[]
+
+  @@map("academy_courses")
+}
+
+model Module {
+  id            String    @id @default(cuid())
+  courseId      String
+  title         String
+  slug          String
+  description   String
+  icon          String?
+  order         Int
+  unlockDate    DateTime?
+  estimatedTime Int
+  published     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lessons       Lesson[]
+  course        Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  quiz          Quiz?
+
+  @@unique([courseId, slug])
+  @@map("academy_modules")
+}
+
+model Lesson {
+  id              String                @id @default(cuid())
+  moduleId        String
+  title           String
+  slug            String
+  description     String?
+  slides          Json
+  coverImage      String?
+  videoUrl        String?
+  duration        Int
+  order           Int
+  points          Int                   @default(10)
+  published       Boolean               @default(false)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  module          Module                @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress        AcademyProgress[]
+  academyProgress AcademyUserProgress[]
+
+  @@unique([moduleId, slug])
+  @@map("academy_lessons")
+}
+
+model Quiz {
+  id              String                   @id @default(cuid())
+  moduleId        String                   @unique
+  title           String
+  description     String?
+  passingScore    Int                      @default(80)
+  timeLimit       Int?
+  maxAttempts     Int?
+  points          Int                      @default(50)
+  published       Boolean                  @default(false)
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  questions       Question[]
+  attempts        QuizAttempt[]
+  module          Module                   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  academyAttempts AcademyUserQuizAttempt[]
+
+  @@map("academy_quizzes")
+}
+
+model Question {
+  id             String                  @id @default(cuid())
+  quizId         String
+  question       String
+  type           String                  @default("MULTIPLE_CHOICE")
+  options        Json
+  correctAnswer  Int
+  explanation    String?
+  order          Int
+  points         Int                     @default(1)
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  quiz           Quiz                    @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers        QuizAnswer[]
+  academyAnswers AcademyUserQuizAnswer[]
+
+  @@map("academy_questions")
+}
+
+model QuizAttempt {
+  id          String       @id @default(cuid())
+  userId      String
+  quizId      String
+  score       Float
+  passed      Boolean
+  startedAt   DateTime     @default(now())
+  completedAt DateTime?
+  timeSpent   Int?
+  answers     QuizAnswer[]
+  quiz        Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("academy_quiz_attempts")
+}
+
+model QuizAnswer {
+  id             String      @id @default(cuid())
+  attemptId      String
+  questionId     String
+  selectedAnswer Int
+  isCorrect      Boolean
+  answeredAt     DateTime    @default(now())
+  attempt        QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@map("academy_quiz_answers")
+}
+
+model QuizLead {
+  id                       String    @id @default(cuid())
+  email                    String
+  fullName                 String?
+  score                    Int
+  level                    String
+  answers                  Json
+  completedAt              DateTime  @default(now())
+  timeElapsed              Int
+  converted                Boolean   @default(false)
+  academyUserId            String?
+  source                   String    @default("QUIZ_PUBLIC")
+  userAgent                String?
+  ipAddress                String?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  emailVerified            Boolean   @default(false)
+  verificationToken        String?   @unique
+  verificationTokenExpires DateTime?
+  verifiedAt               DateTime?
+
+  @@index([email])
+  @@index([completedAt])
+  @@index([converted])
+  @@index([emailVerified])
+  @@index([verificationToken])
+  @@map("quiz_leads")
+}
+
+model AcademyProgress {
+  id             String    @id @default(cuid())
+  userId         String
+  lessonId       String
+  completed      Boolean   @default(false)
+  completedAt    DateTime?
+  timeSpent      Int       @default(0)
+  lastAccessedAt DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  lesson         Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("academy_progress")
+}
+
+model Achievement {
+  id           String                   @id @default(cuid())
+  code         String                   @unique
+  title        String
+  description  String
+  icon         String?
+  badge        String?
+  points       Int                      @default(0)
+  rarity       String                   @default("COMMON")
+  createdAt    DateTime                 @default(now())
+  academyUsers AcademyUserAchievement[]
+  users        UserAchievement[]
+
+  @@map("academy_achievements")
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime    @default(now())
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model Diploma {
+  id               String   @id @default(cuid())
+  userId           String
+  courseId         String
+  fullName         String
+  certificateCode  String   @unique
+  finalScore       Float
+  rank             Int?
+  totalStudents    Int?
+  completedAt      DateTime @default(now())
+  pdfUrl           String?
+  sharedToFacebook Boolean  @default(false)
+  viewCount        Int      @default(0)
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([finalScore])
+  @@index([completedAt])
+  @@map("academy_diplomas")
+}
+
+model AcademyUser {
+  id                       String                   @id @default(cuid())
+  email                    String                   @unique
+  password                 String
+  fullName                 String
+  username                 String?                  @unique
+  avatar                   String?
+  bio                      String?
+  academyPoints            Int                      @default(0)
+  academyStreak            Int                      @default(0)
+  lastActivityAt           DateTime                 @default(now())
+  enrolledAt               DateTime                 @default(now())
+  createdAt                DateTime                 @default(now())
+  updatedAt                DateTime                 @updatedAt
+  emailVerificationExpires DateTime?
+  emailVerificationToken   String?                  @unique
+  emailVerified            Boolean                  @default(false)
+  day10EmailSent           Boolean                  @default(false)
+  day2EmailSent            Boolean                  @default(false)
+  day5EmailSent            Boolean                  @default(false)
+  emailClicks              Int                      @default(0)
+  emailOpens               Int                      @default(0)
+  journeyStage             String                   @default("QUIZ_COMPLETED")
+  lastEmailClickedAt       DateTime?
+  lastEmailOpenedAt        DateTime?
+  quizAnswers              Json?
+  quizCompletedAt          DateTime?
+  quizLevel                String?
+  quizScore                Int?
+  tags                     String[]                 @default([])
+  welcomeEmailSent         Boolean                  @default(false)
+  emailLogs                AcademyEmailLog[]
+  payments                 AcademyPayment[]
+  reviews                  AcademyReview[]
+  achievements             AcademyUserAchievement[]
+  diplomas                 AcademyUserDiploma[]
+  events                   AcademyUserEvent[]
+  progress                 AcademyUserProgress[]
+  quizAttempts             AcademyUserQuizAttempt[]
+
+  @@map("academy_users")
+}
+
+model AcademyUserProgress {
+  id             String      @id @default(cuid())
+  userId         String
+  lessonId       String
+  completed      Boolean     @default(false)
+  completedAt    DateTime?
+  timeSpent      Int         @default(0)
+  lastAccessedAt DateTime    @default(now())
+  createdAt      DateTime    @default(now())
+  lesson         Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user           AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("academy_user_progress")
+}
+
+model AcademyUserQuizAttempt {
+  id          String                  @id @default(cuid())
+  userId      String
+  quizId      String
+  score       Float
+  passed      Boolean
+  startedAt   DateTime                @default(now())
+  completedAt DateTime?
+  timeSpent   Int?
+  answers     AcademyUserQuizAnswer[]
+  quiz        Quiz                    @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user        AcademyUser             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("academy_user_quiz_attempts")
+}
+
+model AcademyUserQuizAnswer {
+  id             String                 @id @default(cuid())
+  attemptId      String
+  questionId     String
+  selectedAnswer Int
+  isCorrect      Boolean
+  answeredAt     DateTime               @default(now())
+  attempt        AcademyUserQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       Question               @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@map("academy_user_quiz_answers")
+}
+
+model AcademyUserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime    @default(now())
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  user          AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@map("academy_user_achievements")
+}
+
+model AcademyUserDiploma {
+  id               String      @id @default(cuid())
+  userId           String
+  courseId         String
+  fullName         String
+  certificateCode  String      @unique
+  finalScore       Float
+  rank             Int?
+  totalStudents    Int?
+  completedAt      DateTime    @default(now())
+  pdfUrl           String?
+  sharedToFacebook Boolean     @default(false)
+  viewCount        Int         @default(0)
+  createdAt        DateTime    @default(now())
+  course           Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user             AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([finalScore])
+  @@map("academy_user_diplomas")
+}
+
+model AcademyReview {
+  id          String      @id @default(cuid())
+  userId      String
+  courseId    String
+  rating      Int
+  testimonial String?
+  isPublic    Boolean     @default(false)
+  isApproved  Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user        AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, isApproved, isPublic])
+  @@map("academy_reviews")
+}
+
+model AcademyPayment {
+  id              String      @id @default(cuid())
+  userId          String
+  courseId        String
+  amount          Decimal
+  method          String
+  status          String      @default("pending")
+  stripeSessionId String?     @unique
+  stripePaymentId String?
+  reference       String?
+  proofUrl        String?
+  paidAt          DateTime?
+  createdAt       DateTime    @default(now())
+  course          Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("academy_payments")
+}
+
+model AcademyEmailLog {
+  id         String      @id @default(cuid())
+  userId     String
+  emailType  String
+  subject    String
+  sentAt     DateTime    @default(now())
+  opened     Boolean     @default(false)
+  openedAt   DateTime?
+  clicked    Boolean     @default(false)
+  clickedAt  DateTime?
+  bounced    Boolean     @default(false)
+  complained Boolean     @default(false)
+  resendId   String?     @unique
+  user       AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([emailType])
+  @@index([sentAt])
+  @@map("academy_email_logs")
+}
+
+model AcademyUserEvent {
+  id        String      @id @default(cuid())
+  userId    String
+  eventType String
+  eventData Json?
+  createdAt DateTime    @default(now())
+  user      AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([eventType])
+  @@map("academy_user_events")
+}
+
+model KnowledgeCategory {
+  id            String              @id @default(cuid())
+  name          String              @unique
+  slug          String              @unique
+  description   String?
+  icon          String?
+  color         String?
+  order         Int                 @default(0)
+  parentId      String?
+  country       String?
+  language      String              @default("es")
+  isActive      Boolean             @default(true)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  articles      KnowledgeArticle[]
+  parent        KnowledgeCategory?  @relation("SubCategories", fields: [parentId], references: [id])
+  subcategories KnowledgeCategory[] @relation("SubCategories")
+
+  @@index([slug])
+  @@index([country])
+  @@index([order])
+  @@map("knowledge_categories")
+}
+
+model KnowledgeTag {
+  id       String             @id @default(cuid())
+  name     String             @unique
+  slug     String             @unique
+  color    String?
+  articles KnowledgeArticle[] @relation("ArticleTags")
+
+  @@index([slug])
+  @@map("knowledge_tags")
+}
+
+model KnowledgeArticle {
+  id                   String            @id @default(cuid())
+  slug                 String            @unique
+  title                String
+  content              String
+  excerpt              String?
+  metaTitle            String?
+  metaDescription      String?
+  keywords             String[]          @default([])
+  views                Int               @default(0)
+  publishedAt          DateTime?
+  version              Int               @default(1)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  author               String?
+  categoryId           String
+  country              String?
+  downvotes            Int               @default(0)
+  embedding            Json?
+  embeddingModel       String?
+  language             String            @default("es")
+  lastReviewedAt       DateTime?
+  previousVersionId    String?
+  sourceType           String            @default("MANUAL")
+  sourceUrl            String?
+  upvotes              Int               @default(0)
+  status               String            @default("DRAFT")
+  category             KnowledgeCategory @relation(fields: [categoryId], references: [id])
+  sources              KnowledgeSource[]
+  relatedQuizQuestions QuizQuestion[]
+  tags                 KnowledgeTag[]    @relation("ArticleTags")
+  chatbotQueries       CerebellumQuery[] @relation("CerebellumQueryToKnowledgeArticle")
+
+  @@index([slug])
+  @@index([status])
+  @@index([categoryId])
+  @@index([country])
+  @@index([publishedAt])
+  @@map("knowledge_articles")
+}
+
+model KnowledgeSource {
+  id            String            @id @default(cuid())
+  articleId     String?
+  url           String?
+  title         String
+  type          String
+  description   String?
+  rawContent    String?
+  extractedAt   DateTime?
+  author        String?
+  publishedDate DateTime?
+  language      String            @default("es")
+  country       String?
+  status        String            @default("PENDING")
+  errorMessage  String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  article       KnowledgeArticle? @relation(fields: [articleId], references: [id])
+
+  @@index([url])
+  @@index([status])
+  @@index([type])
+  @@map("knowledge_sources")
+}
+
+model QuizQuestion {
+  id               String            @id @default(cuid())
+  question         String
+  category         String
+  difficulty       String
+  points           Int               @default(1)
+  type             String
+  options          Json
+  explanation      String?
+  relatedArticleId String?
+  isActive         Boolean           @default(true)
+  order            Int               @default(0)
+  timesAsked       Int               @default(0)
+  timesCorrect     Int               @default(0)
+  averageTime      Float?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  relatedArticle   KnowledgeArticle? @relation(fields: [relatedArticleId], references: [id])
+
+  @@index([category])
+  @@index([difficulty])
+  @@index([isActive])
+  @@map("quiz_questions")
+}
+
+model CerebellumQuery {
+  id             String             @id @default(cuid())
+  userId         String?
+  query          String
+  response       String
+  model          String             @default("gpt-4")
+  tokens         Int?
+  responseTime   Float?
+  wasHelpful     Boolean?
+  feedback       String?
+  rating         Int?
+  country        String?
+  language       String?
+  createdAt      DateTime           @default(now())
+  sourceArticles KnowledgeArticle[] @relation("CerebellumQueryToKnowledgeArticle")
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([wasHelpful])
+  @@map("cerebellum_queries")
+}
+
+model CerebellumSubscription {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  tier                 String   @default("FREE")
+  queriesLimit         Int      @default(10)
+  queriesUsed          Int      @default(0)
+  resetDate            DateTime
+  hasPrioritySupport   Boolean  @default(false)
+  hasAdvancedAnalytics Boolean  @default(false)
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([userId])
+  @@map("cerebellum_subscriptions")
+}
+
+model EmailSubscriber {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  name                String?
+  archetype           String?
+  source              String
+  sourceMetadata      Json?
+  status              String    @default("active")
+  unsubscribedAt      DateTime?
+  unsubscribeReason   String?
+  openRate            Float     @default(0)
+  clickRate           Float     @default(0)
+  lastEmailOpenedAt   DateTime?
+  lastEmailClickedAt  DateTime?
+  engagementScore     String    @default("warm")
+  currentJourneyStage String    @default("subscribed")
+  tags                String[]  @default([])
+  downloadedGuide     Boolean   @default(false)
+  enrolledCourse      Boolean   @default(false)
+  purchasedManual     Boolean   @default(false)
+  purchasedCourse     Boolean   @default(false)
+  emailsSent          Int       @default(0)
+  emailsOpened        Int       @default(0)
+  emailsClicked       Int       @default(0)
+  lastEmailSentAt     DateTime?
+  leadId              String?
+  userId              String?
+  hostProfileTestId   String?
+  subscribedAt        DateTime  @default(now())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  becameHotAt         DateTime?
+  bouncedAt           DateTime?
+  emailsBounced       Int       @default(0)
+  emailsDelivered     Int       @default(0)
+  firstOpenedAt       DateTime?
+  lastEngagement      DateTime?
+  day10SentAt         DateTime?
+  day14SentAt         DateTime?
+  day3SentAt          DateTime?
+  day7SentAt          DateTime?
+  sequenceStartedAt   DateTime?
+  sequenceStatus      String    @default("active")
+  contentTrack        String?
+  interests           String[]  @default([])
+  topPriority         String?
+
+  @@index([email])
+  @@index([archetype])
+  @@index([source])
+  @@index([status])
+  @@index([engagementScore])
+  @@index([currentJourneyStage])
+  @@index([subscribedAt])
+  @@map("email_subscribers")
+}
+
+model HostProfileTest {
+  id                String   @id @default(cuid())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  email             String?
+  name              String?
+  gender            String?
+  emailConsent      Boolean  @default(false)
+  shareConsent      Boolean  @default(false)
+  answers           Json
+  scoreHospitalidad Float
+  scoreComunicacion Float
+  scoreOperativa    Float
+  scoreCrisis       Float
+  scoreData         Float
+  scoreLimites      Float
+  scoreMkt          Float
+  scoreBalance      Float
+  archetype         String
+  topStrength       String
+  criticalGap       String
+  userId            String?
+  user              User?    @relation(fields: [userId], references: [id])
+
+  @@index([archetype])
+  @@index([email])
+  @@index([createdAt])
+  @@map("host_profile_tests")
+}
+
+model EmailSequence {
+  id                   String               @id @default(cuid())
+  name                 String
+  description          String?
+  triggerEvent         String
+  targetArchetype      String?
+  targetSource         String?
+  targetTags           String[]             @default([])
+  isActive             Boolean              @default(true)
+  priority             Int                  @default(0)
+  subscribersEnrolled  Int                  @default(0)
+  subscribersCompleted Int                  @default(0)
+  subscribersActive    Int                  @default(0)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  steps                EmailSequenceStep[]
+  enrollments          SequenceEnrollment[]
+
+  @@index([triggerEvent])
+  @@index([isActive])
+  @@map("email_sequences")
+}
+
+model EmailSequenceStep {
+  id                    String           @id @default(cuid())
+  sequenceId            String
+  name                  String
+  subject               String
+  templateName          String
+  templateData          Json?
+  delayDays             Int              @default(0)
+  delayHours            Int              @default(0)
+  sendAtHour            Int?
+  order                 Int              @default(0)
+  requiresPreviousOpen  Boolean          @default(false)
+  requiresPreviousClick Boolean          @default(false)
+  isActive              Boolean          @default(true)
+  emailsSent            Int              @default(0)
+  emailsDelivered       Int              @default(0)
+  emailsOpened          Int              @default(0)
+  emailsClicked         Int              @default(0)
+  emailsBounced         Int              @default(0)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  sequence              EmailSequence    @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  scheduledEmails       ScheduledEmail[]
+
+  @@index([sequenceId, order])
+  @@map("email_sequence_steps")
+}
+
+model SequenceEnrollment {
+  id               String           @id @default(cuid())
+  subscriberId     String
+  sequenceId       String
+  status           String           @default("active")
+  currentStepOrder Int              @default(0)
+  enrolledAt       DateTime         @default(now())
+  completedAt      DateTime?
+  pausedAt         DateTime?
+  unsubscribedAt   DateTime?
+  emailsSent       Int              @default(0)
+  emailsOpened     Int              @default(0)
+  emailsClicked    Int              @default(0)
+  metadata         Json?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  scheduledEmails  ScheduledEmail[]
+  sequence         EmailSequence    @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriberId, sequenceId])
+  @@index([subscriberId])
+  @@index([sequenceId, status])
+  @@map("sequence_enrollments")
+}
+
+model ScheduledEmail {
+  id             String             @id @default(cuid())
+  enrollmentId   String
+  stepId         String
+  subscriberId   String
+  recipientEmail String
+  recipientName  String?
+  subject        String
+  templateName   String
+  templateData   Json?
+  scheduledFor   DateTime
+  sendAttempts   Int                @default(0)
+  status         String             @default("pending")
+  sentAt         DateTime?
+  deliveredAt    DateTime?
+  failedAt       DateTime?
+  errorMessage   String?
+  resendId       String?            @unique
+  openedAt       DateTime?
+  clickedAt      DateTime?
+  bouncedAt      DateTime?
+  complainedAt   DateTime?
+  unsubscribedAt DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  enrollment     SequenceEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  step           EmailSequenceStep  @relation(fields: [stepId], references: [id], onDelete: Cascade)
+
+  @@index([status, scheduledFor])
+  @@index([subscriberId])
+  @@index([enrollmentId])
+  @@index([resendId])
+  @@map("scheduled_emails")
+}
+
+model AdminAuditLog {
+  id              String   @id @default(cuid())
+  adminId         String
+  adminName       String
+  adminEmail      String
+  targetUserId    String?
+  targetUserEmail String?
+  targetUserName  String?
+  action          String
+  propertyId      String?
+  propertyName    String?
+  zoneId          String?
+  zoneName        String?
+  metadata        Json?
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime @default(now())
+  admin           Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId, createdAt])
+  @@index([targetUserId, createdAt])
+  @@index([action, createdAt])
+  @@index([propertyId, createdAt])
+  @@map("admin_audit_logs")
+}
+
+enum BlogCategory {
+  GUIAS
+  MEJORES_PRACTICAS
+  NORMATIVA
+  AUTOMATIZACION
+  MARKETING
+  OPERACIONES
+  CASOS_ESTUDIO
+  NOTICIAS
+}
+
+enum BlogStatus {
+  DRAFT
+  REVIEW
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
 enum JourneyStage {
-  VISITOR         // Just visited the site
-  LEAD            // Captured via lead form
-  REGISTERED      // Created account
-  MQL             // Marketing Qualified Lead (engaged, filled profile)
-  SQL             // Sales Qualified Lead (requested demo/pricing)
-  CUSTOMER        // Active paying customer
-  CHURNED         // Cancelled or inactive
+  VISITOR
+  LEAD
+  REGISTERED
+  MQL
+  SQL
+  CUSTOMER
+  CHURNED
 }
 
 enum EmailEventType {
@@ -1231,1101 +1927,11 @@ enum EmailEventType {
 }
 
 enum EmailTrigger {
-  ON_LEAD_CAPTURE       // When lead downloads resource
-  ON_REGISTRATION       // When user creates account
-  ON_TRIAL_START        // When trial begins
-  ON_SUBSCRIPTION       // When becomes customer
-  ON_INACTIVITY         // After X days inactive
-  ON_CANCELLATION       // When subscription cancelled
-  MANUAL                // Sent manually by admin
-}
-
-// ============================================
-// ACADEMIA MODELS
-// ============================================
-
-// Curso principal (Academia Itineramio)
-model Course {
-  id              String    @id @default(cuid())
-  title           String
-  slug            String    @unique
-  description     String    @db.Text
-  coverImage      String?
-  difficulty      String    @default("INTERMEDIATE") // BEGINNER, INTERMEDIATE, ADVANCED
-  duration        Int       // Duración estimada en horas
-  passingScore    Int       @default(80) // Nota mínima para aprobar (%)
-  published       Boolean   @default(false)
-  enrollmentCount Int       @default(0) // Contador de inscritos
-
-  // Sistema de pago (inactivo por defecto)
-  isPaid          Boolean   @default(false)
-  price           Decimal   @default(0)
-  paymentMethods  String[]  @default([]) // ["stripe", "bizum", "transfer"]
-
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  modules         Module[]
-  diplomas        AcademyUserDiploma[]
-  reviews         AcademyReview[]
-  payments        AcademyPayment[]
-
-  @@map("academy_courses")
-}
-
-// Módulos del curso (temáticas principales)
-model Module {
-  id              String    @id @default(cuid())
-  courseId        String
-  title           String
-  slug            String
-  description     String    @db.Text
-  icon            String?   // Nombre del icono de lucide-react
-  order           Int       // Orden de aparición
-  unlockDate      DateTime? // Fecha de desbloqueo (null = desbloqueado desde inicio)
-  estimatedTime   Int       // Tiempo estimado en minutos
-  published       Boolean   @default(false)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  course          Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessons         Lesson[]
-  quiz            Quiz?
-
-  @@unique([courseId, slug])
-  @@map("academy_modules")
-}
-
-// Lecciones (presentaciones interactivas con slides)
-model Lesson {
-  id              String    @id @default(cuid())
-  moduleId        String
-  title           String
-  slug            String
-  description     String?   @db.Text // Descripción corta
-  slides          Json      // Array de slides: [{type, title, content, image, notes}]
-  coverImage      String?   // Imagen de portada
-  videoUrl        String?   // URL de video intro (opcional)
-  duration        Int       // Duración estimada en minutos
-  order           Int       // Orden dentro del módulo
-  points          Int       @default(10) // Puntos por completar
-  published       Boolean   @default(false)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  module          Module                  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  progress        AcademyProgress[]
-  academyProgress AcademyUserProgress[]
-
-  @@unique([moduleId, slug])
-  @@map("academy_lessons")
-}
-
-// Quizzes (exámenes al final de cada módulo)
-model Quiz {
-  id              String    @id @default(cuid())
-  moduleId        String    @unique
-  title           String
-  description     String?   @db.Text
-  passingScore    Int       @default(80) // % mínimo para aprobar
-  timeLimit       Int?      // Tiempo límite en minutos (null = sin límite)
-  maxAttempts     Int?      // Intentos máximos (null = ilimitados)
-  points          Int       @default(50) // Puntos por aprobar
-  published       Boolean   @default(false)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  module          Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  questions       Question[]
-  attempts        QuizAttempt[]
-  academyAttempts AcademyUserQuizAttempt[]
-
-  @@map("academy_quizzes")
-}
-
-// Preguntas del quiz
-model Question {
-  id              String    @id @default(cuid())
-  quizId          String
-  question        String    @db.Text
-  type            String    @default("MULTIPLE_CHOICE") // MULTIPLE_CHOICE, TRUE_FALSE
-  options         Json      // Array de opciones ["opción 1", "opción 2", ...]
-  correctAnswer   Int       // Índice de la respuesta correcta (0-based)
-  explanation     String?   @db.Text // Explicación de por qué es correcta
-  order           Int       // Orden de la pregunta
-  points          Int       @default(1)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  quiz            Quiz      @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  answers         QuizAnswer[]
-  academyAnswers  AcademyUserQuizAnswer[]
-
-  @@map("academy_questions")
-}
-
-// Intentos de quiz por usuario
-model QuizAttempt {
-  id              String    @id @default(cuid())
-  userId          String
-  quizId          String
-  score           Float     // Puntuación obtenida (%)
-  passed          Boolean   // Si aprobó o no
-  startedAt       DateTime  @default(now())
-  completedAt     DateTime?
-  timeSpent       Int?      // Tiempo usado en segundos
-
-  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  quiz            Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  answers         QuizAnswer[]
-
-  @@map("academy_quiz_attempts")
-}
-
-// Respuestas individuales de usuario
-model QuizAnswer {
-  id              String    @id @default(cuid())
-  attemptId       String
-  questionId      String
-  selectedAnswer  Int       // Índice de la respuesta seleccionada
-  isCorrect       Boolean
-  answeredAt      DateTime  @default(now())
-
-  attempt         QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  question        Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@unique([attemptId, questionId])
-  @@map("academy_quiz_answers")
-}
-
-// Quiz Leads - Captura de todos los resultados del quiz (registrados y no registrados)
-model QuizLead {
-  id              String    @id @default(cuid())
-  email           String
-  fullName        String?   // Nombre completo del usuario
-  score           Int       // Puntuación obtenida (0-100)
-  level           String    // Nivel: BASIC, INTERMEDIATE, ADVANCED
-  answers         Json      // Array de respuestas con detalles
-  completedAt     DateTime  @default(now())
-  timeElapsed     Int       // Tiempo en segundos
-  converted       Boolean   @default(false) // Si se registró después del quiz
-  academyUserId   String?   // Link a AcademyUser si se registra
-  source          String    @default("QUIZ_PUBLIC") // QUIZ_PUBLIC, QUIZ_ACADEMY
-
-  // Datos adicionales para marketing
-  userAgent       String?   // Para analytics
-  ipAddress       String?   // Para analytics y anti-fraud
-
-  // Email verification (double opt-in)
-  emailVerified             Boolean   @default(false)
-  verificationToken         String?   @unique
-  verificationTokenExpires  DateTime?
-  verifiedAt                DateTime?
-
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  @@index([email])
-  @@index([completedAt])
-  @@index([converted])
-  @@index([emailVerified])
-  @@index([verificationToken])
-  @@map("quiz_leads")
-}
-
-// Progreso del usuario en lecciones
-model AcademyProgress {
-  id              String    @id @default(cuid())
-  userId          String
-  lessonId        String
-  completed       Boolean   @default(false)
-  completedAt     DateTime?
-  timeSpent       Int       @default(0) // Tiempo en segundos
-  lastAccessedAt  DateTime  @default(now())
-  createdAt       DateTime  @default(now())
-
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson          Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId])
-  @@map("academy_progress")
-}
-
-// Logros/Achievements
-model Achievement {
-  id              String    @id @default(cuid())
-  code            String    @unique // Código único (ej: "FIRST_LESSON", "PERFECT_SCORE")
-  title           String
-  description     String    @db.Text
-  icon            String?   // Nombre del icono
-  badge           String?   // URL de imagen del badge
-  points          Int       @default(0)
-  rarity          String    @default("COMMON") // COMMON, RARE, EPIC, LEGENDARY
-  createdAt       DateTime  @default(now())
-
-  users           UserAchievement[]
-  academyUsers    AcademyUserAchievement[]
-
-  @@map("academy_achievements")
-}
-
-// Logros desbloqueados por usuario
-model UserAchievement {
-  id              String    @id @default(cuid())
-  userId          String
-  achievementId   String
-  unlockedAt      DateTime  @default(now())
-
-  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement     Achievement  @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, achievementId])
-  @@map("user_achievements")
-}
-
-// Diplomas generados
-model Diploma {
-  id              String    @id @default(cuid())
-  userId          String
-  courseId        String
-  fullName        String    // Nombre completo para el diploma
-  certificateCode String    @unique // Código único para verificación
-  finalScore      Float     // Puntuación final (%)
-  rank            Int?      // Posición en el ranking al momento de obtenerlo
-  totalStudents   Int?      // Total de estudiantes al momento
-  completedAt     DateTime  @default(now())
-  pdfUrl          String?   // URL del PDF generado
-  sharedToFacebook Boolean  @default(false)
-  viewCount       Int       @default(0) // Veces que se ha visto/compartido
-
-  createdAt       DateTime  @default(now())
-
-  @@index([userId])
-  @@index([courseId])
-  @@index([finalScore])
-  @@index([completedAt])
-  @@map("academy_diplomas")
-}
-
-// Usuarios separados de Academia (no activan trial de Itineramio)
-model AcademyUser {
-  id                String    @id @default(cuid())
-  email             String    @unique
-  password          String
-  fullName          String    // Nombre completo para diplomas
-  username          String?   @unique
-  avatar            String?
-  bio               String?   @db.Text
-
-  // Email verification
-  emailVerified              Boolean   @default(false)
-  emailVerificationToken     String?   @unique
-  emailVerificationExpires   DateTime?
-
-  // Quiz de nivel inicial
-  quizScore         Int?      // Puntuación del quiz 0-100
-  quizLevel         String?   // BASIC, INTERMEDIATE, ADVANCED
-  quizCompletedAt   DateTime? // Cuándo completó el quiz
-  quizAnswers       Json?     // Respuestas del quiz para análisis
-
-  // Customer Journey
-  journeyStage      String    @default("QUIZ_COMPLETED") // QUIZ_COMPLETED, REGISTERED, MODULE_1_STARTED, etc
-  tags              String[]  @default([]) // Tags para segmentación ["high-engagement", "needs-nudge"]
-
-  // Email tracking
-  welcomeEmailSent       Boolean @default(false)
-  day2EmailSent          Boolean @default(false)
-  day5EmailSent          Boolean @default(false)
-  day10EmailSent         Boolean @default(false)
-  emailOpens             Int     @default(0)
-  emailClicks            Int     @default(0)
-  lastEmailOpenedAt      DateTime?
-  lastEmailClickedAt     DateTime?
-
-  // Academia stats
-  academyPoints     Int       @default(0)
-  academyStreak     Int       @default(0)
-  lastActivityAt    DateTime  @default(now())
-  enrolledAt        DateTime  @default(now())
-
-  // Relations
-  progress          AcademyUserProgress[]
-  quizAttempts      AcademyUserQuizAttempt[]
-  achievements      AcademyUserAchievement[]
-  diplomas          AcademyUserDiploma[]
-  reviews           AcademyReview[]
-  payments          AcademyPayment[]
-  emailLogs         AcademyEmailLog[]
-  events            AcademyUserEvent[]
-
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-
-  @@map("academy_users")
-}
-
-// Progreso de usuarios de Academia
-model AcademyUserProgress {
-  id              String    @id @default(cuid())
-  userId          String
-  lessonId        String
-  completed       Boolean   @default(false)
-  completedAt     DateTime?
-  timeSpent       Int       @default(0)
-  lastAccessedAt  DateTime  @default(now())
-  createdAt       DateTime  @default(now())
-
-  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson          Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId])
-  @@map("academy_user_progress")
-}
-
-// Intentos de quiz de usuarios de Academia
-model AcademyUserQuizAttempt {
-  id              String    @id @default(cuid())
-  userId          String
-  quizId          String
-  score           Float
-  passed          Boolean
-  startedAt       DateTime  @default(now())
-  completedAt     DateTime?
-  timeSpent       Int?
-
-  user            AcademyUser           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  quiz            Quiz                  @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  answers         AcademyUserQuizAnswer[]
-
-  @@map("academy_user_quiz_attempts")
-}
-
-// Respuestas de quiz de usuarios de Academia
-model AcademyUserQuizAnswer {
-  id              String    @id @default(cuid())
-  attemptId       String
-  questionId      String
-  selectedAnswer  Int
-  isCorrect       Boolean
-  answeredAt      DateTime  @default(now())
-
-  attempt         AcademyUserQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  question        Question               @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@unique([attemptId, questionId])
-  @@map("academy_user_quiz_answers")
-}
-
-// Logros de usuarios de Academia
-model AcademyUserAchievement {
-  id              String    @id @default(cuid())
-  userId          String
-  achievementId   String
-  unlockedAt      DateTime  @default(now())
-
-  user            AcademyUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement     Achievement  @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, achievementId])
-  @@map("academy_user_achievements")
-}
-
-// Diplomas de usuarios de Academia
-model AcademyUserDiploma {
-  id              String    @id @default(cuid())
-  userId          String
-  courseId        String
-  fullName        String
-  certificateCode String    @unique
-  finalScore      Float
-  rank            Int?
-  totalStudents   Int?
-  completedAt     DateTime  @default(now())
-  pdfUrl          String?
-  sharedToFacebook Boolean  @default(false)
-  viewCount       Int       @default(0)
-  createdAt       DateTime  @default(now())
-
-  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course          Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([courseId])
-  @@index([finalScore])
-  @@map("academy_user_diplomas")
-}
-
-// Reviews de usuarios al completar el curso
-model AcademyReview {
-  id              String    @id @default(cuid())
-  userId          String
-  courseId        String
-  rating          Int       // 1-5 estrellas
-  testimonial     String?   @db.Text
-  isPublic        Boolean   @default(false) // Si el usuario permite publicarlo
-  isApproved      Boolean   @default(false) // Si admin lo aprueba para mostrar
-  createdAt       DateTime  @default(now())
-
-  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course          Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@index([courseId, isApproved, isPublic])
-  @@map("academy_reviews")
-}
-
-// Sistema de pagos para cursos de pago
-model AcademyPayment {
-  id              String    @id @default(cuid())
-  userId          String
-  courseId        String
-  amount          Decimal
-  method          String    // "stripe", "bizum", "transfer"
-  status          String    @default("pending") // pending, completed, failed
-
-  // Stripe
-  stripeSessionId String?   @unique
-  stripePaymentId String?
-
-  // Bizum/Transfer
-  reference       String?   // Referencia de pago
-  proofUrl        String?   // URL del comprobante
-
-  paidAt          DateTime?
-  createdAt       DateTime  @default(now())
-
-  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course          Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([status])
-  @@map("academy_payments")
-}
-
-// Log de emails enviados a usuarios de academia
-model AcademyEmailLog {
-  id              String    @id @default(cuid())
-  userId          String
-  emailType       String    // "WELCOME", "DAY_2_NUDGE", "DAY_5_CONTENT", etc
-  subject         String
-  sentAt          DateTime  @default(now())
-
-  // Métricas
-  opened          Boolean   @default(false)
-  openedAt        DateTime?
-  clicked         Boolean   @default(false)
-  clickedAt       DateTime?
-  bounced         Boolean   @default(false)
-  complained      Boolean   @default(false)
-
-  // Resend ID para tracking
-  resendId        String?   @unique
-
-  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([emailType])
-  @@index([sentAt])
-  @@map("academy_email_logs")
-}
-
-// Eventos de usuario para customer journey
-model AcademyUserEvent {
-  id              String    @id @default(cuid())
-  userId          String
-  eventType       String    // "QUIZ_STARTED", "QUIZ_COMPLETED", "REGISTERED", "EMAIL_OPENED", etc
-  eventData       Json?     // Datos extra del evento
-  createdAt       DateTime  @default(now())
-
-  user            AcademyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, createdAt])
-  @@index([eventType])
-  @@map("academy_user_events")
-}
-
-// ============================================
-// CEREBELLUM - Sistema de Knowledge Base
-// ============================================
-
-// Categorías de conocimiento (Fundamentos, Optimización, Legal, etc.)
-model KnowledgeCategory {
-  id              String              @id @default(cuid())
-  name            String              @unique
-  slug            String              @unique
-  description     String?
-  icon            String?             // Emoji o nombre de icono
-  color           String?             // Color hex para UI
-  order           Int                 @default(0)
-  parentId        String?             // Para subcategorías
-
-  // Segmentación
-  country         String?             // null = global, "ES", "MX", "AR", etc.
-  language        String              @default("es")
-
-  // Metadata
-  isActive        Boolean             @default(true)
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-
-  // Relaciones
-  parent          KnowledgeCategory?  @relation("SubCategories", fields: [parentId], references: [id])
-  subcategories   KnowledgeCategory[] @relation("SubCategories")
-  articles        KnowledgeArticle[]
-
-  @@index([slug])
-  @@index([country])
-  @@index([order])
-  @@map("knowledge_categories")
-}
-
-// Tags para clasificar artículos
-model KnowledgeTag {
-  id              String              @id @default(cuid())
-  name            String              @unique
-  slug            String              @unique
-  color           String?
-
-  articles        KnowledgeArticle[]  @relation("ArticleTags")
-
-  @@index([slug])
-  @@map("knowledge_tags")
-}
-
-// Artículos de conocimiento (el cerebro de CEREBELLUM)
-model KnowledgeArticle {
-  id              String              @id @default(cuid())
-  title           String
-  slug            String              @unique
-  excerpt         String?             // Resumen corto
-  content         String              @db.Text // Markdown
-
-  // Clasificación
-  categoryId      String
-  tags            KnowledgeTag[]      @relation("ArticleTags")
-
-  // Metadata
-  author          String?             // Nombre del autor
-  sourceUrl       String?             // URL de origen si viene de web externa
-  sourceType      String              @default("MANUAL") // MANUAL, WEB_SCRAPE, AI_GENERATED
-
-  // Versioning
-  version         Int                 @default(1)
-  previousVersionId String?           // Para historial de versiones
-
-  // Estado
-  status          String              @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
-  publishedAt     DateTime?
-
-  // Segmentación geográfica
-  country         String?             // null = global
-  language        String              @default("es")
-
-  // SEO
-  metaTitle       String?
-  metaDescription String?
-  keywords        String[]            @default([])
-
-  // Embeddings para chatbot (Vector search)
-  embedding       Json?               // Vector embeddings de OpenAI
-  embeddingModel  String?             // "text-embedding-3-small", etc.
-
-  // Analytics
-  views           Int                 @default(0)
-  upvotes         Int                 @default(0)
-  downvotes       Int                 @default(0)
-
-  // Timestamps
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  lastReviewedAt  DateTime?
-
-  // Relaciones
-  category        KnowledgeCategory   @relation(fields: [categoryId], references: [id])
-  sources         KnowledgeSource[]
-  chatbotQueries  CerebellumQuery[]
-  relatedQuizQuestions QuizQuestion[]
-
-  @@index([slug])
-  @@index([status])
-  @@index([categoryId])
-  @@index([country])
-  @@index([publishedAt])
-  @@map("knowledge_articles")
-}
-
-// Fuentes de conocimiento (URLs, PDFs, etc.)
-model KnowledgeSource {
-  id              String              @id @default(cuid())
-  articleId       String?             // Puede ser independiente o asociado a artículo
-
-  url             String?
-  title           String
-  type            String              // "WEB_PAGE", "PDF", "VIDEO", "AIRBNB_POLICY", "MANUAL"
-  description     String?
-
-  // Contenido extraído
-  rawContent      String?             @db.Text
-  extractedAt     DateTime?
-
-  // Metadata
-  author          String?
-  publishedDate   DateTime?
-  language        String              @default("es")
-  country         String?
-
-  // Estado de procesamiento
-  status          String              @default("PENDING") // PENDING, PROCESSED, ERROR
-  errorMessage    String?
-
-  // Timestamps
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-
-  // Relaciones
-  article         KnowledgeArticle?   @relation(fields: [articleId], references: [id])
-
-  @@index([url])
-  @@index([status])
-  @@index([type])
-  @@map("knowledge_sources")
-}
-
-// Preguntas de quiz vinculadas a artículos de conocimiento
-model QuizQuestion {
-  id              String              @id @default(cuid())
-  question        String
-  category        String              // FUNDAMENTOS, OPTIMIZACIÓN, AVANZADO
-  difficulty      String              // BASIC, INTERMEDIATE, ADVANCED
-  points          Int                 @default(1)
-  type            String              // single-choice, multiple-choice
-
-  options         Json                // Array de opciones con respuestas correctas
-  explanation     String?
-
-  // Vinculación con knowledge base
-  relatedArticleId String?
-  relatedArticle  KnowledgeArticle?   @relation(fields: [relatedArticleId], references: [id])
-
-  // Metadata
-  isActive        Boolean             @default(true)
-  order           Int                 @default(0)
-
-  // Analytics
-  timesAsked      Int                 @default(0)
-  timesCorrect    Int                 @default(0)
-  averageTime     Float?              // Tiempo promedio en segundos
-
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-
-  @@index([category])
-  @@index([difficulty])
-  @@index([isActive])
-  @@map("quiz_questions")
-}
-
-// Queries del chatbot (CEREBELLUM)
-model CerebellumQuery {
-  id              String              @id @default(cuid())
-  userId          String?             // null si es anónimo
-  query           String              // Pregunta del usuario
-  response        String              @db.Text // Respuesta generada
-
-  // Artículos usados para responder
-  sourceArticles  KnowledgeArticle[]
-
-  // Metadata
-  model           String              @default("gpt-4") // Modelo usado
-  tokens          Int?                // Tokens consumidos
-  responseTime    Float?              // Tiempo de respuesta en ms
-
-  // Feedback del usuario
-  wasHelpful      Boolean?
-  feedback        String?
-  rating          Int?                // 1-5 estrellas
-
-  // Analytics
-  country         String?
-  language        String?
-
-  createdAt       DateTime            @default(now())
-
-  @@index([userId])
-  @@index([createdAt])
-  @@index([wasHelpful])
-  @@map("cerebellum_queries")
-}
-
-// Subscripciones al chatbot (premium vs free)
-model CerebellumSubscription {
-  id              String              @id @default(cuid())
-  userId          String              @unique
-
-  tier            String              @default("FREE") // FREE, BASIC, PRO
-  queriesLimit    Int                 @default(10)     // Queries por mes
-  queriesUsed     Int                 @default(0)
-
-  // Billing
-  resetDate       DateTime            // Cuando resetea el contador mensual
-
-  // Premium features
-  hasPrioritySupport Boolean           @default(false)
-  hasAdvancedAnalytics Boolean         @default(false)
-
-  isActive        Boolean             @default(true)
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-
-  @@index([userId])
-  @@map("cerebellum_subscriptions")
-}
-
-// ============================================
-// EMAIL MARKETING SUBSCRIBERS
-// ============================================
-
-model EmailSubscriber {
-  id                  String   @id @default(cuid())
-  email               String   @unique
-  name                String?
-
-  // Segmentación por arquetipo (del test de personalidad)
-  archetype           String?  // ESTRATEGA, SISTEMÁTICO, etc.
-
-  // Fuente de captura
-  source              String   // "host_profile_test" | "qr_code" | "blog_lead_magnet" | "manual"
-  sourceMetadata      Json?    // Info adicional de la fuente
-
-  // Estado de suscripción
-  status              String   @default("active") // "active" | "unsubscribed" | "bounced"
-  unsubscribedAt      DateTime?
-  unsubscribeReason   String?
-
-  // Engagement metrics
-  openRate            Float    @default(0) // % de emails abiertos
-  clickRate           Float    @default(0) // % de emails con click
-  lastEmailOpenedAt   DateTime?
-  lastEmailClickedAt  DateTime?
-  engagementScore     String   @default("warm") // "hot" | "warm" | "cold"
-
-  // Journey tracking
-  currentJourneyStage String   @default("subscribed") // "subscribed" | "engaged" | "course_enrolled" | "customer"
-  tags                String[] @default([]) // Tags dinámicos para segmentación
-
-  // Interest-based segmentation (capturado en test de personalidad)
-  interests           String[] @default([]) // Hasta 3 intereses: "reviews" | "pricing" | "occupancy" | "automation" | "communication" | "calendar" | "design" | "legal"
-  topPriority         String?  // Primer interés seleccionado = contenido prioritario
-  contentTrack        String?  // Track de contenido: "reviews_focused" | "automation_focused" | etc.
-
-  // Productos interactuados
-  downloadedGuide     Boolean  @default(false)
-  enrolledCourse      Boolean  @default(false)
-  purchasedManual     Boolean  @default(false)
-  purchasedCourse     Boolean  @default(false)
-
-  // Email sequence tracking
-  emailsSent          Int      @default(0)
-  emailsDelivered     Int      @default(0) // Emails entregados con éxito
-  emailsOpened        Int      @default(0)
-  emailsClicked       Int      @default(0)
-  emailsBounced       Int      @default(0) // Emails rebotados
-  lastEmailSentAt     DateTime?
-  firstOpenedAt       DateTime? // Primera vez que abrió un email
-  bouncedAt           DateTime? // Cuando se marcó como bounced
-  lastEngagement      DateTime? // Última interacción (open/click)
-  becameHotAt         DateTime? // Cuando se volvió hot lead
-
-  // Nurturing sequence tracking (5-email sequence)
-  sequenceStartedAt   DateTime? // Cuando empezó la secuencia (Día 0 - Welcome)
-  day3SentAt          DateTime? // Día 3 - "3 errores comunes"
-  day7SentAt          DateTime? // Día 7 - Case study
-  day10SentAt         DateTime? // Día 10 - Trial invitation
-  day14SentAt         DateTime? // Día 14 - Last chance
-  sequenceStatus      String    @default("active") // "active" | "completed" | "paused" | "converted"
-
-  // Vinculación con otros modelos
-  leadId              String?  // Si viene de un Lead
-  userId              String?  // Si se convirtió en User
-  hostProfileTestId   String?  // Si completó el test
-
-  // Timestamps
-  subscribedAt        DateTime @default(now())
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  @@index([email])
-  @@index([archetype])
-  @@index([source])
-  @@index([status])
-  @@index([engagementScore])
-  @@index([currentJourneyStage])
-  @@index([subscribedAt])
-  @@map("email_subscribers")
-}
-
-// ============================================
-// HOST PROFILE TEST - Test de Perfil Operativo
-// ============================================
-
-model HostProfileTest {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Datos personales (opcionales hasta que den email)
-  email     String?
-  name      String?
-  gender    String?  // 'M', 'F', 'O'
-
-  // Consentimientos
-  emailConsent  Boolean @default(false)
-  shareConsent  Boolean @default(false)
-
-  // Respuestas del test (JSON con las 45 respuestas)
-  answers   Json
-
-  // Scores calculados
-  scoreHospitalidad    Float
-  scoreComunicacion    Float
-  scoreOperativa       Float
-  scoreCrisis          Float
-  scoreData            Float
-  scoreLimites         Float
-  scoreMkt             Float
-  scoreBalance         Float
-
-  // Resultado final
-  archetype String  // 'ESTRATEGA', 'SISTEMATICO', etc.
-  topStrength String
-  criticalGap String
-
-  // Relación con usuario (si está registrado)
-  userId    String?
-  user      User?   @relation(fields: [userId], references: [id])
-
-  @@index([archetype])
-  @@index([email])
-  @@index([createdAt])
-  @@map("host_profile_tests")
-}
-
-// ============================================
-// EMAIL SEQUENCES - Sistema de Secuencias Automatizadas
-// ============================================
-
-// Secuencia de emails (Ej: Onboarding, Nurturing por arquetipo)
-model EmailSequence {
-  id              String   @id @default(cuid())
-  name            String   // "Onboarding Estratega", "Nurturing Blog"
-  description     String?  @db.Text
-
-  // Trigger de la secuencia
-  triggerEvent    String   // "SUBSCRIBER_CREATED", "TEST_COMPLETED", "BLOG_DOWNLOAD"
-
-  // Segmentación (quién recibe esta secuencia)
-  targetArchetype String?  // null = todos, "ESTRATEGA", "SISTEMATICO", etc.
-  targetSource    String?  // null = todos, "host_profile_test", "blog", etc.
-  targetTags      String[] @default([]) // Tags adicionales
-
-  // Configuración
-  isActive        Boolean  @default(true)
-  priority        Int      @default(0) // Si hay múltiples secuencias, mayor = más prioridad
-
-  // Estadísticas
-  subscribersEnrolled Int   @default(0) // Cuántos han entrado
-  subscribersCompleted Int  @default(0) // Cuántos completaron
-  subscribersActive   Int   @default(0) // Cuántos están activos
-
-  // Timestamps
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // Relaciones
-  steps           EmailSequenceStep[]
-  enrollments     SequenceEnrollment[]
-
-  @@index([triggerEvent])
-  @@index([isActive])
-  @@map("email_sequences")
-}
-
-// Pasos dentro de una secuencia
-model EmailSequenceStep {
-  id              String   @id @default(cuid())
-  sequenceId      String
-
-  name            String   // "Email 1: Bienvenida", "Email 3: Caso de uso"
-  subject         String   // Asunto del email
-
-  // Contenido
-  templateName    String   // Nombre del template React Email (ej: "welcome-test.tsx")
-  templateData    Json?    // Datos dinámicos para el template
-
-  // Timing
-  delayDays       Int      @default(0) // Días después del trigger o del email anterior
-  delayHours      Int      @default(0) // Horas adicionales
-  sendAtHour      Int?     // Hora específica del día (0-23), null = enviar inmediatamente
-
-  // Orden en la secuencia
-  order           Int      @default(0)
-
-  // Condiciones
-  requiresPreviousOpen Boolean @default(false) // ¿Requiere que hayan abierto el email anterior?
-  requiresPreviousClick Boolean @default(false) // ¿Requiere click en anterior?
-
-  // Estado
-  isActive        Boolean  @default(true)
-
-  // Estadísticas
-  emailsSent      Int      @default(0)
-  emailsDelivered Int      @default(0)
-  emailsOpened    Int      @default(0)
-  emailsClicked   Int      @default(0)
-  emailsBounced   Int      @default(0)
-
-  // Timestamps
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // Relaciones
-  sequence        EmailSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
-  scheduledEmails ScheduledEmail[]
-
-  @@index([sequenceId, order])
-  @@map("email_sequence_steps")
-}
-
-// Inscripción de un subscriber a una secuencia
-model SequenceEnrollment {
-  id                String   @id @default(cuid())
-  subscriberId      String   // EmailSubscriber.id
-  sequenceId        String
-
-  status            String   @default("active") // "active" | "completed" | "paused" | "unsubscribed"
-
-  currentStepOrder  Int      @default(0) // En qué paso está
-
-  // Tracking
-  enrolledAt        DateTime @default(now())
-  completedAt       DateTime?
-  pausedAt          DateTime?
-  unsubscribedAt    DateTime?
-
-  // Engagement
-  emailsSent        Int      @default(0)
-  emailsOpened      Int      @default(0)
-  emailsClicked     Int      @default(0)
-
-  // Metadata
-  metadata          Json?    // Datos adicionales
-
-  // Timestamps
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  // Relaciones
-  sequence          EmailSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
-  scheduledEmails   ScheduledEmail[]
-
-  @@unique([subscriberId, sequenceId])
-  @@index([subscriberId])
-  @@index([sequenceId, status])
-  @@map("sequence_enrollments")
-}
-
-// Emails programados para envío
-model ScheduledEmail {
-  id                String   @id @default(cuid())
-
-  // Relaciones
-  enrollmentId      String
-  stepId            String
-  subscriberId      String   // Denormalized para queries rápidas
-
-  // Email info
-  recipientEmail    String
-  recipientName     String?
-  subject           String
-  templateName      String
-  templateData      Json?
-
-  // Scheduling
-  scheduledFor      DateTime // Cuándo se debe enviar
-  sendAttempts      Int      @default(0)
-
-  // Estado
-  status            String   @default("pending") // "pending" | "sending" | "sent" | "failed" | "cancelled"
-
-  // Resultado del envío
-  sentAt            DateTime?
-  deliveredAt       DateTime?
-  failedAt          DateTime?
-  errorMessage      String?
-
-  // Tracking (vinculado con Resend)
-  resendId          String?  @unique // ID de Resend para tracking
-
-  // Engagement
-  openedAt          DateTime?
-  clickedAt         DateTime?
-  bouncedAt         DateTime?
-  complainedAt      DateTime?
-  unsubscribedAt    DateTime?
-
-  // Timestamps
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  // Relaciones
-  enrollment        SequenceEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  step              EmailSequenceStep  @relation(fields: [stepId], references: [id], onDelete: Cascade)
-
-  @@index([status, scheduledFor])
-  @@index([subscriberId])
-  @@index([enrollmentId])
-  @@index([resendId])
-  @@map("scheduled_emails")
-}
-
-// Admin Audit Logs - Registro de todas las acciones de admins
-model AdminAuditLog {
-  id            String   @id @default(cuid())
-
-  // Admin que realizó la acción
-  adminId       String
-  adminName     String
-  adminEmail    String
-
-  // Usuario afectado (para impersonation)
-  targetUserId  String?
-  targetUserEmail String?
-  targetUserName String?
-
-  // Acción realizada
-  action        String   // "IMPERSONATE_START", "IMPERSONATE_END", "PROPERTY_EDIT", "ZONE_EDIT", "ZONE_DELETE", etc.
-
-  // Contexto de la acción
-  propertyId    String?
-  propertyName  String?
-  zoneId        String?
-  zoneName      String?
-
-  // Metadata adicional
-  metadata      Json?    // Datos adicionales sobre la acción
-
-  // Información técnica
-  ipAddress     String?
-  userAgent     String?
-
-  // Timestamps
-  createdAt     DateTime @default(now())
-
-  // Relación con Admin
-  admin         Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
-
-  @@index([adminId, createdAt])
-  @@index([targetUserId, createdAt])
-  @@index([action, createdAt])
-  @@index([propertyId, createdAt])
-  @@map("admin_audit_logs")
+  ON_LEAD_CAPTURE
+  ON_REGISTRATION
+  ON_TRIAL_START
+  ON_SUBSCRIPTION
+  ON_INACTIVITY
+  ON_CANCELLATION
+  MANUAL
 }

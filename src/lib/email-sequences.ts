@@ -184,6 +184,18 @@ async function scheduleSequenceEmails(
       }
     }
 
+    // Determinar subject (dinámico para día 2 personalizado)
+    let emailSubject = step.subject
+    let templateData = step.templateData || {}
+
+    // Si es el email del día 2 personalizado, usar subject y datos según arquetipo
+    if (step.templateName === 'sequence-day2-personalized.tsx' && subscriber.archetype) {
+      // Importar la función que obtiene el subject por arquetipo
+      const { getDay2Subject } = await import('../emails/templates/sequence-day2-personalized')
+      emailSubject = getDay2Subject(subscriber.archetype as any)
+      templateData = { ...templateData, archetype: subscriber.archetype }
+    }
+
     // Crear scheduled email
     await prisma.scheduledEmail.create({
       data: {
@@ -192,9 +204,9 @@ async function scheduleSequenceEmails(
         subscriberId: subscriber.id,
         recipientEmail: subscriber.email,
         recipientName: subscriber.name,
-        subject: step.subject,
+        subject: emailSubject,
         templateName: step.templateName,
-        templateData: step.templateData || {},
+        templateData,
         scheduledFor,
         status: 'pending'
       }
