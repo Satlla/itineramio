@@ -35,6 +35,11 @@ const statusOptions = [
   { value: 'PUBLISHED', label: 'Publicar' }
 ]
 
+const authorOptions = [
+  { value: 'Alejandro Satlla', label: 'Alejandro Satlla' },
+  { value: 'Equipo Itineramio', label: 'Equipo Itineramio' }
+]
+
 export default function NewBlogPostPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -373,13 +378,18 @@ export default function NewBlogPostPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Autor
               </label>
-              <input
-                type="text"
+              <select
                 name="authorName"
                 value={formData.authorName}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-              />
+              >
+                {authorOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Featured */}

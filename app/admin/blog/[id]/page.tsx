@@ -38,13 +38,10 @@ const statusOptions = [
   { value: 'ARCHIVED', label: 'Archivado' }
 ]
 
-interface Author {
-  id: string
-  name: string
-  email: string
-  avatar: string | null
-  notes: string | null
-}
+const authorOptions = [
+  { value: 'Alejandro Satlla', label: 'Alejandro Satlla' },
+  { value: 'Equipo Itineramio', label: 'Equipo Itineramio' }
+]
 
 export default function EditBlogPostPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -52,7 +49,6 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [postId, setPostId] = useState<string | null>(null)
-  const [authors, setAuthors] = useState<Author[]>([])
 
   // Modal states
   const [showPublishModal, setShowPublishModal] = useState(false)
@@ -72,9 +68,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
     tags: '',
     featured: false,
     status: 'DRAFT',
-    authorId: '',
     authorName: 'Equipo Itineramio',
-    authorImage: '',
     coverImage: '',
     coverImageAlt: '',
     metaTitle: '',
@@ -89,28 +83,10 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
   }, [params])
 
   useEffect(() => {
-    fetchAuthors()
-  }, [])
-
-  useEffect(() => {
     if (postId) {
       fetchPost()
     }
   }, [postId])
-
-  const fetchAuthors = async () => {
-    try {
-      const response = await fetch('/api/admin/blog/authors', {
-        credentials: 'include'
-      })
-      if (response.ok) {
-        const { authors: authorsList } = await response.json()
-        setAuthors(authorsList)
-      }
-    } catch (error) {
-      console.error('Error fetching authors:', error)
-    }
-  }
 
   const fetchPost = async () => {
     if (!postId) return
@@ -132,9 +108,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
           tags: post.tags.join(', '),
           featured: post.featured,
           status: post.status,
-          authorId: post.authorId || '',
           authorName: post.authorName,
-          authorImage: post.authorImage || '',
           coverImage: post.coverImage || '',
           coverImageAlt: post.coverImageAlt || '',
           metaTitle: post.metaTitle || '',
@@ -160,20 +134,6 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }))
-  }
-
-  const handleAuthorChange = (e: any) => {
-    const selectedAuthorId = e.target.value
-    const selectedAuthor = authors.find(a => a.id === selectedAuthorId)
-
-    if (selectedAuthor) {
-      setFormData(prev => ({
-        ...prev,
-        authorId: selectedAuthor.id,
-        authorName: selectedAuthor.name,
-        authorImage: selectedAuthor.avatar || ''
-      }))
-    }
   }
 
   const handleContentChange = (html: string) => {
@@ -463,46 +423,20 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
             {/* Author */}
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Autor del artículo
+                Autor
               </label>
               <select
-                name="authorId"
-                value={formData.authorId}
-                onChange={handleAuthorChange}
+                name="authorName"
+                value={formData.authorName}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
               >
-                <option value="">Seleccionar autor...</option>
-                {authors.map(author => (
-                  <option key={author.id} value={author.id}>
-                    {author.name} ({author.email})
+                {authorOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>
-              {formData.authorId && (
-                <div className="mt-3 flex items-center gap-3 p-3 bg-violet-50 rounded-lg border border-violet-100">
-                  {formData.authorImage && (
-                    <img
-                      src={formData.authorImage}
-                      alt={formData.authorName}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-violet-200"
-                    />
-                  )}
-                  <div>
-                    <p className="font-medium text-gray-900">{formData.authorName}</p>
-                    {(() => {
-                      const author = authors.find(a => a.id === formData.authorId)
-                      if (author?.notes) {
-                        const firstLine = author.notes.split('\n')[0]
-                        return <p className="text-xs text-gray-600 mt-0.5">{firstLine}</p>
-                      }
-                      return null
-                    })()}
-                  </div>
-                </div>
-              )}
-              <p className="text-xs text-gray-500 mt-1.5">
-                Selecciona el miembro del equipo que escribe este artículo. La foto y datos se completarán automáticamente.
-              </p>
             </div>
 
             {/* Featured */}

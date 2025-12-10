@@ -4,8 +4,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Calendar, Clock, ArrowLeft, Share2, Heart, Eye, Tag, Twitter, Facebook, Linkedin } from 'lucide-react'
 import { prisma } from '../../../../src/lib/prisma'
-import { markdownToHtml } from '../../../../src/lib/markdown'
 import ReadingProgress from './ReadingProgress'
+import RelatedArticlesCarousel from '../../../../src/components/blog/RelatedArticlesCarousel'
 
 interface BlogPostPageProps {
   params: Promise<{
@@ -288,7 +288,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               prose-thead:bg-gray-100
               prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-3 prose-th:font-semibold prose-th:text-sm prose-th:whitespace-nowrap
               prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-3 prose-td:text-sm"
-            dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }}
+            dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
           {/* Tags */}
@@ -401,60 +401,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         </div>
 
-        {/* Related Articles */}
+        {/* Related Articles Carousel */}
         {relatedPosts.length > 0 && (
-          <section className="border-t border-gray-200 bg-gray-50 py-16 px-6">
-            <div className="max-w-6xl mx-auto">
-              <h2 className="text-2xl font-serif font-bold text-gray-900 mb-8 pb-4 border-b border-gray-200">
-                Artículos relacionados
-              </h2>
-
-              <div className="grid md:grid-cols-3 gap-8">
-                {relatedPosts.map((related) => (
-                  <Link
-                    key={related.id}
-                    href={`/blog/${related.slug}`}
-                    className="group block"
-                  >
-                    <article className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all">
-                      <div className="relative aspect-[16/9] bg-gray-100">
-                        {related.coverImage ? (
-                          <Image
-                            src={related.coverImage}
-                            alt={related.coverImageAlt || related.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300" />
-                        )}
-                      </div>
-
-                      <div className="p-5">
-                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
-                          {categoryNames[related.category]}
-                        </span>
-
-                        <h3 className="text-lg font-serif font-bold text-gray-900 mb-2 leading-tight group-hover:text-gray-600 transition-colors line-clamp-2">
-                          {related.title}
-                        </h3>
-
-                        <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                          {related.excerpt}
-                        </p>
-
-                        <div className="flex items-center space-x-3 text-xs text-gray-500">
-                          <span>{related.readTime} min</span>
-                          <span>·</span>
-                          <span>{related.views} vistas</span>
-                        </div>
-                      </div>
-                    </article>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </section>
+          <RelatedArticlesCarousel
+            posts={relatedPosts}
+            categoryNames={categoryNames}
+          />
         )}
       </article>
     </div>
