@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Calendar, Clock, ArrowLeft, Share2, Heart, Eye, Tag, Twitter, Facebook, Linkedin } from 'lucide-react'
 import { prisma } from '../../../../src/lib/prisma'
+import { markdownToHtml } from '../../../../src/lib/markdown'
 import ReadingProgress from './ReadingProgress'
 import RelatedArticlesCarousel from '../../../../src/components/blog/RelatedArticlesCarousel'
 
@@ -288,7 +289,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               prose-thead:bg-gray-100
               prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-3 prose-th:font-semibold prose-th:text-sm prose-th:whitespace-nowrap
               prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-3 prose-td:text-sm"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{
+              __html: post.content.trim().startsWith('<') || post.content.includes('style=')
+                ? post.content
+                : markdownToHtml(post.content)
+            }}
           />
 
           {/* Tags */}
