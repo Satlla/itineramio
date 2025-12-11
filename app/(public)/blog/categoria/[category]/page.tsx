@@ -69,6 +69,14 @@ const categoryMeta: Record<string, {
     description: 'Aprende las mejores prácticas de anfitriones Superhost. Consejos, trucos y estrategias para destacar en plataformas de alquiler vacacional.',
     keywords: ['mejores prácticas airbnb', 'consejos superhost', 'tips anfitriones', 'gestión alojamiento excelencia'],
     icon: '⭐'
+  },
+  'casos-estudio': {
+    name: 'Casos de Estudio',
+    slug: 'CASOS_ESTUDIO',
+    title: 'Casos de Éxito Reales: Anfitriones que Transformaron sus Operaciones',
+    description: 'Casos reales de anfitriones que han transformado sus operaciones con Itineramio. Aprende de ejemplos concretos y resultados medibles.',
+    keywords: ['casos éxito airbnb', 'testimonios anfitriones', 'transformación digital', 'resultados itineramio'],
+    icon: '💡'
   }
 }
 
