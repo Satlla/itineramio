@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
     response.cookies.set('auth-token', token, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
+      sameSite: 'lax', // 'lax' for better compatibility across all browsers
       maxAge: cookieMaxAge,
       path: '/'
     })
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
       maxAge: `${cookieMaxAge}s (${rememberMe ? '30 days' : '24 hours'})`,
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
+      sameSite: 'lax',
       path: '/'
     })
 

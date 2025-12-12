@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Sesión - Itineramio</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #4f46e5;
+        }
+        .result {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #6366f1;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .error {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        .success {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Diagnóstico de Sesión - Itineramio</h1>
+    <p>Esta herramienta te ayudará a diagnosticar problemas de sesión en producción.</p>
+
+    <div class="test-section">
+        <h2>1. Información del Navegador</h2>
+        <button onclick="checkBrowserInfo()">Ver Info del Navegador</button>
+        <div id="browserInfo"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Verificar Cookies</h2>
+        <button onclick="checkCookies()">Ver Cookies Actuales</button>
+        <div id="cookiesInfo"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test de Login</h2>
+        <input type="email" id="email" placeholder="Email" style="padding: 8px; margin: 5px; width: 250px;">
+        <input type="password" id="password" placeholder="Contraseña" style="padding: 8px; margin: 5px; width: 250px;">
+        <br>
+        <button onclick="testLogin()">Test Login</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Verificar Sesión Actual</h2>
+        <button onclick="checkSession()">Verificar Sesión</button>
+        <div id="sessionResult"></div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost'
+            ? 'http://localhost:3000'
+            : 'https://itineramio.com';
+
+        function checkBrowserInfo() {
+            const info = {
+                userAgent: navigator.userAgent,
+                cookiesEnabled: navigator.cookieEnabled,
+                language: navigator.language,
+                platform: navigator.platform,
+                vendor: navigator.vendor,
+                doNotTrack: navigator.doNotTrack,
+                hostname: window.location.hostname,
+                protocol: window.location.protocol
+            };
+
+            document.getElementById('browserInfo').innerHTML =
+                `<div class="result">${JSON.stringify(info, null, 2)}</div>`;
+        }
+
+        function checkCookies() {
+            const cookies = document.cookie;
+            const cookieObj = {};
+
+            if (cookies) {
+                cookies.split(';').forEach(cookie => {
+                    const [name, value] = cookie.trim().split('=');
+                    cookieObj[name] = value;
+                });
+            }
+
+            const hasAuthToken = 'auth-token' in cookieObj;
+            const message = hasAuthToken
+                ? '✅ Cookie auth-token encontrada'
+                : '❌ Cookie auth-token NO encontrada';
+
+            document.getElementById('cookiesInfo').innerHTML =
+                `<div class="result ${hasAuthToken ? 'success' : 'error'}">
+${message}
+
+Todas las cookies:
+${JSON.stringify(cookieObj, null, 2)}
+
+Nota: Por seguridad, el valor de auth-token es httpOnly y no se puede leer desde JavaScript.
+</div>`;
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                document.getElementById('loginResult').innerHTML =
+                    '<div class="result error">❌ Por favor ingresa email y contraseña</div>';
+                return;
+            }
+
+            document.getElementById('loginResult').innerHTML =
+                '<div class="result">Intentando login...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/simple-login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        rememberMe: true
+                    })
+                });
+
+                const data = await response.json();
+                const success = response.ok && data.success;
+
+                const headers = {};
+                response.headers.forEach((value, key) => {
+                    headers[key] = value;
+                });
+
+                document.getElementById('loginResult').innerHTML =
+                    `<div class="result ${success ? 'success' : 'error'}">
+${success ? '✅ Login exitoso' : '❌ Login fallido'}
+
+Status: ${response.status}
+Response: ${JSON.stringify(data, null, 2)}
+
+Headers:
+${JSON.stringify(headers, null, 2)}
+
+Set-Cookie (si visible): ${headers['set-cookie'] || 'No visible desde JavaScript'}
+</div>`;
+
+                if (success) {
+                    // Esperar un momento y verificar cookies
+                    setTimeout(checkCookies, 500);
+                }
+            } catch (error) {
+                document.getElementById('loginResult').innerHTML =
+                    `<div class="result error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function checkSession() {
+            document.getElementById('sessionResult').innerHTML =
+                '<div class="result">Verificando sesión...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/me`, {
+                    credentials: 'include',
+                    cache: 'no-cache'
+                });
+
+                const data = await response.json();
+                const success = response.ok;
+
+                document.getElementById('sessionResult').innerHTML =
+                    `<div class="result ${success ? 'success' : 'error'}">
+${success ? '✅ Sesión válida' : '❌ Sin sesión activa'}
+
+Status: ${response.status}
+Response: ${JSON.stringify(data, null, 2)}
+</div>`;
+            } catch (error) {
+                document.getElementById('sessionResult').innerHTML =
+                    `<div class="result error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-check al cargar
+        window.onload = () => {
+            checkBrowserInfo();
+            checkCookies();
+        };
+    </script>
+</body>
+</html>
