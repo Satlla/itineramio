@@ -2121,20 +2121,19 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     const style = {
       transform: CSS.Transform.toString(transform),
       transition,
+      opacity: isDragging ? 0.8 : 1,
+      scale: isDragging ? 1.05 : 1,
+      zIndex: isDragging ? 999 : 'auto',
     }
 
     return (
-      <motion.div
+      <div
         ref={setNodeRef}
         style={style}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: isDragging ? 0.5 : 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        transition={{ duration: 0.2 }}
       >
-        <Card 
-          className={`hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300 ${
-            isDragging ? 'shadow-xl ring-2 ring-violet-400 z-50' : ''
+        <Card
+          className={`hover:shadow-lg transition-all cursor-pointer hover:border-violet-300 ${
+            isDragging ? 'shadow-2xl ring-4 ring-violet-500 border-violet-500 bg-violet-50' : ''
           }`}
           onClick={() => {
             // Debug logging
