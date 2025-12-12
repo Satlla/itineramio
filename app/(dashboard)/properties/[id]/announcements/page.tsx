@@ -29,10 +29,16 @@ import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
 import { useNotifications } from '../../../../../src/hooks/useNotifications'
 
+interface MultiLangText {
+  es: string
+  en: string
+  fr: string
+}
+
 interface Announcement {
   id: string
-  title: string
-  message: string
+  title: MultiLangText
+  message: MultiLangText
   category: string
   priority: string
   isActive: boolean
@@ -54,43 +60,91 @@ const CATEGORIES = [
 const AVISO_TEMPLATES = [
   {
     id: 'check-in-early',
-    title: 'Check-in temprano no disponible',
-    message: 'No podemos recibir huéspedes antes de las 15:00. Disculpa las molestias.',
+    title: {
+      es: 'Check-in temprano no disponible',
+      en: 'Early check-in not available',
+      fr: 'Arrivée anticipée non disponible'
+    },
+    message: {
+      es: 'No podemos recibir huéspedes antes de las 15:00. Disculpa las molestias.',
+      en: 'We cannot receive guests before 3:00 PM. Sorry for the inconvenience.',
+      fr: 'Nous ne pouvons pas recevoir les invités avant 15h00. Désolé pour le désagrément.'
+    },
     category: 'check-in',
     priority: 'HIGH'
   },
   {
-    id: 'check-out-late', 
-    title: 'Check-out tardío no disponible',
-    message: 'No podemos facilitar salida tardía después de las 11:00. Gracias por tu comprensión.',
+    id: 'check-out-late',
+    title: {
+      es: 'Check-out tardío no disponible',
+      en: 'Late check-out not available',
+      fr: 'Départ tardif non disponible'
+    },
+    message: {
+      es: 'No podemos facilitar salida tardía después de las 11:00. Gracias por tu comprensión.',
+      en: 'We cannot provide late check-out after 11:00 AM. Thank you for your understanding.',
+      fr: 'Nous ne pouvons pas faciliter un départ tardif après 11h00. Merci de votre compréhension.'
+    },
     category: 'check-in',
     priority: 'HIGH'
   },
   {
     id: 'no-luggage-storage',
-    title: 'Sin custodia de equipajes',
-    message: 'No disponemos de servicio de custodia de equipajes. Recomendamos consigna en estación/aeropuerto.',
+    title: {
+      es: 'Sin custodia de equipajes',
+      en: 'No luggage storage',
+      fr: 'Pas de consigne à bagages'
+    },
+    message: {
+      es: 'No disponemos de servicio de custodia de equipajes. Recomendamos consigna en estación/aeropuerto.',
+      en: 'We do not have luggage storage service. We recommend lockers at station/airport.',
+      fr: 'Nous n\'avons pas de service de consigne à bagages. Nous recommandons les consignes à la gare/aéroport.'
+    },
     category: 'amenities',
     priority: 'NORMAL'
   },
   {
     id: 'no-parking',
-    title: 'Sin plaza de aparcamiento',
-    message: 'El alojamiento no dispone de plaza de aparcamiento. Parking público disponible en la zona.',
+    title: {
+      es: 'Sin plaza de aparcamiento',
+      en: 'No parking space',
+      fr: 'Pas de place de parking'
+    },
+    message: {
+      es: 'El alojamiento no dispone de plaza de aparcamiento. Parking público disponible en la zona.',
+      en: 'The accommodation does not have a parking space. Public parking available in the area.',
+      fr: 'Le logement ne dispose pas de place de parking. Parking public disponible dans la zone.'
+    },
     category: 'parking',
     priority: 'HIGH'
   },
   {
     id: 'no-wifi',
-    title: 'Sin conexión WiFi',
-    message: 'El alojamiento no tiene conexión WiFi disponible temporalmente. Disculpa las molestias.',
+    title: {
+      es: 'Sin conexión WiFi',
+      en: 'No WiFi connection',
+      fr: 'Pas de connexion WiFi'
+    },
+    message: {
+      es: 'El alojamiento no tiene conexión WiFi disponible temporalmente. Disculpa las molestias.',
+      en: 'The accommodation does not have WiFi connection temporarily available. Sorry for the inconvenience.',
+      fr: 'Le logement n\'a pas de connexion WiFi temporairement disponible. Désolé pour le désagrément.'
+    },
     category: 'amenities',
     priority: 'URGENT'
   },
   {
     id: 'service-unavailable',
-    title: 'Servicio temporalmente no disponible',
-    message: 'El servicio de [especificar] no está disponible temporalmente. Se restablecerá el [fecha].',
+    title: {
+      es: 'Servicio temporalmente no disponible',
+      en: 'Service temporarily unavailable',
+      fr: 'Service temporairement indisponible'
+    },
+    message: {
+      es: 'El servicio de [especificar] no está disponible temporalmente. Se restablecerá el [fecha].',
+      en: 'The [specify] service is temporarily unavailable. It will be restored on [date].',
+      fr: 'Le service de [spécifier] n\'est pas disponible temporairement. Il sera rétabli le [date].'
+    },
     category: 'amenities',
     priority: 'NORMAL'
   }
@@ -127,14 +181,17 @@ export default function PropertyAnnouncementsPage() {
 
   // Form state
   const [formData, setFormData] = useState({
-    title: '',
-    message: '',
+    title: { es: '', en: '', fr: '' },
+    message: { es: '', en: '', fr: '' },
     category: 'other',
     priority: 'NORMAL',
     isActive: true,
     startDate: '',
     endDate: ''
   })
+
+  // Language tab state
+  const [activeLanguage, setActiveLanguage] = useState<'es' | 'en' | 'fr'>('es')
 
   useEffect(() => {
     const initializeParams = async () => {
@@ -217,8 +274,8 @@ export default function PropertyAnnouncementsPage() {
       return
     }
 
-    if (!formData.title.trim() || !formData.message.trim()) {
-      addNotification({ title: 'Error', message: 'Título y mensaje son requeridos', type: 'error', read: false })
+    if (!formData.title.es.trim() || !formData.message.es.trim()) {
+      addNotification({ title: 'Error', message: 'Título y mensaje en español son requeridos', type: 'error', read: false })
       return
     }
 
@@ -240,8 +297,8 @@ export default function PropertyAnnouncementsPage() {
   }
 
   const handleUpdateAnnouncement = async () => {
-    if (!propertyId || !editingAnnouncement || !formData.title.trim() || !formData.message.trim()) {
-      addNotification({ title: 'Error', message: 'Título y mensaje son requeridos', type: 'error', read: false })
+    if (!propertyId || !editingAnnouncement || !formData.title.es.trim() || !formData.message.es.trim()) {
+      addNotification({ title: 'Error', message: 'Título y mensaje en español son requeridos', type: 'error', read: false })
       return
     }
 
@@ -327,9 +384,23 @@ export default function PropertyAnnouncementsPage() {
 
       let successCount = 0
       for (const propId of propertiesToCreate) {
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        }
+
+        try {
+          const localToken = localStorage.getItem('auth-token')
+          if (localToken) {
+            headers['Authorization'] = `Bearer ${localToken}`
+          }
+        } catch (e) {
+          console.warn('⚠️ Could not access localStorage:', e)
+        }
+
         const response = await fetch('/api/announcements', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
+          credentials: 'include',
           body: JSON.stringify({
             propertyId: propId,
             ...formData,
@@ -383,7 +454,7 @@ export default function PropertyAnnouncementsPage() {
 
         const announcementsData = await announcementsResponse.json()
         const matchingAnnouncement = announcementsData.data?.find((a: Announcement) =>
-          a.title === editingAnnouncement.title
+          a.title.es === editingAnnouncement.title.es
         )
 
         if (matchingAnnouncement) {
@@ -403,8 +474,8 @@ export default function PropertyAnnouncementsPage() {
       if (successCount > 0) {
         const message = successCount > 1
           ? (scope === 'all'
-              ? `Se ha actualizado "${formData.title}" en todo el conjunto`
-              : `Se ha actualizado "${formData.title}" en ${successCount} propiedades`)
+              ? `Se ha actualizado "${formData.title.es}" en todo el conjunto`
+              : `Se ha actualizado "${formData.title.es}" en ${successCount} propiedades`)
           : 'Aviso actualizado correctamente'
 
         addNotification({ title: 'Éxito', message, type: 'success', read: false })
@@ -437,7 +508,7 @@ export default function PropertyAnnouncementsPage() {
       // Get the announcement title for the message
       let announcementTitle = ''
       const firstAnnouncement = announcements.find(a => a.id === announcementIds[0])
-      if (firstAnnouncement) announcementTitle = firstAnnouncement.title
+      if (firstAnnouncement) announcementTitle = firstAnnouncement.title.es
 
       let successCount = 0
       // For each property, find and delete matching announcements
@@ -447,7 +518,7 @@ export default function PropertyAnnouncementsPage() {
 
         const announcementsData = await announcementsResponse.json()
         const matchingAnnouncement = announcementsData.data?.find((a: Announcement) =>
-          a.title === announcementTitle
+          a.title.es === announcementTitle
         )
 
         if (matchingAnnouncement) {
@@ -510,14 +581,15 @@ export default function PropertyAnnouncementsPage() {
 
   const resetForm = () => {
     setFormData({
-      title: '',
-      message: '',
+      title: { es: '', en: '', fr: '' },
+      message: { es: '', en: '', fr: '' },
       category: 'other',
       priority: 'NORMAL',
       isActive: true,
       startDate: '',
       endDate: ''
     })
+    setActiveLanguage('es')
   }
 
   const cancelEdit = () => {
@@ -631,10 +703,10 @@ export default function PropertyAnnouncementsPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 mb-1">
-                              {template.title}
+                              {template.title.es}
                             </p>
                             <p className="text-xs text-gray-600 line-clamp-2">
-                              {template.message}
+                              {template.message.es}
                             </p>
                           </div>
                         </div>
@@ -647,18 +719,65 @@ export default function PropertyAnnouncementsPage() {
                 </p>
               </div>
             )}
+
+              {/* Language Tabs */}
+              <div className="border-b border-gray-200 mb-4">
+                <div className="flex space-x-1">
+                  <button
+                    type="button"
+                    onClick={() => setActiveLanguage('es')}
+                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                      activeLanguage === 'es'
+                        ? 'border-violet-600 text-violet-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    🇪🇸 Español
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveLanguage('en')}
+                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                      activeLanguage === 'en'
+                        ? 'border-violet-600 text-violet-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    🇬🇧 English
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveLanguage('fr')}
+                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                      activeLanguage === 'fr'
+                        ? 'border-violet-600 text-violet-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    🇫🇷 Français
+                  </button>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Título *
+                    Título * {activeLanguage === 'es' && '(requerido)'}
                   </label>
                   <Input
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Ej: Obras en el edificio"
+                    value={formData.title[activeLanguage]}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      title: { ...prev.title, [activeLanguage]: e.target.value }
+                    }))}
+                    placeholder={
+                      activeLanguage === 'es' ? 'Ej: Obras en el edificio' :
+                      activeLanguage === 'en' ? 'Ex: Building construction' :
+                      'Ex: Travaux dans le bâtiment'
+                    }
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Categoría
@@ -679,15 +798,27 @@ export default function PropertyAnnouncementsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Mensaje *
+                  Mensaje * {activeLanguage === 'es' && '(requerido)'}
                 </label>
                 <textarea
-                  value={formData.message}
-                  onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                  placeholder="Describe la información importante que deben saber tus huéspedes..."
+                  value={formData.message[activeLanguage]}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    message: { ...prev.message, [activeLanguage]: e.target.value }
+                  }))}
+                  placeholder={
+                    activeLanguage === 'es' ? 'Describe la información importante que deben saber tus huéspedes...' :
+                    activeLanguage === 'en' ? 'Describe the important information your guests should know...' :
+                    'Décrivez les informations importantes que vos invités doivent connaître...'
+                  }
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
+                {activeLanguage !== 'es' && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Opcional - Si lo dejas vacío, se mostrará el texto en español
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -821,7 +952,7 @@ export default function PropertyAnnouncementsPage() {
                             </div>
                             <div>
                               <h3 className="text-lg font-semibold text-gray-900">
-                                {announcement.title}
+                                {announcement.title.es}
                               </h3>
                               <div className="flex items-center space-x-2 mt-1">
                                 <span className={`px-2 py-1 text-xs rounded-full ${getPriorityBadgeClass(announcement.priority)}`}>
@@ -838,10 +969,18 @@ export default function PropertyAnnouncementsPage() {
                               </div>
                             </div>
                           </div>
-                          
+
                           <p className="text-gray-700 mb-4">
-                            {announcement.message}
+                            {announcement.message.es}
                           </p>
+
+                          {/* Multi-language indicator */}
+                          <div className="flex items-center space-x-2 mb-3">
+                            <span className="text-xs text-gray-500">Idiomas:</span>
+                            {announcement.title.es && <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">🇪🇸 ES</span>}
+                            {announcement.title.en && <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">🇬🇧 EN</span>}
+                            {announcement.title.fr && <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">🇫🇷 FR</span>}
+                          </div>
                           
                           {(announcement.startDate || announcement.endDate) && (
                             <div className="flex items-center text-sm text-gray-500 mb-4">
