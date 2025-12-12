@@ -22,6 +22,7 @@ import { Button } from '../../../../../../../../src/components/ui/Button'
 import { Input } from '../../../../../../../../src/components/ui/Input'
 import { Card } from '../../../../../../../../src/components/ui/Card'
 import { ImageUpload } from '../../../../../../../../src/components/ui/ImageUpload'
+import { InlineSpinner } from '../../../../../../../../src/components/ui/Spinner'
 
 // Step validation schema
 const createStepSchema = z.object({
@@ -477,13 +478,21 @@ export default function NewStepPage() {
                 Cancelar
               </Button>
             </Link>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSubmitting}
-              loading={isSubmitting}
             >
-              <Save className="w-4 h-4 mr-2" />
-              {isSubmitting ? 'Creando...' : 'Crear Paso'}
+              {isSubmitting ? (
+                <>
+                  <InlineSpinner className="mr-2" color="white" />
+                  Creando...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Crear Paso
+                </>
+              )}
             </Button>
           </div>
         </form>

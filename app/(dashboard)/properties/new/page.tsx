@@ -25,6 +25,7 @@ import {
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button, Input, Card, ImageUpload, PropertyPreview, SavedDataBanner, AddressAutocomplete } from '../../../../src/components/ui'
+import { InlineSpinner } from '../../../../src/components/ui/Spinner'
 import { AutoSaveIndicator } from '../../../../src/components/ui/AutoSaveIndicator'
 import { useFormPersistence } from '../../../../src/hooks/useFormPersistence'
 import { TrialActivationModal } from '../../../../src/components/TrialActivationModal'
@@ -997,14 +998,19 @@ function NewPropertyPageContent() {
                     <Button
                       type="submit"
                       disabled={isSubmitting || !validateStep(3)}
-                      loading={isSubmitting}
                       className="w-full sm:w-auto"
                     >
-                      <Save className="w-4 h-4 mr-2" />
-                      {isSubmitting
-                        ? (isEditing ? 'Actualizando...' : 'Creando...')
-                        : (isEditing ? 'Actualizar Propiedad' : 'Crear Propiedad')
-                      }
+                      {isSubmitting ? (
+                        <>
+                          <InlineSpinner className="mr-2" color="white" />
+                          {isEditing ? 'Actualizando...' : 'Creando...'}
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          {isEditing ? 'Actualizar Propiedad' : 'Crear Propiedad'}
+                        </>
+                      )}
                     </Button>
                     {!validateStep(3) && (
                       <div className="mt-2 text-center sm:text-right">

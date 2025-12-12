@@ -16,6 +16,7 @@ import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { Button } from '../../../../../../src/components/ui/Button'
 import { Input } from '../../../../../../src/components/ui/Input'
 import { Card } from '../../../../../../src/components/ui/Card'
+import { InlineSpinner } from '../../../../../../src/components/ui/Spinner'
 import { createBatchZones } from '../../../../../../src/utils/createBatchZones'
 // No need to import IconSelector, we'll use inline emoji selector
 
@@ -315,13 +316,21 @@ export default function NewZonePage() {
                   Cancelar
                 </Button>
               </Link>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isSubmitting}
-                loading={isSubmitting}
               >
-                <Save className="w-4 h-4 mr-2" />
-                {isSubmitting ? 'Creando...' : 'Crear Zona'}
+                {isSubmitting ? (
+                  <>
+                    <InlineSpinner className="mr-2" color="white" />
+                    Creando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Crear Zona
+                  </>
+                )}
               </Button>
             </div>
           </Card>

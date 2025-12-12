@@ -12,6 +12,7 @@ import { ErrorBoundary } from '../src/components/ErrorBoundary'
 import { ChunkErrorHandler } from '../src/components/ChunkErrorHandler'
 import { Analytics } from '@vercel/analytics/next'
 import { GoogleAnalytics } from '../src/components/GoogleAnalytics'
+import { LoadingProvider } from '../src/components/providers/LoadingProvider'
 
 // Validate environment variables on startup
 if (typeof window === 'undefined') {
@@ -213,7 +214,9 @@ export default function RootLayout({
         <ErrorBoundary>
           <I18nProvider>
             <Providers>
-              {children}
+              <LoadingProvider>
+                {children}
+              </LoadingProvider>
               <Toaster
               position="top-right"
               toastOptions={{

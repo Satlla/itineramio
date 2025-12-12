@@ -2,18 +2,19 @@
 
 import React, { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  Zap, 
-  Mail, 
-  Lock, 
-  ArrowRight, 
-  Eye, 
+import {
+  Zap,
+  Mail,
+  Lock,
+  ArrowRight,
+  Eye,
   EyeOff,
   ChevronLeft,
   AlertCircle
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button, Input } from '../../../src/components/ui'
+import { InlineSpinner } from '../../../src/components/ui/Spinner'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '../../../src/providers/AuthProvider'
 
@@ -296,14 +297,21 @@ function LoginContent() {
                     <AlertCircle className="w-4 h-4 text-blue-500" />
                     <span className="text-sm text-blue-700">{messages.info}</span>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={resendVerificationEmail}
                     disabled={resendingEmail}
                     className="h-8 px-3 text-xs text-blue-600 hover:text-blue-700"
                   >
-                    {resendingEmail ? 'Enviando...' : 'Reenviar email'}
+                    {resendingEmail ? (
+                      <>
+                        <InlineSpinner size="xs" className="mr-1" />
+                        Enviando...
+                      </>
+                    ) : (
+                      'Reenviar email'
+                    )}
                   </Button>
                 </div>
               </div>
@@ -401,11 +409,19 @@ function LoginContent() {
                 type="submit"
                 size="lg"
                 className="w-full bg-violet-600 hover:bg-violet-700 text-white font-medium"
-                loading={loading}
                 disabled={loading}
               >
-                {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
-                {!loading && <ArrowRight className="ml-2 w-5 h-5" />}
+                {loading ? (
+                  <>
+                    <InlineSpinner className="mr-2" color="white" />
+                    Iniciando sesión...
+                  </>
+                ) : (
+                  <>
+                    Iniciar sesión
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </>
+                )}
               </Button>
             </form>
 

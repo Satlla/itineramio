@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Mail } from 'lucide-react'
 import Link from 'next/link'
 import { Button, Input, Card, CardContent, CardHeader, CardTitle } from '../../../src/components/ui'
+import { InlineSpinner } from '../../../src/components/ui/Spinner'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -97,7 +98,14 @@ export default function ForgotPasswordPage() {
                 disabled={isLoading}
                 className="w-full bg-violet-600 hover:bg-violet-700 disabled:opacity-50"
               >
-                {isLoading ? 'Enviando...' : 'Enviar enlace de recuperación'}
+                {isLoading ? (
+                  <>
+                    <InlineSpinner className="mr-2" color="white" />
+                    Enviando...
+                  </>
+                ) : (
+                  'Enviar enlace de recuperación'
+                )}
               </Button>
             </form>
 

@@ -2,15 +2,15 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  Zap, 
-  Mail, 
-  Lock, 
-  User, 
-  Phone, 
-  Globe, 
-  ArrowRight, 
-  Eye, 
+import {
+  Zap,
+  Mail,
+  Lock,
+  User,
+  Phone,
+  Globe,
+  ArrowRight,
+  Eye,
   EyeOff,
   Check,
   ChevronLeft
@@ -18,6 +18,7 @@ import {
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { Button, Input } from '../../../src/components/ui'
+import { InlineSpinner } from '../../../src/components/ui/Spinner'
 import { useRouter } from 'next/navigation'
 
 export default function RegisterPage() {
@@ -434,11 +435,19 @@ export default function RegisterPage() {
                 type="submit"
                 size="lg"
                 className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
-                loading={loading}
                 disabled={loading}
               >
-                {loading ? 'Creando cuenta...' : 'Crear cuenta'}
-                {!loading && <ArrowRight className="ml-2 w-5 h-5" />}
+                {loading ? (
+                  <>
+                    <InlineSpinner className="mr-2" color="white" />
+                    Creando cuenta...
+                  </>
+                ) : (
+                  <>
+                    Crear cuenta
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </>
+                )}
               </Button>
             </form>
 

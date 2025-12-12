@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react'
+import { InlineSpinner } from '@/components/ui/Spinner'
 import { questions, type Dimension } from '@/data/hostProfileQuestions'
 
 interface Answer {
@@ -435,9 +436,16 @@ export default function HostProfileTestPage() {
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting || !email}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
-                {isSubmitting ? 'Procesando...' : 'Ver mis resultados'}
+                {isSubmitting ? (
+                  <>
+                    <InlineSpinner className="mr-2" color="white" />
+                    Procesando...
+                  </>
+                ) : (
+                  'Ver mis resultados'
+                )}
               </button>
 
               <button
