@@ -38,7 +38,7 @@ export async function GET(
 
     // Use raw SQL to avoid schema issues
     const zones = await prisma.$queryRaw`
-      SELECT 
+      SELECT
         z.id,
         z.name,
         z.slug,
@@ -48,12 +48,13 @@ export async function GET(
         z.status,
         z."isPublished",
         z."propertyId",
+        z."order",
         z."createdAt",
         z."updatedAt",
         z."publishedAt"
       FROM zones z
       WHERE z."propertyId" = ${propertyId}
-      ORDER BY z.id ASC
+      ORDER BY COALESCE(z."order", 0) ASC, z.id ASC
     ` as any[]
 
     // Get steps for each zone using raw SQL
