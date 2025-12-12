@@ -1692,8 +1692,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setShowStepEditor(false)
         setEditingZoneForSteps(null)
 
+        // Get zone name for both modal and notifications
+        const zoneName = getZoneText(zone.name)
+
+        // 🚨 VALIDATION CODE START - THIS SHOULD ALWAYS APPEAR
+        console.log('🚨🚨🚨 VALIDATION CODE REACHED - zoneName:', zoneName)
+        console.log('🚨🚨🚨 Steps to validate:', steps.length)
+        console.log('🚨🚨🚨 Steps data:', JSON.stringify(steps, null, 2))
+
         // Check if any steps are missing EN or FR content
-        console.log('🔍 Validating language completion for zone:', zone.name)
+        console.log('🔍 Validating language completion for zone:', zoneName)
         console.log('🔍 Total steps to validate:', steps.length)
 
         const hasMissingLanguages = steps.some((step, index) => {
@@ -1748,7 +1756,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
         // Only show language completion modal if languages are actually missing
         if (hasMissingLanguages) {
-          const zoneName = getZoneText(zone.name)
           setCompletedZoneName(zoneName)
           setShowLanguageModal(true)
         }
