@@ -2138,9 +2138,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       <div
         ref={setNodeRef}
         style={style}
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing"
       >
         <Card
-          className={`hover:shadow-lg transition-all cursor-pointer hover:border-violet-300 ${
+          className={`hover:shadow-lg transition-all hover:border-violet-300 ${
             isDragging ? 'shadow-2xl ring-4 ring-violet-500 border-violet-500 bg-violet-50' : ''
           }`}
           onClick={() => {
@@ -2151,7 +2154,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               propertySlug: propertySlug,
               hasSlug: !!(zone.slug && propertySlug)
             })
-            
+
             // Go directly to zone steps editor
             console.log('🚀 Opening steps editor for zone:', zone.id)
             setEditingZoneForSteps(zone)
@@ -2164,12 +2167,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             <div className="flex items-center justify-between min-h-[140px] lg:min-h-[100px]">
               {/* Left side - Zone info */}
               <div className="flex items-center space-x-3 flex-1 min-w-0 h-full">
-                {/* Drag handle */}
+                {/* Drag handle indicator */}
                 <div
-                  {...attributes}
-                  {...listeners}
-                  className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
-                  onClick={(e) => e.stopPropagation()}
+                  className="p-1 flex-shrink-0"
                 >
                   <GripVertical className="w-4 h-4 text-gray-400" />
                 </div>
