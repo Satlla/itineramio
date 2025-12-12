@@ -2261,7 +2261,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     )
   }
 
@@ -2282,7 +2282,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
 
     return (
-      <motion.div
+      <div
         ref={setNodeRef}
         style={style}
         initial={{ opacity: 0, scale: 0.9 }}
@@ -2391,7 +2391,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     )
   }
 
@@ -2526,7 +2526,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Copied Badge */}
       <AnimatePresence>
         {showCopiedBadge && (
-          <motion.div
+          <div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -2536,7 +2536,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               <CheckCircle className="w-5 h-5" />
               <span className="font-medium">Manual copiado al portapapeles</span>
             </div>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -2880,13 +2880,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Create/Edit Form Modal */}
       <AnimatePresence>
         {showCreateForm && (
-          <motion.div
+          <div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
           >
-            <motion.div
+            <div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -2964,20 +2964,20 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   )}
                 </Button>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {showIconSelector && (
-          <motion.div
+          <div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
           >
-            <motion.div
+            <div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -2990,20 +2990,20 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 }}
                 onClose={() => setShowIconSelector(false)}
               />
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {showQRModal && selectedZoneForQR && (
-          <motion.div
+          <div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
           >
-            <motion.div
+            <div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -3040,8 +3040,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   </p>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -3060,13 +3060,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Property QR Modal */}
       <AnimatePresence>
         {showPropertyQRModal && (
-          <motion.div
+          <div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
           >
-            <motion.div
+            <div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -3115,8 +3115,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   </div>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -3154,14 +3154,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Essential Zones Modal */}
       <AnimatePresence>
         {showEssentialZonesModal && (
-          <motion.div
+          <div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
             onClick={() => setShowEssentialZonesModal(false)}
           >
-            <motion.div
+            <div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -3210,7 +3210,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 {essentialZones.map((zone, index) => {
                   const isSelected = selectedEssentialZones.has(zone.id)
                   return (
-                    <motion.div
+                    <div
                       key={zone.id}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -3248,7 +3248,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                           )}
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   )
                 })}
               </div>
@@ -3315,8 +3315,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   </Button>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -3378,13 +3378,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
       <AnimatePresence>
         {showPredefineModal && (
-          <motion.div
+          <div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
           >
-            <motion.div
+            <div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -3428,8 +3428,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   </Button>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -3533,7 +3533,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
           onClick={closeEvaluationsModal}
         >
-          <motion.div
+          <div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -3667,7 +3667,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 </button>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       )}
 
