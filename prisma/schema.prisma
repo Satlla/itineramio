@@ -673,8 +673,8 @@ model Review {
 model Announcement {
   id         String    @id @default(cuid())
   propertyId String
-  title      String
-  message    String
+  title      Json      // Multi-language support: { es: "", en: "", fr: "" }
+  message    Json      // Multi-language support: { es: "", en: "", fr: "" }
   category   String
   priority   String    @default("NORMAL")
   isActive   Boolean   @default(true)

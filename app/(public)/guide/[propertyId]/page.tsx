@@ -79,10 +79,16 @@ interface Zone {
   status: string
 }
 
+interface MultiLangText {
+  es: string
+  en: string
+  fr: string
+}
+
 interface Announcement {
   id: string
-  title: string
-  message: string
+  title: MultiLangText
+  message: MultiLangText
   category: string
   priority: string
   isActive: boolean
@@ -1792,10 +1798,10 @@ export default function PropertyGuidePage() {
                         </div>
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-900 mb-1">
-                            {announcement.title}
+                            {announcement.title[language as 'es' | 'en' | 'fr'] || announcement.title.es}
                           </h4>
                           <p className="text-gray-700 text-sm leading-relaxed">
-                            {announcement.message}
+                            {announcement.message[language as 'es' | 'en' | 'fr'] || announcement.message.es}
                           </p>
                           <div className="flex items-center mt-2 text-xs text-gray-500">
                             <span className="px-2 py-1 bg-gray-100 rounded-full">
