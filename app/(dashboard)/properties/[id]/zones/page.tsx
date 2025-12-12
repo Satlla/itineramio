@@ -1692,10 +1692,36 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setShowStepEditor(false)
         setEditingZoneForSteps(null)
 
-        // Get zone name and show language completion modal
-        const zoneName = getZoneText(zone.name)
-        setCompletedZoneName(zoneName)
-        setShowLanguageModal(true)
+        // Check if any steps are missing EN or FR content
+        const hasMissingLanguages = steps.some(step => {
+          // Check if either EN or FR is missing in content or title
+          const contentEs = step.content?.es?.trim()
+          const contentEn = step.content?.en?.trim()
+          const contentFr = step.content?.fr?.trim()
+
+          const titleEs = step.title?.es?.trim()
+          const titleEn = step.title?.en?.trim()
+          const titleFr = step.title?.fr?.trim()
+
+          // If ES content exists, check if EN or FR is missing
+          if (contentEs) {
+            return !contentEn || !contentFr
+          }
+
+          // If ES title exists, check if EN or FR is missing
+          if (titleEs) {
+            return !titleEn || !titleFr
+          }
+
+          return false
+        })
+
+        // Only show language completion modal if languages are actually missing
+        if (hasMissingLanguages) {
+          const zoneName = getZoneText(zone.name)
+          setCompletedZoneName(zoneName)
+          setShowLanguageModal(true)
+        }
 
         // Show improved success message
         const propertyCount = updatedPropertyIds.size
