@@ -2486,9 +2486,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   return (
     <div
-      className="max-w-7xl mx-auto px-3 sm:px-6 pt-16 sm:pt-20 md:pt-24 pb-24 lg:pb-6"
+      className="max-w-7xl mx-auto px-3 sm:px-6 pb-24 lg:pb-6"
       style={{
-        paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))'
+        paddingTop: 'calc(5rem + env(safe-area-inset-top, 0px))'
       }}
     >
       {/* Inactive Property Banner */}
