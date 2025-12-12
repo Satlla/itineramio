@@ -256,7 +256,16 @@ export default function PropertyAnnouncementsPage() {
       const response = await fetch(`/api/announcements?propertyId=${propertyId}`)
       if (response.ok) {
         const data = await response.json()
-        setAnnouncements(data.data || [])
+        const announcements = data.data || []
+
+        // Parse JSONB fields if they come as strings from database
+        const parsedAnnouncements = announcements.map((ann: any) => ({
+          ...ann,
+          title: typeof ann.title === 'string' ? JSON.parse(ann.title) : ann.title,
+          message: typeof ann.message === 'string' ? JSON.parse(ann.message) : ann.message
+        }))
+
+        setAnnouncements(parsedAnnouncements)
       } else {
         addNotification({ title: 'Error', message: 'Error al cargar avisos', type: 'error', read: false })
       }
