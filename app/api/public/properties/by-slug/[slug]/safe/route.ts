@@ -57,7 +57,7 @@ export async function GET(
 
     // Get zones and steps safely using raw SQL
     const zones = await prisma.$queryRaw`
-      SELECT 
+      SELECT
         z.id,
         z.name,
         z.slug,
@@ -67,6 +67,7 @@ export async function GET(
         z.status,
         z."isPublished",
         z."propertyId",
+        z."order",
         z."createdAt",
         z."updatedAt",
         z."publishedAt"
@@ -75,12 +76,12 @@ export async function GET(
         AND (
           (z."isPublished" = true AND z.status = 'ACTIVE')
           OR EXISTS (
-            SELECT 1 FROM steps s 
-            WHERE s."zoneId" = z.id 
+            SELECT 1 FROM steps s
+            WHERE s."zoneId" = z.id
               AND s."isPublished" = true
           )
         )
-      ORDER BY z.id ASC
+      ORDER BY COALESCE(z."order", 999999) ASC, z.id ASC
     ` as any[]
 
     // Get steps for each zone
