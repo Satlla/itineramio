@@ -586,7 +586,15 @@ export default function PropertyGuidePage() {
       if (response.ok) {
         const data = await response.json()
         const activeAnnouncements = data.data || []
-        setAnnouncements(activeAnnouncements)
+
+        // Parse JSONB fields if they come as strings from database
+        const parsedAnnouncements = activeAnnouncements.map((ann: any) => ({
+          ...ann,
+          title: typeof ann.title === 'string' ? JSON.parse(ann.title) : ann.title,
+          message: typeof ann.message === 'string' ? JSON.parse(ann.message) : ann.message
+        }))
+
+        setAnnouncements(parsedAnnouncements)
 
         // Check if inline announcements were dismissed
         const dismissedInline = localStorage.getItem(`announcements-inline-dismissed-${propertyId}`)
@@ -595,7 +603,7 @@ export default function PropertyGuidePage() {
         }
 
         // Show modal if there are active announcements and user hasn't dismissed them
-        if (activeAnnouncements.length > 0) {
+        if (parsedAnnouncements.length > 0) {
           const dismissedAnnouncements = localStorage.getItem(`announcements-dismissed-${propertyId}`)
           if (!dismissedAnnouncements) {
             setShowAnnouncementsModal(true)
