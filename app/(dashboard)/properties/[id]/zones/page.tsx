@@ -160,8 +160,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [pendingZoneData, setPendingZoneData] = useState<any>(null)
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(TouchSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required before drag starts (prevents accidental drags)
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200, // 200ms press required before drag starts (allows scroll)
+        tolerance: 5, // 5px tolerance for slight finger movement
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
