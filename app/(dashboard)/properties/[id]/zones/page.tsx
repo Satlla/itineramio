@@ -2059,14 +2059,20 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     const { active, over } = event
 
     if (active.id !== over?.id) {
+      console.log('🔄 DRAG & DROP: Iniciando reordenamiento de zonas')
+      console.log('   - Zona arrastrada:', active.id)
+      console.log('   - Posición destino:', over?.id)
+
       const oldIndex = zones.findIndex((zone) => zone.id === active.id)
       const newIndex = zones.findIndex((zone) => zone.id === over?.id)
-      
+
+      console.log('   - Índice anterior:', oldIndex, '→ Índice nuevo:', newIndex)
+
       const newZones = arrayMove(zones, oldIndex, newIndex)
-      
+
       // Update local state immediately for smooth UI
       setZones(newZones)
-      
+
       // Update orders in the backend
       setIsReordering(true)
       try {
@@ -2074,34 +2080,60 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           id: zone.id,
           order: index + 1
         }))
-        
-        const response = await fetch(`/api/properties/${id}/zones/order`, {
+
+        console.log('📤 Enviando nuevo orden al servidor:', zonesWithNewOrder)
+
+        // Get token from localStorage for PWA fallback
+        const token = typeof window !== 'undefined' ? localStorage.getItem('auth-token') : null
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json'
+        }
+
+        // Add Authorization header if token exists (for PWA mode)
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`
+          console.log('🔑 Token encontrado en localStorage')
+        } else {
+          console.log('⚠️  No se encontró token en localStorage, usando solo cookies')
+        }
+
+        const url = `/api/properties/${id}/zones/order`
+        console.log('🌐 URL del request:', url)
+
+        const response = await fetch(url, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers,
+          credentials: 'include', // For cookie-based auth
           body: JSON.stringify({ zones: zonesWithNewOrder })
         })
-        
+
+        console.log('📥 Respuesta del servidor:', response.status, response.statusText)
+
         if (!response.ok) {
+          const errorData = await response.text()
+          console.error('❌ Error del servidor:', errorData)
+
           // Revert changes if API call fails
           setZones(zones)
           addNotification({
             type: 'error',
             title: 'Error',
-            message: 'No se pudo actualizar el orden de las zonas',
+            message: `No se pudo actualizar el orden de las zonas (${response.status})`,
             read: false
           })
         } else {
+          const responseData = await response.json()
+          console.log('✅ Orden actualizado correctamente:', responseData)
+
           addNotification({
-            type: 'info',
+            type: 'success',
             title: 'Orden actualizado',
-            message: 'El orden de las zonas se ha actualizado correctamente',
+            message: 'El orden de las zonas se ha guardado correctamente',
             read: false
           })
         }
       } catch (error) {
-        console.error('Error updating zone order:', error)
+        console.error('❌ Error al actualizar el orden de las zonas:', error)
         // Revert changes if there's an error
         setZones(zones)
         addNotification({
@@ -2112,6 +2144,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         })
       } finally {
         setIsReordering(false)
+        console.log('✅ Proceso de reordenamiento finalizado')
       }
     }
   }
