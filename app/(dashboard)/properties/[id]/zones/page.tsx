@@ -1693,27 +1693,57 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setEditingZoneForSteps(null)
 
         // Check if any steps are missing EN or FR content
-        const hasMissingLanguages = steps.some(step => {
-          // Check if either EN or FR is missing in content or title
+        console.log('🔍 Validating language completion for zone:', zone.name)
+        console.log('🔍 Total steps to validate:', steps.length)
+
+        const hasMissingLanguages = steps.some((step, index) => {
+          // Debug: log the actual step data
+          console.log(`\n📝 Step ${index + 1}:`, {
+            id: step.id,
+            type: step.type,
+            contentEs: step.content?.es?.substring(0, 80) + '...',
+            contentEn: step.content?.en ? step.content.en.substring(0, 80) + '...' : null,
+            contentFr: step.content?.fr ? step.content.fr.substring(0, 80) + '...' : null,
+            titleEs: step.title?.es,
+            titleEn: step.title?.en,
+            titleFr: step.title?.fr
+          })
+
+          // Check content languages
           const contentEs = step.content?.es?.trim()
           const contentEn = step.content?.en?.trim()
           const contentFr = step.content?.fr?.trim()
 
+          if (contentEs && (!contentEn || !contentFr)) {
+            console.log(`❌ Step ${index + 1}: Missing content language`, {
+              hasEs: !!contentEs,
+              hasEn: !!contentEn,
+              hasFr: !!contentFr
+            })
+            return true
+          }
+
+          // Check title languages
           const titleEs = step.title?.es?.trim()
           const titleEn = step.title?.en?.trim()
           const titleFr = step.title?.fr?.trim()
 
-          // If ES content exists, check if EN or FR is missing
-          if (contentEs) {
-            return !contentEn || !contentFr
+          if (titleEs && (!titleEn || !titleFr)) {
+            console.log(`❌ Step ${index + 1}: Missing title language`, {
+              hasEs: !!titleEs,
+              hasEn: !!titleEn,
+              hasFr: !!titleFr
+            })
+            return true
           }
 
-          // If ES title exists, check if EN or FR is missing
-          if (titleEs) {
-            return !titleEn || !titleFr
-          }
-
+          console.log(`✅ Step ${index + 1}: Has all required languages`)
           return false
+        })
+
+        console.log('🎯 Final validation result:', {
+          hasMissingLanguages,
+          willShowModal: hasMissingLanguages
         })
 
         // Only show language completion modal if languages are actually missing
