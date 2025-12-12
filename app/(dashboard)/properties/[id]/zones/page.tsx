@@ -2119,11 +2119,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     } = useSortable({ id: zone.id })
 
     const style = {
-      transform: CSS.Transform.toString(transform),
+      transform: CSS.Transform.toString(transform) + (isDragging ? ' scale(1.05)' : ''),
       transition,
       opacity: isDragging ? 0.8 : 1,
-      scale: isDragging ? 1.05 : 1,
-      zIndex: isDragging ? 999 : 'auto',
+      zIndex: isDragging ? 999 : ('auto' as any),
     }
 
     return (
