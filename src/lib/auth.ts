@@ -17,13 +17,8 @@ export interface JWTPayload {
   exp?: number
 }
 
-export function signToken(
-  payload: Omit<JWTPayload, 'iat' | 'exp'>,
-  rememberMe: boolean = false
-): string {
-  // Si rememberMe es true, la sesión dura 30 días. Si no, 24 horas.
-  const expiresIn = rememberMe ? '30d' : '24h'
-  return jwt.sign(payload, JWT_SECRET, { expiresIn })
+export function signToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' })
 }
 
 export function verifyToken(token: string): JWTPayload {

@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       userId: user.id,
       email: user.email,
       role: 'HOST'
-    }, rememberMe)
+    })
 
     const userResponse = {
       id: user.id,
@@ -77,18 +77,18 @@ export async function POST(request: NextRequest) {
     // Token set successfully - Extended for PWA compatibility
     console.log('Setting auth cookie with token length:', token.length)
 
-    // For production, use sameSite='lax' for better browser compatibility
-    // Only use 'none' if explicitly needed for cross-origin PWA
+    // For production, use sameSite='none' with secure=true for PWA compatibility
+    // For development, use sameSite='lax' without secure
     const isProduction = process.env.NODE_ENV === 'production'
 
     response.cookies.set('auth-token', token, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'lax', // 'lax' for better compatibility across all browsers
-      maxAge: rememberMe ? (30 * 24 * 60 * 60) : (24 * 60 * 60), // 30 days or 24 hours
+      sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-context PWA access
+      maxAge: 30 * 24 * 60 * 60, // 30 days for persistent login
       path: '/'
     })
-    console.log('Auth cookie set successfully with sameSite=lax', `- Session: ${rememberMe ? '30 days' : '24 hours'}`)
+    console.log('Auth cookie set successfully with', isProduction ? 'sameSite=none (PWA)' : 'sameSite=lax (dev)')
 
     // Clear admin impersonation cookie if exists (user login should clean this up)
     response.cookies.set('admin-impersonation', '', {

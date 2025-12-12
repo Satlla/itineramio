@@ -6,7 +6,7 @@ import { prisma } from '../../../../src/lib/prisma'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, password, rememberMe = true } = body // Por defecto true (30 días)
+    const { email, password, rememberMe = false } = body
 
     console.log('🔐 Login attempt for:', email, '| Remember me:', rememberMe)
 
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
     response.cookies.set('auth-token', token, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'lax', // 'lax' for better compatibility across all browsers
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: cookieMaxAge,
       path: '/'
     })
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
       maxAge: `${cookieMaxAge}s (${rememberMe ? '30 days' : '24 hours'})`,
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'lax',
+      sameSite: isProduction ? 'none' : 'lax',
       path: '/'
     })
 
