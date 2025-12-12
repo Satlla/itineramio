@@ -6,7 +6,7 @@ import { signToken } from '../../../../src/lib/auth'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, password } = body
+    const { email, password, rememberMe = true } = body // Por defecto true (30 días)
 
     if (!email || !password) {
       return NextResponse.json({
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       userId: user.id,
       email: user.email,
       role: 'HOST'
-    })
+    }, rememberMe)
 
     const userResponse = {
       id: user.id,
@@ -85,10 +85,10 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-context PWA access
-      maxAge: 30 * 24 * 60 * 60, // 30 days for persistent login
+      maxAge: rememberMe ? (30 * 24 * 60 * 60) : (24 * 60 * 60), // 30 days or 24 hours
       path: '/'
     })
-    console.log('Auth cookie set successfully with', isProduction ? 'sameSite=none (PWA)' : 'sameSite=lax (dev)')
+    console.log('Auth cookie set successfully with', isProduction ? 'sameSite=none (PWA)' : 'sameSite=lax (dev)', `- Session: ${rememberMe ? '30 days' : '24 hours'}`)
 
     // Clear admin impersonation cookie if exists (user login should clean this up)
     response.cookies.set('admin-impersonation', '', {

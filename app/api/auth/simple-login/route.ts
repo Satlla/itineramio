@@ -6,7 +6,7 @@ import { prisma } from '../../../../src/lib/prisma'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, password, rememberMe = false } = body
+    const { email, password, rememberMe = true } = body // Por defecto true (30 días)
 
     console.log('🔐 Login attempt for:', email, '| Remember me:', rememberMe)
 

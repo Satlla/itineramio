@@ -207,6 +207,7 @@ model Zone {
   name                Json
   description         Json?
   icon                String
+  order               Int             @default(0)
   color               String?
   qrCode              String          @unique
   accessCode          String          @unique
