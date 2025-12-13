@@ -74,7 +74,9 @@ async function updateZoneCompletionAnalytics(zoneId: string, completionTime?: nu
 
       if (stepsCompleted && totalSteps) {
         newAvgStepsCompleted = (analytics.avgStepsCompleted * analytics.totalCompletions + stepsCompleted) / newCompletions
-        newCompletionRate = (stepsCompleted / totalSteps) * 100
+        // Calculate weighted average of completion rate (not just last value)
+        const thisSessionRate = (stepsCompleted / totalSteps) * 100
+        newCompletionRate = (analytics.completionRate * analytics.totalCompletions + thisSessionRate) / newCompletions
       }
 
       await prisma.zoneAnalytics.update({

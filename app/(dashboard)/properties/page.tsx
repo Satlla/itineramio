@@ -35,7 +35,10 @@ import {
   Hash,
   Minus,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Layers,
+  FileText,
+  Video
 } from 'lucide-react'
 import { Button } from '../../../src/components/ui/Button'
 import { Card, CardContent } from '../../../src/components/ui/Card'
@@ -62,6 +65,8 @@ interface Property {
   bathrooms: number
   maxGuests: number
   zonesCount: number
+  stepsCount?: number
+  videosCount?: number
   totalViews: number
   avgRating?: number
   status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED'
@@ -632,23 +637,8 @@ function PropertiesPageContent() {
     }
   }, [])
 
-  // Track property views when properties are loaded
-  useEffect(() => {
-    if (properties.length > 0) {
-      // Track views for all visible properties
-      properties.forEach(async (property) => {
-        try {
-          await fetch('/api/tracking/property-view', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ propertyId: property.id })
-          })
-        } catch (error) {
-          console.error('Error tracking property view:', error)
-        }
-      })
-    }
-  }, [properties])
+  // NOTE: Property views should be tracked when GUESTS view the public guide,
+  // not when the host views their dashboard. Removed incorrect tracking here.
 
   const fetchProperties = async () => {
     try {
@@ -1664,19 +1654,31 @@ function PropertiesPageContent() {
                             </div>
                             
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-4 text-sm">
-                                <div className="flex items-center text-gray-600">
-                                  <MapPin className="h-4 w-4 mr-1" />
+                              <div className="flex items-center space-x-3 text-sm">
+                                <div className="flex items-center text-gray-600" title="Zonas del manual">
+                                  <Layers className="h-4 w-4 mr-1 text-violet-500" />
                                   <span>{property.zonesCount} zonas</span>
                                 </div>
-                                {property.totalViews && (
-                                  <div className="flex items-center text-gray-600">
-                                    <Eye className="h-4 w-4 mr-1" />
+                                {(property.stepsCount || 0) > 0 && (
+                                  <div className="flex items-center text-gray-600" title="Pasos/instrucciones">
+                                    <FileText className="h-4 w-4 mr-1 text-blue-500" />
+                                    <span>{property.stepsCount} pasos</span>
+                                  </div>
+                                )}
+                                {(property.videosCount || 0) > 0 && (
+                                  <div className="flex items-center text-gray-600" title="Videos">
+                                    <Video className="h-4 w-4 mr-1 text-red-500" />
+                                    <span>{property.videosCount}</span>
+                                  </div>
+                                )}
+                                {property.totalViews > 0 && (
+                                  <div className="flex items-center text-gray-600" title="Visitas totales">
+                                    <Eye className="h-4 w-4 mr-1 text-green-500" />
                                     <span>{property.totalViews}</span>
                                   </div>
                                 )}
                                 {property.avgRating && property.avgRating > 0 && (
-                                  <div className="flex items-center text-gray-600">
+                                  <div className="flex items-center text-gray-600" title="Valoración media">
                                     <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
                                     <span>{Number(property.avgRating).toFixed(1)}</span>
                                   </div>

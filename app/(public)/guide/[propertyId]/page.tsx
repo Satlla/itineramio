@@ -121,6 +121,25 @@ const getText = (value: any, language: string = 'es', fallback: string = '') => 
   return fallback
 }
 
+// Helper function to get translated property field
+const getPropertyText = (
+  baseValue: string,
+  translations: any,
+  language: string = 'es',
+  fallback: string = ''
+) => {
+  // If language is Spanish or no translations, return base value
+  if (language === 'es' || !translations) {
+    return baseValue || fallback
+  }
+  // Try to get translation for requested language
+  if (translations && translations[language]) {
+    return translations[language]
+  }
+  // Fallback to base value (Spanish)
+  return baseValue || fallback
+}
+
 // Translations for the public interface
 const translations = {
   es: {
@@ -397,16 +416,34 @@ const getPriorityColor = (priority: string) => {
 // Analytics tracking for real statistics
 const trackPropertyView = async (propertyId: string) => {
   try {
+    await fetch(`/api/properties/${propertyId}/view`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        referrer: document.referrer || null,
+        language: navigator.language || 'es',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+        screenWidth: window.screen?.width || null,
+        screenHeight: window.screen?.height || null
+      })
+    })
+  } catch (error) {
+    console.error('Error tracking property view:', error)
+  }
+}
+
+const trackWhatsAppClick = async (propertyId: string) => {
+  try {
     await fetch('/api/analytics/track-interaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         propertyId,
-        interactionType: 'property_view'
+        interactionType: 'whatsapp_click'
       })
     })
   } catch (error) {
-    console.error('Error tracking property view:', error)
+    console.error('Error tracking WhatsApp click:', error)
   }
 }
 
@@ -835,7 +872,7 @@ export default function PropertyGuidePage() {
           {/* Property Title and Rating */}
           <div className="mb-6">
             <h1 className="text-3xl font-semibold text-gray-900 mb-2">
-              {getText(property.name, language, 'Propiedad')}
+              {getPropertyText(property.name, property.nameTranslations, language, 'Propiedad')}
             </h1>
             <div className="flex items-center space-x-4 text-sm">
               {evaluationsStats && publicEvaluations.length > 0 && (
@@ -889,7 +926,7 @@ export default function PropertyGuidePage() {
               {/* Description */}
               <div className="border-b border-gray-200 pb-6 mb-6">
                 <p className="text-gray-700 leading-relaxed">
-                  {getText(property.description, language, t('accommodationWelcome', language))}
+                  {getPropertyText(property.description, property.descriptionTranslations, language, t('accommodationWelcome', language))}
                 </p>
               </div>
 
@@ -1012,9 +1049,10 @@ export default function PropertyGuidePage() {
                   </div>
                   
                   {/* Contact Button */}
-                  <Button 
+                  <Button
                     onClick={() => {
-                      const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${getText(property.name, language, 'la propiedad')} y necesito ayuda.`)
+                      trackWhatsAppClick(propertyId)
+                      const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${getPropertyText(property.name, property.nameTranslations, language, 'la propiedad')} y necesito ayuda.`)
                       const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
                       window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
                     }}
@@ -1262,7 +1300,7 @@ export default function PropertyGuidePage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
                               <h4 className="font-semibold text-gray-900 text-sm">
-                                {announcement.title}
+                                {announcement.title[language as 'es' | 'en' | 'fr'] || announcement.title.es}
                               </h4>
                               {announcement.priority !== 'NORMAL' && (
                                 <span className={`px-2 py-1 text-xs rounded-full bg-${colorName}-100 text-${colorName}-700 font-medium`}>
@@ -1271,7 +1309,7 @@ export default function PropertyGuidePage() {
                               )}
                             </div>
                             <p className="text-gray-700 text-sm leading-relaxed mb-2">
-                              {announcement.message}
+                              {announcement.message[language as 'es' | 'en' | 'fr'] || announcement.message.es}
                             </p>
                             {(announcement.startDate || announcement.endDate) && (
                               <div className="flex items-center text-xs text-gray-500">
@@ -1324,7 +1362,8 @@ export default function PropertyGuidePage() {
         animate={{ scale: 1 }}
         transition={{ delay: 1, type: "spring", stiffness: 200 }}
         onClick={() => {
-          const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${getText(property.name, 'la propiedad')} y necesito ayuda.`)
+          trackWhatsAppClick(propertyId)
+          const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${getPropertyText(property.name, property.nameTranslations, language, 'la propiedad')} y necesito ayuda.`)
           const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
           window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
         }}
@@ -1780,14 +1819,36 @@ export default function PropertyGuidePage() {
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   {language === 'es' ? 'Avisos Importantes' : language === 'en' ? 'Important Announcements' : 'Avis Importants'}
                 </h3>
-                <p className="text-gray-600">
-                  {language === 'es' 
+                <p className="text-gray-600 mb-4">
+                  {language === 'es'
                     ? 'Tu anfitrión ha dejado algunos avisos importantes para tu estancia.'
                     : language === 'en'
                     ? 'Your host has left some important announcements for your stay.'
                     : 'Votre hôte a laissé quelques annonces importantes pour votre séjour.'
                   }
                 </p>
+                {/* Language Selector in Modal */}
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-sm text-gray-500">
+                    {language === 'es' ? 'Idioma:' : language === 'en' ? 'Language:' : 'Langue:'}
+                  </span>
+                  <select
+                    value={language}
+                    onChange={(e) => {
+                      const newLang = e.target.value
+                      setLanguage(newLang)
+                      const url = new URL(window.location.href)
+                      url.searchParams.set('lang', newLang)
+                      window.history.replaceState({}, '', url.toString())
+                      localStorage.setItem('itineramio-language', newLang)
+                    }}
+                    className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
+                  >
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="fr">🇫🇷 Français</option>
+                  </select>
+                </div>
               </div>
 
               <div className="space-y-4 mb-6">
