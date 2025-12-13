@@ -433,8 +433,9 @@ const trackPropertyView = async (propertyId: string) => {
 }
 
 const trackWhatsAppClick = async (propertyId: string) => {
+  console.log('📱 Tracking WhatsApp click for property:', propertyId)
   try {
-    await fetch('/api/analytics/track-interaction', {
+    const response = await fetch('/api/analytics/track-interaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -442,8 +443,10 @@ const trackWhatsAppClick = async (propertyId: string) => {
         interactionType: 'whatsapp_click'
       })
     })
+    const data = await response.json()
+    console.log('📱 WhatsApp click tracked:', data)
   } catch (error) {
-    console.error('Error tracking WhatsApp click:', error)
+    console.error('❌ Error tracking WhatsApp click:', error)
   }
 }
 
