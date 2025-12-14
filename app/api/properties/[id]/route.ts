@@ -55,10 +55,12 @@ export async function GET(
     // Get authenticated user
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
+      console.log('❌ Property GET - Auth failed for ID:', id)
       return authResult
     }
     userId = authResult.userId
-    
+    console.log('🔍 Property GET - Auth OK, userId:', userId, 'looking for property:', id)
+
     // Set JWT claims for PostgreSQL RLS policies
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
     // RLS is handled at application level instead
