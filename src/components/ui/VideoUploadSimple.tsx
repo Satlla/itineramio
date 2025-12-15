@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Upload, X, Video, CheckCircle, Loader2, AlertCircle } from 'lucide-react'
 import { Button } from './Button'
-import { uploadFileInChunks } from '../../utils/chunkedUpload'
+import { upload } from '@vercel/blob/client'
 import { compressVideoSimple } from '../../utils/videoCompression'
 
 interface VideoUploadProps {
@@ -78,70 +78,87 @@ export function VideoUploadSimple({
 
   const uploadFile = async (file: File): Promise<string> => {
     const sizeMB = file.size / (1024 * 1024)
-    console.log('📊 File size for upload:', sizeMB.toFixed(2), 'MB')
-    
-    // Use chunked upload for files larger than 3MB (lower threshold for safety)
-    if (sizeMB > 3) {
-      console.log('📦 Using chunked upload for file:', file.name, sizeMB.toFixed(2), 'MB')
-      try {
-        const result = await uploadFileInChunks({
-          file,
-          chunkSize: 2 * 1024 * 1024, // 2MB chunks to stay under Vercel limit
-          onProgress: (progress) => {
-            setUploadProgress(Math.round(progress))
-          },
-          onChunkComplete: (chunk, total) => {
-            console.log(`✅ Chunk ${chunk}/${total} uploaded`)
+    console.log('📊 File size for upload:', sizeMB.toFixed(2), 'MB, type:', file.type)
+
+    // For files under 40MB, use regular upload (more reliable)
+    // For larger files, use Vercel Blob client upload
+    if (sizeMB <= 40) {
+      console.log('📤 Using regular upload for:', file.name)
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'video')
+
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const progress = Math.round((e.loaded / e.total) * 100)
+            setUploadProgress(progress)
           }
-        })
-        console.log('📦 Chunked upload complete:', result.url)
-        return result.url
-      } catch (error) {
-        console.error('❌ Chunked upload failed:', error)
-        throw error
-      }
-    }
-    
-    // Regular upload for smaller files
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('type', 'video')
-
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      
-      // Track upload progress
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          const progress = Math.round((e.loaded / e.total) * 100)
-          setUploadProgress(progress)
         }
-      }
 
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          try {
-            const response = JSON.parse(xhr.responseText)
-            if (response.url) {
-              resolve(response.url)
-            } else {
-              reject(new Error('No URL in response'))
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            try {
+              const response = JSON.parse(xhr.responseText)
+              if (response.url) {
+                console.log('✅ Regular upload complete:', response.url)
+                resolve(response.url)
+              } else if (response.duplicate && response.existingMedia) {
+                // Handle duplicate detection
+                console.log('🔄 Duplicate detected, using existing:', response.existingMedia.url)
+                resolve(response.existingMedia.url)
+              } else {
+                console.error('❌ No URL in response:', response)
+                reject(new Error(response.error || 'No URL in response'))
+              }
+            } catch (e) {
+              console.error('❌ Invalid response format:', xhr.responseText)
+              reject(new Error('Invalid response format'))
             }
-          } catch (e) {
-            reject(new Error('Invalid response format'))
+          } else {
+            // Try to parse error message
+            try {
+              const errorResponse = JSON.parse(xhr.responseText)
+              console.error('❌ Upload error:', errorResponse)
+              reject(new Error(errorResponse.error || `Upload failed: ${xhr.status}`))
+            } catch {
+              console.error('❌ Upload failed with status:', xhr.status)
+              reject(new Error(`Upload failed: ${xhr.status}`))
+            }
           }
-        } else {
-          reject(new Error(`Upload failed: ${xhr.status}`))
         }
-      }
 
-      xhr.onerror = () => {
-        reject(new Error('Network error during upload'))
-      }
+        xhr.onerror = () => {
+          console.error('❌ Network error during upload')
+          reject(new Error('Network error during upload'))
+        }
 
-      xhr.open('POST', '/api/upload')
-      xhr.send(formData)
-    })
+        xhr.open('POST', '/api/upload')
+        xhr.send(formData)
+      })
+    }
+
+    // For files over 40MB, use Vercel Blob client upload
+    console.log('📤 Using Vercel Blob client upload for large file:', file.name)
+    try {
+      const blob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload-token',
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100)
+          setUploadProgress(progress)
+          console.log(`📦 Upload progress: ${progress}%`)
+        },
+      })
+
+      console.log('✅ Vercel Blob upload complete:', blob.url)
+      return blob.url
+    } catch (blobError) {
+      console.error('❌ Vercel Blob upload failed:', blobError)
+      throw new Error('El archivo es demasiado grande. Por favor, comprime el video antes de subirlo.')
+    }
   }
 
   const generateThumbnail = (file: File): Promise<VideoMetadata> => {

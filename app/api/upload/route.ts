@@ -90,12 +90,20 @@ export async function POST(request: NextRequest) {
 
     console.log(`📁 File details: ${file.name}, size: ${file.size}, type: ${file.type}`)
 
-    // Validate file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime']
-    if (!validTypes.includes(file.type)) {
+    // Validate file type (check if starts with valid type to handle codec suffixes like video/webm;codecs=vp9)
+    const validTypesPrefixes = [
+      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+      'video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v', 'video/mpeg',
+      'video/3gpp', 'video/x-msvideo', 'video/ogg'
+    ]
+    const fileTypeBase = file.type.split(';')[0] // Remove codec suffix if present
+    const isValidType = validTypesPrefixes.some(validType =>
+      fileTypeBase === validType || file.type.startsWith(validType)
+    )
+    if (!isValidType) {
       console.log('❌ Invalid file type:', file.type)
       return NextResponse.json({
-        error: `Tipo de archivo no permitido: ${file.type}. Usa JPG, PNG, GIF, WebP, MP4 o MOV.`,
+        error: `Tipo de archivo no permitido: ${file.type}. Usa JPG, PNG, GIF, WebP, MP4, MOV o WebM.`,
         receivedType: file.type
       }, { status: 400 })
     }
