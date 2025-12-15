@@ -228,9 +228,11 @@ export async function POST(request: NextRequest) {
 
       try {
         console.log('📤 Uploading to Vercel Blob...')
-        const blob = await put(uniqueFilename, file, {
+        // Use buffer instead of file since file might be consumed after arrayBuffer()
+        const blob = await put(uniqueFilename, buffer, {
           access: 'public',
           token: blobToken,
+          contentType: file.type,
         })
         fileUrl = blob.url
         console.log('✅ Upload to Vercel Blob successful:', fileUrl)
