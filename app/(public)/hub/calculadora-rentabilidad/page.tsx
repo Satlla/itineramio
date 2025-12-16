@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 
 // Datos de mercado por zona (simplificado - en producción vendría de API/DB)
+// Precios en USD para Latinoamérica, EUR para España
 const MARKET_DATA: Record<string, {
   adrHigh: number,
   adrMid: number,
@@ -34,8 +35,10 @@ const MARKET_DATA: Record<string, {
   occMid: number,
   occLow: number,
   demand: 'alta' | 'media' | 'baja',
-  seasonality: string
+  seasonality: string,
+  currency?: string
 }> = {
+  // ========== ESPAÑA ==========
   'barcelona-centro': { adrHigh: 150, adrMid: 110, adrLow: 75, occHigh: 90, occMid: 75, occLow: 55, demand: 'alta', seasonality: 'Todo el año con picos en verano y eventos' },
   'barcelona-periferia': { adrHigh: 95, adrMid: 70, adrLow: 50, occHigh: 80, occMid: 65, occLow: 45, demand: 'media', seasonality: 'Verano principalmente' },
   'madrid-centro': { adrHigh: 140, adrMid: 100, adrLow: 70, occHigh: 88, occMid: 72, occLow: 50, demand: 'alta', seasonality: 'Todo el año, picos en primavera/otoño' },
@@ -47,9 +50,61 @@ const MARKET_DATA: Record<string, {
   'malaga-costa': { adrHigh: 140, adrMid: 95, adrLow: 55, occHigh: 90, occMid: 65, occLow: 35, demand: 'media', seasonality: 'Estacional (verano + Semana Santa)' },
   'bilbao': { adrHigh: 110, adrMid: 80, adrLow: 55, occHigh: 82, occMid: 68, occLow: 45, demand: 'media', seasonality: 'Eventos + verano' },
   'san-sebastian': { adrHigh: 180, adrMid: 130, adrLow: 80, occHigh: 92, occMid: 75, occLow: 50, demand: 'alta', seasonality: 'Verano muy fuerte, festivales' },
-  'otras-capital': { adrHigh: 90, adrMid: 65, adrLow: 45, occHigh: 75, occMid: 60, occLow: 40, demand: 'media', seasonality: 'Variable' },
-  'otras-costa': { adrHigh: 100, adrMid: 70, adrLow: 40, occHigh: 85, occMid: 55, occLow: 25, demand: 'baja', seasonality: 'Muy estacional' },
-  'otras-interior': { adrHigh: 70, adrMid: 50, adrLow: 35, occHigh: 65, occMid: 50, occLow: 30, demand: 'baja', seasonality: 'Puentes y vacaciones' },
+  'canarias': { adrHigh: 120, adrMid: 85, adrLow: 60, occHigh: 88, occMid: 75, occLow: 60, demand: 'alta', seasonality: 'Todo el año, europeos en invierno' },
+  'baleares': { adrHigh: 200, adrMid: 120, adrLow: 60, occHigh: 95, occMid: 60, occLow: 25, demand: 'alta', seasonality: 'Mayo-octubre muy fuerte' },
+
+  // ========== MÉXICO ==========
+  'cdmx-centro': { adrHigh: 120, adrMid: 80, adrLow: 50, occHigh: 85, occMid: 70, occLow: 55, demand: 'alta', seasonality: 'Todo el año, picos en festividades', currency: 'USD' },
+  'cdmx-condesa-roma': { adrHigh: 150, adrMid: 100, adrLow: 65, occHigh: 88, occMid: 75, occLow: 60, demand: 'alta', seasonality: 'Nómadas digitales todo el año', currency: 'USD' },
+  'cancun-zona-hotelera': { adrHigh: 250, adrMid: 150, adrLow: 80, occHigh: 95, occMid: 70, occLow: 45, demand: 'alta', seasonality: 'Dic-abril muy fuerte, verano familia', currency: 'USD' },
+  'playa-del-carmen': { adrHigh: 180, adrMid: 110, adrLow: 60, occHigh: 90, occMid: 72, occLow: 50, demand: 'alta', seasonality: 'Temporada alta dic-abril', currency: 'USD' },
+  'tulum': { adrHigh: 220, adrMid: 140, adrLow: 70, occHigh: 88, occMid: 68, occLow: 40, demand: 'alta', seasonality: 'Dic-abril, nómadas todo el año', currency: 'USD' },
+  'puerto-vallarta': { adrHigh: 160, adrMid: 100, adrLow: 55, occHigh: 88, occMid: 65, occLow: 40, demand: 'media', seasonality: 'Invierno norteamericanos', currency: 'USD' },
+  'guadalajara': { adrHigh: 90, adrMid: 60, adrLow: 40, occHigh: 80, occMid: 65, occLow: 50, demand: 'media', seasonality: 'Negocios + eventos', currency: 'USD' },
+  'oaxaca': { adrHigh: 100, adrMid: 70, adrLow: 45, occHigh: 85, occMid: 65, occLow: 45, demand: 'media', seasonality: 'Día de muertos, Guelaguetza', currency: 'USD' },
+  'san-miguel-allende': { adrHigh: 180, adrMid: 120, adrLow: 70, occHigh: 90, occMid: 70, occLow: 50, demand: 'alta', seasonality: 'Jubilados USA todo el año', currency: 'USD' },
+
+  // ========== COLOMBIA ==========
+  'bogota-centro': { adrHigh: 80, adrMid: 55, adrLow: 35, occHigh: 82, occMid: 68, occLow: 50, demand: 'media', seasonality: 'Negocios todo el año', currency: 'USD' },
+  'bogota-norte': { adrHigh: 100, adrMid: 70, adrLow: 45, occHigh: 85, occMid: 70, occLow: 55, demand: 'alta', seasonality: 'Negocios + turismo', currency: 'USD' },
+  'medellin-poblado': { adrHigh: 120, adrMid: 80, adrLow: 50, occHigh: 88, occMid: 75, occLow: 60, demand: 'alta', seasonality: 'Nómadas digitales todo el año', currency: 'USD' },
+  'medellin-laureles': { adrHigh: 90, adrMid: 60, adrLow: 40, occHigh: 85, occMid: 72, occLow: 55, demand: 'alta', seasonality: 'Nómadas + turistas', currency: 'USD' },
+  'cartagena-centro': { adrHigh: 180, adrMid: 110, adrLow: 60, occHigh: 90, occMid: 70, occLow: 45, demand: 'alta', seasonality: 'Dic-enero, Semana Santa muy fuerte', currency: 'USD' },
+  'santa-marta': { adrHigh: 100, adrMid: 65, adrLow: 40, occHigh: 85, occMid: 60, occLow: 35, demand: 'media', seasonality: 'Vacaciones colombianas', currency: 'USD' },
+
+  // ========== ARGENTINA ==========
+  'buenos-aires-palermo': { adrHigh: 100, adrMid: 65, adrLow: 40, occHigh: 85, occMid: 70, occLow: 55, demand: 'alta', seasonality: 'Todo el año, pico verano', currency: 'USD' },
+  'buenos-aires-centro': { adrHigh: 70, adrMid: 45, adrLow: 30, occHigh: 80, occMid: 65, occLow: 50, demand: 'media', seasonality: 'Negocios principalmente', currency: 'USD' },
+  'mendoza': { adrHigh: 90, adrMid: 60, adrLow: 35, occHigh: 85, occMid: 65, occLow: 40, demand: 'media', seasonality: 'Vendimia + ski invierno', currency: 'USD' },
+  'bariloche': { adrHigh: 150, adrMid: 90, adrLow: 50, occHigh: 95, occMid: 60, occLow: 35, demand: 'alta', seasonality: 'Ski julio-sept, verano dic-feb', currency: 'USD' },
+
+  // ========== CHILE ==========
+  'santiago-providencia': { adrHigh: 100, adrMid: 70, adrLow: 45, occHigh: 82, occMid: 68, occLow: 50, demand: 'media', seasonality: 'Negocios todo el año', currency: 'USD' },
+  'santiago-las-condes': { adrHigh: 120, adrMid: 85, adrLow: 55, occHigh: 85, occMid: 70, occLow: 55, demand: 'alta', seasonality: 'Negocios + turismo', currency: 'USD' },
+  'valparaiso': { adrHigh: 80, adrMid: 55, adrLow: 35, occHigh: 85, occMid: 60, occLow: 35, demand: 'media', seasonality: 'Verano muy fuerte', currency: 'USD' },
+  'vina-del-mar': { adrHigh: 120, adrMid: 70, adrLow: 40, occHigh: 92, occMid: 55, occLow: 30, demand: 'media', seasonality: 'Verano chileno dic-feb', currency: 'USD' },
+
+  // ========== PERÚ ==========
+  'lima-miraflores': { adrHigh: 100, adrMid: 70, adrLow: 45, occHigh: 85, occMid: 70, occLow: 55, demand: 'alta', seasonality: 'Todo el año, verano dic-mar', currency: 'USD' },
+  'lima-barranco': { adrHigh: 90, adrMid: 60, adrLow: 40, occHigh: 82, occMid: 68, occLow: 50, demand: 'media', seasonality: 'Turistas y nómadas', currency: 'USD' },
+  'cusco': { adrHigh: 120, adrMid: 75, adrLow: 45, occHigh: 90, occMid: 70, occLow: 45, demand: 'alta', seasonality: 'Mayo-sept temporada seca', currency: 'USD' },
+
+  // ========== COSTA RICA ==========
+  'san-jose': { adrHigh: 80, adrMid: 55, adrLow: 35, occHigh: 75, occMid: 60, occLow: 45, demand: 'media', seasonality: 'Escala hacia playas', currency: 'USD' },
+  'guanacaste': { adrHigh: 180, adrMid: 110, adrLow: 60, occHigh: 90, occMid: 65, occLow: 40, demand: 'alta', seasonality: 'Dic-abril temporada seca', currency: 'USD' },
+  'manuel-antonio': { adrHigh: 160, adrMid: 100, adrLow: 55, occHigh: 88, occMid: 65, occLow: 40, demand: 'alta', seasonality: 'Todo el año, pico dic-abril', currency: 'USD' },
+
+  // ========== REPÚBLICA DOMINICANA ==========
+  'punta-cana': { adrHigh: 200, adrMid: 120, adrLow: 70, occHigh: 92, occMid: 70, occLow: 50, demand: 'alta', seasonality: 'Dic-abril norteamericanos', currency: 'USD' },
+  'santo-domingo': { adrHigh: 90, adrMid: 60, adrLow: 40, occHigh: 80, occMid: 65, occLow: 50, demand: 'media', seasonality: 'Negocios todo el año', currency: 'USD' },
+
+  // ========== GENÉRICOS ==========
+  'otras-capital-espana': { adrHigh: 90, adrMid: 65, adrLow: 45, occHigh: 75, occMid: 60, occLow: 40, demand: 'media', seasonality: 'Variable' },
+  'otras-costa-espana': { adrHigh: 100, adrMid: 70, adrLow: 40, occHigh: 85, occMid: 55, occLow: 25, demand: 'baja', seasonality: 'Muy estacional' },
+  'otras-interior-espana': { adrHigh: 70, adrMid: 50, adrLow: 35, occHigh: 65, occMid: 50, occLow: 30, demand: 'baja', seasonality: 'Puentes y vacaciones' },
+  'otras-latam-capital': { adrHigh: 80, adrMid: 55, adrLow: 35, occHigh: 75, occMid: 60, occLow: 45, demand: 'media', seasonality: 'Variable', currency: 'USD' },
+  'otras-latam-playa': { adrHigh: 120, adrMid: 75, adrLow: 40, occHigh: 85, occMid: 60, occLow: 35, demand: 'media', seasonality: 'Estacional', currency: 'USD' },
+  'otras-latam-interior': { adrHigh: 60, adrMid: 40, adrLow: 25, occHigh: 70, occMid: 50, occLow: 30, demand: 'baja', seasonality: 'Fines de semana', currency: 'USD' },
 }
 
 interface FormData {
@@ -517,31 +572,104 @@ export default function CalculadoraRentabilidad() {
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
         >
           <option value="">Selecciona zona...</option>
-          <optgroup label="Barcelona">
+
+          <optgroup label="🇪🇸 ESPAÑA - Barcelona">
             <option value="barcelona-centro">Barcelona Centro / Eixample / Gràcia</option>
             <option value="barcelona-periferia">Barcelona Periferia / Área metropolitana</option>
           </optgroup>
-          <optgroup label="Madrid">
+          <optgroup label="🇪🇸 ESPAÑA - Madrid">
             <option value="madrid-centro">Madrid Centro / Salamanca / Chamberí</option>
             <option value="madrid-periferia">Madrid Periferia / Área metropolitana</option>
           </optgroup>
-          <optgroup label="Valencia">
+          <optgroup label="🇪🇸 ESPAÑA - Valencia">
             <option value="valencia-centro">Valencia Centro / Ruzafa / Ciutat Vella</option>
             <option value="valencia-playa">Valencia Playa / Malvarrosa / Alboraya</option>
           </optgroup>
-          <optgroup label="Andalucía">
+          <optgroup label="🇪🇸 ESPAÑA - Andalucía">
             <option value="sevilla-centro">Sevilla Centro</option>
             <option value="malaga-centro">Málaga Centro</option>
             <option value="malaga-costa">Costa del Sol</option>
           </optgroup>
-          <optgroup label="País Vasco">
+          <optgroup label="🇪🇸 ESPAÑA - País Vasco">
             <option value="bilbao">Bilbao</option>
             <option value="san-sebastian">San Sebastián / Donostia</option>
           </optgroup>
-          <optgroup label="Otras">
-            <option value="otras-capital">Otra capital de provincia</option>
-            <option value="otras-costa">Otra zona costera</option>
-            <option value="otras-interior">Zona interior / rural</option>
+          <optgroup label="🇪🇸 ESPAÑA - Islas">
+            <option value="canarias">Canarias (Tenerife, Gran Canaria...)</option>
+            <option value="baleares">Baleares (Mallorca, Ibiza...)</option>
+          </optgroup>
+          <optgroup label="🇪🇸 ESPAÑA - Otras">
+            <option value="otras-capital-espana">Otra capital de provincia</option>
+            <option value="otras-costa-espana">Otra zona costera</option>
+            <option value="otras-interior-espana">Zona interior / rural</option>
+          </optgroup>
+
+          <optgroup label="🇲🇽 MÉXICO - CDMX">
+            <option value="cdmx-centro">Ciudad de México Centro Histórico</option>
+            <option value="cdmx-condesa-roma">CDMX Condesa / Roma / Polanco</option>
+          </optgroup>
+          <optgroup label="🇲🇽 MÉXICO - Caribe">
+            <option value="cancun-zona-hotelera">Cancún Zona Hotelera</option>
+            <option value="playa-del-carmen">Playa del Carmen</option>
+            <option value="tulum">Tulum</option>
+          </optgroup>
+          <optgroup label="🇲🇽 MÉXICO - Pacífico">
+            <option value="puerto-vallarta">Puerto Vallarta</option>
+          </optgroup>
+          <optgroup label="🇲🇽 MÉXICO - Interior">
+            <option value="guadalajara">Guadalajara</option>
+            <option value="oaxaca">Oaxaca</option>
+            <option value="san-miguel-allende">San Miguel de Allende</option>
+          </optgroup>
+
+          <optgroup label="🇨🇴 COLOMBIA - Bogotá">
+            <option value="bogota-centro">Bogotá Centro / La Candelaria</option>
+            <option value="bogota-norte">Bogotá Norte / Chapinero / Usaquén</option>
+          </optgroup>
+          <optgroup label="🇨🇴 COLOMBIA - Medellín">
+            <option value="medellin-poblado">Medellín El Poblado</option>
+            <option value="medellin-laureles">Medellín Laureles / Envigado</option>
+          </optgroup>
+          <optgroup label="🇨🇴 COLOMBIA - Costa">
+            <option value="cartagena-centro">Cartagena Centro Histórico</option>
+            <option value="santa-marta">Santa Marta / Taganga</option>
+          </optgroup>
+
+          <optgroup label="🇦🇷 ARGENTINA">
+            <option value="buenos-aires-palermo">Buenos Aires Palermo / Recoleta</option>
+            <option value="buenos-aires-centro">Buenos Aires Centro / San Telmo</option>
+            <option value="mendoza">Mendoza</option>
+            <option value="bariloche">Bariloche</option>
+          </optgroup>
+
+          <optgroup label="🇨🇱 CHILE">
+            <option value="santiago-providencia">Santiago Providencia / Ñuñoa</option>
+            <option value="santiago-las-condes">Santiago Las Condes / Vitacura</option>
+            <option value="valparaiso">Valparaíso</option>
+            <option value="vina-del-mar">Viña del Mar</option>
+          </optgroup>
+
+          <optgroup label="🇵🇪 PERÚ">
+            <option value="lima-miraflores">Lima Miraflores / San Isidro</option>
+            <option value="lima-barranco">Lima Barranco</option>
+            <option value="cusco">Cusco</option>
+          </optgroup>
+
+          <optgroup label="🇨🇷 COSTA RICA">
+            <option value="san-jose">San José</option>
+            <option value="guanacaste">Guanacaste / Tamarindo</option>
+            <option value="manuel-antonio">Manuel Antonio / Quepos</option>
+          </optgroup>
+
+          <optgroup label="🇩🇴 REP. DOMINICANA">
+            <option value="punta-cana">Punta Cana / Bávaro</option>
+            <option value="santo-domingo">Santo Domingo</option>
+          </optgroup>
+
+          <optgroup label="🌎 LATAM - Otras">
+            <option value="otras-latam-capital">Otra capital latinoamericana</option>
+            <option value="otras-latam-playa">Otra zona de playa LATAM</option>
+            <option value="otras-latam-interior">Otra zona interior LATAM</option>
           </optgroup>
         </select>
       </div>
