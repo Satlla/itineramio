@@ -95,6 +95,18 @@ const tools = [
     badge: 'Popular'
   },
   {
+    id: 'profitability-calculator',
+    title: 'Calculadora de Rentabilidad',
+    description: 'Descubre si estás ganando dinero o "cambiando dinero de mano"',
+    icon: Calculator,
+    color: 'from-emerald-500 to-green-600',
+    bgColor: 'from-emerald-50 to-green-50',
+    borderColor: 'border-emerald-200',
+    href: '/hub/calculadora-rentabilidad',
+    badge: 'Nuevo',
+    popular: true
+  },
+  {
     id: 'description-generator',
     title: 'Generador de Descripciones',
     description: 'Crea descripciones profesionales para tu listado de Airbnb',
