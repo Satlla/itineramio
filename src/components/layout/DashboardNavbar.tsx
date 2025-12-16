@@ -207,7 +207,7 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-white rounded-lg shadow-2xl border border-gray-200 z-50"
+                      className="fixed left-3 right-3 top-14 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 sm:max-w-sm bg-white rounded-lg shadow-2xl border border-gray-200 z-50"
                     >
                       <div className="p-4 border-b border-gray-200">
                         <h3 className="font-semibold text-gray-900">Notificaciones</h3>
