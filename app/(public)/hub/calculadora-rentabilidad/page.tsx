@@ -267,8 +267,10 @@ export default function CalculadoraRentabilidad() {
     if (formData.operationModel === 'self' || formData.operationModel === 'hybrid') {
       const hoursPerClean = parseFloat(formData.hoursPerCleaning) || 3
       const hourlyRate = parseFloat(formData.hourlyRate) || 15
+      const mgmtHoursPerCheckout = 0.5 // Gestión: mensajes, coordinación, etc.
+      const totalHoursPerCheckout = hoursPerClean + mgmtHoursPerCheckout
       cleaningCosts = 0 // No paga en caja
-      timeCost = hoursPerClean * hourlyRate * numCheckouts * numProps
+      timeCost = totalHoursPerCheckout * hourlyRate * numCheckouts * numProps
     }
 
     if (formData.operationModel === 'staff' || formData.operationModel === 'hybrid') {
@@ -325,9 +327,9 @@ export default function CalculadoraRentabilidad() {
     const commissionMultiplier = 1 / (1 - commission / 100)
     const minimumViablePrice = (fixedCostsPerNight + variableCostsPerNight) * commissionMultiplier
 
-    // Ganancia real por hora (si gestiona él)
-    const totalHoursWorked = formData.operationModel === 'self'
-      ? (parseFloat(formData.hoursPerCleaning) || 3) * numCheckouts * numProps + (numCheckouts * 0.5) // Limpiezas + gestión
+    // Ganancia real por hora (si gestiona él - self o hybrid)
+    const totalHoursWorked = (formData.operationModel === 'self' || formData.operationModel === 'hybrid')
+      ? ((parseFloat(formData.hoursPerCleaning) || 3) + 0.5) * numCheckouts * numProps // Limpiezas + gestión
       : 0
     const realHourlyEarning = totalHoursWorked > 0 ? netProfit / totalHoursWorked : 0
 
@@ -339,8 +341,9 @@ export default function CalculadoraRentabilidad() {
     else if (profitMargin >= 10) profitabilityLevel = 'marginal'
     else profitabilityLevel = 'losing'
 
-    // "Cambiando dinero de mano" = margen < 15% o ganancia/hora < salario mínimo
-    const isChangingMoney = profitMargin < 15 || (formData.operationModel === 'self' && realHourlyEarning < 10)
+    // "Cambiando dinero de mano" = margen < 15% o ganancia/hora < 80% del valor declarado de su hora
+    const hourlyFloor = (parseFloat(formData.hourlyRate) || 15) * 0.8
+    const isChangingMoney = profitMargin < 15 || (totalHoursWorked > 0 && realHourlyEarning < hourlyFloor)
 
     // COMPARATIVA MERCADO
     const marketData = MARKET_DATA[formData.zone] || MARKET_DATA['otras-capital']
@@ -371,11 +374,11 @@ export default function CalculadoraRentabilidad() {
       })
     }
 
-    if (formData.operationModel === 'self' && realHourlyEarning < 12) {
+    if (totalHoursWorked > 0 && realHourlyEarning < hourlyFloor) {
       recommendations.push({
         type: 'critical',
         title: 'Tu hora vale más',
-        description: `Estás ganando ${realHourlyEarning.toFixed(2)}€/hora. Menos que un trabajo estándar. Considera subir precios o externalizar.`
+        description: `Estás ganando ${realHourlyEarning.toFixed(2)}€/hora, menos del 80% de lo que valoras tu tiempo (${hourlyFloor.toFixed(0)}€/h). Considera subir precios o externalizar.`
       })
     }
 
@@ -1136,7 +1139,7 @@ export default function CalculadoraRentabilidad() {
         </div>
 
         {/* Si gestiona él mismo - ganancia por hora */}
-        {formData.operationModel === 'self' && (
+        {(formData.operationModel === 'self' || formData.operationModel === 'hybrid') && (
           <div className={`border rounded-xl p-6 ${
             result.realHourlyEarning >= 15 ? 'bg-green-50 border-green-200' :
             result.realHourlyEarning >= 10 ? 'bg-amber-50 border-amber-200' :
