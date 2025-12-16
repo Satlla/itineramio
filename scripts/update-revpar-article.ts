@@ -1,185 +1,302 @@
+import * as dotenv from 'dotenv'
+dotenv.config({ path: '.env.local' })
+
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
-const newContent = `<h2 style="color: #1f2937; font-size: 2rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #e5e7eb;">La Métrica que el 90% de los Anfitriones Calcula Mal</h2>
-
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">Si te preguntan cómo va tu negocio de alquileres turísticos, probablemente respondas con tu tasa de ocupación: "Tengo un 85% de ocupación este mes, ¡va muy bien!"</p>
-
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">Pero aquí está el problema: <strong style="color: #1f2937;">la ocupación es una métrica vanidosa</strong>. Te hace sentir bien, pero no te dice nada sobre la salud real de tu negocio.</p>
-
-<div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 2rem; margin: 2.5rem 0; border-radius: 8px;">
-  <p style="color: #991b1b; font-size: 1.05rem; margin: 0; font-weight: 600;">⚠️ Dato crítico: Puedes tener 100% de ocupación y estar perdiendo dinero. O tener 60% de ocupación y ganar el doble que tu competencia.</p>
+const newContent = `
+<div style="background: #f0fdf4; border-left: 4px solid #22c55e; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+<p style="font-weight: 700; margin: 0 0 0.5rem 0; color: #166534;">TL;DR (en 30 segundos)</p>
+<p style="margin: 0; color: #166534;">RevPAR = ADR × Ocupación. Pero lo que importa es el RevPAR <em>neto</em> (después de costes). Un 70% de ocupación a 95€ te deja más que un 90% a 65€. Usa el framework de abajo para calcularlo con tus números reales.</p>
 </div>
 
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">La métrica que realmente importa se llama <strong style="color: #1f2937;">RevPAR (Revenue Per Available Room)</strong>, y en este artículo te voy a explicar exactamente qué es, por qué es superior a la ocupación, y cómo usarla para aumentar tus ingresos hasta un 30% sin trabajar más.</p>
+<p class="lead">Por qué un 90% de ocupación puede ser buena noticia… o una señal de que estás dejando dinero encima de la mesa.</p>
 
-<h2 style="color: #1f2937; font-size: 2rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #e5e7eb;">¿Qué es RevPAR y Por Qué Debería Importarte?</h2>
+<p>Si llevas un Airbnb (o un piso turístico), es normal mirar el calendario y pensar: "si está lleno, voy bien". La ocupación ayuda, claro. El problema es cuando se convierte en <em>la</em> métrica.</p>
 
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">RevPAR significa <strong>Revenue Per Available Room</strong> (Ingreso por Habitación Disponible). Es la métrica estándar que usa la industria hotelera profesional para medir el rendimiento real de un alojamiento.</p>
+<p>Porque la ocupación solo responde a una parte de la pregunta. Te dice "cuántas noches vendes", pero no te dice "cuánto rendimiento sacas por cada noche que podrías vender".</p>
 
-<div style="background-color: #f9fafb; border-radius: 16px; padding: 2.5rem; margin: 3rem 0; border: 2px solid #e5e7eb;">
-  <h3 style="color: #1f2937; margin-top: 0; font-size: 1.5rem; font-weight: 700;">📊 Fórmula de RevPAR</h3>
-  <div style="background-color: white; padding: 2rem; border-radius: 12px; margin: 1.5rem 0; border: 2px solid #e5e7eb; text-align: center;">
-    <p style="color: #1f2937; font-size: 1.5rem; font-weight: 700; margin: 0; font-family: monospace;">RevPAR = Ingresos Totales ÷ Noches Disponibles</p>
-  </div>
-  <p style="color: #4b5563; margin-bottom: 1rem; font-size: 1.05rem;"><strong>O también:</strong></p>
-  <div style="background-color: white; padding: 2rem; border-radius: 12px; border: 2px solid #e5e7eb; text-align: center;">
-    <p style="color: #1f2937; font-size: 1.5rem; font-weight: 700; margin: 0; font-family: monospace;">RevPAR = Precio Promedio × Tasa de Ocupación</p>
-  </div>
+<p><strong>Ahí es donde RevPAR te pone los pies en el suelo.</strong></p>
+
+<h2>Un ejemplo rápido (y típico)</h2>
+
+<p>Dos apartamentos parecidos (misma zona, capacidad y calidad):</p>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0;">
+<div style="background: #fef2f2; border-radius: 12px; padding: 1.5rem;">
+<p style="font-weight: 700; margin: 0 0 1rem 0; color: #dc2626;">Apartamento A</p>
+<p style="margin: 0 0 0.5rem 0;">Ocupación: 90%</p>
+<p style="margin: 0 0 0.5rem 0;">Precio medio (ADR): 65€</p>
+<p style="margin: 0; font-weight: 700;">Ingresos: 30 × 0,90 × 65 = 1.755€/mes</p>
+</div>
+<div style="background: #f0fdf4; border-radius: 12px; padding: 1.5rem;">
+<p style="font-weight: 700; margin: 0 0 1rem 0; color: #22c55e;">Apartamento B</p>
+<p style="margin: 0 0 0.5rem 0;">Ocupación: 70%</p>
+<p style="margin: 0 0 0.5rem 0;">ADR: 95€</p>
+<p style="margin: 0; font-weight: 700;">Ingresos: 30 × 0,70 × 95 = 1.995€/mes</p>
+</div>
 </div>
 
-<h3 style="color: #374151; font-size: 1.5rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1.25rem;">Ejemplo Práctico: ¿Qué te dice realmente tu RevPAR?</h3>
+<p><strong>B ingresa 240€ más al mes con menos noches ocupadas.</strong></p>
 
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">Imagina que tienes un apartamento en el centro de Barcelona. Este mes tuviste:</p>
+<p>No es magia. Es pricing y mezcla de demanda. El calendario lleno no siempre significa "bien vendido".</p>
 
-<ul style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem; padding-left: 2rem;">
-  <li style="margin-bottom: 0.75rem;">30 noches disponibles</li>
-  <li style="margin-bottom: 0.75rem;">25 noches reservadas (83% ocupación)</li>
-  <li style="margin-bottom: 0.75rem;">Precio promedio: 75€/noche</li>
-  <li style="margin-bottom: 0.75rem;">Ingresos totales: 1,875€</li>
+<h2>Tres conceptos (para no mezclar cosas)</h2>
+
+<ul>
+<li><strong>Ocupación (%):</strong> noches vendidas / noches disponibles</li>
+<li><strong>ADR (precio medio):</strong> ingresos por alojamiento / noches vendidas</li>
+<li><strong>RevPAR:</strong> ingresos por alojamiento / noches disponibles</li>
 </ul>
 
-<div style="background-color: white; padding: 2rem; border-radius: 12px; margin: 2rem 0; border: 2px solid #6b7280;">
-  <p style="color: #1f2937; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Tu RevPAR sería:</p>
-  <p style="color: #4b5563; font-size: 1.125rem; margin: 0; font-family: monospace;">1,875€ ÷ 30 noches = <strong style="color: #059669; font-size: 1.5rem;">62.50€ por noche disponible</strong></p>
+<div style="background: #ede9fe; border-radius: 12px; padding: 2rem; margin: 2rem 0; text-align: center;">
+<p style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #5b21b6;">RevPAR = ADR × Ocupación</p>
 </div>
 
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">Esto significa que, en promedio, cada noche que tu apartamento existe (ocupada o no), genera 62.50€ de ingresos.</p>
+<p>Esto es muy práctico porque te dice de dónde viene el problema:</p>
 
-<h2 style="color: #1f2937; font-size: 2rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #e5e7eb;">Por Qué RevPAR es Superior a la Ocupación: La Verdad Incómoda</h2>
+<ul>
+<li><strong>Ocupación alta + RevPAR flojo</strong> → normalmente precio bajo (o descuentos demasiado agresivos)</li>
+<li><strong>ADR alto + RevPAR flojo</strong> → normalmente ocupación insuficiente (o reglas que te dejan huecos)</li>
+<li><strong>RevPAR sube aunque ocupes menos</strong> → suele ser una optimización sana si no estás rompiendo conversión</li>
+</ul>
 
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">La ocupación es una métrica <strong style="color: #1f2937;">unidimensional</strong>. Te dice cuántas noches vendiste, pero no te dice <strong>a qué precio</strong> las vendiste ni si eso fue rentable.</p>
+<h2>Ojo: RevPAR es ingresos. Tú vives del neto</h2>
 
-<h3 style="color: #374151; font-size: 1.5rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1.25rem;">El Caso del Anfitrión "Exitoso" que Pierde Dinero</h3>
+<p>En alquiler vacacional, RevPAR "clásico" (ingreso bruto por noche disponible) se queda corto si lo usas para decidir sin mirar costes.</p>
 
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">Conocí a un anfitrión en Madrid que presumía de tener 95% de ocupación todo el año. Su estrategia era simple: bajar los precios hasta llenar el calendario.</p>
+<p>Por eso conviene trabajar con dos números:</p>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2.5rem 0;">
-  <div style="background-color: #fef2f2; padding: 2rem; border-radius: 12px; border: 2px solid #ef4444;">
-    <h4 style="color: #991b1b; margin-top: 0; font-size: 1.25rem; font-weight: 700;">❌ Su Estrategia</h4>
-    <ul style="list-style: none; padding: 0; margin: 1rem 0;">
-      <li style="color: #991b1b; margin-bottom: 0.75rem;">• 95% ocupación</li>
-      <li style="color: #991b1b; margin-bottom: 0.75rem;">• Precio promedio: 55€/noche</li>
-      <li style="color: #991b1b; margin-bottom: 0.75rem;">• 28 noches vendidas</li>
-      <li style="color: #991b1b; margin-bottom: 0.75rem; font-weight: 700;">• Ingresos: 1,540€/mes</li>
-      <li style="color: #991b1b; margin-bottom: 0.75rem; font-weight: 700;">• RevPAR: 51.30€</li>
-    </ul>
-  </div>
+<ul>
+<li><strong>RevPAR (bruto)</strong> para saber si estás monetizando bien la demanda</li>
+<li><strong>Net RevPAN / "RevPAR neto"</strong> (neto por noche disponible) para saber si te queda dinero después de comisiones, gestión, limpieza, consumos, etc.</li>
+</ul>
 
-  <div style="background-color: #f0fdf4; padding: 2rem; border-radius: 12px; border: 2px solid #059669;">
-    <h4 style="color: #166534; margin-top: 0; font-size: 1.25rem; font-weight: 700;">✅ Estrategia Correcta</h4>
-    <ul style="list-style: none; padding: 0; margin: 1rem 0;">
-      <li style="color: #166534; margin-bottom: 0.75rem;">• 70% ocupación</li>
-      <li style="color: #166534; margin-bottom: 0.75rem;">• Precio promedio: 95€/noche</li>
-      <li style="color: #166534; margin-bottom: 0.75rem;">• 21 noches vendidas</li>
-      <li style="color: #166534; margin-bottom: 0.75rem; font-weight: 700;">• Ingresos: 1,995€/mes</li>
-      <li style="color: #166534; margin-bottom: 0.75rem; font-weight: 700;">• RevPAR: 66.50€</li>
-    </ul>
-  </div>
+<p>No hace falta complicarse con nomenclatura hotelera. La idea es: <em>ingresos por noche disponible</em> vs <em>beneficio por noche disponible</em>.</p>
+
+<h2>Metodología (para que el cálculo sea "de verdad")</h2>
+
+<p>Esto es lo que suele separar un KPI útil de un número bonito.</p>
+
+<h3>1) Qué ingresos incluyes (y por qué)</h3>
+
+<p>Define un criterio y sé consistente:</p>
+
+<ul>
+<li><strong>Alojamiento (tarifa por noche):</strong> normalmente sí</li>
+<li><strong>Limpieza:</strong> puedes incluirla o no, pero decide una regla. Si la limpieza es un "pass-through" (cobras 80 y pagas 80), incluirla infla ingresos sin decir nada del margen</li>
+<li><strong>Extras (late check-out, cuna, etc.):</strong> igual, con criterio fijo</li>
+</ul>
+
+<p><em>Mi recomendación:</em> separa "ingreso por noches" (para RevPAR clásico) y trata la limpieza aparte en el neto.</p>
+
+<h3>2) Qué significa "noches disponibles"</h3>
+
+<p>En Airbnb, "disponible" puede ser engañoso si bloqueas noches o tienes reglas que en la práctica hacen ciertas noches invendibles.</p>
+
+<p>Yo usaría dos capas:</p>
+
+<p><strong>A. Noches calendario (techo máximo)</strong><br>Todas las noches del mes (30/31).</p>
+
+<p><strong>B. Noches comercialmente disponibles (real)</strong><br>Noches que realmente podrías vender con tus reglas actuales. Aquí puedes excluir:</p>
+<ul>
+<li>Bloqueos por uso propio / mantenimiento</li>
+<li>Noches que quedan "muertas" por restricciones (p. ej., min. estancia rígida que crea huecos)</li>
+</ul>
+
+<p><strong>Lo importante:</strong> usa siempre la misma definición para comparar mes a mes.</p>
+
+<h3>3) Cómo montar tu set competitivo (sin perderte)</h3>
+
+<p>El comp set no es "los pisos más bonitos". Es "los que un huésped razonable compararía contigo".</p>
+
+<p><strong>Checklist rápido:</strong></p>
+<ul>
+<li>Misma zona o microzona (no "Barcelona", sino el barrio y su borde real)</li>
+<li>Misma capacidad (huéspedes) y número de habitaciones</li>
+<li>Amenities clave comparables (ascensor sí/no, terraza, parking, A/C, etc.)</li>
+<li>Rango de reviews similar (no te compares con un 4,95 con 800 reseñas si tú estás empezando)</li>
+</ul>
+
+<p><strong>Cuántos:</strong> 5–10 es suficiente si son comparables de verdad.<br>
+<strong>Qué mirar:</strong> precios por día de semana, política de cancelación, estancia mínima, disponibilidad futura (pickup) y estacionalidad.</p>
+
+<h2>Cómo usar RevPAR sin caer en "sube precios y ya"</h2>
+
+<p>Aquí van tres palancas, pero con el matiz de cómo medir si funcionan.</p>
+
+<h3>Palanca 1: Precio (impacto alto)</h3>
+
+<p>En lugar de "sube 10%", piensa así:</p>
+
+<ol>
+<li>Elige 2–3 ventanas donde sabes que hay demanda (fines de semana, eventos, puentes)</li>
+<li>Sube de forma controlada (5–10%)</li>
+<li>Mira durante 2–3 semanas:
+<ul>
+<li>RevPAR (bruto)</li>
+<li>Pickup (cómo se llena el calendario a 14/30/60 días vista)</li>
+<li>Duración media de estancia y huecos</li>
+</ul>
+</li>
+</ol>
+
+<p><strong>Si RevPAR sube y el pickup no se desploma, vas bien.</strong></p>
+
+<h3>Palanca 2: Conversión del anuncio (impacto medio-alto)</h3>
+
+<p>Si mejoras conversión, puedes sostener un ADR mayor sin sacrificar ocupación.</p>
+
+<p><strong>Lo que de verdad mueve la aguja:</strong></p>
+<ul>
+<li><strong>Fotos:</strong> orden, luz, secuencia lógica y foco en diferenciales reales</li>
+<li><strong>Texto:</strong> beneficios concretos + expectativas claras (incluye "lo malo" con naturalidad; reduce devoluciones y quejas)</li>
+<li><strong>Menos fricción:</strong> reglas y requisitos razonables</li>
+</ul>
+
+<h3>Palanca 3: Huecos y reglas (impacto medio)</h3>
+
+<p>Muchos calendarios "buenos" están llenos de huecos invendibles.</p>
+
+<ul>
+<li>Estancia mínima flexible en baja</li>
+<li>Reglas de llegada (check-in) para evitar huecos de 1 noche</li>
+<li>Descuentos con intención: última hora para inventario muerto, semanal/mensual si de verdad reduce rotación (y costes)</li>
+</ul>
+
+<h2>Mini-framework práctico: de KPI a plan (con números)</h2>
+
+<p>La idea es que, en 20 minutos, puedas responder:</p>
+<ol>
+<li>¿Cuál es mi rendimiento bruto por noche disponible?</li>
+<li>¿Cuál es mi rendimiento neto (lo que me queda)?</li>
+<li>¿Qué palanca tiene más impacto con menor riesgo?</li>
+</ol>
+
+<h3>Paso 1 — Rellena tus inputs del mes</h3>
+<ul>
+<li>Noches del mes</li>
+<li>Ocupación</li>
+<li>ADR</li>
+<li>Estancia media (LOS)</li>
+<li>Comisión plataforma (tu realidad)</li>
+<li>% gestión (si aplica)</li>
+<li>Coste limpieza (lo que pagas)</li>
+<li>Consumibles/utilities estimados</li>
+</ul>
+
+<h3>Paso 2 — Calcula 4 salidas</h3>
+<ul>
+<li>Noches ocupadas</li>
+<li>RevPAR (bruto)</li>
+<li>Ingreso bruto mensual</li>
+<li>Neto mensual aproximado</li>
+<li>(opcional) Neto por noche disponible</li>
+</ul>
+
+<h3>Ejemplo comparativo</h3>
+
+<div style="overflow-x: auto; margin: 2rem 0;">
+<table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+<thead>
+<tr style="background: #f3f4f6;">
+<th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #e5e7eb;">Variable</th>
+<th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #e5e7eb;">Antes</th>
+<th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #e5e7eb;">Después</th>
+</tr>
+</thead>
+<tbody>
+<tr><td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb;">Noches del mes</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">30</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">30</td></tr>
+<tr><td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb;">Ocupación</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">85%</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">72%</td></tr>
+<tr><td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb;">ADR (€)</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">55</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">78</td></tr>
+<tr><td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb;">Estancia media (noches)</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">3,0</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">3,0</td></tr>
+<tr><td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb;">Noches ocupadas</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">25,5</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">21,6</td></tr>
+<tr style="background: #f0fdf4;"><td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb; font-weight: 600;">RevPAR (ADR×Occ)</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb; font-weight: 600;">46,75€</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb; font-weight: 600;">56,16€</td></tr>
+<tr><td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb;">Limpiezas (nº estancias aprox.)</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">8,5</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">7,2</td></tr>
+<tr><td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb;">Ingreso noches (bruto)</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">1.402,50€</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">1.684,80€</td></tr>
+<tr><td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Comisión plataforma (%)*</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">15%</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">15%</td></tr>
+<tr><td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Gestión (%)*</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">20%</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">20%</td></tr>
+<tr><td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Coste limpieza por estancia (€)*</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">55</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">55</td></tr>
+<tr><td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Utilities/consumos fijos (€)*</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">180</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">180</td></tr>
+<tr><td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Consumibles por noche (€)*</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">2,5</td><td style="padding: 0.5rem 0.75rem; text-align: right; border-bottom: 1px solid #e5e7eb;">2,5</td></tr>
+<tr style="background: #ecfdf5;"><td style="padding: 0.75rem; font-weight: 700; color: #059669;">Neto mensual aprox.</td><td style="padding: 0.75rem; text-align: right; font-weight: 700; color: #059669;">642,38€</td><td style="padding: 0.75rem; text-align: right; font-weight: 700; color: #059669;">839,52€</td></tr>
+<tr style="background: #ecfdf5;"><td style="padding: 0.75rem; font-weight: 700; color: #059669;">Neto por noche disponible</td><td style="padding: 0.75rem; text-align: right; font-weight: 700; color: #059669;">21,41€</td><td style="padding: 0.75rem; text-align: right; font-weight: 700; color: #059669;">27,98€</td></tr>
+</tbody>
+</table>
 </div>
 
-<div style="background-color: #f9fafb; padding: 2.5rem; border-radius: 16px; margin: 2.5rem 0; border-left: 4px solid #6b7280;">
-  <h4 style="color: #1f2937; margin-top: 0; font-size: 1.25rem; font-weight: 700;">💡 Resultado:</h4>
-  <p style="color: #4b5563; font-size: 1.125rem; line-height: 1.8; margin: 1rem 0;">Con <strong>25% MENOS ocupación</strong>, el segundo anfitrión gana:</p>
-  <ul style="color: #059669; font-size: 1.125rem; padding-left: 2rem;">
-    <li style="margin-bottom: 0.75rem;"><strong>+455€ más al mes</strong> (+29.5% de ingresos)</li>
-    <li style="margin-bottom: 0.75rem;"><strong>7 check-ins menos</strong> (menos trabajo, menos desgaste)</li>
-    <li style="margin-bottom: 0.75rem;"><strong>7 limpiezas menos</strong> (ahorro en costes operativos)</li>
-    <li style="margin-bottom: 0.75rem;"><strong>7 días menos de desgaste</strong> del apartamento</li>
-  </ul>
+<p style="font-size: 0.85rem; color: #6b7280;">* Son inputs: pon tus porcentajes y costes reales.</p>
+
+<h3>Qué te enseña este framework</h3>
+
+<ul>
+<li>Aunque baja la ocupación, el RevPAR sube (mejor monetización)</li>
+<li>Y lo más importante: <strong>el neto también sube</strong>, porque no solo cobras más por noche, también reduces rotación (menos limpiezas) y costes variables por noches ocupadas</li>
+</ul>
+
+<div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 16px; padding: 2.5rem; margin: 2.5rem 0; text-align: center; color: white;">
+<h3 style="margin-top: 0; font-size: 1.5rem; font-weight: 700;">Calcula tu RevPAR real</h3>
+<p style="font-size: 1rem; margin: 1rem 0 1.5rem 0; opacity: 0.9;">Usa nuestra calculadora de rentabilidad para aplicar este framework con tus datos reales y ver tu potencial de ingresos.</p>
+<a href="/hub/calculadora-rentabilidad" style="display: inline-block; background: white; color: #6366f1; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 700;">Usar calculadora de rentabilidad →</a>
 </div>
 
-<h3 style="color: #374151; font-size: 1.5rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1.25rem;">Los 4 Errores Fatales de Obsesionarse con la Ocupación</h3>
+<h2>Señales de que vas demasiado lleno (y quizá barato)</h2>
 
-<div style="background-color: #f9fafb; border-radius: 16px; padding: 2.5rem; margin: 3rem 0; border: 2px solid #e5e7eb;">
-  <div style="margin-bottom: 2rem;">
-    <h4 style="color: #1f2937; margin: 0 0 0.75rem 0; font-size: 1.25rem; font-weight: 700;">1. Destruyes tus Márgenes de Beneficio</h4>
-    <p style="color: #4b5563; margin: 0; line-height: 1.8;">Bajas tanto los precios que después de costes (limpieza, suministros, comisiones), apenas queda beneficio. 100% ocupación × 0€ de margen = 0€ de beneficio.</p>
-  </div>
+<p>No es una ciencia exacta, pero si te pasan varias de estas, merece revisión:</p>
 
-  <div style="margin-bottom: 2rem;">
-    <h4 style="color: #1f2937; margin: 0 0 0.75rem 0; font-size: 1.25rem; font-weight: 700;">2. Atraes al Cliente Equivocado</h4>
-    <p style="color: #4b5563; margin: 0; line-height: 1.8;">Los huéspedes que buscan el precio más bajo tienden a ser más exigentes, dejar peores reviews y causar más problemas. Los que pagan más valoran la experiencia.</p>
-  </div>
+<ul>
+<li>Te reservan con mucha antelación incluso en semanas "normales"</li>
+<li>Los fines de semana se venden siempre sin resistencia</li>
+<li>Casi nunca llegas al último minuto con inventario</li>
+<li>Cuando subes precio un poco, no notas caída en conversión</li>
+</ul>
 
-  <div style="margin-bottom: 2rem;">
-    <h4 style="color: #1f2937; margin: 0 0 0.75rem 0; font-size: 1.25rem; font-weight: 700;">3. Te Quemas Operativamente</h4>
-    <p style="color: #4b5563; margin: 0; line-height: 1.8;">Más ocupación = más check-ins, más limpiezas, más consultas, más problemas. Acabas trabajando el doble por ganar lo mismo o menos.</p>
-  </div>
+<p>Eso normalmente no significa "lo estoy haciendo perfecto". Muchas veces significa: <strong>hay margen</strong>.</p>
 
-  <div>
-    <h4 style="color: #1f2937; margin: 0 0 0.75rem 0; font-size: 1.25rem; font-weight: 700;">4. Aceleras el Desgaste del Inmueble</h4>
-    <p style="color: #4b5563; margin: 0; line-height: 1.8;">Cada huésped desgasta tu propiedad. Alta ocupación a bajo precio significa renovar muebles, pintar paredes y reparar desperfectos más frecuentemente.</p>
-  </div>
-</div>
+<h2>Plan de acción (simple y realista)</h2>
 
-<h2 style="color: #1f2937; font-size: 2rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #e5e7eb;">Cómo Optimizar tu RevPAR: Estrategia Paso a Paso</h2>
+<h3>Semana 1</h3>
+<p>Calcula RevPAR y neto por noche disponible de los últimos 2–3 meses. Separa entre semana vs fin de semana.</p>
 
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">Ahora que entiendes por qué RevPAR es la métrica correcta, veamos cómo optimizarla sin sacrificar tu vida personal ni la experiencia de tus huéspedes.</p>
+<h3>Semana 2</h3>
+<p>Monta comp set (5–10) y revisa precios por día de semana a 30/60 días vista.</p>
 
-<h3 style="color: #374151; font-size: 1.5rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1.25rem;">Paso 1: Calcula tu RevPAR Actual</h3>
+<h3>Semanas 3–4</h3>
+<p>Haz 1 test controlado (no diez cambios a la vez):</p>
+<ul>
+<li>Ajuste de precio en días concretos, o</li>
+<li>Ajuste de estancia mínima para reducir huecos, o</li>
+<li>Mejora de anuncio enfocada a conversión</li>
+</ul>
 
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">Antes de optimizar, necesitas saber dónde estás. Usa esta fórmula para los últimos 3 meses:</p>
+<p><strong>Evalúa con RevPAR + pickup + neto.</strong></p>
 
-<div style="background-color: white; padding: 2rem; border-radius: 12px; margin: 2rem 0; border: 2px solid #6b7280;">
-  <ol style="color: #4b5563; font-size: 1.125rem; line-height: 2; padding-left: 2rem;">
-    <li><strong>Suma tus ingresos totales</strong> de los últimos 90 días</li>
-    <li><strong>Divide entre 90</strong> (número de noches disponibles)</li>
-    <li><strong>Ese es tu RevPAR</strong> promedio por noche</li>
-  </ol>
-</div>
+<h2>Artículos Relacionados</h2>
 
-<h3 style="color: #374151; font-size: 1.5rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1.25rem;">Paso 2: Benchmarking con tu Competencia</h3>
+<ul>
+<li><a href="/blog/caso-laura-de-1800-a-3200-euros-mes-historia-completa">Caso Laura: De 1.800€ a 3.200€/mes (misma propiedad)</a></li>
+<li><a href="/blog/revenue-management-avanzado">Revenue Management Avanzado para Airbnb</a></li>
+<li><a href="/blog/del-modo-bombero-al-modo-ceo-framework">Del Modo Bombero al Modo CEO: Framework</a></li>
+</ul>
+`
 
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">Un RevPAR de 65€ puede ser excelente en Cáceres pero mediocre en Barcelona. Necesitas contexto.</p>
-
-<h3 style="color: #374151; font-size: 1.5rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1.25rem;">Paso 3: Implementa Pricing Dinámico Inteligente</h3>
-
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">El pricing dinámico no es subir y bajar precios aleatoriamente. Es una estrategia basada en datos para maximizar RevPAR en cada temporada.</p>
-
-<h2 style="color: #1f2937; font-size: 2rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #e5e7eb;">Conclusión: El Cambio de Mentalidad que lo Cambia Todo</h2>
-
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">La mayoría de anfitriones juegan al juego equivocado. Persiguen ocupación en lugar de ingresos. Compiten en precio en lugar de valor. Trabajan más duro en lugar de más inteligente.</p>
-
-<p style="color: #4b5563; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.125rem;">El cambio de mentalidad de "quiero 100% ocupación" a "quiero maximizar RevPAR" es lo que separa a los anfitriones amateurs de los profesionales.</p>
-
-<div style="background-color: #f9fafb; padding: 2.5rem; border-radius: 16px; margin: 3rem 0; border-left: 4px solid #6b7280;">
-  <p style="color: #1f2937; font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;">Recuerda:</p>
-  <ul style="color: #4b5563; font-size: 1.125rem; line-height: 1.8; padding-left: 2rem;">
-    <li style="margin-bottom: 1rem;">Alta ocupación ≠ Buenos ingresos</li>
-    <li style="margin-bottom: 1rem;">Menos huéspedes a precio premium = Más beneficio, menos trabajo</li>
-    <li style="margin-bottom: 1rem;">RevPAR es la métrica que importa</li>
-    <li>Optimizar RevPAR es un proceso continuo, no un evento único</li>
-  </ul>
-</div>
-
-<div style="background-color: #1f2937; color: white; border-radius: 16px; padding: 3rem; margin: 4rem 0; text-align: center;">
-  <h2 style="color: white; margin-top: 0; font-size: 2rem; font-weight: 700;">¿Listo para Optimizar tu RevPAR?</h2>
-  <p style="font-size: 1.25rem; margin: 1.5rem 0; opacity: 0.95;">Crea tu manual digital profesional y empieza a cobrar precios premium</p>
-  <a href="/register" style="display: inline-block; background-color: white; color: #1f2937; padding: 1.25rem 2.5rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 1.125rem; margin-top: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">Prueba Itineramio 15 Días Gratis →</a>
-  <p style="font-size: 0.95rem; margin-top: 1.5rem; opacity: 0.8;">Sin tarjeta • Configuración en 10 minutos • Cancela cuando quieras</p>
-</div>
-
-<div style="background-color: #f9fafb; border-radius: 16px; padding: 2.5rem; margin: 3rem 0; border: 2px solid #e5e7eb;">
-  <h3 style="color: #1f2937; margin-top: 0; font-size: 1.5rem; font-weight: 700;">📚 Artículos Relacionados</h3>
-  <ul style="list-style: none; padding: 0; margin: 1.5rem 0;">
-    <li style="margin-bottom: 1rem;"><a href="/blog/revenue-management-avanzado" style="color: #6366f1; font-weight: 600;">→ Revenue Management Avanzado</a></li>
-    <li style="margin-bottom: 1rem;"><a href="/blog/como-optimizar-precio-apartamento-turistico-2025" style="color: #6366f1; font-weight: 600;">→ Optimizar Precio</a></li>
-    <li style="margin-bottom: 1rem;"><a href="/blog/modo-bombero-a-ceo-escalar-airbnb" style="color: #6366f1; font-weight: 600;">→ Escalar tu Negocio</a></li>
-  </ul>
-</div>`
-
-async function main() {
-  const post = await prisma.blogPost.update({
-    where: { slug: 'revpar-vs-ocupacion-metricas-correctas-airbnb' },
-    data: { content: newContent }
+async function updateArticle() {
+  const result = await prisma.blogPost.update({
+    where: { slug: 'revpar-vs-ocupacion-metrica-que-cambia-todo' },
+    data: {
+      content: newContent,
+      excerpt: 'Por qué un 90% de ocupación puede ser buena noticia o una señal de que estás dejando dinero. Aprende a calcular RevPAR bruto y neto con un framework práctico que te dice exactamente cuánto te queda.',
+      metaDescription: 'Aprende a calcular RevPAR bruto y neto para tu Airbnb. Framework práctico con tabla de cálculo, metodología de comp set y señales de que estás vendiendo barato.',
+      readTime: 15,
+      updatedAt: new Date()
+    }
   })
 
-  console.log('✅ Artículo actualizado con éxito')
-  console.log('📝 Nuevo contenido:', newContent.length, 'caracteres')
-  console.log('🔗 URL:', 'https://itineramio.com/blog/revpar-vs-ocupacion-metricas-correctas-airbnb')
+  console.log('✅ Artículo actualizado:', result.slug)
+  console.log('   Nuevo excerpt:', result.excerpt.substring(0, 80) + '...')
+  console.log('   Read time:', result.readTime, 'min')
+
+  await prisma.$disconnect()
 }
 
-main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect())
+updateArticle().catch(console.error)
