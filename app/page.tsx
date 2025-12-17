@@ -353,7 +353,7 @@ export default function LandingPage() {
                     href="/register"
                     className="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white rounded-full text-base sm:text-lg font-semibold hover:shadow-2xl hover:shadow-violet-500/30 transition-all group"
                   >
-                    Empezar gratis
+                    Prueba 15 días gratis
                     <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </motion.div>
@@ -364,6 +364,32 @@ export default function LandingPage() {
                     </button>
                   </Link>
                 </motion.div>
+              </motion.div>
+
+              {/* Social Proof Bar */}
+              <motion.div
+                variants={fadeInUp}
+                className="flex flex-wrap items-center gap-4 py-4"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="flex -space-x-2">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop&crop=face" alt="" className="w-8 h-8 rounded-full border-2 border-white" />
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face" alt="" className="w-8 h-8 rounded-full border-2 border-white" />
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=32&h=32&fit=crop&crop=face" alt="" className="w-8 h-8 rounded-full border-2 border-white" />
+                    <div className="w-8 h-8 rounded-full border-2 border-white bg-violet-100 flex items-center justify-center text-xs font-semibold text-violet-600">+50</div>
+                  </div>
+                  <span className="text-sm text-gray-600">
+                    <strong className="text-gray-900">50+ property managers</strong> ya confían en nosotros
+                  </span>
+                </div>
+                <div className="hidden sm:flex items-center gap-1 text-sm text-gray-500">
+                  <Check className="w-4 h-4 text-green-500" />
+                  <span>Sin tarjeta de crédito</span>
+                </div>
+                <div className="hidden sm:flex items-center gap-1 text-sm text-gray-500">
+                  <Check className="w-4 h-4 text-green-500" />
+                  <span>Setup en 10 min</span>
+                </div>
               </motion.div>
 
               {/* Stats */}
