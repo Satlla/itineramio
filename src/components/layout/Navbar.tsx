@@ -91,10 +91,17 @@ export function Navbar({ transparent = false }: NavbarProps) {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
-                href="/#testimonials"
+                href="/casos-de-exito"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Testimonios
+                Casos de Éxito
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
+              </Link>
+              <Link
+                href="/comparar"
+                className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
+              >
+                Comparar
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
             </div>
@@ -200,11 +207,18 @@ export function Navbar({ transparent = false }: NavbarProps) {
                     {t('navbar.pricing', 'Precios')}
                   </Link>
                   <Link
-                    href="/#testimonials"
+                    href="/casos-de-exito"
                     className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Testimonios
+                    Casos de Éxito
+                  </Link>
+                  <Link
+                    href="/comparar"
+                    className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Comparar
                   </Link>
                 </div>
 

@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next'
 import { Button, Input } from '../../../src/components/ui'
 import { InlineSpinner } from '../../../src/components/ui/Spinner'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { trackSignUp, trackGenerateLead } from '../../../src/lib/analytics'
 
 export default function RegisterPage() {
   const { t } = useTranslation('auth')
@@ -166,6 +167,10 @@ export default function RegisterPage() {
         return
       }
       
+      // Track GA4 sign_up conversion
+      trackSignUp({ method: 'email', userId: data.userId })
+      trackGenerateLead({ source: 'landing', value: 15 })
+
       // Success - redirect to verification required page
       router.push(`/verify-required?email=${encodeURIComponent(formData.email)}`)
       

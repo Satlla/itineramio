@@ -1,17 +1,41 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { CheckCircle, Clock, CreditCard, Building2, Smartphone, ArrowRight } from 'lucide-react'
+import { trackPurchase, trackBeginCheckout } from '../../../src/lib/analytics'
 
 export default function SubscriptionSuccessPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [paymentMethod, setPaymentMethod] = useState<string>('')
+  const trackedRef = useRef(false)
 
   useEffect(() => {
     const method = searchParams.get('method')
+    const plan = searchParams.get('plan')
+    const amount = searchParams.get('amount')
+    const transactionId = searchParams.get('txn') || `txn_${Date.now()}`
+
     setPaymentMethod(method || '')
+
+    // Track purchase conversion (only once)
+    if (!trackedRef.current && plan) {
+      trackedRef.current = true
+      const value = amount ? parseFloat(amount) : 0
+
+      trackPurchase({
+        transactionId,
+        value,
+        currency: 'EUR',
+        items: [{
+          item_id: plan.toLowerCase(),
+          item_name: `Plan ${plan}`,
+          price: value,
+          item_category: 'subscription'
+        }]
+      })
+    }
   }, [searchParams])
 
   const getPaymentMethodInfo = () => {

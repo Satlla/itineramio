@@ -2043,3 +2043,20 @@ enum FaqSubmissionStatus {
   PUBLISHED
   REJECTED
 }
+
+// Email Log - track sent emails for reactivation campaigns
+model EmailLog {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // REACTIVATION_3D, REACTIVATION_7D, REACTIVATION_14D, etc.
+  email     String
+  subject   String?
+  resendId  String?  // Resend email ID for tracking
+  status    String   @default("SENT") // SENT, DELIVERED, OPENED, CLICKED, etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, type])
+  @@index([type, createdAt])
+  @@map("email_logs")
+}

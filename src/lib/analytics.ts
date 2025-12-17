@@ -25,6 +25,14 @@ export type AnalyticsEvent =
   | 'lead_magnet_downloaded'
   | 'newsletter_subscribed'
   | 'blog_article_read'
+  // GA4 Standard Events (for conversions)
+  | 'sign_up'
+  | 'login'
+  | 'begin_checkout'
+  | 'purchase'
+  | 'generate_lead'
+  | 'add_to_cart'
+  | 'view_item'
 
 // Helper para trackear eventos en Google Analytics
 export function trackEvent(
@@ -480,4 +488,170 @@ export function setupScrollDepthTracking() {
   window.addEventListener('scroll', handleScroll, { passive: true })
 
   return () => window.removeEventListener('scroll', handleScroll)
+}
+
+// ========================================
+// GA4 CONVERSION EVENTS
+// ========================================
+
+/**
+ * Trackea registro de usuario (GA4 sign_up event - CONVERSION)
+ */
+export function trackSignUp({
+  method = 'email',
+  userId
+}: {
+  method?: 'email' | 'google' | 'apple'
+  userId?: string
+}) {
+  trackEvent('sign_up', {
+    method,
+    user_id: userId
+  })
+}
+
+/**
+ * Trackea inicio de checkout (GA4 begin_checkout - CONVERSION)
+ */
+export function trackBeginCheckout({
+  value,
+  currency = 'EUR',
+  items,
+  coupon
+}: {
+  value: number
+  currency?: string
+  items: Array<{
+    item_id: string
+    item_name: string
+    price: number
+    quantity?: number
+  }>
+  coupon?: string
+}) {
+  trackEvent('begin_checkout', {
+    currency,
+    value,
+    items: items.map(item => ({
+      ...item,
+      quantity: item.quantity || 1
+    })),
+    coupon
+  })
+}
+
+/**
+ * Trackea compra completada (GA4 purchase event - CONVERSION)
+ */
+export function trackPurchase({
+  transactionId,
+  value,
+  currency = 'EUR',
+  items,
+  coupon,
+  tax = 0
+}: {
+  transactionId: string
+  value: number
+  currency?: string
+  items: Array<{
+    item_id: string
+    item_name: string
+    price: number
+    quantity?: number
+    item_category?: string
+  }>
+  coupon?: string
+  tax?: number
+}) {
+  trackEvent('purchase', {
+    transaction_id: transactionId,
+    value,
+    currency,
+    tax,
+    items: items.map(item => ({
+      ...item,
+      quantity: item.quantity || 1
+    })),
+    coupon
+  })
+}
+
+/**
+ * Trackea generación de lead (GA4 generate_lead - CONVERSION)
+ */
+export function trackGenerateLead({
+  value = 10,
+  currency = 'EUR',
+  source,
+  leadMagnet
+}: {
+  value?: number
+  currency?: string
+  source: 'quiz' | 'blog' | 'landing' | 'popup' | 'recursos'
+  leadMagnet?: string
+}) {
+  trackEvent('generate_lead', {
+    currency,
+    value,
+    source,
+    lead_magnet: leadMagnet
+  })
+}
+
+/**
+ * Trackea visualización de plan/producto (GA4 view_item)
+ */
+export function trackViewPlan({
+  planId,
+  planName,
+  price,
+  currency = 'EUR'
+}: {
+  planId: string
+  planName: string
+  price: number
+  currency?: string
+}) {
+  trackEvent('view_item', {
+    currency,
+    value: price,
+    items: [{
+      item_id: planId,
+      item_name: planName,
+      price,
+      quantity: 1,
+      item_category: 'subscription'
+    }]
+  })
+}
+
+/**
+ * Trackea añadir plan al carrito (GA4 add_to_cart)
+ */
+export function trackAddPlanToCart({
+  planId,
+  planName,
+  price,
+  currency = 'EUR',
+  coupon
+}: {
+  planId: string
+  planName: string
+  price: number
+  currency?: string
+  coupon?: string
+}) {
+  trackEvent('add_to_cart', {
+    currency,
+    value: price,
+    items: [{
+      item_id: planId,
+      item_name: planName,
+      price,
+      quantity: 1,
+      item_category: 'subscription'
+    }],
+    coupon
+  })
 }

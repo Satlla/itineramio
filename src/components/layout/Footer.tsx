@@ -101,7 +101,7 @@ export function Footer() {
             </h3>
             <ul className="space-y-3">
               <li><Link href="/#how-it-works" className="text-gray-600 hover:text-violet-600 transition-colors">¿Cómo funciona?</Link></li>
-              <li><Link href="/#about" className="text-gray-600 hover:text-violet-600 transition-colors">Acerca de</Link></li>
+              <li><Link href="/casos-de-exito" className="text-gray-600 hover:text-violet-600 transition-colors">Casos de Éxito</Link></li>
               <li><Link href="/#contact" className="text-gray-600 hover:text-violet-600 transition-colors">Contacto</Link></li>
               <li><Link href="/blog" className="text-gray-600 hover:text-violet-600 transition-colors">Blog</Link></li>
             </ul>
@@ -119,8 +119,8 @@ export function Footer() {
             <ul className="space-y-3">
               <li><Link href="/#features" className="text-gray-600 hover:text-violet-600 transition-colors">Características</Link></li>
               <li><Link href="/#pricing" className="text-gray-600 hover:text-violet-600 transition-colors">Precios</Link></li>
-              <li><Link href="/integrations" className="text-gray-600 hover:text-violet-600 transition-colors">Integraciones</Link></li>
-              <li><Link href="/api" className="text-gray-600 hover:text-violet-600 transition-colors">API</Link></li>
+              <li><Link href="/comparar" className="text-gray-600 hover:text-violet-600 transition-colors">Comparativas</Link></li>
+              <li><Link href="/recursos" className="text-gray-600 hover:text-violet-600 transition-colors">Recursos</Link></li>
             </ul>
           </motion.div>
 
