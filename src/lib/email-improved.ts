@@ -240,7 +240,7 @@ export const emailTemplates = {
         
         <!-- Footer -->
         <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 13px;">
-          <p style="margin: 5px 0;">¿Necesitas ayuda? Contáctanos en support@itineramio.com</p>
+          <p style="margin: 5px 0;">¿Necesitas ayuda? Contáctanos en hola@itineramio.com</p>
           <p style="margin: 15px 0 5px 0;">© 2024 Itineramio. Todos los derechos reservados.</p>
         </div>
       </div>

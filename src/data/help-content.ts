@@ -233,7 +233,7 @@ export const HELP_CONTENT: HelpContent[] = [
     type: 'faq',
     title: '¿Dónde encuentro ayuda si tengo dudas?',
     description: 'Recursos de soporte disponibles',
-    content: 'Tienes varias opciones: 1) Este Centro de Ayuda con búsqueda, 2) Email a contacto@itineramio.com, 3) WhatsApp de soporte, 4) Blog con tutoriales y guías detalladas. Respondemos en menos de 24 horas.',
+    content: 'Tienes varias opciones: 1) Este Centro de Ayuda con búsqueda, 2) Email a hola@itineramio.com, 3) WhatsApp de soporte, 4) Blog con tutoriales y guías detalladas. Respondemos en menos de 24 horas.',
     tags: ['ayuda', 'soporte', 'dudas', 'contacto', 'asistencia', 'preguntas'],
     url: '/help#obtener-ayuda',
     category: 'Primeros Pasos'
@@ -4672,7 +4672,7 @@ export const HELP_CONTENT: HelpContent[] = [
     type: 'faq',
     title: '¿Cómo contacto a soporte técnico?',
     description: 'Contactar soporte',
-    content: 'Puedes contactar soporte por: 1) Email a soporte@itineramio.com, 2) Chat en vivo (horario laboral), 3) Teléfono para urgencias. Incluye tu email de cuenta y descripción detallada del problema.',
+    content: 'Puedes contactar soporte por: 1) Email a hola@itineramio.com, 2) Chat en vivo (horario laboral), 3) Teléfono para urgencias. Incluye tu email de cuenta y descripción detallada del problema.',
     tags: ['soporte', 'contacto', 'ayuda', 'técnico', 'problema'],
     url: '/help#contactar-soporte',
     category: 'Solución de Problemas'

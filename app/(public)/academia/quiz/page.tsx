@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Check, Sparkles, Clock, Mail, User, AlertCircle } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Sparkles, Clock, Mail, User, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { quizQuestions, calculateQuestionScore, type QuizQuestion } from '@/data/quiz-questions'
 import { isDisposableEmail } from '@/lib/disposable-emails'
 
@@ -175,9 +175,9 @@ export default function QuizPage() {
         question: question.question,
         category: question.category,
         difficulty: question.difficulty,
-        userAnswers,
+        selectedOptions: userAnswers,
         correctAnswers: correctOptionIds,
-        score,
+        earnedPoints: score,
         maxScore: question.points,
         isCorrect,
         options: question.options,
@@ -198,7 +198,7 @@ export default function QuizPage() {
 
     // Guardar en base de datos (sin usuario aún) y enviar email con resultados
     try {
-      await fetch('/api/academia/quiz/save', {
+      const saveResponse = await fetch('/api/academia/quiz/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -209,6 +209,13 @@ export default function QuizPage() {
           timeElapsed: 15 * 60 - timeRemaining
         })
       })
+
+      if (!saveResponse.ok) {
+        const errorData = await saveResponse.json().catch(() => ({}))
+        console.error('Error saving quiz - status:', saveResponse.status, 'data:', errorData)
+      } else {
+        console.log('✅ Quiz saved successfully')
+      }
     } catch (error) {
       console.error('Error saving quiz:', error)
     }

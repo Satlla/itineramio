@@ -82,7 +82,7 @@ interface SystemSettings {
 
 const defaultSettings: SystemSettings = {
   companyName: 'Itineramio',
-  companyEmail: 'info@itineramio.com',
+  companyEmail: 'hola@itineramio.com',
   companyPhone: '+34 900 000 000',
   companyAddress: '',
   companyWebsite: 'https://itineramio.com',
@@ -96,7 +96,7 @@ const defaultSettings: SystemSettings = {
   companyAdditionalInfo: '',
   
   platformName: 'Itineramio',
-  supportEmail: 'support@itineramio.com',
+  supportEmail: 'hola@itineramio.com',
   defaultLanguage: 'es',
   defaultCurrency: 'EUR',
   

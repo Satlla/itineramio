@@ -162,7 +162,7 @@ export default function SubscriptionSuccessPage() {
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-600">
                 ¿Tienes alguna pregunta?{' '}
-                <a href="mailto:soporte@itineramio.com" className="text-violet-600 hover:text-violet-700 font-medium">
+                <a href="mailto:hola@itineramio.com" className="text-violet-600 hover:text-violet-700 font-medium">
                   Contáctanos
                 </a>
               </p>

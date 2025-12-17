@@ -73,8 +73,8 @@ export default function NotFound() {
         {/* Contact */}
         <p className="mt-8 text-gray-500 text-sm">
           ¿Necesitas ayuda? Escríbenos a{' '}
-          <a href="mailto:info@itineramio.com" className="text-violet-600 hover:underline">
-            info@itineramio.com
+          <a href="mailto:hola@itineramio.com" className="text-violet-600 hover:underline">
+            hola@itineramio.com
           </a>
         </p>
       </div>

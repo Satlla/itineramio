@@ -401,7 +401,7 @@ function generateInvoiceHTML(invoice: any, billingInfo: any): string {
         <!-- Footer -->
         <div class="footer">
             <p>Gracias por confiar en Itineramio</p>
-            <p>Si tienes alguna pregunta, contacta con info@itineramio.com</p>
+            <p>Si tienes alguna pregunta, contacta con hola@itineramio.com</p>
         </div>
     </div>
 </body>

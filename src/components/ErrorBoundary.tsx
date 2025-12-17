@@ -115,7 +115,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <p className="text-xs text-gray-500 mt-4">
               Si el problema persiste, contacta al{' '}
               <a 
-                href="mailto:support@itineramio.com" 
+                href="mailto:hola@itineramio.com" 
                 className="text-violet-600 hover:text-violet-700 underline"
               >
                 soporte técnico

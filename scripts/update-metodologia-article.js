@@ -133,7 +133,7 @@ async function main() {
 <p>Si tienes preguntas sobre nuestra metodología, datos específicos o quieres acceder a información más detallada para fines de investigación, contacta con nosotros:</p>
 
 <ul>
-  <li><strong>Email:</strong> datos@itineramio.com</li>
+  <li><strong>Email:</strong> hola@itineramio.com</li>
   <li><strong>LinkedIn:</strong> Itineramio</li>
 </ul>
 

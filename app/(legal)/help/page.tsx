@@ -246,8 +246,8 @@ export default function HelpPage() {
       title: "Email",
       description: "Respuesta en menos de 24 horas",
       action: "Enviar email",
-      available: "contacto@itineramio.com",
-      href: "mailto:contacto@itineramio.com"
+      available: "hola@itineramio.com",
+      href: "mailto:hola@itineramio.com"
     },
     {
       icon: Phone,
@@ -711,10 +711,10 @@ export default function HelpPage() {
               Nuestro equipo de soporte está disponible para ayudarte.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="mailto:contacto@itineramio.com">
+              <Link href="mailto:hola@itineramio.com">
                 <Button variant="outline" className="border-violet-300 text-violet-700 hover:bg-violet-50">
                   <Mail className="w-4 h-4 mr-2" />
-                  contacto@itineramio.com
+                  hola@itineramio.com
                 </Button>
               </Link>
               <Link href="/main">

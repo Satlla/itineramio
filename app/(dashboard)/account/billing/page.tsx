@@ -980,7 +980,7 @@ export default function BillingPage() {
               {/* Footer */}
               <div className="text-center text-sm text-gray-500 border-t border-gray-200 pt-6">
                 <p>Gracias por confiar en Itineramio</p>
-                <p className="mt-2">Si tienes alguna pregunta, contacta con info@itineramio.com</p>
+                <p className="mt-2">Si tienes alguna pregunta, contacta con hola@itineramio.com</p>
               </div>
 
               {/* Actions */}

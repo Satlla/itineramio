@@ -165,7 +165,7 @@ export default function RootLayout({
       },
       contactPoint: {
         '@type': 'ContactPoint',
-        email: 'info@itineramio.com',
+        email: 'hola@itineramio.com',
         contactType: 'Customer Support',
         availableLanguage: ['Spanish'],
       },
