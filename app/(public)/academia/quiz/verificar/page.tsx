@@ -136,17 +136,17 @@ export default function VerificarEmailPage() {
 
               <div className="space-y-4">
                 <Link
-                  href="/academia/quiz/resultados?verified=true"
+                  href="/academia/registro"
                   className="block w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
-                  Ver mis resultados completos
+                  Crear mi cuenta en la Academia
                 </Link>
 
                 <Link
-                  href="/academia/registro"
+                  href="/"
                   className="block w-full text-gray-600 hover:text-gray-800 font-medium py-2 transition-colors"
                 >
-                  Crear mi cuenta en la Academia
+                  Volver al inicio
                 </Link>
               </div>
             </div>
