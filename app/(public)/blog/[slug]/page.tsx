@@ -2,9 +2,10 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Calendar, Clock, ArrowLeft, Share2, Heart, Eye, Tag } from 'lucide-react'
+import { Calendar, Clock, ArrowLeft, Share2, Eye, Tag } from 'lucide-react'
 import { ShareButtons } from '../../../../src/components/blog/ShareButtons'
 import { BlogComments } from '../../../../src/components/blog/BlogComments'
+import { LikeButton } from '../../../../src/components/blog/LikeButton'
 import { prisma } from '../../../../src/lib/prisma'
 import { markdownToHtml } from '../../../../src/lib/markdown'
 import ReadingProgress from './ReadingProgress'
@@ -324,16 +325,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           )}
 
           {/* Engagement Stats */}
-          <div className="mt-8 pt-8 border-t border-gray-200 flex items-center justify-between">
-            <div className="flex items-center space-x-6 text-sm text-gray-500">
-              <span className="flex items-center">
+          <div className="mt-8 pt-8 border-t border-gray-200 flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-4">
+              <span className="flex items-center text-sm text-gray-500">
                 <Eye className="w-4 h-4 mr-1.5" />
                 {post.views.toLocaleString()} vistas
               </span>
-              <span className="flex items-center">
-                <Heart className="w-4 h-4 mr-1.5" />
-                {post.likes} me gusta
-              </span>
+              <LikeButton slug={post.slug} initialLikes={post.likes} />
             </div>
 
             <ShareButtons
