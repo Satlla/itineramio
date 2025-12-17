@@ -178,6 +178,7 @@ export default function PropertyAnnouncementsPage() {
   const [pendingOperation, setPendingOperation] = useState<'create' | 'update' | 'delete' | null>(null)
   const [pendingAnnouncementData, setPendingAnnouncementData] = useState<any>(null)
   const [announcementToDelete, setAnnouncementToDelete] = useState<string | null>(null)
+  const [announcementToToggle, setAnnouncementToToggle] = useState<Announcement | null>(null)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -350,31 +351,39 @@ export default function PropertyAnnouncementsPage() {
     await performDeleteAnnouncement('single', [id])
   }
 
-  const handleToggleActive = async (announcement: Announcement) => {
+  const handleToggleActive = (announcement: Announcement) => {
+    setAnnouncementToToggle(announcement)
+  }
+
+  const confirmToggleActive = async () => {
+    if (!announcementToToggle) return
+
     try {
-      const response = await fetch(`/api/announcements/${announcement.id}`, {
+      const response = await fetch(`/api/announcements/${announcementToToggle.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          isActive: !announcement.isActive
+          isActive: !announcementToToggle.isActive
         })
       })
 
       if (response.ok) {
         addNotification({
           title: 'Éxito',
-          message: `Anuncio ${!announcement.isActive ? 'activado' : 'desactivado'} correctamente`,
+          message: `Aviso ${!announcementToToggle.isActive ? 'activado' : 'desactivado'} correctamente`,
           type: 'success',
           read: false
         })
         loadAnnouncements()
       } else {
         const data = await response.json()
-        addNotification({ title: 'Error', message: data.error || 'Error al actualizar anuncio', type: 'error', read: false })
+        addNotification({ title: 'Error', message: data.error || 'Error al actualizar aviso', type: 'error', read: false })
       }
     } catch (error) {
       console.error('Error toggling announcement:', error)
-      addNotification({ title: 'Error', message: 'Error al actualizar anuncio', type: 'error', read: false })
+      addNotification({ title: 'Error', message: 'Error al actualizar aviso', type: 'error', read: false })
+    } finally {
+      setAnnouncementToToggle(null)
     }
   }
 
@@ -1056,6 +1065,55 @@ export default function PropertyAnnouncementsPage() {
         currentPropertyName={propertyName}
         propertySetProperties={propertySetProperties}
       />
+
+      {/* Toggle Active Confirmation Modal */}
+      {announcementToToggle && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+          >
+            <div className="text-center mb-6">
+              <div className={`w-16 h-16 ${announcementToToggle.isActive ? 'bg-red-100' : 'bg-green-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                {announcementToToggle.isActive ? (
+                  <EyeOff className="w-8 h-8 text-red-600" />
+                ) : (
+                  <Eye className="w-8 h-8 text-green-600" />
+                )}
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                {announcementToToggle.isActive ? '¿Desactivar este aviso?' : '¿Activar este aviso?'}
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {announcementToToggle.isActive
+                  ? 'El aviso dejará de ser visible para los huéspedes.'
+                  : 'El aviso será visible para todos los huéspedes que accedan al manual.'}
+              </p>
+              <div className="bg-gray-50 rounded-lg p-4 text-left">
+                <p className="font-medium text-gray-900 text-sm">{announcementToToggle.title.es}</p>
+                <p className="text-gray-600 text-sm mt-1 line-clamp-2">{announcementToToggle.message.es}</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setAnnouncementToToggle(null)}
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={confirmToggleActive}
+                className={`flex-1 ${announcementToToggle.isActive ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'} text-white`}
+              >
+                {announcementToToggle.isActive ? 'Desactivar' : 'Activar'}
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   )
 }

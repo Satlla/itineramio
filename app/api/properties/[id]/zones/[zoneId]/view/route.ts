@@ -29,6 +29,10 @@ export async function POST(
       timeSpent = 0
     } = body
 
+    // Detect if this is a host view (from dashboard)
+    const dashboardPatterns = ['/properties/', '/dashboard', '/zones/', '/admin']
+    const isHostView = referrer ? dashboardPatterns.some(pattern => referrer.includes(pattern)) : false
+
     // Check if zone exists and belongs to property
     const zone = await prisma.zone.findFirst({
       where: {
@@ -74,6 +78,7 @@ export async function POST(
         screenWidth,
         screenHeight,
         timeSpent,
+        isHostView,
         viewedAt: new Date()
       }
     })

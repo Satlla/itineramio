@@ -51,9 +51,14 @@ export function middleware(request: NextRequest) {
     pathname.startsWith(route)
   )
   
-  const isAuthRoute = authRoutes.some(route => 
+  const isAuthRoute = authRoutes.some(route =>
     pathname.startsWith(route)
   )
+
+  // Si el usuario tiene token y está en la raíz, redirigir a /main
+  if (pathname === '/' && token) {
+    return NextResponse.redirect(new URL('/main', request.url))
+  }
 
   if (isProtectedRoute) {
     if (!token) {

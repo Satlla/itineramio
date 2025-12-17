@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Upload, X, Video, CheckCircle, Loader2, AlertCircle } from 'lucide-react'
+import { Upload, X, Video, CheckCircle, Loader2, AlertCircle, Copy } from 'lucide-react'
 import { Button } from './Button'
 import { upload } from '@vercel/blob/client'
-import { compressVideoSimple } from '../../utils/videoCompression'
+import { compressVideoFFmpeg, isFFmpegSupported } from '../../utils/ffmpegCompression'
 
 interface VideoUploadProps {
   value?: string
@@ -26,10 +26,17 @@ interface VideoMetadata {
   height: number
 }
 
+interface DuplicateMedia {
+  id: string
+  url: string
+  originalName: string
+  size: number
+}
+
 export function VideoUploadSimple({
   value,
   onChange,
-  placeholder = "Subir video (máx. 60 segundos)",
+  placeholder = "Subir video (máx. 30 segundos)",
   className = "",
   maxSize = 100, // 100MB limit with chunked upload
   maxDuration = 300, // 5 minutes max
@@ -43,8 +50,103 @@ export function VideoUploadSimple({
   const [videoError, setVideoError] = useState<string | null>(null)
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [isCompressing, setIsCompressing] = useState(false)
-  
+  const [duplicateMedia, setDuplicateMedia] = useState<DuplicateMedia | null>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false)
+
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // Calculate file hash for duplicate detection
+  // For files over 20MB, return null to skip client-side detection (server will catch duplicates)
+  const calculateHash = async (file: File): Promise<string | null> => {
+    const MAX_HASH_SIZE = 20 * 1024 * 1024 // 20MB - skip client hash for larger files
+
+    if (file.size > MAX_HASH_SIZE) {
+      console.log('📦 File too large for client-side hash, server will check duplicates')
+      return null
+    }
+
+    const buffer = await file.arrayBuffer()
+    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  }
+
+  // Check if file already exists by hash
+  const checkDuplicateByHash = async (hash: string): Promise<DuplicateMedia | null> => {
+    try {
+      const response = await fetch('/api/upload/check-duplicate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ hash })
+      })
+
+      if (!response.ok) {
+        console.error('❌ Check duplicate API error:', response.status)
+        return null
+      }
+
+      const data = await response.json()
+      console.log('🔍 Duplicate check by hash response:', data)
+
+      if (data.exists && data.media) {
+        return data.media
+      }
+      return null
+    } catch (error) {
+      console.error('Error checking duplicate by hash:', error)
+      return null
+    }
+  }
+
+  // Check if file already exists by name (for large files where hash is slow)
+  const checkDuplicateByName = async (name: string): Promise<DuplicateMedia | null> => {
+    try {
+      const response = await fetch('/api/upload/check-duplicate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ originalName: name })
+      })
+
+      if (!response.ok) {
+        console.error('❌ Check duplicate API error:', response.status)
+        return null
+      }
+
+      const data = await response.json()
+      console.log('🔍 Duplicate check by name response:', data)
+
+      if (data.exists && data.media) {
+        return data.media
+      }
+      return null
+    } catch (error) {
+      console.error('Error checking duplicate by name:', error)
+      return null
+    }
+  }
+
+  // Use existing video
+  const useExistingVideo = () => {
+    if (duplicateMedia) {
+      setPreviewUrl(duplicateMedia.url)
+      setUploadSuccess(true)
+      onChange(duplicateMedia.url)
+      setDuplicateMedia(null)
+      setPendingFile(null)
+    }
+  }
+
+  // Upload new video anyway
+  const uploadNewVideo = async () => {
+    if (pendingFile) {
+      setDuplicateMedia(null)
+      await processUpload(pendingFile, true) // skipDuplicateCheck = true
+      setPendingFile(null)
+    }
+  }
 
   // Sync with value prop changes
   useEffect(() => {
@@ -80,9 +182,9 @@ export function VideoUploadSimple({
     const sizeMB = file.size / (1024 * 1024)
     console.log('📊 File size for upload:', sizeMB.toFixed(2), 'MB, type:', file.type)
 
-    // For files under 40MB, use regular upload (more reliable)
-    // For larger files, use Vercel Blob client upload
-    if (sizeMB <= 40) {
+    // For files under 4MB, use regular upload
+    // For larger files, use Vercel Blob client upload (Vercel has 4.5MB body limit)
+    if (sizeMB <= 4) {
       console.log('📤 Using regular upload for:', file.name)
       const formData = new FormData()
       formData.append('file', file)
@@ -140,10 +242,12 @@ export function VideoUploadSimple({
       })
     }
 
-    // For files over 40MB, use Vercel Blob client upload
-    console.log('📤 Using Vercel Blob client upload for large file:', file.name)
+    // For files over 4MB, use Vercel Blob client upload
+    // Add timestamp to filename to avoid "blob already exists" error
+    const uniqueFilename = `${Date.now()}-${file.name}`
+    console.log('📤 Using Vercel Blob client upload for large file:', uniqueFilename, sizeMB.toFixed(2), 'MB')
     try {
-      const blob = await upload(file.name, file, {
+      const blob = await upload(uniqueFilename, file, {
         access: 'public',
         handleUploadUrl: '/api/upload-token',
         onUploadProgress: (progressEvent) => {
@@ -155,9 +259,10 @@ export function VideoUploadSimple({
 
       console.log('✅ Vercel Blob upload complete:', blob.url)
       return blob.url
-    } catch (blobError) {
+    } catch (blobError: unknown) {
       console.error('❌ Vercel Blob upload failed:', blobError)
-      throw new Error('El archivo es demasiado grande. Por favor, comprime el video antes de subirlo.')
+      const errorMessage = blobError instanceof Error ? blobError.message : 'Error desconocido'
+      throw new Error(`Error subiendo video (${sizeMB.toFixed(1)}MB): ${errorMessage}`)
     }
   }
 
@@ -230,93 +335,154 @@ export function VideoUploadSimple({
     })
   }
 
-  const handleFileSelect = async (file: File) => {
-    console.log('📁 File selected:', file.name, file.type, file.size)
-    
-    // Reset states
-    setVideoError(null)
-    setUploadSuccess(false)
-    setUploadProgress(0)
-    
-    // Validate file
-    if (!validateFile(file)) {
-      return
-    }
+  // Process upload after duplicate check
+  const processUpload = async (file: File, skipDuplicateCheck: boolean = false, fileHash?: string) => {
+    console.log('📁 Processing upload:', file.name, file.type, file.size)
 
-    // Show preview immediately (but only if we don't already have a real URL)
+    // Show preview immediately
     const objectUrl = URL.createObjectURL(file)
     if (!value || value.startsWith('blob:')) {
       setPreviewUrl(objectUrl)
     }
-    
+
     let fileToUpload = file
     const sizeMB = file.size / (1024 * 1024)
-    
-    // Compress if file is large
-    if (sizeMB > 4) {
+
+    // Compress videos larger than 4MB using FFmpeg.wasm (Vercel has 4.5MB body limit)
+    if (sizeMB > 4 && isFFmpegSupported()) {
       setIsCompressing(true)
-      setVideoError('📦 Comprimiendo video para optimizar subida...')
-      
+
       try {
-        console.log('🔄 Compressing large video...')
-        fileToUpload = await compressVideoSimple(file, {
-          maxSizeMB: 3,
-          onProgress: (progress) => {
-            setUploadProgress(Math.round(progress * 0.5)) // Show 0-50% for compression
+        console.log('🎬 Starting FFmpeg compression...')
+        fileToUpload = await compressVideoFFmpeg(file, {
+          maxSizeMB: 4,
+          quality: sizeMB > 30 ? 'low' : sizeMB > 15 ? 'medium' : 'high',
+          onProgress: (message) => {
+            setVideoError(message) // Show progress messages
           }
         })
         const compressedSizeMB = fileToUpload.size / (1024 * 1024)
-        console.log('✅ Compressed from', sizeMB.toFixed(1), 'MB to', compressedSizeMB.toFixed(1), 'MB')
+        console.log('✅ FFmpeg compressed to:', compressedSizeMB.toFixed(2), 'MB')
         setVideoError(null)
       } catch (error) {
-        console.warn('⚠️ Compression failed, using original:', error)
-        // Continue with original file
+        console.error('❌ FFmpeg compression failed:', error)
+        // Compression failed - upload original (limit is 100MB checked above)
+        console.log('⚠️ Uploading original file without compression:', sizeMB.toFixed(1), 'MB')
+        setVideoError(null)
       } finally {
         setIsCompressing(false)
       }
     }
-    
+
     setUploading(true)
-    
+
     try {
       // Upload file
       console.log('📤 Starting upload...')
       const videoUrl = await uploadFile(fileToUpload)
       console.log('✅ Upload successful:', videoUrl)
-      
+
       // Generate metadata
       const metadata = await generateThumbnail(file)
       console.log('📋 Metadata generated:', metadata)
-      
+
       // Success!
       setUploadSuccess(true)
-      
+
       // Clean up blob URL and replace with actual URL
       URL.revokeObjectURL(objectUrl)
       setPreviewUrl(videoUrl) // Replace blob URL with actual URL
-      
+
       console.log('🎯 Video upload complete, calling onChange with:', videoUrl)
-      
+
       // Notify parent
       onChange(videoUrl, metadata)
-      
+
       // Video uploaded successfully - log for debugging
       console.log('✅ Video upload notification: Video subido correctamente')
-      
+
     } catch (error) {
       console.error('❌ Upload failed:', error)
       setVideoError(error instanceof Error ? error.message : 'Error al subir el video')
-      
+
       // Clean up on error
       if (previewUrl && previewUrl.startsWith('blob:')) {
         URL.revokeObjectURL(previewUrl)
       }
       setPreviewUrl(null)
-      
+
     } finally {
       setUploading(false)
       setUploadProgress(0)
     }
+  }
+
+  const handleFileSelect = async (file: File) => {
+    console.log('📁 File selected:', file.name, file.type, file.size)
+
+    // Reset states
+    setVideoError(null)
+    setUploadSuccess(false)
+    setUploadProgress(0)
+    setDuplicateMedia(null)
+    setPendingFile(null)
+
+    // Validate file
+    if (!validateFile(file)) {
+      return
+    }
+
+    const sizeMB = file.size / (1024 * 1024)
+
+    // Check if file exceeds absolute limit (100MB)
+    if (sizeMB > 100) {
+      setVideoError(`El video es demasiado grande (${sizeMB.toFixed(0)}MB). El límite es 100MB.`)
+      return
+    }
+
+    // Check for duplicates
+    setIsCheckingDuplicate(true)
+    setVideoError('Verificando archivo...')
+
+    try {
+      let existingMedia: DuplicateMedia | null = null
+
+      if (sizeMB <= 20) {
+        // Small files: use hash for accurate duplicate detection
+        console.log('🔍 Calculating file hash...')
+        const hash = await calculateHash(file)
+
+        if (hash) {
+          console.log('🔑 File hash:', hash.substring(0, 16) + '...')
+          existingMedia = await checkDuplicateByHash(hash)
+        }
+      } else {
+        // Large files: use name for quick duplicate check
+        console.log('🔍 Checking duplicate by name for large file...')
+        existingMedia = await checkDuplicateByName(file.name)
+      }
+
+      if (existingMedia) {
+        console.log('🔄 Duplicate found:', existingMedia.originalName)
+        setDuplicateMedia(existingMedia)
+        setPendingFile(file)
+        setVideoError(null)
+        setIsCheckingDuplicate(false)
+        return // Wait for user decision
+      }
+
+      console.log('✅ No duplicate found, proceeding with upload')
+      setVideoError(null)
+
+    } catch (error) {
+      console.error('❌ Error checking duplicate:', error)
+      // Continue with upload even if duplicate check fails
+    } finally {
+      setIsCheckingDuplicate(false)
+    }
+
+    // No duplicate found, proceed with upload
+    await processUpload(file)
   }
 
   const handleDrop = (e: React.DragEvent) => {
@@ -359,9 +525,9 @@ export function VideoUploadSimple({
             relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
             transition-colors duration-200
             ${error ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400 bg-gray-50'}
-            ${uploading ? 'pointer-events-none opacity-50' : ''}
+            ${uploading || isCheckingDuplicate ? 'pointer-events-none opacity-50' : ''}
           `}
-          onClick={() => !uploading && inputRef.current?.click()}
+          onClick={() => !uploading && !isCheckingDuplicate && inputRef.current?.click()}
         >
           <input
             ref={inputRef}
@@ -373,15 +539,15 @@ export function VideoUploadSimple({
           />
           
           <div className="flex flex-col items-center space-y-2">
-            {uploading || isCompressing ? (
+            {uploading || isCompressing || isCheckingDuplicate ? (
               <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
             ) : (
               <Upload className="w-8 h-8 text-gray-400" />
             )}
-            
+
             <div>
               <p className="text-sm font-medium text-gray-700">
-                {isCompressing ? 'Comprimiendo video...' : uploading ? 'Subiendo video...' : placeholder}
+                {isCheckingDuplicate ? 'Verificando archivo...' : isCompressing ? 'Comprimiendo video...' : uploading ? 'Subiendo video...' : placeholder}
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 Máximo {maxSize}MB • Formatos: MP4, WebM, MOV
@@ -440,10 +606,61 @@ export function VideoUploadSimple({
         </div>
       )}
 
+      {/* Duplicate Detection Modal */}
+      {duplicateMedia && (
+        <div className="p-4 rounded-lg border border-amber-300 bg-amber-50">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-amber-800">
+                Este video ya existe en tu biblioteca
+              </p>
+              <p className="text-xs text-amber-700 mt-1">
+                &quot;{duplicateMedia.originalName}&quot; ({(duplicateMedia.size / (1024 * 1024)).toFixed(1)}MB)
+              </p>
+              <div className="flex gap-2 mt-3">
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={useExistingVideo}
+                  className="text-xs"
+                >
+                  <Copy className="w-3 h-3 mr-1" />
+                  Usar existente
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={uploadNewVideo}
+                  className="text-xs"
+                >
+                  <Upload className="w-3 h-3 mr-1" />
+                  Subir de nuevo
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setDuplicateMedia(null)
+                    setPendingFile(null)
+                  }}
+                  className="text-xs"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Error Message */}
-      {videoError && (
-        <div className={`p-3 rounded-lg border ${videoError.includes('📦') ? 'bg-blue-50 border-blue-200' : 'bg-red-50 border-red-200'}`}>
-          <p className={`text-sm ${videoError.includes('📦') ? 'text-blue-700' : 'text-red-700'}`}>
+      {videoError && !duplicateMedia && (
+        <div className={`p-3 rounded-lg border ${videoError.includes('📦') || videoError.includes('Verificando') || videoError.includes('Comprimiendo') ? 'bg-blue-50 border-blue-200' : 'bg-red-50 border-red-200'}`}>
+          <p className={`text-sm ${videoError.includes('📦') || videoError.includes('Verificando') || videoError.includes('Comprimiendo') ? 'text-blue-700' : 'text-red-700'}`}>
             {videoError}
           </p>
         </div>

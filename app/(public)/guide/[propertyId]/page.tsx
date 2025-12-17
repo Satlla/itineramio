@@ -507,10 +507,8 @@ export default function PropertyGuidePage() {
     fetchPropertyData()
     fetchAnnouncements()
     // fetchPublicEvaluations will be called from fetchPropertyData if needed
-    
-    // Track property view for analytics
-    trackPropertyView(propertyId)
-    
+    // trackPropertyView is now called inside fetchPropertyData with the real ID
+
     // Get language from URL params
     const urlParams = new URLSearchParams(window.location.search)
     const langParam = urlParams.get('lang')
@@ -573,11 +571,13 @@ export default function PropertyGuidePage() {
       if (!response.ok) {
         throw new Error(result.error || 'Manual no encontrado')
       }
-      
+
       setProperty(result.data)
-      
-      // Now that we have the property data, fetch evaluations using the actual property ID
+
+      // Track property view with the REAL property ID (not slug)
       if (result.data?.id) {
+        trackPropertyView(result.data.id)
+        // Now that we have the property data, fetch evaluations using the actual property ID
         await fetchPublicEvaluationsWithId(result.data.id)
       }
     } catch (error) {

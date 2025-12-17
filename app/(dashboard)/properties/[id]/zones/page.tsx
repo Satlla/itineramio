@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft, BarChart3 } from 'lucide-react'
 import {
   DndContext,
   closestCenter,
@@ -272,14 +272,34 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     
     const fetchData = async () => {
       try {
+        // Get auth headers for fetch requests
+        const getAuthHeaders = (): HeadersInit => {
+          const headers: HeadersInit = { 'Content-Type': 'application/json' }
+          try {
+            const token = localStorage.getItem('auth-token')
+            if (token) {
+              headers['Authorization'] = `Bearer ${token}`
+            }
+          } catch (e) {
+            console.warn('Could not access localStorage for auth token')
+          }
+          return headers
+        }
+
         // Fetch property info
-        let propResponse = await fetch(`/api/properties/${id}`)
+        let propResponse = await fetch(`/api/properties/${id}`, {
+          credentials: 'include',
+          headers: getAuthHeaders()
+        })
         let propResult = await propResponse.json()
-        
+
         // If main endpoint fails, try safe endpoint
         if (!propResponse.ok || !propResult.success) {
           console.log('Main property endpoint failed, trying safe endpoint...')
-          propResponse = await fetch(`/api/properties/${id}/safe`)
+          propResponse = await fetch(`/api/properties/${id}/safe`, {
+            credentials: 'include',
+            headers: getAuthHeaders()
+          })
           propResult = await propResponse.json()
         }
         
@@ -310,7 +330,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         if (propResult.data.propertySetId) {
           try {
             console.log('🔗 Property belongs to set:', propResult.data.propertySetId)
-            const setResponse = await fetch(`/api/property-sets/${propResult.data.propertySetId}`)
+            const setResponse = await fetch(`/api/property-sets/${propResult.data.propertySetId}`, {
+              credentials: 'include',
+              headers: getAuthHeaders()
+            })
             if (setResponse.ok) {
               const setData = await setResponse.json()
               if (setData.success && setData.data && setData.data.properties) {
@@ -339,13 +362,19 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setUnreadEvaluations(0)
 
         // Fetch zones
-        let zonesResponse = await fetch(`/api/properties/${id}/zones`)
+        let zonesResponse = await fetch(`/api/properties/${id}/zones`, {
+          credentials: 'include',
+          headers: getAuthHeaders()
+        })
         let zonesResult = await zonesResponse.json()
-        
+
         // If main zones endpoint fails, try safe endpoint
         if (!zonesResponse.ok || !zonesResult.success) {
           console.log('Main zones endpoint failed, trying safe endpoint...')
-          zonesResponse = await fetch(`/api/properties/${id}/zones/safe`)
+          zonesResponse = await fetch(`/api/properties/${id}/zones/safe`, {
+            credentials: 'include',
+            headers: getAuthHeaders()
+          })
           zonesResult = await zonesResponse.json()
         }
         
@@ -2548,12 +2577,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div
-      className="max-w-7xl mx-auto px-3 sm:px-6 pb-24 lg:pb-6"
-      style={{
-        paddingTop: 'calc(5rem + env(safe-area-inset-top, 0px))'
-      }}
-    >
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 pb-24 lg:pb-6 pt-6 sm:pt-8">
+
       {/* Inactive Property Banner */}
       {propertyStatus === 'DRAFT' && (
         <div className="mb-4 sm:mb-6 bg-amber-50 border border-amber-200 rounded-lg p-3 sm:p-4">
@@ -2698,42 +2723,44 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             Gestiona las diferentes zonas y sus códigos QR para facilitar la experiencia de tus huéspedes
           </p>
         </div>
-        <div className="hidden lg:flex space-x-3">
-          {/* Desktop buttons */}
-          <Button
+        <div className="hidden lg:flex items-center gap-6">
+          {/* Desktop links - same style as mobile */}
+          <button
             onClick={handleViewEvaluations}
-            variant="outline"
-            className="border-blue-500 text-blue-600 hover:bg-blue-50 relative"
+            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors relative"
           >
-            <Star className="w-5 h-5 mr-2" />
             Evaluaciones
             {unreadEvaluations > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="absolute -top-2 -right-0 translate-x-full bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center ml-1">
                 {unreadEvaluations}
               </span>
             )}
-          </Button>
-          
-          <Button
+          </button>
+
+          <button
             onClick={() => router.push(`/properties/${id}/announcements`)}
-            variant="outline"
-            className="border-orange-500 text-orange-600 hover:bg-orange-50"
+            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
           >
-            <Bell className="w-5 h-5 mr-2" />
             Avisos
-          </Button>
-          
-          <Button
+          </button>
+
+          <button
+            onClick={() => router.push(`/properties/${id}/analytics`)}
+            className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors"
+          >
+            Analíticas
+          </button>
+
+          <button
             onClick={() => {
               const publicUrl = `${window.location.origin}/guide/${id}`
               window.open(publicUrl, '_blank')
             }}
-            variant="outline"
-            className="border-green-500 text-green-600 hover:bg-green-50 flex items-center"
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            aria-label="Vista pública"
           >
-            <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
-            <span className="hidden sm:inline">Vista Pública</span>
-          </Button>
+            <Eye className="w-5 h-5 text-gray-700" />
+          </button>
 
           {/* Property Options Menu */}
           <DropdownMenu.Root>
@@ -2792,6 +2819,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors"
             >
               Avisos
+            </button>
+
+            {/* Analíticas - Keep text */}
+            <button
+              onClick={() => router.push(`/properties/${id}/analytics`)}
+              className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors"
+            >
+              Analíticas
             </button>
           </div>
 

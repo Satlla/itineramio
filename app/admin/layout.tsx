@@ -26,7 +26,8 @@ import {
   ChevronRight,
   Megaphone,
   UsersRound,
-  GraduationCap
+  GraduationCap,
+  HelpCircle
 } from 'lucide-react'
 
 // Admin navigation (top section)
@@ -52,6 +53,7 @@ const marketingNavigation = [
   { name: 'Embudos', href: '/admin/marketing', icon: Megaphone },
   { name: 'Host Profiles', href: '/admin/host-profiles', icon: UsersRound },
   { name: 'Blog', href: '/admin/blog', icon: FileText },
+  { name: 'FAQ/Preguntas', href: '/admin/faq', icon: HelpCircle },
   { name: 'Suscriptores', href: '/admin/marketing/leads', icon: UsersRound },
 ]
 

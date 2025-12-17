@@ -25,7 +25,16 @@ export async function GET(
               select: {
                 zones: true,
                 propertyViews: true,
-                reviews: true
+                propertyRatings: true
+              }
+            },
+            zones: {
+              select: {
+                _count: {
+                  select: {
+                    ratings: true
+                  }
+                }
               }
             }
           },
@@ -96,7 +105,12 @@ export async function GET(
     const totalProperties = user.properties.length + user.propertySets.reduce((acc, set) => acc + set._count.properties, 0)
     const totalZones = user.properties.reduce((acc, prop) => acc + prop._count.zones, 0)
     const totalViews = user.properties.reduce((acc, prop) => acc + prop._count.propertyViews, 0)
-    const totalReviews = user.properties.reduce((acc, prop) => acc + prop._count.reviews, 0)
+    // Count both property ratings and zone ratings
+    const totalPropertyRatings = user.properties.reduce((acc, prop) => acc + prop._count.propertyRatings, 0)
+    const totalZoneRatings = user.properties.reduce((acc, prop) => {
+      return acc + prop.zones.reduce((zAcc, zone) => zAcc + zone._count.ratings, 0)
+    }, 0)
+    const totalReviews = totalPropertyRatings + totalZoneRatings
     const recentCallsCount = await prisma.callLog.count({
       where: { 
         userId,
@@ -126,7 +140,15 @@ export async function GET(
           totalReviews,
           recentCallsCount
         },
-        properties: user.properties,
+        properties: user.properties.map(prop => ({
+          ...prop,
+          _count: {
+            zones: prop._count.zones,
+            propertyViews: prop._count.propertyViews,
+            reviews: prop._count.propertyRatings + prop.zones.reduce((acc, z) => acc + z._count.ratings, 0)
+          },
+          zones: undefined // Don't send zones data to frontend
+        })),
         propertySets: user.propertySets,
         recentCallLogs: user.callLogs,
         recentNotes: user.userNotes

@@ -45,8 +45,12 @@ const getErrorMessage = (error: any): string => {
 
 // Validation schema
 const createPropertySchema = z.object({
-  name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').max(100, 'Máximo 100 caracteres'),
-  description: z.string().min(10, 'La descripción debe tener al menos 10 caracteres').max(1000, 'Máximo 1000 caracteres'),
+  name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').max(80, 'Máximo 80 caracteres'),
+  nameEn: z.string().max(80, 'Máximo 80 caracteres').optional(),
+  nameFr: z.string().max(80, 'Máximo 80 caracteres').optional(),
+  description: z.string().min(10, 'La descripción debe tener al menos 10 caracteres').max(300, 'Máximo 300 caracteres'),
+  descriptionEn: z.string().max(300, 'Máximo 300 caracteres').optional(),
+  descriptionFr: z.string().max(300, 'Máximo 300 caracteres').optional(),
   type: z.enum(['APARTMENT', 'HOUSE', 'ROOM', 'VILLA']),
   
   // Dirección
@@ -105,6 +109,7 @@ function NewPropertyPageContent() {
   }>({ data: null, timestamp: null, hasData: false })
   const [submissionSuccess, setSubmissionSuccess] = useState(false)
   const [showTrialModal, setShowTrialModal] = useState(false)
+  const [activeLanguage, setActiveLanguage] = useState<'es' | 'en' | 'fr'>('es')
   const [createdPropertyData, setCreatedPropertyData] = useState<{
     id: string
     name: string
@@ -154,10 +159,18 @@ function NewPropertyPageContent() {
           if (response.ok && result.success) {
             const property = result.data
             
+            // Extract translations from JSON fields
+            const nameTranslations = property.nameTranslations || {}
+            const descriptionTranslations = property.descriptionTranslations || {}
+
             // Reset form with property data
             reset({
               name: property.name,
+              nameEn: nameTranslations.en || '',
+              nameFr: nameTranslations.fr || '',
               description: property.description,
+              descriptionEn: descriptionTranslations.en || '',
+              descriptionFr: descriptionTranslations.fr || '',
               type: property.type,
               street: property.street,
               city: property.city,
@@ -537,40 +550,157 @@ function NewPropertyPageContent() {
                   Información Básica
                 </h2>
 
+                {/* Language Tabs for Name and Description */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-medium text-gray-700">Título y descripción del anuncio</h3>
+                    <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
+                      <button
+                        type="button"
+                        onClick={() => setActiveLanguage('es')}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                          activeLanguage === 'es'
+                            ? 'bg-white text-violet-700 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        🇪🇸 ES {!watchedValues.name && <span className="text-red-500">*</span>}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveLanguage('en')}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                          activeLanguage === 'en'
+                            ? 'bg-white text-violet-700 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        🇬🇧 EN
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveLanguage('fr')}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                          activeLanguage === 'fr'
+                            ? 'bg-white text-violet-700 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        🇫🇷 FR
+                      </button>
+                    </div>
+                  </div>
+
+                  {activeLanguage !== 'es' && (
+                    <div className="bg-blue-50 rounded-lg p-3 mb-4">
+                      <p className="text-xs text-blue-700">
+                        💡 Las traducciones son opcionales. Si no las completas, los huéspedes verán el texto en español.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Name field based on active language */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {activeLanguage === 'es' ? 'Nombre de la propiedad *' :
+                       activeLanguage === 'en' ? 'Property name (optional)' :
+                       'Nom de la propriété (optionnel)'}
+                    </label>
+                    {activeLanguage === 'es' && (
+                      <>
+                        <Input
+                          {...register('name')}
+                          placeholder="Ej: Apartamento en el centro"
+                          maxLength={80}
+                          error={!!errors.name}
+                        />
+                        {errors.name && (
+                          <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.name)}</p>
+                        )}
+                      </>
+                    )}
+                    {activeLanguage === 'en' && (
+                      <Input
+                        {...register('nameEn')}
+                        placeholder="Ex: Downtown Apartment"
+                        maxLength={80}
+                      />
+                    )}
+                    {activeLanguage === 'fr' && (
+                      <Input
+                        {...register('nameFr')}
+                        placeholder="Ex: Appartement au centre-ville"
+                        maxLength={80}
+                      />
+                    )}
+                  </div>
+
+                  {/* Description field based on active language */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {activeLanguage === 'es' ? 'Descripción *' :
+                       activeLanguage === 'en' ? 'Description (optional)' :
+                       'Description (optionnel)'}
+                    </label>
+                    {activeLanguage === 'es' && (
+                      <>
+                        <textarea
+                          {...register('description')}
+                          rows={3}
+                          maxLength={300}
+                          placeholder="Describe tu propiedad en pocas palabras..."
+                          className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 resize-none ${
+                            errors.description ? 'border-red-300' : ''
+                          }`}
+                        />
+                        <p className="mt-1 text-xs text-gray-400 text-right">{watchedValues.description?.length || 0}/300</p>
+                        {errors.description && (
+                          <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.description)}</p>
+                        )}
+                      </>
+                    )}
+                    {activeLanguage === 'en' && (
+                      <>
+                        <textarea
+                          {...register('descriptionEn')}
+                          rows={3}
+                          maxLength={300}
+                          placeholder="Describe your property in a few words..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 resize-none"
+                        />
+                        <p className="mt-1 text-xs text-gray-400 text-right">{watchedValues.descriptionEn?.length || 0}/300</p>
+                      </>
+                    )}
+                    {activeLanguage === 'fr' && (
+                      <>
+                        <textarea
+                          {...register('descriptionFr')}
+                          rows={3}
+                          maxLength={300}
+                          placeholder="Décrivez votre propriété en quelques mots..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 resize-none"
+                        />
+                        <p className="mt-1 text-xs text-gray-400 text-right">{watchedValues.descriptionFr?.length || 0}/300</p>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Translation status indicators */}
+                  <div className="flex items-center gap-2 mt-3">
+                    <span className="text-xs text-gray-500">Idiomas completados:</span>
+                    <span className={`text-xs px-2 py-0.5 rounded ${watchedValues.name ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                      🇪🇸 {watchedValues.name ? '✓' : '—'}
+                    </span>
+                    <span className={`text-xs px-2 py-0.5 rounded ${watchedValues.nameEn ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                      🇬🇧 {watchedValues.nameEn ? '✓' : '—'}
+                    </span>
+                    <span className={`text-xs px-2 py-0.5 rounded ${watchedValues.nameFr ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                      🇫🇷 {watchedValues.nameFr ? '✓' : '—'}
+                    </span>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Nombre */}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nombre de la propiedad *
-                    </label>
-                    <Input
-                      {...register('name')}
-                      placeholder="Ej: Apartamento en el centro"
-                      error={!!errors.name}
-                    />
-                    {errors.name && (
-                      <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.name)}</p>
-                    )}
-                  </div>
-
-                  {/* Descripción */}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Descripción *
-                    </label>
-                    <textarea
-                      {...register('description')}
-                      rows={4}
-                      placeholder="Describe tu propiedad y sus características principales..."
-                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 resize-none ${
-                        errors.description ? 'border-red-300' : ''
-                      }`}
-                    />
-                    {errors.description && (
-                      <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.description)}</p>
-                    )}
-                  </div>
-
                   {/* Tipo de propiedad */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">

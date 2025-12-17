@@ -7,6 +7,75 @@ import { emailNotificationService } from '../../../src/lib/email-notifications'
 import { planLimitsService } from '../../../src/lib/plan-limits'
 import { generatePropertyNumber, extractNumberFromReference } from '../../../src/lib/property-number-generator'
 
+// Tiempo de respuesta estimado por tipo de zona (en minutos)
+// Basado en cuánto tiempo tarda un anfitrión en explicar cada tema
+const ZONE_TIME_MAP: Record<string, number> = {
+  // Check-in/out - instrucciones complejas
+  'key': 2.5,
+  'door-open': 2.5,
+  'exit': 2.0,
+  'log-out': 2.0,
+
+  // WiFi - simple
+  'wifi': 0.5,
+
+  // Cocina/electrodomésticos
+  'chef-hat': 1.5,
+  'utensils': 1.5,
+  'microwave': 1.0,
+  'coffee': 1.0,
+
+  // Parking
+  'car': 2.0,
+  'parking-circle': 2.0,
+
+  // Normas y documentos
+  'scroll-text': 1.0,
+  'file-text': 1.0,
+  'list': 1.0,
+  'clipboard': 1.0,
+
+  // Emergencias/contacto
+  'phone': 1.5,
+  'alert-triangle': 1.5,
+  'siren': 1.5,
+
+  // Transporte/ubicación
+  'bus': 2.0,
+  'train': 2.0,
+  'plane': 2.0,
+  'map-pin': 2.0,
+  'map': 1.5,
+  'navigation': 1.5,
+
+  // Climatización
+  'thermometer': 1.5,
+  'snowflake': 1.5,
+  'sun': 1.0,
+  'fan': 1.0,
+
+  // Exterior/amenities
+  'trees': 1.0,
+  'umbrella': 1.0,
+  'waves': 1.0,
+  'dumbbell': 1.0,
+  'tv': 1.0,
+
+  // Limpieza/basura
+  'trash': 1.0,
+  'recycle': 1.0,
+  'sparkles': 1.0,
+
+  // Recomendaciones
+  'star': 1.5,
+  'heart': 1.0,
+  'utensils-crossed': 1.5,
+  'shopping-bag': 1.0,
+}
+
+// Tiempo por defecto si no se encuentra el icono
+const DEFAULT_ZONE_TIME = 1.0
+
 // Validation schema for property creation
 const createPropertySchema = z.object({
   name: z.string().min(3).max(100),
@@ -430,10 +499,72 @@ export async function GET(request: NextRequest) {
     })
     
     const total = await prisma.property.count({ where })
-    
-    // Transform properties data - simplified to avoid analytics/count issues
+
+    // Get zones count, steps count, and video count for all properties in one query
+    const propertyIds = properties.map(p => p.id)
+
+    const zoneCounts = await prisma.$queryRaw`
+      SELECT
+        z."propertyId",
+        COUNT(DISTINCT z.id) as "zonesCount",
+        COUNT(DISTINCT s.id) as "stepsCount",
+        COUNT(DISTINCT CASE WHEN s.type = 'video' THEN s.id END) as "videosCount"
+      FROM zones z
+      LEFT JOIN steps s ON s."zoneId" = z.id
+      WHERE z."propertyId" = ANY(${propertyIds})
+      GROUP BY z."propertyId"
+    ` as Array<{ propertyId: string; zonesCount: bigint; stepsCount: bigint; videosCount: bigint }>
+
+    // Get analytics for all properties
+    const analytics = await prisma.$queryRaw`
+      SELECT "propertyId", "totalViews", "overallRating", "uniqueVisitors", "whatsappClicks"
+      FROM property_analytics
+      WHERE "propertyId" = ANY(${propertyIds})
+    ` as Array<{ propertyId: string; totalViews: number; overallRating: number; uniqueVisitors: number; whatsappClicks: number }>
+
+    // Get time saved per property based on zone views (excluding host views)
+    // Each zone view contributes time based on the zone's icon type
+    const timeSavedData = await prisma.$queryRaw`
+      SELECT
+        z."propertyId",
+        z.icon,
+        COUNT(zv.id) as "viewCount"
+      FROM zones z
+      LEFT JOIN zone_views zv ON zv."zoneId" = z.id
+        AND (zv."isHostView" = false OR zv."isHostView" IS NULL)
+      WHERE z."propertyId" = ANY(${propertyIds})
+      GROUP BY z."propertyId", z.icon
+    ` as Array<{ propertyId: string; icon: string; viewCount: bigint }>
+
+    // Calculate time saved per property
+    const timeSavedMap = new Map<string, number>()
+    timeSavedData.forEach(row => {
+      const timePerView = ZONE_TIME_MAP[row.icon] || DEFAULT_ZONE_TIME
+      const timeSaved = Number(row.viewCount) * timePerView
+      const current = timeSavedMap.get(row.propertyId) || 0
+      timeSavedMap.set(row.propertyId, current + timeSaved)
+    })
+
+    // Create lookup maps
+    const zoneCountMap = new Map(zoneCounts.map(z => [z.propertyId, {
+      zonesCount: Number(z.zonesCount),
+      stepsCount: Number(z.stepsCount),
+      videosCount: Number(z.videosCount)
+    }]))
+    const analyticsMap = new Map(analytics.map(a => [a.propertyId, {
+      totalViews: a.totalViews || 0,
+      avgRating: a.overallRating || 0,
+      uniqueVisitors: a.uniqueVisitors || 0,
+      whatsappClicks: a.whatsappClicks || 0
+    }]))
+
+    // Transform properties data with real counts
     const propertiesWithZones = properties.map((property) => {
       try {
+        const counts = zoneCountMap.get(property.id) || { zonesCount: 0, stepsCount: 0, videosCount: 0 }
+        const stats = analyticsMap.get(property.id) || { totalViews: 0, avgRating: 0, uniqueVisitors: 0, whatsappClicks: 0 }
+        const timeSavedMinutes = Math.round(timeSavedMap.get(property.id) || 0)
+
         return {
           id: property.id,
           name: property.name,
@@ -445,9 +576,14 @@ export async function GET(request: NextRequest) {
           bedrooms: property.bedrooms,
           bathrooms: property.bathrooms,
           maxGuests: property.maxGuests,
-          zonesCount: 0, // Temporarily set to 0
-          totalViews: 0, // Temporarily set to 0
-          avgRating: 0, // Temporarily set to 0
+          zonesCount: counts.zonesCount,
+          stepsCount: counts.stepsCount,
+          videosCount: counts.videosCount,
+          totalViews: stats.totalViews,
+          avgRating: stats.avgRating,
+          uniqueVisitors: stats.uniqueVisitors,
+          whatsappClicks: stats.whatsappClicks,
+          timeSavedMinutes, // Tiempo ahorrado basado en vistas de zonas (excluye host)
           status: property.status,
           createdAt: property.createdAt,
           updatedAt: property.updatedAt,

@@ -23,8 +23,8 @@ export async function GET(
     
     // Use raw SQL to avoid Prisma trying to fetch non-existent columns
     const properties = await prisma.$queryRaw`
-      SELECT 
-        id, name, slug, description, type,
+      SELECT
+        id, name, "nameTranslations", slug, description, "descriptionTranslations", type,
         street, city, state, country, "postalCode",
         bedrooms, bathrooms, "maxGuests", "squareMeters",
         "profileImage", "hostContactName", "hostContactPhone",
@@ -180,21 +180,60 @@ export async function PUT(
       }
     }
     
+    // Handle translations specifically
+    console.log('✅ SAFE PUT - Checking translations:', {
+      nameEn: body.nameEn,
+      nameFr: body.nameFr,
+      descriptionEn: body.descriptionEn,
+      descriptionFr: body.descriptionFr
+    })
+
+    // Always update translations if any translation field is present in the body
+    const nameTranslations: Record<string, string> = {}
+    if (body.nameEn && body.nameEn.trim()) nameTranslations.en = String(body.nameEn).trim()
+    if (body.nameFr && body.nameFr.trim()) nameTranslations.fr = String(body.nameFr).trim()
+
+    const descriptionTranslations: Record<string, string> = {}
+    if (body.descriptionEn && body.descriptionEn.trim()) descriptionTranslations.en = String(body.descriptionEn).trim()
+    if (body.descriptionFr && body.descriptionFr.trim()) descriptionTranslations.fr = String(body.descriptionFr).trim()
+
+    // Update name translations
+    const nameTranslationsJson = Object.keys(nameTranslations).length > 0 ? JSON.stringify(nameTranslations) : null
+    console.log('✅ SAFE PUT - nameTranslationsJson:', nameTranslationsJson)
+
+    await prisma.$executeRaw`
+      UPDATE properties
+      SET "nameTranslations" = ${nameTranslationsJson}::jsonb, "updatedAt" = NOW()
+      WHERE id = ${actualPropertyId}
+    `
+    console.log('✅ SAFE PUT - Updated nameTranslations')
+
+    // Update description translations
+    const descriptionTranslationsJson = Object.keys(descriptionTranslations).length > 0 ? JSON.stringify(descriptionTranslations) : null
+    console.log('✅ SAFE PUT - descriptionTranslationsJson:', descriptionTranslationsJson)
+
+    await prisma.$executeRaw`
+      UPDATE properties
+      SET "descriptionTranslations" = ${descriptionTranslationsJson}::jsonb, "updatedAt" = NOW()
+      WHERE id = ${actualPropertyId}
+    `
+    console.log('✅ SAFE PUT - Updated descriptionTranslations')
+
     // Handle other fields if present
     const allowedFields = [
-      'name', 'description', 'type', 'street', 'city', 'state', 
-      'country', 'postalCode', 'bedrooms', 'bathrooms', 'maxGuests', 
+      'name', 'description', 'type', 'street', 'city', 'state',
+      'country', 'postalCode', 'bedrooms', 'bathrooms', 'maxGuests',
       'squareMeters', 'profileImage', 'hostContactName', 'hostContactPhone',
-      'hostContactEmail', 'hostContactLanguage', 'hostContactPhoto', 
+      'hostContactEmail', 'hostContactLanguage', 'hostContactPhoto',
       'status', 'isPublished'
     ]
-    
+
     for (const field of allowedFields) {
       if (body[field] !== undefined && field !== 'propertySetId') {
         console.log(`✅ SAFE PUT - Updating ${field} to:`, body[field])
-        
+
         await prisma.$executeRawUnsafe(`
-          UPDATE properties 
+          UPDATE properties
           SET "${field}" = $1, "updatedAt" = NOW()
           WHERE id = $2
         `, body[field], actualPropertyId)

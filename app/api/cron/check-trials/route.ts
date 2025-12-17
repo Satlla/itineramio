@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import { emailNotificationService } from '../../../../src/lib/email-notifications'
+import {
+  sendTrialWarning3DaysEmail,
+  sendTrialWarning1DayEmail,
+  sendTrialExpiredEmail
+} from '../../../../src/lib/resend'
 
 export async function GET(request: NextRequest) {
   try {
     console.log('🕐 Starting trial check cron job...')
-    
+
     // This should be protected by a cron secret in production
     const cronSecret = request.headers.get('x-cron-secret')
     if (process.env.CRON_SECRET && cronSecret !== process.env.CRON_SECRET) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    
+
     const now = new Date()
     console.log('🕐 Current time:', now.toISOString())
     
@@ -36,7 +41,7 @@ export async function GET(request: NextRequest) {
     })
     console.log(`📊 Found ${expiredTrials.length} expired trials`)
     
-    // Suspend expired trials
+    // Suspend expired trials and send emails
     for (const property of expiredTrials) {
       await prisma.property.update({
         where: { id: property.id },
@@ -45,7 +50,7 @@ export async function GET(request: NextRequest) {
           isPublished: false
         }
       })
-      
+
       // Create notification
       await prisma.notification.create({
         data: {
@@ -59,28 +64,79 @@ export async function GET(request: NextRequest) {
         }
       })
 
-      // Send email notification for trial expiration
+      // Send email notification for trial expiration (using Resend)
       try {
-        await emailNotificationService.notifyTrialExpired({
-          property: {
-            id: property.id,
-            name: property.name
-          },
-          user: {
-            name: property.host.name,
-            email: property.host.email
-          }
+        await sendTrialExpiredEmail({
+          email: property.host.email,
+          name: property.host.name,
+          propertyName: property.name
         })
+        console.log(`📧 Trial expired email sent to ${property.host.email}`)
       } catch (emailError) {
         console.error('Error sending trial expiration email:', emailError)
         // Don't fail the cron job if email fails
       }
     }
     
-    // 2. Send 24h warning
+    // 2. Send 3-day warning (NEW)
+    const threeDaysFromNow = new Date(now)
+    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3)
+
+    const properties3d = await prisma.property.findMany({
+      where: {
+        status: 'TRIAL',
+        trialNotified3d: false,
+        trialEndsAt: {
+          gte: now,
+          lte: threeDaysFromNow
+        }
+      },
+      include: {
+        host: {
+          select: { id: true, name: true, email: true }
+        }
+      }
+    })
+
+    for (const property of properties3d) {
+      const daysRemaining = Math.ceil((property.trialEndsAt!.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+
+      await prisma.property.update({
+        where: { id: property.id },
+        data: { trialNotified3d: true }
+      })
+
+      await prisma.notification.create({
+        data: {
+          userId: property.hostId,
+          type: 'TRIAL_WARNING_3D',
+          title: `⏰ Quedan ${daysRemaining} días de prueba`,
+          message: `Tu propiedad "${property.name}" expirará en ${daysRemaining} días. Activa un plan para no perder el acceso.`,
+          data: {
+            propertyId: property.id,
+            daysRemaining
+          }
+        }
+      })
+
+      // Send email
+      try {
+        await sendTrialWarning3DaysEmail({
+          email: property.host.email,
+          name: property.host.name,
+          propertyName: property.name,
+          daysRemaining
+        })
+        console.log(`📧 3-day warning email sent to ${property.host.email}`)
+      } catch (emailError) {
+        console.error('Error sending 3-day warning email:', emailError)
+      }
+    }
+
+    // 3. Send 24h warning
     const twentyFourHoursFromNow = new Date(now)
     twentyFourHoursFromNow.setHours(twentyFourHoursFromNow.getHours() + 24)
-    
+
     const properties24h = await prisma.property.findMany({
       where: {
         status: 'TRIAL',
@@ -89,15 +145,20 @@ export async function GET(request: NextRequest) {
           gte: now,
           lte: twentyFourHoursFromNow
         }
+      },
+      include: {
+        host: {
+          select: { id: true, name: true, email: true }
+        }
       }
     })
-    
+
     for (const property of properties24h) {
       await prisma.property.update({
         where: { id: property.id },
         data: { trialNotified24h: true }
       })
-      
+
       await prisma.notification.create({
         data: {
           userId: property.hostId,
@@ -110,6 +171,18 @@ export async function GET(request: NextRequest) {
           }
         }
       })
+
+      // Send email
+      try {
+        await sendTrialWarning1DayEmail({
+          email: property.host.email,
+          name: property.host.name,
+          propertyName: property.name
+        })
+        console.log(`📧 24h warning email sent to ${property.host.email}`)
+      } catch (emailError) {
+        console.error('Error sending 24h warning email:', emailError)
+      }
     }
     
     // 3. Send 6h warning
@@ -188,6 +261,7 @@ export async function GET(request: NextRequest) {
       success: true,
       processed: {
         expired: expiredTrials.length,
+        warned3d: properties3d.length,
         warned24h: properties24h.length,
         warned6h: properties6h.length,
         warned1h: properties1h.length

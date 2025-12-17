@@ -186,22 +186,20 @@ export function MobileStepEditor({
   }
 
   const updateStepContent = (stepIndex: number, language: 'es' | 'en' | 'fr', content: string) => {
-    console.log(`📝 Updating step ${stepIndex} content for ${language}:`, content.substring(0, 50))
-    setSteps(steps.map((step, index) => 
-      index === stepIndex 
-        ? { 
-            ...step, 
-            content: { 
-              ...step.content, 
-              [language]: content 
-            } 
-          } 
+    setSteps(steps.map((step, index) =>
+      index === stepIndex
+        ? {
+            ...step,
+            content: {
+              ...step.content,
+              [language]: content
+            }
+          }
         : step
     ))
   }
   
   const updateStepTitle = (stepIndex: number, language: 'es' | 'en' | 'fr', title: string) => {
-    console.log(`📝 Updating step ${stepIndex} title for ${language}:`, title)
     setSteps(steps.map((step, index) =>
       index === stepIndex
         ? {
@@ -704,9 +702,9 @@ export function MobileStepEditor({
                             updateStep(index, { media: undefined })
                           }
                         }}
-                        placeholder="Subir video (máx. 60 segundos)"
+                        placeholder="Subir video (máx. 30 segundos)"
                         maxSize={100}
-                        maxDuration={60}
+                        maxDuration={30}
                         saveToLibrary={true}
                         className="mb-3"
                       />

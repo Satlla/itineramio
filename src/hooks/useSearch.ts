@@ -1,10 +1,29 @@
-import { useState, useEffect, useCallback } from 'react'
-import { HelpContent } from '../data/help-content'
+import { useState, useEffect } from 'react'
+
+// Resultado unificado de búsqueda (blog + ayuda)
+export interface UnifiedSearchResult {
+  id: string
+  type: 'faq' | 'guide' | 'resource' | 'tutorial' | 'blog'
+  source: 'help' | 'blog'
+  sourceLabel: string
+  title: string
+  description: string
+  content?: string
+  tags: string[]
+  url: string
+  category: string
+  score?: number
+  readTime?: number
+  publishedAt?: Date
+}
 
 interface SearchResults {
-  results: HelpContent[]
-  grouped: Record<string, HelpContent[]>
+  results: UnifiedSearchResult[]
+  grouped: Record<string, UnifiedSearchResult[]>
+  groupedBySource: Record<string, UnifiedSearchResult[]>
   total: number
+  totalHelp: number
+  totalBlog: number
   query: string
 }
 
@@ -12,7 +31,10 @@ export function useSearch(query: string, debounceMs: number = 300) {
   const [results, setResults] = useState<SearchResults>({
     results: [],
     grouped: {},
+    groupedBySource: {},
     total: 0,
+    totalHelp: 0,
+    totalBlog: 0,
     query: ''
   })
   const [loading, setLoading] = useState(false)
@@ -24,7 +46,10 @@ export function useSearch(query: string, debounceMs: number = 300) {
       setResults({
         results: [],
         grouped: {},
+        groupedBySource: {},
         total: 0,
+        totalHelp: 0,
+        totalBlog: 0,
         query: ''
       })
       setLoading(false)
@@ -50,7 +75,10 @@ export function useSearch(query: string, debounceMs: number = 300) {
         setResults({
           results: [],
           grouped: {},
+          groupedBySource: {},
           total: 0,
+          totalHelp: 0,
+          totalBlog: 0,
           query
         })
       } finally {

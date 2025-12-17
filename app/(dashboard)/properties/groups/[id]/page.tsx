@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  ArrowLeft, 
+import {
+  ArrowLeft,
   ArrowRight,
-  Building2, 
-  Plus, 
-  Home, 
-  Eye, 
+  Building2,
+  Plus,
+  Home,
+  Eye,
   Star,
   MapPin,
   Users,
@@ -24,7 +24,8 @@ import {
   BarChart3,
   UserX,
   Search,
-  GripVertical
+  GripVertical,
+  Loader2
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -55,12 +56,14 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 
 // Sortable Property Card Component
-function SortablePropertyCard({ 
-  property, 
-  handlePropertyAction 
-}: { 
+function SortablePropertyCard({
+  property,
+  handlePropertyAction,
+  isProcessing
+}: {
   property: Property
-  handlePropertyAction: (action: string, propertyId: string) => void 
+  handlePropertyAction: (action: string, propertyId: string) => void
+  isProcessing?: boolean
 }) {
   const {
     attributes,
@@ -78,11 +81,20 @@ function SortablePropertyCard({
   }
 
   return (
-    <Card 
-      ref={setNodeRef} 
-      style={style} 
-      className={`hover:shadow-lg transition-shadow ${isDragging ? 'shadow-2xl' : ''}`}
+    <Card
+      ref={setNodeRef}
+      style={style}
+      className={`hover:shadow-lg transition-shadow relative ${isDragging ? 'shadow-2xl' : ''}`}
     >
+      {/* Processing overlay */}
+      {isProcessing && (
+        <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10 rounded-lg">
+          <div className="flex items-center gap-2 text-violet-600">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span className="text-sm font-medium">Procesando...</span>
+          </div>
+        </div>
+      )}
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
@@ -255,6 +267,7 @@ interface Property {
   profileImage?: string
   createdAt: string
   order?: number
+  propertySetId?: string | null
 }
 
 interface PropertySet {
@@ -306,13 +319,18 @@ export default function PropertySetDetailPage() {
   const [loadingProperties, setLoadingProperties] = useState(false)
   const [showPropertySelection, setShowPropertySelection] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  
+  const [isAddingProperties, setIsAddingProperties] = useState(false)
+
   // Remove property modal states
   const [removeModalOpen, setRemoveModalOpen] = useState(false)
   const [propertyToRemove, setPropertyToRemove] = useState<Property | null>(null)
   const [removeAction, setRemoveAction] = useState<'remove' | 'delete' | null>(null)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [isRemoving, setIsRemoving] = useState(false)
+
+  // General action states
+  const [isSavingOrder, setIsSavingOrder] = useState(false)
+  const [processingPropertyId, setProcessingPropertyId] = useState<string | null>(null)
 
   // Drag and drop sensors
   const sensors = useSensors(
@@ -450,20 +468,26 @@ export default function PropertySetDetailPage() {
     setShowPropertySelection(true)
     setLoadingProperties(true)
     setSearchTerm('')
-    
+
     try {
-      // Fetch ALL user properties (remove filter to get all properties)
-      const response = await fetch('/api/properties?limit=100')
+      // Fetch ALL user properties without limit
+      const response = await fetch('/api/properties?limit=1000')
       const result = await response.json()
-      
+
       if (response.ok && result.data) {
-        // Filter out properties that are already in this set
+        // Filter out properties that are already in THIS set (but show properties in OTHER sets)
         const currentSetPropertyIds = propertySet?.properties.map(p => p.id) || []
-        const availableProps = result.data.filter((prop: Property) => 
+        const availableProps = result.data.filter((prop: Property) =>
           !currentSetPropertyIds.includes(prop.id)
         )
-        setAvailableProperties(availableProps)
-        setFilteredProperties(availableProps)
+        // Sort: properties without set first, then properties in other sets
+        const sortedProps = availableProps.sort((a: Property, b: Property) => {
+          if (!a.propertySetId && b.propertySetId) return -1
+          if (a.propertySetId && !b.propertySetId) return 1
+          return 0
+        })
+        setAvailableProperties(sortedProps)
+        setFilteredProperties(sortedProps)
       }
     } catch (error) {
       console.error('Error fetching available properties:', error)
@@ -473,8 +497,9 @@ export default function PropertySetDetailPage() {
   }
 
   const handleAddExistingProperties = async () => {
-    if (selectedProperties.length === 0) return
-    
+    if (selectedProperties.length === 0 || isAddingProperties) return
+
+    setIsAddingProperties(true)
     try {
       // Add selected properties to the current set
       for (const propertyId of selectedProperties) {
@@ -488,19 +513,21 @@ export default function PropertySetDetailPage() {
           })
         })
       }
-      
+
       // Refresh the property set data
       await fetchPropertySetData()
-      
+
       // Close modal and reset
       setAddPropertyModalOpen(false)
       setSelectedProperties([])
       setShowPropertySelection(false)
-      
+
       alert(`${selectedProperties.length} ${selectedProperties.length === 1 ? 'propiedad añadida' : 'propiedades añadidas'} al conjunto`)
     } catch (error) {
       console.error('Error adding properties to set:', error)
       alert('Error al añadir propiedades al conjunto')
+    } finally {
+      setIsAddingProperties(false)
     }
   }
 
@@ -591,7 +618,7 @@ export default function PropertySetDetailPage() {
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
 
-    if (!over || active.id === over.id || !propertySet?.properties) {
+    if (!over || active.id === over.id || !propertySet?.properties || isSavingOrder) {
       return
     }
 
@@ -604,13 +631,15 @@ export default function PropertySetDetailPage() {
 
     // Optimistically update the UI
     const newProperties = arrayMove(propertySet.properties, oldIndex, newIndex)
-    
+    const originalProperties = [...propertySet.properties]
+
     // Update local state immediately for smooth UX
     setPropertySet(prev => prev ? {
       ...prev,
       properties: newProperties
     } : null)
 
+    setIsSavingOrder(true)
     try {
       // Create the new order array
       const propertyOrders = newProperties.map((property, index) => ({
@@ -631,26 +660,31 @@ export default function PropertySetDetailPage() {
         // Revert on error
         setPropertySet(prev => prev ? {
           ...prev,
-          properties: propertySet.properties
+          properties: originalProperties
         } : null)
-        
+
         const result = await response.json()
         alert(`Error al reordenar: ${result.error || 'Error desconocido'}`)
       }
     } catch (error) {
       console.error('Error reordering properties:', error)
-      
+
       // Revert on error
       setPropertySet(prev => prev ? {
         ...prev,
-        properties: propertySet.properties
+        properties: originalProperties
       } : null)
-      
+
       alert('Error al reordenar las propiedades')
+    } finally {
+      setIsSavingOrder(false)
     }
   }
 
   const handlePropertyAction = async (action: string, propertyId: string) => {
+    // Prevent multiple actions on same property
+    if (processingPropertyId === propertyId) return
+
     switch (action) {
       case 'edit':
         router.push(`/properties/new?edit=${propertyId}`)
@@ -668,19 +702,19 @@ export default function PropertySetDetailPage() {
         router.push(`/properties/${propertyId}/evaluations`)
         break
       case 'share':
-        // First ensure the property is published
-        const shareProperty = propertySet?.properties.find(p => p.id === propertyId)
-        if (shareProperty && shareProperty.status !== 'ACTIVE') {
-          try {
+        setProcessingPropertyId(propertyId)
+        try {
+          // First ensure the property is published
+          const shareProperty = propertySet?.properties.find(p => p.id === propertyId)
+          if (shareProperty && shareProperty.status !== 'ACTIVE') {
             await fetch(`/api/properties/${propertyId}/publish`, {
               method: 'POST'
             })
-          } catch (error) {
-            console.error('Error publishing property:', error)
+            // Refresh data to update status
+            await fetchPropertySetData()
           }
-        }
-        const shareUrl = `${window.location.origin}/guide/${propertyId}`
-        navigator.clipboard.writeText(shareUrl).then(() => {
+          const shareUrl = `${window.location.origin}/guide/${propertyId}`
+          await navigator.clipboard.writeText(shareUrl)
           // Show success notification
           const notification = document.createElement('div')
           notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50'
@@ -689,23 +723,31 @@ export default function PropertySetDetailPage() {
           setTimeout(() => {
             document.body.removeChild(notification)
           }, 3000)
-        }).catch(() => {
-          alert('Enlace copiado al portapapeles')
-        })
+        } catch (error) {
+          console.error('Error sharing property:', error)
+          alert('Error al compartir')
+        } finally {
+          setProcessingPropertyId(null)
+        }
         break
       case 'public':
-        // First ensure the property is published
-        const publicProperty = propertySet?.properties.find(p => p.id === propertyId)
-        if (publicProperty && publicProperty.status !== 'ACTIVE') {
-          try {
+        setProcessingPropertyId(propertyId)
+        try {
+          // First ensure the property is published
+          const publicProperty = propertySet?.properties.find(p => p.id === propertyId)
+          if (publicProperty && publicProperty.status !== 'ACTIVE') {
             await fetch(`/api/properties/${propertyId}/publish`, {
               method: 'POST'
             })
-          } catch (error) {
-            console.error('Error publishing property:', error)
+            // Refresh data to update status
+            await fetchPropertySetData()
           }
+          window.open(`/guide/${propertyId}`, '_blank')
+        } catch (error) {
+          console.error('Error opening public view:', error)
+        } finally {
+          setProcessingPropertyId(null)
         }
-        window.open(`/guide/${propertyId}`, '_blank')
         break
       case 'removeFromSet':
         handleOpenRemoveModal(propertyId)
@@ -986,10 +1028,18 @@ export default function PropertySetDetailPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Propiedades ({propertySet.properties?.length || 0})
-              </h2>
-              <Button 
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Propiedades ({propertySet.properties?.length || 0})
+                </h2>
+                {isSavingOrder && (
+                  <div className="flex items-center gap-2 text-violet-600 bg-violet-50 px-3 py-1 rounded-full">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm font-medium">Guardando orden...</span>
+                  </div>
+                )}
+              </div>
+              <Button
                 onClick={handleOpenAddPropertyModal}
                 className="bg-violet-600 hover:bg-violet-700"
               >
@@ -1015,6 +1065,7 @@ export default function PropertySetDetailPage() {
                           key={property.id}
                           property={property}
                           handlePropertyAction={handlePropertyAction}
+                          isProcessing={processingPropertyId === property.id}
                         />
                       ))}
                   </div>
@@ -1180,8 +1231,15 @@ export default function PropertySetDetailPage() {
                               className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
                             />
                             <div className="flex-1">
-                              <div className={`font-medium ${isSelected ? 'text-violet-900' : 'text-gray-900'}`}>
-                                {getText(property.name, 'Propiedad')}
+                              <div className="flex items-center gap-2">
+                                <span className={`font-medium ${isSelected ? 'text-violet-900' : 'text-gray-900'}`}>
+                                  {getText(property.name, 'Propiedad')}
+                                </span>
+                                {property.propertySetId && (
+                                  <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
+                                    En otro conjunto
+                                  </span>
+                                )}
                               </div>
                               <div className={`text-sm ${isSelected ? 'text-violet-700' : 'text-gray-600'}`}>
                                 {property.city}, {property.state} • {property.bedrooms} hab • {property.zonesCount} zonas
@@ -1217,15 +1275,23 @@ export default function PropertySetDetailPage() {
                         setSelectedProperties([])
                         setSearchTerm('')
                       }}
+                      disabled={isAddingProperties}
                     >
                       Volver
                     </Button>
                     <Button
                       onClick={handleAddExistingProperties}
                       className="bg-violet-600 hover:bg-violet-700"
-                      disabled={selectedProperties.length === 0}
+                      disabled={selectedProperties.length === 0 || isAddingProperties}
                     >
-                      Añadir {selectedProperties.length > 0 && `(${selectedProperties.length})`} al conjunto
+                      {isAddingProperties ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Añadiendo...
+                        </>
+                      ) : (
+                        <>Añadir {selectedProperties.length > 0 && `(${selectedProperties.length})`} al conjunto</>
+                      )}
                     </Button>
                   </div>
                 </div>

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 /**
  * POST /api/email/unsubscribe
@@ -37,13 +35,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Actualizar a unsubscribed
+    // Actualizar a unsubscribed y pausar todas las secuencias
     await prisma.emailSubscriber.update({
       where: { id: subscriber.id },
       data: {
         status: 'unsubscribed',
         unsubscribedAt: new Date(),
         unsubscribeReason: reason || 'No especificado',
+        soapOperaStatus: 'paused',
+        sequenceStatus: 'paused',
+        nivelSequenceStatus: 'paused',
         updatedAt: new Date()
       }
     })
@@ -90,13 +91,16 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Dar de baja automáticamente
+    // Dar de baja automaticamente y pausar todas las secuencias
     await prisma.emailSubscriber.update({
       where: { id: subscriber.id },
       data: {
         status: 'unsubscribed',
         unsubscribedAt: new Date(),
         unsubscribeReason: 'Clic en link de email',
+        soapOperaStatus: 'paused',
+        sequenceStatus: 'paused',
+        nivelSequenceStatus: 'paused',
         updatedAt: new Date()
       }
     })

@@ -209,13 +209,16 @@ const t = (key: string, language: string = 'es') => {
 // Analytics tracking for real statistics
 const trackZoneView = async (propertyId: string, zoneId: string) => {
   try {
-    await fetch('/api/analytics/track-interaction', {
+    await fetch(`/api/properties/${propertyId}/zones/${zoneId}/view`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        propertyId,
-        zoneId,
-        interactionType: 'zone_view'
+        referrer: document.referrer || null,
+        language: navigator.language || 'es',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+        screenWidth: window.screen?.width || null,
+        screenHeight: window.screen?.height || null,
+        timeSpent: 0
       })
     })
   } catch (error) {
@@ -333,14 +336,10 @@ export default function ZoneGuidePage({
 
   // Unwrap params and fetch data
   useEffect(() => {
-    params.then(({ propertyId: pId, zoneId: zId }) => {
+    params.then(async ({ propertyId: pId, zoneId: zId }) => {
       setPropertyId(pId)
       setZoneId(zId)
-      fetchZoneData(pId, zId)
-      
-      // Track zone view immediately when the page loads
-      trackZoneView(pId, zId)
-      
+
       // Get language from URL params
       const urlParams = new URLSearchParams(window.location.search)
       const langParam = urlParams.get('lang')
@@ -352,6 +351,31 @@ export default function ZoneGuidePage({
         if (savedLang && ['es', 'en', 'fr'].includes(savedLang)) {
           setLanguage(savedLang)
         }
+      }
+
+      // First resolve the property ID from slug if needed, then track and fetch
+      try {
+        const resolveResponse = await fetch(`/api/public/resolve-property/${pId}`)
+        const resolveResult = await resolveResponse.json()
+
+        if (resolveResponse.ok && resolveResult.data?.id) {
+          const actualPropertyId = resolveResult.data.id
+
+          // Track zone view with the REAL property ID
+          trackZoneView(actualPropertyId, zId)
+
+          // Fetch zone data (will also resolve the ID internally)
+          fetchZoneData(pId, zId)
+        } else {
+          // Fallback: try with original ID
+          trackZoneView(pId, zId)
+          fetchZoneData(pId, zId)
+        }
+      } catch (error) {
+        console.error('Error resolving property:', error)
+        // Fallback: try with original params
+        trackZoneView(pId, zId)
+        fetchZoneData(pId, zId)
       }
     })
   }, [params])

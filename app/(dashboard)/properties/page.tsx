@@ -97,6 +97,10 @@ interface Property {
     overallRating: number
     totalRatings: number
   }
+  // Tiempo ahorrado calculado desde la API (basado en vistas por zona, excluye host)
+  timeSavedMinutes?: number
+  uniqueVisitors?: number
+  whatsappClicks?: number
 }
 
 // Helper function to get text from multilingual objects
@@ -437,78 +441,28 @@ const generateRecommendations = (properties: Property[]): Recommendation[] => {
  * FORMULA: Base Time × Complexity Multiplier × Frequency Factor × Views Impact
  */
 
-// Cálculos basados en datos reales - sin datos falsos
-
-// Función para calcular tiempo ahorrado basado en datos reales
-const calculateRealTimeSaved = (property: Property) => {
-  // Cálculos más precisos basados en datos reales de analytics
-  const analytics = property.analytics
-  
-  // Usar datos reales si están disponibles
-  const monthlyViews = analytics?.totalViews || property.totalViews || 0
-  const uniqueVisitors = analytics?.uniqueVisitors || Math.floor(monthlyViews * 0.7) // 70% son únicos
-  const whatsappAvoidance = analytics?.whatsappClicks || 0 // Cada WhatsApp evitado = consulta resuelta
-  
-  // Tiempo ahorrado por interacción
-  const avgMinutesPerQuery = 5 // Responder una consulta típica toma 5 minutos
-  const avgMinutesPerZoneView = 2 // Ver una zona ahorra 2 minutos de explicación
-  
-  // Cálculos mejorados
-  const queriesAvoided = Math.round(
-    (property.zonesCount * uniqueVisitors * 0.3) + // 30% de visitantes harían preguntas sin el manual
-    whatsappAvoidance // Consultas directamente evitadas
-  )
-  
-  const monthlyTimeSaved = 
-    (queriesAvoided * avgMinutesPerQuery) + // Tiempo en responder consultas
-    (monthlyViews * avgMinutesPerZoneView * 0.2) // 20% del tiempo de explicación ahorrado
-  
-  // Valor económico basado en el costo de un community manager
-  const hourlyRate = 25 // €25/hora para responder consultas
-  const yearlyValue = (monthlyTimeSaved * 12 * hourlyRate) / 60
-  
-  return {
-    monthlyTimeSaved: Math.round(monthlyTimeSaved),
-    totalQueries: queriesAvoided,
-    estimatedYearlyValue: Math.round(yearlyValue),
-    // Métricas adicionales útiles
-    avgTimePerGuest: uniqueVisitors > 0 ? Math.round(monthlyTimeSaved / uniqueVisitors) : 0,
-    conversionRate: monthlyViews > 0 ? Math.round((uniqueVisitors / monthlyViews) * 100) : 0
-  }
-}
-
-/**
- * Calculate time saved by a property based on its zones and views
- */
-const calculateTimeSavedByProperty = (property: Property): {
-  monthlyTimeSaved: number
-  totalQueries: number
-  estimatedYearlyValue: number
-} => {
-  return calculateRealTimeSaved(property)
-}
+// Cálculo de tiempo ahorrado basado en datos de la API
+// La API calcula el tiempo por zona según su tipo (check-in=2.5min, wifi=0.5min, etc.)
+// y excluye las visitas del anfitrión (isHostView=true)
 
 /**
  * Calculate aggregate stats for all properties
+ * Usa timeSavedMinutes calculado en el servidor basado en vistas reales por zona
  */
 const calculateAggregateStats = (properties: Property[]) => {
   const activeProperties = properties.filter(p => p.status === 'ACTIVE')
-  
-  let totalTimeSaved = 0
-  let totalQueries = 0
-  let totalYearlyValue = 0
-  
-  activeProperties.forEach(property => {
-    const savings = calculateTimeSavedByProperty(property)
-    totalTimeSaved += savings.monthlyTimeSaved
-    totalQueries += savings.totalQueries
-    totalYearlyValue += savings.estimatedYearlyValue
-  })
-  
+
+  // Sumar tiempo ahorrado de todas las propiedades (viene de la API)
+  const totalTimeSaved = activeProperties.reduce((sum, p) => sum + (p.timeSavedMinutes || 0), 0)
+
+  // Valor económico estimado (€20/hora)
+  const hourlyRate = 20
+  const totalYearlyValue = Math.round((totalTimeSaved * 12 * hourlyRate) / 60)
+
   return {
     totalProperties: activeProperties.length,
     monthlyTimeSaved: totalTimeSaved,
-    totalQueries: Math.round(totalQueries),
+    totalQueries: 0, // Ya no calculamos esto
     estimatedYearlyValue: totalYearlyValue,
     averageTimeSavedPerProperty: activeProperties.length > 0 ? Math.round(totalTimeSaved / activeProperties.length) : 0
   }

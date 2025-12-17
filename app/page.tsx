@@ -9,6 +9,7 @@ import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { StructuredData } from '../src/components/StructuredData'
 import { Navbar } from '../src/components/layout/Navbar'
+import { ExitIntentPopup } from '../src/components/marketing/ExitIntentPopup'
 
 // Animation variants for reusable animations
 const fadeInUp = {
@@ -301,6 +302,9 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white">
       {/* Structured Data for SEO */}
       <StructuredData />
+
+      {/* Exit Intent Popup for Lead Capture */}
+      <ExitIntentPopup delay={10000} cooldownDays={7} />
 
       {/* Unified Navigation */}
       <Navbar />

@@ -3,7 +3,7 @@ import { Inter, Satisfy } from 'next/font/google'
 import './globals.css'
 
 export const dynamic = 'force-dynamic'
-export const dynamicParams = true
+
 import { Providers } from './providers'
 import { I18nProvider } from '../src/providers/I18nProvider'
 import { Toaster } from 'react-hot-toast'
@@ -12,6 +12,7 @@ import { ErrorBoundary } from '../src/components/ErrorBoundary'
 import { ChunkErrorHandler } from '../src/components/ChunkErrorHandler'
 import { Analytics } from '@vercel/analytics/next'
 import { GoogleAnalytics } from '../src/components/GoogleAnalytics'
+import { FacebookPixel } from '../src/components/analytics/FacebookPixel'
 import { LoadingProvider } from '../src/components/providers/LoadingProvider'
 
 // Validate environment variables on startup
@@ -209,6 +210,9 @@ export default function RootLayout({
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}
+
+        {/* Facebook Pixel - Set NEXT_PUBLIC_FACEBOOK_PIXEL_ID in .env */}
+        <FacebookPixel />
 
         <ChunkErrorHandler />
         <ErrorBoundary>

@@ -58,8 +58,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           const { userId } = JSON.parse(tokenPayload || '{}')
           if (userId) {
             const { prisma } = await import('../../../src/lib/prisma')
+            const { createHash } = await import('crypto')
 
             const mediaType = blob.contentType?.startsWith('image/') ? 'image' : 'video'
+
+            // Generate hash from URL + size (can't access file content in callback)
+            const hashSource = `${blob.url}-${blob.size}-${Date.now()}`
+            const hash = createHash('sha256').update(hashSource).digest('hex')
 
             await prisma.mediaLibrary.create({
               data: {
@@ -70,12 +75,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 originalName: blob.pathname.split('/').pop() || blob.pathname,
                 mimeType: blob.contentType || 'application/octet-stream',
                 size: blob.size,
+                hash: hash,
                 usageCount: 1,
                 isPublic: false,
                 lastUsedAt: new Date()
               }
             })
-            console.log('✅ Media saved to library')
+            console.log('✅ Media saved to library with hash:', hash.substring(0, 16))
           }
         } catch (error) {
           console.error('⚠️ Error saving to media library:', error)

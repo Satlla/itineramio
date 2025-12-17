@@ -2,7 +2,8 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Calendar, Clock, ArrowLeft, Share2, Heart, Eye, Tag, Twitter, Facebook, Linkedin } from 'lucide-react'
+import { Calendar, Clock, ArrowLeft, Share2, Heart, Eye, Tag } from 'lucide-react'
+import { ShareButtons } from '../../../../src/components/blog/ShareButtons'
 import { prisma } from '../../../../src/lib/prisma'
 import { markdownToHtml } from '../../../../src/lib/markdown'
 import ReadingProgress from './ReadingProgress'
@@ -40,8 +41,21 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       images: post.coverImage ? [post.coverImage] : [],
       type: 'article',
       publishedTime: post.publishedAt?.toISOString(),
-      authors: [post.authorName]
-    }
+      authors: [post.authorName],
+      siteName: 'Itineramio Blog',
+      url: `https://itineramio.com/blog/${slug}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt,
+      images: post.coverImage ? [post.coverImage] : [],
+      creator: '@itineramio',
+      site: '@itineramio',
+    },
+    alternates: {
+      canonical: `https://itineramio.com/blog/${slug}`,
+    },
   }
 }
 
@@ -236,17 +250,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </div>
 
             {/* Social Share */}
-            <div className="hidden sm:flex items-center space-x-2">
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors" title="Compartir en Twitter">
-                <Twitter className="w-5 h-5 text-gray-600" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors" title="Compartir en Facebook">
-                <Facebook className="w-5 h-5 text-gray-600" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors" title="Compartir en LinkedIn">
-                <Linkedin className="w-5 h-5 text-gray-600" />
-              </button>
-            </div>
+            <ShareButtons
+              url={`https://itineramio.com/blog/${post.slug}`}
+              title={post.title}
+              description={post.excerpt}
+              className="hidden sm:flex"
+            />
           </div>
         </header>
 
@@ -326,17 +335,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </span>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Twitter className="w-5 h-5 text-gray-600" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Facebook className="w-5 h-5 text-gray-600" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Linkedin className="w-5 h-5 text-gray-600" />
-              </button>
-            </div>
+            <ShareButtons
+              url={`https://itineramio.com/blog/${post.slug}`}
+              title={post.title}
+              description={post.excerpt}
+            />
           </div>
 
           {/* Author Bio */}

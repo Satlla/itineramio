@@ -11,8 +11,8 @@ export async function GET(
     
     // Use raw SQL to find property safely - avoid slug field which may not exist in production
     let properties = await prisma.$queryRaw`
-      SELECT 
-        id, name, slug, description, type,
+      SELECT
+        id, name, "nameTranslations", slug, description, "descriptionTranslations", type,
         street, city, state, country, "postalCode",
         bedrooms, bathrooms, "maxGuests", "squareMeters",
         "profileImage", "hostContactName", "hostContactPhone",

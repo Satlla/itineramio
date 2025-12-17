@@ -84,11 +84,12 @@ export async function POST(request: NextRequest) {
     response.cookies.set('auth-token', token, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-context PWA access
+      sameSite: 'lax',
       maxAge: 30 * 24 * 60 * 60, // 30 days for persistent login
-      path: '/'
+      path: '/',
+      domain: isProduction ? '.itineramio.com' : undefined
     })
-    console.log('Auth cookie set successfully with', isProduction ? 'sameSite=none (PWA)' : 'sameSite=lax (dev)')
+    console.log('Auth cookie set successfully with sameSite=lax', isProduction ? '(production)' : '(dev)')
 
     // Clear admin impersonation cookie if exists (user login should clean this up)
     response.cookies.set('admin-impersonation', '', {

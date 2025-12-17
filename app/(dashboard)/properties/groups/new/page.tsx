@@ -6,17 +6,18 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useSearchParams } from 'next/navigation'
-import { 
-  ArrowLeft, 
-  Building2, 
-  MapPin, 
-  Mail, 
+import {
+  ArrowLeft,
+  Building2,
+  MapPin,
+  Mail,
   Phone,
   Save,
   Eye,
   User,
   Check,
-  Plus
+  Plus,
+  Loader2
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -89,6 +90,7 @@ function NewPropertySetPageContent() {
   const [currentStep, setCurrentStep] = useState(1)
   const [isClient, setIsClient] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [loadingProperties, setLoadingProperties] = useState(false)
   const [availableProperties, setAvailableProperties] = useState<Property[]>([])
   const [selectedProperties, setSelectedProperties] = useState<string[]>([])
 
@@ -125,18 +127,21 @@ function NewPropertySetPageContent() {
   // Fetch available properties
   useEffect(() => {
     const fetchProperties = async () => {
+      setLoadingProperties(true)
       try {
         const response = await fetch('/api/properties')
         const result = await response.json()
-        
+
         if (response.ok && result.data) {
           setAvailableProperties(result.data)
         }
       } catch (error) {
         console.error('Error fetching properties:', error)
+      } finally {
+        setLoadingProperties(false)
       }
     }
-    
+
     fetchProperties()
   }, [])
 
@@ -285,10 +290,8 @@ function NewPropertySetPageContent() {
     })
   }
 
-  // Filter available properties (exclude those already in other sets)
-  const selectableProperties = availableProperties.filter(property => 
-    !property.propertySetId || property.propertySetId === editId
-  )
+  // Show all properties - allow moving between sets
+  const selectableProperties = availableProperties
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
@@ -708,7 +711,12 @@ function NewPropertySetPageContent() {
                   </p>
                 </div>
 
-                {selectableProperties.length === 0 ? (
+                {loadingProperties ? (
+                  <div className="text-center py-12">
+                    <Loader2 className="w-8 h-8 text-violet-600 mx-auto mb-4 animate-spin" />
+                    <p className="text-gray-600">Cargando propiedades disponibles...</p>
+                  </div>
+                ) : selectableProperties.length === 0 ? (
                   <div className="text-center py-12">
                     <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -754,7 +762,14 @@ function NewPropertySetPageContent() {
                           <div className="flex-1">
                             <h3 className="font-semibold text-gray-900">{property.name}</h3>
                             <p className="text-sm text-gray-600">{property.city}, {property.state}</p>
-                            <p className="text-xs text-gray-500">{property.type}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs text-gray-500">{property.type}</p>
+                              {property.propertySetId && property.propertySetId !== editId && (
+                                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
+                                  En otro conjunto
+                                </span>
+                              )}
+                            </div>
                           </div>
                           
                           <div className="flex-shrink-0">

@@ -272,13 +272,16 @@ export async function POST(request: NextRequest) {
         })
       } else {
         // Create new media entry
+        // Strip _compressed suffix from originalName for duplicate detection
+        const cleanOriginalName = file.name.replace(/_compressed(\.[^.]+)$/, '$1')
+
         const mediaLibraryItem = await prisma.mediaLibrary.create({
           data: {
             userId: userId,
             type: mediaType,
             url: fileUrl,
             filename: uniqueFilename,
-            originalName: file.name,
+            originalName: cleanOriginalName,
             mimeType: file.type,
             size: file.size,
             hash: fileHash,

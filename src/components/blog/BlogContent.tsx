@@ -22,6 +22,7 @@ import {
   Newspaper,
 } from 'lucide-react'
 import CategoryFilter from './CategoryFilter'
+import { BlogSearch } from './BlogSearch'
 import React from 'react'
 
 // Category configurations with icons and colors
@@ -114,6 +115,11 @@ export default function BlogContent({ articles, categories }: BlogContentProps) 
         categories={categories}
         onCategoryChange={setSelectedCategory}
       />
+
+      {/* Search Bar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <BlogSearch className="max-w-xl" />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">

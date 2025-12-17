@@ -97,9 +97,20 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
     
+    // Build translations objects
+    const nameTranslations: Record<string, string> = {}
+    if (body.nameEn) nameTranslations.en = String(body.nameEn)
+    if (body.nameFr) nameTranslations.fr = String(body.nameFr)
+
+    const descriptionTranslations: Record<string, string> = {}
+    if (body.descriptionEn) descriptionTranslations.en = String(body.descriptionEn)
+    if (body.descriptionFr) descriptionTranslations.fr = String(body.descriptionFr)
+
     const validatedData = {
       name: String(body.name),
+      nameTranslations: Object.keys(nameTranslations).length > 0 ? nameTranslations : null,
       description: String(body.description),
+      descriptionTranslations: Object.keys(descriptionTranslations).length > 0 ? descriptionTranslations : null,
       type: body.type || 'APARTMENT',
       street: String(body.street),
       city: String(body.city),
@@ -152,9 +163,12 @@ export async function POST(request: NextRequest) {
     console.log('✅ SAFE POST - Generated property ID:', propertyId)
     
     // Create property with raw SQL
+    const nameTranslationsJson = validatedData.nameTranslations ? JSON.stringify(validatedData.nameTranslations) : null
+    const descriptionTranslationsJson = validatedData.descriptionTranslations ? JSON.stringify(validatedData.descriptionTranslations) : null
+
     await prisma.$executeRaw`
       INSERT INTO properties (
-        id, name, slug, description, type,
+        id, name, "nameTranslations", slug, description, "descriptionTranslations", type,
         street, city, state, country, "postalCode",
         bedrooms, bathrooms, "maxGuests", "squareMeters",
         "profileImage", "hostContactName", "hostContactPhone",
@@ -162,7 +176,7 @@ export async function POST(request: NextRequest) {
         status, "isPublished", "hostId", "propertySetId",
         "createdAt", "updatedAt"
       ) VALUES (
-        ${propertyId}, ${validatedData.name}, ${uniqueSlug}, ${validatedData.description}, ${validatedData.type},
+        ${propertyId}, ${validatedData.name}, ${nameTranslationsJson}::jsonb, ${uniqueSlug}, ${validatedData.description}, ${descriptionTranslationsJson}::jsonb, ${validatedData.type},
         ${validatedData.street}, ${validatedData.city}, ${validatedData.state}, ${validatedData.country}, ${validatedData.postalCode},
         ${validatedData.bedrooms}, ${validatedData.bathrooms}, ${validatedData.maxGuests}, ${validatedData.squareMeters || null},
         ${validatedData.profileImage || null}, ${validatedData.hostContactName}, ${validatedData.hostContactPhone},
