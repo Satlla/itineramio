@@ -57,16 +57,22 @@ export async function GET(request: NextRequest) {
         const question = quizQuestions.find(q => q.id === answer.questionId)
         if (!question) return null
 
+        // Get selected option IDs (handle both old and new field names)
+        const selectedOptionIds = answer.selectedOptions || answer.userAnswers || []
+
         // Get selected option texts
-        const selectedOptions = answer.selectedOptions?.map((optId: string) => {
+        const selectedOptions = selectedOptionIds.map((optId: string) => {
           const option = question.options.find(o => o.id === optId)
           return option?.text || optId
-        }) || []
+        })
 
         // Get correct option texts
         const correctOptions = question.options
           .filter(o => o.isCorrect)
           .map(o => o.text)
+
+        // Get earned points (handle both old and new field names)
+        const earnedPoints = answer.earnedPoints ?? answer.score ?? (answer.isCorrect ? question.points : 0)
 
         return {
           questionId: answer.questionId,
@@ -76,7 +82,7 @@ export async function GET(request: NextRequest) {
           correctOptions,
           isCorrect: answer.isCorrect || false,
           points: question.points,
-          earnedPoints: answer.earnedPoints || (answer.isCorrect ? question.points : 0)
+          earnedPoints
         }
       }).filter(Boolean) || []
 
