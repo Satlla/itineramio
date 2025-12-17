@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   Zap,
@@ -13,21 +13,32 @@ import {
   Eye,
   EyeOff,
   Check,
-  ChevronLeft
+  ChevronLeft,
+  Gift
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { Button, Input } from '../../../src/components/ui'
 import { InlineSpinner } from '../../../src/components/ui/Spinner'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function RegisterPage() {
   const { t } = useTranslation('auth')
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [marketingConsent, setMarketingConsent] = useState(false)
+  const [referralCode, setReferralCode] = useState<string | null>(null)
+
+  // Capture referral code from URL
+  useEffect(() => {
+    const ref = searchParams.get('ref')
+    if (ref) {
+      setReferralCode(ref)
+    }
+  }, [searchParams])
 
   const [formData, setFormData] = useState({
     name: '',
@@ -128,7 +139,8 @@ export default function RegisterPage() {
           ...formData,
           acceptTerms,
           marketingConsent,
-          registrationLanguage: navigator.language || 'es'
+          registrationLanguage: navigator.language || 'es',
+          ...(referralCode && { referralCode })
         }),
       })
       
@@ -236,6 +248,29 @@ export default function RegisterPage() {
                 </div>
               </div>
             </div>
+
+            {/* Referral Badge */}
+            {referralCode && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6"
+              >
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm sm:text-base font-semibold text-green-800">
+                      ¡Enlace de invitación válido!
+                    </p>
+                    <p className="text-xs sm:text-sm text-green-600">
+                      Has sido invitado por un miembro de Itineramio
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">

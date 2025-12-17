@@ -135,8 +135,8 @@ export function Footer() {
             </h3>
             <ul className="space-y-3">
               <li><Link href="/help" className="text-gray-600 hover:text-violet-600 transition-colors">Ayuda</Link></li>
+              <li><Link href="/faq" className="text-gray-600 hover:text-violet-600 transition-colors">Preguntas Frecuentes</Link></li>
               <li><Link href="/docs" className="text-gray-600 hover:text-violet-600 transition-colors">Documentación</Link></li>
-              <li><Link href="/status" className="text-gray-600 hover:text-violet-600 transition-colors">Estado</Link></li>
               <li><Link href="/community" className="text-gray-600 hover:text-violet-600 transition-colors">Comunidad</Link></li>
             </ul>
           </motion.div>

@@ -18,7 +18,8 @@ const registerSchema = z.object({
   confirmPassword: z.string(),
   acceptTerms: z.boolean().refine(val => val === true, 'Debes aceptar los términos y condiciones'),
   marketingConsent: z.boolean().optional().default(false),
-  registrationLanguage: z.string().optional().default('es')
+  registrationLanguage: z.string().optional().default('es'),
+  referralCode: z.string().optional()
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"],
@@ -100,6 +101,21 @@ export async function POST(request: NextRequest) {
       source: 'signup'
     }
 
+    // Look up referrer if referral code provided
+    let referrerId: string | null = null
+    if (validatedData.referralCode) {
+      const referrer = await prisma.user.findFirst({
+        where: { referralCode: validatedData.referralCode },
+        select: { id: true }
+      })
+      if (referrer) {
+        referrerId = referrer.id
+        console.log('✅ Referrer found:', validatedData.referralCode)
+      } else {
+        console.log('⚠️ Referral code not found:', validatedData.referralCode)
+      }
+    }
+
     // Create user (PENDING status until email verification)
     const user = await prisma.user.create({
       data: {
@@ -110,6 +126,7 @@ export async function POST(request: NextRequest) {
         preferredLanguage: validatedData.registrationLanguage,
         status: 'PENDING',
         emailVerified: null,
+        referredBy: referrerId,
         // Store policy acceptance and marketing consent in notificationPreferences for now
         notificationPreferences: {
           policyAcceptance,
@@ -123,6 +140,21 @@ export async function POST(request: NextRequest) {
         status: true
       }
     })
+
+    // Create affiliate transaction record if referred
+    if (referrerId) {
+      await prisma.affiliateTransaction.create({
+        data: {
+          referrerId,
+          referredUserId: user.id,
+          type: 'REFERRAL_SIGNUP',
+          amount: 0, // Will be updated when user subscribes
+          status: 'PENDING',
+          description: 'Nuevo usuario referido'
+        }
+      })
+      console.log('✅ Affiliate transaction created for referral')
+    }
     
     // Send verification email
     try {

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Calendar, Clock, ArrowLeft, Share2, Heart, Eye, Tag } from 'lucide-react'
 import { ShareButtons } from '../../../../src/components/blog/ShareButtons'
+import { BlogComments } from '../../../../src/components/blog/BlogComments'
 import { prisma } from '../../../../src/lib/prisma'
 import { markdownToHtml } from '../../../../src/lib/markdown'
 import ReadingProgress from './ReadingProgress'
@@ -407,6 +408,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* Comments Section */}
+        <div className="max-w-3xl mx-auto px-6">
+          <BlogComments slug={post.slug} />
         </div>
 
         {/* Related Articles Carousel */}

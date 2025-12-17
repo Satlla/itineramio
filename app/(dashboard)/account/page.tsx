@@ -2,19 +2,20 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  Camera, 
-  User, 
-  Mail, 
-  Phone, 
-  Lock, 
-  Trash2, 
+import {
+  Camera,
+  User,
+  Mail,
+  Phone,
+  Lock,
+  Trash2,
   Save,
   AlertTriangle,
   Eye,
   EyeOff,
   Bell,
-  CreditCard
+  CreditCard,
+  Gift
 } from 'lucide-react'
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '../../../src/components/ui'
 import { useRouter } from 'next/navigation'
@@ -588,7 +589,7 @@ export default function AccountPage() {
           </Card>
 
           {/* Billing Settings */}
-          <Card>
+          <Card className="mb-8">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <CreditCard className="w-5 h-5 mr-2" />
@@ -609,6 +610,34 @@ export default function AccountPage() {
                 >
                   <CreditCard className="w-4 h-4 mr-2" />
                   Gestionar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Referrals Program */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Gift className="w-5 h-5 mr-2 text-violet-600" />
+                Programa de Referidos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-1">Invita y Gana</h3>
+                  <p className="text-sm text-gray-600">
+                    Comparte tu enlace y gana el 20% de cada suscripción referida
+                  </p>
+                </div>
+                <Button
+                  onClick={() => router.push('/account/referrals')}
+                  variant="outline"
+                  className="border-violet-200 text-violet-600 hover:bg-violet-50"
+                >
+                  <Gift className="w-4 h-4 mr-2" />
+                  Ver Programa
                 </Button>
               </div>
             </CardContent>
