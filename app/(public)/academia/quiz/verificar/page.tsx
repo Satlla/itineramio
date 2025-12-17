@@ -136,10 +136,10 @@ export default function VerificarEmailPage() {
 
               <div className="space-y-4">
                 <Link
-                  href="/academia/registro"
+                  href="/register"
                   className="block w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
-                  Crear mi cuenta en la Academia
+                  Crear mi cuenta gratis
                 </Link>
 
                 <Link

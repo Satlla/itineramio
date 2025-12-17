@@ -262,7 +262,7 @@ export async function sendQuizResultsEmail(data: QuizResultsEmailData) {
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center" style="padding: 0 0 24px 0;">
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL}/academia/registro" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);">
+                    <a href="${process.env.NEXT_PUBLIC_APP_URL}/register" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);">
                       Crear mi cuenta gratis
                     </a>
                   </td>

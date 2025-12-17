@@ -478,14 +478,14 @@ export default function ResultadosPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => router.push('/academia/registro')}
+              onClick={() => router.push('/register')}
               className="px-8 py-4 bg-white text-violet-600 rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
             >
               Crear cuenta gratis
               <ArrowRight size={20} />
             </button>
             <button
-              onClick={() => router.push('/academia/login')}
+              onClick={() => router.push('/login')}
               className="px-8 py-4 bg-violet-700 text-white rounded-lg font-semibold hover:bg-violet-800 transition-all"
             >
               Ya tengo cuenta
