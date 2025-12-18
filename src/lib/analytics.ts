@@ -34,24 +34,34 @@ export type AnalyticsEvent =
   | 'add_to_cart'
   | 'view_item'
 
-// Helper para trackear eventos en Google Analytics
+// Helper para trackear eventos en Google Analytics y GTM
 export function trackEvent(
   eventName: AnalyticsEvent,
   eventParams?: Record<string, any>
 ) {
-  // Google Analytics 4
-  if (typeof window !== 'undefined' && (window as any).gtag) {
+  if (typeof window === 'undefined') return
+
+  // Google Tag Manager dataLayer (PRINCIPAL)
+  if ((window as any).dataLayer) {
+    (window as any).dataLayer.push({
+      event: eventName,
+      ...eventParams,
+    })
+  }
+
+  // Google Analytics 4 (si está directo sin GTM)
+  if ((window as any).gtag) {
     (window as any).gtag('event', eventName, eventParams)
   }
 
   // Vercel Analytics (si está disponible)
-  if (typeof window !== 'undefined' && (window as any).va) {
+  if ((window as any).va) {
     (window as any).va('track', eventName, eventParams)
   }
 
   // Console log en desarrollo
   if (process.env.NODE_ENV === 'development') {
-    console.log('📊 Analytics Event:', eventName, eventParams)
+    console.log('📊 [GTM/GA4 Event]', eventName, eventParams)
   }
 }
 

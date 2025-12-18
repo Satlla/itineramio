@@ -3,8 +3,9 @@ import { redirect, notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { validateDownloadToken } from '@/lib/tokens'
 import { getLeadMagnetBySlug } from '@/data/lead-magnets'
-import { Download, CheckCircle2, Sparkles, ArrowRight, BookOpen } from 'lucide-react'
+import { CheckCircle2, Sparkles, ArrowRight, BookOpen } from 'lucide-react'
 import { genderWord, type Gender } from '@/lib/gender-text'
+import { TrackDownloadButton } from '@/components/analytics/TrackDownloadButton'
 
 export const metadata: Metadata = {
   title: 'Descarga tu guía | Itineramio',
@@ -128,14 +129,13 @@ export default async function DownloadPage({
 
           {/* Download Button */}
           <div className="text-center">
-            <a
+            <TrackDownloadButton
               href={leadMagnet.downloadUrl}
-              download
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-lg px-8 py-4 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
-            >
-              <Download className="w-6 h-6" />
-              Descargar PDF ahora ({leadMagnet.pages} páginas)
-            </a>
+              slug={leadMagnet.slug}
+              archetype={leadMagnet.archetype}
+              title={leadMagnet.title}
+              pages={leadMagnet.pages}
+            />
 
             <p className="text-sm text-gray-500 mt-4">
               PDF optimizado · {leadMagnet.pages} páginas · Descarga ilimitada

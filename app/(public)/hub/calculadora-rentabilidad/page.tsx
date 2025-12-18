@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { trackEvent, trackGenerateLead } from '@/lib/analytics'
 import {
   ArrowLeft,
   ArrowRight,
@@ -470,6 +471,16 @@ export default function CalculadoraRentabilidad() {
     const calculationResult = calculateProfitability()
     setResult(calculationResult)
 
+    // Track calculator usage in GTM
+    trackEvent('calculator_used' as any, {
+      calc_zone: formData.zone,
+      calc_model: formData.operationModel,
+      calc_properties: parseInt(formData.numProperties) || 1,
+      calc_result: calculationResult.profitabilityLevel,
+      calc_margin: calculationResult.profitMargin,
+      calc_is_changing_money: calculationResult.isChangingMoney,
+    })
+
     setLoading(false)
     setStep(5) // Ir a resultados
   }
@@ -493,6 +504,13 @@ export default function CalculadoraRentabilidad() {
 
       if (response.ok) {
         setLeadSaved(true)
+
+        // Track lead captured in GTM
+        trackGenerateLead({
+          source: 'recursos',
+          leadMagnet: 'calculadora-rentabilidad',
+          value: 15, // Higher value for calculator leads
+        })
       }
     } catch (error) {
       console.error('Error saving lead:', error)
