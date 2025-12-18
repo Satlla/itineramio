@@ -13,6 +13,7 @@ import { ChunkErrorHandler } from '../src/components/ChunkErrorHandler'
 import { Analytics } from '@vercel/analytics/next'
 import { GoogleAnalytics } from '../src/components/GoogleAnalytics'
 import { FacebookPixel } from '../src/components/analytics/FacebookPixel'
+import { GoogleTagManager, GoogleTagManagerNoScript } from '../src/components/analytics/GoogleTagManager'
 import { LoadingProvider } from '../src/components/providers/LoadingProvider'
 
 // Validate environment variables on startup
@@ -206,7 +207,13 @@ export default function RootLayout({
         <meta name="msapplication-tap-highlight" content="no" />
       </head>
       <body className={`${inter.className} antialiased`}>
-        {/* Google Analytics 4 */}
+        {/* Google Tag Manager (noscript) */}
+        <GoogleTagManagerNoScript />
+
+        {/* Google Tag Manager */}
+        <GoogleTagManager />
+
+        {/* Google Analytics 4 (legacy - now using GTM) */}
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}
