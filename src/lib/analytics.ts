@@ -33,6 +33,9 @@ export type AnalyticsEvent =
   | 'generate_lead'
   | 'add_to_cart'
   | 'view_item'
+  // Calculator & CTA events
+  | 'calculator_used'
+  | 'cta_clicked'
 
 // Helper para trackear eventos en Google Analytics y GTM
 export function trackEvent(
@@ -663,5 +666,61 @@ export function trackAddPlanToCart({
       item_category: 'subscription'
     }],
     coupon
+  })
+}
+
+// ========================================
+// CTA & CALCULATOR TRACKING
+// ========================================
+
+/**
+ * Trackea clicks en CTAs principales (botones de conversión)
+ */
+export function trackCTAClicked({
+  ctaId,
+  ctaText,
+  location,
+  destination
+}: {
+  ctaId: string
+  ctaText: string
+  location: 'hero' | 'pricing' | 'footer' | 'navbar' | 'sidebar' | 'modal' | 'inline'
+  destination: string
+}) {
+  trackEvent('cta_clicked', {
+    cta_id: ctaId,
+    cta_text: ctaText,
+    cta_location: location,
+    destination,
+    value: location === 'hero' ? 2 : 1
+  })
+}
+
+/**
+ * Trackea uso de la calculadora de rentabilidad
+ */
+export function trackCalculatorUsed({
+  zone,
+  model,
+  properties,
+  result,
+  margin,
+  isChangingMoney
+}: {
+  zone: string
+  model: string
+  properties: number
+  result: string
+  margin: number
+  isChangingMoney?: boolean
+}) {
+  trackEvent('calculator_used', {
+    calc_zone: zone,
+    calc_model: model,
+    calc_properties: properties,
+    calc_result: result,
+    calc_margin: margin,
+    calc_is_changing_money: isChangingMoney,
+    value: 3
   })
 }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { trackEvent, trackGenerateLead } from '@/lib/analytics'
+import { trackCalculatorUsed, trackGenerateLead } from '@/lib/analytics'
 import {
   ArrowLeft,
   ArrowRight,
@@ -472,13 +472,13 @@ export default function CalculadoraRentabilidad() {
     setResult(calculationResult)
 
     // Track calculator usage in GTM
-    trackEvent('calculator_used' as any, {
-      calc_zone: formData.zone,
-      calc_model: formData.operationModel,
-      calc_properties: parseInt(formData.numProperties) || 1,
-      calc_result: calculationResult.profitabilityLevel,
-      calc_margin: calculationResult.profitMargin,
-      calc_is_changing_money: calculationResult.isChangingMoney,
+    trackCalculatorUsed({
+      zone: formData.zone,
+      model: formData.operationModel,
+      properties: parseInt(formData.numProperties) || 1,
+      result: calculationResult.profitabilityLevel,
+      margin: calculationResult.profitMargin,
+      isChangingMoney: calculationResult.isChangingMoney,
     })
 
     setLoading(false)

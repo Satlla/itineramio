@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { Archetype, Dimension } from '@/data/hostProfileQuestions'
 import { sendWelcomeTestEmail } from '@/lib/resend'
 import { notifyHostProfileTestCompleted } from '@/lib/notifications/admin-notifications'
+import { enrollSubscriberInSequences } from '@/lib/email-sequences'
 
 interface AnswerData {
   questionId: number
@@ -309,6 +310,25 @@ export async function POST(request: NextRequest) {
       // No fallar la request si hay error enviando email
       emailError = err instanceof Error ? err.message : 'Unknown error'
       console.error('Error sending welcome email:', err)
+    }
+
+    // Inscribir en secuencias de email automatizadas
+    let sequenceEnrollment = null
+    if (subscriber) {
+      try {
+        sequenceEnrollment = await enrollSubscriberInSequences(
+          subscriber.id,
+          'TEST_COMPLETED',
+          {
+            archetype,
+            source: 'host_profile_test',
+            tags: [archetype, 'test_completed']
+          }
+        )
+        console.log('✅ Subscriber enrolled in sequences:', sequenceEnrollment)
+      } catch (seqErr) {
+        console.error('Error enrolling in sequences:', seqErr)
+      }
     }
 
     // Send admin notification (async, don't block response)

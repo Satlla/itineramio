@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { MessageCircle, Send, Reply, User, Clock, Loader2, CheckCircle, Heart } from 'lucide-react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { MessageCircle, Send, Reply, User, Clock, Loader2, CheckCircle, Heart, Mail, Shield } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useSearchParams } from 'next/navigation'
 
 interface Comment {
   id: string
@@ -18,11 +19,23 @@ interface BlogCommentsProps {
   slug: string
 }
 
+// Generate a simple math captcha
+function generateCaptcha(): { question: string; answer: number } {
+  const num1 = Math.floor(Math.random() * 10) + 1
+  const num2 = Math.floor(Math.random() * 10) + 1
+  return {
+    question: `${num1} + ${num2} = ?`,
+    answer: num1 + num2
+  }
+}
+
 export function BlogComments({ slug }: BlogCommentsProps) {
+  const searchParams = useSearchParams()
   const [comments, setComments] = useState<Comment[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [error, setError] = useState('')
 
@@ -30,11 +43,32 @@ export function BlogComments({ slug }: BlogCommentsProps) {
   const [authorName, setAuthorName] = useState('')
   const [authorEmail, setAuthorEmail] = useState('')
   const [content, setContent] = useState('')
+  const [honeypot, setHoneypot] = useState('') // Hidden honeypot field
+  const [captchaAnswer, setCaptchaAnswer] = useState('')
 
   // Reply form state
   const [replyAuthorName, setReplyAuthorName] = useState('')
   const [replyAuthorEmail, setReplyAuthorEmail] = useState('')
   const [replyContent, setReplyContent] = useState('')
+  const [replyHoneypot, setReplyHoneypot] = useState('')
+  const [replyCaptchaAnswer, setReplyCaptchaAnswer] = useState('')
+
+  // Captcha state
+  const [captcha, setCaptcha] = useState(() => generateCaptcha())
+  const [replyCaptcha, setReplyCaptcha] = useState(() => generateCaptcha())
+
+  // Check for verification success in URL
+  useEffect(() => {
+    if (searchParams.get('verified') === 'true') {
+      setShowSuccess(true)
+      setSuccessMessage('Tu comentario ha sido verificado y enviado para aprobacion. Sera visible pronto.')
+      setTimeout(() => {
+        setShowSuccess(false)
+        // Clean URL
+        window.history.replaceState({}, '', window.location.pathname)
+      }, 6000)
+    }
+  }, [searchParams])
 
   const loadComments = useCallback(async () => {
     try {
@@ -61,6 +95,11 @@ export function BlogComments({ slug }: BlogCommentsProps) {
       return
     }
 
+    if (!captchaAnswer.trim()) {
+      setError('Por favor, resuelve la operacion matematica')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -70,7 +109,10 @@ export function BlogComments({ slug }: BlogCommentsProps) {
         body: JSON.stringify({
           authorName: authorName.trim(),
           authorEmail: authorEmail.trim(),
-          content: content.trim()
+          content: content.trim(),
+          honeypot, // Send honeypot value (should be empty)
+          captchaAnswer,
+          captchaExpected: captcha.answer.toString()
         })
       })
 
@@ -78,17 +120,29 @@ export function BlogComments({ slug }: BlogCommentsProps) {
 
       if (!response.ok) {
         setError(data.error || 'Error al enviar comentario')
+        // Regenerate captcha on error
+        setCaptcha(generateCaptcha())
+        setCaptchaAnswer('')
         return
       }
 
-      // Show success message
+      // Show appropriate success message
+      if (data.requiresVerification) {
+        setSuccessMessage('Te hemos enviado un email para verificar tu comentario. Revisa tu bandeja de entrada (y spam).')
+      } else {
+        setSuccessMessage(data.message || 'Comentario enviado. Sera visible despues de ser aprobado.')
+      }
+
       setShowSuccess(true)
       setAuthorName('')
       setAuthorEmail('')
       setContent('')
+      setHoneypot('')
+      setCaptchaAnswer('')
+      setCaptcha(generateCaptcha())
 
-      // Hide success after 5 seconds
-      setTimeout(() => setShowSuccess(false), 5000)
+      // Hide success after 6 seconds
+      setTimeout(() => setShowSuccess(false), 6000)
 
       // Reload comments if auto-approved
       if (data.comment?.status === 'APPROVED') {
@@ -97,6 +151,8 @@ export function BlogComments({ slug }: BlogCommentsProps) {
     } catch (err) {
       console.error('Error submitting comment:', err)
       setError('Error al enviar comentario')
+      setCaptcha(generateCaptcha())
+      setCaptchaAnswer('')
     } finally {
       setIsSubmitting(false)
     }
@@ -111,6 +167,11 @@ export function BlogComments({ slug }: BlogCommentsProps) {
       return
     }
 
+    if (!replyCaptchaAnswer.trim()) {
+      setError('Por favor, resuelve la operacion matematica')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -121,7 +182,10 @@ export function BlogComments({ slug }: BlogCommentsProps) {
           authorName: replyAuthorName.trim(),
           authorEmail: replyAuthorEmail.trim(),
           content: replyContent.trim(),
-          parentId
+          parentId,
+          honeypot: replyHoneypot,
+          captchaAnswer: replyCaptchaAnswer,
+          captchaExpected: replyCaptcha.answer.toString()
         })
       })
 
@@ -129,18 +193,29 @@ export function BlogComments({ slug }: BlogCommentsProps) {
 
       if (!response.ok) {
         setError(data.error || 'Error al enviar comentario')
+        setReplyCaptcha(generateCaptcha())
+        setReplyCaptchaAnswer('')
         return
       }
 
-      // Show success message
+      // Show appropriate success message
+      if (data.requiresVerification) {
+        setSuccessMessage('Te hemos enviado un email para verificar tu respuesta. Revisa tu bandeja de entrada.')
+      } else {
+        setSuccessMessage(data.message || 'Respuesta enviada. Sera visible despues de ser aprobada.')
+      }
+
       setShowSuccess(true)
       setReplyAuthorName('')
       setReplyAuthorEmail('')
       setReplyContent('')
+      setReplyHoneypot('')
+      setReplyCaptchaAnswer('')
       setReplyingTo(null)
+      setReplyCaptcha(generateCaptcha())
 
-      // Hide success after 5 seconds
-      setTimeout(() => setShowSuccess(false), 5000)
+      // Hide success after 6 seconds
+      setTimeout(() => setShowSuccess(false), 6000)
 
       // Reload comments if auto-approved
       if (data.comment?.status === 'APPROVED') {
@@ -149,6 +224,8 @@ export function BlogComments({ slug }: BlogCommentsProps) {
     } catch (err) {
       console.error('Error submitting reply:', err)
       setError('Error al enviar respuesta')
+      setReplyCaptcha(generateCaptcha())
+      setReplyCaptchaAnswer('')
     } finally {
       setIsSubmitting(false)
     }
@@ -184,12 +261,20 @@ export function BlogComments({ slug }: BlogCommentsProps) {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3"
+            className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3"
           >
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            <p className="text-green-700">
-              ¡Gracias por tu comentario! Será visible después de ser aprobado.
-            </p>
+            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-green-700 font-medium">
+                {successMessage}
+              </p>
+              {successMessage.includes('email') && (
+                <p className="text-green-600 text-sm mt-1 flex items-center gap-1">
+                  <Mail className="w-4 h-4" />
+                  Recuerda revisar tambien la carpeta de spam
+                </p>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -198,6 +283,25 @@ export function BlogComments({ slug }: BlogCommentsProps) {
       <div className="bg-gray-50 rounded-xl p-6 mb-8">
         <h4 className="font-semibold text-gray-900 mb-4">Deja un comentario</h4>
         <form onSubmit={handleSubmit}>
+          {/* Honeypot field - hidden from humans */}
+          <input
+            type="text"
+            name="website"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            style={{
+              position: 'absolute',
+              left: '-9999px',
+              width: '1px',
+              height: '1px',
+              opacity: 0,
+              pointerEvents: 'none'
+            }}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+          />
+
           <div className="grid sm:grid-cols-2 gap-4 mb-4">
             <div>
               <label htmlFor="comment-name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -226,7 +330,10 @@ export function BlogComments({ slug }: BlogCommentsProps) {
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none bg-white"
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">No se publicará</p>
+              <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                <Shield className="w-3 h-3" />
+                Solo para verificacion, no se publicara
+              </p>
             </div>
           </div>
 
@@ -238,7 +345,7 @@ export function BlogComments({ slug }: BlogCommentsProps) {
               id="comment-content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="¿Qué opinas sobre este artículo?"
+              placeholder="Que opinas sobre este articulo?"
               rows={4}
               className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none resize-none bg-white"
               required
@@ -247,6 +354,28 @@ export function BlogComments({ slug }: BlogCommentsProps) {
             <p className="text-xs text-gray-500 mt-1 text-right">
               {content.length}/2000
             </p>
+          </div>
+
+          {/* Math Captcha */}
+          <div className="mb-4 p-4 bg-white border border-gray-200 rounded-lg">
+            <label htmlFor="captcha" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <Shield className="w-4 h-4 text-violet-600" />
+              Verificacion anti-spam
+            </label>
+            <div className="flex items-center gap-3">
+              <span className="text-lg font-mono bg-gray-100 px-4 py-2 rounded-lg text-gray-800">
+                {captcha.question}
+              </span>
+              <input
+                id="captcha"
+                type="number"
+                value={captchaAnswer}
+                onChange={(e) => setCaptchaAnswer(e.target.value)}
+                placeholder="?"
+                className="w-20 px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none bg-white text-center text-lg"
+                required
+              />
+            </div>
           </div>
 
           {error && (
@@ -351,6 +480,25 @@ export function BlogComments({ slug }: BlogCommentsProps) {
                       className="mt-4 ml-13"
                     >
                       <form onSubmit={(e) => handleReplySubmit(e, comment.id)} className="bg-gray-50 p-4 rounded-lg">
+                        {/* Honeypot for reply */}
+                        <input
+                          type="text"
+                          name="website_reply"
+                          value={replyHoneypot}
+                          onChange={(e) => setReplyHoneypot(e.target.value)}
+                          style={{
+                            position: 'absolute',
+                            left: '-9999px',
+                            width: '1px',
+                            height: '1px',
+                            opacity: 0,
+                            pointerEvents: 'none'
+                          }}
+                          tabIndex={-1}
+                          autoComplete="off"
+                          aria-hidden="true"
+                        />
+
                         <div className="grid grid-cols-2 gap-4 mb-4">
                           <div>
                             <label htmlFor={`reply-name-${comment.id}`} className="block text-sm font-medium text-gray-700 mb-1">
@@ -392,6 +540,28 @@ export function BlogComments({ slug }: BlogCommentsProps) {
                             maxLength={2000}
                           />
                         </div>
+
+                        {/* Math Captcha for reply */}
+                        <div className="mb-4 p-3 bg-white border border-gray-200 rounded-lg">
+                          <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                            <Shield className="w-4 h-4 text-violet-600" />
+                            Verificacion
+                          </label>
+                          <div className="flex items-center gap-3">
+                            <span className="text-base font-mono bg-gray-100 px-3 py-1 rounded text-gray-800">
+                              {replyCaptcha.question}
+                            </span>
+                            <input
+                              type="number"
+                              value={replyCaptchaAnswer}
+                              onChange={(e) => setReplyCaptchaAnswer(e.target.value)}
+                              placeholder="?"
+                              className="w-16 px-3 py-1 border border-gray-200 rounded focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none bg-white text-center"
+                              required
+                            />
+                          </div>
+                        </div>
+
                         <div className="flex justify-end gap-3">
                           <button
                             type="button"
@@ -465,9 +635,9 @@ export function BlogComments({ slug }: BlogCommentsProps) {
       ) : (
         <div className="text-center py-12 bg-gray-50 rounded-xl">
           <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h4 className="font-semibold text-gray-900 mb-2">Sé el primero en comentar</h4>
+          <h4 className="font-semibold text-gray-900 mb-2">Se el primero en comentar</h4>
           <p className="text-gray-500">
-            Comparte tu opinión sobre este artículo
+            Comparte tu opinion sobre este articulo
           </p>
         </div>
       )}

@@ -989,29 +989,35 @@ model BlogPost {
 }
 
 model BlogComment {
-  id           String       @id @default(cuid())
-  postId       String
-  post         BlogPost     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  parentId     String?
-  parent       BlogComment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies      BlogComment[] @relation("CommentReplies")
-  authorName   String
-  authorEmail  String
-  content      String
-  status       CommentStatus @default(PENDING)
-  likes        Int          @default(0)
-  isAuthor     Boolean      @default(false)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id                 String        @id @default(cuid())
+  postId             String
+  post               BlogPost      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parentId           String?
+  parent             BlogComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies            BlogComment[] @relation("CommentReplies")
+  authorName         String
+  authorEmail        String
+  content            String
+  status             CommentStatus @default(PENDING_VERIFICATION)
+  likes              Int           @default(0)
+  isAuthor           Boolean       @default(false)
+  emailVerified      Boolean       @default(false)
+  verificationToken  String?       @unique
+  verificationSentAt DateTime?
+  verifiedAt         DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
   @@index([postId])
   @@index([parentId])
   @@index([status])
   @@index([createdAt])
+  @@index([verificationToken])
   @@map("blog_comments")
 }
 
 enum CommentStatus {
+  PENDING_VERIFICATION
   PENDING
   APPROVED
   REJECTED
