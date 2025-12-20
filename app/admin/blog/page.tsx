@@ -170,6 +170,13 @@ export default function AdminBlogPage() {
               Comentarios
             </Link>
             <Link
+              href="/admin/blog/community"
+              className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+            >
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Comunidad
+            </Link>
+            <Link
               href="/admin/blog/new"
               className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
             >

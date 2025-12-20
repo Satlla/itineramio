@@ -13,6 +13,8 @@ import {
   Download,
   ArrowRight,
   Calculator,
+  Star,
+  QrCode,
 } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -90,7 +92,7 @@ export default function RecursosPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           <Link
             href="/hub/calculadora-rentabilidad"
             className="group bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-8 text-white hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
@@ -137,6 +139,31 @@ export default function RecursosPage() {
             </p>
             <div className="flex items-center text-white font-semibold group-hover:translate-x-1 transition-transform">
               <span>Usar calculadora</span>
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </div>
+          </Link>
+
+          <Link
+            href="/recursos/plantilla-estrellas-personalizada"
+            className="group bg-gradient-to-br from-rose-500 to-orange-500 rounded-2xl p-8 text-white hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                <Star className="w-7 h-7" />
+              </div>
+              <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
+                Nuevo
+              </span>
+            </div>
+            <h3 className="font-bold text-2xl mb-2">
+              Plantilla Significado Estrellas
+            </h3>
+            <p className="text-white/90 mb-4">
+              Genera una plantilla personalizada con tu nombre y código QR de
+              WhatsApp. Lista para imprimir y dejar en tu alojamiento.
+            </p>
+            <div className="flex items-center text-white font-semibold group-hover:translate-x-1 transition-transform">
+              <span>Personalizar plantilla</span>
               <ArrowRight className="w-5 h-5 ml-2" />
             </div>
           </Link>
