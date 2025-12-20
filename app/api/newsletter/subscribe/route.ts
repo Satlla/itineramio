@@ -57,7 +57,10 @@ export async function POST(request: NextRequest) {
         email: normalizedEmail,
         status: 'active',
         source,
-        tags
+        tags,
+        sequenceStartedAt: new Date(), // Para secuencias de email automatizadas
+        sequenceStatus: 'active',
+        nivelSequenceStatus: tags.some((t: string) => t.startsWith('nivel_')) ? 'pending' : 'none'
       }
     })
 

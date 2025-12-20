@@ -129,7 +129,10 @@ export async function POST(request: NextRequest) {
         tags,
         status: 'active',
         currentJourneyStage: 'subscribed',
-        engagementScore: 'warm'
+        engagementScore: 'warm',
+        sequenceStartedAt: new Date(), // Para secuencias de email automatizadas
+        sequenceStatus: 'active',
+        nivelSequenceStatus: tags.some(t => t.startsWith('nivel_')) ? 'pending' : 'none'
       }
     })
 

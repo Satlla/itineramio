@@ -205,7 +205,9 @@ export async function POST(req: NextRequest) {
               operationModel,
               profitabilityLevel: result?.profitabilityLevel || 'unknown',
               isChangingMoney: result?.isChangingMoney || false
-            }
+            },
+            sequenceStartedAt: new Date(), // Para secuencias de email automatizadas
+            sequenceStatus: 'active'
           }
         })
       }
