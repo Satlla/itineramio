@@ -214,7 +214,8 @@ const articles = [
     category: 'Guías',
     readTime: '12 min',
     slug: 'manual-digital-apartamento-turistico-guia-completa',
-    excerpt: 'Crea manuales digitales que eliminan el 86% de consultas'
+    excerpt: 'Crea manuales digitales que eliminan el 86% de consultas',
+    icon: BookOpen
   },
   {
     id: 2,
@@ -222,7 +223,8 @@ const articles = [
     category: 'Automatización',
     readTime: '8 min',
     slug: 'qr-code-apartamento-turistico-guia-generador',
-    excerpt: 'Feature único que NO tiene Touch Stay'
+    excerpt: 'Feature único que NO tiene Touch Stay',
+    icon: QrCode
   },
   {
     id: 3,
@@ -230,7 +232,8 @@ const articles = [
     category: 'Normativa',
     readTime: '12 min',
     slug: 'vut-madrid-2025-requisitos-normativa-checklist',
-    excerpt: 'Nueva normativa. Manual digital OBLIGATORIO.'
+    excerpt: 'Nueva normativa. Manual digital OBLIGATORIO.',
+    icon: FileText
   }
 ]
 

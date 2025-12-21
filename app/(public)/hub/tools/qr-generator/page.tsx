@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
 import {
   QrCode,
@@ -18,7 +19,6 @@ import {
 import { Navbar } from '../../../../../src/components/layout/Navbar'
 import { SocialShare } from '../../../../../src/components/tools/SocialShare'
 import { LeadCaptureModal } from '../../../../../src/components/tools/LeadCaptureModal'
-import QRCodeStyling from 'qr-code-styling'
 
 const qrColors = [
   { name: 'Violet', color: '#7c3aed', bg: '#f5f3ff' },
@@ -42,10 +42,18 @@ export default function QRGenerator() {
   const [copied, setCopied] = useState(false)
   const [showLeadModal, setShowLeadModal] = useState(false)
   const [pendingAction, setPendingAction] = useState<{ format: 'png' | 'svg' } | null>(null)
+  const [QRCodeStyling, setQRCodeStyling] = useState<any>(null)
   const qrRef = useRef<HTMLDivElement>(null)
 
+  // Dynamically import qr-code-styling on client side only
+  useEffect(() => {
+    import('qr-code-styling').then((module) => {
+      setQRCodeStyling(() => module.default)
+    })
+  }, [])
+
   const generateQR = () => {
-    if (!url.trim()) return
+    if (!url.trim() || !QRCodeStyling) return
 
     // Clear previous QR
     if (qrRef.current) {
@@ -296,10 +304,10 @@ export default function QRGenerator() {
                 {/* Generate Button */}
                 <button
                   onClick={generateQR}
-                  disabled={!url.trim()}
+                  disabled={!url.trim() || !QRCodeStyling}
                   className="w-full py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-violet-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
-                  Generar Código QR
+                  {!QRCodeStyling ? 'Cargando...' : 'Generar Código QR'}
                 </button>
               </div>
 
