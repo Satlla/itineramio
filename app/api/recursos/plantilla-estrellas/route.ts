@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import QRCode from 'qrcode'
 import { prisma } from '@/lib/prisma'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -36,15 +35,8 @@ export async function POST(request: NextRequest) {
     const whatsappPhone = formatPhoneForWhatsApp(telefono)
     const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent('Hola, tengo una pregunta sobre mi estancia')}`
 
-    // Generate QR code as buffer for email attachment
-    const qrCodeBuffer = await QRCode.toBuffer(whatsappUrl, {
-      width: 200,
-      margin: 2,
-      color: {
-        dark: '#222222',
-        light: '#ffffff'
-      }
-    })
+    // Generate QR code URL using external service (works in all email clients)
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(whatsappUrl)}&bgcolor=ffffff&color=222222`
 
     // Save lead to database
     try {
@@ -155,7 +147,7 @@ export async function POST(request: NextRequest) {
       <table cellpadding="0" cellspacing="0" border="0" style="background: #f9fafb; border-radius: 16px; margin: 0 auto;">
         <tr>
           <td style="padding: 16px;">
-            <img src="cid:qrcode" alt="QR WhatsApp" width="80" height="80" style="display: block;" />
+            <img src="${qrCodeUrl}" alt="QR WhatsApp" width="80" height="80" style="display: block;" />
           </td>
           <td style="padding: 16px 20px 16px 0; vertical-align: middle;">
             <div style="font-size: 11px; color: #717171;">Escanea para contactar</div>
@@ -174,13 +166,6 @@ export async function POST(request: NextRequest) {
       from: 'Itineramio <recursos@itineramio.com>',
       to: email,
       subject: 'Tu plantilla personalizada del significado de las estrellas',
-      attachments: [
-        {
-          filename: 'qrcode.png',
-          content: qrCodeBuffer.toString('base64'),
-          cid: 'qrcode'
-        }
-      ],
       html: `
 <!DOCTYPE html>
 <html>
