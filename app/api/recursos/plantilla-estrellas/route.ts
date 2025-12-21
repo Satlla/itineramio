@@ -56,92 +56,132 @@ export async function POST(request: NextRequest) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+<body style="margin: 0; padding: 0; font-family: Circular, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, sans-serif; background-color: #f7f7f7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f7f7f7; padding: 40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 540px;">
 
-          <!-- Intro -->
+          <!-- Header -->
           <tr>
-            <td style="padding: 0 0 24px 0;">
-              <h1 style="margin: 0 0 16px 0; color: #222; font-size: 24px;">¡Aquí tienes tu plantilla personalizada!</h1>
-              <p style="margin: 0 0 8px 0; color: #333; font-size: 16px;">Hola ${nombre},</p>
-              <p style="margin: 0; color: #666; font-size: 15px;">Gracias por descargar la plantilla del significado de las estrellas. Aquí está tu plantilla con tu código QR de WhatsApp.</p>
+            <td style="padding: 0 0 32px 0;">
+              <p style="margin: 0 0 24px 0; color: #222222; font-size: 14px; letter-spacing: 0.5px;">ITINERAMIO</p>
+              <h1 style="margin: 0 0 16px 0; color: #222222; font-size: 28px; font-weight: 600; line-height: 1.3;">Tu plantilla personalizada está lista</h1>
+              <p style="margin: 0; color: #484848; font-size: 16px; line-height: 1.6;">Hola ${nombre}, gracias por descargar la plantilla del significado de las estrellas. Esta herramienta te ayudará a comunicar de forma clara a tus huéspedes qué significa cada valoración en Airbnb.</p>
             </td>
           </tr>
 
           <!-- Template Card -->
           <tr>
             <td>
-              <table width="100%" cellpadding="0" cellspacing="0" style="background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 12px; border: 1px solid #dddddd;">
 
-                <!-- Header -->
+                <!-- Card Header -->
                 <tr>
-                  <td style="text-align: center; padding: 32px 24px 24px 24px; border-bottom: 1px solid #ebebeb;">
-                    <div style="font-size: 40px; margin-bottom: 8px;">🏠</div>
-                    <div style="font-size: 24px; font-weight: 600; color: #222; margin-bottom: 4px;">Gracias por tu estancia</div>
-                    <div style="color: #717171; font-size: 14px;">${nombre}</div>
+                  <td style="padding: 24px 24px 20px 24px; border-bottom: 1px solid #ebebeb;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="font-size: 20px; font-weight: 600; color: #222222;">Gracias por tu estancia</td>
+                      </tr>
+                      <tr>
+                        <td style="padding-top: 4px; font-size: 14px; color: #717171;">${nombre}</td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
 
-                <!-- Stars -->
+                <!-- Intro text -->
                 <tr>
-                  <td style="padding: 24px;">
+                  <td style="padding: 20px 24px 8px 24px;">
+                    <p style="margin: 0; color: #484848; font-size: 14px; line-height: 1.5;">Tu opinión nos ayuda a mejorar. Antes de valorar, ten en cuenta lo que significa cada puntuación:</p>
+                  </td>
+                </tr>
+
+                <!-- Stars Section -->
+                <tr>
+                  <td style="padding: 16px 24px;">
                     <!-- 5 Stars -->
-                    <table width="100%" cellpadding="0" cellspacing="0" style="background: #f0fdf4; border-radius: 12px; margin-bottom: 12px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;">
                       <tr>
-                        <td style="padding: 16px; width: 110px; font-size: 18px;">⭐⭐⭐⭐⭐</td>
-                        <td style="padding: 16px;">
-                          <div style="font-weight: 600; font-size: 14px; color: #166534;">5 Estrellas</div>
-                          <div style="font-size: 12px; color: #717171;">Todo funcionó correctamente</div>
+                        <td style="padding: 16px; background: #f7f7f7; border-radius: 8px;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="font-size: 16px; color: #222222; font-weight: 600; padding-bottom: 6px;">
+                                <span style="color: #FF385C; letter-spacing: 2px;">★★★★★</span>&nbsp;&nbsp;Excelente
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="font-size: 14px; color: #717171; line-height: 1.4;">Todo funcionó correctamente. La estancia cumplió o superó las expectativas.</td>
+                            </tr>
+                          </table>
                         </td>
                       </tr>
                     </table>
 
                     <!-- 4 Stars -->
-                    <table width="100%" cellpadding="0" cellspacing="0" style="background: #fefce8; border-radius: 12px; margin-bottom: 12px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;">
                       <tr>
-                        <td style="padding: 16px; width: 110px; font-size: 18px;">⭐⭐⭐⭐</td>
-                        <td style="padding: 16px;">
-                          <div style="font-weight: 600; font-size: 14px; color: #a16207;">4 Estrellas</div>
-                          <div style="font-size: 12px; color: #717171;">Hubo algún problema menor</div>
+                        <td style="padding: 16px; background: #f7f7f7; border-radius: 8px;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="font-size: 16px; color: #222222; font-weight: 600; padding-bottom: 6px;">
+                                <span style="color: #FF385C; letter-spacing: 2px;">★★★★</span><span style="color: #dddddd;">★</span>&nbsp;&nbsp;Bueno
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="font-size: 14px; color: #717171; line-height: 1.4;">Hubo algún detalle menor. Avísame antes para poder solucionarlo.</td>
+                            </tr>
+                          </table>
                         </td>
                       </tr>
                     </table>
 
-                    <!-- 3 Stars -->
-                    <table width="100%" cellpadding="0" cellspacing="0" style="background: #fef2f2; border-radius: 12px;">
+                    <!-- 3 Stars or less -->
+                    <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td style="padding: 16px; width: 110px; font-size: 18px;">⭐⭐⭐</td>
-                        <td style="padding: 16px;">
-                          <div style="font-weight: 600; font-size: 14px; color: #b91c1c;">3 Estrellas o menos</div>
-                          <div style="font-size: 12px; color: #717171;">Hubo problemas significativos</div>
+                        <td style="padding: 16px; background: #f7f7f7; border-radius: 8px;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="font-size: 16px; color: #222222; font-weight: 600; padding-bottom: 6px;">
+                                <span style="color: #FF385C; letter-spacing: 2px;">★★★</span><span style="color: #dddddd;">★★</span>&nbsp;&nbsp;Problemas
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="font-size: 14px; color: #717171; line-height: 1.4;">Hubo problemas significativos. Por favor, contáctame para resolverlo antes de valorar.</td>
+                            </tr>
+                          </table>
                         </td>
                       </tr>
                     </table>
                   </td>
                 </tr>
 
-                <!-- Footer with QR -->
+                <!-- QR Section -->
                 <tr>
-                  <td style="padding: 0 24px 32px 24px; border-top: 1px solid #ebebeb;">
-                    <div style="text-align: center; padding-top: 24px;">
-                      <p style="color: #717171; font-size: 13px; margin: 0 0 16px 0;">
-                        ¿Algún problema? <span style="color: #FF385C;">Escríbeme directamente</span>
-                      </p>
-                      <table cellpadding="0" cellspacing="0" border="0" style="background: #f9fafb; border-radius: 16px; margin: 0 auto;">
-                        <tr>
-                          <td style="padding: 16px;">
-                            <img src="${qrCodeUrl}" alt="QR WhatsApp" width="80" height="80" style="display: block;" />
-                          </td>
-                          <td style="padding: 16px 20px 16px 0; vertical-align: middle; text-align: left;">
-                            <div style="font-size: 11px; color: #717171;">Escanea para contactar</div>
-                            <div style="font-weight: 600; color: #222; font-size: 14px;">${telefono}</div>
-                          </td>
-                        </tr>
-                      </table>
-                    </div>
+                  <td style="padding: 16px 24px 24px 24px; border-top: 1px solid #ebebeb;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding-bottom: 12px;">
+                          <p style="margin: 0; color: #222222; font-size: 14px; font-weight: 600;">¿Algún problema durante tu estancia?</p>
+                          <p style="margin: 4px 0 0 0; color: #717171; font-size: 14px;">Escríbeme directamente por WhatsApp y lo solucionamos.</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <table cellpadding="0" cellspacing="0" border="0" style="background: #f7f7f7; border-radius: 8px;">
+                            <tr>
+                              <td style="padding: 12px;">
+                                <img src="${qrCodeUrl}" alt="QR WhatsApp" width="72" height="72" style="display: block;" />
+                              </td>
+                              <td style="padding: 12px 16px 12px 4px; vertical-align: middle;">
+                                <p style="margin: 0 0 2px 0; font-size: 13px; color: #717171;">Escanea para contactar</p>
+                                <p style="margin: 0; font-size: 15px; color: #222222; font-weight: 600;">${telefono}</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
 
@@ -152,33 +192,49 @@ export async function POST(request: NextRequest) {
           <!-- Instructions -->
           <tr>
             <td style="padding: 32px 0;">
-              <p style="margin: 0 0 12px 0; color: #222; font-weight: 600;">Cómo usarla:</p>
-              <ol style="margin: 0; padding-left: 20px; color: #666; font-size: 14px; line-height: 1.8;">
-                <li>Imprime este email o guárdalo como PDF</li>
-                <li>Recorta la plantilla</li>
-                <li>Enmárcala o plastifícala</li>
-                <li>Colócala en un lugar visible de tu alojamiento</li>
-              </ol>
+              <p style="margin: 0 0 16px 0; color: #222222; font-size: 16px; font-weight: 600;">Cómo usar esta plantilla</p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding: 8px 0; color: #484848; font-size: 14px; line-height: 1.5;">
+                    <strong style="color: #222222;">1.</strong> Imprime este email o guárdalo como PDF desde tu navegador
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #484848; font-size: 14px; line-height: 1.5;">
+                    <strong style="color: #222222;">2.</strong> Recorta la tarjeta de la plantilla
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #484848; font-size: 14px; line-height: 1.5;">
+                    <strong style="color: #222222;">3.</strong> Enmárcala o plastifícala para mayor durabilidad
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #484848; font-size: 14px; line-height: 1.5;">
+                    <strong style="color: #222222;">4.</strong> Colócala en un lugar visible de tu alojamiento (junto al manual de bienvenida o en la entrada)
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
 
           <!-- CTA -->
           <tr>
             <td align="center" style="padding: 0 0 32px 0;">
-              <a href="https://www.itineramio.com/blog/plantilla-significado-estrellas-airbnb-huespedes" style="display: inline-block; background: linear-gradient(135deg, #FF385C 0%, #E31C5F 100%); color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-                Ver artículo completo
+              <a href="https://www.itineramio.com/blog/plantilla-significado-estrellas-airbnb-huespedes" style="display: inline-block; background: #222222; color: #ffffff; padding: 14px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
+                Ver el artículo completo
               </a>
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="text-align: center; padding: 24px 0; border-top: 1px solid #e5e7eb;">
+            <td style="text-align: center; padding: 24px 0; border-top: 1px solid #ebebeb;">
               <p style="margin: 0 0 8px 0; color: #717171; font-size: 14px;">
-                Este email fue enviado por <a href="https://www.itineramio.com" style="color: #FF385C; text-decoration: none;">Itineramio</a>
+                Enviado por <a href="https://www.itineramio.com" style="color: #222222; text-decoration: underline;">Itineramio</a>
               </p>
-              <p style="margin: 0; color: #9ca3af; font-size: 12px;">
-                Si no solicitaste esta plantilla, puedes ignorar este mensaje.
+              <p style="margin: 0; color: #b0b0b0; font-size: 12px;">
+                Herramientas para anfitriones de alquiler vacacional
               </p>
             </td>
           </tr>
