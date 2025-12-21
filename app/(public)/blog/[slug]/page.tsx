@@ -9,6 +9,7 @@ import { LikeButton } from '../../../../src/components/blog/LikeButton'
 import { prisma } from '../../../../src/lib/prisma'
 import { markdownToHtml } from '../../../../src/lib/markdown'
 import ReadingProgress from './ReadingProgress'
+import BlogArticleTracker from './BlogArticleTracker'
 import RelatedArticlesCarousel from '../../../../src/components/blog/RelatedArticlesCarousel'
 
 interface BlogPostPageProps {
@@ -187,6 +188,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       />
 
       <ReadingProgress />
+      <BlogArticleTracker
+        slug={post.slug}
+        title={post.title}
+        category={post.category}
+      />
 
       {/* Header */}
       <header className="border-b border-gray-200 bg-white sticky top-0 z-40 backdrop-blur-sm bg-white/90">

@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
+import { requireAdminAuth } from '@/lib/admin-auth'
 
 export async function GET(req: NextRequest) {
   try {
-    // TODO: Add admin authentication check
+    // Verify admin authentication
+    const adminOrResponse = await requireAdminAuth(req)
+    if (adminOrResponse instanceof Response) {
+      return adminOrResponse
+    }
 
     const searchParams = req.nextUrl.searchParams
     const page = parseInt(searchParams.get('page') || '1')

@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
+import { requireAdminAuth } from '@/lib/admin-auth'
 
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Add admin authentication check
+    // Verify admin authentication
+    const adminOrResponse = await requireAdminAuth(request)
+    if (adminOrResponse instanceof Response) {
+      return adminOrResponse
+    }
 
     const formData = await request.formData()
     const file = formData.get('file') as File

@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, CheckCircle, Rocket, Gift, ArrowRight } from 'lucide-react'
+import { trackNewsletterSubscribed, trackGenerateLead } from '@/lib/analytics'
+import { fbEvents } from '@/components/analytics/FacebookPixel'
 
 interface NewsletterCTAProps {
   variant?: 'inline' | 'box' | 'trial'
@@ -56,13 +58,22 @@ export function NewsletterCTA({
         setMessage('¡Genial! Revisa tu email para confirmar la suscripción')
         setEmail('')
 
-        // Track conversion
-        if (typeof window !== 'undefined' && (window as any).gtag) {
-          (window as any).gtag('event', 'newsletter_signup', {
-            source: source,
-            variant: variant
-          })
-        }
+        // Track analytics events (GTM + GA4)
+        trackNewsletterSubscribed({
+          source: source as 'blog' | 'homepage' | 'modal' | 'footer',
+          listName: 'blog-subscriber'
+        })
+        trackGenerateLead({
+          source: 'blog',
+          value: 10
+        })
+        // Facebook Pixel event
+        fbEvents.lead({
+          content_name: 'Newsletter Subscription',
+          content_category: source,
+          value: 10,
+          currency: 'EUR'
+        })
       } else {
         setStatus('error')
         setMessage(data.error || 'Hubo un error. Inténtalo de nuevo.')

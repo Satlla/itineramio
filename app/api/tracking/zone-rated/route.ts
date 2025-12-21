@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,32 +13,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Log the tracking event for now (in production, save to database)
-    console.log('⭐ ZONE_RATED:', {
-      propertyId,
-      zoneId,
-      rating,
-      comment,
-      timestamp: timestamp || new Date(),
-      userAgent: request.headers.get('user-agent'),
-      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip')
+    const userAgent = request.headers.get('user-agent') || undefined
+    const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined
+
+    // Save to database
+    await prisma.trackingEvent.create({
+      data: {
+        type: 'ZONE_RATED',
+        propertyId,
+        zoneId,
+        metadata: {
+          rating,
+          comment: comment || null
+        },
+        timestamp: timestamp ? new Date(timestamp) : new Date(),
+        userAgent,
+        ipAddress
+      }
     })
 
-    // TODO: Save to database
-    // await prisma.trackingEvent.create({
-    //   data: {
-    //     type: 'ZONE_RATED',
-    //     propertyId,
-    //     zoneId,
-    //     metadata: {
-    //       rating,
-    //       comment
-    //     },
-    //     timestamp: new Date(timestamp),
-    //     userAgent: request.headers.get('user-agent'),
-    //     ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip')
-    //   }
-    // })
+    console.log('⭐ ZONE_RATED saved:', { propertyId, zoneId, rating })
 
     return NextResponse.json({
       success: true,

@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react'
 import { InlineSpinner } from '@/components/ui/Spinner'
 import { questions, type Dimension } from '@/data/hostProfileQuestions'
+import { trackTestStarted, trackTestCompleted, trackGenerateLead } from '@/lib/analytics'
+import { fbEvents } from '@/components/analytics/FacebookPixel'
 
 interface Answer {
   questionId: number
@@ -29,6 +31,11 @@ export default function HostProfileTestPage() {
   const isLastQuestion = currentQuestionIndex === questions.length - 1
   const canGoNext = answers[currentQuestion.id] !== undefined
   const canGoPrevious = currentQuestionIndex > 0
+
+  // Track test started on mount
+  useEffect(() => {
+    trackTestStarted({ source: 'organic' })
+  }, [])
 
   const handleAnswer = (value: number) => {
     const newAnswers = {
@@ -147,6 +154,30 @@ export default function HostProfileTestPage() {
       }
 
       const data = await response.json()
+
+      // Track analytics events
+      trackTestCompleted({
+        archetype: data.archetype || 'unknown',
+        email: email,
+        source: 'organic'
+      })
+      trackGenerateLead({
+        source: 'quiz',
+        value: 15 // Higher value for quiz completions
+      })
+      // Facebook Pixel events
+      fbEvents.lead({
+        content_name: 'Host Profile Test',
+        content_category: 'quiz',
+        value: 15,
+        currency: 'EUR'
+      })
+      fbEvents.completeRegistration({
+        content_name: 'Host Profile Test',
+        status: 'completed',
+        value: 15,
+        currency: 'EUR'
+      })
 
       // Redirigir a resultados
       router.push(`/host-profile/results/${data.resultId}`)

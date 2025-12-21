@@ -22,6 +22,7 @@ import {
   NeighborhoodBarChart,
   SeasonalBarsChart
 } from './Charts'
+import { jsPDF } from 'jspdf'
 
 interface CalculationResult {
   currentMonthlyRevenue: number
@@ -203,8 +204,194 @@ export default function CalculadoraRentabilidad() {
   }
 
   const handleDownloadReport = async () => {
-    // TODO: Generar PDF con resultados
-    alert('Descarga de reporte en desarrollo')
+    if (!result) return
+
+    const cityName = CITIES.find(c => c.value === formData.city)?.label || formData.city
+    const propertyTypeLabel = {
+      studio: 'Estudio',
+      onebed: '1 Dormitorio',
+      twobed: '2 Dormitorios',
+      threebed: '3 Dormitorios'
+    }[formData.propertyType] || formData.propertyType
+
+    const doc = new jsPDF()
+    const pageWidth = doc.internal.pageSize.getWidth()
+    let yPos = 20
+
+    // Header
+    doc.setFillColor(139, 92, 246) // violet-500
+    doc.rect(0, 0, pageWidth, 40, 'F')
+
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(24)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Itineramio', 20, 25)
+
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Calculadora de Rentabilidad', 20, 35)
+
+    yPos = 55
+
+    // Title
+    doc.setTextColor(31, 41, 55) // gray-800
+    doc.setFontSize(18)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Informe de Rentabilidad', 20, yPos)
+    yPos += 10
+
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(107, 114, 128) // gray-500
+    doc.text(`Generado el ${new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}`, 20, yPos)
+    yPos += 15
+
+    // Property Info Box
+    doc.setFillColor(249, 250, 251) // gray-50
+    doc.roundedRect(20, yPos, pageWidth - 40, 35, 3, 3, 'F')
+
+    doc.setTextColor(55, 65, 81) // gray-700
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Datos de la Propiedad', 30, yPos + 10)
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.text(`Ciudad: ${cityName}`, 30, yPos + 20)
+    doc.text(`Tipo: ${propertyTypeLabel}`, 100, yPos + 20)
+    doc.text(`Precio actual: €${formData.currentPrice}/noche`, 30, yPos + 28)
+    doc.text(`Ocupacion: ${formData.currentOccupancy}%`, 100, yPos + 28)
+    yPos += 45
+
+    // Revenue Comparison Section
+    doc.setTextColor(31, 41, 55)
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Comparativa de Ingresos', 20, yPos)
+    yPos += 12
+
+    // Current Revenue Box
+    doc.setFillColor(243, 244, 246) // gray-100
+    doc.roundedRect(20, yPos, 80, 30, 3, 3, 'F')
+    doc.setTextColor(107, 114, 128)
+    doc.setFontSize(9)
+    doc.text('Ingresos Actuales', 30, yPos + 10)
+    doc.setTextColor(31, 41, 55)
+    doc.setFontSize(16)
+    doc.setFont('helvetica', 'bold')
+    doc.text(`€${result.currentMonthlyRevenue.toLocaleString()}/mes`, 30, yPos + 22)
+
+    // Market Revenue Box
+    doc.setFillColor(237, 233, 254) // violet-100
+    doc.roundedRect(110, yPos, 80, 30, 3, 3, 'F')
+    doc.setTextColor(109, 40, 217) // violet-700
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Potencial de Mercado', 120, yPos + 10)
+    doc.setTextColor(76, 29, 149) // violet-800
+    doc.setFontSize(16)
+    doc.setFont('helvetica', 'bold')
+    doc.text(`€${result.marketMonthlyRevenue.toLocaleString()}/mes`, 120, yPos + 22)
+    yPos += 40
+
+    // Opportunity Box
+    if (result.potentialGain > 0) {
+      doc.setFillColor(254, 243, 199) // amber-100
+      doc.roundedRect(20, yPos, pageWidth - 40, 25, 3, 3, 'F')
+      doc.setTextColor(146, 64, 14) // amber-800
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Oportunidad de Mejora', 30, yPos + 10)
+      doc.setFontSize(14)
+      doc.text(`+€${result.potentialGain.toLocaleString()}/mes (€${(result.potentialGain * 12).toLocaleString()}/año)`, 30, yPos + 20)
+    } else {
+      doc.setFillColor(209, 250, 229) // green-100
+      doc.roundedRect(20, yPos, pageWidth - 40, 25, 3, 3, 'F')
+      doc.setTextColor(6, 95, 70) // green-800
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'bold')
+      doc.text('¡Excelente! Superas el mercado', 30, yPos + 10)
+      doc.setFontSize(14)
+      doc.text(`+€${Math.abs(result.potentialGain).toLocaleString()}/mes por encima del promedio`, 30, yPos + 20)
+    }
+    yPos += 35
+
+    // Pricing Recommendations
+    doc.setTextColor(31, 41, 55)
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Recomendaciones de Pricing', 20, yPos)
+    yPos += 10
+
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`• Precio sugerido: €${result.suggestedPrice}/noche`, 25, yPos)
+    yPos += 7
+    doc.text(`• Rango optimo: €${result.priceRange.min} - €${result.priceRange.max}/noche`, 25, yPos)
+    yPos += 7
+    doc.text(`• Ocupacion objetivo: ${result.suggestedOccupancy}%`, 25, yPos)
+    yPos += 15
+
+    // Seasonal Data (if available)
+    if (result.seasonal && hasFullAccess) {
+      doc.setFontSize(14)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Analisis Estacional', 20, yPos)
+      yPos += 10
+
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'normal')
+
+      doc.text(`Temporada Alta (${result.seasonal.high.months.join(', ')}):`, 25, yPos)
+      doc.text(`€${result.seasonal.high.price}/noche | ${result.seasonal.high.occupancy}% ocup. | €${result.seasonal.high.revenue}/mes`, 90, yPos)
+      yPos += 7
+
+      doc.text(`Temporada Media (${result.seasonal.mid.months.join(', ')}):`, 25, yPos)
+      doc.text(`€${result.seasonal.mid.price}/noche | ${result.seasonal.mid.occupancy}% ocup. | €${result.seasonal.mid.revenue}/mes`, 90, yPos)
+      yPos += 7
+
+      doc.text(`Temporada Baja (${result.seasonal.low.months.join(', ')}):`, 25, yPos)
+      doc.text(`€${result.seasonal.low.price}/noche | ${result.seasonal.low.occupancy}% ocup. | €${result.seasonal.low.revenue}/mes`, 90, yPos)
+      yPos += 15
+    }
+
+    // Insights
+    if (result.insights && result.insights.length > 0 && hasFullAccess) {
+      doc.setFontSize(14)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Recomendaciones Personalizadas', 20, yPos)
+      yPos += 10
+
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+
+      result.insights.forEach((insight, index) => {
+        if (yPos > 260) {
+          doc.addPage()
+          yPos = 20
+        }
+        doc.setTextColor(31, 41, 55)
+        doc.text(`${index + 1}. ${insight.message}`, 25, yPos)
+        yPos += 5
+        doc.setTextColor(107, 114, 128)
+        doc.text(`   → ${insight.recommendation}`, 25, yPos)
+        yPos += 8
+      })
+    }
+
+    // Footer
+    const footerY = doc.internal.pageSize.getHeight() - 20
+    doc.setFillColor(249, 250, 251)
+    doc.rect(0, footerY - 5, pageWidth, 25, 'F')
+
+    doc.setTextColor(107, 114, 128)
+    doc.setFontSize(8)
+    doc.text('Generado por Itineramio - La plataforma de manuales digitales para anfitriones', 20, footerY)
+    doc.text('itineramio.com', 20, footerY + 7)
+    doc.text(`Datos de mercado actualizados: ${new Date().toLocaleDateString('es-ES')}`, pageWidth - 70, footerY + 7)
+
+    // Save PDF
+    doc.save(`rentabilidad-${cityName.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`)
   }
 
   return (

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,28 +13,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Log the suggestion for now (in production, save to database)
-    console.log('💡 SUGGESTION:', {
-      propertyId,
-      suggestion,
-      timestamp: timestamp || new Date(),
-      userAgent: request.headers.get('user-agent'),
-      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip')
+    const userAgent = request.headers.get('user-agent') || undefined
+    const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined
+
+    // Save to database
+    await prisma.trackingEvent.create({
+      data: {
+        type: 'SUGGESTION',
+        propertyId,
+        metadata: {
+          suggestion
+        },
+        timestamp: timestamp ? new Date(timestamp) : new Date(),
+        userAgent,
+        ipAddress
+      }
     })
 
-    // TODO: Save to database
-    // await prisma.trackingEvent.create({
-    //   data: {
-    //     type: 'SUGGESTION',
-    //     propertyId,
-    //     metadata: {
-    //       suggestion
-    //     },
-    //     timestamp: new Date(timestamp),
-    //     userAgent: request.headers.get('user-agent'),
-    //     ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip')
-    //   }
-    // })
+    console.log('💡 SUGGESTION saved:', { propertyId, suggestion })
 
     return NextResponse.json({
       success: true,

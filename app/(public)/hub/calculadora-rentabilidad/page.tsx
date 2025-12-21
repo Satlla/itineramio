@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { trackCalculatorUsed, trackGenerateLead } from '@/lib/analytics'
+import { fbEvents } from '@/components/analytics/FacebookPixel'
 import {
   ArrowLeft,
   ArrowRight,
@@ -510,6 +511,14 @@ export default function CalculadoraRentabilidad() {
           source: 'recursos',
           leadMagnet: 'calculadora-rentabilidad',
           value: 15, // Higher value for calculator leads
+        })
+
+        // Facebook Pixel event
+        fbEvents.lead({
+          content_name: 'Calculadora Rentabilidad',
+          content_category: 'calculator',
+          value: 15,
+          currency: 'EUR'
         })
       }
     } catch (error) {

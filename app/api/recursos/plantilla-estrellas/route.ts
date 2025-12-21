@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send email
-    await resend.emails.send({
+    const emailResult = await resend.emails.send({
       from: 'Itineramio <recursos@itineramio.com>',
       to: email,
       subject: 'Tu plantilla personalizada del significado de las estrellas',
@@ -248,7 +248,17 @@ export async function POST(request: NextRequest) {
 `
     })
 
-    return NextResponse.json({ success: true })
+    console.log('Resend result:', JSON.stringify(emailResult, null, 2))
+
+    if (emailResult.error) {
+      console.error('Resend error:', emailResult.error)
+      return NextResponse.json({
+        success: false,
+        error: emailResult.error.message || 'Error enviando email'
+      }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, emailId: emailResult.data?.id })
   } catch (error) {
     console.error('Error generating template:', error)
     return NextResponse.json(

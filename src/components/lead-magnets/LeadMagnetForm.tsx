@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { LeadMagnet } from '@/data/lead-magnets'
 import { CheckCircle2, Download, Loader2, Mail } from 'lucide-react'
+import { trackGenerateLead, trackLeadMagnetDownloaded } from '@/lib/analytics'
+import { fbEvents } from '@/components/analytics/FacebookPixel'
 
 export default function LeadMagnetForm({
   leadMagnet,
@@ -41,6 +43,24 @@ export default function LeadMagnetForm({
       }
 
       const data = await response.json()
+
+      // Track analytics events
+      trackGenerateLead({
+        source: 'recursos',
+        leadMagnet: leadMagnet.slug
+      })
+      trackLeadMagnetDownloaded({
+        resourceName: leadMagnet.title,
+        resourceType: 'guide',
+        articleSlug: leadMagnet.slug
+      })
+      // Facebook Pixel event
+      fbEvents.lead({
+        content_name: leadMagnet.title,
+        content_category: 'lead_magnet',
+        value: 10,
+        currency: 'EUR'
+      })
 
       // Si recibimos un downloadToken, redirigir directamente a la descarga
       if (data.downloadToken && data.leadMagnetSlug) {
