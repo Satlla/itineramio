@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Star, Download, Mail, Phone, User, ArrowLeft, Check, Loader2, QrCode } from 'lucide-react'
 
-export default function PlantillaEstrellasPersonalizadaPage() {
+export default function PlantillaReviewsPage() {
   const [formData, setFormData] = useState({
     nombre: '',
     telefono: '',
@@ -20,7 +20,7 @@ export default function PlantillaEstrellasPersonalizadaPage() {
     setError('')
 
     try {
-      const response = await fetch('/api/recursos/plantilla-estrellas', {
+      const response = await fetch('/api/recursos/plantilla-reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -72,12 +72,12 @@ export default function PlantillaEstrellasPersonalizadaPage() {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Plantilla del Significado de las Estrellas
+            Plantilla de Reviews para Airbnb
           </h1>
 
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Personaliza la plantilla con tu nombre y número de WhatsApp.
-            Incluye un código QR para que tus huéspedes te contacten fácilmente.
+            Educa a tus huéspedes sobre lo que significa cada valoración.
+            Personaliza con tu nombre y QR de WhatsApp para contacto directo.
           </p>
         </div>
 

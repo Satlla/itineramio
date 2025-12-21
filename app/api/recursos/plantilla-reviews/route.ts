@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       await prisma.leadMagnetDownload.create({
         data: {
           email,
-          leadMagnetSlug: 'plantilla-estrellas-personalizada',
+          leadMagnetSlug: 'plantilla-reviews',
           metadata: { nombre, telefono, whatsappPhone }
         }
       })
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     const emailResult = await resend.emails.send({
       from: 'Itineramio <recursos@itineramio.com>',
       to: email,
-      subject: 'Tu plantilla personalizada del significado de las estrellas',
+      subject: 'Tu Plantilla de Reviews personalizada',
       html: `
 <!DOCTYPE html>
 <html>
