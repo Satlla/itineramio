@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     const emailResult = await resend.emails.send({
       from: 'Itineramio <recursos@itineramio.com>',
       to: email,
-      subject: 'Tu Plantilla de Reviews personalizada',
+      subject: 'Tu Guía Rápida de Reseñas - Plantilla PRO',
       html: `
 <!DOCTYPE html>
 <html>
@@ -56,107 +56,161 @@ export async function POST(request: NextRequest) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: Georgia, 'Times New Roman', serif; background-color: #f5f5f0;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f0; padding: 48px 20px;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8f8f8;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8f8f8; padding: 40px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 480px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 520px;">
 
-          <!-- Email intro -->
+          <!-- Email Header -->
           <tr>
-            <td style="padding: 0 0 40px 0; text-align: center;">
-              <p style="margin: 0 0 8px 0; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; font-family: -apple-system, sans-serif;">Itineramio</p>
-              <h1 style="margin: 0 0 16px 0; color: #1a1a1a; font-size: 26px; font-weight: 400; line-height: 1.3;">Tu plantilla está lista</h1>
-              <p style="margin: 0; color: #666; font-size: 15px; line-height: 1.6; font-family: -apple-system, sans-serif;">Hola ${nombre}, aquí tienes tu plantilla personalizada.<br>Imprímela y colócala en tu alojamiento.</p>
+            <td style="padding: 0 0 32px 0; text-align: center;">
+              <p style="margin: 0 0 6px 0; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 2px;">Itineramio</p>
+              <h1 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 24px; font-weight: 600;">Tu plantilla PRO está lista</h1>
+              <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.5;">Hola ${nombre}, aquí tienes tu Guía Rápida de Reseñas personalizada.</p>
             </td>
           </tr>
 
-          <!-- ========== PRINTABLE TEMPLATE CARD ========== -->
+          <!-- ========== PLANTILLA PRO IMPRIMIBLE ========== -->
           <tr>
             <td>
-              <table width="100%" cellpadding="0" cellspacing="0" style="background: #ffffff; border: 2px solid #1a1a1a; border-radius: 0;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: #ffffff; border: 1px solid #e0e0e0;">
 
-                <!-- Elegant Header -->
+                <!-- Header con nombre del alojamiento -->
                 <tr>
-                  <td style="padding: 40px 32px 32px 32px; text-align: center; border-bottom: 1px solid #e5e5e5;">
-                    <p style="margin: 0 0 8px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 3px; color: #999;">Gracias por tu estancia</p>
-                    <h2 style="margin: 0; font-size: 28px; font-weight: 400; color: #1a1a1a; letter-spacing: 1px;">${nombre}</h2>
+                  <td style="padding: 28px 28px 0 28px;">
+                    <p style="margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #999;">Alojamiento</p>
+                    <p style="margin: 4px 0 0 0; font-size: 18px; font-weight: 600; color: #1a1a1a;">${nombre}</p>
                   </td>
                 </tr>
 
-                <!-- Subtitle -->
+                <!-- Título principal -->
                 <tr>
-                  <td style="padding: 28px 32px 0 32px; text-align: center;">
-                    <p style="margin: 0; font-size: 13px; color: #666; font-family: -apple-system, sans-serif; line-height: 1.5;">Tu valoración es muy importante para nosotros.<br>Esto es lo que significa cada puntuación:</p>
+                  <td style="padding: 24px 28px 0 28px; border-bottom: 1px solid #f0f0f0;">
+                    <h2 style="margin: 0 0 8px 0; font-size: 22px; font-weight: 600; color: #1a1a1a;">Guía rápida de reseñas</h2>
+                    <p style="margin: 0 0 20px 0; font-size: 13px; color: #666; line-height: 1.5;">Tu opinión ayuda a futuros viajeros y nos permite mejorar.</p>
                   </td>
                 </tr>
 
-                <!-- Stars Section -->
+                <!-- Contexto -->
                 <tr>
-                  <td style="padding: 28px 32px;">
+                  <td style="padding: 20px 28px; background: #fafafa;">
+                    <p style="margin: 0; font-size: 13px; color: #555; line-height: 1.6;">En Airbnb, las estrellas suelen interpretarse de forma distinta a la escala tradicional. En general, <strong>5 estrellas</strong> significa que la estancia fue buena y que el alojamiento cumplió lo prometido.</p>
+                  </td>
+                </tr>
 
-                    <!-- 5 Stars -->
-                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px;">
+                <!-- CTA suave -->
+                <tr>
+                  <td style="padding: 20px 28px; border-bottom: 1px solid #f0f0f0;">
+                    <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.5px;">Antes de valorar</p>
+                    <p style="margin: 0; font-size: 13px; color: #666; line-height: 1.5;">Si algo no ha estado perfecto, por favor cuéntanoslo. La mayoría de incidencias (Wi-Fi, climatización, ruido, reposición) se resuelven rápido si lo sabemos a tiempo.</p>
+                  </td>
+                </tr>
+
+                <!-- Escala de estrellas -->
+                <tr>
+                  <td style="padding: 20px 28px;">
+                    <p style="margin: 0 0 16px 0; font-size: 12px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.5px;">Escala orientativa</p>
+
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <!-- 5 estrellas -->
                       <tr>
-                        <td style="text-align: center;">
-                          <p style="margin: 0 0 6px 0; font-size: 22px; letter-spacing: 4px; color: #1a1a1a;">★★★★★</p>
-                          <p style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #1a1a1a; font-family: -apple-system, sans-serif;">Excelente</p>
-                          <p style="margin: 0; font-size: 13px; color: #888; font-family: -apple-system, sans-serif;">Todo perfecto. Cumplió mis expectativas.</p>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #f5f5f5;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="width: 90px; vertical-align: top;">
+                                <span style="font-size: 14px; color: #1a1a1a; letter-spacing: 1px;">★★★★★</span>
+                              </td>
+                              <td style="vertical-align: top;">
+                                <p style="margin: 0; font-size: 13px; color: #333;">Todo estuvo según lo descrito y la experiencia fue buena.</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- 4 estrellas -->
+                      <tr>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #f5f5f5;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="width: 90px; vertical-align: top;">
+                                <span style="font-size: 14px; letter-spacing: 1px;"><span style="color: #1a1a1a;">★★★★</span><span style="color: #ddd;">★</span></span>
+                              </td>
+                              <td style="vertical-align: top;">
+                                <p style="margin: 0; font-size: 13px; color: #333;">Hubo algún aspecto importante que no cumplió expectativas.</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- 3 estrellas -->
+                      <tr>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #f5f5f5;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="width: 90px; vertical-align: top;">
+                                <span style="font-size: 14px; letter-spacing: 1px;"><span style="color: #1a1a1a;">★★★</span><span style="color: #ddd;">★★</span></span>
+                              </td>
+                              <td style="vertical-align: top;">
+                                <p style="margin: 0; font-size: 13px; color: #333;">Hubo varios problemas relevantes que afectaron la estancia.</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- 2 estrellas -->
+                      <tr>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #f5f5f5;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="width: 90px; vertical-align: top;">
+                                <span style="font-size: 14px; letter-spacing: 1px;"><span style="color: #1a1a1a;">★★</span><span style="color: #ddd;">★★★</span></span>
+                              </td>
+                              <td style="vertical-align: top;">
+                                <p style="margin: 0; font-size: 13px; color: #333;">La experiencia tuvo incidencias graves o deficiencias importantes.</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- 1 estrella -->
+                      <tr>
+                        <td style="padding: 10px 0;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="width: 90px; vertical-align: top;">
+                                <span style="font-size: 14px; letter-spacing: 1px;"><span style="color: #1a1a1a;">★</span><span style="color: #ddd;">★★★★</span></span>
+                              </td>
+                              <td style="vertical-align: top;">
+                                <p style="margin: 0; font-size: 13px; color: #333;">Experiencia inaceptable (seguridad, higiene o veracidad).</p>
+                              </td>
+                            </tr>
+                          </table>
                         </td>
                       </tr>
                     </table>
+                  </td>
+                </tr>
 
-                    <!-- 4 Stars -->
-                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px;">
-                      <tr>
-                        <td style="text-align: center;">
-                          <p style="margin: 0 0 6px 0; font-size: 22px; letter-spacing: 4px;"><span style="color: #1a1a1a;">★★★★</span><span style="color: #ddd;">★</span></p>
-                          <p style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #1a1a1a; font-family: -apple-system, sans-serif;">Bien</p>
-                          <p style="margin: 0; font-size: 13px; color: #888; font-family: -apple-system, sans-serif;">Algún detalle menor que pude comentar.</p>
-                        </td>
-                      </tr>
-                    </table>
+                <!-- Nota de transparencia -->
+                <tr>
+                  <td style="padding: 16px 28px; background: #fafafa; border-top: 1px solid #f0f0f0;">
+                    <p style="margin: 0; font-size: 11px; color: #888; line-height: 1.5; font-style: italic;">Valora con total honestidad. Esta guía solo pretende aclarar el significado habitual de las estrellas en la plataforma.</p>
+                  </td>
+                </tr>
 
-                    <!-- 3 Stars -->
+                <!-- Caja de contacto -->
+                <tr>
+                  <td style="padding: 24px 28px; border-top: 1px solid #e0e0e0;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td style="text-align: center;">
-                          <p style="margin: 0 0 6px 0; font-size: 22px; letter-spacing: 4px;"><span style="color: #1a1a1a;">★★★</span><span style="color: #ddd;">★★</span></p>
-                          <p style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #1a1a1a; font-family: -apple-system, sans-serif;">Mejorable</p>
-                          <p style="margin: 0; font-size: 13px; color: #888; font-family: -apple-system, sans-serif;">Hubo problemas. Contacta antes de valorar.</p>
+                        <td style="vertical-align: top;">
+                          <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.5px;">Soporte</p>
+                          <p style="margin: 0 0 12px 0; font-size: 12px; color: #666; line-height: 1.4;">Si necesitas algo durante tu estancia, escríbenos y lo resolvemos lo antes posible.</p>
+                          <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 500;">${telefono}</p>
                         </td>
-                      </tr>
-                    </table>
-
-                  </td>
-                </tr>
-
-                <!-- Divider -->
-                <tr>
-                  <td style="padding: 0 32px;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="border-top: 1px solid #e5e5e5;"></td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- QR Section - Centered -->
-                <tr>
-                  <td style="padding: 28px 32px 36px 32px; text-align: center;">
-                    <p style="margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #1a1a1a; font-family: -apple-system, sans-serif;">¿Algún problema?</p>
-                    <p style="margin: 0 0 20px 0; font-size: 12px; color: #888; font-family: -apple-system, sans-serif;">Escríbeme y lo solucionamos juntos</p>
-                    <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
-                      <tr>
-                        <td style="text-align: center;">
-                          <img src="${qrCodeUrl}" alt="QR WhatsApp" width="100" height="100" style="display: block; margin: 0 auto;" />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="padding-top: 12px; text-align: center;">
-                          <p style="margin: 0 0 2px 0; font-size: 11px; color: #999; font-family: -apple-system, sans-serif;">WhatsApp</p>
-                          <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 500; font-family: -apple-system, sans-serif;">${telefono}</p>
+                        <td style="width: 90px; text-align: right; vertical-align: top;">
+                          <img src="${qrCodeUrl}" alt="QR WhatsApp" width="80" height="80" style="display: block;" />
                         </td>
                       </tr>
                     </table>
@@ -166,32 +220,24 @@ export async function POST(request: NextRequest) {
               </table>
             </td>
           </tr>
-          <!-- ========== END PRINTABLE TEMPLATE ========== -->
+          <!-- ========== FIN PLANTILLA ========== -->
 
-          <!-- Instructions -->
+          <!-- Instrucciones -->
           <tr>
-            <td style="padding: 40px 0 32px 0; text-align: center;">
-              <p style="margin: 0 0 20px 0; font-size: 14px; font-weight: 600; color: #1a1a1a; font-family: -apple-system, sans-serif;">Cómo usar tu plantilla</p>
-              <table width="100%" cellpadding="0" cellspacing="0" style="font-family: -apple-system, sans-serif;">
+            <td style="padding: 32px 0 24px 0;">
+              <p style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: #1a1a1a;">Cómo usar tu plantilla</p>
+              <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="padding: 6px 0; font-size: 13px; color: #666; text-align: center;">
-                    1. Guarda este email como PDF o imprímelo directamente
-                  </td>
+                  <td style="padding: 6px 0; font-size: 13px; color: #666;">1. Guarda como PDF (Cmd/Ctrl + P → Guardar como PDF)</td>
                 </tr>
                 <tr>
-                  <td style="padding: 6px 0; font-size: 13px; color: #666; text-align: center;">
-                    2. Recorta la tarjeta por el borde negro
-                  </td>
+                  <td style="padding: 6px 0; font-size: 13px; color: #666;">2. Imprime en A4 o tamaño carta</td>
                 </tr>
                 <tr>
-                  <td style="padding: 6px 0; font-size: 13px; color: #666; text-align: center;">
-                    3. Plastifícala o enmárcala para mayor durabilidad
-                  </td>
+                  <td style="padding: 6px 0; font-size: 13px; color: #666;">3. Enmarca o plastifica para mayor durabilidad</td>
                 </tr>
                 <tr>
-                  <td style="padding: 6px 0; font-size: 13px; color: #666; text-align: center;">
-                    4. Colócala en un lugar visible del alojamiento
-                  </td>
+                  <td style="padding: 6px 0; font-size: 13px; color: #666;">4. Colócala en un lugar visible del alojamiento</td>
                 </tr>
               </table>
             </td>
@@ -199,18 +245,18 @@ export async function POST(request: NextRequest) {
 
           <!-- CTA -->
           <tr>
-            <td align="center" style="padding: 0 0 40px 0;">
-              <a href="https://www.itineramio.com/blog/plantilla-significado-estrellas-airbnb-huespedes" style="display: inline-block; background: #1a1a1a; color: #ffffff; padding: 14px 28px; text-decoration: none; font-weight: 500; font-size: 13px; font-family: -apple-system, sans-serif; letter-spacing: 0.5px;">
-                Leer el artículo completo
+            <td align="center" style="padding: 0 0 32px 0;">
+              <a href="https://www.itineramio.com/blog/plantilla-significado-estrellas-airbnb-huespedes" style="display: inline-block; background: #1a1a1a; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: 500; font-size: 13px;">
+                Leer artículo completo
               </a>
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="text-align: center; padding: 24px 0; border-top: 1px solid #e0e0e0;">
-              <p style="margin: 0; color: #999; font-size: 12px; font-family: -apple-system, sans-serif;">
-                <a href="https://www.itineramio.com" style="color: #666; text-decoration: none;">itineramio.com</a>
+            <td style="text-align: center; padding: 20px 0; border-top: 1px solid #e5e5e5;">
+              <p style="margin: 0; color: #999; font-size: 11px;">
+                <a href="https://www.itineramio.com" style="color: #666; text-decoration: none;">itineramio.com</a> · Herramientas para anfitriones
               </p>
             </td>
           </tr>

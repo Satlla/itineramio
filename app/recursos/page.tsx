@@ -156,11 +156,11 @@ export default function RecursosPage() {
               </span>
             </div>
             <h3 className="font-bold text-2xl mb-2">
-              Plantilla de Reviews
+              Guía Rápida de Reseñas
             </h3>
             <p className="text-white/90 mb-4">
-              Educa a tus huéspedes sobre el sistema de valoraciones.
-              Con tu nombre y QR de WhatsApp personalizado.
+              Plantilla PRO para educar a huéspedes sobre las valoraciones.
+              Personalizada con tu alojamiento y QR de WhatsApp.
             </p>
             <div className="flex items-center text-white font-semibold group-hover:translate-x-1 transition-transform">
               <span>Personalizar plantilla</span>

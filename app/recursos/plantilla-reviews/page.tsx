@@ -72,12 +72,12 @@ export default function PlantillaReviewsPage() {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Plantilla de Reviews para Airbnb
+            Guía Rápida de Reseñas
           </h1>
 
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Educa a tus huéspedes sobre lo que significa cada valoración.
-            Personaliza con tu nombre y QR de WhatsApp para contacto directo.
+            Plantilla PRO para educar a tus huéspedes sobre el sistema de valoraciones de Airbnb.
+            Personaliza con el nombre de tu alojamiento y QR de WhatsApp.
           </p>
         </div>
 
