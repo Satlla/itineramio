@@ -36,8 +36,8 @@ export async function POST(request: NextRequest) {
     const whatsappPhone = formatPhoneForWhatsApp(telefono)
     const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent('Hola, tengo una pregunta sobre mi estancia')}`
 
-    // Generate QR code as base64
-    const qrCodeDataUrl = await QRCode.toDataURL(whatsappUrl, {
+    // Generate QR code as buffer for email attachment
+    const qrCodeBuffer = await QRCode.toBuffer(whatsappUrl, {
       width: 200,
       margin: 2,
       color: {
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
         ¿Algún problema? <span class="coral">Escríbeme directamente</span>
       </div>
       <div class="qr-section">
-        <img src="${qrCodeDataUrl}" alt="QR WhatsApp" class="qr-code" />
+        <img src="cid:qrcode" alt="QR WhatsApp" class="qr-code" />
         <div class="qr-info">
           <div class="qr-label">Escanea para contactar</div>
           <div class="qr-phone">${telefono}</div>
@@ -177,11 +177,18 @@ export async function POST(request: NextRequest) {
 </html>
 `
 
-    // Send email with the template
+    // Send email with the template and QR attachment
     await resend.emails.send({
       from: 'Itineramio <recursos@itineramio.com>',
       to: email,
       subject: 'Tu plantilla personalizada del significado de las estrellas',
+      attachments: [
+        {
+          filename: 'qrcode.png',
+          content: qrCodeBuffer.toString('base64'),
+          cid: 'qrcode'
+        }
+      ],
       html: `
 <!DOCTYPE html>
 <html>
