@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     // Log activity
     await prisma.adminActivityLog.create({
       data: {
-        adminUserId: 'admin', // TODO: Get actual admin ID
+        adminUserId: authResult.adminId,
         action: 'plan_created',
         targetType: 'plan',
         targetId: newPlan.id,

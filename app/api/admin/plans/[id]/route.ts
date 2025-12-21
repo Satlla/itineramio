@@ -53,7 +53,7 @@ export async function PATCH(
     // Log activity
     await prisma.adminActivityLog.create({
       data: {
-        adminUserId: 'admin', // TODO: Get actual admin ID
+        adminUserId: authResult.adminId,
         action: 'plan_updated',
         targetType: 'plan',
         targetId: planId,
@@ -130,7 +130,7 @@ export async function DELETE(
     // Log activity
     await prisma.adminActivityLog.create({
       data: {
-        adminUserId: 'admin', // TODO: Get actual admin ID
+        adminUserId: authResult.adminId,
         action: 'plan_deleted',
         targetType: 'plan',
         targetId: planId,

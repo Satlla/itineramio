@@ -45,7 +45,7 @@ export async function PATCH(
     // Log activity
     await prisma.adminActivityLog.create({
       data: {
-        adminUserId: 'admin', // TODO: Get actual admin ID
+        adminUserId: authResult.adminId,
         action: isActive ? 'plan_activated' : 'plan_deactivated',
         targetType: 'plan',
         targetId: planId,
