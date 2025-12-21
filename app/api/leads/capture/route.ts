@@ -1,5 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
+import { sendLeadMagnetEmail } from '../../../../src/lib/resend'
+import { LEAD_MAGNETS, type LeadMagnetArchetype } from '../../../../src/data/lead-magnets'
+
+// Map source to lead magnet info for email
+const SOURCE_TO_LEAD_MAGNET: Record<string, {
+  title: string
+  subtitle: string
+  archetype: string
+  pages: number
+  downloadables: string[]
+  downloadUrl: string
+}> = {
+  // Arquetipo lead magnets
+  'estratega-5-kpis': { ...LEAD_MAGNETS.ESTRATEGA, archetype: 'Estratega' },
+  'sistematico-47-tareas': { ...LEAD_MAGNETS.SISTEMATICO, archetype: 'Sistemático' },
+  'diferenciador-storytelling': { ...LEAD_MAGNETS.DIFERENCIADOR, archetype: 'Diferenciador' },
+  'ejecutor-modo-ceo': { ...LEAD_MAGNETS.EJECUTOR, archetype: 'Ejecutor' },
+  'resolutor-27-crisis': { ...LEAD_MAGNETS.RESOLUTOR, archetype: 'Resolutor' },
+  'experiencial-corazon-escalable': { ...LEAD_MAGNETS.EXPERIENCIAL, archetype: 'Experiencial' },
+  'equilibrado-versatil-excepcional': { ...LEAD_MAGNETS.EQUILIBRADO, archetype: 'Equilibrado' },
+  'improvisador-kit-anti-caos': { ...LEAD_MAGNETS.IMPROVISADOR, archetype: 'Improvisador' },
+  // Tool-based lead magnets
+  'wifi-card': {
+    title: 'Plantilla WiFi Profesional',
+    subtitle: 'Tarjeta WiFi lista para imprimir',
+    archetype: 'Anfitrión',
+    pages: 1,
+    downloadables: ['Tarjeta WiFi editable', 'Diseño profesional', 'Formato para imprimir'],
+    downloadUrl: '/recursos/plantillas/instrucciones-wifi'
+  },
+  'qr-generator': {
+    title: 'Generador de Códigos QR',
+    subtitle: 'QR codes para tu propiedad',
+    archetype: 'Anfitrión',
+    pages: 1,
+    downloadables: ['Códigos QR personalizados', 'Múltiples formatos'],
+    downloadUrl: '/hub/qr-generator'
+  },
+  'cleaning-checklist': {
+    title: 'Checklist de Limpieza',
+    subtitle: 'Lista completa para tu equipo',
+    archetype: 'Anfitrión',
+    pages: 2,
+    downloadables: ['Checklist imprimible', 'Por habitación', 'Para equipo de limpieza'],
+    downloadUrl: '/recursos/checklist-limpieza'
+  },
+  'calculadora-rentabilidad': {
+    title: 'Calculadora de Rentabilidad',
+    subtitle: 'Análisis de tu potencial de ingresos',
+    archetype: 'Anfitrión',
+    pages: 1,
+    downloadables: ['Informe personalizado', 'Comparativa mercado', 'Recomendaciones'],
+    downloadUrl: '/hub/calculadora'
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,6 +78,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const normalizedEmail = email.toLowerCase().trim()
+
     // Get user agent and IP for analytics
     const userAgent = request.headers.get('user-agent') || undefined
     const ipAddress =
@@ -33,7 +90,7 @@ export async function POST(request: NextRequest) {
     // Check if lead already exists (optional - prevent duplicates)
     const existingLead = await prisma.lead.findFirst({
       where: {
-        email,
+        email: normalizedEmail,
         source,
         createdAt: {
           // Only check duplicates within last 24 hours
@@ -54,57 +111,95 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create lead (metadata temporarily disabled until migration completes)
+    // Create lead
     const lead = await prisma.lead.create({
       data: {
         name,
-        email: email.toLowerCase().trim(),
+        email: normalizedEmail,
         source,
         userAgent,
         ipAddress
-        // metadata: body.metadata || {} // TODO: Uncomment after migration
       }
     })
 
-    // Create initial journey stage: LEAD
-    // Temporarily disabled until migration completes
-    // TODO: Uncomment after running: npx prisma db push
-    /*
-    await prisma.customerJourneyStage.create({
-      data: {
-        leadId: lead.id,
-        email: email.toLowerCase().trim(),
-        stage: 'LEAD',
-        score: 10, // Initial score for lead capture
-        metadata: {
-          source,
-          capturedVia: 'hub-tool',
-          initialAction: 'resource_download'
+    // Add to EmailSubscriber for nurturing sequence
+    const existingSubscriber = await prisma.emailSubscriber.findUnique({
+      where: { email: normalizedEmail }
+    })
+
+    // Determine archetype from source or use default
+    const sourceToArchetype: Record<string, string> = {
+      'estratega-5-kpis': 'ESTRATEGA',
+      'sistematico-47-tareas': 'SISTEMATICO',
+      'diferenciador-storytelling': 'DIFERENCIADOR',
+      'ejecutor-modo-ceo': 'EJECUTOR',
+      'resolutor-27-crisis': 'RESOLUTOR',
+      'experiencial-corazon-escalable': 'EXPERIENCIAL',
+      'equilibrado-versatil-excepcional': 'EQUILIBRADO',
+      'improvisador-kit-anti-caos': 'IMPROVISADOR'
+    }
+    const archetype = sourceToArchetype[source] || 'EQUILIBRADO' // Default archetype for tool-based leads
+
+    if (!existingSubscriber) {
+      await prisma.emailSubscriber.create({
+        data: {
+          email: normalizedEmail,
+          name,
+          source: `lead_magnet_${source}`,
+          archetype, // Assign archetype for nurturing sequence
+          status: 'active',
+          sequenceStatus: 'active',
+          sequenceStartedAt: new Date(),
+          tags: ['lead_magnet', source],
+          currentJourneyStage: 'lead'
         }
-      }
-    })
-    */
-
-    // TODO: Queue welcome email
-    // This will be handled by a background job or trigger
-    // For now, we log it and send asynchronously
-    const resourceNameMap: Record<string, string> = {
-      'qr-generator': 'Generador de Códigos QR',
-      'roi-calculator': 'Calculadora de ROI',
-      'pricing-calculator': 'Calculadora de Precios',
-      'description-generator': 'Generador de Descripciones',
-      'checkin-builder': 'Constructor de Check-in',
-      'occupancy-calculator': 'Calculadora de Ocupación',
-      'wifi-card': 'Tarjeta WiFi',
-      'cleaning-checklist': 'Checklist de Limpieza',
-      'airbnb-setup': 'Checklist Setup Airbnb'
+      })
+      console.log(`[EmailSubscriber] Created for ${normalizedEmail} with archetype ${archetype}`)
+    } else {
+      // Update existing subscriber with new source tag (don't overwrite archetype if exists)
+      await prisma.emailSubscriber.update({
+        where: { email: normalizedEmail },
+        data: {
+          tags: {
+            push: source
+          },
+          archetype: existingSubscriber.archetype || archetype, // Only set if not already set
+          // Reactivate sequence if was completed
+          sequenceStatus: existingSubscriber.sequenceStatus === 'completed' ? 'active' : existingSubscriber.sequenceStatus,
+          sequenceStartedAt: existingSubscriber.sequenceStartedAt || new Date()
+        }
+      })
+      console.log(`[EmailSubscriber] Updated tags for ${normalizedEmail}`)
     }
 
-    const resourceName = resourceNameMap[source] || source
+    // Send welcome email with lead magnet
+    const leadMagnetInfo = SOURCE_TO_LEAD_MAGNET[source]
 
-    // Note: Email sending should be queued/async in production
-    console.log(`[Lead Captured] ${name} <${email}> from ${source}`)
-    console.log(`[TODO] Send welcome email with ${resourceName}`)
+    if (leadMagnetInfo) {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+        const downloadUrl = leadMagnetInfo.downloadUrl.startsWith('http')
+          ? leadMagnetInfo.downloadUrl
+          : `${baseUrl}${leadMagnetInfo.downloadUrl}`
+
+        await sendLeadMagnetEmail({
+          email: normalizedEmail,
+          leadMagnetTitle: leadMagnetInfo.title,
+          leadMagnetSubtitle: leadMagnetInfo.subtitle,
+          archetype: leadMagnetInfo.archetype,
+          downloadUrl,
+          pages: leadMagnetInfo.pages,
+          downloadables: leadMagnetInfo.downloadables
+        })
+
+        console.log(`[Email Sent] Lead magnet email to ${normalizedEmail} for ${source}`)
+      } catch (emailError) {
+        // Log error but don't fail the request
+        console.error(`[Email Error] Failed to send to ${normalizedEmail}:`, emailError)
+      }
+    } else {
+      console.log(`[Lead Captured] ${name} <${normalizedEmail}> from ${source} (no email template)`)
+    }
 
     return NextResponse.json(
       {
