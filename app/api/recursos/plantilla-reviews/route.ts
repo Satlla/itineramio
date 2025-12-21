@@ -31,6 +31,9 @@ export async function POST(request: NextRequest) {
     const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent('Hola, tengo una pregunta sobre mi estancia')}`
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(whatsappUrl)}&bgcolor=ffffff&color=222222`
 
+    // URL de descarga con parámetros
+    const downloadUrl = `https://www.itineramio.com/recursos/plantilla-reviews/descargar?nombre=${encodeURIComponent(nombre)}&telefono=${encodeURIComponent(telefono)}`
+
     // Save lead to database
     try {
       await prisma.leadMagnetDownload.create({
@@ -221,6 +224,16 @@ export async function POST(request: NextRequest) {
             </td>
           </tr>
           <!-- ========== FIN PLANTILLA ========== -->
+
+          <!-- Botón de descarga -->
+          <tr>
+            <td align="center" style="padding: 28px 0 0 0;">
+              <a href="${downloadUrl}" style="display: inline-block; background: #1a1a1a; color: #ffffff; padding: 14px 32px; text-decoration: none; font-weight: 600; font-size: 14px; border-radius: 6px;">
+                Descargar PDF
+              </a>
+              <p style="margin: 12px 0 0 0; font-size: 12px; color: #888;">Haz clic para abrir tu plantilla y guardarla como PDF</p>
+            </td>
+          </tr>
 
           <!-- Instrucciones -->
           <tr>
