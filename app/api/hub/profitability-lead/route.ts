@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { enrollSubscriberInSequences } from '@/lib/email-sequences'
 
 /**
  * POST /api/hub/profitability-lead
@@ -191,13 +192,16 @@ export async function POST(req: NextRequest) {
         })
       } else {
         // Crear nuevo subscriber
-        await prisma.emailSubscriber.create({
+        const newSubscriber = await prisma.emailSubscriber.create({
           data: {
             email,
             name: name || undefined,
             source: 'calculadora-rentabilidad',
             status: 'active',
             tags: ['calculadora-rentabilidad'],
+            archetype: 'ESTRATEGA', // Los usuarios de calculadora suelen ser estrategas
+            engagementScore: 'hot', // Alto engagement por usar calculadora
+            currentJourneyStage: 'lead',
             sourceMetadata: {
               calculatorUsed: true,
               zone,
@@ -206,9 +210,18 @@ export async function POST(req: NextRequest) {
               profitabilityLevel: result?.profitabilityLevel || 'unknown',
               isChangingMoney: result?.isChangingMoney || false
             },
-            sequenceStartedAt: new Date(), // Para secuencias de email automatizadas
+            sequenceStartedAt: new Date(),
             sequenceStatus: 'active'
           }
+        })
+
+        // Enrollar en secuencias de email automáticas
+        await enrollSubscriberInSequences(newSubscriber.id, 'SUBSCRIBER_CREATED', {
+          archetype: 'ESTRATEGA',
+          source: 'calculadora-rentabilidad',
+          tags: ['calculadora-rentabilidad', 'high-intent']
+        }).catch(error => {
+          console.error('Failed to enroll calculator lead in sequences:', error)
         })
       }
     } catch (subscriberError) {

@@ -37,104 +37,80 @@ function PlantillaContent() {
         </div>
       </div>
 
-      {/* Plantilla - optimizada para impresión A4 */}
-      <div className="max-w-[210mm] mx-auto p-8 print:p-0">
+      {/* Plantilla - optimizada para impresión A4 en UNA página */}
+      <div className="max-w-[210mm] mx-auto p-6 print:p-0">
         <div className="bg-white border border-gray-200 print:border-gray-300 shadow-sm print:shadow-none">
 
-          {/* Header con nombre del alojamiento */}
-          <div className="px-8 pt-8 pb-0">
-            <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">Alojamiento</p>
-            <p className="text-xl font-semibold text-gray-900">{nombre}</p>
+          {/* Header con nombre + título en una fila */}
+          <div className="px-6 pt-5 pb-4 border-b border-gray-100">
+            <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5">Alojamiento</p>
+            <p className="text-lg font-semibold text-gray-900 mb-3">{nombre}</p>
+            <h2 className="text-xl font-semibold text-gray-900">Guía rápida de reseñas</h2>
+            <p className="text-xs text-gray-500 mt-1">Tu opinión ayuda a futuros viajeros y nos permite mejorar.</p>
           </div>
 
-          {/* Título principal */}
-          <div className="px-8 pt-6 pb-5 border-b border-gray-100">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">Guía rápida de reseñas</h2>
-            <p className="text-sm text-gray-600">Tu opinión ayuda a futuros viajeros y nos permite mejorar.</p>
-          </div>
-
-          {/* Contexto */}
-          <div className="px-8 py-5 bg-gray-50">
-            <p className="text-sm text-gray-600 leading-relaxed">
-              En Airbnb, las estrellas suelen interpretarse de forma distinta a la escala tradicional.
-              En general, <strong className="text-gray-900">5 estrellas</strong> significa que la estancia
-              fue buena y que el alojamiento cumplió lo prometido.
+          {/* Contexto - más compacto */}
+          <div className="px-6 py-3 bg-gray-50">
+            <p className="text-xs text-gray-600 leading-relaxed">
+              En Airbnb, las estrellas se interpretan distinto. <strong className="text-gray-900">5 estrellas</strong> = la estancia fue buena y cumplió lo prometido.
             </p>
           </div>
 
-          {/* Antes de valorar */}
-          <div className="px-8 py-5 border-b border-gray-100">
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-900 mb-2">Antes de valorar</p>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Si algo no ha estado perfecto, por favor cuéntanoslo. La mayoría de incidencias
-              (Wi-Fi, climatización, ruido, reposición) se resuelven rápido si lo sabemos a tiempo.
+          {/* Antes de valorar - compacto */}
+          <div className="px-6 py-3 border-b border-gray-100">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-900 mb-1">Antes de valorar</p>
+            <p className="text-xs text-gray-600">
+              Si algo no estuvo perfecto, cuéntanoslo. La mayoría de incidencias se resuelven rápido.
             </p>
           </div>
 
-          {/* Escala de estrellas */}
-          <div className="px-8 py-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-900 mb-4">Escala orientativa</p>
+          {/* Escala de estrellas - compacta */}
+          <div className="px-6 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-900 mb-2">Escala orientativa</p>
 
-            <div className="space-y-3">
-              <div className="flex items-start gap-4 pb-3 border-b border-gray-50">
-                <span className="text-base tracking-wide text-gray-900 w-24 flex-shrink-0">★★★★★</span>
-                <p className="text-sm text-gray-600">Todo estuvo según lo descrito y la experiencia fue buena.</p>
-              </div>
-
-              <div className="flex items-start gap-4 pb-3 border-b border-gray-50">
-                <span className="text-base tracking-wide w-24 flex-shrink-0">
-                  <span className="text-gray-900">★★★★</span><span className="text-gray-300">★</span>
-                </span>
-                <p className="text-sm text-gray-600">Hubo algún aspecto importante que no cumplió expectativas.</p>
-              </div>
-
-              <div className="flex items-start gap-4 pb-3 border-b border-gray-50">
-                <span className="text-base tracking-wide w-24 flex-shrink-0">
-                  <span className="text-gray-900">★★★</span><span className="text-gray-300">★★</span>
-                </span>
-                <p className="text-sm text-gray-600">Hubo varios problemas relevantes que afectaron la estancia.</p>
-              </div>
-
-              <div className="flex items-start gap-4 pb-3 border-b border-gray-50">
-                <span className="text-base tracking-wide w-24 flex-shrink-0">
-                  <span className="text-gray-900">★★</span><span className="text-gray-300">★★★</span>
-                </span>
-                <p className="text-sm text-gray-600">La experiencia tuvo incidencias graves o deficiencias importantes.</p>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <span className="text-base tracking-wide w-24 flex-shrink-0">
-                  <span className="text-gray-900">★</span><span className="text-gray-300">★★★★</span>
-                </span>
-                <p className="text-sm text-gray-600">Experiencia inaceptable (seguridad, higiene o veracidad).</p>
-              </div>
-            </div>
+            <table className="w-full text-xs">
+              <tbody>
+                <tr className="border-b border-gray-50">
+                  <td className="py-1.5 w-20 text-sm text-gray-900">★★★★★</td>
+                  <td className="py-1.5 text-gray-600">Todo según lo descrito, experiencia buena.</td>
+                </tr>
+                <tr className="border-b border-gray-50">
+                  <td className="py-1.5 w-20 text-sm"><span className="text-gray-900">★★★★</span><span className="text-gray-300">★</span></td>
+                  <td className="py-1.5 text-gray-600">Algún aspecto importante no cumplió expectativas.</td>
+                </tr>
+                <tr className="border-b border-gray-50">
+                  <td className="py-1.5 w-20 text-sm"><span className="text-gray-900">★★★</span><span className="text-gray-300">★★</span></td>
+                  <td className="py-1.5 text-gray-600">Varios problemas relevantes afectaron la estancia.</td>
+                </tr>
+                <tr className="border-b border-gray-50">
+                  <td className="py-1.5 w-20 text-sm"><span className="text-gray-900">★★</span><span className="text-gray-300">★★★</span></td>
+                  <td className="py-1.5 text-gray-600">Incidencias graves o deficiencias importantes.</td>
+                </tr>
+                <tr>
+                  <td className="py-1.5 w-20 text-sm"><span className="text-gray-900">★</span><span className="text-gray-300">★★★★</span></td>
+                  <td className="py-1.5 text-gray-600">Experiencia inaceptable (seguridad, higiene, veracidad).</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
-          {/* Nota de transparencia */}
-          <div className="px-8 py-4 bg-gray-50 border-t border-gray-100">
-            <p className="text-xs text-gray-500 italic leading-relaxed">
-              Valora con total honestidad. Esta guía solo pretende aclarar el significado
-              habitual de las estrellas en la plataforma.
+          {/* Nota de transparencia - una línea */}
+          <div className="px-6 py-2 bg-gray-50 border-t border-gray-100">
+            <p className="text-[10px] text-gray-400 italic">
+              Valora con honestidad. Esta guía solo aclara el significado habitual de las estrellas.
             </p>
           </div>
 
-          {/* Caja de contacto */}
-          <div className="px-8 py-6 border-t border-gray-200">
-            <div className="flex items-start justify-between gap-6">
+          {/* Caja de contacto - compacta */}
+          <div className="px-6 py-4 border-t border-gray-200">
+            <div className="flex items-center justify-between gap-4">
               <div className="flex-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-900 mb-2">Soporte</p>
-                <p className="text-sm text-gray-600 mb-3 leading-relaxed">
-                  Si necesitas algo durante tu estancia, escríbenos y lo resolvemos lo antes posible.
-                </p>
-                <p className="text-base font-medium text-gray-900">{telefono}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-900 mb-1">¿Necesitas ayuda?</p>
+                <p className="text-xs text-gray-600 mb-1">Escríbenos y lo resolvemos.</p>
+                <p className="text-sm font-medium text-gray-900">{telefono}</p>
               </div>
               <div className="flex-shrink-0">
-                <img
-                  src={qrCodeUrl}
-                  alt="QR WhatsApp"
-                  className="w-20 h-20"
-                />
+                <img src={qrCodeUrl} alt="QR WhatsApp" className="w-16 h-16" />
               </div>
             </div>
           </div>
@@ -142,8 +118,8 @@ function PlantillaContent() {
         </div>
 
         {/* Footer - se oculta al imprimir */}
-        <div className="print:hidden mt-6 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="print:hidden mt-4 text-center">
+          <p className="text-xs text-gray-500">
             Creado con <a href="https://www.itineramio.com" className="text-gray-700 hover:underline">Itineramio</a>
           </p>
         </div>
@@ -154,7 +130,7 @@ function PlantillaContent() {
         @media print {
           @page {
             size: A4;
-            margin: 15mm;
+            margin: 12mm;
           }
           body {
             -webkit-print-color-adjust: exact;

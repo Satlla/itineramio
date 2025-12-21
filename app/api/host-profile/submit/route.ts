@@ -221,6 +221,19 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Determinar nivel basado en arquetipo (para SOAP OPERA sequence)
+    const archetypeToNivel: Record<string, string> = {
+      'ESTRATEGA': 'avanzado',
+      'SISTEMATICO': 'avanzado',
+      'EJECUTOR': 'intermedio',
+      'DIFERENCIADOR': 'intermedio',
+      'RESOLUTOR': 'intermedio',
+      'EXPERIENCIAL': 'principiante',
+      'EQUILIBRADO': 'intermedio',
+      'IMPROVISADOR': 'principiante'
+    }
+    const nivel = archetypeToNivel[archetype] || 'intermedio'
+
     // Crear o actualizar EmailSubscriber para el funnel de email marketing
     let subscriber = null
     try {
@@ -230,20 +243,24 @@ export async function POST(request: NextRequest) {
           email: normalizedEmail,
           name: body.name || null,
           archetype,
+          nivel, // Para SOAP OPERA sequence
           source: 'host_profile_test',
           sourceMetadata: {
             testResultId: testResult.id,
             completedAt: new Date().toISOString(),
             scores: dimensionScores,
-            gender: body.gender || null, // Guardamos gender en metadata
+            gender: body.gender || null,
           },
           status: 'active',
           currentJourneyStage: 'subscribed',
-          tags: [archetype, 'test_completed'],
+          engagementScore: 'hot', // Alto engagement por completar test
+          tags: [archetype, 'test_completed', `nivel_${nivel}`],
           hostProfileTestId: testResult.id,
           // IMPORTANTE: Iniciar la secuencia de nurturing
           sequenceStartedAt: new Date(),
           sequenceStatus: 'active',
+          // SOAP OPERA sequence tracking
+          soapOperaStatus: 'pending',
           // Interest-based segmentation
           interests: body.interests || [],
           topPriority: body.interests?.[0] || null,
@@ -253,17 +270,20 @@ export async function POST(request: NextRequest) {
           // Si ya existe, actualizar con el nuevo test
           name: body.name || null,
           archetype,
+          nivel, // Actualizar nivel también
           sourceMetadata: {
             testResultId: testResult.id,
             completedAt: new Date().toISOString(),
             scores: dimensionScores,
-            gender: body.gender || null, // Guardamos gender en metadata
+            gender: body.gender || null,
           },
-          tags: [archetype, 'test_completed'],
+          tags: [archetype, 'test_completed', `nivel_${nivel}`],
           hostProfileTestId: testResult.id,
           // Reiniciar secuencia si hicieron el test de nuevo
           sequenceStartedAt: new Date(),
           sequenceStatus: 'active',
+          soapOperaStatus: 'pending', // Reiniciar SOAP OPERA
+          soapOperaStartedAt: null,
           day3SentAt: null,
           day7SentAt: null,
           day10SentAt: null,

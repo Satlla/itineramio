@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import { sendLeadMagnetEmail } from '../../../../src/lib/resend'
 import { LEAD_MAGNETS, type LeadMagnetArchetype } from '../../../../src/data/lead-magnets'
+import { enrollSubscriberInSequences } from '../../../../src/lib/email-sequences'
 
 // Map source to lead magnet info for email
 const SOURCE_TO_LEAD_MAGNET: Record<string, {
@@ -140,8 +141,11 @@ export async function POST(request: NextRequest) {
     }
     const archetype = sourceToArchetype[source] || 'EQUILIBRADO' // Default archetype for tool-based leads
 
+    const tags = ['lead_magnet', source]
+
+    let subscriber
     if (!existingSubscriber) {
-      await prisma.emailSubscriber.create({
+      subscriber = await prisma.emailSubscriber.create({
         data: {
           email: normalizedEmail,
           name,
@@ -150,14 +154,24 @@ export async function POST(request: NextRequest) {
           status: 'active',
           sequenceStatus: 'active',
           sequenceStartedAt: new Date(),
-          tags: ['lead_magnet', source],
-          currentJourneyStage: 'lead'
+          tags,
+          currentJourneyStage: 'lead',
+          engagementScore: 'warm'
         }
       })
       console.log(`[EmailSubscriber] Created for ${normalizedEmail} with archetype ${archetype}`)
+
+      // Enrollar en secuencias de email automáticas
+      await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
+        archetype,
+        source: `lead_magnet_${source}`,
+        tags
+      }).catch(error => {
+        console.error('Failed to enroll subscriber in sequences:', error)
+      })
     } else {
       // Update existing subscriber with new source tag (don't overwrite archetype if exists)
-      await prisma.emailSubscriber.update({
+      subscriber = await prisma.emailSubscriber.update({
         where: { email: normalizedEmail },
         data: {
           tags: {
@@ -170,6 +184,17 @@ export async function POST(request: NextRequest) {
         }
       })
       console.log(`[EmailSubscriber] Updated tags for ${normalizedEmail}`)
+
+      // Re-enrollar si la secuencia estaba completada
+      if (existingSubscriber.sequenceStatus === 'completed') {
+        await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
+          archetype: subscriber.archetype || archetype,
+          source: `lead_magnet_${source}`,
+          tags: [...(subscriber.tags || []), source]
+        }).catch(error => {
+          console.error('Failed to re-enroll subscriber in sequences:', error)
+        })
+      }
     }
 
     // Send welcome email with lead magnet
