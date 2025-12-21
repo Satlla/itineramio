@@ -113,18 +113,6 @@ export async function POST(request: NextRequest) {
       margin-top: 24px;
     }
     .footer-text { color: #717171; font-size: 13px; margin-bottom: 16px; }
-    .qr-section {
-      display: inline-flex;
-      align-items: center;
-      gap: 16px;
-      background: #f9fafb;
-      padding: 16px 20px;
-      border-radius: 16px;
-    }
-    .qr-code { width: 80px; height: 80px; }
-    .qr-info { text-align: left; }
-    .qr-label { font-size: 11px; color: #717171; }
-    .qr-phone { font-weight: 600; color: #222; font-size: 14px; }
     .coral { color: #FF385C; }
   </style>
 </head>
@@ -164,13 +152,17 @@ export async function POST(request: NextRequest) {
       <div class="footer-text">
         ¿Algún problema? <span class="coral">Escríbeme directamente</span>
       </div>
-      <div class="qr-section">
-        <img src="cid:qrcode" alt="QR WhatsApp" class="qr-code" />
-        <div class="qr-info">
-          <div class="qr-label">Escanea para contactar</div>
-          <div class="qr-phone">${telefono}</div>
-        </div>
-      </div>
+      <table cellpadding="0" cellspacing="0" border="0" style="background: #f9fafb; border-radius: 16px; margin: 0 auto;">
+        <tr>
+          <td style="padding: 16px;">
+            <img src="cid:qrcode" alt="QR WhatsApp" width="80" height="80" style="display: block;" />
+          </td>
+          <td style="padding: 16px 20px 16px 0; vertical-align: middle;">
+            <div style="font-size: 11px; color: #717171;">Escanea para contactar</div>
+            <div style="font-weight: 600; color: #222; font-size: 14px;">${telefono}</div>
+          </td>
+        </tr>
+      </table>
     </div>
   </div>
 </body>
