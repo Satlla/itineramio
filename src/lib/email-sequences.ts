@@ -10,6 +10,52 @@
 
 import { prisma } from './prisma'
 import { Resend } from 'resend'
+import * as React from 'react'
+
+// Lazy template loader - imports templates on demand
+// This avoids build issues while still working in production
+async function getEmailTemplate(templateName: string): Promise<React.FC<any> | null> {
+  try {
+    switch (templateName) {
+      case 'welcome-test.tsx':
+        return (await import('../emails/templates/welcome-test')).default
+      case 'sequence-day2-personalized.tsx':
+        return (await import('../emails/templates/sequence-day2-personalized')).default
+      case 'sequence-day3-mistakes.tsx':
+        return (await import('../emails/templates/sequence-day3-mistakes')).default
+      case 'sequence-day7-case-study.tsx':
+        return (await import('../emails/templates/sequence-day7-case-study')).default
+      case 'sequence-day10-trial.tsx':
+        // TODO: Fix compilation issue with this template
+        console.warn('[EMAIL] sequence-day10-trial template temporarily disabled')
+        return null
+      case 'sequence-day14-urgency.tsx':
+        return (await import('../emails/templates/sequence-day14-urgency')).default
+      case 'nivel-day1-bienvenida.tsx':
+        return (await import('../emails/templates/nivel-day1-bienvenida')).default
+      case 'nivel-day2-mejores-practicas.tsx':
+        return (await import('../emails/templates/nivel-day2-mejores-practicas')).default
+      case 'nivel-day3-test-cta.tsx':
+        return (await import('../emails/templates/nivel-day3-test-cta')).default
+      case 'nivel-day5-caso-estudio.tsx':
+        return (await import('../emails/templates/nivel-day5-caso-estudio')).default
+      case 'nivel-day7-recurso-avanzado.tsx':
+        return (await import('../emails/templates/nivel-day7-recurso-avanzado')).default
+      case 'onboarding-day1-stats.tsx':
+        return (await import('../emails/templates/onboarding-day1-stats')).default
+      case 'lead-magnet-download.tsx':
+        return (await import('../emails/templates/lead-magnet-download')).default
+      case 'welcome-qr.tsx':
+        return (await import('../emails/templates/welcome-qr')).default
+      default:
+        console.error(`[EMAIL TEMPLATES] Unknown template: ${templateName}`)
+        return null
+    }
+  } catch (error) {
+    console.error(`[EMAIL TEMPLATES] Failed to load template ${templateName}:`, error)
+    return null
+  }
+}
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -405,10 +451,12 @@ async function sendScheduledEmail(scheduledEmail: any) {
   })
 
   try {
-    // Importar dinámicamente el template
-    const templatePath = `../emails/templates/${scheduledEmail.templateName}`
-    const template = await import(templatePath)
-    const EmailComponent = template.default
+    // Get template using lazy loader (handles bundling correctly)
+    const EmailComponent = await getEmailTemplate(scheduledEmail.templateName)
+
+    if (!EmailComponent) {
+      throw new Error(`Template not found or failed to load: ${scheduledEmail.templateName}`)
+    }
 
     // Renderizar el template con los datos
     const emailHtml = EmailComponent({

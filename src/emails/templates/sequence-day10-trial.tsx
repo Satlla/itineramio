@@ -1,4 +1,3 @@
-/** @jsxImportSource react */
 import * as React from 'react'
 import { EmailArchetype } from '@/lib/resend'
 import { genderWord, type Gender } from '@/lib/gender-text'

@@ -11,7 +11,11 @@ export async function GET(req: NextRequest) {
 
     // Verificar autorización (Vercel Cron incluye header especial)
     const authHeader = req.headers.get('authorization')
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    const cronSecret = process.env.CRON_SECRET || 'dev-secret'
+    const isDev = process.env.NODE_ENV !== 'production'
+
+    // Allow dev testing without auth
+    if (!isDev && authHeader !== `Bearer ${cronSecret}`) {
       console.error('[CRON] Unauthorized request')
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
