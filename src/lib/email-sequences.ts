@@ -26,9 +26,7 @@ async function getEmailTemplate(templateName: string): Promise<React.FC<any> | n
       case 'sequence-day7-case-study.tsx':
         return (await import('../emails/templates/sequence-day7-case-study')).default
       case 'sequence-day10-trial.tsx':
-        // TODO: Fix compilation issue with this template
-        console.warn('[EMAIL] sequence-day10-trial template temporarily disabled')
-        return null
+        return (await import('../emails/templates/sequence-day10-trial')).default
       case 'sequence-day14-urgency.tsx':
         return (await import('../emails/templates/sequence-day14-urgency')).default
       case 'nivel-day1-bienvenida.tsx':

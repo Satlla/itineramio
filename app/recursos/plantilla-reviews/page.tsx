@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Star, Download, Mail, Phone, User, ArrowLeft, Check, Loader2, QrCode } from 'lucide-react'
+import { fbEvents } from '@/components/analytics/FacebookPixel'
 
 export default function PlantillaReviewsPage() {
   const [formData, setFormData] = useState({
@@ -30,6 +31,14 @@ export default function PlantillaReviewsPage() {
         const data = await response.json()
         throw new Error(data.error || 'Error al enviar')
       }
+
+      // Facebook Pixel Lead event
+      fbEvents.lead({
+        content_name: 'Plantilla Reviews',
+        content_category: 'recurso-gratuito',
+        value: 0,
+        currency: 'EUR'
+      })
 
       setSuccess(true)
     } catch (err) {

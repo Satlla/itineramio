@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { fbEvents } from '@/components/analytics/FacebookPixel'
 
 interface CategoryNewsletterFormProps {
   category: string
@@ -42,6 +43,14 @@ export default function CategoryNewsletterForm({ category, categoryName }: Categ
       const data = await response.json()
 
       if (response.ok) {
+        // Facebook Pixel Lead event
+        fbEvents.lead({
+          content_name: `Newsletter ${categoryName}`,
+          content_category: 'blog-newsletter',
+          value: 0,
+          currency: 'EUR'
+        })
+
         setStatus('success')
         setMessage('¡Suscripción exitosa! Revisa tu email.')
         setEmail('')

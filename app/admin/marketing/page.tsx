@@ -17,8 +17,46 @@ import {
   Award,
   Brain,
   PlayCircle,
-  MessageSquare
+  MessageSquare,
+  AlertTriangle,
+  RefreshCw,
+  Activity,
+  XCircle,
+  CheckCircle2,
+  AlertCircle,
+  Send
 } from 'lucide-react'
+
+interface HealthData {
+  leads: {
+    today: number
+    bySource: Record<string, number>
+    weekly: number
+    dailyAverage: string
+  }
+  emails: {
+    queue: {
+      pending: number
+      sending: number
+      sent: number
+      failed: number
+    }
+    sentToday: number
+    sentWeekly: number
+    failedByTemplate: { template: string; count: number }[]
+  }
+  sequences: {
+    list: {
+      id: string
+      name: string
+      isActive: boolean
+      subscribersActive: number
+    }[]
+    activeEnrollments: number
+    soapOpera: Record<string, number>
+  }
+  alerts: { level: 'error' | 'warning' | 'info'; message: string }[]
+}
 
 interface FunnelStats {
   quiz: {
@@ -45,11 +83,32 @@ interface FunnelStats {
 
 export default function MarketingFunnelsHub() {
   const [stats, setStats] = useState<FunnelStats | null>(null)
+  const [health, setHealth] = useState<HealthData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
     fetchStats()
+    fetchHealth()
   }, [])
+
+  const fetchHealth = async () => {
+    try {
+      const res = await fetch('/api/admin/marketing/health')
+      const data = await res.json()
+      if (data.success) {
+        setHealth(data)
+      }
+    } catch (error) {
+      console.error('Error fetching health:', error)
+    }
+  }
+
+  const refreshAll = async () => {
+    setRefreshing(true)
+    await Promise.all([fetchStats(), fetchHealth()])
+    setRefreshing(false)
+  }
 
   const fetchStats = async () => {
     setLoading(true)
@@ -113,16 +172,82 @@ export default function MarketingFunnelsHub() {
                 Vista unificada de todos los embudos de marketing y conversión
               </p>
             </div>
-            <Link
-              href="/admin"
-              className="text-white/80 hover:text-white flex items-center"
-            >
-              Volver
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Link>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={refreshAll}
+                disabled={refreshing}
+                className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+              >
+                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                Actualizar
+              </button>
+              <Link
+                href="/admin"
+                className="text-white/80 hover:text-white flex items-center"
+              >
+                Volver
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Real-time Health Monitor */}
+      {health && (
+        <div className="bg-gray-900 text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              {/* Alerts */}
+              <div className="flex items-center gap-3">
+                <Activity className="w-5 h-5 text-green-400" />
+                <span className="text-sm font-medium">Estado del Sistema:</span>
+                {health.alerts.map((alert, i) => (
+                  <span
+                    key={i}
+                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
+                      alert.level === 'error' ? 'bg-red-500/20 text-red-300' :
+                      alert.level === 'warning' ? 'bg-yellow-500/20 text-yellow-300' :
+                      'bg-green-500/20 text-green-300'
+                    }`}
+                  >
+                    {alert.level === 'error' ? <XCircle className="w-3 h-3" /> :
+                     alert.level === 'warning' ? <AlertCircle className="w-3 h-3" /> :
+                     <CheckCircle2 className="w-3 h-3" />}
+                    {alert.message}
+                  </span>
+                ))}
+              </div>
+
+              {/* Quick Stats */}
+              <div className="flex items-center gap-6 text-sm">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-blue-400" />
+                  <span className="text-gray-400">Hoy:</span>
+                  <span className="font-bold">{health.leads.today} leads</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Send className="w-4 h-4 text-green-400" />
+                  <span className="text-gray-400">Enviados:</span>
+                  <span className="font-bold">{health.emails.sentToday}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-yellow-400" />
+                  <span className="text-gray-400">Pending:</span>
+                  <span className="font-bold">{health.emails.queue.pending}</span>
+                </div>
+                {health.emails.queue.failed > 0 && (
+                  <div className="flex items-center gap-2">
+                    <XCircle className="w-4 h-4 text-red-400" />
+                    <span className="text-gray-400">Failed:</span>
+                    <span className="font-bold text-red-400">{health.emails.queue.failed}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Global Metrics */}

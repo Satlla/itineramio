@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Check, Sparkles, Clock, Mail, User, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { quizQuestions, calculateQuestionScore, type QuizQuestion } from '@/data/quiz-questions'
 import { isDisposableEmail } from '@/lib/disposable-emails'
+import { fbEvents } from '@/components/analytics/FacebookPixel'
 
 export default function QuizPage() {
   const router = useRouter()
@@ -215,6 +216,14 @@ export default function QuizPage() {
         console.error('Error saving quiz - status:', saveResponse.status, 'data:', errorData)
       } else {
         console.log('✅ Quiz saved successfully')
+
+        // Facebook Pixel Lead event
+        fbEvents.lead({
+          content_name: 'Academia Quiz',
+          content_category: 'quiz',
+          value: 0,
+          currency: 'EUR'
+        })
       }
     } catch (error) {
       console.error('Error saving quiz:', error)

@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { X, Download, Mail, User, Sparkles, CheckCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { fbEvents } from '@/components/analytics/FacebookPixel'
 
 interface LeadCaptureModalProps {
   isOpen: boolean
@@ -11,6 +12,7 @@ interface LeadCaptureModalProps {
   title: string
   description?: string
   downloadLabel?: string
+  toolName?: string // For Facebook Pixel tracking
 }
 
 export function LeadCaptureModal({
@@ -20,6 +22,7 @@ export function LeadCaptureModal({
   title,
   description = 'Déjanos tu email para enviarte el contenido y mantener contacto',
   downloadLabel = 'Descargar',
+  toolName = 'Herramienta',
 }: LeadCaptureModalProps) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -46,6 +49,14 @@ export function LeadCaptureModal({
     try {
       // Call parent onSubmit
       await onSubmit({ name, email })
+
+      // Facebook Pixel Lead event
+      fbEvents.lead({
+        content_name: toolName,
+        content_category: 'herramienta-gratuita',
+        value: 0,
+        currency: 'EUR'
+      })
 
       // Reset form
       setName('')

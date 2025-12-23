@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { prisma } from '@/lib/prisma'
+import { enrollSubscriberInSequences } from '@/lib/email-sequences'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -45,6 +46,44 @@ export async function POST(request: NextRequest) {
       })
     } catch (dbError) {
       console.error('Error saving lead:', dbError)
+    }
+
+    // Create or update EmailSubscriber for nurturing sequence
+    let subscriber = null
+    try {
+      const normalizedEmail = email.toLowerCase().trim()
+
+      subscriber = await prisma.emailSubscriber.upsert({
+        where: { email: normalizedEmail },
+        create: {
+          email: normalizedEmail,
+          name: nombre,
+          source: 'plantilla-reviews',
+          status: 'active',
+          tags: ['plantilla-reviews', 'recurso-gratuito'],
+          archetype: 'SISTEMATICO' // Default archetype for reviews template users
+        },
+        update: {
+          // Add tag if not already present
+          tags: {
+            push: 'plantilla-reviews'
+          },
+          updatedAt: new Date()
+        }
+      })
+
+      console.log(`[EmailSubscriber] Created/updated for ${normalizedEmail} from plantilla-reviews`)
+
+      // Enroll in nurturing sequences
+      await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
+        archetype: subscriber.archetype || 'SISTEMATICO',
+        source: 'plantilla-reviews',
+        tags: ['plantilla-reviews', 'recurso-gratuito']
+      })
+
+      console.log(`[EmailSubscriber] Enrolled ${normalizedEmail} in sequences`)
+    } catch (subscriberError) {
+      console.error('Error creating subscriber:', subscriberError)
     }
 
     // Send email
