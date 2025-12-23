@@ -71,18 +71,26 @@ export default function NotificationsPage() {
         }
       } else {
         // Fallback to localStorage if API fails
-        const savedSettings = localStorage.getItem('notificationSettings')
-        if (savedSettings) {
-          setSettings(JSON.parse(savedSettings))
+        if (typeof window !== 'undefined') {
+          try {
+            const savedSettings = localStorage.getItem('notificationSettings')
+            if (savedSettings) {
+              setSettings(JSON.parse(savedSettings))
+            }
+          } catch (error) {
+            console.error('Error parsing saved settings:', error)
+          }
         }
       }
     } catch (error) {
       console.error('Error loading notification settings:', error)
       // Fallback to localStorage
-      const savedSettings = localStorage.getItem('notificationSettings')
-      if (savedSettings) {
+      if (typeof window !== 'undefined') {
         try {
-          setSettings(JSON.parse(savedSettings))
+          const savedSettings = localStorage.getItem('notificationSettings')
+          if (savedSettings) {
+            setSettings(JSON.parse(savedSettings))
+          }
         } catch (e) {
           console.error('Error parsing saved settings:', e)
         }

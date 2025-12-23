@@ -24,6 +24,8 @@ export default function ResultadosPage() {
 
   useEffect(() => {
     // Get results from sessionStorage
+    if (typeof window === 'undefined') return
+
     const storedResults = sessionStorage.getItem('quizResults')
 
     if (!storedResults) {
@@ -32,7 +34,14 @@ export default function ResultadosPage() {
       return
     }
 
-    const parsed = JSON.parse(storedResults)
+    let parsed
+    try {
+      parsed = JSON.parse(storedResults)
+    } catch (error) {
+      console.error('Error parsing quiz results:', error)
+      router.push('/academia/quiz')
+      return
+    }
     setResults(parsed)
 
     // Check if user came from verification page

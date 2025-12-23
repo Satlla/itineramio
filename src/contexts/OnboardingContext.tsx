@@ -26,11 +26,17 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
 
   // Check localStorage on mount
   useEffect(() => {
-    const onboardingState = localStorage.getItem('onboardingState')
-    if (onboardingState) {
-      const state = JSON.parse(onboardingState)
-      setIsOnboarding(state.isActive)
-      setCurrentStep(state.currentStep)
+    if (typeof window === 'undefined') return
+    try {
+      const onboardingState = localStorage.getItem('onboardingState')
+      if (onboardingState) {
+        const state = JSON.parse(onboardingState)
+        setIsOnboarding(state.isActive)
+        setCurrentStep(state.currentStep)
+      }
+    } catch (error) {
+      console.error('Error loading onboarding state:', error)
+      localStorage.removeItem('onboardingState')
     }
   }, [])
 

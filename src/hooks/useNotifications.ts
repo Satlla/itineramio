@@ -19,23 +19,30 @@ export function useNotifications() {
 
   // Load notifications from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem('itineramio_notifications')
-    if (stored) {
-      try {
+    if (typeof window === 'undefined') return
+    try {
+      const stored = localStorage.getItem('itineramio_notifications')
+      if (stored) {
         const parsed = JSON.parse(stored).map((n: any) => ({
           ...n,
           createdAt: new Date(n.createdAt)
         }))
         setNotifications(parsed)
-      } catch (error) {
-        console.error('Error loading notifications:', error)
       }
+    } catch (error) {
+      console.error('Error loading notifications:', error)
+      localStorage.removeItem('itineramio_notifications')
     }
   }, [])
 
   // Save notifications to localStorage when they change
   useEffect(() => {
-    localStorage.setItem('itineramio_notifications', JSON.stringify(notifications))
+    if (typeof window === 'undefined') return
+    try {
+      localStorage.setItem('itineramio_notifications', JSON.stringify(notifications))
+    } catch (error) {
+      console.error('Error saving notifications:', error)
+    }
   }, [notifications])
 
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'createdAt'>) => {

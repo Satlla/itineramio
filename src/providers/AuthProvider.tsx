@@ -168,6 +168,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
+      // Clear all user data from localStorage for security
+      if (typeof window !== 'undefined') {
+        try {
+          // Auth tokens
+          localStorage.removeItem('auth-token')
+          // User preferences and state
+          localStorage.removeItem('notificationSettings')
+          localStorage.removeItem('onboardingState')
+          localStorage.removeItem('itineramio_notifications')
+          localStorage.removeItem('hasSeenFirstPropertyOnboarding')
+          // Form data
+          localStorage.removeItem('propertyFormData')
+          localStorage.removeItem('propertyFormData_timestamp')
+          // Session data
+          sessionStorage.clear()
+        } catch (e) {
+          console.error('Error clearing storage on logout:', e)
+        }
+      }
       setUser(null)
       router.push('/login')
     }

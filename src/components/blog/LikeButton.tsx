@@ -16,8 +16,14 @@ export function LikeButton({ slug, initialLikes }: LikeButtonProps) {
 
   // Check if user already liked this post (from localStorage)
   useEffect(() => {
-    const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]')
-    setHasLiked(likedPosts.includes(slug))
+    if (typeof window === 'undefined') return
+    try {
+      const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]')
+      setHasLiked(likedPosts.includes(slug))
+    } catch (error) {
+      console.error('Error loading liked posts:', error)
+      setHasLiked(false)
+    }
   }, [slug])
 
   const handleLike = async () => {
@@ -28,8 +34,12 @@ export function LikeButton({ slug, initialLikes }: LikeButtonProps) {
     setHasLiked(true)
 
     // Save to localStorage
-    const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]')
-    localStorage.setItem('likedPosts', JSON.stringify([...likedPosts, slug]))
+    try {
+      const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]')
+      localStorage.setItem('likedPosts', JSON.stringify([...likedPosts, slug]))
+    } catch (error) {
+      console.error('Error saving liked post:', error)
+    }
 
     // Animate
     setTimeout(() => setIsAnimating(false), 600)
