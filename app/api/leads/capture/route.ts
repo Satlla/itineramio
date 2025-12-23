@@ -26,10 +26,10 @@ const SOURCE_TO_LEAD_MAGNET: Record<string, {
   'wifi-card': {
     title: 'Plantilla WiFi Profesional',
     subtitle: 'Tarjeta WiFi lista para imprimir',
-    archetype: 'Anfitrión',
+    archetype: 'Anfitrion',
     pages: 1,
     downloadables: ['Tarjeta WiFi editable', 'Diseño profesional', 'Formato para imprimir'],
-    downloadUrl: '/recursos/plantillas/instrucciones-wifi'
+    downloadUrl: '/recursos/plantilla-wifi'
   },
   'qr-generator': {
     title: 'Generador de Códigos QR',
