@@ -164,7 +164,7 @@ export async function sendLeadMagnetEmail({
       pages,
       downloadables,
     }),
-    tags: ['lead_magnet', 'download', archetype.toLowerCase()],
+    tags: ['lead_magnet', 'download', archetype.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9_-]/g, '_')],
   })
 }
 
