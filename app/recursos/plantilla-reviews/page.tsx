@@ -194,81 +194,102 @@ export default function PlantillaReviewsPage() {
             )}
           </div>
 
-          {/* Preview */}
+          {/* Preview - Diseño idéntico a la plantilla de descarga */}
           <div>
             <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
-              Vista previa
+              Vista previa de la plantilla
             </h3>
 
-            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-              <div className="text-center border-b border-gray-100 pb-6 mb-6">
-                <div className="text-3xl mb-2">🏠</div>
-                <h4 className="text-xl font-semibold text-gray-900 mb-1">
-                  Gracias por tu estancia
-                </h4>
-                <p className="text-gray-500 text-sm">
-                  {formData.nombre || 'Tu nombre aquí'}
+            <div className="bg-white border border-gray-200 shadow-sm">
+              {/* Header con nombre del alojamiento */}
+              <div className="px-5 pt-4 pb-3 border-b border-gray-100">
+                <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5">Alojamiento</p>
+                <p className="text-base font-semibold text-gray-900 mb-2">{formData.nombre || 'Tu Alojamiento'}</p>
+                <h4 className="text-lg font-semibold text-gray-900">Guía rápida de reseñas</h4>
+                <p className="text-[11px] text-gray-500 mt-0.5">Tu opinión ayuda a futuros viajeros y nos permite mejorar.</p>
+              </div>
+
+              {/* Contexto */}
+              <div className="px-5 py-2.5 bg-gray-50">
+                <p className="text-[11px] text-gray-600 leading-relaxed">
+                  En Airbnb, las estrellas se interpretan distinto. <strong className="text-gray-900">5 estrellas</strong> = la estancia fue buena y cumplió lo prometido.
                 </p>
               </div>
 
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                  <span className="text-lg">⭐⭐⭐⭐⭐</span>
-                  <div>
-                    <div className="font-medium text-green-800 text-sm">5 Estrellas</div>
-                    <div className="text-green-600 text-xs">Todo correcto</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
-                  <span className="text-lg">⭐⭐⭐⭐</span>
-                  <div>
-                    <div className="font-medium text-yellow-800 text-sm">4 Estrellas</div>
-                    <div className="text-yellow-600 text-xs">Hubo algún problema</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg">
-                  <span className="text-lg">⭐⭐⭐</span>
-                  <div>
-                    <div className="font-medium text-red-800 text-sm">3 o menos</div>
-                    <div className="text-red-600 text-xs">Problemas significativos</div>
-                  </div>
-                </div>
+              {/* Antes de valorar */}
+              <div className="px-5 py-2.5 border-b border-gray-100">
+                <p className="text-[9px] font-semibold uppercase tracking-wide text-gray-900 mb-0.5">Antes de valorar</p>
+                <p className="text-[11px] text-gray-600">
+                  Si algo no estuvo perfecto, cuéntanoslo. La mayoría de incidencias se resuelven rápido.
+                </p>
               </div>
 
-              <div className="text-center pt-4 border-t border-gray-100">
-                <p className="text-gray-500 text-sm mb-4">
-                  ¿Algún problema? Escríbeme directamente:
-                </p>
+              {/* Escala de estrellas */}
+              <div className="px-5 py-2.5">
+                <p className="text-[9px] font-semibold uppercase tracking-wide text-gray-900 mb-1.5">Escala orientativa</p>
+                <table className="w-full text-[11px]">
+                  <tbody>
+                    <tr className="border-b border-gray-50">
+                      <td className="py-1 w-16 text-gray-900">★★★★★</td>
+                      <td className="py-1 text-gray-600">Todo según lo descrito, experiencia buena.</td>
+                    </tr>
+                    <tr className="border-b border-gray-50">
+                      <td className="py-1 w-16"><span className="text-gray-900">★★★★</span><span className="text-gray-300">★</span></td>
+                      <td className="py-1 text-gray-600">Algún aspecto importante no cumplió expectativas.</td>
+                    </tr>
+                    <tr className="border-b border-gray-50">
+                      <td className="py-1 w-16"><span className="text-gray-900">★★★</span><span className="text-gray-300">★★</span></td>
+                      <td className="py-1 text-gray-600">Varios problemas relevantes afectaron la estancia.</td>
+                    </tr>
+                    <tr className="border-b border-gray-50">
+                      <td className="py-1 w-16"><span className="text-gray-900">★★</span><span className="text-gray-300">★★★</span></td>
+                      <td className="py-1 text-gray-600">Incidencias graves o deficiencias importantes.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-1 w-16"><span className="text-gray-900">★</span><span className="text-gray-300">★★★★</span></td>
+                      <td className="py-1 text-gray-600">Experiencia inaceptable.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
 
-                <div className="inline-flex items-center justify-center gap-3 bg-gray-100 rounded-xl p-4">
-                  <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-                    {formData.telefono ? (
-                      <QrCode className="w-12 h-12 text-gray-400" />
-                    ) : (
-                      <span className="text-xs text-gray-400 text-center px-2">QR de WhatsApp</span>
-                    )}
+              {/* Nota de transparencia */}
+              <div className="px-5 py-1.5 bg-gray-50 border-t border-gray-100">
+                <p className="text-[9px] text-gray-400 italic">
+                  Valora con honestidad. Esta guía solo aclara el significado habitual de las estrellas.
+                </p>
+              </div>
+
+              {/* Caja de contacto */}
+              <div className="px-5 py-3 border-t border-gray-200">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1">
+                    <p className="text-[9px] font-semibold uppercase tracking-wide text-gray-900 mb-0.5">¿Necesitas ayuda?</p>
+                    <p className="text-[11px] text-gray-600 mb-0.5">Escríbenos y lo resolvemos.</p>
+                    <p className="text-sm font-medium text-gray-900">{formData.telefono || '+34 600 000 000'}</p>
                   </div>
-                  <div className="text-left">
-                    <div className="text-xs text-gray-500">Escanea para contactar</div>
-                    <div className="font-medium text-gray-900 text-sm">
-                      {formData.telefono || '+34 XXX XXX XXX'}
+                  <div className="flex-shrink-0">
+                    <div className="w-14 h-14 bg-gray-100 rounded flex items-center justify-center">
+                      {formData.telefono ? (
+                        <QrCode className="w-10 h-10 text-gray-400" />
+                      ) : (
+                        <span className="text-[8px] text-gray-400 text-center">QR</span>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-4 bg-rose-50 rounded-xl p-4">
-              <h4 className="font-medium text-rose-900 text-sm mb-2">
+            <div className="mt-4 bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <h4 className="font-medium text-gray-900 text-sm mb-2">
                 ¿Qué recibirás?
               </h4>
-              <ul className="text-rose-700 text-sm space-y-1">
+              <ul className="text-gray-600 text-sm space-y-1">
                 <li>✓ Plantilla PDF lista para imprimir</li>
-                <li>✓ Tu nombre personalizado</li>
+                <li>✓ Tu nombre de alojamiento personalizado</li>
                 <li>✓ Código QR de tu WhatsApp</li>
-                <li>✓ Diseño estilo Airbnb</li>
+                <li>✓ Diseño profesional A4</li>
               </ul>
             </div>
           </div>
