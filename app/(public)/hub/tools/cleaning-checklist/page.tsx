@@ -11,7 +11,9 @@ import {
   Check,
   Plus,
   X,
-  Edit2
+  Edit2,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react'
 import { Navbar } from '../../../../../src/components/layout/Navbar'
 import { SocialShare } from '../../../../../src/components/tools/SocialShare'
@@ -179,12 +181,33 @@ const defaultSections: ChecklistSection[] = [
 
 export default function CleaningChecklist() {
   const [propertyName, setPropertyName] = useState('')
+  const [propertyAddress, setPropertyAddress] = useState('')
   const [sections, setSections] = useState<ChecklistSection[]>(defaultSections)
   const [selectedStyle, setSelectedStyle] = useState(checklistStyles[0])
   const [editingItem, setEditingItem] = useState<string | null>(null)
   const [showLeadModal, setShowLeadModal] = useState(false)
   const [pendingAction, setPendingAction] = useState<'download' | 'print' | null>(null)
+  const [addingItemToSection, setAddingItemToSection] = useState<string | null>(null)
+  const [newItemText, setNewItemText] = useState('')
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
   const checklistRef = useRef<HTMLDivElement>(null)
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(sectionId)) {
+        newSet.delete(sectionId)
+        // También cancelar si estaba añadiendo item
+        if (addingItemToSection === sectionId) {
+          setAddingItemToSection(null)
+          setNewItemText('')
+        }
+      } else {
+        newSet.add(sectionId)
+      }
+      return newSet
+    })
+  }
 
   const toggleItem = (sectionId: string, itemId: string) => {
     setSections(sections.map(section => {
@@ -201,7 +224,6 @@ export default function CleaningChecklist() {
   }
 
   const addCustomItem = (sectionId: string) => {
-    const newItemText = prompt('Escribe la nueva tarea:')
     if (!newItemText?.trim()) return
 
     setSections(sections.map(section => {
@@ -210,12 +232,19 @@ export default function CleaningChecklist() {
           ...section,
           items: [
             ...section.items,
-            { id: Date.now().toString(), text: newItemText, checked: false }
+            { id: Date.now().toString(), text: newItemText.trim(), checked: false }
           ]
         }
       }
       return section
     }))
+    setNewItemText('')
+    setAddingItemToSection(null)
+  }
+
+  const cancelAddItem = () => {
+    setNewItemText('')
+    setAddingItemToSection(null)
   }
 
   const removeItem = (sectionId: string, itemId: string) => {
@@ -278,36 +307,45 @@ export default function CleaningChecklist() {
 
   const handleLeadSubmit = async (data: { name: string; email: string }) => {
     try {
-      const response = await fetch('/api/leads/capture', {
+      // Send professional email with checklist embedded
+      const response = await fetch('/api/recursos/checklist-limpieza', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...data,
-          source: 'cleaning-checklist',
-          metadata: {
-            propertyName,
-            style: selectedStyle.name,
-            action: pendingAction,
-            totalTasks: sections.reduce((acc, section) => acc + section.items.length, 0)
-          }
+          name: data.name,
+          email: data.email,
+          propertyName: propertyName || 'Mi Propiedad',
+          propertyAddress: propertyAddress || '',
+          sections: sections.map(s => ({
+            title: s.title,
+            items: s.items.map(i => i.text)
+          })),
+          style: selectedStyle.name
         })
       })
 
       const result = await response.json()
 
       if (response.ok) {
-        console.log('Lead captured successfully:', result)
+        console.log('Checklist sent successfully:', result)
+        alert('¡Perfecto! Te hemos enviado el checklist a tu correo. Revisa tu bandeja de entrada.')
       } else {
-        console.error('Error capturing lead:', result.error)
+        console.error('Error sending checklist:', result.error)
+        // Fallback to local download if email fails
+        if (pendingAction === 'download') {
+          await downloadChecklist()
+        } else if (pendingAction === 'print') {
+          printChecklist()
+        }
       }
     } catch (error) {
-      console.error('Error calling lead capture API:', error)
-    }
-
-    if (pendingAction === 'download') {
-      await downloadChecklist()
-    } else if (pendingAction === 'print') {
-      printChecklist()
+      console.error('Error calling checklist API:', error)
+      // Fallback to local download
+      if (pendingAction === 'download') {
+        await downloadChecklist()
+      } else if (pendingAction === 'print') {
+        printChecklist()
+      }
     }
 
     setShowLeadModal(false)
@@ -379,15 +417,29 @@ export default function CleaningChecklist() {
                 </h2>
 
                 {/* Property Name */}
-                <div className="mb-6">
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Nombre de la propiedad (opcional)
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Nombre de la propiedad
                   </label>
                   <input
                     type="text"
                     value={propertyName}
                     onChange={(e) => setPropertyName(e.target.value)}
                     placeholder="Apartamento Vista al Mar"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none text-gray-900 placeholder-gray-400"
+                  />
+                </div>
+
+                {/* Property Address */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Dirección / Calle
+                  </label>
+                  <input
+                    type="text"
+                    value={propertyAddress}
+                    onChange={(e) => setPropertyAddress(e.target.value)}
+                    placeholder="Calle Gran Vía 45, 2ºB, Madrid"
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none text-gray-900 placeholder-gray-400"
                   />
                 </div>
@@ -505,10 +557,15 @@ export default function CleaningChecklist() {
                 >
                   {/* Header */}
                   <div className={`bg-gradient-to-r ${selectedStyle.colors} rounded-xl p-6 text-white mb-6`}>
-                    <h3 className="text-3xl font-bold mb-2">
+                    <h3 className="text-3xl font-bold mb-1">
                       {propertyName || 'Checklist de Limpieza'}
                     </h3>
-                    <p className="text-white/90 text-sm">
+                    {propertyAddress && (
+                      <p className="text-white/80 text-sm mb-2">
+                        📍 {propertyAddress}
+                      </p>
+                    )}
+                    <p className="text-white/70 text-xs">
                       {new Date().toLocaleDateString('es-ES', {
                         year: 'numeric',
                         month: 'long',
@@ -518,58 +575,117 @@ export default function CleaningChecklist() {
                   </div>
 
                   {/* Sections */}
-                  <div className="space-y-6">
-                    {sections.map((section) => (
-                      <div key={section.id}>
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className={`text-lg font-bold ${selectedStyle.textColor}`}>
-                            {section.title}
-                          </h4>
+                  <div className="space-y-4">
+                    {sections.map((section) => {
+                      const isExpanded = expandedSections.has(section.id)
+                      const completedCount = section.items.filter(i => i.checked).length
+
+                      return (
+                        <div key={section.id} className="border border-gray-200 rounded-xl overflow-hidden">
+                          {/* Section Header - Clickable to expand/collapse */}
                           <button
-                            onClick={() => addCustomItem(section.id)}
-                            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-                            title="Agregar tarea"
+                            onClick={() => toggleSection(section.id)}
+                            className={`w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors ${
+                              isExpanded ? 'bg-gray-50' : 'bg-white'
+                            }`}
                           >
-                            <Plus className="w-4 h-4 text-gray-500" />
-                          </button>
-                        </div>
-                        <div className="space-y-2">
-                          {section.items.map((item) => (
-                            <div
-                              key={item.id}
-                              className="flex items-center space-x-3 group"
-                            >
-                              <button
-                                onClick={() => toggleItem(section.id, item.id)}
-                                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                                  item.checked
-                                    ? `${selectedStyle.accentColor} border-transparent`
-                                    : 'border-gray-300 hover:border-gray-400'
-                                }`}
-                              >
-                                {item.checked && <Check className="w-3 h-3 text-white" />}
-                              </button>
-                              <span
-                                className={`flex-1 text-sm ${
-                                  item.checked
-                                    ? 'line-through text-gray-400'
-                                    : selectedStyle.textColor
-                                }`}
-                              >
-                                {item.text}
-                              </span>
-                              <button
-                                onClick={() => removeItem(section.id, item.id)}
-                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded transition-all"
-                                title="Eliminar"
-                              >
-                                <X className="w-3 h-3 text-red-500" />
-                              </button>
+                            <div className="flex items-center space-x-3">
+                              {isExpanded ? (
+                                <ChevronDown className="w-5 h-5 text-gray-400" />
+                              ) : (
+                                <ChevronRight className="w-5 h-5 text-gray-400" />
+                              )}
+                              <h4 className={`text-lg font-bold ${selectedStyle.textColor}`}>
+                                {section.title}
+                              </h4>
                             </div>
-                          ))}
+                            <span className="text-sm text-gray-500">
+                              {completedCount}/{section.items.length}
+                            </span>
+                          </button>
+
+                          {/* Section Content - Only visible when expanded */}
+                          {isExpanded && (
+                            <div className="px-4 pb-4 space-y-2">
+                              {section.items.map((item) => (
+                                <div
+                                  key={item.id}
+                                  className="flex items-center space-x-3 group ml-8"
+                                >
+                                  <button
+                                    onClick={() => toggleItem(section.id, item.id)}
+                                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                                      item.checked
+                                        ? `${selectedStyle.accentColor} border-transparent`
+                                        : 'border-gray-300 hover:border-gray-400'
+                                    }`}
+                                  >
+                                    {item.checked && <Check className="w-3 h-3 text-white" />}
+                                  </button>
+                                  <span
+                                    className={`flex-1 text-sm ${
+                                      item.checked
+                                        ? 'line-through text-gray-400'
+                                        : selectedStyle.textColor
+                                    }`}
+                                  >
+                                    {item.text}
+                                  </span>
+                                  <button
+                                    onClick={() => removeItem(section.id, item.id)}
+                                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded transition-all"
+                                    title="Eliminar"
+                                  >
+                                    <X className="w-3 h-3 text-red-500" />
+                                  </button>
+                                </div>
+                              ))}
+
+                              {/* Inline Add Item */}
+                              {addingItemToSection === section.id ? (
+                                <div className="flex items-center space-x-2 ml-8 mt-2">
+                                  <input
+                                    type="text"
+                                    value={newItemText}
+                                    onChange={(e) => setNewItemText(e.target.value)}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') addCustomItem(section.id)
+                                      if (e.key === 'Escape') cancelAddItem()
+                                    }}
+                                    placeholder="Nueva tarea..."
+                                    className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                    autoFocus
+                                  />
+                                  <button
+                                    onClick={() => addCustomItem(section.id)}
+                                    className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                                    title="Añadir"
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={cancelAddItem}
+                                    className="p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition-colors"
+                                    title="Cancelar"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                /* Add Item Button */
+                                <button
+                                  onClick={() => setAddingItemToSection(section.id)}
+                                  className="flex items-center space-x-2 ml-8 mt-2 text-sm text-gray-500 hover:text-blue-600 transition-colors"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                  <span>Añadir tarea personalizada</span>
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
 
                   {/* Footer */}
