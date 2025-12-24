@@ -37,13 +37,15 @@ export async function POST(request: NextRequest) {
 
     // Save lead to database
     try {
-      await prisma.leadMagnetDownload.create({
+      await prisma.lead.create({
         data: {
+          name: nombre,
           email,
-          leadMagnetSlug: 'plantilla-reviews',
-          metadata: { nombre, telefono, whatsappPhone }
+          source: 'plantilla-reviews',
+          metadata: { telefono, whatsappPhone }
         }
       })
+      console.log(`[Lead] Created for ${email} from plantilla-reviews`)
     } catch (dbError) {
       console.error('Error saving lead:', dbError)
     }

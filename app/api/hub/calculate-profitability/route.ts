@@ -128,11 +128,11 @@ export async function POST(req: NextRequest) {
         })
 
         // Registrar descarga/uso
-        await prisma.leadMagnetDownload.create({
+        await prisma.lead.create({
           data: {
-            subscriberEmail: validatedEmail,
-            resourceType: 'calculator',
-            resourceName: 'calculadora-rentabilidad',
+            name: name || 'Usuario',
+            email: validatedEmail,
+            source: 'calculadora-rentabilidad',
             metadata: {
               city,
               propertyType,
@@ -142,6 +142,7 @@ export async function POST(req: NextRequest) {
             }
           }
         })
+        console.log(`[Lead] Created for ${validatedEmail} from calculadora-rentabilidad`)
 
         // TODO: Enviar email con resultados detallados usando Resend
         // await sendCalculatorResults(validatedEmail, name, result)
