@@ -45,6 +45,17 @@ async function getEmailTemplate(templateName: string): Promise<React.FC<any> | n
         return (await import('../emails/templates/lead-magnet-download')).default
       case 'welcome-qr.tsx':
         return (await import('../emails/templates/welcome-qr')).default
+      // Tool: Checklist de Limpieza templates
+      case 'tool-checklist-day0-delivery':
+        return (await import('../emails/templates/tools/tool-checklist-day0-delivery')).default
+      case 'tool-checklist-day2-mistakes':
+        return (await import('../emails/templates/tools/tool-checklist-day2-mistakes')).default
+      case 'tool-checklist-day4-resource':
+        return (await import('../emails/templates/tools/tool-checklist-day4-resource')).default
+      case 'tool-checklist-day6-test':
+        return (await import('../emails/templates/tools/tool-checklist-day6-test')).default
+      case 'tool-checklist-day8-offer':
+        return (await import('../emails/templates/tools/tool-checklist-day8-offer')).default
       default:
         console.error(`[EMAIL TEMPLATES] Unknown template: ${templateName}`)
         return null
