@@ -83,22 +83,22 @@ export async function POST(request: NextRequest) {
       console.error('Error creating subscriber:', subscriberError)
     }
 
-    // Generate sections HTML for email
-    const sectionsHtml = (sections as ChecklistSection[]).map(section => `
+    // Generate sections HTML for email (estilo limpio como reviews)
+    const sectionsHtml = (sections as ChecklistSection[]).map((section, index) => `
       <tr>
-        <td style="padding: 16px 28px 8px 28px;">
-          <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.5px;">${section.title}</p>
+        <td style="padding: 12px 24px;${index > 0 ? ' border-top: 1px solid #f3f4f6;' : ''}">
+          <p style="margin: 0 0 8px 0; font-size: 10px; font-weight: 600; color: #111827; text-transform: uppercase; letter-spacing: 0.5px;">${section.title}</p>
           <table width="100%" cellpadding="0" cellspacing="0">
             ${section.items.map(item => `
               <tr>
-                <td style="padding: 6px 0; vertical-align: top;">
+                <td style="padding: 4px 0; vertical-align: top;">
                   <table width="100%" cellpadding="0" cellspacing="0">
                     <tr>
-                      <td style="width: 24px; vertical-align: top;">
-                        <div style="width: 16px; height: 16px; border: 2px solid #d1d5db; border-radius: 3px; margin-top: 2px;"></div>
+                      <td style="width: 20px; vertical-align: top;">
+                        <div style="width: 14px; height: 14px; border: 1px solid #d1d5db; border-radius: 2px; margin-top: 1px;"></div>
                       </td>
                       <td style="padding-left: 8px; vertical-align: top;">
-                        <span style="font-size: 13px; color: #374151; line-height: 1.4;">${item}</span>
+                        <span style="font-size: 12px; color: #4b5563; line-height: 1.4;">${item}</span>
                       </td>
                     </tr>
                   </table>
@@ -125,41 +125,44 @@ export async function POST(request: NextRequest) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8f8f8;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8f8f8; padding: 40px 16px;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f3f4f6;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 16px;">
     <tr>
       <td align="center">
         <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px;">
 
           <!-- Email Header -->
           <tr>
-            <td style="padding: 0 0 32px 0; text-align: center;">
-              <p style="margin: 0 0 6px 0; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 2px;">Itineramio</p>
-              <h1 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 24px; font-weight: 600;">Tu Checklist de Limpieza</h1>
-              <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.5;">Hola ${name}, aquí tienes tu checklist personalizado listo para imprimir.</p>
+            <td style="padding: 0 0 24px 0; text-align: center;">
+              <p style="margin: 0 0 6px 0; color: #9ca3af; font-size: 11px; text-transform: uppercase; letter-spacing: 2px;">Itineramio</p>
+              <h1 style="margin: 0 0 8px 0; color: #111827; font-size: 22px; font-weight: 600;">Tu Checklist de Limpieza</h1>
+              <p style="margin: 0; color: #6b7280; font-size: 13px; line-height: 1.5;">Hola ${name}, aquí tienes tu checklist personalizado listo para imprimir.</p>
             </td>
           </tr>
 
           <!-- ========== CHECKLIST IMPRIMIBLE ========== -->
           <tr>
             <td>
-              <table width="100%" cellpadding="0" cellspacing="0" style="background: #ffffff; border: 1px solid #e0e0e0;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: #ffffff; border: 1px solid #e5e7eb;">
 
                 <!-- Header con nombre del alojamiento -->
                 <tr>
-                  <td style="padding: 28px 28px 0 28px; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);">
-                    <p style="margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.8);">Checklist de Limpieza</p>
-                    <p style="margin: 4px 0 0 0; font-size: 22px; font-weight: 600; color: #ffffff;">${propertyName || 'Mi Propiedad'}</p>
-                    ${propertyAddress ? `<p style="margin: 4px 0 0 0; font-size: 13px; color: rgba(255,255,255,0.9);">📍 ${propertyAddress}</p>` : ''}
-                    <p style="margin: 12px 0 20px 0; font-size: 12px; color: rgba(255,255,255,0.7);">${totalTasks} tareas</p>
+                  <td style="padding: 20px 24px; border-bottom: 1px solid #f3f4f6;">
+                    <p style="margin: 0; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af;">Alojamiento</p>
+                    <p style="margin: 4px 0 0 0; font-size: 18px; font-weight: 600; color: #111827;">${propertyName || 'Mi Propiedad'}</p>
+                    ${propertyAddress ? `<p style="margin: 4px 0 0 0; font-size: 12px; color: #6b7280;">📍 ${propertyAddress}</p>` : ''}
+                    <div style="margin-top: 12px;">
+                      <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">Checklist de Limpieza</p>
+                      <p style="margin: 4px 0 0 0; font-size: 11px; color: #9ca3af;">${totalTasks} tareas · Marcar cada tarea completada</p>
+                    </div>
                   </td>
                 </tr>
 
                 <!-- Instrucciones -->
                 <tr>
-                  <td style="padding: 20px 28px; background: #f0f9ff; border-bottom: 1px solid #e0f2fe;">
-                    <p style="margin: 0; font-size: 13px; color: #0369a1; line-height: 1.5;">
-                      <strong>Cómo usar:</strong> Imprime este checklist y marca cada tarea completada. Perfecto para entregar a tu equipo de limpieza.
+                  <td style="padding: 12px 24px; background: #f9fafb;">
+                    <p style="margin: 0; font-size: 12px; color: #6b7280; line-height: 1.5;">
+                      Completa cada tarea en orden. <strong style="color: #111827;">Marca con ✓</strong> cuando termines cada una.
                     </p>
                   </td>
                 </tr>
@@ -169,27 +172,36 @@ export async function POST(request: NextRequest) {
 
                 <!-- Espacio para notas -->
                 <tr>
-                  <td style="padding: 20px 28px; border-top: 1px solid #f0f0f0;">
-                    <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Notas adicionales</p>
-                    <div style="border: 1px dashed #d1d5db; border-radius: 6px; padding: 16px; min-height: 60px;">
-                      <p style="margin: 0; font-size: 11px; color: #9ca3af;">Espacio para anotaciones...</p>
+                  <td style="padding: 12px 24px; border-top: 1px solid #f3f4f6;">
+                    <p style="margin: 0 0 8px 0; font-size: 10px; font-weight: 600; color: #111827; text-transform: uppercase; letter-spacing: 0.5px;">Notas</p>
+                    <div style="border: 1px dashed #d1d5db; border-radius: 4px; padding: 12px; min-height: 40px;">
+                      <p style="margin: 0; font-size: 10px; color: #d1d5db;">Espacio para anotaciones...</p>
                     </div>
                   </td>
                 </tr>
 
                 <!-- Footer de la plantilla -->
                 <tr>
-                  <td style="padding: 16px 28px; background: #fafafa; border-top: 1px solid #e5e7eb;">
+                  <td style="padding: 12px 24px; background: #f9fafb; border-top: 1px solid #f3f4f6;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td>
-                          <p style="margin: 0; font-size: 11px; color: #9ca3af;">Fecha: _______________</p>
+                          <p style="margin: 0; font-size: 10px; color: #9ca3af;">Fecha: ________________</p>
                         </td>
                         <td style="text-align: right;">
-                          <p style="margin: 0; font-size: 11px; color: #9ca3af;">Firma: _______________</p>
+                          <p style="margin: 0; font-size: 10px; color: #9ca3af;">Firma: ________________</p>
                         </td>
                       </tr>
                     </table>
+                  </td>
+                </tr>
+
+                <!-- Nota final -->
+                <tr>
+                  <td style="padding: 8px 24px; border-top: 1px solid #f3f4f6;">
+                    <p style="margin: 0; font-size: 10px; color: #9ca3af; font-style: italic;">
+                      Verificar todas las tareas antes de la llegada del huésped.
+                    </p>
                   </td>
                 </tr>
 
@@ -200,30 +212,30 @@ export async function POST(request: NextRequest) {
 
           <!-- Botón de descarga -->
           <tr>
-            <td align="center" style="padding: 28px 0 0 0;">
-              <a href="${downloadUrl}" style="display: inline-block; background: #1a1a1a; color: #ffffff; padding: 14px 32px; text-decoration: none; font-weight: 600; font-size: 14px; border-radius: 6px;">
+            <td align="center" style="padding: 24px 0 0 0;">
+              <a href="${downloadUrl}" style="display: inline-block; background: #111827; color: #ffffff; padding: 12px 28px; text-decoration: none; font-weight: 500; font-size: 13px; border-radius: 6px;">
                 Descargar PDF
               </a>
-              <p style="margin: 12px 0 0 0; font-size: 12px; color: #888;">Haz clic para abrir y guardar como PDF</p>
+              <p style="margin: 10px 0 0 0; font-size: 11px; color: #9ca3af;">Haz clic para abrir y guardar como PDF</p>
             </td>
           </tr>
 
           <!-- Instrucciones de impresión -->
           <tr>
-            <td style="padding: 32px 0 24px 0;">
-              <p style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: #1a1a1a;">Cómo imprimir tu checklist</p>
+            <td style="padding: 24px 0 20px 0;">
+              <p style="margin: 0 0 12px 0; font-size: 13px; font-weight: 600; color: #111827;">Cómo imprimir tu checklist</p>
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="padding: 6px 0; font-size: 13px; color: #666;">1. Abre el enlace de descarga</td>
+                  <td style="padding: 4px 0; font-size: 12px; color: #6b7280;">1. Abre el enlace de descarga</td>
                 </tr>
                 <tr>
-                  <td style="padding: 6px 0; font-size: 13px; color: #666;">2. Guarda como PDF (Cmd/Ctrl + P → Guardar como PDF)</td>
+                  <td style="padding: 4px 0; font-size: 12px; color: #6b7280;">2. Guarda como PDF (Cmd/Ctrl + P → Guardar como PDF)</td>
                 </tr>
                 <tr>
-                  <td style="padding: 6px 0; font-size: 13px; color: #666;">3. Imprime en A4 y plastifica para mayor durabilidad</td>
+                  <td style="padding: 4px 0; font-size: 12px; color: #6b7280;">3. Imprime en A4 y plastifica para mayor durabilidad</td>
                 </tr>
                 <tr>
-                  <td style="padding: 6px 0; font-size: 13px; color: #666;">4. Deja una copia visible para tu equipo de limpieza</td>
+                  <td style="padding: 4px 0; font-size: 12px; color: #6b7280;">4. Deja una copia visible para tu equipo de limpieza</td>
                 </tr>
               </table>
             </td>
@@ -231,8 +243,8 @@ export async function POST(request: NextRequest) {
 
           <!-- CTA Blog -->
           <tr>
-            <td align="center" style="padding: 0 0 32px 0;">
-              <a href="https://www.itineramio.com/blog" style="display: inline-block; border: 2px solid #e5e7eb; color: #374151; padding: 12px 24px; text-decoration: none; font-weight: 500; font-size: 13px; border-radius: 6px;">
+            <td align="center" style="padding: 0 0 24px 0;">
+              <a href="https://www.itineramio.com/blog" style="display: inline-block; border: 1px solid #e5e7eb; color: #374151; padding: 10px 20px; text-decoration: none; font-weight: 500; font-size: 12px; border-radius: 6px;">
                 Más recursos gratuitos
               </a>
             </td>
@@ -240,9 +252,9 @@ export async function POST(request: NextRequest) {
 
           <!-- Footer -->
           <tr>
-            <td style="text-align: center; padding: 20px 0; border-top: 1px solid #e5e5e5;">
-              <p style="margin: 0; color: #999; font-size: 11px;">
-                <a href="https://www.itineramio.com" style="color: #666; text-decoration: none;">itineramio.com</a> · Herramientas para anfitriones profesionales
+            <td style="text-align: center; padding: 16px 0; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0; color: #9ca3af; font-size: 11px;">
+                Creado con <a href="https://www.itineramio.com" style="color: #6b7280; text-decoration: none;">Itineramio</a>
               </p>
             </td>
           </tr>

@@ -30,11 +30,6 @@ function ChecklistContent() {
   }
 
   const totalTasks = sections.reduce((acc, s) => acc + s.items.length, 0)
-  const currentDate = new Date().toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
 
   const handlePrint = () => {
     window.print()
@@ -46,7 +41,7 @@ function ChecklistContent() {
       <div className="print:hidden bg-white border-b sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="font-semibold text-gray-900">Checklist de Limpieza Profesional</h1>
+            <h1 className="font-semibold text-gray-900">Checklist de Limpieza</h1>
             <p className="text-sm text-gray-500">Guarda como PDF o imprime directamente</p>
           </div>
           <button
@@ -61,55 +56,70 @@ function ChecklistContent() {
         </div>
       </div>
 
-      {/* Checklist - optimizada para impresión A4 */}
+      {/* Plantilla - optimizada para impresión A4 */}
       <div className="max-w-[210mm] mx-auto p-6 print:p-0">
         <div className="bg-white border border-gray-200 print:border-gray-300 shadow-sm print:shadow-none">
 
-          {/* Header con gradiente */}
-          <div className="px-6 py-5 bg-gradient-to-r from-blue-500 to-cyan-500">
-            <p className="text-[10px] uppercase tracking-wider text-white/80 mb-0.5">Checklist de Limpieza</p>
-            <p className="text-xl font-semibold text-white mb-1">{nombre}</p>
+          {/* Header con nombre del alojamiento */}
+          <div className="px-6 pt-5 pb-4 border-b border-gray-100">
+            <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5">Alojamiento</p>
+            <p className="text-lg font-semibold text-gray-900">{nombre}</p>
             {direccion && (
-              <p className="text-sm text-white/90 mb-2">📍 {direccion}</p>
+              <p className="text-xs text-gray-500 mt-1">📍 {direccion}</p>
             )}
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-white/70">{totalTasks} tareas · {currentDate}</p>
+            <div className="mt-3">
+              <h2 className="text-xl font-semibold text-gray-900">Checklist de Limpieza</h2>
+              <p className="text-xs text-gray-500 mt-1">{totalTasks} tareas · Marcar cada tarea completada</p>
             </div>
           </div>
 
+          {/* Instrucciones */}
+          <div className="px-6 py-3 bg-gray-50">
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Completa cada tarea en orden. <strong className="text-gray-900">Marca con ✓</strong> cuando termines cada una.
+            </p>
+          </div>
+
           {/* Secciones del checklist */}
-          <div className="divide-y divide-gray-100">
-            {sections.map((section, sectionIndex) => (
-              <div key={sectionIndex} className="px-6 py-4">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-900 mb-3">
+          {sections.map((section, sectionIndex) => (
+            <div key={sectionIndex} className={sectionIndex > 0 ? 'border-t border-gray-100' : ''}>
+              <div className="px-6 py-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-900 mb-2">
                   {section.title}
                 </p>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {section.items.map((item, itemIndex) => (
                     <div key={itemIndex} className="flex items-start gap-3">
-                      <div className="w-4 h-4 border-2 border-gray-300 rounded flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-gray-700 leading-tight">{item}</span>
+                      <div className="w-4 h-4 border border-gray-300 rounded-sm flex-shrink-0 mt-0.5" />
+                      <span className="text-xs text-gray-700 leading-relaxed">{item}</span>
                     </div>
                   ))}
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
 
           {/* Espacio para notas */}
-          <div className="px-6 py-4 border-t border-gray-100">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 mb-2">Notas adicionales</p>
-            <div className="border border-dashed border-gray-300 rounded-md p-3 min-h-[50px]">
-              <p className="text-[10px] text-gray-400">Espacio para anotaciones...</p>
+          <div className="px-6 py-3 border-t border-gray-100">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-900 mb-2">Notas</p>
+            <div className="border border-dashed border-gray-200 rounded p-3 min-h-[40px]">
+              <p className="text-[10px] text-gray-300">Espacio para anotaciones...</p>
             </div>
           </div>
 
           {/* Footer con firma */}
-          <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+          <div className="px-6 py-3 bg-gray-50 border-t border-gray-100">
             <div className="flex items-center justify-between text-[10px] text-gray-500">
               <span>Fecha: ________________</span>
               <span>Firma: ________________</span>
             </div>
+          </div>
+
+          {/* Nota final */}
+          <div className="px-6 py-2 border-t border-gray-100">
+            <p className="text-[10px] text-gray-400 italic">
+              Verificar todas las tareas antes de la llegada del huésped.
+            </p>
           </div>
 
         </div>
@@ -127,7 +137,7 @@ function ChecklistContent() {
         @media print {
           @page {
             size: A4;
-            margin: 10mm;
+            margin: 12mm;
           }
           body {
             -webkit-print-color-adjust: exact;

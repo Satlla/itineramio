@@ -2,11 +2,26 @@ import { Resend } from 'resend'
 import { render } from '@react-email/render'
 import type { ReactElement } from 'react'
 
-if (!process.env.RESEND_API_KEY) {
-  throw new Error('RESEND_API_KEY environment variable is not set')
+// Lazy initialization to avoid build errors when RESEND_API_KEY is not set
+let _resend: Resend | null = null
+
+function getResend(): Resend {
+  if (!_resend) {
+    if (!process.env.RESEND_API_KEY) {
+      console.warn('RESEND_API_KEY environment variable is not set. Email sending will fail.')
+    }
+    _resend = new Resend(process.env.RESEND_API_KEY || '')
+  }
+  return _resend
 }
 
-export const resend = new Resend(process.env.RESEND_API_KEY)
+export const resend = {
+  emails: {
+    send: async (...args: Parameters<Resend['emails']['send']>) => {
+      return getResend().emails.send(...args)
+    }
+  }
+}
 
 export const FROM_EMAIL = 'Itineramio <hola@itineramio.com>'
 export const REPLY_TO_EMAIL = 'hola@itineramio.com'
