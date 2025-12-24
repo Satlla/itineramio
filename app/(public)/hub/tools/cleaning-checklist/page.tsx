@@ -18,6 +18,7 @@ import {
 import { Navbar } from '../../../../../src/components/layout/Navbar'
 import { SocialShare } from '../../../../../src/components/tools/SocialShare'
 import { LeadCaptureModal } from '../../../../../src/components/tools/LeadCaptureModal'
+import { SuccessModal } from '../../../../../src/components/ui/SuccessModal'
 import html2canvas from 'html2canvas'
 
 const checklistStyles = [
@@ -190,6 +191,7 @@ export default function CleaningChecklist() {
   const [addingItemToSection, setAddingItemToSection] = useState<string | null>(null)
   const [newItemText, setNewItemText] = useState('')
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
   const checklistRef = useRef<HTMLDivElement>(null)
 
   const toggleSection = (sectionId: string) => {
@@ -328,7 +330,7 @@ export default function CleaningChecklist() {
 
       if (response.ok) {
         console.log('Checklist sent successfully:', result)
-        alert('¡Perfecto! Te hemos enviado el checklist a tu correo. Revisa tu bandeja de entrada.')
+        setShowSuccessModal(true)
       } else {
         console.error('Error sending checklist:', result.error)
         // Fallback to local download if email fails
@@ -729,6 +731,16 @@ export default function CleaningChecklist() {
         title={pendingAction === 'download' ? '¡Descarga tu checklist!' : '¡Imprime tu checklist!'}
         description="Déjanos tu email para recibir más recursos gratuitos para tu negocio"
         downloadLabel={pendingAction === 'download' ? 'Descargar' : 'Continuar a imprimir'}
+      />
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="¡Checklist enviado!"
+        message="Te hemos enviado el checklist a tu correo. Revisa tu bandeja de entrada para descargarlo."
+        autoClose={true}
+        autoCloseDelay={5000}
       />
     </div>
   )
