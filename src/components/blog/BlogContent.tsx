@@ -94,13 +94,31 @@ interface BlogPost {
   tags: string[]
 }
 
+interface SidebarArticle {
+  slug: string
+  title: string
+  category: string
+  readTime: number
+  views: number
+}
+
 interface BlogContentProps {
   articles: BlogPost[]
   categories: string[]
   searchQuery?: string
+  popularArticles?: SidebarArticle[]
+  trendingArticles?: SidebarArticle[]
+  totalArticles?: number
 }
 
-export default function BlogContent({ articles, categories, searchQuery = '' }: BlogContentProps) {
+export default function BlogContent({
+  articles,
+  categories,
+  searchQuery = '',
+  popularArticles = [],
+  trendingArticles = [],
+  totalArticles = 0
+}: BlogContentProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
   // Filter articles based on selected category
@@ -124,8 +142,8 @@ export default function BlogContent({ articles, categories, searchQuery = '' }: 
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
-          {/* Main Content */}
-          <div className="lg:col-span-12">
+          {/* Main Content - Articles */}
+          <div className="lg:col-span-8">
             {/* Section Header */}
             <div className="flex items-center justify-between mb-8 pb-4 border-b-2 border-gradient-to-r from-violet-600 to-purple-600">
               <div className="flex items-center space-x-3">
@@ -481,6 +499,167 @@ export default function BlogContent({ articles, categories, searchQuery = '' }: 
               )}
             </div>
           </div>
+
+          {/* Sidebar */}
+          <aside className="lg:col-span-4">
+            <div className="sticky top-32 space-y-8">
+              {/* Popular Articles */}
+              {popularArticles.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-4">
+                    <div className="flex items-center space-x-3 text-white">
+                      <Sparkles className="w-5 h-5" />
+                      <h3 className="text-lg font-bold">Más Populares</h3>
+                    </div>
+                  </div>
+
+                  <div className="divide-y divide-gray-100">
+                    {popularArticles.slice(0, 5).map((article, index) => (
+                      <Link
+                        key={article.slug}
+                        href={`/blog/${article.slug}`}
+                        className="group block p-5 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex gap-4">
+                          <div className="flex-shrink-0">
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center">
+                              <span className="text-lg font-bold bg-gradient-to-br from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                                {String(index + 1).padStart(2, '0')}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <h4 className="text-sm font-bold text-gray-900 leading-tight group-hover:text-violet-600 transition-colors line-clamp-3">
+                              {article.title}
+                            </h4>
+
+                            <div className="flex items-center space-x-3 text-xs text-gray-500">
+                              <span className="flex items-center space-x-1">
+                                <Eye className="w-3 h-3" />
+                                <span>{article.views.toLocaleString()}</span>
+                              </span>
+                              <span>•</span>
+                              <span className="flex items-center space-x-1">
+                                <Clock className="w-3 h-3" />
+                                <span>{article.readTime} min</span>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Trending Articles */}
+              {trendingArticles.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="bg-gradient-to-r from-orange-500 to-pink-500 px-6 py-4">
+                    <div className="flex items-center space-x-3 text-white">
+                      <TrendingUp className="w-5 h-5" />
+                      <h3 className="text-lg font-bold">Tendencias del Mes</h3>
+                    </div>
+                  </div>
+
+                  <div className="divide-y divide-gray-100">
+                    {trendingArticles.slice(0, 4).map((article) => {
+                      const config = categoryConfig[article.category]
+                      const Icon = config?.icon || BookOpen
+                      return (
+                        <Link
+                          key={article.slug}
+                          href={`/blog/${article.slug}`}
+                          className="group block p-5 hover:bg-gray-50 transition-colors"
+                        >
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-2">
+                              <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${config?.gradient || 'from-gray-100 to-gray-200'} flex items-center justify-center`}>
+                                <Icon className={`w-4 h-4 ${config?.color || 'text-gray-600'}`} />
+                              </div>
+                              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                {config?.name || article.category}
+                              </span>
+                            </div>
+
+                            <h4 className="text-sm font-bold text-gray-900 leading-tight group-hover:text-orange-600 transition-colors line-clamp-2">
+                              {article.title}
+                            </h4>
+
+                            <div className="flex items-center justify-between text-xs text-gray-500">
+                              <span className="flex items-center space-x-1">
+                                <Eye className="w-3 h-3" />
+                                <span>{article.views.toLocaleString()}</span>
+                              </span>
+                              <span className="flex items-center space-x-1 text-orange-600 font-semibold">
+                                <TrendingUp className="w-3 h-3" />
+                                <span>En tendencia</span>
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Newsletter CTA */}
+              <div className="bg-gradient-to-br from-violet-600 via-purple-600 to-pink-600 rounded-2xl shadow-xl p-8 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
+
+                <div className="relative z-10 space-y-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+
+                  <h3 className="text-2xl font-bold leading-tight">
+                    Únete a nuestra Newsletter
+                  </h3>
+
+                  <p className="text-white/90 text-sm leading-relaxed">
+                    Recibe cada semana consejos prácticos, guías exclusivas y las últimas tendencias.
+                  </p>
+
+                  <div className="pt-2">
+                    <Link
+                      href="/register"
+                      className="block w-full text-center px-6 py-3 bg-white text-violet-600 font-bold rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                    >
+                      Suscribirme gratis
+                    </Link>
+                  </div>
+
+                  <p className="text-xs text-white/70 text-center">
+                    Más de 1,000 anfitriones ya están dentro
+                  </p>
+                </div>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4">
+                  En el Blog
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold bg-gradient-to-br from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                      {totalArticles || articles.length}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">Artículos</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold bg-gradient-to-br from-pink-600 to-orange-600 bg-clip-text text-transparent">
+                      {categories.length}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">Categorías</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
     </>
