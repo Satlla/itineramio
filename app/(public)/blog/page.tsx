@@ -94,21 +94,43 @@ const categoryConfig: Record<string, { name: string; icon: any; color: string; g
   }
 }
 
-export default async function BlogPage() {
-  // Fetch hero article (most recent featured or published)
-  const heroArticle = await prisma.blogPost.findFirst({
-    where: { status: 'PUBLISHED' },
-    orderBy: { publishedAt: 'desc' }
-  })
+export default async function BlogPage({
+  searchParams
+}: {
+  searchParams: { q?: string; category?: string }
+}) {
+  const searchQuery = searchParams.q?.trim() || ''
+  const categoryFilter = searchParams.category || ''
+
+  // Build search filter
+  const searchFilter = searchQuery
+    ? {
+        OR: [
+          { title: { contains: searchQuery, mode: 'insensitive' as const } },
+          { excerpt: { contains: searchQuery, mode: 'insensitive' as const } },
+          { content: { contains: searchQuery, mode: 'insensitive' as const } },
+          { tags: { hasSome: [searchQuery.toLowerCase()] } }
+        ]
+      }
+    : {}
+
+  // Fetch hero article (most recent featured or published) - only if no search
+  const heroArticle = searchQuery
+    ? null
+    : await prisma.blogPost.findFirst({
+        where: { status: 'PUBLISHED' },
+        orderBy: { publishedAt: 'desc' }
+      })
 
   // Fetch other articles - MORE for abundance
   const articles = await prisma.blogPost.findMany({
     where: {
       status: 'PUBLISHED',
-      id: { not: heroArticle?.id }
+      id: heroArticle ? { not: heroArticle.id } : undefined,
+      ...searchFilter
     },
     orderBy: { publishedAt: 'desc' },
-    take: 20 // Increased from 9
+    take: searchQuery ? 50 : 20 // More results for search
   })
 
   // Fetch popular articles (by views)
@@ -247,7 +269,7 @@ export default async function BlogPage() {
       )}
 
       {/* Blog Content with Category Filter */}
-      <BlogContent articles={articles} categories={categories} />
+      <BlogContent articles={articles} categories={categories} searchQuery={searchQuery} />
 
       {/* Sidebar moved to BlogPage Footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">

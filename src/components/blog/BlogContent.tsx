@@ -97,9 +97,10 @@ interface BlogPost {
 interface BlogContentProps {
   articles: BlogPost[]
   categories: string[]
+  searchQuery?: string
 }
 
-export default function BlogContent({ articles, categories }: BlogContentProps) {
+export default function BlogContent({ articles, categories, searchQuery = '' }: BlogContentProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
   // Filter articles based on selected category
@@ -130,10 +131,17 @@ export default function BlogContent({ articles, categories }: BlogContentProps) 
               <div className="flex items-center space-x-3">
                 <div className="w-1 h-8 bg-gradient-to-b from-violet-600 to-purple-600 rounded-full"></div>
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                  {selectedCategory
+                  {searchQuery
+                    ? `Resultados para "${searchQuery}"`
+                    : selectedCategory
                     ? categoryConfig[selectedCategory]?.name || selectedCategory
                     : 'Últimos Artículos'}
                 </h2>
+                {searchQuery && (
+                  <span className="text-sm text-gray-500 font-normal">
+                    ({filteredArticles.length} {filteredArticles.length === 1 ? 'resultado' : 'resultados'})
+                  </span>
+                )}
               </div>
               <TrendingUp className="w-6 h-6 text-violet-600" />
             </div>
@@ -142,7 +150,20 @@ export default function BlogContent({ articles, categories }: BlogContentProps) 
             <div className="grid gap-8">
               {filteredArticles.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-gray-500 text-lg">No hay artículos en esta categoría</p>
+                  <p className="text-gray-500 text-lg">
+                    {searchQuery
+                      ? `No se encontraron artículos para "${searchQuery}"`
+                      : 'No hay artículos en esta categoría'}
+                  </p>
+                  {searchQuery && (
+                    <Link
+                      href="/blog"
+                      className="inline-flex items-center mt-4 text-violet-600 hover:text-violet-700 font-medium"
+                    >
+                      <ArrowRight className="w-4 h-4 mr-2 rotate-180" />
+                      Ver todos los artículos
+                    </Link>
+                  )}
                 </div>
               ) : (
                 filteredArticles.map((article, index) => {
