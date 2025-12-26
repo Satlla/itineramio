@@ -13,7 +13,7 @@ const SOURCE_TO_LEAD_MAGNET: Record<string, {
   downloadables: string[]
   downloadUrl: string
 }> = {
-  // Arquetipo lead magnets
+  // Arquetipo lead magnets - these get the download email
   'estratega-5-kpis': { ...LEAD_MAGNETS.ESTRATEGA, archetype: 'Estratega' },
   'sistematico-47-tareas': { ...LEAD_MAGNETS.SISTEMATICO, archetype: 'Sistemático' },
   'diferenciador-storytelling': { ...LEAD_MAGNETS.DIFERENCIADOR, archetype: 'Diferenciador' },
@@ -22,7 +22,7 @@ const SOURCE_TO_LEAD_MAGNET: Record<string, {
   'experiencial-corazon-escalable': { ...LEAD_MAGNETS.EXPERIENCIAL, archetype: 'Experiencial' },
   'equilibrado-versatil-excepcional': { ...LEAD_MAGNETS.EQUILIBRADO, archetype: 'Equilibrado' },
   'improvisador-kit-anti-caos': { ...LEAD_MAGNETS.IMPROVISADOR, archetype: 'Improvisador' },
-  // Tool-based lead magnets
+  // PDF/downloadable tools - these get the download email
   'wifi-card': {
     title: 'Plantilla WiFi Profesional',
     subtitle: 'Tarjeta WiFi lista para imprimir',
@@ -31,14 +31,6 @@ const SOURCE_TO_LEAD_MAGNET: Record<string, {
     downloadables: ['Tarjeta WiFi editable', 'Diseño profesional', 'Formato para imprimir'],
     downloadUrl: '/recursos/plantilla-wifi'
   },
-  'qr-generator': {
-    title: 'Generador de Códigos QR',
-    subtitle: 'QR codes para tu propiedad',
-    archetype: 'Anfitrión',
-    pages: 1,
-    downloadables: ['Códigos QR personalizados', 'Múltiples formatos'],
-    downloadUrl: '/hub/qr-generator'
-  },
   'cleaning-checklist': {
     title: 'Checklist de Limpieza',
     subtitle: 'Lista completa para tu equipo',
@@ -46,21 +38,20 @@ const SOURCE_TO_LEAD_MAGNET: Record<string, {
     pages: 2,
     downloadables: ['Checklist imprimible', 'Por habitación', 'Para equipo de limpieza'],
     downloadUrl: '/recursos/checklist-limpieza'
-  },
-  'calculadora-rentabilidad': {
-    title: 'Calculadora de Rentabilidad',
-    subtitle: 'Análisis de tu potencial de ingresos',
-    archetype: 'Anfitrión',
-    pages: 1,
-    downloadables: ['Informe personalizado', 'Comparativa mercado', 'Recomendaciones'],
-    downloadUrl: '/hub/calculadora'
   }
+  // NOTE: Online tools (qr-generator, pricing-calculator, etc.) are NOT here
+  // They don't need a download email - user already has the result on the page
+  // Their sequences (tool-qr, tool-pricing) handle all follow-up emails
 }
+
+// Online tools that don't need download email - sequences handle everything
+// Slugs must match what the frontend sends as 'source'
+const ONLINE_TOOLS = ['qr-generator', 'pricing-calculator', 'roi-calculator', 'house-rules-generator']
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, email, source } = body
+    const { name, email, source, metadata } = body
 
     // Validation
     if (!name || !email || !source) {
@@ -118,6 +109,7 @@ export async function POST(request: NextRequest) {
         name,
         email: normalizedEmail,
         source,
+        metadata: metadata || {},
         userAgent,
         ipAddress
       }
@@ -141,7 +133,14 @@ export async function POST(request: NextRequest) {
     }
     const archetype = sourceToArchetype[source] || 'EQUILIBRADO' // Default archetype for tool-based leads
 
-    const tags = ['lead_magnet', source]
+    // Use different source/tag format for online tools vs lead magnets
+    // Online tools: tool_qr-generator (matches sequence targetSource)
+    // Lead magnets: lead_magnet_estratega-5-kpis
+    const isOnlineTool = ONLINE_TOOLS.includes(source)
+    const subscriberSource = isOnlineTool ? `tool_${source}` : `lead_magnet_${source}`
+    const tags = isOnlineTool
+      ? [`tool_${source}`, source]
+      : ['lead_magnet', source]
 
     let subscriber
     if (!existingSubscriber) {
@@ -149,7 +148,8 @@ export async function POST(request: NextRequest) {
         data: {
           email: normalizedEmail,
           name,
-          source: `lead_magnet_${source}`,
+          source: subscriberSource,
+          sourceMetadata: metadata || {}, // Store tool metadata for email personalization
           archetype, // Assign archetype for nurturing sequence
           status: 'active',
           sequenceStatus: 'active',
@@ -159,48 +159,51 @@ export async function POST(request: NextRequest) {
           engagementScore: 'warm'
         }
       })
-      console.log(`[EmailSubscriber] Created for ${normalizedEmail} with archetype ${archetype}`)
+      console.log(`[EmailSubscriber] Created for ${normalizedEmail} with source ${subscriberSource}`)
 
       // Enrollar en secuencias de email automáticas
       await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
         archetype,
-        source: `lead_magnet_${source}`,
+        source: subscriberSource,
         tags
       }).catch(error => {
         console.error('Failed to enroll subscriber in sequences:', error)
       })
     } else {
       // Update existing subscriber with new source tag (don't overwrite archetype if exists)
+      const newTag = isOnlineTool ? `tool_${source}` : source
       subscriber = await prisma.emailSubscriber.update({
         where: { email: normalizedEmail },
         data: {
           tags: {
-            push: source
+            push: newTag
           },
           archetype: existingSubscriber.archetype || archetype, // Only set if not already set
+          // Update sourceMetadata with new tool data
+          sourceMetadata: metadata || existingSubscriber.sourceMetadata,
           // Reactivate sequence if was completed
           sequenceStatus: existingSubscriber.sequenceStatus === 'completed' ? 'active' : existingSubscriber.sequenceStatus,
           sequenceStartedAt: existingSubscriber.sequenceStartedAt || new Date()
         }
       })
-      console.log(`[EmailSubscriber] Updated tags for ${normalizedEmail}`)
+      console.log(`[EmailSubscriber] Updated tags for ${normalizedEmail} with ${newTag}`)
 
-      // Re-enrollar si la secuencia estaba completada
-      if (existingSubscriber.sequenceStatus === 'completed') {
-        await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
-          archetype: subscriber.archetype || archetype,
-          source: `lead_magnet_${source}`,
-          tags: [...(subscriber.tags || []), source]
-        }).catch(error => {
-          console.error('Failed to re-enroll subscriber in sequences:', error)
-        })
-      }
+      // ALWAYS try to enroll in new sequences for tools
+      // The enrollment system will skip if already enrolled in a specific sequence
+      await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
+        archetype: subscriber.archetype || archetype,
+        source: subscriberSource,
+        tags: [...(subscriber.tags || []), newTag]
+      }).catch(error => {
+        console.error('Failed to enroll existing subscriber in sequences:', error)
+      })
     }
 
-    // Send welcome email with lead magnet
+    // Send welcome email ONLY for lead magnets that have downloadable content
+    // Online tools (qr-generator, pricing-calculator) don't need this - their sequences handle follow-ups
     const leadMagnetInfo = SOURCE_TO_LEAD_MAGNET[source]
 
-    if (leadMagnetInfo) {
+    if (leadMagnetInfo && !isOnlineTool) {
       try {
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
         const downloadUrl = leadMagnetInfo.downloadUrl.startsWith('http')
@@ -222,6 +225,8 @@ export async function POST(request: NextRequest) {
         // Log error but don't fail the request
         console.error(`[Email Error] Failed to send to ${normalizedEmail}:`, emailError)
       }
+    } else if (isOnlineTool) {
+      console.log(`[Lead Captured] ${name} <${normalizedEmail}> from online tool ${source} - sequence will handle emails`)
     } else {
       console.log(`[Lead Captured] ${name} <${normalizedEmail}> from ${source} (no email template)`)
     }

@@ -76,6 +76,9 @@ export async function POST(req: NextRequest) {
       }, { status: 400 })
     }
 
+    // Normalizar email a minúsculas
+    const normalizedEmail = email.toLowerCase().trim()
+
     // Preparar metadata completa
     const metadata = {
       phone,
@@ -127,7 +130,7 @@ export async function POST(req: NextRequest) {
 
     // Buscar lead existente por email
     const existingLead = await prisma.lead.findFirst({
-      where: { email }
+      where: { email: normalizedEmail }
     })
 
     let lead
@@ -154,7 +157,7 @@ export async function POST(req: NextRequest) {
       // Crear nuevo lead
       lead = await prisma.lead.create({
         data: {
-          email,
+          email: normalizedEmail,
           name: name || 'Sin nombre',
           source: source || 'calculadora-rentabilidad',
           metadata
@@ -165,7 +168,7 @@ export async function POST(req: NextRequest) {
     // También crear/actualizar EmailSubscriber para secuencia de emails
     try {
       const existingSubscriber = await prisma.emailSubscriber.findFirst({
-        where: { email }
+        where: { email: normalizedEmail }
       })
 
       if (existingSubscriber) {
@@ -194,7 +197,7 @@ export async function POST(req: NextRequest) {
         // Crear nuevo subscriber
         const newSubscriber = await prisma.emailSubscriber.create({
           data: {
-            email,
+            email: normalizedEmail,
             name: name || undefined,
             source: 'calculadora-rentabilidad',
             status: 'active',

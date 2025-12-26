@@ -56,6 +56,61 @@ async function getEmailTemplate(templateName: string): Promise<React.FC<any> | n
         return (await import('../emails/templates/tools/tool-checklist-day6-test')).default
       case 'tool-checklist-day8-offer':
         return (await import('../emails/templates/tools/tool-checklist-day8-offer')).default
+      // Tool: Calculadora de Precios templates
+      case 'tool-pricing-day0-delivery':
+        return (await import('../emails/templates/tools/tool-pricing-day0-delivery')).default
+      case 'tool-pricing-day2-mistakes':
+        return (await import('../emails/templates/tools/tool-pricing-day2-mistakes')).default
+      case 'tool-pricing-day4-resource':
+        return (await import('../emails/templates/tools/tool-pricing-day4-resource')).default
+      case 'tool-pricing-day6-test':
+        return (await import('../emails/templates/tools/tool-pricing-day6-test')).default
+      case 'tool-pricing-day8-offer':
+        return (await import('../emails/templates/tools/tool-pricing-day8-offer')).default
+      // Tool: Tarjeta WiFi templates
+      case 'tool-wifi-day0-delivery':
+        return (await import('../emails/templates/tools/tool-wifi-day0-delivery')).default
+      case 'tool-wifi-day2-mistakes':
+        return (await import('../emails/templates/tools/tool-wifi-day2-mistakes')).default
+      case 'tool-wifi-day4-resource':
+        return (await import('../emails/templates/tools/tool-wifi-day4-resource')).default
+      case 'tool-wifi-day6-test':
+        return (await import('../emails/templates/tools/tool-wifi-day6-test')).default
+      case 'tool-wifi-day8-offer':
+        return (await import('../emails/templates/tools/tool-wifi-day8-offer')).default
+      // Tool: Generador de QR templates
+      case 'tool-qr-day0-delivery':
+        return (await import('../emails/templates/tools/tool-qr-day0-delivery')).default
+      case 'tool-qr-day2-mistakes':
+        return (await import('../emails/templates/tools/tool-qr-day2-mistakes')).default
+      case 'tool-qr-day4-resource':
+        return (await import('../emails/templates/tools/tool-qr-day4-resource')).default
+      case 'tool-qr-day6-test':
+        return (await import('../emails/templates/tools/tool-qr-day6-test')).default
+      case 'tool-qr-day8-offer':
+        return (await import('../emails/templates/tools/tool-qr-day8-offer')).default
+      // Tool: Calculadora de ROI templates
+      case 'tool-roi-day0-delivery':
+        return (await import('../emails/templates/tools/tool-roi-day0-delivery')).default
+      case 'tool-roi-day2-mistakes':
+        return (await import('../emails/templates/tools/tool-roi-day2-mistakes')).default
+      case 'tool-roi-day4-resource':
+        return (await import('../emails/templates/tools/tool-roi-day4-resource')).default
+      case 'tool-roi-day6-test':
+        return (await import('../emails/templates/tools/tool-roi-day6-test')).default
+      case 'tool-roi-day8-offer':
+        return (await import('../emails/templates/tools/tool-roi-day8-offer')).default
+      // Tool: Generador de Normas templates
+      case 'tool-house-rules-day0-delivery':
+        return (await import('../emails/templates/tools/tool-house-rules-day0-delivery')).default
+      case 'tool-house-rules-day2-mistakes':
+        return (await import('../emails/templates/tools/tool-house-rules-day2-mistakes')).default
+      case 'tool-house-rules-day4-prearrivals':
+        return (await import('../emails/templates/tools/tool-house-rules-day4-prearrivals')).default
+      case 'tool-house-rules-day6-violations':
+        return (await import('../emails/templates/tools/tool-house-rules-day6-violations')).default
+      case 'tool-house-rules-day8-offer':
+        return (await import('../emails/templates/tools/tool-house-rules-day8-offer')).default
       default:
         console.error(`[EMAIL TEMPLATES] Unknown template: ${templateName}`)
         return null
@@ -66,7 +121,18 @@ async function getEmailTemplate(templateName: string): Promise<React.FC<any> | n
   }
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization to avoid build errors when RESEND_API_KEY is not set
+let _resend: Resend | null = null
+
+function getResend(): Resend {
+  if (!_resend) {
+    if (!process.env.RESEND_API_KEY) {
+      console.warn('RESEND_API_KEY not set - email sending will fail at runtime')
+    }
+    _resend = new Resend(process.env.RESEND_API_KEY || 'placeholder')
+  }
+  return _resend
+}
 
 // ============================================
 // TYPES
@@ -302,6 +368,17 @@ async function scheduleSequenceEmails(
       templateData = { ...templateData, nivel: nivelFromTags }
     }
 
+    // Tool templates: pass sourceMetadata for personalization
+    if (step.templateName.startsWith('tool-pricing') && subscriber.sourceMetadata) {
+      templateData = { ...templateData, pricingData: subscriber.sourceMetadata }
+    }
+    if (step.templateName.startsWith('tool-qr') && subscriber.sourceMetadata) {
+      templateData = { ...templateData, qrData: subscriber.sourceMetadata }
+    }
+    if (step.templateName.startsWith('tool-house-rules') && subscriber.sourceMetadata) {
+      templateData = { ...templateData, rulesData: subscriber.sourceMetadata }
+    }
+
     // Crear scheduled email
     await prisma.scheduledEmail.create({
       data: {
@@ -474,7 +551,7 @@ async function sendScheduledEmail(scheduledEmail: any) {
     })
 
     // Enviar con Resend
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResend().emails.send({
       from: 'Itineramio <hola@itineramio.com>',
       to: scheduledEmail.recipientEmail,
       subject: scheduledEmail.subject,

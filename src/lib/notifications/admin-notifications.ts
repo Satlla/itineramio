@@ -1,6 +1,14 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization to avoid build errors when RESEND_API_KEY is not set
+let _resend: Resend | null = null
+
+function getResend(): Resend {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY || 'placeholder')
+  }
+  return _resend
+}
 
 const ADMIN_EMAILS = ['info@mrbarriot.com', 'hola@itineramio.com']
 
@@ -13,7 +21,7 @@ export async function notifyNewUserRegistration(user: {
   source?: string
 }) {
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'Itineramio Notifications <notifications@itineramio.com>',
       to: ADMIN_EMAILS,
       subject: `🎉 Nuevo usuario registrado: ${user.name}`,
@@ -44,7 +52,7 @@ export async function notifyQuizLeadCaptured(lead: {
   emailVerified: boolean
 }) {
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'Itineramio Notifications <notifications@itineramio.com>',
       to: ADMIN_EMAILS,
       subject: `📝 Nuevo quiz completado: ${lead.fullName || lead.email}`,
@@ -76,7 +84,7 @@ export async function notifyEmailSubscriber(subscriber: {
   leadMagnetSlug?: string
 }) {
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'Itineramio Notifications <notifications@itineramio.com>',
       to: ADMIN_EMAILS,
       subject: `📧 Nueva suscripción: ${subscriber.email}`,
@@ -107,7 +115,7 @@ export async function notifySubscriptionRequest(request: {
   status: string
 }) {
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'Itineramio Notifications <notifications@itineramio.com>',
       to: ADMIN_EMAILS,
       subject: `⭐ Nueva solicitud de suscripción: ${request.userName} - Plan ${request.requestedPlan}`,
@@ -137,7 +145,7 @@ export async function notifyQuizEmailVerified(lead: {
   fullName: string | null
 }) {
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'Itineramio Notifications <notifications@itineramio.com>',
       to: ADMIN_EMAILS,
       subject: `✅ Email verificado: ${lead.fullName || lead.email}`,
@@ -167,7 +175,7 @@ export async function notifyHostProfileTestCompleted(test: {
   score: number
 }) {
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'Itineramio Notifications <notifications@itineramio.com>',
       to: ADMIN_EMAILS,
       subject: `🎯 Test de perfil completado: ${test.archetype}`,

@@ -48,9 +48,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Normalizar email a minúsculas para evitar duplicados
+    const normalizedEmail = email.toLowerCase().trim()
+
     // Verificar si ya existe el suscriptor
     const existing = await prisma.emailSubscriber.findFirst({
-      where: { email }
+      where: { email: normalizedEmail }
     })
 
     if (existing) {
@@ -121,7 +124,7 @@ export async function POST(request: NextRequest) {
     // Crear nuevo suscriptor
     const subscriber = await prisma.emailSubscriber.create({
       data: {
-        email,
+        email: normalizedEmail,
         name,
         archetype,
         source,
@@ -222,8 +225,10 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    const normalizedEmail = email.toLowerCase().trim()
+
     const subscriber = await prisma.emailSubscriber.findFirst({
-      where: { email },
+      where: { email: normalizedEmail },
       select: {
         id: true,
         email: true,

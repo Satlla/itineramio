@@ -32,6 +32,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Normalizar email a minúsculas
+    const normalizedEmail = email.toLowerCase().trim()
+
     // Calculate level
     const levelData = calculateLevel(score)
 
@@ -49,7 +52,7 @@ export async function POST(request: NextRequest) {
     // Lead starts as NOT verified - must confirm email first
     const quizLead = await prisma.quizLead.create({
       data: {
-        email,
+        email: normalizedEmail,
         fullName: fullName || null,
         score,
         level: levelData.level,
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     // Send admin notification (async, don't block response)
     notifyQuizLeadCaptured({
-      email,
+      email: normalizedEmail,
       fullName: fullName || null,
       score,
       level: levelData.level,
@@ -80,7 +83,7 @@ export async function POST(request: NextRequest) {
 
     // Check if user already exists in AcademyUser
     const existingUser = await prisma.academyUser.findUnique({
-      where: { email }
+      where: { email: normalizedEmail }
     })
 
     if (existingUser) {
@@ -100,7 +103,7 @@ export async function POST(request: NextRequest) {
 
       // Mark the lead as converted
       await prisma.quizLead.updateMany({
-        where: { email },
+        where: { email: normalizedEmail },
         data: {
           converted: true,
           academyUserId: existingUser.id
@@ -110,7 +113,7 @@ export async function POST(request: NextRequest) {
 
     // Send verification email (async, don't block response)
     sendVerificationEmail({
-      email,
+      email: normalizedEmail,
       fullName: fullName || existingUser?.fullName || 'Usuario',
       verificationToken
     }).catch(error => {
@@ -122,9 +125,9 @@ export async function POST(request: NextRequest) {
     // This is the main conversion funnel: 15 days, 8 emails, personalized by level
     try {
       await prisma.emailSubscriber.upsert({
-        where: { email },
+        where: { email: normalizedEmail },
         create: {
-          email,
+          email: normalizedEmail,
           name: fullName || null,
           source: 'academia_quiz',
           sourceMetadata: {

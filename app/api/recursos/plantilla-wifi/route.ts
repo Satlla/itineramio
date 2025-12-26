@@ -3,7 +3,12 @@ import { Resend } from 'resend'
 import { prisma } from '@/lib/prisma'
 import { enrollSubscriberInSequences } from '@/lib/email-sequences'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization to avoid build errors
+let _resend: Resend | null = null
+function getResend(): Resend {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY || 'placeholder')
+  return _resend
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -77,7 +82,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send email
-    const emailResult = await resend.emails.send({
+    const emailResult = await getResend().emails.send({
       from: 'Itineramio <recursos@itineramio.com>',
       to: email,
       subject: 'Tu Tarjeta WiFi Profesional - Lista para imprimir',

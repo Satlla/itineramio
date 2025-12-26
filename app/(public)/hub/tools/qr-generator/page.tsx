@@ -43,6 +43,8 @@ export default function QRGenerator() {
   const [showLeadModal, setShowLeadModal] = useState(false)
   const [pendingAction, setPendingAction] = useState<{ format: 'png' | 'svg' } | null>(null)
   const [QRCodeStyling, setQRCodeStyling] = useState<any>(null)
+  const [hasUnlockedDownload, setHasUnlockedDownload] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const qrRef = useRef<HTMLDivElement>(null)
 
   // Dynamically import qr-code-styling on client side only
@@ -121,6 +123,7 @@ export default function QRGenerator() {
   }
 
   const handleLeadSubmit = async (data: { name: string; email: string }) => {
+    setIsSubmitting(true)
     try {
       const response = await fetch('/api/leads/capture', {
         method: 'POST',
@@ -129,7 +132,8 @@ export default function QRGenerator() {
           ...data,
           source: 'qr-generator',
           metadata: {
-            format: pendingAction?.format
+            format: pendingAction?.format,
+            url: url
           }
         })
       })
@@ -138,6 +142,8 @@ export default function QRGenerator() {
 
       if (response.ok) {
         console.log('Lead captured successfully:', result)
+        // Unlock downloads - NO automatic download
+        setHasUnlockedDownload(true)
       } else {
         console.error('Error capturing lead:', result.error)
       }
@@ -145,10 +151,7 @@ export default function QRGenerator() {
       console.error('Error calling lead capture API:', error)
     }
 
-    if (pendingAction) {
-      downloadQR(pendingAction.format)
-    }
-
+    setIsSubmitting(false)
     setShowLeadModal(false)
     setPendingAction(null)
   }
@@ -351,9 +354,9 @@ export default function QRGenerator() {
 
                 {/* QR Code Container */}
                 <div className="flex items-center justify-center min-h-[400px] bg-gray-50 rounded-2xl mb-6 p-8">
-                  {qrCode ? (
-                    <div ref={qrRef} className="qr-code-container" />
-                  ) : (
+                  {/* Always render qrRef div so QR can be appended */}
+                  <div ref={qrRef} className={`qr-code-container ${!qrCode ? 'hidden' : ''}`} />
+                  {!qrCode && (
                     <div className="text-center">
                       <QrCode className="w-24 h-24 text-gray-300 mx-auto mb-4" />
                       <p className="text-gray-500">
@@ -366,20 +369,53 @@ export default function QRGenerator() {
                 {/* Download Buttons */}
                 {qrCode && (
                   <div className="space-y-3">
-                    <button
-                      onClick={() => handleDownloadClick('png')}
-                      className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all group"
-                    >
-                      <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                      Descargar PNG (Para web)
-                    </button>
-                    <button
-                      onClick={() => handleDownloadClick('svg')}
-                      className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all group"
-                    >
-                      <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                      Descargar SVG (Para imprimir)
-                    </button>
+                    {hasUnlockedDownload ? (
+                      <>
+                        {/* Success message */}
+                        <div className="p-4 bg-green-50 border-2 border-green-200 rounded-xl mb-4">
+                          <p className="text-green-800 font-medium flex items-center">
+                            <Check className="w-5 h-5 mr-2" />
+                            ¡Listo! Ya puedes descargar tu código QR
+                          </p>
+                          <p className="text-green-600 text-sm mt-1">
+                            Te hemos enviado un email con recursos adicionales
+                          </p>
+                        </div>
+                        {/* Direct download buttons - no modal */}
+                        <button
+                          onClick={() => downloadQR('png')}
+                          className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all group"
+                        >
+                          <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+                          Descargar PNG (Para web)
+                        </button>
+                        <button
+                          onClick={() => downloadQR('svg')}
+                          className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all group"
+                        >
+                          <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+                          Descargar SVG (Para imprimir)
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        {/* Buttons that require email first */}
+                        <button
+                          onClick={() => handleDownloadClick('png')}
+                          className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all group"
+                        >
+                          <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+                          Descargar PNG (Para web)
+                        </button>
+                        <button
+                          onClick={() => handleDownloadClick('svg')}
+                          className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all group"
+                        >
+                          <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+                          Descargar SVG (Para imprimir)
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
 

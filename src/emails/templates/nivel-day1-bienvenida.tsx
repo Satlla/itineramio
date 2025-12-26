@@ -23,9 +23,9 @@ const NIVEL_CONTENT: Record<string, {
       desc: 'Evita los errores que hacen que el 40% abandone en el primer año'
     },
     recurso2: {
-      title: 'Checklist: Primera Reserva Sin Estrés',
-      url: 'https://itineramio.com/recursos/checklist-primera-reserva',
-      desc: 'Paso a paso de qué hacer antes, durante y después'
+      title: 'Guía: Tu Primer Mes como Anfitrión',
+      url: 'https://itineramio.com/blog/primer-mes-anfitrion-airbnb',
+      desc: 'Día a día de qué hacer antes, durante y después de cada reserva'
     },
     recurso3: {
       title: 'Template: Manual Básico para Huéspedes',

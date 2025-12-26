@@ -15,7 +15,8 @@ import {
   DollarSign,
   Sparkles,
   Info,
-  Download
+  Download,
+  Check
 } from 'lucide-react'
 import { Navbar } from '../../../../../src/components/layout/Navbar'
 import { SocialShare } from '../../../../../src/components/tools/SocialShare'
@@ -64,6 +65,8 @@ export default function PricingCalculator() {
   // Lead capture states
   const [showLeadModal, setShowLeadModal] = useState(false)
   const [pendingAction, setPendingAction] = useState<'download' | null>(null)
+  const [hasUnlockedDownload, setHasUnlockedDownload] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [pricing, setPricing] = useState({
     basePrice: 0,
@@ -204,6 +207,7 @@ Generado con Itineramio - https://itineramio.com
   }
 
   const handleLeadSubmit = async (data: { name: string; email: string }) => {
+    setIsSubmitting(true)
     try {
       const response = await fetch('/api/leads/capture', {
         method: 'POST',
@@ -214,7 +218,13 @@ Generado con Itineramio - https://itineramio.com
           metadata: {
             propertyType: propertyType.label,
             location: location.label,
-            recommendedPrice: pricing.recommendedPrice
+            season: season.label,
+            bedrooms,
+            bathrooms,
+            guests,
+            recommendedPrice: pricing.recommendedPrice,
+            minPrice: pricing.minPrice,
+            maxPrice: pricing.maxPrice
           }
         })
       })
@@ -223,6 +233,8 @@ Generado con Itineramio - https://itineramio.com
 
       if (response.ok) {
         console.log('Lead captured successfully:', result)
+        // Unlock downloads - NO automatic download
+        setHasUnlockedDownload(true)
       } else {
         console.error('Error capturing lead:', result.error)
       }
@@ -230,10 +242,7 @@ Generado con Itineramio - https://itineramio.com
       console.error('Error calling lead capture API:', error)
     }
 
-    if (pendingAction === 'download') {
-      downloadResults()
-    }
-
+    setIsSubmitting(false)
     setShowLeadModal(false)
     setPendingAction(null)
   }
@@ -531,13 +540,36 @@ Generado con Itineramio - https://itineramio.com
               </div>
 
               {/* Download Button */}
-              <button
-                onClick={handleDownloadClick}
-                className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:shadow-xl transition-all flex items-center justify-center group"
-              >
-                <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                Descargar análisis de precios
-              </button>
+              {hasUnlockedDownload ? (
+                <div className="space-y-3">
+                  {/* Success message */}
+                  <div className="p-4 bg-green-50 border-2 border-green-200 rounded-xl">
+                    <p className="text-green-800 font-medium flex items-center">
+                      <Check className="w-5 h-5 mr-2" />
+                      ¡Listo! Ya puedes descargar tu análisis
+                    </p>
+                    <p className="text-green-600 text-sm mt-1">
+                      Te hemos enviado un email con más recursos de pricing
+                    </p>
+                  </div>
+                  {/* Direct download button - no modal */}
+                  <button
+                    onClick={downloadResults}
+                    className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:shadow-xl transition-all flex items-center justify-center group"
+                  >
+                    <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+                    Descargar análisis de precios
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={handleDownloadClick}
+                  className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:shadow-xl transition-all flex items-center justify-center group"
+                >
+                  <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+                  Descargar análisis de precios
+                </button>
+              )}
 
               {/* Tips */}
               <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 border-2 border-orange-200">

@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization to avoid build errors
+let _resend: Resend | null = null
+function getResend(): Resend {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY || 'placeholder')
+  return _resend
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -101,7 +106,7 @@ export async function POST(request: NextRequest) {
     </html>
     `
 
-    const result = await resend.emails.send({
+    const result = await getResend().emails.send({
       from: 'Itineramio <noreply@itineramio.com>',
       to: [to],
       subject: `🌟 Nueva evaluación de zona: ${zoneName} (${rating}★)`,

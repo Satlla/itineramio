@@ -3,7 +3,12 @@ import { Resend } from 'resend'
 import { prisma } from '@/lib/prisma'
 import { enrollSubscriberInSequences } from '@/lib/email-sequences'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization to avoid build errors
+let _resend: Resend | null = null
+function getResend(): Resend {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY || 'placeholder')
+  return _resend
+}
 
 interface ChecklistSection {
   title: string
@@ -116,7 +121,7 @@ export async function POST(request: NextRequest) {
     const totalTasks = (sections as ChecklistSection[]).reduce((acc, s) => acc + s.items.length, 0)
 
     // Send email
-    const emailResult = await resend.emails.send({
+    const emailResult = await getResend().emails.send({
       from: 'Itineramio <recursos@itineramio.com>',
       to: email,
       subject: `Tu Checklist de Limpieza - ${propertyName || 'Profesional'}`,
