@@ -411,11 +411,16 @@ async function scheduleSequenceEmails(
 /**
  * Procesa y envía emails programados que estén listos
  * Esta función se ejecuta en el cron job
+ *
+ * DAILY LIMIT: Máximo 1 email de nurturing por usuario por día
+ * (Los emails de entrega inmediata - step.order === 0 - no cuentan para el límite)
  */
 export async function processScheduledEmails(limit: number = 50) {
   console.log(`[EMAIL SEQUENCES] Processing scheduled emails (limit: ${limit})`)
 
   const now = new Date()
+  const todayStart = new Date(now)
+  todayStart.setHours(0, 0, 0, 0)
 
   // Buscar emails listos para enviar
   const scheduledEmails = await prisma.scheduledEmail.findMany({
@@ -438,8 +443,43 @@ export async function processScheduledEmails(limit: number = 50) {
   console.log(`[EMAIL SEQUENCES] Found ${scheduledEmails.length} emails to send`)
 
   const results = []
+  // Track which subscribers already received a nurturing email today (in this batch)
+  const subscribersSentToday = new Set<string>()
 
   for (const scheduledEmail of scheduledEmails) {
+    const subscriberId = scheduledEmail.subscriberId
+    const isDeliveryEmail = scheduledEmail.step?.order === 0
+
+    // Check if this subscriber already received a nurturing email today
+    // (Delivery emails - order 0 - are exempt from daily limit)
+    if (!isDeliveryEmail) {
+      // Check in database
+      const alreadySentToday = await prisma.scheduledEmail.findFirst({
+        where: {
+          subscriberId,
+          status: 'sent',
+          sentAt: { gte: todayStart },
+          step: {
+            order: { gt: 0 } // Only count nurturing emails (not delivery)
+          }
+        }
+      })
+
+      if (alreadySentToday || subscribersSentToday.has(subscriberId)) {
+        // Reschedule for tomorrow at the same hour
+        const tomorrow = new Date(scheduledEmail.scheduledFor)
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
+        await prisma.scheduledEmail.update({
+          where: { id: scheduledEmail.id },
+          data: { scheduledFor: tomorrow }
+        })
+
+        console.log(`[EMAIL SEQUENCES] Daily limit reached for ${subscriberId}, rescheduled to ${tomorrow.toISOString()}`)
+        continue
+      }
+    }
+
     // Verificar condiciones del step
     if (scheduledEmail.step.requiresPreviousOpen || scheduledEmail.step.requiresPreviousClick) {
       const canSend = await checkStepConditions(scheduledEmail)
@@ -468,13 +508,19 @@ export async function processScheduledEmails(limit: number = 50) {
     // Enviar el email
     const result = await sendScheduledEmail(scheduledEmail)
     results.push(result)
+
+    // Mark this subscriber as having received a nurturing email today
+    if (!isDeliveryEmail && result.success) {
+      subscribersSentToday.add(subscriberId)
+    }
   }
 
   return {
     success: true,
     processed: scheduledEmails.length,
     sent: results.filter(r => r.success).length,
-    failed: results.filter(r => !r.success).length
+    failed: results.filter(r => !r.success).length,
+    rescheduled: scheduledEmails.length - results.length
   }
 }
 
