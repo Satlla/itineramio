@@ -1,70 +1,84 @@
+import { getZoneContentTemplate } from '../data/zone-content-templates'
+
 // Zonas esenciales expandidas para apartamentos (sin cocina)
+// templateId maps to zone-content-templates.ts keys
 export const zonasEsenciales = [
   {
     name: 'Check In',
     description: 'Proceso de entrada al apartamento',
     icon: 'key',
-    order: 1
+    order: 1,
+    templateId: 'check-in'
   },
   {
     name: 'WiFi',
     description: 'Información de conexión a internet',
-    icon: 'wifi', 
-    order: 2
+    icon: 'wifi',
+    order: 2,
+    templateId: 'wifi'
   },
   {
     name: 'Check Out',
     description: 'Instrucciones para la salida',
     icon: 'exit',
-    order: 3
+    order: 3,
+    templateId: 'check-out'
   },
   {
     name: 'Cómo Llegar',
     description: 'Direcciones desde aeropuerto, estación y ubicación exacta',
     icon: 'map-pin',
-    order: 4
+    order: 4,
+    templateId: null // No template yet
   },
   {
     name: 'Normas de la Casa',
     description: 'Reglas y políticas del apartamento',
     icon: 'list',
-    order: 5
+    order: 5,
+    templateId: 'house-rules'
   },
   {
     name: 'Parking',
     description: 'Información sobre aparcamiento',
     icon: 'car',
-    order: 6
+    order: 6,
+    templateId: 'parking'
   },
   {
     name: 'Climatización',
     description: 'Aire acondicionado y calefacción',
     icon: 'thermometer',
-    order: 7
+    order: 7,
+    templateId: 'heating' // Uses heating template
   },
   {
     name: 'Teléfonos de Emergencia',
     description: 'Contactos importantes y anfitrión',
     icon: 'phone',
-    order: 8
+    order: 8,
+    templateId: 'emergency-contacts'
   },
   {
     name: 'Transporte Público',
     description: 'Metro, autobús y opciones de movilidad',
     icon: 'bus',
-    order: 9
+    order: 9,
+    templateId: null // No template yet
   },
   {
     name: 'Recomendaciones',
     description: 'Restaurantes, tiendas y lugares de interés',
     icon: 'star',
-    order: 10
+    order: 10,
+    templateId: null // No template yet
   },
   {
     name: 'Basura y Reciclaje',
     description: 'Cómo y dónde desechar la basura',
     icon: 'trash',
-    order: 11
+    order: 11,
+    templateId: 'recycling'
   }
 ]
 
@@ -96,8 +110,11 @@ export async function crearZonasEsenciales(
         continue
       }
       
+      // Get content template if available
+      const contentTemplate = zona.templateId ? getZoneContentTemplate(zona.templateId) : null
+
       // Use batch API ALWAYS for reliability
-      console.log(`🚀 Creating zone "${zona.name}" via BATCH API`)
+      console.log(`🚀 Creating zone "${zona.name}" via BATCH API`, contentTemplate ? `with ${contentTemplate.steps.length} template steps` : 'without template')
       const response = await fetch(`/api/properties/${propertyId}/zones/batch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -107,8 +124,10 @@ export async function crearZonasEsenciales(
             description: zona.description,
             icon: zona.icon,
             color: 'bg-gray-100',
-            status: 'ACTIVE'
-          }]
+            status: 'ACTIVE',
+            steps: contentTemplate?.steps // Include pre-filled steps if template exists
+          }],
+          useTemplates: !!contentTemplate
         })
       })
 
