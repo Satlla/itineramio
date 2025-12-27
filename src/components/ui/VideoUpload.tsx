@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Upload, X, Video, AlertCircle, Loader2, FolderOpen, CheckCircle, Camera, StopCircle, Zap } from 'lucide-react'
 import { Button } from './Button'
 import { MediaSelector } from './MediaSelector'
+import { DuplicateMediaModal } from './DuplicateMediaModal'
 import { useNotifications } from '../../hooks/useNotifications'
 import { compressVideoFFmpeg, isFFmpegSupported } from '../../utils/ffmpegCompression'
 
@@ -57,6 +58,10 @@ export function VideoUpload({
   const [recordingTime, setRecordingTime] = useState(0)
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null)
   const [forceUpload, setForceUpload] = useState(false)
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false)
+  const [duplicateMediaInfo, setDuplicateMediaInfo] = useState<any>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [skipDuplicateCheck, setSkipDuplicateCheck] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const cameraRef = useRef<HTMLVideoElement>(null)
@@ -438,7 +443,10 @@ export function VideoUpload({
     const formData = new FormData()
     formData.append('file', fileToUpload)
     formData.append('type', 'video')
-    
+    if (skipDuplicateCheck) {
+      formData.append('skipDuplicateCheck', 'true')
+    }
+
     // Use large upload endpoint for files > 4MB
     const finalFileSizeMB = fileToUpload.size / (1024 * 1024)
     const uploadEndpoint = finalFileSizeMB > 4 ? '/api/upload-large' : '/api/upload'
@@ -469,13 +477,13 @@ export function VideoUpload({
           try {
             errorData = JSON.parse(errorText)
           } catch {}
-          
+
           const errorMessage = errorData.error || 'El video es demasiado grande. Intenta con un video más corto o de menor calidad.'
           setVideoError(errorMessage)
           setUploading(false)
           setUploadSuccess(false)
           URL.revokeObjectURL(objectUrl)
-          
+
           addNotification({
             type: 'error',
             title: 'Video demasiado grande',
@@ -484,8 +492,19 @@ export function VideoUpload({
           })
           return
         } else if (xhr.status === 200) {
-          setUploadStage('saving')
           const data = JSON.parse(xhr.responseText)
+
+          // Handle duplicate detection
+          if (data.duplicate) {
+            console.log('🔄 Duplicate video detected:', data.existingMedia?.originalName)
+            setDuplicateMediaInfo(data.existingMedia)
+            setPendingFile(fileToUpload)
+            setShowDuplicateModal(true)
+            setUploading(false)
+            URL.revokeObjectURL(objectUrl)
+            return
+          }
+          setUploadStage('saving')
           if (data.url) {
             // Save to media library if enabled (with timeout and better error handling)
             if (saveToLibrary) {
@@ -652,7 +671,7 @@ export function VideoUpload({
   const handleSelectFromLibrary = (media: any) => {
     setPreviewUrl(media.url)
     setUploadSuccess(true)
-    
+
     const videoMetadata = {
       duration: media.duration || 0,
       thumbnail: media.thumbnailUrl || '',
@@ -660,11 +679,11 @@ export function VideoUpload({
       width: media.width || 0,
       height: media.height || 0
     }
-    
+
     setMetadata(videoMetadata)
     onChange(media.url, videoMetadata)
     setShowMediaSelector(false)
-    
+
     // Show notification for library selection
     addNotification({
       type: 'info',
@@ -672,11 +691,73 @@ export function VideoUpload({
       message: `Video "${media.originalName || 'desde biblioteca'}" agregado exitosamente`,
       read: false
     })
-    
+
     // Reset success state after 2 seconds
     setTimeout(() => {
       setUploadSuccess(false)
     }, 2000)
+  }
+
+  // Handle using existing video from duplicate modal
+  const handleUseExisting = () => {
+    if (duplicateMediaInfo) {
+      setPreviewUrl(duplicateMediaInfo.url)
+      setUploadSuccess(true)
+
+      const videoMetadata = {
+        duration: duplicateMediaInfo.duration || 0,
+        thumbnail: duplicateMediaInfo.thumbnailUrl || '',
+        size: duplicateMediaInfo.size || 0,
+        width: duplicateMediaInfo.width || 0,
+        height: duplicateMediaInfo.height || 0
+      }
+
+      setMetadata(videoMetadata)
+      onChange(duplicateMediaInfo.url, videoMetadata)
+
+      // Update usage count for existing media
+      fetch(`/api/media-library/${duplicateMediaInfo.id}/use`, {
+        method: 'PATCH'
+      }).catch(error => console.error('Error updating usage count:', error))
+
+      addNotification({
+        type: 'info',
+        title: 'Video existente utilizado',
+        message: 'Has ahorrado espacio reutilizando un video existente',
+        read: false
+      })
+
+      // Reset success state after 2 seconds
+      setTimeout(() => {
+        setUploadSuccess(false)
+      }, 2000)
+    }
+
+    setShowDuplicateModal(false)
+    setDuplicateMediaInfo(null)
+    setPendingFile(null)
+  }
+
+  // Handle uploading new copy despite duplicate
+  const handleUploadNew = async () => {
+    if (pendingFile) {
+      setShowDuplicateModal(false)
+      setSkipDuplicateCheck(true)
+      // Re-upload with skip duplicate check
+      await handleUpload(pendingFile)
+      setSkipDuplicateCheck(false)
+    }
+
+    setDuplicateMediaInfo(null)
+    setPendingFile(null)
+  }
+
+  // Handle closing duplicate modal
+  const handleCloseDuplicateModal = () => {
+    setShowDuplicateModal(false)
+    setDuplicateMediaInfo(null)
+    setPendingFile(null)
+    setUploading(false)
   }
 
   return (
@@ -932,6 +1013,16 @@ export function VideoUpload({
         isOpen={showMediaSelector}
         onSelect={handleSelectFromLibrary}
         onClose={() => setShowMediaSelector(false)}
+      />
+
+      {/* Duplicate Media Modal */}
+      <DuplicateMediaModal
+        isOpen={showDuplicateModal}
+        onClose={handleCloseDuplicateModal}
+        onUseExisting={handleUseExisting}
+        onUploadNew={handleUploadNew}
+        existingMedia={duplicateMediaInfo}
+        uploadingFileName={pendingFile?.name || ''}
       />
       
       {/* Camera Recording Modal */}
