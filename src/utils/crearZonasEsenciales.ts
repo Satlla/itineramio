@@ -29,7 +29,7 @@ export const zonasEsenciales = [
     description: 'Direcciones desde aeropuerto, estación y ubicación exacta',
     icon: 'map-pin',
     order: 4,
-    templateId: null // No template yet
+    templateId: 'directions'
   },
   {
     name: 'Normas de la Casa',
@@ -64,14 +64,14 @@ export const zonasEsenciales = [
     description: 'Metro, autobús y opciones de movilidad',
     icon: 'bus',
     order: 9,
-    templateId: null // No template yet
+    templateId: 'public-transport'
   },
   {
     name: 'Recomendaciones',
     description: 'Restaurantes, tiendas y lugares de interés',
     icon: 'star',
     order: 10,
-    templateId: null // No template yet
+    templateId: 'recommendations'
   },
   {
     name: 'Basura y Reciclaje',
