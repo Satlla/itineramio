@@ -278,7 +278,7 @@ export default function ZoneStepsPage({
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
+      <div className="min-h-[50vh] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-violet-600" />
           <p className="text-gray-600">Cargando zona y pasos...</p>
@@ -725,7 +725,7 @@ export default function ZoneStepsPage({
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6 pt-20">
+    <div className="max-w-7xl mx-auto p-6 pt-8">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center space-x-4 mb-4">

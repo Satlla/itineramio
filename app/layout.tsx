@@ -15,6 +15,7 @@ import { GoogleAnalytics } from '../src/components/GoogleAnalytics'
 import { FacebookPixel } from '../src/components/analytics/FacebookPixel'
 import { GoogleTagManager, GoogleTagManagerNoScript } from '../src/components/analytics/GoogleTagManager'
 import { LoadingProvider } from '../src/components/providers/LoadingProvider'
+import NextTopLoader from 'nextjs-toploader'
 
 // Validate environment variables on startup
 if (typeof window === 'undefined') {
@@ -227,6 +228,20 @@ export default function RootLayout({
         )}
       </head>
       <body className={`${inter.className} antialiased`}>
+        {/* Global Top Loading Bar */}
+        <NextTopLoader
+          color="#8B5CF6"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={true}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #8B5CF6,0 0 5px #8B5CF6"
+          zIndex={9999}
+        />
+
         {/* Google Tag Manager (noscript) */}
         <GoogleTagManagerNoScript />
 

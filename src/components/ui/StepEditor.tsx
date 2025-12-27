@@ -2,12 +2,12 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Plus, 
-  Trash2, 
-  FileText, 
-  Image as ImageIcon, 
-  Video, 
+import {
+  Plus,
+  Trash2,
+  FileText,
+  Image as ImageIcon,
+  Video,
   Link as LinkIcon,
   Youtube,
   Upload,
@@ -15,7 +15,8 @@ import {
   Check,
   ChevronRight,
   CheckCircle,
-  X
+  X,
+  ArrowLeft
 } from 'lucide-react'
 import { Button } from './Button'
 import { Card } from './Card'
@@ -496,15 +497,25 @@ export function StepEditor({
   )
 
   return (
-    <div className="fixed inset-0 bg-gray-50 z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-gray-50 z-[150] overflow-y-auto">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">{zoneTitle}</h1>
-            <p className="text-gray-600 text-sm mt-1">
-              Crea las instrucciones paso a paso para esta zona
-            </p>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onCancel}
+              className="hover:bg-gray-100 rounded-full p-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900">{zoneTitle}</h1>
+              <p className="text-gray-600 text-sm mt-1">
+                Crea las instrucciones paso a paso para esta zona
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             {getVideoCount() > 0 && (

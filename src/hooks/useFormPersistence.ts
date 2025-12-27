@@ -9,6 +9,7 @@ interface UseFormPersistenceOptions {
   setValue: UseFormReturn<any>['setValue']
   reset: UseFormReturn<any>['reset']
   excludeFields?: string[]
+  autoRestore?: boolean // NEW: Control if data should auto-restore (default: false)
 }
 
 export function useFormPersistence({
@@ -16,21 +17,23 @@ export function useFormPersistence({
   watch,
   setValue,
   reset,
-  excludeFields = []
+  excludeFields = [],
+  autoRestore = false // Default to NOT auto-restoring
 }: UseFormPersistenceOptions) {
   const watchedValues = watch()
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [hasCheckedForData, setHasCheckedForData] = useState(false)
 
-  // Load data from localStorage on component mount (only once)
+  // Check for saved data on mount (but don't restore unless autoRestore is true)
   useEffect(() => {
     if (typeof window !== 'undefined' && !isInitialized) {
       try {
         const savedData = localStorage.getItem(storageKey)
-        if (savedData) {
+        if (savedData && autoRestore) {
           const parsedData = JSON.parse(savedData)
-          console.log('📥 Loading saved form data:', Object.keys(parsedData))
+          console.log('📥 Auto-restoring saved form data:', Object.keys(parsedData))
 
           // Only restore non-excluded fields
           Object.keys(parsedData).forEach(key => {
@@ -39,35 +42,34 @@ export function useFormPersistence({
             }
           })
           console.log('✅ Form data restored successfully')
+        } else if (savedData) {
+          console.log('📋 Saved data found but NOT auto-restoring (waiting for user action)')
         } else {
           console.log('ℹ️  No saved form data found')
         }
       } catch (error) {
-        console.error('❌ Error loading saved form data:', error)
-        // If there's an error, remove the corrupted data
+        console.error('❌ Error checking saved form data:', error)
         localStorage.removeItem(storageKey)
       } finally {
         setIsInitialized(true)
+        setHasCheckedForData(true)
       }
     }
-  }, [storageKey, setValue, excludeFields, isInitialized])
+  }, [storageKey, setValue, excludeFields, isInitialized, autoRestore])
 
   // Save data to localStorage whenever form values change (with debounce)
   useEffect(() => {
     if (typeof window !== 'undefined' && watchedValues && isInitialized) {
-      // Set saving state immediately when values change
       setIsSaving(true)
 
       const timeoutId = setTimeout(() => {
         try {
-          // Default values that don't count as "real data"
           const defaultValues = {
             'country': 'España',
             'hostContactLanguage': 'es',
             'type': 'APARTMENT'
           }
 
-          // Fields that indicate real user input
           const significantFields = [
             'name', 'description', 'street', 'city', 'state', 'postalCode',
             'bedrooms', 'bathrooms', 'maxGuests', 'squareMeters', 'profileImage',
@@ -76,36 +78,29 @@ export function useFormPersistence({
             'wifiName', 'wifiPassword'
           ]
 
-          // Filter out excluded fields and empty values (keep 0 for numbers)
           const dataToSave = Object.keys(watchedValues).reduce((acc, key) => {
             const value = watchedValues[key]
-            // Keep value if it's not undefined/null, and either it's a number (including 0) or non-empty string
             if (!excludeFields.includes(key) && value !== undefined && value !== null && (typeof value === 'number' || value !== '')) {
               acc[key] = value
             }
             return acc
           }, {} as Record<string, any>)
 
-          // Check if we have any meaningful data beyond defaults
           const hasMeaningfulData = Object.keys(dataToSave).some(key => {
             const value = dataToSave[key]
             const defaultValue = defaultValues[key as keyof typeof defaultValues]
 
-            // If it's a significant field with a REAL value (not null/undefined/empty), it's meaningful
             if (significantFields.includes(key)) {
               return value !== null && value !== undefined && value !== ''
             }
 
-            // If it's a default field, only meaningful if different from default
             if (defaultValue !== undefined) {
               return value !== defaultValue
             }
 
-            // Other fields are not considered meaningful by themselves
             return false
           })
 
-          // Only save if there's actual meaningful data
           if (Object.keys(dataToSave).length > 0 && hasMeaningfulData) {
             const currentSaved = localStorage.getItem(storageKey)
             const newData = JSON.stringify(dataToSave)
@@ -118,7 +113,6 @@ export function useFormPersistence({
               console.log('✅ Form data saved to localStorage:', Object.keys(dataToSave))
             }
           } else {
-            // If there's no meaningful data, remove any saved data
             localStorage.removeItem(storageKey)
             localStorage.removeItem(`${storageKey}_timestamp`)
             console.log('🧹 No meaningful data, cleared localStorage')
@@ -126,10 +120,9 @@ export function useFormPersistence({
         } catch (error) {
           console.error('❌ Error saving form data:', error)
         } finally {
-          // Always clear saving state after save attempt
           setIsSaving(false)
         }
-      }, 800) // 800ms debounce - balance between responsiveness and performance
+      }, 800)
 
       return () => {
         clearTimeout(timeoutId)
@@ -143,8 +136,33 @@ export function useFormPersistence({
     if (typeof window !== 'undefined') {
       localStorage.removeItem(storageKey)
       localStorage.removeItem(`${storageKey}_timestamp`)
+      console.log('🗑️ Cleared saved data from localStorage')
     }
   }, [storageKey])
+
+  // NEW: Manually restore saved data (called when user clicks "Continue")
+  const restoreSavedData = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedData = localStorage.getItem(storageKey)
+        if (savedData) {
+          const parsedData = JSON.parse(savedData)
+          console.log('📥 Manually restoring saved form data:', Object.keys(parsedData))
+
+          Object.keys(parsedData).forEach(key => {
+            if (!excludeFields.includes(key) && parsedData[key] !== undefined && parsedData[key] !== null) {
+              setValue(key, parsedData[key])
+            }
+          })
+          console.log('✅ Form data restored successfully')
+          return true
+        }
+      } catch (error) {
+        console.error('❌ Error restoring saved form data:', error)
+      }
+    }
+    return false
+  }, [storageKey, setValue, excludeFields])
 
   // Check if there's saved data
   const hasSavedData = useCallback(() => {
@@ -164,7 +182,6 @@ export function useFormPersistence({
           const parsedData = JSON.parse(savedData)
           const timestamp = localStorage.getItem(`${storageKey}_timestamp`)
 
-          // Same logic as when saving - check for significant fields
           const significantFields = [
             'name', 'description', 'street', 'city', 'state', 'postalCode',
             'bedrooms', 'bathrooms', 'maxGuests', 'squareMeters', 'profileImage',
@@ -179,24 +196,15 @@ export function useFormPersistence({
             'type': 'APARTMENT'
           }
 
-          // Check if there's meaningful data
           const hasMeaningfulData = Object.keys(parsedData).some(key => {
             const value = parsedData[key]
             const defaultValue = defaultValues[key as keyof typeof defaultValues]
 
-            // If it's a significant field with a REAL value (not null/undefined/empty), it's meaningful
             if (significantFields.includes(key)) {
               const hasRealValue = value !== null && value !== undefined && value !== ''
-              if (hasRealValue) {
-                console.log(`✅ Found significant field with real value: ${key} = ${value}`)
-                return true
-              } else {
-                console.log(`❌ Significant field but no real value: ${key} = ${value}`)
-                return false
-              }
+              return hasRealValue
             }
 
-            // If it's a default field, only meaningful if different from default
             if (defaultValue !== undefined) {
               return value !== defaultValue
             }
@@ -206,11 +214,9 @@ export function useFormPersistence({
 
           console.log('📊 Saved data check:', {
             keys: Object.keys(parsedData),
-            hasMeaningfulData,
-            parsedData
+            hasMeaningfulData
           })
 
-          // If no meaningful data, clean up localStorage
           if (!hasMeaningfulData) {
             console.log('🧹 No meaningful data found, cleaning up localStorage')
             localStorage.removeItem(storageKey)
@@ -233,9 +239,11 @@ export function useFormPersistence({
 
   return {
     clearSavedData,
+    restoreSavedData, // NEW: Function to manually restore data
     hasSavedData,
     getSavedDataInfo,
     lastSaved,
-    isSaving
+    isSaving,
+    hasCheckedForData
   }
 }

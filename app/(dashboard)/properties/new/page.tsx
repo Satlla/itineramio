@@ -138,13 +138,14 @@ function NewPropertyPageContent() {
 
   const watchedValues = watch()
 
-  // Setup form persistence with user-specific key
-  const { clearSavedData, hasSavedData, getSavedDataInfo, lastSaved, isSaving } = useFormPersistence({
+  // Setup form persistence with user-specific key (autoRestore: false = user must click to restore)
+  const { clearSavedData, restoreSavedData, hasSavedData, getSavedDataInfo, lastSaved, isSaving } = useFormPersistence({
     storageKey: user?.id ? `itineramio-property-draft-${user.id}` : 'itineramio-property-draft-temp',
     watch,
     setValue,
     reset,
-    excludeFields: [] // We want to save all fields
+    excludeFields: [],
+    autoRestore: false // Don't auto-restore - wait for user to click "Continue"
   })
 
   // Load property data for editing
@@ -314,21 +315,54 @@ function NewPropertyPageContent() {
   // Validar campos por step
   const validateStep = (step: number): boolean => {
     const currentErrors = Object.keys(errors)
-    
+
     switch (step) {
       case 1:
-        return !!watchedValues.name && !!watchedValues.description && 
-               watchedValues.bedrooms !== undefined && watchedValues.bathrooms !== undefined && 
+        const step1Valid = !!watchedValues.name && !!watchedValues.description &&
+               watchedValues.bedrooms !== undefined && watchedValues.bathrooms !== undefined &&
                watchedValues.maxGuests !== undefined
-      
+        if (!step1Valid) {
+          console.log('❌ Step 1 validation failed:', {
+            name: watchedValues.name,
+            description: watchedValues.description,
+            bedrooms: watchedValues.bedrooms,
+            bathrooms: watchedValues.bathrooms,
+            maxGuests: watchedValues.maxGuests,
+            hasName: !!watchedValues.name,
+            hasDescription: !!watchedValues.description,
+            hasBedrooms: watchedValues.bedrooms !== undefined,
+            hasBathrooms: watchedValues.bathrooms !== undefined,
+            hasMaxGuests: watchedValues.maxGuests !== undefined
+          })
+        }
+        return step1Valid
+
       case 2:
-        return !!watchedValues.street && !!watchedValues.city && !!watchedValues.state && 
+        const step2Valid = !!watchedValues.street && !!watchedValues.city && !!watchedValues.state &&
                !!watchedValues.country && !!watchedValues.postalCode
-      
+        if (!step2Valid) {
+          console.log('❌ Step 2 validation failed:', {
+            street: watchedValues.street,
+            city: watchedValues.city,
+            state: watchedValues.state,
+            country: watchedValues.country,
+            postalCode: watchedValues.postalCode
+          })
+        }
+        return step2Valid
+
       case 3:
-        return !!watchedValues.hostContactName && !!watchedValues.hostContactPhone && 
+        const step3Valid = !!watchedValues.hostContactName && !!watchedValues.hostContactPhone &&
                !!watchedValues.hostContactEmail
-      
+        if (!step3Valid) {
+          console.log('❌ Step 3 validation failed:', {
+            hostContactName: watchedValues.hostContactName,
+            hostContactPhone: watchedValues.hostContactPhone,
+            hostContactEmail: watchedValues.hostContactEmail
+          })
+        }
+        return step3Valid
+
       default:
         return false
     }
@@ -428,10 +462,37 @@ function NewPropertyPageContent() {
     router.push(targetPath)
   }
 
-  // Handle restoring saved data
+  // Handle restoring saved data (only when user clicks "Continue")
   const handleRestoreSavedData = () => {
+    restoreSavedData() // Now manually restore the data
     setShowSavedDataBanner(false)
-    // The data is already loaded by the hook, just close the banner
+  }
+
+  // Handle starting fresh - clear all saved data
+  const handleStartFresh = () => {
+    clearSavedData()
+    reset({
+      country: 'España',
+      hostContactLanguage: 'es',
+      type: 'APARTMENT',
+      hostContactName: '',
+      hostContactPhoto: undefined,
+      name: '',
+      description: '',
+      street: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      bedrooms: 0,
+      bathrooms: 0,
+      maxGuests: 1,
+      squareMeters: undefined,
+      profileImage: undefined,
+      hostContactPhone: '',
+      hostContactEmail: ''
+    })
+    setShowSavedDataBanner(false)
+    setCurrentStep(1)
   }
 
   return (
@@ -496,44 +557,67 @@ function NewPropertyPageContent() {
             onRestore={handleRestoreSavedData}
             timestamp={savedDataInfo.timestamp}
             onClose={() => setShowSavedDataBanner(false)}
+            onStartFresh={handleStartFresh}
           />
         )}
 
-        {/* Progress Steps */}
+        {/* Progress Steps - Clickable */}
         <div className="mb-6 sm:mb-8">
           <div className="flex items-center justify-center space-x-2 sm:space-x-8">
-            {[1, 2, 3].map((step) => (
-              <div
-                key={step}
-                className={`flex items-center ${step < 3 ? 'flex-1' : ''}`}
-              >
-                <div className={`
-                  w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0
-                  ${currentStep >= step 
-                    ? 'bg-violet-600 text-white' 
-                    : 'bg-gray-200 text-gray-600'
-                  }
-                `}>
-                  {step}
+            {[1, 2, 3].map((step) => {
+              // Can go to a step if: it's a previous step OR it's the next step and current is valid
+              const canGoToStep = step < currentStep || (step === currentStep + 1 && validateStep(currentStep)) || step === currentStep
+
+              return (
+                <div
+                  key={step}
+                  className={`flex items-center ${step < 3 ? 'flex-1' : ''}`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (step < currentStep) {
+                        // Always allow going back
+                        setCurrentStep(step)
+                      } else if (step > currentStep && validateStep(currentStep)) {
+                        // Only go forward if current step is valid
+                        setCurrentStep(step)
+                      }
+                    }}
+                    disabled={step > currentStep && !validateStep(currentStep)}
+                    className={`
+                      w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0 transition-all
+                      ${currentStep >= step
+                        ? 'bg-violet-600 text-white'
+                        : 'bg-gray-200 text-gray-600'
+                      }
+                      ${step < currentStep ? 'hover:bg-violet-700 cursor-pointer' : ''}
+                      ${step > currentStep && validateStep(currentStep) ? 'hover:bg-violet-500 hover:text-white cursor-pointer' : ''}
+                      ${step > currentStep && !validateStep(currentStep) ? 'opacity-50 cursor-not-allowed' : ''}
+                      ${step === currentStep ? 'ring-2 ring-violet-300 ring-offset-2' : ''}
+                    `}
+                  >
+                    {step}
+                  </button>
+                  <div className="ml-2 text-xs sm:text-sm font-medium hidden sm:block">
+                    {step === 1 && 'Información Básica'}
+                    {step === 2 && 'Ubicación'}
+                    {step === 3 && 'Contacto'}
+                  </div>
+                  <div className="ml-2 text-xs font-medium block sm:hidden">
+                    {step === 1 && 'Básica'}
+                    {step === 2 && 'Ubicación'}
+                    {step === 3 && 'Contacto'}
+                  </div>
+                  {step < 3 && (
+                    <div className={`
+                      flex-1 h-1 mx-2 sm:mx-4
+                      ${currentStep > step ? 'bg-violet-600' : 'bg-gray-200'}
+                    `} />
+                  )}
                 </div>
-                <div className="ml-2 text-xs sm:text-sm font-medium hidden sm:block">
-                  {step === 1 && 'Información Básica'}
-                  {step === 2 && 'Ubicación'}
-                  {step === 3 && 'Contacto'}
-                </div>
-                <div className="ml-2 text-xs font-medium block sm:hidden">
-                  {step === 1 && 'Básica'}
-                  {step === 2 && 'Ubicación'}
-                  {step === 3 && 'Contacto'}
-                </div>
-                {step < 3 && (
-                  <div className={`
-                    flex-1 h-1 mx-2 sm:mx-4
-                    ${currentStep > step ? 'bg-violet-600' : 'bg-gray-200'}
-                  `} />
-                )}
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
 

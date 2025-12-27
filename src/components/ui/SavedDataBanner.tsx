@@ -10,13 +10,15 @@ interface SavedDataBannerProps {
   onRestore: () => void
   timestamp?: Date | null
   onClose: () => void
+  onStartFresh?: () => void
 }
 
 export function SavedDataBanner({
   isVisible,
   onRestore,
   timestamp,
-  onClose
+  onClose,
+  onStartFresh
 }: SavedDataBannerProps) {
   const formatTimestamp = (date: Date) => {
     const now = new Date()
@@ -66,7 +68,7 @@ export function SavedDataBanner({
                     )}
                   </p>
                   
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <Button
                       onClick={onRestore}
                       size="sm"
@@ -75,6 +77,16 @@ export function SavedDataBanner({
                       <RefreshCw className="w-4 h-4 mr-2" />
                       Continuar donde lo dejé
                     </Button>
+                    {onStartFresh && (
+                      <Button
+                        onClick={onStartFresh}
+                        variant="outline"
+                        size="sm"
+                        className="border-gray-300 text-gray-700 hover:bg-gray-100"
+                      >
+                        Empezar de nuevo
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>

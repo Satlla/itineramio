@@ -15,273 +15,105 @@ export interface ZoneContentTemplate {
 
 export const zoneContentTemplates: Record<string, ZoneContentTemplate> = {
   // ============================================
-  // CHECK-IN
+  // CHECK-IN (Simplificado - 2 steps)
   // ============================================
   'check-in': {
     zoneId: 'check-in',
     steps: [
       {
         type: 'text',
-        title: { es: 'Horario de llegada', en: 'Arrival time', fr: 'Heure d\'arrivée' },
+        title: { es: 'Hora y Acceso', en: 'Time & Access', fr: 'Horaire et Accès' },
         content: {
-          es: `**Hora de entrada:** A partir de las [15:00] h
+          es: `🕒 **Entrada desde:** [15:00 h]
+⏰ **Early check-in:** Escríbenos y te diremos si es posible.
+🌙 **Llegadas tarde:** Sin problema, el acceso es autónomo 24h.
+📲 **Importante:** Indícanos tu hora estimada por WhatsApp para tenerlo todo listo.
 
-⏰ **¿Llegas antes?** Consúltanos disponibilidad para early check-in.
-⏰ **¿Llegas tarde?** No hay problema, el acceso es autónomo 24h.
+🎥 **Acceso autónomo:**
+Mira este vídeo donde te mostramos cómo acceder con tu código o recoger la llave del cajetín:
+👉 [ENLACE_VIDEO_ACCESO]`,
+          en: `🕒 **Check-in from:** [3:00 PM]
+⏰ **Early check-in:** Contact us and we'll let you know if it's possible.
+🌙 **Late arrivals:** No problem, access is autonomous 24h.
+📲 **Important:** Let us know your estimated arrival time via WhatsApp so we can have everything ready.
 
-📱 **Importante:** Envíanos tu hora aproximada de llegada por WhatsApp para preparar todo.`,
-          en: `**Check-in time:** From [3:00 PM]
+🎥 **Self check-in:**
+Watch this video showing how to access with your code or pick up the key from the lockbox:
+👉 [ACCESS_VIDEO_LINK]`,
+          fr: `🕒 **Arrivée à partir de:** [15h00]
+⏰ **Early check-in:** Contactez-nous et nous vous dirons si c'est possible.
+🌙 **Arrivées tardives:** Pas de problème, l'accès est autonome 24h.
+📲 **Important:** Indiquez-nous votre heure d'arrivée estimée par WhatsApp pour que tout soit prêt.
 
-⏰ **Arriving early?** Ask us about early check-in availability.
-⏰ **Arriving late?** No problem, access is autonomous 24h.
-
-📱 **Important:** Send us your approximate arrival time via WhatsApp so we can prepare everything.`,
-          fr: `**Heure d'arrivée:** À partir de [15h00]
-
-⏰ **Vous arrivez tôt?** Demandez-nous la disponibilité pour un early check-in.
-⏰ **Vous arrivez tard?** Pas de problème, l'accès est autonome 24h.
-
-📱 **Important:** Envoyez-nous votre heure d'arrivée approximative par WhatsApp.`
+🎥 **Accès autonome:**
+Regardez cette vidéo montrant comment accéder avec votre code ou récupérer la clé dans la boîte:
+👉 [LIEN_VIDEO_ACCES]`
         }
       },
       {
         type: 'text',
-        title: { es: 'Dirección exacta', en: 'Exact address', fr: 'Adresse exacte' },
+        title: { es: '¿Cómo llegar?', en: 'How to get there?', fr: 'Comment y arriver?' },
         content: {
-          es: `**Dirección completa:**
+          es: `📍 **Dirección:**
 [CALLE Y NÚMERO]
 [CÓDIGO POSTAL, CIUDAD]
 
-🏢 **Cómo identificar el edificio:**
-- Fachada de color [COLOR]
-- Portal número [X]
-- [REFERENCIA VISUAL: ej. junto a farmacia, frente a parque]
+🏢 **Identifica el edificio por:**
+• Fachada color [COLOR]
+• Portal nº [X]
+• [Referencia visual: ej. junto a farmacia]
 
-📍 **Google Maps:** [ENLACE_GOOGLE_MAPS]
+🔗 **Google Maps:** [ENLACE_GOOGLE_MAPS]
+🚖 **Para el taxista:** "[DIRECCIÓN SIMPLIFICADA]"
 
-🚕 **Para el taxista:** "[DIRECCIÓN SIMPLIFICADA]"`,
-          en: `**Full address:**
+---
+
+✅ **¡Listo!** Solo necesitas estas 2 secciones:
+1. Saber **cuándo y cómo entras** con tu código o llave.
+2. **Cómo encontrar el edificio** fácilmente.
+
+📘 Todo lo demás (WiFi, electrodomésticos, normas, etc.) está explicado paso a paso en tu manual digital:
+👉 [URL_MANUAL_ITINERAMIO]`,
+          en: `📍 **Address:**
 [STREET AND NUMBER]
 [POSTAL CODE, CITY]
 
-🏢 **How to identify the building:**
-- [COLOR] facade
-- Entrance number [X]
-- [VISUAL REFERENCE: e.g. next to pharmacy, facing park]
+🏢 **Identify the building by:**
+• [COLOR] facade
+• Entrance no. [X]
+• [Visual reference: e.g. next to pharmacy]
 
-📍 **Google Maps:** [GOOGLE_MAPS_LINK]
+🔗 **Google Maps:** [GOOGLE_MAPS_LINK]
+🚖 **For the taxi driver:** "[SIMPLIFIED ADDRESS]"
 
-🚕 **For the taxi driver:** "[SIMPLIFIED ADDRESS]"`,
-          fr: `**Adresse complète:**
+---
+
+✅ **All set!** You only need these 2 sections:
+1. Know **when and how to enter** with your code or key.
+2. **How to find the building** easily.
+
+📘 Everything else (WiFi, appliances, rules, etc.) is explained step by step in your digital manual:
+👉 [ITINERAMIO_MANUAL_URL]`,
+          fr: `📍 **Adresse:**
 [RUE ET NUMÉRO]
 [CODE POSTAL, VILLE]
 
-🏢 **Comment identifier l'immeuble:**
-- Façade de couleur [COULEUR]
-- Entrée numéro [X]
-- [RÉFÉRENCE VISUELLE: ex. à côté de la pharmacie]
+🏢 **Identifiez l'immeuble par:**
+• Façade couleur [COULEUR]
+• Entrée nº [X]
+• [Référence visuelle: ex. à côté de la pharmacie]
 
-📍 **Google Maps:** [LIEN_GOOGLE_MAPS]
+🔗 **Google Maps:** [LIEN_GOOGLE_MAPS]
+🚖 **Pour le chauffeur de taxi:** "[ADRESSE SIMPLIFIÉE]"
 
-🚕 **Pour le chauffeur de taxi:** "[ADRESSE SIMPLIFIÉE]"`
-        }
-      },
-      {
-        type: 'text',
-        title: { es: 'Paso 1: Entrar al edificio', en: 'Step 1: Enter the building', fr: 'Étape 1: Entrer dans l\'immeuble' },
-        content: {
-          es: `**Código del portal:** [CÓDIGO]
+---
 
-📝 **Instrucciones:**
-1. Localiza el teclado numérico junto a la puerta
-2. Introduce el código: [CÓDIGO]
-3. Pulsa el botón [VERDE/LLAVE/✓]
-4. Empuja la puerta cuando escuches el clic
+✅ **C'est prêt!** Vous n'avez besoin que de ces 2 sections:
+1. Savoir **quand et comment entrer** avec votre code ou clé.
+2. **Comment trouver l'immeuble** facilement.
 
-⚠️ **Si no funciona:**
-- Asegúrate de pulsar los números con firmeza
-- Espera 2 segundos después del último dígito
-- Prueba de nuevo; si persiste, llámanos`,
-          en: `**Building entrance code:** [CODE]
-
-📝 **Instructions:**
-1. Locate the numeric keypad next to the door
-2. Enter the code: [CODE]
-3. Press the [GREEN/KEY/✓] button
-4. Push the door when you hear the click
-
-⚠️ **If it doesn't work:**
-- Make sure to press the numbers firmly
-- Wait 2 seconds after the last digit
-- Try again; if it persists, call us`,
-          fr: `**Code de l'entrée:** [CODE]
-
-📝 **Instructions:**
-1. Localisez le clavier numérique à côté de la porte
-2. Entrez le code: [CODE]
-3. Appuyez sur le bouton [VERT/CLÉ/✓]
-4. Poussez la porte quand vous entendez le clic
-
-⚠️ **Si ça ne marche pas:**
-- Assurez-vous d'appuyer fermement sur les chiffres
-- Attendez 2 secondes après le dernier chiffre
-- Réessayez; si le problème persiste, appelez-nous`
-        }
-      },
-      {
-        type: 'text',
-        title: { es: 'Paso 2: Subir al apartamento', en: 'Step 2: Go up to the apartment', fr: 'Étape 2: Monter à l\'appartement' },
-        content: {
-          es: `**Planta:** [NÚMERO]º
-**Puerta:** [LETRA/NÚMERO] - [IZQUIERDA/DERECHA/CENTRO]
-
-🛗 **Ascensor:**
-- Ubicado a la [IZQUIERDA/DERECHA/FONDO] del portal
-- Pulsa el botón [NÚMERO]
-- Sal y gira a la [IZQUIERDA/DERECHA]
-
-🚶 **Escaleras:** Si prefieres, son [X] tramos de escaleras.
-
-🚪 **Identificar la puerta:** Busca [DESCRIPCIÓN: ej. felpudo rojo, número dorado]`,
-          en: `**Floor:** [NUMBER]
-**Door:** [LETTER/NUMBER] - [LEFT/RIGHT/CENTER]
-
-🛗 **Elevator:**
-- Located on the [LEFT/RIGHT/BACK] of the entrance
-- Press button [NUMBER]
-- Exit and turn [LEFT/RIGHT]
-
-🚶 **Stairs:** If you prefer, it's [X] flights of stairs.
-
-🚪 **Identify the door:** Look for [DESCRIPTION: e.g. red doormat, golden number]`,
-          fr: `**Étage:** [NUMÉRO]
-**Porte:** [LETTRE/NUMÉRO] - [GAUCHE/DROITE/CENTRE]
-
-🛗 **Ascenseur:**
-- Situé à [GAUCHE/DROITE/FOND] de l'entrée
-- Appuyez sur le bouton [NUMÉRO]
-- Sortez et tournez à [GAUCHE/DROITE]
-
-🚶 **Escaliers:** Si vous préférez, ce sont [X] volées d'escaliers.
-
-🚪 **Identifier la porte:** Cherchez [DESCRIPTION: ex. paillasson rouge]`
-        }
-      },
-      {
-        type: 'text',
-        title: { es: 'Paso 3: Abrir la puerta', en: 'Step 3: Open the door', fr: 'Étape 3: Ouvrir la porte' },
-        content: {
-          es: `**Tipo de cerradura:** [CÓDIGO/LLAVE EN CAJA/LLAVE DIGITAL]
-
-🔐 **Tu código personal:** [CÓDIGO]
-
-📝 **Instrucciones:**
-1. Introduce el código en el teclado de la cerradura
-2. Espera a escuchar el pitido de confirmación (1-2 seg)
-3. Gira el pomo hacia [ABAJO/ARRIBA] inmediatamente
-4. Empuja la puerta
-
-💡 **Consejos:**
-- El código solo funciona durante tu estancia
-- Si introduces mal el código 3 veces, espera 30 segundos
-- Para cerrar desde dentro: gira el pestillo
-
-🎬 **¿Dudas?** Mira el vídeo tutorial que te enviamos por WhatsApp`,
-          en: `**Lock type:** [CODE/KEY BOX/DIGITAL KEY]
-
-🔐 **Your personal code:** [CODE]
-
-📝 **Instructions:**
-1. Enter the code on the lock keypad
-2. Wait to hear the confirmation beep (1-2 sec)
-3. Turn the handle [DOWN/UP] immediately
-4. Push the door
-
-💡 **Tips:**
-- The code only works during your stay
-- If you enter wrong code 3 times, wait 30 seconds
-- To lock from inside: turn the latch
-
-🎬 **Questions?** Watch the tutorial video we sent via WhatsApp`,
-          fr: `**Type de serrure:** [CODE/BOÎTE À CLÉS/CLÉ DIGITALE]
-
-🔐 **Votre code personnel:** [CODE]
-
-📝 **Instructions:**
-1. Entrez le code sur le clavier de la serrure
-2. Attendez le bip de confirmation (1-2 sec)
-3. Tournez la poignée vers le [BAS/HAUT] immédiatement
-4. Poussez la porte
-
-💡 **Conseils:**
-- Le code ne fonctionne que pendant votre séjour
-- Si vous entrez un mauvais code 3 fois, attendez 30 secondes
-- Pour verrouiller de l'intérieur: tournez le verrou
-
-🎬 **Des questions?** Regardez la vidéo tutoriel envoyée par WhatsApp`
-        }
-      },
-      {
-        type: 'text',
-        title: { es: 'Al llegar al apartamento', en: 'When you arrive', fr: 'En arrivant' },
-        content: {
-          es: `✅ **Checklist de bienvenida:**
-
-1. **Comprueba que todo funciona:**
-   - Luces, agua caliente, aire acondicionado
-   - WiFi (datos en la sección correspondiente)
-
-2. **Localiza:**
-   - Extintor (junto a la entrada)
-   - Botiquín (en el baño)
-   - Llaves de paso del agua (bajo el fregadero)
-
-3. **Revisa el kit de bienvenida:**
-   - Toallas y sábanas limpias
-   - Productos de higiene básicos
-   - [OTROS DETALLES DE BIENVENIDA]
-
-⚠️ **Si notas algún desperfecto**, comunícanoslo en las primeras 2 horas para solucionarlo o documentarlo.
-
-📱 **Estamos a un WhatsApp de distancia: [TELÉFONO]**`,
-          en: `✅ **Welcome checklist:**
-
-1. **Check everything works:**
-   - Lights, hot water, air conditioning
-   - WiFi (details in the corresponding section)
-
-2. **Locate:**
-   - Fire extinguisher (near entrance)
-   - First aid kit (in bathroom)
-   - Water shut-off valves (under sink)
-
-3. **Check the welcome kit:**
-   - Clean towels and sheets
-   - Basic hygiene products
-   - [OTHER WELCOME DETAILS]
-
-⚠️ **If you notice any damage**, let us know within the first 2 hours so we can fix or document it.
-
-📱 **We're just a WhatsApp away: [PHONE]**`,
-          fr: `✅ **Checklist de bienvenue:**
-
-1. **Vérifiez que tout fonctionne:**
-   - Lumières, eau chaude, climatisation
-   - WiFi (détails dans la section correspondante)
-
-2. **Localisez:**
-   - Extincteur (près de l'entrée)
-   - Trousse de secours (dans la salle de bain)
-   - Vannes d'arrêt d'eau (sous l'évier)
-
-3. **Vérifiez le kit de bienvenue:**
-   - Serviettes et draps propres
-   - Produits d'hygiène de base
-   - [AUTRES DÉTAILS DE BIENVENUE]
-
-⚠️ **Si vous remarquez un dommage**, informez-nous dans les 2 premières heures.
-
-📱 **Nous sommes à un WhatsApp: [TÉLÉPHONE]**`
+📘 Tout le reste (WiFi, appareils, règles, etc.) est expliqué étape par étape dans votre manuel digital:
+👉 [URL_MANUEL_ITINERAMIO]`
         }
       }
     ]

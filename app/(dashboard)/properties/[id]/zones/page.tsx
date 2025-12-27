@@ -2594,7 +2594,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 pb-24 lg:pb-6 pt-20">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 pb-24 lg:pb-6">
 
       {/* Inactive Property Banner */}
       {propertyStatus === 'DRAFT' && (
