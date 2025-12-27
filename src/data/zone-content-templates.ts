@@ -1,4 +1,5 @@
-/ * Zone Content Templates - Professional pre-filled content in ES/EN/FR
+/**
+ * Zone Content Templates - Professional pre-filled content in ES/EN/FR
  */
 
 export interface ZoneContentStep {
