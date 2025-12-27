@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, User, Globe } from 'lucide-react'
+import { Menu, X, User, Globe, Search } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../../components/ui/Button'
@@ -108,6 +108,15 @@ export function Navbar({ transparent = false }: NavbarProps) {
 
             {/* Right Side Actions */}
             <div className="flex items-center space-x-4">
+              {/* Search Icon */}
+              <Link
+                href="/blog"
+                className="p-2 rounded-lg text-gray-600 hover:text-violet-600 hover:bg-violet-50 transition-colors"
+                title="Buscar en el blog"
+              >
+                <Search className="w-5 h-5" />
+              </Link>
+
               {/* Auth Buttons */}
               <div className="hidden lg:flex items-center space-x-3">
                 <Link href="/login">
@@ -169,6 +178,16 @@ export function Navbar({ transparent = false }: NavbarProps) {
               </div>
 
               <div className="p-6 space-y-6">
+                {/* Mobile Search */}
+                <Link
+                  href="/blog"
+                  className="flex items-center gap-3 px-4 py-3 bg-gray-100 rounded-xl text-gray-500 hover:bg-violet-50 hover:text-violet-600 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Search className="w-5 h-5" />
+                  <span>Buscar artículos...</span>
+                </Link>
+
                 {/* Navigation Links */}
                 <div className="space-y-4">
                   <Link
