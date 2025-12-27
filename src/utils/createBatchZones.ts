@@ -1,12 +1,19 @@
+interface ZoneContentStep {
+  type: 'text' | 'image' | 'link'
+  title: { es: string; en: string; fr: string }
+  content: { es: string; en: string; fr: string }
+}
+
 export async function createBatchZones(propertyId: string, zones: Array<{
   name: string
   description: string
   icon: string
   status?: string
-}>) {
+  steps?: ZoneContentStep[]
+}>, useTemplates: boolean = false) {
   try {
-    console.log('🚀 Creating batch zones:', zones.length)
-    
+    console.log('🚀 Creating batch zones:', zones.length, 'with templates:', useTemplates)
+
     const response = await fetch(`/api/properties/${propertyId}/zones/batch`, {
       method: 'POST',
       headers: {
@@ -18,8 +25,10 @@ export async function createBatchZones(propertyId: string, zones: Array<{
           description: zone.description,
           icon: zone.icon,
           color: 'bg-gray-100',
-          status: zone.status || 'ACTIVE'
-        }))
+          status: zone.status || 'ACTIVE',
+          steps: zone.steps
+        })),
+        useTemplates
       })
     })
     

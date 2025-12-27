@@ -59,8 +59,9 @@ const marketingNavigation = [
 
 // Academy navigation
 const academyNavigation = [
-  { name: 'Usuarios', href: '/admin/academia/users', icon: Users },
+  { name: 'Leads', href: '/admin/academia/leads', icon: UsersRound },
   { name: 'Quiz Leads', href: '/admin/academia/quiz-leads', icon: Mail },
+  { name: 'Usuarios', href: '/admin/academia/users', icon: Users },
 ]
 
 export default function AdminLayout({

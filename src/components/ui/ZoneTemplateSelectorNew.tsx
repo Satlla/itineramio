@@ -1,26 +1,33 @@
 'use client'
 
 import React, { useState } from 'react'
-import { X, Check, Info as InfoIcon, Image, Link as LinkIcon, Video, FileText, Plus } from 'lucide-react'
+import { X, Check, Info as InfoIcon, Image, Link as LinkIcon, Video, FileText, Plus, Sparkles, FileEdit } from 'lucide-react'
 import { zoneTemplates, zoneCategories } from '../../data/zoneTemplates'
+import { getZoneContentTemplate, hasContentTemplate, ZoneContentStep } from '../../data/zone-content-templates'
 import { ZoneIconDisplay } from './IconSelector'
 import { Button } from './Button'
 
+interface ZoneWithSteps {
+  id: string
+  steps?: ZoneContentStep[]
+}
+
 interface ZoneTemplateSelectorProps {
   onClose: () => void
-  onSelectZones: (zoneIds: string[]) => void
+  onSelectZones: (zoneIds: string[], useTemplates?: boolean, zonesWithSteps?: ZoneWithSteps[]) => void
   onCreateCustomZone: () => void
   existingZoneIds: string[]
 }
 
-export function ZoneTemplateSelector({ 
-  onClose, 
+export function ZoneTemplateSelector({
+  onClose,
   onSelectZones,
   onCreateCustomZone,
   existingZoneIds = []
 }: ZoneTemplateSelectorProps) {
   const [selectedZones, setSelectedZones] = useState<string[]>([])
   const [activeCategory, setActiveCategory] = useState<string>('essential')
+  const [useTemplates, setUseTemplates] = useState<boolean>(true) // Default to using templates
 
   // Group zones by category
   const zonesByCategory = zoneTemplates.reduce((acc, zone) => {
@@ -46,10 +53,25 @@ export function ZoneTemplateSelector({
 
   const handleAddZones = () => {
     if (selectedZones.length > 0) {
-      onSelectZones(selectedZones)
+      if (useTemplates) {
+        // Prepare zones with their content templates
+        const zonesWithSteps: ZoneWithSteps[] = selectedZones.map(zoneId => {
+          const template = getZoneContentTemplate(zoneId)
+          return {
+            id: zoneId,
+            steps: template?.steps
+          }
+        })
+        onSelectZones(selectedZones, true, zonesWithSteps)
+      } else {
+        onSelectZones(selectedZones, false)
+      }
       onClose()
     }
   }
+
+  // Count how many selected zones have templates available
+  const selectedWithTemplates = selectedZones.filter(id => hasContentTemplate(id)).length
 
   const isZoneExisting = (zoneId: string) => existingZoneIds.includes(zoneId)
   const isZoneSelected = (zoneId: string) => selectedZones.includes(zoneId)
@@ -218,6 +240,47 @@ export function ZoneTemplateSelector({
 
         {/* Footer */}
         <div className="p-6 border-t bg-gray-50">
+          {/* Template toggle - shown when zones are selected */}
+          {selectedZones.length > 0 && selectedWithTemplates > 0 && (
+            <div className="mb-4 p-3 bg-violet-50 border border-violet-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-violet-600" />
+                  <div>
+                    <p className="text-sm font-medium text-violet-900">
+                      Contenido profesional en 3 idiomas
+                    </p>
+                    <p className="text-xs text-violet-700">
+                      {selectedWithTemplates} de {selectedZones.length} zonas tienen plantilla disponible (ES/EN/FR)
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setUseTemplates(!useTemplates)}
+                  className={`
+                    relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent
+                    transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2
+                    ${useTemplates ? 'bg-violet-600' : 'bg-gray-300'}
+                  `}
+                >
+                  <span
+                    className={`
+                      pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0
+                      transition duration-200 ease-in-out
+                      ${useTemplates ? 'translate-x-5' : 'translate-x-0'}
+                    `}
+                  />
+                </button>
+              </div>
+              {useTemplates && (
+                <p className="mt-2 text-xs text-violet-600 flex items-center gap-1">
+                  <FileEdit className="w-3 h-3" />
+                  Las zonas se crearán con texto de ejemplo que podrás editar
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
               {selectedZones.length > 0 ? (

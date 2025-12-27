@@ -4,14 +4,33 @@ import { prisma } from '../../../../../../src/lib/prisma'
 import jwt from 'jsonwebtoken'
 import { generateSlug, generateUniqueSlug } from '../../../../../../src/lib/slug-utils'
 
+// Step schema for pre-filled content templates
+const stepSchema = z.object({
+  type: z.enum(['text', 'image', 'link']).default('text'),
+  title: z.object({
+    es: z.string(),
+    en: z.string(),
+    fr: z.string()
+  }),
+  content: z.object({
+    es: z.string(),
+    en: z.string(),
+    fr: z.string()
+  })
+})
+
 const batchZoneSchema = z.object({
   zones: z.array(z.object({
     name: z.string().min(1).max(100),
     description: z.string().optional(),
     icon: z.string().min(1),
     color: z.string().default('bg-gray-100'),
-    status: z.enum(['ACTIVE', 'DRAFT', 'ARCHIVED']).default('ACTIVE')
-  }))
+    status: z.enum(['ACTIVE', 'DRAFT', 'ARCHIVED']).default('ACTIVE'),
+    // Optional: pre-filled content steps from templates
+    steps: z.array(stepSchema).optional()
+  })),
+  // Flag to indicate if templates should be used
+  useTemplates: z.boolean().optional().default(false)
 })
 
 export async function POST(
@@ -91,30 +110,57 @@ export async function POST(
       const timestamp = Date.now() + index // Ensure unique timestamps
       const random1 = Math.random().toString(36).substr(2, 12)
       const random2 = Math.random().toString(36).substr(2, 12)
-      
+
       const baseSlug = generateSlug(zoneData.name)
       const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
       existingSlugs.push(uniqueSlug) // Add to list to ensure next zones are also unique
-      
+
       return {
-        propertyId: propertyId,
-        name: typeof zoneData.name === 'string' ? { es: zoneData.name } : zoneData.name,
-        slug: uniqueSlug,
-        description: typeof zoneData.description === 'string' ? { es: zoneData.description || '' } : (zoneData.description || { es: '' }),
-        icon: zoneData.icon,
-        color: zoneData.color,
-        status: zoneData.status,
-        qrCode: `qr_${timestamp}_${random1}`,
-        accessCode: `ac_${timestamp}_${random2}`
+        zoneData: {
+          propertyId: propertyId,
+          name: typeof zoneData.name === 'string' ? { es: zoneData.name } : zoneData.name,
+          slug: uniqueSlug,
+          description: typeof zoneData.description === 'string' ? { es: zoneData.description || '' } : (zoneData.description || { es: '' }),
+          icon: zoneData.icon,
+          color: zoneData.color,
+          status: zoneData.status,
+          qrCode: `qr_${timestamp}_${random1}`,
+          accessCode: `ac_${timestamp}_${random2}`
+        },
+        steps: zoneData.steps || [] // Keep steps for later creation
       }
     })
-    
+
     console.log('🔵 Creating', zonesData.length, 'zones in batch')
-    
-    // Create zones in a single transaction
-    const createdZones = await prisma.$transaction(
-      zonesData.map((data) => prisma.zone.create({ data }))
-    )
+
+    // Create zones and their steps in a single transaction
+    const createdZones = await prisma.$transaction(async (tx) => {
+      const zones = []
+
+      for (const { zoneData, steps } of zonesData) {
+        // Create the zone
+        const zone = await tx.zone.create({ data: zoneData })
+
+        // Create steps if provided (from content templates)
+        if (steps && steps.length > 0) {
+          await tx.step.createMany({
+            data: steps.map((step, index) => ({
+              zoneId: zone.id,
+              type: step.type,
+              title: step.title,
+              content: step.content,
+              order: index,
+              isPublished: true
+            }))
+          })
+          console.log(`🔵 Created ${steps.length} steps for zone "${zoneData.name}"`)
+        }
+
+        zones.push(zone)
+      }
+
+      return zones
+    })
     
     return NextResponse.json({
       success: true,

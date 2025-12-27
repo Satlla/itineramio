@@ -37,6 +37,7 @@ import { MobileZoneToast } from '../../../../../src/components/ui/MobileZoneToas
 import { cn } from '../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
 import { zoneTemplates, zoneCategories, ZoneTemplate } from '../../../../../src/data/zoneTemplates'
+import { getZoneContentTemplate } from '../../../../../src/data/zone-content-templates'
 import { InspirationZone } from '../../../../../src/data/zoneInspiration'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
 import { useNotifications } from '../../../../../src/hooks/useNotifications'
@@ -1383,15 +1384,19 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
     setIsCreatingZone(true)
     try {
+      // Get content template if available
+      const contentTemplate = getZoneContentTemplate(template.id)
+
       const zoneData = {
         name: template.name,
         description: template.description,
         icon: template.icon,
         color: 'bg-gray-100',
-        status: 'ACTIVE'
+        status: 'ACTIVE',
+        steps: contentTemplate?.steps // Include pre-filled steps if template exists
       }
 
-      const success = await createBatchZones(id, [zoneData])
+      const success = await createBatchZones(id, [zoneData], !!contentTemplate)
 
       if (success) {
         // Refresh zones list
@@ -1400,10 +1405,20 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         if (zonesResult.success) {
           const newZones = zonesResult.data
           setZones(newZones)
-          
-          // Find the newly created zone and open step editor
+
+          // Find the newly created zone
           const newZone = newZones.find((zone: Zone) => zone.name === template.name)
           if (newZone) {
+            // If template had content, show success message
+            if (contentTemplate) {
+              addNotification({
+                type: 'success',
+                title: 'Zona creada con contenido',
+                message: `"${template.name}" se ha creado con texto profesional en ES/EN/FR. ¡Solo edita con tus datos!`,
+                read: false
+              })
+            }
+            // Open step editor to let user customize the content
             setEditingZoneForSteps(newZone)
             setShowStepEditor(true)
           }
