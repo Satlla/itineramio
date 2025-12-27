@@ -1385,7 +1385,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setIsCreatingZone(true)
     try {
       // Get content template if available
+      console.log('🔍 Template ID:', template.id)
       const contentTemplate = getZoneContentTemplate(template.id)
+      console.log('🔍 Content template found:', !!contentTemplate, contentTemplate?.steps?.length, 'steps')
 
       const zoneData = {
         name: template.name,
