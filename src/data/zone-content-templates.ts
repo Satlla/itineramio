@@ -1,5 +1,4 @@
-/**
- * Zone Content Templates - Professional pre-filled content in ES/EN/FR
+/ * Zone Content Templates - Professional pre-filled content in ES/EN/FR
  */
 
 export interface ZoneContentStep {
@@ -29,24 +28,21 @@ export const zoneContentTemplates: Record<string, ZoneContentTemplate> = {
 🌙 **Llegadas tarde:** Sin problema, el acceso es autónomo 24h.
 📲 **Importante:** Indícanos tu hora estimada por WhatsApp para tenerlo todo listo.
 
-🎥 **Acceso autónomo:**
-Mira este vídeo donde te mostramos cómo acceder con tu código o recoger la llave del cajetín:
+🎥 **Acceso autónomo:Mira este vídeo donde te mostramos cómo acceder con tu código o recoger la llave del cajetín:
 👉 [ENLACE_VIDEO_ACCESO]`,
           en: `🕒 **Check-in from:** [3:00 PM]
 ⏰ **Early check-in:** Contact us and we'll let you know if it's possible.
 🌙 **Late arrivals:** No problem, access is autonomous 24h.
 📲 **Important:** Let us know your estimated arrival time via WhatsApp so we can have everything ready.
 
-🎥 **Self check-in:**
-Watch this video showing how to access with your code or pick up the key from the lockbox:
+🎥 **Self check-in:Watch this video showing how to access with your code or pick up the key from the lockbox:
 👉 [ACCESS_VIDEO_LINK]`,
           fr: `🕒 **Arrivée à partir de:** [15h00]
 ⏰ **Early check-in:** Contactez-nous et nous vous dirons si c'est possible.
 🌙 **Arrivées tardives:** Pas de problème, l'accès est autonome 24h.
 📲 **Important:** Indiquez-nous votre heure d'arrivée estimée par WhatsApp pour que tout soit prêt.
 
-🎥 **Accès autonome:**
-Regardez cette vidéo montrant comment accéder avec votre code ou récupérer la clé dans la boîte:
+🎥 **Accès autonome:Regardez cette vidéo montrant comment accéder avec votre code ou récupérer la clé dans la boîte:
 👉 [LIEN_VIDEO_ACCES]`
         }
       },
@@ -54,12 +50,10 @@ Regardez cette vidéo montrant comment accéder avec votre code ou récupérer l
         type: 'text',
         title: { es: '¿Cómo llegar?', en: 'How to get there?', fr: 'Comment y arriver?' },
         content: {
-          es: `📍 **Dirección:**
-[CALLE Y NÚMERO]
+          es: `📍 **Dirección:[CALLE Y NÚMERO]
 [CÓDIGO POSTAL, CIUDAD]
 
-🏢 **Identifica el edificio por:**
-• Fachada color [COLOR]
+🏢 **Identifica el edificio por:• Fachada color [COLOR]
 • Portal nº [X]
 • [Referencia visual: ej. junto a farmacia]
 
@@ -74,12 +68,10 @@ Regardez cette vidéo montrant comment accéder avec votre code ou récupérer l
 
 📘 Todo lo demás (WiFi, electrodomésticos, normas, etc.) está explicado paso a paso en tu manual digital:
 👉 [URL_MANUAL_ITINERAMIO]`,
-          en: `📍 **Address:**
-[STREET AND NUMBER]
+          en: `📍 **Address:[STREET AND NUMBER]
 [POSTAL CODE, CITY]
 
-🏢 **Identify the building by:**
-• [COLOR] facade
+🏢 **Identify the building by:• [COLOR] facade
 • Entrance no. [X]
 • [Visual reference: e.g. next to pharmacy]
 
@@ -94,12 +86,10 @@ Regardez cette vidéo montrant comment accéder avec votre code ou récupérer l
 
 📘 Everything else (WiFi, appliances, rules, etc.) is explained step by step in your digital manual:
 👉 [ITINERAMIO_MANUAL_URL]`,
-          fr: `📍 **Adresse:**
-[RUE ET NUMÉRO]
+          fr: `📍 **Adresse:[RUE ET NUMÉRO]
 [CODE POSTAL, VILLE]
 
-🏢 **Identifiez l'immeuble par:**
-• Façade couleur [COULEUR]
+🏢 **Identifiez l'immeuble par:• Façade couleur [COULEUR]
 • Entrée nº [X]
 • [Référence visuelle: ex. à côté de la pharmacie]
 
@@ -131,89 +121,71 @@ Regardez cette vidéo montrant comment accéder avec votre code ou récupérer l
         content: {
           es: `**Hora de salida:** Antes de las [11:00] h
 
-⏰ **¿Necesitas salir más tarde?**
-Consúltanos con 24h de antelación. Según disponibilidad:
+⏰ **¿Necesitas salir más tarde?Consúltanos con 24h de antelación. Según disponibilidad:
 - Hasta las 13:00h: [X]€
 - Hasta las 15:00h: [X]€
 
-📦 **¿Tienes equipaje?**
-Si tu vuelo es más tarde, puedes dejar las maletas en [UBICACIÓN] hasta las [HORA].`,
+📦 **¿Tienes equipaje?Si tu vuelo es más tarde, puedes dejar las maletas en [UBICACIÓN] hasta las [HORA].`,
           en: `**Check-out time:** Before [11:00 AM]
 
-⏰ **Need a late check-out?**
-Ask us 24h in advance. Subject to availability:
+⏰ **Need a late check-out?Ask us 24h in advance. Subject to availability:
 - Until 1:00 PM: [X]€
 - Until 3:00 PM: [X]€
 
-📦 **Have luggage?**
-If your flight is later, you can leave bags at [LOCATION] until [TIME].`,
+📦 **Have luggage?If your flight is later, you can leave bags at [LOCATION] until [TIME].`,
           fr: `**Heure de départ:** Avant [11h00]
 
-⏰ **Besoin de partir plus tard?**
-Demandez-nous 24h à l'avance. Selon disponibilité:
+⏰ **Besoin de partir plus tard?Demandez-nous 24h à l'avance. Selon disponibilité:
 - Jusqu'à 13h00: [X]€
 - Jusqu'à 15h00: [X]€
 
-📦 **Vous avez des bagages?**
-Si votre vol est plus tard, vous pouvez laisser vos valises à [EMPLACEMENT] jusqu'à [HEURE].`
+📦 **Vous avez des bagages?Si votre vol est plus tard, vous pouvez laisser vos valises à [EMPLACEMENT] jusqu'à [HEURE].`
         }
       },
       {
         type: 'text',
         title: { es: 'Checklist antes de salir', en: 'Checklist before leaving', fr: 'Checklist avant de partir' },
         content: {
-          es: `✅ **Por favor, antes de irte:**
-
-**Imprescindible:**
-☐ Cierra todas las ventanas
+          es: `✅ **Por favor, antes de irte:
+**Imprescindible:☐ Cierra todas las ventanas
 ☐ Apaga luces, TV y aire acondicionado/calefacción
 ☐ Cierra los grifos
 ☐ [INSTRUCCIONES LLAVES/CÓDIGO]
 
-**Ayúdanos (no obligatorio):**
-☐ Deja la basura en los contenedores de la calle
+**Ayúdanos (no obligatorio):☐ Deja la basura en los contenedores de la calle
 ☐ Deja los platos sucios en el fregadero (sin lavar)
 ☐ Deja las toallas usadas en la bañera/ducha
 ☐ Retira sábanas de la cama
 
-❌ **NO hace falta:**
-- Hacer las camas
+❌ **NO hace falta:- Hacer las camas
 - Limpiar el apartamento
 - Pasar la aspiradora`,
-          en: `✅ **Please, before leaving:**
-
-**Essential:**
-☐ Close all windows
+          en: `✅ **Please, before leaving:
+**Essential:☐ Close all windows
 ☐ Turn off lights, TV and AC/heating
 ☐ Close taps
 ☐ [KEY/CODE INSTRUCTIONS]
 
-**Help us (not mandatory):**
-☐ Take trash to street containers
+**Help us (not mandatory):☐ Take trash to street containers
 ☐ Leave dirty dishes in sink (unwashed)
 ☐ Leave used towels in bathtub/shower
 ☐ Remove sheets from bed
 
-❌ **NO need to:**
-- Make beds
+❌ **NO need to:- Make beds
 - Clean the apartment
 - Vacuum`,
-          fr: `✅ **S'il vous plaît, avant de partir:**
-
-**Essentiel:**
-☐ Fermez toutes les fenêtres
+          fr: `✅ **S'il vous plaît, avant de partir:
+**Essentiel:☐ Fermez toutes les fenêtres
 ☐ Éteignez lumières, TV et climatisation/chauffage
 ☐ Fermez les robinets
 ☐ [INSTRUCTIONS CLÉS/CODE]
 
-**Aidez-nous (pas obligatoire):**
-☐ Mettez les poubelles dans les conteneurs de la rue
+**Aidez-nous (pas obligatoire):☐ Mettez les poubelles dans les conteneurs de la rue
 ☐ Laissez la vaisselle sale dans l'évier
 ☐ Laissez les serviettes utilisées dans la baignoire/douche
 ☐ Retirez les draps du lit
 
-❌ **PAS besoin de:**
-- Faire les lits
+❌ **PAS besoin de:- Faire les lits
 - Nettoyer l'appartement
 - Passer l'aspirateur`
         }
@@ -222,52 +194,37 @@ Si votre vol est plus tard, vous pouvez laisser vos valises à [EMPLACEMENT] jus
         type: 'text',
         title: { es: 'Llaves y cierre', en: 'Keys and locking', fr: 'Clés et fermeture' },
         content: {
-          es: `🔑 **¿Qué hacer con las llaves?**
+          es: `🔑 **¿Qué hacer con las llaves?
+**Opción A - Cerradura con código:Simplemente cierra la puerta al salir. El código se desactivará automáticamente.
 
-**Opción A - Cerradura con código:**
-Simplemente cierra la puerta al salir. El código se desactivará automáticamente.
-
-**Opción B - Llaves físicas:**
-Déjalas en [UBICACIÓN: ej. caja de seguridad, encima de la mesa].
+**Opción B - Llaves físicas:Déjalas en [UBICACIÓN: ej. caja de seguridad, encima de la mesa].
 Código de la caja: [CÓDIGO]
 
-**Opción C - Entrega en mano:**
-Coordina con nosotros la entrega en el portal.
+**Opción C - Entrega en mano:Coordina con nosotros la entrega en el portal.
 
-🚪 **Para cerrar la puerta:**
-Tira de ella hasta escuchar el clic. Comprueba que ha quedado cerrada.
+🚪 **Para cerrar la puerta:Tira de ella hasta escuchar el clic. Comprueba que ha quedado cerrada.
 
 📱 **Confirma tu salida** enviándonos un WhatsApp. ¡Nos encantará saber que todo fue bien!`,
-          en: `🔑 **What to do with the keys?**
+          en: `🔑 **What to do with the keys?
+**Option A - Code lock:Simply close the door when leaving. The code will deactivate automatically.
 
-**Option A - Code lock:**
-Simply close the door when leaving. The code will deactivate automatically.
-
-**Option B - Physical keys:**
-Leave them at [LOCATION: e.g. safe box, on the table].
+**Option B - Physical keys:Leave them at [LOCATION: e.g. safe box, on the table].
 Box code: [CODE]
 
-**Option C - Hand delivery:**
-Coordinate with us for delivery at the entrance.
+**Option C - Hand delivery:Coordinate with us for delivery at the entrance.
 
-🚪 **To close the door:**
-Pull it until you hear the click. Check that it's locked.
+🚪 **To close the door:Pull it until you hear the click. Check that it's locked.
 
 📱 **Confirm your departure** by sending us a WhatsApp. We'd love to know everything went well!`,
-          fr: `🔑 **Que faire avec les clés?**
+          fr: `🔑 **Que faire avec les clés?
+**Option A - Serrure à code:Fermez simplement la porte en partant. Le code se désactivera automatiquement.
 
-**Option A - Serrure à code:**
-Fermez simplement la porte en partant. Le code se désactivera automatiquement.
-
-**Option B - Clés physiques:**
-Laissez-les à [EMPLACEMENT: ex. coffre-fort, sur la table].
+**Option B - Clés physiques:Laissez-les à [EMPLACEMENT: ex. coffre-fort, sur la table].
 Code du coffre: [CODE]
 
-**Option C - Remise en main:**
-Coordonnez avec nous la remise à l'entrée.
+**Option C - Remise en main:Coordonnez avec nous la remise à l'entrée.
 
-🚪 **Pour fermer la porte:**
-Tirez-la jusqu'à entendre le clic. Vérifiez qu'elle est fermée.
+🚪 **Pour fermer la porte:Tirez-la jusqu'à entendre le clic. Vérifiez qu'elle est fermée.
 
 📱 **Confirmez votre départ** en nous envoyant un WhatsApp!`
         }
@@ -276,41 +233,32 @@ Tirez-la jusqu'à entendre le clic. Vérifiez qu'elle est fermée.
         type: 'text',
         title: { es: '¡Gracias por tu estancia!', en: 'Thank you for staying!', fr: 'Merci pour votre séjour!' },
         content: {
-          es: `🙏 **¡Gracias por elegirnos!**
-
+          es: `🙏 **¡Gracias por elegirnos!
 Esperamos que hayas disfrutado de tu estancia. Tu opinión es muy importante para nosotros.
 
-⭐ **¿Nos dejas una reseña?**
-Si tu experiencia ha sido positiva, te agradeceríamos mucho una reseña en [AIRBNB/BOOKING/GOOGLE].
+⭐ **¿Nos dejas una reseña?Si tu experiencia ha sido positiva, te agradeceríamos mucho una reseña en [AIRBNB/BOOKING/GOOGLE].
 
-🔄 **¿Vuelves pronto?**
-Contacta directamente con nosotros para obtener un [X]% de descuento en tu próxima reserva.
+🔄 **¿Vuelves pronto?Contacta directamente con nosotros para obtener un [X]% de descuento en tu próxima reserva.
 
 📸 **Síguenos en Instagram:** @[TU_INSTAGRAM]
 
 ¡Buen viaje de vuelta! 🛫`,
-          en: `🙏 **Thank you for choosing us!**
-
+          en: `🙏 **Thank you for choosing us!
 We hope you enjoyed your stay. Your opinion is very important to us.
 
-⭐ **Would you leave us a review?**
-If your experience was positive, we'd really appreciate a review on [AIRBNB/BOOKING/GOOGLE].
+⭐ **Would you leave us a review?If your experience was positive, we'd really appreciate a review on [AIRBNB/BOOKING/GOOGLE].
 
-🔄 **Coming back soon?**
-Contact us directly for a [X]% discount on your next booking.
+🔄 **Coming back soon?Contact us directly for a [X]% discount on your next booking.
 
 📸 **Follow us on Instagram:** @[YOUR_INSTAGRAM]
 
 Have a safe trip back! 🛫`,
-          fr: `🙏 **Merci de nous avoir choisis!**
-
+          fr: `🙏 **Merci de nous avoir choisis!
 Nous espérons que vous avez apprécié votre séjour. Votre avis est très important pour nous.
 
-⭐ **Vous nous laissez un avis?**
-Si votre expérience a été positive, nous apprécierions un avis sur [AIRBNB/BOOKING/GOOGLE].
+⭐ **Vous nous laissez un avis?Si votre expérience a été positive, nous apprécierions un avis sur [AIRBNB/BOOKING/GOOGLE].
 
-🔄 **Vous revenez bientôt?**
-Contactez-nous directement pour obtenir [X]% de réduction sur votre prochaine réservation.
+🔄 **Vous revenez bientôt?Contactez-nous directement pour obtenir [X]% de réduction sur votre prochaine réservation.
 
 📸 **Suivez-nous sur Instagram:** @[VOTRE_INSTAGRAM]
 
@@ -354,8 +302,7 @@ Il y a aussi une carte QR code WiFi à [EMPLACEMENT].
         type: 'text',
         title: { es: 'Solución de problemas', en: 'Troubleshooting', fr: 'Dépannage' },
         content: {
-          es: `**Si no conecta:**
-
+          es: `**Si no conecta:
 1. ✅ Verifica mayúsculas/minúsculas de la contraseña
 2. ✅ Olvida la red y vuelve a conectar
 3. ✅ Activa/desactiva el modo avión
@@ -364,8 +311,7 @@ Il y a aussi une carte QR code WiFi à [EMPLACEMENT].
 **Router ubicado en:** [UBICACIÓN]
 
 Si persiste el problema, contáctanos.`,
-          en: `**If it doesn't connect:**
-
+          en: `**If it doesn't connect:
 1. ✅ Check password capitalization
 2. ✅ Forget network and reconnect
 3. ✅ Toggle airplane mode
@@ -374,8 +320,7 @@ Si persiste el problema, contáctanos.`,
 **Router located at:** [LOCATION]
 
 If the problem persists, contact us.`,
-          fr: `**Si ça ne se connecte pas:**
-
+          fr: `**Si ça ne se connecte pas:
 1. ✅ Vérifiez les majuscules/minuscules du mot de passe
 2. ✅ Oubliez le réseau et reconnectez-vous
 3. ✅ Activez/désactivez le mode avion
@@ -462,36 +407,30 @@ Les violations répétées peuvent entraîner la fin du séjour.`
         type: 'text',
         title: { es: 'Cuidado del apartamento', en: 'Apartment care', fr: 'Soin de l\'appartement' },
         content: {
-          es: `🏠 **Cuida el espacio como si fuera tuyo:**
-
+          es: `🏠 **Cuida el espacio como si fuera tuyo:
 • No muevas muebles pesados
 • Usa posavasos para bebidas
 • No dejes ventanas abiertas si llueve
 • Reporta cualquier daño inmediatamente
 • No tires objetos por el WC (solo papel)
 
-**Depósito de seguridad:**
-Se devolverá íntegro si no hay daños ni incidencias.`,
-          en: `🏠 **Take care of the space as if it were yours:**
-
+**Depósito de seguridad:Se devolverá íntegro si no hay daños ni incidencias.`,
+          en: `🏠 **Take care of the space as if it were yours:
 • Don't move heavy furniture
 • Use coasters for drinks
 • Don't leave windows open if raining
 • Report any damage immediately
 • Don't flush objects down toilet (only paper)
 
-**Security deposit:**
-Will be fully refunded if no damages or incidents.`,
-          fr: `🏠 **Prenez soin de l'espace comme s'il était le vôtre:**
-
+**Security deposit:Will be fully refunded if no damages or incidents.`,
+          fr: `🏠 **Prenez soin de l'espace comme s'il était le vôtre:
 • Ne déplacez pas les meubles lourds
 • Utilisez des sous-verres
 • Ne laissez pas les fenêtres ouvertes s'il pleut
 • Signalez tout dommage immédiatement
 • Ne jetez pas d'objets dans les WC
 
-**Dépôt de garantie:**
-Sera intégralement remboursé sans dommages ni incidents.`
+**Dépôt de garantie:Sera intégralement remboursé sans dommages ni incidents.`
         }
       }
     ]
@@ -539,95 +478,71 @@ Je réponds généralement en moins de 30 minutes.`
         content: {
           es: `🚨 **EMERGENCIAS GENERALES:** 112
 
-📞 **Servicios específicos:**
-• Policía Nacional: 091
+📞 **Servicios específicos:• Policía Nacional: 091
 • Policía Local: 092
 • Bomberos: 080
 • Urgencias médicas: 061
 
-🏥 **Hospital más cercano:**
-[NOMBRE] - [DIRECCIÓN]
+🏥 **Hospital más cercano:[NOMBRE] - [DIRECCIÓN]
 📍 A [X] minutos andando/en coche
 
-💊 **Farmacia 24h más cercana:**
-[NOMBRE] - [DIRECCIÓN]`,
+💊 **Farmacia 24h más cercana:[NOMBRE] - [DIRECCIÓN]`,
           en: `🚨 **GENERAL EMERGENCIES:** 112
 
-📞 **Specific services:**
-• National Police: 091
+📞 **Specific services:• National Police: 091
 • Local Police: 092
 • Fire Department: 080
 • Medical Emergencies: 061
 
-🏥 **Nearest hospital:**
-[NAME] - [ADDRESS]
+🏥 **Nearest hospital:[NAME] - [ADDRESS]
 📍 [X] minutes walking/by car
 
-💊 **Nearest 24h pharmacy:**
-[NAME] - [ADDRESS]`,
+💊 **Nearest 24h pharmacy:[NAME] - [ADDRESS]`,
           fr: `🚨 **URGENCES GÉNÉRALES:** 112
 
-📞 **Services spécifiques:**
-• Police Nationale: 091
+📞 **Services spécifiques:• Police Nationale: 091
 • Police Locale: 092
 • Pompiers: 080
 • Urgences médicales: 061
 
-🏥 **Hôpital le plus proche:**
-[NOM] - [ADRESSE]
+🏥 **Hôpital le plus proche:[NOM] - [ADRESSE]
 📍 À [X] minutes à pied/en voiture
 
-💊 **Pharmacie 24h la plus proche:**
-[NOM] - [ADRESSE]`
+💊 **Pharmacie 24h la plus proche:[NOM] - [ADRESSE]`
         }
       },
       {
         type: 'text',
         title: { es: 'Problemas en el apartamento', en: 'Apartment problems', fr: 'Problèmes dans l\'appartement' },
         content: {
-          es: `🔧 **Problemas comunes y soluciones:**
+          es: `🔧 **Problemas comunes y soluciones:
+**💡 Se va la luz:Cuadro eléctrico en [UBICACIÓN]. Sube los interruptores que estén bajados.
 
-**💡 Se va la luz:**
-Cuadro eléctrico en [UBICACIÓN]. Sube los interruptores que estén bajados.
+**🚿 No hay agua caliente:Espera 2 min con el grifo abierto. Si no, revisa el calentador en [UBICACIÓN].
 
-**🚿 No hay agua caliente:**
-Espera 2 min con el grifo abierto. Si no, revisa el calentador en [UBICACIÓN].
+**🚽 WC atascado:Desatascador en [UBICACIÓN].
 
-**🚽 WC atascado:**
-Desatascador en [UBICACIÓN].
-
-**🔑 No puedo abrir la puerta:**
-Llámame inmediatamente: [TELÉFONO]
+**🔑 No puedo abrir la puerta:Llámame inmediatamente: [TELÉFONO]
 
 ⚠️ **Nunca intentes reparar algo por tu cuenta. Contáctanos primero.**`,
-          en: `🔧 **Common problems and solutions:**
+          en: `🔧 **Common problems and solutions:
+**💡 Power goes out:Electrical panel at [LOCATION]. Flip up any tripped switches.
 
-**💡 Power goes out:**
-Electrical panel at [LOCATION]. Flip up any tripped switches.
+**🚿 No hot water:Wait 2 min with tap running. If not, check water heater at [LOCATION].
 
-**🚿 No hot water:**
-Wait 2 min with tap running. If not, check water heater at [LOCATION].
+**🚽 Toilet clogged:Plunger at [LOCATION].
 
-**🚽 Toilet clogged:**
-Plunger at [LOCATION].
-
-**🔑 Can't open the door:**
-Call me immediately: [PHONE]
+**🔑 Can't open the door:Call me immediately: [PHONE]
 
 ⚠️ **Never try to fix something yourself. Contact us first.**`,
-          fr: `🔧 **Problèmes courants et solutions:**
+          fr: `🔧 **Problèmes courants et solutions:
+**💡 Coupure de courant:Tableau électrique à [EMPLACEMENT]. Remontez les interrupteurs.
 
-**💡 Coupure de courant:**
-Tableau électrique à [EMPLACEMENT]. Remontez les interrupteurs.
+**🚿 Pas d'eau chaude:Attendez 2 min avec le robinet ouvert. Sinon, vérifiez le chauffe-eau à [EMPLACEMENT].
 
-**🚿 Pas d'eau chaude:**
-Attendez 2 min avec le robinet ouvert. Sinon, vérifiez le chauffe-eau à [EMPLACEMENT].
+**🚽 WC bouché:Ventouse à [EMPLACEMENT].
 
-**🚽 WC bouché:**
-Ventouse à [EMPLACEMENT].
-
-**🔑 Je ne peux pas ouvrir la porte:**
-Appelez-moi immédiatement: [TÉLÉPHONE]
+**🔑 Je ne peux pas ouvrir la porte:Appelez-moi immédiatement: [TÉLÉPHONE]
 
 ⚠️ **N'essayez jamais de réparer quelque chose vous-même. Contactez-nous d'abord.**`
         }
@@ -649,8 +564,7 @@ Appelez-moi immédiatement: [TÉLÉPHONE]
 📍 **Ubicación:** [DIRECCIÓN/EDIFICIO]
 🏢 **Planta:** [PLANTA]
 
-**Dimensiones:**
-• Largo: [X] m
+**Dimensiones:• Largo: [X] m
 • Ancho: [X] m
 • Alto máximo: [X] m
 
@@ -659,8 +573,7 @@ Appelez-moi immédiatement: [TÉLÉPHONE]
 📍 **Location:** [ADDRESS/BUILDING]
 🏢 **Floor:** [FLOOR]
 
-**Dimensions:**
-• Length: [X] m
+**Dimensions:• Length: [X] m
 • Width: [X] m
 • Max height: [X] m
 
@@ -669,8 +582,7 @@ Appelez-moi immédiatement: [TÉLÉPHONE]
 📍 **Emplacement:** [ADRESSE/BÂTIMENT]
 🏢 **Étage:** [ÉTAGE]
 
-**Dimensions:**
-• Longueur: [X] m
+**Dimensions:• Longueur: [X] m
 • Largeur: [X] m
 • Hauteur max: [X] m
 
@@ -681,40 +593,31 @@ Appelez-moi immédiatement: [TÉLÉPHONE]
         type: 'text',
         title: { es: 'Cómo acceder', en: 'How to access', fr: 'Comment accéder' },
         content: {
-          es: `🚙 **Entrada del parking:**
-[DIRECCIÓN DE ENTRADA]
+          es: `🚙 **Entrada del parking:[DIRECCIÓN DE ENTRADA]
 
-**Para entrar:**
-1. [MANDO/CÓDIGO/TARJETA]: [DETALLES]
+**Para entrar:1. [MANDO/CÓDIGO/TARJETA]: [DETALLES]
 2. La puerta tarda ~[X] segundos en abrirse
 3. Tu plaza está a la [IZQUIERDA/DERECHA], fila [X]
 
-**Para salir:**
-[INSTRUCCIONES DE SALIDA]
+**Para salir:[INSTRUCCIONES DE SALIDA]
 
 📍 **Google Maps entrada:** [ENLACE]`,
-          en: `🚙 **Parking entrance:**
-[ENTRANCE ADDRESS]
+          en: `🚙 **Parking entrance:[ENTRANCE ADDRESS]
 
-**To enter:**
-1. [REMOTE/CODE/CARD]: [DETAILS]
+**To enter:1. [REMOTE/CODE/CARD]: [DETAILS]
 2. Gate takes ~[X] seconds to open
 3. Your spot is on the [LEFT/RIGHT], row [X]
 
-**To exit:**
-[EXIT INSTRUCTIONS]
+**To exit:[EXIT INSTRUCTIONS]
 
 📍 **Google Maps entrance:** [LINK]`,
-          fr: `🚙 **Entrée du parking:**
-[ADRESSE D'ENTRÉE]
+          fr: `🚙 **Entrée du parking:[ADRESSE D'ENTRÉE]
 
-**Pour entrer:**
-1. [TÉLÉCOMMANDE/CODE/CARTE]: [DÉTAILS]
+**Pour entrer:1. [TÉLÉCOMMANDE/CODE/CARTE]: [DÉTAILS]
 2. La porte met ~[X] secondes à s'ouvrir
 3. Votre place est à [GAUCHE/DROITE], rangée [X]
 
-**Pour sortir:**
-[INSTRUCTIONS DE SORTIE]
+**Pour sortir:[INSTRUCTIONS DE SORTIE]
 
 📍 **Google Maps entrée:** [LIEN]`
         }
@@ -734,39 +637,33 @@ Appelez-moi immédiatement: [TÉLÉPHONE]
         content: {
           es: `🌡️ **Termostato/Mando:** [UBICACIÓN]
 
-**❄️ Para enfriar:**
-1. Enciende con botón ON
+**❄️ Para enfriar:1. Enciende con botón ON
 2. Modo: ❄️ (COOL)
 3. Temperatura recomendada: 24-25°C
 
-**☀️ Para calentar:**
-1. Enciende con botón ON
+**☀️ Para calentar:1. Enciende con botón ON
 2. Modo: ☀️ (HEAT)
 3. Temperatura recomendada: 20-22°C
 
 ⚠️ **Apágalo al salir o abrir ventanas.**`,
           en: `🌡️ **Thermostat/Remote:** [LOCATION]
 
-**❄️ To cool:**
-1. Turn on with ON button
+**❄️ To cool:1. Turn on with ON button
 2. Mode: ❄️ (COOL)
 3. Recommended temp: 24-25°C / 75-77°F
 
-**☀️ To heat:**
-1. Turn on with ON button
+**☀️ To heat:1. Turn on with ON button
 2. Mode: ☀️ (HEAT)
 3. Recommended temp: 20-22°C / 68-72°F
 
 ⚠️ **Turn off when leaving or opening windows.**`,
           fr: `🌡️ **Thermostat/Télécommande:** [EMPLACEMENT]
 
-**❄️ Pour refroidir:**
-1. Allumez avec le bouton ON
+**❄️ Pour refroidir:1. Allumez avec le bouton ON
 2. Mode: ❄️ (COOL)
 3. Température recommandée: 24-25°C
 
-**☀️ Pour chauffer:**
-1. Allumez avec le bouton ON
+**☀️ Pour chauffer:1. Allumez avec le bouton ON
 2. Mode: ☀️ (HEAT)
 3. Température recommandée: 20-22°C
 
@@ -777,42 +674,33 @@ Appelez-moi immédiatement: [TÉLÉPHONE]
         type: 'text',
         title: { es: 'Consejos de uso', en: 'Usage tips', fr: 'Conseils d\'utilisation' },
         content: {
-          es: `💡 **Para máxima eficiencia:**
-
+          es: `💡 **Para máxima eficiencia:
 • Cierra ventanas y puertas cuando esté encendido
 • Usa las persianas/cortinas en las horas de más calor
 • No pongas temperaturas extremas (16°C o 30°C)
 • Por la noche, usa el modo SLEEP si lo tiene
 
-🔇 **¿Hace ruido?**
-Es normal un leve zumbido. Si es excesivo, contáctanos.
+🔇 **¿Hace ruido?Es normal un leve zumbido. Si es excesivo, contáctanos.
 
-🧹 **Filtros:**
-Si notas que enfría/calienta menos de lo normal, avísanos.`,
-          en: `💡 **For maximum efficiency:**
-
+🧹 **Filtros:Si notas que enfría/calienta menos de lo normal, avísanos.`,
+          en: `💡 **For maximum efficiency:
 • Close windows and doors when it's on
 • Use blinds/curtains during hottest hours
 • Don't set extreme temperatures (16°C or 30°C)
 • At night, use SLEEP mode if available
 
-🔇 **Making noise?**
-A slight hum is normal. If excessive, contact us.
+🔇 **Making noise?A slight hum is normal. If excessive, contact us.
 
-🧹 **Filters:**
-If it's cooling/heating less than normal, let us know.`,
-          fr: `💡 **Pour une efficacité maximale:**
-
+🧹 **Filters:If it's cooling/heating less than normal, let us know.`,
+          fr: `💡 **Pour une efficacité maximale:
 • Fermez fenêtres et portes quand c'est allumé
 • Utilisez stores/rideaux aux heures chaudes
 • Ne mettez pas de températures extrêmes
 • La nuit, utilisez le mode SLEEP si disponible
 
-🔇 **Fait du bruit?**
-Un léger bourdonnement est normal. Si excessif, contactez-nous.
+🔇 **Fait du bruit?Un léger bourdonnement est normal. Si excessif, contactez-nous.
 
-🧹 **Filtres:**
-S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
+🧹 **Filtres:S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
         }
       }
     ]
@@ -828,24 +716,21 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
         type: 'text',
         title: { es: 'Separación de residuos', en: 'Waste separation', fr: 'Tri des déchets' },
         content: {
-          es: `♻️ **Por favor, separa la basura:**
-
+          es: `♻️ **Por favor, separa la basura:
 🟡 **Amarillo:** Plásticos, latas, envases, bricks
 🟢 **Verde:** Vidrio (botellas, tarros)
 🔵 **Azul:** Papel y cartón
 ⚫ **Gris/Marrón:** Orgánico y resto
 
 🛒 **Bolsas:** Debajo del fregadero o en [UBICACIÓN]`,
-          en: `♻️ **Please separate your waste:**
-
+          en: `♻️ **Please separate your waste:
 🟡 **Yellow:** Plastics, cans, packaging, cartons
 🟢 **Green:** Glass (bottles, jars)
 🔵 **Blue:** Paper and cardboard
 ⚫ **Gray/Brown:** Organic and general waste
 
 🛒 **Bags:** Under the sink or at [LOCATION]`,
-          fr: `♻️ **Veuillez séparer vos déchets:**
-
+          fr: `♻️ **Veuillez séparer vos déchets:
 🟡 **Jaune:** Plastiques, canettes, emballages
 🟢 **Vert:** Verre (bouteilles, pots)
 🔵 **Bleu:** Papier et carton
@@ -858,37 +743,28 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
         type: 'text',
         title: { es: 'Dónde tirar la basura', en: 'Where to dispose', fr: 'Où jeter' },
         content: {
-          es: `📍 **Contenedores más cercanos:**
-[UBICACIÓN - ej: Esquina de calle X con calle Y]
+          es: `📍 **Contenedores más cercanos:[UBICACIÓN - ej: Esquina de calle X con calle Y]
 
-🗓️ **Horarios de recogida:**
-• Resto: Todos los días [HORA]
+🗓️ **Horarios de recogida:• Resto: Todos los días [HORA]
 • Reciclaje: [DÍAS Y HORA]
 
-⚠️ **Importante:**
-• No dejes bolsas en el rellano
+⚠️ **Importante:• No dejes bolsas en el rellano
 • Baja la basura antes del check-out
 • El vidrio solo de 8:00 a 22:00 (hace ruido)`,
-          en: `📍 **Nearest containers:**
-[LOCATION - e.g.: Corner of X street and Y street]
+          en: `📍 **Nearest containers:[LOCATION - e.g.: Corner of X street and Y street]
 
-🗓️ **Collection schedule:**
-• General: Every day [TIME]
+🗓️ **Collection schedule:• General: Every day [TIME]
 • Recycling: [DAYS AND TIME]
 
-⚠️ **Important:**
-• Don't leave bags in hallway
+⚠️ **Important:• Don't leave bags in hallway
 • Take trash out before check-out
 • Glass only 8 AM - 10 PM (it's noisy)`,
-          fr: `📍 **Conteneurs les plus proches:**
-[EMPLACEMENT - ex: Coin de la rue X et rue Y]
+          fr: `📍 **Conteneurs les plus proches:[EMPLACEMENT - ex: Coin de la rue X et rue Y]
 
-🗓️ **Horaires de collecte:**
-• Général: Tous les jours [HEURE]
+🗓️ **Horaires de collecte:• Général: Tous les jours [HEURE]
 • Recyclage: [JOURS ET HEURE]
 
-⚠️ **Important:**
-• Ne laissez pas de sacs dans le couloir
+⚠️ **Important:• Ne laissez pas de sacs dans le couloir
 • Sortez les poubelles avant le check-out
 • Le verre seulement de 8h à 22h (bruyant)`
         }
@@ -906,54 +782,42 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
         type: 'text',
         title: { es: 'Desde el aeropuerto', en: 'From the airport', fr: 'Depuis l\'aéroport' },
         content: {
-          es: `✈️ **Aeropuerto de [NOMBRE]**
-
-🚕 **Taxi:**
-• Duración: ~[X] minutos
+          es: `✈️ **Aeropuerto de [NOMBRE]
+🚕 **Taxi:• Duración: ~[X] minutos
 • Precio aprox: [X]€
 • Dile al taxista: "[DIRECCIÓN]"
 
-🚇 **Metro/Tren:**
-• Línea [X] hasta [ESTACIÓN]
+🚇 **Metro/Tren:• Línea [X] hasta [ESTACIÓN]
 • Transbordo a línea [X] hasta [ESTACIÓN_FINAL]
 • Duración: ~[X] minutos | Precio: [X]€
 
-🚌 **Autobús:**
-• Línea [X] - Parada [NOMBRE]
+🚌 **Autobús:• Línea [X] - Parada [NOMBRE]
 • Duración: ~[X] minutos | Precio: [X]€
 
 📱 **Apps recomendadas:** Uber, Cabify, [OTRAS]`,
-          en: `✈️ **[NAME] Airport**
-
-🚕 **Taxi:**
-• Duration: ~[X] minutes
+          en: `✈️ **[NAME] Airport
+🚕 **Taxi:• Duration: ~[X] minutes
 • Approx price: [X]€
 • Tell driver: "[ADDRESS]"
 
-🚇 **Metro/Train:**
-• Line [X] to [STATION]
+🚇 **Metro/Train:• Line [X] to [STATION]
 • Transfer to line [X] to [FINAL_STATION]
 • Duration: ~[X] min | Price: [X]€
 
-🚌 **Bus:**
-• Line [X] - Stop [NAME]
+🚌 **Bus:• Line [X] - Stop [NAME]
 • Duration: ~[X] min | Price: [X]€
 
 📱 **Recommended apps:** Uber, Cabify, [OTHERS]`,
-          fr: `✈️ **Aéroport de [NOM]**
-
-🚕 **Taxi:**
-• Durée: ~[X] minutes
+          fr: `✈️ **Aéroport de [NOM]
+🚕 **Taxi:• Durée: ~[X] minutes
 • Prix approx: [X]€
 • Dites au chauffeur: "[ADRESSE]"
 
-🚇 **Métro/Train:**
-• Ligne [X] jusqu'à [STATION]
+🚇 **Métro/Train:• Ligne [X] jusqu'à [STATION]
 • Correspondance ligne [X] jusqu'à [STATION_FINALE]
 • Durée: ~[X] min | Prix: [X]€
 
-🚌 **Bus:**
-• Ligne [X] - Arrêt [NOM]
+🚌 **Bus:• Ligne [X] - Arrêt [NOM]
 • Durée: ~[X] min | Prix: [X]€
 
 📱 **Apps recommandées:** Uber, Cabify, [AUTRES]`
@@ -963,8 +827,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
         type: 'text',
         title: { es: 'Desde la estación de tren/bus', en: 'From train/bus station', fr: 'Depuis la gare' },
         content: {
-          es: `🚂 **Estación de [NOMBRE]**
-
+          es: `🚂 **Estación de [NOMBRE]
 🚶 **Andando:** [X] minutos
 📍 Ruta: [DESCRIPCIÓN BREVE]
 
@@ -973,8 +836,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 🚕 **Taxi:** ~[X] minutos, ~[X]€
 
 📍 **Google Maps:** [ENLACE]`,
-          en: `🚂 **[NAME] Station**
-
+          en: `🚂 **[NAME] Station
 🚶 **Walking:** [X] minutes
 📍 Route: [BRIEF DESCRIPTION]
 
@@ -983,8 +845,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 🚕 **Taxi:** ~[X] minutes, ~[X]€
 
 📍 **Google Maps:** [LINK]`,
-          fr: `🚂 **Gare de [NOM]**
-
+          fr: `🚂 **Gare de [NOM]
 🚶 **À pied:** [X] minutes
 📍 Route: [DESCRIPTION BRÈVE]
 
@@ -999,8 +860,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
         type: 'text',
         title: { es: 'En coche', en: 'By car', fr: 'En voiture' },
         content: {
-          es: `🚗 **Dirección GPS:**
-[DIRECCIÓN COMPLETA]
+          es: `🚗 **Dirección GPS:[DIRECCIÓN COMPLETA]
 
 **Coordenadas:** [LATITUD], [LONGITUD]
 
@@ -1010,8 +870,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 🅿️ **Parking:** [VER SECCIÓN PARKING / NO INCLUIDO]
 
 ⚠️ **Zona de tráfico restringido:** [SÍ/NO - detalles]`,
-          en: `🚗 **GPS Address:**
-[FULL ADDRESS]
+          en: `🚗 **GPS Address:[FULL ADDRESS]
 
 **Coordinates:** [LATITUDE], [LONGITUDE]
 
@@ -1021,8 +880,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 🅿️ **Parking:** [SEE PARKING SECTION / NOT INCLUDED]
 
 ⚠️ **Restricted traffic zone:** [YES/NO - details]`,
-          fr: `🚗 **Adresse GPS:**
-[ADRESSE COMPLÈTE]
+          fr: `🚗 **Adresse GPS:[ADRESSE COMPLÈTE]
 
 **Coordonnées:** [LATITUDE], [LONGITUDE]
 
@@ -1050,12 +908,10 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
           es: `🚇 **Estación más cercana:** [NOMBRE]
 📍 A [X] minutos andando
 
-**Líneas disponibles:**
-• Línea [X] - [COLOR]: hacia [DESTINOS]
+**Líneas disponibles:• Línea [X] - [COLOR]: hacia [DESTINOS]
 • Línea [X] - [COLOR]: hacia [DESTINOS]
 
-**Horarios:**
-• L-J: 6:00 - 23:30
+**Horarios:• L-J: 6:00 - 23:30
 • V-S: 6:00 - 02:00
 • Dom: 7:00 - 23:30
 
@@ -1064,12 +920,10 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
           en: `🚇 **Nearest station:** [NAME]
 📍 [X] minutes walking
 
-**Available lines:**
-• Line [X] - [COLOR]: towards [DESTINATIONS]
+**Available lines:• Line [X] - [COLOR]: towards [DESTINATIONS]
 • Line [X] - [COLOR]: towards [DESTINATIONS]
 
-**Schedule:**
-• Mon-Thu: 6 AM - 11:30 PM
+**Schedule:• Mon-Thu: 6 AM - 11:30 PM
 • Fri-Sat: 6 AM - 2 AM
 • Sun: 7 AM - 11:30 PM
 
@@ -1078,12 +932,10 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
           fr: `🚇 **Station la plus proche:** [NOM]
 📍 À [X] minutes à pied
 
-**Lignes disponibles:**
-• Ligne [X] - [COULEUR]: vers [DESTINATIONS]
+**Lignes disponibles:• Ligne [X] - [COULEUR]: vers [DESTINATIONS]
 • Ligne [X] - [COULEUR]: vers [DESTINATIONS]
 
-**Horaires:**
-• Lun-Jeu: 6h - 23h30
+**Horaires:• Lun-Jeu: 6h - 23h30
 • Ven-Sam: 6h - 2h
 • Dim: 7h - 23h30
 
@@ -1095,8 +947,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
         type: 'text',
         title: { es: 'Autobús', en: 'Bus', fr: 'Bus' },
         content: {
-          es: `🚌 **Paradas cercanas:**
-
+          es: `🚌 **Paradas cercanas:
 **Parada [NOMBRE]** - [X] metros
 • Línea [X]: [DESTINO]
 • Línea [X]: [DESTINO]
@@ -1106,8 +957,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 **Bus nocturno:** Línea N[X] desde [UBICACIÓN]
 
 💳 **Precio:** [X]€ (mismo billete que metro)`,
-          en: `🚌 **Nearby stops:**
-
+          en: `🚌 **Nearby stops:
 **Stop [NAME]** - [X] meters
 • Line [X]: [DESTINATION]
 • Line [X]: [DESTINATION]
@@ -1117,8 +967,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 **Night bus:** Line N[X] from [LOCATION]
 
 💳 **Price:** [X]€ (same ticket as metro)`,
-          fr: `🚌 **Arrêts proches:**
-
+          fr: `🚌 **Arrêts proches:
 **Arrêt [NOM]** - [X] mètres
 • Ligne [X]: [DESTINATION]
 • Ligne [X]: [DESTINATION]
@@ -1134,44 +983,35 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
         type: 'text',
         title: { es: 'Otras opciones', en: 'Other options', fr: 'Autres options' },
         content: {
-          es: `🚕 **Taxi:**
-• App: [NOMBRE_APP_LOCAL]
+          es: `🚕 **Taxi:• App: [NOMBRE_APP_LOCAL]
 • Teléfono: [NÚMERO]
 • Tarifa base: [X]€
 
-🚲 **Bicicletas públicas:**
-• Sistema: [NOMBRE]
+🚲 **Bicicletas públicas:• Sistema: [NOMBRE]
 • Estación más cercana: [UBICACIÓN]
 • Precio: [X]€/viaje
 
-🛴 **Patinetes eléctricos:**
-• Apps disponibles: Lime, Tier, [OTRAS]
+🛴 **Patinetes eléctricos:• Apps disponibles: Lime, Tier, [OTRAS]
 • Precio aprox: [X]€/min`,
-          en: `🚕 **Taxi:**
-• App: [LOCAL_APP_NAME]
+          en: `🚕 **Taxi:• App: [LOCAL_APP_NAME]
 • Phone: [NUMBER]
 • Base fare: [X]€
 
-🚲 **Public bikes:**
-• System: [NAME]
+🚲 **Public bikes:• System: [NAME]
 • Nearest station: [LOCATION]
 • Price: [X]€/trip
 
-🛴 **Electric scooters:**
-• Available apps: Lime, Tier, [OTHERS]
+🛴 **Electric scooters:• Available apps: Lime, Tier, [OTHERS]
 • Approx price: [X]€/min`,
-          fr: `🚕 **Taxi:**
-• App: [NOM_APP_LOCALE]
+          fr: `🚕 **Taxi:• App: [NOM_APP_LOCALE]
 • Téléphone: [NUMÉRO]
 • Tarif de base: [X]€
 
-🚲 **Vélos publics:**
-• Système: [NOM]
+🚲 **Vélos publics:• Système: [NOM]
 • Station la plus proche: [EMPLACEMENT]
 • Prix: [X]€/trajet
 
-🛴 **Trottinettes électriques:**
-• Apps disponibles: Lime, Tier, [AUTRES]
+🛴 **Trottinettes électriques:• Apps disponibles: Lime, Tier, [AUTRES]
 • Prix approx: [X]€/min`
         }
       }
@@ -1188,51 +1028,42 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
         type: 'text',
         title: { es: 'Restaurantes', en: 'Restaurants', fr: 'Restaurants' },
         content: {
-          es: `🍽️ **Nuestras recomendaciones:**
-
+          es: `🍽️ **Nuestras recomendaciones:
 **[NOMBRE 1]** ⭐ Favorito
 📍 [DIRECCIÓN] | 💰 [€/€€/€€€]
 🍴 [TIPO DE COCINA]
 💡 [ESPECIALIDAD O TIP]
 
-**[NOMBRE 2]**
-📍 [DIRECCIÓN] | 💰 [€/€€/€€€]
+**[NOMBRE 2]📍 [DIRECCIÓN] | 💰 [€/€€/€€€]
 🍴 [TIPO DE COCINA]
 
-**[NOMBRE 3]**
-📍 [DIRECCIÓN] | 💰 [€/€€/€€€]
+**[NOMBRE 3]📍 [DIRECCIÓN] | 💰 [€/€€/€€€]
 🍴 [TIPO DE COCINA]
 
 📱 **Reservas:** TheFork, OpenTable`,
-          en: `🍽️ **Our recommendations:**
-
+          en: `🍽️ **Our recommendations:
 **[NAME 1]** ⭐ Favorite
 📍 [ADDRESS] | 💰 [€/€€/€€€]
 🍴 [CUISINE TYPE]
 💡 [SPECIALTY OR TIP]
 
-**[NAME 2]**
-📍 [ADDRESS] | 💰 [€/€€/€€€]
+**[NAME 2]📍 [ADDRESS] | 💰 [€/€€/€€€]
 🍴 [CUISINE TYPE]
 
-**[NAME 3]**
-📍 [ADDRESS] | 💰 [€/€€/€€€]
+**[NAME 3]📍 [ADDRESS] | 💰 [€/€€/€€€]
 🍴 [CUISINE TYPE]
 
 📱 **Reservations:** TheFork, OpenTable`,
-          fr: `🍽️ **Nos recommandations:**
-
+          fr: `🍽️ **Nos recommandations:
 **[NOM 1]** ⭐ Favori
 📍 [ADRESSE] | 💰 [€/€€/€€€]
 🍴 [TYPE DE CUISINE]
 💡 [SPÉCIALITÉ OU CONSEIL]
 
-**[NOM 2]**
-📍 [ADRESSE] | 💰 [€/€€/€€€]
+**[NOM 2]📍 [ADRESSE] | 💰 [€/€€/€€€]
 🍴 [TYPE DE CUISINE]
 
-**[NOM 3]**
-📍 [ADRESSE] | 💰 [€/€€/€€€]
+**[NOM 3]📍 [ADRESSE] | 💰 [€/€€/€€€]
 🍴 [TYPE DE CUISINE]
 
 📱 **Réservations:** TheFork, OpenTable`
@@ -1242,59 +1073,43 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
         type: 'text',
         title: { es: 'Qué ver y hacer', en: 'Things to see and do', fr: 'À voir et à faire' },
         content: {
-          es: `🏛️ **Imprescindibles:**
-
-**[ATRACCIÓN 1]**
-📍 A [X] min andando | 🎫 [PRECIO]
+          es: `🏛️ **Imprescindibles:
+**[ATRACCIÓN 1]📍 A [X] min andando | 🎫 [PRECIO]
 ⏰ [HORARIO]
 💡 [TIP: ej. compra entrada online]
 
-**[ATRACCIÓN 2]**
-📍 A [X] min en metro | 🎫 [PRECIO]
+**[ATRACCIÓN 2]📍 A [X] min en metro | 🎫 [PRECIO]
 
-**[ATRACCIÓN 3]**
-📍 A [X] min | 🎫 [PRECIO]
+**[ATRACCIÓN 3]📍 A [X] min | 🎫 [PRECIO]
 
-🚶 **Tours recomendados:**
-• [NOMBRE TOUR] - [WEB/APP]`,
-          en: `🏛️ **Must-sees:**
-
-**[ATTRACTION 1]**
-📍 [X] min walking | 🎫 [PRICE]
+🚶 **Tours recomendados:• [NOMBRE TOUR] - [WEB/APP]`,
+          en: `🏛️ **Must-sees:
+**[ATTRACTION 1]📍 [X] min walking | 🎫 [PRICE]
 ⏰ [HOURS]
 💡 [TIP: e.g. buy tickets online]
 
-**[ATTRACTION 2]**
-📍 [X] min by metro | 🎫 [PRICE]
+**[ATTRACTION 2]📍 [X] min by metro | 🎫 [PRICE]
 
-**[ATTRACTION 3]**
-📍 [X] min | 🎫 [PRICE]
+**[ATTRACTION 3]📍 [X] min | 🎫 [PRICE]
 
-🚶 **Recommended tours:**
-• [TOUR NAME] - [WEB/APP]`,
-          fr: `🏛️ **Incontournables:**
-
-**[ATTRACTION 1]**
-📍 À [X] min à pied | 🎫 [PRIX]
+🚶 **Recommended tours:• [TOUR NAME] - [WEB/APP]`,
+          fr: `🏛️ **Incontournables:
+**[ATTRACTION 1]📍 À [X] min à pied | 🎫 [PRIX]
 ⏰ [HORAIRES]
 💡 [CONSEIL: ex. achetez en ligne]
 
-**[ATTRACTION 2]**
-📍 À [X] min en métro | 🎫 [PRIX]
+**[ATTRACTION 2]📍 À [X] min en métro | 🎫 [PRIX]
 
-**[ATTRACTION 3]**
-📍 À [X] min | 🎫 [PRIX]
+**[ATTRACTION 3]📍 À [X] min | 🎫 [PRIX]
 
-🚶 **Tours recommandés:**
-• [NOM DU TOUR] - [WEB/APP]`
+🚶 **Tours recommandés:• [NOM DU TOUR] - [WEB/APP]`
         }
       },
       {
         type: 'text',
         title: { es: 'Supermercados y tiendas', en: 'Supermarkets and shops', fr: 'Supermarchés et magasins' },
         content: {
-          es: `🛒 **Supermercados cercanos:**
-
+          es: `🛒 **Supermercados cercanos:
 **[NOMBRE]** - [X] metros
 ⏰ [HORARIO]
 
@@ -1306,8 +1121,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 🏧 **Cajero:** [BANCO] - [UBICACIÓN]
 
 🛍️ **Zona comercial:** [NOMBRE] a [X] min`,
-          en: `🛒 **Nearby supermarkets:**
-
+          en: `🛒 **Nearby supermarkets:
 **[NAME]** - [X] meters
 ⏰ [HOURS]
 
@@ -1319,8 +1133,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 🏧 **ATM:** [BANK] - [LOCATION]
 
 🛍️ **Shopping area:** [NAME] [X] min away`,
-          fr: `🛒 **Supermarchés à proximité:**
-
+          fr: `🛒 **Supermarchés à proximité:
 **[NOM]** - [X] mètres
 ⏰ [HORAIRES]
 
@@ -1351,8 +1164,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 
 **Para encender:** Botón rojo de power
 
-**Apps disponibles:**
-• Netflix, YouTube, Prime Video
+**Apps disponibles:• Netflix, YouTube, Prime Video
 • [OTRAS APPS]
 
 💡 **Usa tu cuenta personal** para acceder a tu contenido.
@@ -1362,8 +1174,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 
 **To turn on:** Red power button
 
-**Available apps:**
-• Netflix, YouTube, Prime Video
+**Available apps:• Netflix, YouTube, Prime Video
 • [OTHER APPS]
 
 💡 **Use your personal account** to access your content.
@@ -1373,8 +1184,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 
 **Pour allumer:** Bouton rouge power
 
-**Apps disponibles:**
-• Netflix, YouTube, Prime Video
+**Apps disponibles:• Netflix, YouTube, Prime Video
 • [AUTRES APPS]
 
 💡 **Utilisez votre compte personnel** pour accéder à votre contenu.
@@ -1397,8 +1207,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 
 **Cápsulas/Café:** En [UBICACIÓN]
 
-**Instrucciones:**
-1. Llena el depósito de agua
+**Instrucciones:1. Llena el depósito de agua
 2. [INSTRUCCIONES ESPECÍFICAS]
 3. Coloca tu taza
 4. Pulsa el botón
@@ -1409,8 +1218,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 
 **Capsules/Coffee:** At [LOCATION]
 
-**Instructions:**
-1. Fill water tank
+**Instructions:1. Fill water tank
 2. [SPECIFIC INSTRUCTIONS]
 3. Place your cup
 4. Press button
@@ -1421,8 +1229,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
 
 **Capsules/Café:** À [EMPLACEMENT]
 
-**Instructions:**
-1. Remplissez le réservoir d'eau
+**Instructions:1. Remplissez le réservoir d'eau
 2. [INSTRUCTIONS SPÉCIFIQUES]
 3. Placez votre tasse
 4. Appuyez sur le bouton
@@ -1443,8 +1250,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
           es: `🧺 **Ubicación:** [UBICACIÓN]
 🧴 **Detergente:** [UBICACIÓN]
 
-**Pasos:**
-1. Carga la ropa (no llenes más del 80%)
+**Pasos:1. Carga la ropa (no llenes más del 80%)
 2. Añade detergente (cajón compartimento II)
 3. Cierra la puerta firmemente
 4. Programa recomendado: [NÚMERO/NOMBRE]
@@ -1455,8 +1261,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
           en: `🧺 **Location:** [LOCATION]
 🧴 **Detergent:** [LOCATION]
 
-**Steps:**
-1. Load clothes (don't fill more than 80%)
+**Steps:1. Load clothes (don't fill more than 80%)
 2. Add detergent (drawer compartment II)
 3. Close door firmly
 4. Recommended program: [NUMBER/NAME]
@@ -1467,8 +1272,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
           fr: `🧺 **Emplacement:** [EMPLACEMENT]
 🧴 **Lessive:** [EMPLACEMENT]
 
-**Étapes:**
-1. Chargez le linge (pas plus de 80%)
+**Étapes:1. Chargez le linge (pas plus de 80%)
 2. Ajoutez la lessive (bac compartiment II)
 3. Fermez la porte fermement
 4. Programme recommandé: [NUMÉRO/NOM]
@@ -1491,8 +1295,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
           es: `🍽️ **Ubicación:** [UBICACIÓN]
 💊 **Pastillas:** [UBICACIÓN]
 
-**Pasos:**
-1. Aclara restos grandes de comida
+**Pasos:1. Aclara restos grandes de comida
 2. Coloca sin que se toquen las piezas
 3. Pon una pastilla en el compartimento
 4. Programa: ECO o Normal
@@ -1502,8 +1305,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
           en: `🍽️ **Location:** [LOCATION]
 💊 **Tablets:** [LOCATION]
 
-**Steps:**
-1. Rinse off large food residue
+**Steps:1. Rinse off large food residue
 2. Arrange without pieces touching
 3. Put tablet in compartment
 4. Program: ECO or Normal
@@ -1513,8 +1315,7 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
           fr: `🍽️ **Emplacement:** [EMPLACEMENT]
 💊 **Tablettes:** [EMPLACEMENT]
 
-**Étapes:**
-1. Rincez les gros résidus
+**Étapes:1. Rincez les gros résidus
 2. Disposez sans que les pièces se touchent
 3. Mettez une tablette dans le compartiment
 4. Programme: ECO ou Normal
@@ -1535,39 +1336,33 @@ S'il refroidit/chauffe moins que d'habitude, prévenez-nous.`
         content: {
           es: `❄️ **Mando:** [UBICACIÓN]
 
-**Para enfriar:**
-1. Botón ON
+**Para enfriar:1. Botón ON
 2. Modo ❄️ (COOL)
 3. Temperatura: 24-25°C
 
-**Modos útiles:**
-• AUTO: Ajusta solo
+**Modos útiles:• AUTO: Ajusta solo
 • SLEEP: Para dormir
 • FAN: Solo ventilador
 
 ⚠️ **Apaga al salir o abrir ventanas.**`,
           en: `❄️ **Remote:** [LOCATION]
 
-**To cool:**
-1. ON button
+**To cool:1. ON button
 2. ❄️ mode (COOL)
 3. Temperature: 24-25°C / 75-77°F
 
-**Useful modes:**
-• AUTO: Self-adjusts
+**Useful modes:• AUTO: Self-adjusts
 • SLEEP: For sleeping
 • FAN: Fan only
 
 ⚠️ **Turn off when leaving or opening windows.**`,
           fr: `❄️ **Télécommande:** [EMPLACEMENT]
 
-**Pour refroidir:**
-1. Bouton ON
+**Pour refroidir:1. Bouton ON
 2. Mode ❄️ (COOL)
 3. Température: 24-25°C
 
-**Modes utiles:**
-• AUTO: S'ajuste seul
+**Modes utiles:• AUTO: S'ajuste seul
 • SLEEP: Pour dormir
 • FAN: Ventilateur seul
 
