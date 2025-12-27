@@ -36,7 +36,7 @@ const satisfy = Satisfy({
 
 export const metadata: Metadata = {
   title: 'Itineramio - Manual Digital para Apartamentos Turísticos | Sin Llamadas 24/7',
-  description: 'Crea manuales digitales interactivos para tus alojamientos turísticos. Ahorra 8h/semana. Códigos QR, zonas personalizadas y analytics. Primera propiedad gratis. ¡Adiós a las llamadas a las 4 AM!',
+  description: 'Crea manuales digitales interactivos para tus alojamientos turísticos. Ahorra tiempo cada semana. Códigos QR, zonas personalizadas y analytics. Prueba gratis 15 días. ¡Adiós a las llamadas a las 4 AM!',
   keywords: [
     // Primary keywords (high volume, high intent)
     'manual digital apartamento turistico',
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Itineramio - Manual Digital para Apartamentos Turísticos',
-    description: 'Crea manuales digitales interactivos con códigos QR. Ahorra 8 horas/semana. Primera propiedad gratis. ¡Adiós a las llamadas de madrugada!',
+    description: 'Crea manuales digitales interactivos con códigos QR. Ahorra tiempo cada semana. Prueba gratis 15 días. ¡Adiós a las llamadas de madrugada!',
     url: 'https://itineramio.com',
     siteName: 'Itineramio',
     images: [
@@ -95,7 +95,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Itineramio - Manual Digital para Apartamentos Turísticos',
-    description: 'Crea manuales digitales interactivos con códigos QR. Ahorra 8 horas/semana. Primera propiedad gratis.',
+    description: 'Crea manuales digitales interactivos con códigos QR. Ahorra tiempo cada semana. Prueba gratis 15 días.',
     images: ['/og-image.jpg'],
     creator: '@itineramio',
   },
@@ -150,7 +150,7 @@ export default function RootLayout({
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'EUR',
-      description: 'Primera propiedad gratis, luego desde €9/mes',
+      description: 'Prueba gratis 15 días, luego desde €9/mes',
     },
     aggregateRating: {
       '@type': 'AggregateRating',

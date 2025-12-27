@@ -946,7 +946,7 @@ export default function KnowledgeHub() {
             </Link>
 
             <p className="mt-6 text-white/80 text-sm">
-              Sin tarjeta de crédito. Primera propiedad gratis para siempre.
+              Sin tarjeta de crédito. Prueba gratis 15 días.
             </p>
           </motion.div>
         </div>

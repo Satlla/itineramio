@@ -201,7 +201,10 @@ export async function POST(
       const verifyUrl = `${baseUrl}/api/blog/comments/verify?token=${verificationToken}`
 
       try {
-        await resend.emails.send({
+        console.log('[Comment Verification] Sending email to:', authorEmail.trim().toLowerCase())
+        console.log('[Comment Verification] Verify URL:', verifyUrl)
+
+        const { data, error } = await resend.emails.send({
           from: FROM_EMAIL,
           to: [authorEmail.trim().toLowerCase()],
           subject: 'Verifica tu comentario en Itineramio',
@@ -252,9 +255,26 @@ export async function POST(
 </html>
           `
         })
+
+        if (error) {
+          console.error('[Comment Verification] Resend API error:', error)
+          // Delete the comment since we couldn't send the verification email
+          await prisma.blogComment.delete({ where: { id: comment.id } })
+          return NextResponse.json(
+            { error: 'No pudimos enviar el email de verificación. Por favor intenta de nuevo.' },
+            { status: 500 }
+          )
+        }
+
+        console.log('[Comment Verification] Email sent successfully. ID:', data?.id)
       } catch (emailError) {
-        console.error('Error sending verification email:', emailError)
-        // Still return success - the comment is saved, they can request resend
+        console.error('[Comment Verification] Exception sending email:', emailError)
+        // Delete the comment since we couldn't send the verification email
+        await prisma.blogComment.delete({ where: { id: comment.id } })
+        return NextResponse.json(
+          { error: 'Error al enviar email de verificación. Por favor intenta de nuevo.' },
+          { status: 500 }
+        )
       }
     }
 

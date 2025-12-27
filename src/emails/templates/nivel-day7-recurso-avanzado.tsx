@@ -64,7 +64,7 @@ const NIVEL_ADVANCED: Record<string, {
     precioContext: 'Un solo error evitado paga el plan del año completo.'
   },
   intermedio: {
-    titulo: 'Herramientas para Romper el Techo de los 1,500€/mes',
+    titulo: 'Herramientas para Desbloquear tu Potencial de Ingresos',
     intro: 'Estás en el punto donde pequeños ajustes generan grandes resultados. Estos recursos te llevan al siguiente nivel:',
     recursos: [
       {
@@ -77,14 +77,14 @@ const NIVEL_ADVANCED: Record<string, {
       {
         emoji: '🤖',
         title: 'Guía: Stack de Automatización Completo',
-        desc: 'Las 7 herramientas que reducen tu tiempo operativo de 20h/semana a 5h/semana.',
+        desc: 'Las 7 herramientas que reducen significativamente tu tiempo operativo.',
         url: 'https://itineramio.com/blog/automatizacion-airbnb-stack-completo',
         tipo: 'Guía'
       },
       {
         emoji: '💡',
-        title: 'Caso: De 800€ a 1,340€/mes',
-        desc: 'Cómo Laura optimizó pricing y operaciones en el mismo apartamento.',
+        title: 'Caso: Optimización en Valencia',
+        desc: 'Cómo Laura optimizó pricing y operaciones (caso ilustrativo).',
         url: 'https://itineramio.com/blog/caso-laura-de-1800-a-3200-euros-mes-historia-completa',
         tipo: 'Caso de estudio'
       }
@@ -96,11 +96,11 @@ const NIVEL_ADVANCED: Record<string, {
         'Manual digital con estrategias de pricing dinámico',
         'Calculadora de RevPAR y métricas avanzadas',
         'Templates de automatización (mensajes, procesos, SOPs)',
-        'Acceso a casos de estudio reales con números',
-        '29€/mes - Se paga solo con 1 noche extra al mes'
+        'Acceso a casos de estudio ilustrativos',
+        '29€/mes - Inversión accesible que se recupera fácilmente'
       ]
     },
-    precioContext: 'Si aumentas tu RevPAR en solo 3€/noche, el plan se paga solo. La mayoría aumenta 10-15€.'
+    precioContext: 'Un pequeño aumento en tu RevPAR puede pagar el plan varias veces.'
   },
   avanzado: {
     titulo: 'Sistemas para Escalar Sin Quemarte',
@@ -109,7 +109,7 @@ const NIVEL_ADVANCED: Record<string, {
       {
         emoji: '📋',
         title: 'Framework: Del Modo Bombero al Modo CEO',
-        desc: 'Cómo pasar de 60h/semana apagando fuegos a 30h/semana trabajando estratégicamente.',
+        desc: 'Cómo reducir significativamente tu tiempo trabajando más estratégicamente.',
         url: 'https://itineramio.com/blog/modo-bombero-a-ceo-escalar-airbnb',
         tipo: 'Framework'
       },
@@ -122,8 +122,8 @@ const NIVEL_ADVANCED: Record<string, {
       },
       {
         emoji: '📈',
-        title: 'Caso: 15 Propiedades Sin Equipo',
-        desc: 'Cómo David escaló de 8 a 15 propiedades sin contratar, trabajando menos horas.',
+        title: 'Caso: Escalado Eficiente de Propiedades',
+        desc: 'Caso ilustrativo de cómo escalar sin perder control operativo.',
         url: 'https://itineramio.com/blog/caso-david-15-propiedades',
         tipo: 'Caso de estudio'
       }
@@ -136,49 +136,49 @@ const NIVEL_ADVANCED: Record<string, {
         'Framework de delegación paso a paso',
         'Comunidad de anfitriones avanzados (networking, casos, soporte)',
         'Templates de herramientas (dashboard de KPIs, calculadora ROI, etc.)',
-        'Plan SUPERHOST: 39€/mes - Menos que 1 hora de tu tiempo'
+        'Plan SUPERHOST: 39€/mes - Inversión que se paga sola'
       ]
     },
-    precioContext: 'Si el plan te ahorra 2 horas/mes (lo cual es conservador), ya vale la pena. La mayoría ahorra 10+ horas.'
+    precioContext: 'El tiempo ahorrado con buenos sistemas justifica la inversión rápidamente.'
   },
   profesional: {
-    titulo: 'Optimización de Portfolio para el Top 5%',
-    intro: 'Con múltiples propiedades, necesitas estrategias que solo usa el top 5%. Estos recursos son oro:',
+    titulo: 'Optimización de Portfolio para Profesionales',
+    intro: 'Con múltiples propiedades, necesitas estrategias avanzadas. Estos recursos son oro:',
     recursos: [
       {
         emoji: '🎯',
         title: 'Artículo: Revenue Management Avanzado',
-        desc: 'Estrategias de pricing predictivo que usan solo los profesionales.',
+        desc: 'Estrategias de pricing predictivo que usan los profesionales.',
         url: 'https://itineramio.com/blog/revenue-management-avanzado',
         tipo: 'Artículo'
       },
       {
         emoji: '📊',
         title: 'Framework: Multi-Property Operations',
-        desc: 'Sistema completo para gestionar 10+ propiedades con eficiencia máxima.',
+        desc: 'Sistema completo para gestionar múltiples propiedades con eficiencia.',
         url: 'https://itineramio.com/recursos/multi-property-ops',
         tipo: 'Framework'
       },
       {
         emoji: '🤝',
         title: 'Comunidad: Red de Profesionales',
-        desc: 'Networking con otros gestores de portfolio. Casos reales, colaboraciones, deals.',
+        desc: 'Networking con otros gestores de portfolio. Colaboraciones y aprendizaje.',
         url: 'https://itineramio.com/academia',
         tipo: 'Comunidad'
       }
     ],
-    problema: 'Los profesionales tienen un problema único: no pueden aprender de "cualquiera". Necesitan insights del top 5%.',
+    problema: 'Los profesionales tienen un problema único: necesitan insights de otros profesionales con experiencia similar.',
     solucionItineramio: {
       titulo: 'Itineramio Academia - Nivel Profesional',
       beneficios: [
-        'Casos de estudio exclusivos con números reales de portfolios 10+ propiedades',
+        'Casos de estudio ilustrativos de portfolios de múltiples propiedades',
         'Comunidad privada de profesionales (networking de alto nivel)',
         'Consultorías mensuales en grupo con expertos',
         'Biblioteca de recursos avanzados (revenue management, expansión, legal)',
         'Plan BUSINESS: Diseñado para portfolios profesionales'
       ]
     },
-    precioContext: 'Para un portfolio de 10+ propiedades, optimizar 1% de eficiencia = miles de euros al año. El ROI es obvio.'
+    precioContext: 'Para portfolios grandes, pequeñas mejoras de eficiencia tienen un impacto significativo.'
   }
 }
 

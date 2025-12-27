@@ -20,7 +20,7 @@ const NIVEL_CONTENT: Record<string, {
     recurso1: {
       title: 'Guía: Los 10 Errores Fatales del Principiante',
       url: 'https://itineramio.com/blog/errores-principiantes-airbnb',
-      desc: 'Evita los errores que hacen que el 40% abandone en el primer año'
+      desc: 'Evita los errores más comunes que frenan a los nuevos anfitriones'
     },
     recurso2: {
       title: 'Guía: Tu Primer Mes como Anfitrión',
@@ -42,9 +42,9 @@ const NIVEL_CONTENT: Record<string, {
       desc: 'El stack completo de herramientas para anfitriones intermedios'
     },
     recurso2: {
-      title: 'Caso: De €800 a €1,340/mes en 3 Meses',
+      title: 'Caso: Optimización de Apartamentos en Valencia',
       url: 'https://itineramio.com/blog/caso-laura-de-1800-a-3200-euros-mes-historia-completa',
-      desc: 'Cómo Laura optimizó pricing y operaciones'
+      desc: 'Cómo Laura optimizó pricing y operaciones (caso ilustrativo)'
     },
     recurso3: {
       title: 'Guía: RevPAR vs Ocupación',
@@ -58,7 +58,7 @@ const NIVEL_CONTENT: Record<string, {
     recurso1: {
       title: 'Artículo: Del Modo Bombero al Modo CEO',
       url: 'https://itineramio.com/blog/modo-bombero-a-ceo-escalar-airbnb',
-      desc: 'El framework para pasar de 60h/semana a 30h/semana'
+      desc: 'El framework para reducir significativamente tus horas de trabajo'
     },
     recurso2: {
       title: 'Framework: Delegación Sin Perder Control',
@@ -66,9 +66,9 @@ const NIVEL_CONTENT: Record<string, {
       desc: 'Cómo crear sistemas que funcionen sin ti'
     },
     recurso3: {
-      title: 'Caso: Cómo Gestionar 15 Propiedades Solo',
+      title: 'Caso: Cómo Gestionar Múltiples Propiedades',
       url: 'https://itineramio.com/blog/caso-david-15-propiedades',
-      desc: 'David pasó de 8 a 15 propiedades sin contratar'
+      desc: 'Caso ilustrativo de escalado eficiente'
     }
   },
   profesional: {
