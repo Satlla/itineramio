@@ -813,8 +813,8 @@ export default function ZoneGuidePage({
       </header>
 
       {/* Main Content - Dynamic Vertical Timeline */}
-      <main className="max-w-3xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
-        <div className="relative">
+      <main className="max-w-3xl mx-auto px-3 sm:px-4 py-6 sm:py-8 overflow-x-hidden">
+        <div className="relative w-full max-w-full overflow-hidden">
           {/* Timeline Steps */}
           {sortedSteps.map((step, index) => (
             <motion.div
@@ -915,8 +915,8 @@ export default function ZoneGuidePage({
               </div>
 
               {/* Enhanced Step Content */}
-              <motion.div 
-                className="flex-1"
+              <motion.div
+                className="flex-1 min-w-0 max-w-full overflow-hidden"
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 + 0.3 }}
@@ -986,7 +986,7 @@ export default function ZoneGuidePage({
                                 >
                                   {titleText}
                                 </motion.h2>
-                                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base">
+                                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base overflow-hidden" style={{ wordBreak: 'break-word' }}>
                                   {contentText}
                                 </div>
                               </>
@@ -1009,7 +1009,7 @@ export default function ZoneGuidePage({
                         // If only content exists
                         else if (contentText && contentText.trim()) {
                           return (
-                            <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base">
+                            <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base overflow-hidden" style={{ wordBreak: 'break-word' }}>
                               {contentText}
                             </div>
                           );
