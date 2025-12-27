@@ -955,67 +955,58 @@ export default function ZoneGuidePage({
                   <CardContent className="p-4 sm:p-6 lg:p-8 relative z-10">
                     {/* Step Header - Clean, no badges */}
                     <div className="mb-6">
-                      {/* Smart content display to avoid duplication */}
+                      {/* Simple content display - title as heading only if short, content always as normal text */}
                       {(() => {
                         const titleText = getText(step.title, language, '');
                         const contentText = getText(step.content, language, '');
-                        
-                        // If both title and content exist
-                        if (titleText && titleText.trim() && contentText && contentText.trim()) {
-                          // If they're the same or very similar, show only one
-                          if (titleText === contentText || titleText.toLowerCase().includes(contentText.toLowerCase()) || contentText.toLowerCase().includes(titleText.toLowerCase())) {
-                            return (
-                              <motion.div 
-                                className={`text-lg sm:text-xl lg:text-2xl font-bold break-words ${
+                        const hasTitle = titleText && titleText.trim();
+                        const hasContent = contentText && contentText.trim();
+
+                        // Title is only shown as heading if it's short (< 80 chars) and different from content
+                        const isShortTitle = hasTitle && titleText.length < 80;
+                        const titleEqualsContent = hasTitle && hasContent && titleText.trim() === contentText.trim();
+
+                        return (
+                          <>
+                            {/* Show title as heading only if short and not duplicate of content */}
+                            {isShortTitle && !titleEqualsContent && (
+                              <motion.h2
+                                className={`text-lg sm:text-xl font-semibold mb-2 sm:mb-3 break-words ${
                                   index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
                                 }`}
-                                layoutId={`content-${step.id}`}
+                                layoutId={`title-${step.id}`}
                               >
-                                {titleText.length > contentText.length ? titleText : contentText}
-                              </motion.div>
-                            );
-                          } else {
-                            // They're different, show both
-                            return (
-                              <>
-                                <motion.h2 
-                                  className={`text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 break-words ${
-                                    index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
-                                  }`}
-                                  layoutId={`title-${step.id}`}
-                                >
-                                  {titleText}
-                                </motion.h2>
-                                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base overflow-hidden" style={{ wordBreak: 'break-word' }}>
-                                  {contentText}
-                                </div>
-                              </>
-                            );
-                          }
-                        }
-                        // If only title exists
-                        else if (titleText && titleText.trim()) {
-                          return (
-                            <motion.div 
-                              className={`text-lg sm:text-xl lg:text-2xl font-bold break-words ${
-                                index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
-                              }`}
-                              layoutId={`title-${step.id}`}
-                            >
-                              {titleText}
-                            </motion.div>
-                          );
-                        }
-                        // If only content exists
-                        else if (contentText && contentText.trim()) {
-                          return (
-                            <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base overflow-hidden" style={{ wordBreak: 'break-word' }}>
-                              {contentText}
-                            </div>
-                          );
-                        }
-                        
-                        return null;
+                                {titleText}
+                              </motion.h2>
+                            )}
+
+                            {/* Show content as normal text */}
+                            {hasContent && (
+                              <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base overflow-hidden" style={{ wordBreak: 'break-word' }}>
+                                {contentText}
+                              </div>
+                            )}
+
+                            {/* If only long title exists (no content), show it as normal text, not heading */}
+                            {hasTitle && !hasContent && !isShortTitle && (
+                              <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base overflow-hidden" style={{ wordBreak: 'break-word' }}>
+                                {titleText}
+                              </div>
+                            )}
+
+                            {/* If only short title exists (no content), show as heading */}
+                            {hasTitle && !hasContent && isShortTitle && (
+                              <motion.h2
+                                className={`text-lg sm:text-xl font-semibold break-words ${
+                                  index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
+                                }`}
+                                layoutId={`title-${step.id}`}
+                              >
+                                {titleText}
+                              </motion.h2>
+                            )}
+                          </>
+                        );
                       })()}
                       
                       {step.estimatedTime && (
