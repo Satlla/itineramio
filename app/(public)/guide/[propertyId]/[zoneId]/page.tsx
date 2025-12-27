@@ -982,14 +982,14 @@ export default function ZoneGuidePage({
 
                             {/* Show content as normal text */}
                             {hasContent && (
-                              <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base overflow-hidden" style={{ wordBreak: 'break-word' }}>
+                              <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base max-w-full">
                                 {contentText}
                               </div>
                             )}
 
                             {/* If only long title exists (no content), show it as normal text, not heading */}
                             {hasTitle && !hasContent && !isShortTitle && (
-                              <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base overflow-hidden" style={{ wordBreak: 'break-word' }}>
+                              <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base max-w-full">
                                 {titleText}
                               </div>
                             )}
