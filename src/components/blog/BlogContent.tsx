@@ -129,16 +129,63 @@ export default function BlogContent({
 
   return (
     <>
+      {/* Hero Search Section */}
+      <section className="bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 py-12 lg:py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">
+            ¿Qué necesitas aprender hoy?
+          </h2>
+          <p className="text-violet-100 text-base sm:text-lg mb-8 max-w-2xl mx-auto">
+            Más de 30 guías y artículos para anfitriones de alquiler vacacional
+          </p>
+
+          {/* Search Bar Prominente */}
+          <div className="relative max-w-2xl mx-auto">
+            <BlogSearch className="w-full [&_input]:py-4 [&_input]:pl-14 [&_input]:pr-12 [&_input]:text-lg [&_input]:rounded-2xl [&_input]:shadow-2xl [&_input]:border-0 [&_input]:ring-4 [&_input]:ring-white/20 [&_input]:focus:ring-violet-300 [&_svg]:w-6 [&_svg]:h-6 [&_svg]:left-5" />
+          </div>
+
+          {/* Quick Search Tags */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            <span className="text-violet-200 text-sm mr-2">Populares:</span>
+            <Link
+              href="/blog?q=precio"
+              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-full transition-colors backdrop-blur-sm"
+            >
+              Precios
+            </Link>
+            <Link
+              href="/blog?q=limpieza"
+              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-full transition-colors backdrop-blur-sm"
+            >
+              Limpieza
+            </Link>
+            <Link
+              href="/blog?q=automatizar"
+              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-full transition-colors backdrop-blur-sm"
+            >
+              Automatización
+            </Link>
+            <Link
+              href="/blog?q=reservas"
+              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-full transition-colors backdrop-blur-sm"
+            >
+              Reservas
+            </Link>
+            <Link
+              href="/blog?q=reviews"
+              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white text-sm rounded-full transition-colors backdrop-blur-sm"
+            >
+              Reseñas
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Category Filter */}
       <CategoryFilter
         categories={categories}
         onCategoryChange={setSelectedCategory}
       />
-
-      {/* Search Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <BlogSearch className="max-w-xl" />
-      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
