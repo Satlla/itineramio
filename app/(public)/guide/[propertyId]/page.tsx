@@ -818,227 +818,237 @@ export default function PropertyGuidePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Airbnb-style Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Button 
+      {/* Airbnb-style Minimal Header */}
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8">
+          <div className="flex items-center justify-between h-14">
+            <button
               onClick={() => router.back()}
-              variant="ghost" 
-              size="sm"
-              className="hover:bg-gray-100 rounded-full p-2"
+              className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            
-            <div className="flex items-center space-x-4">
-              {/* Language Selector */}
+              <ArrowLeft className="w-5 h-5 text-[#222222]" />
+            </button>
+
+            <div className="flex items-center gap-2">
               <select
                 value={language}
                 onChange={(e) => {
                   const newLang = e.target.value
                   setLanguage(newLang)
-                  
-                  // Update URL with language parameter
                   const url = new URL(window.location.href)
                   url.searchParams.set('lang', newLang)
                   window.history.replaceState({}, '', url.toString())
-                  
-                  // Save to localStorage for persistence
                   localStorage.setItem('itineramio-language', newLang)
                 }}
-                className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                className="px-3 py-1.5 text-sm font-medium text-[#222222] bg-transparent border-none focus:ring-0 cursor-pointer hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <option value="es">🇪🇸 ES</option>
-                <option value="en">🇬🇧 EN</option>
-                <option value="fr">🇫🇷 FR</option>
+                <option value="es">🇪🇸</option>
+                <option value="en">🇬🇧</option>
+                <option value="fr">🇫🇷</option>
               </select>
-              
-              <Button 
+
+              <button
                 onClick={handleShare}
-                variant="ghost" 
-                size="sm"
-                className="hover:bg-gray-100 rounded-full p-2"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                 data-share-button
               >
-                <Share2 className="w-5 h-5" />
-              </Button>
+                <Share2 className="w-5 h-5 text-[#222222]" />
+              </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Property Header - Airbnb Style */}
-        <div className="mb-8">
-          {/* Property Title and Rating */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-semibold text-gray-900 mb-2">
-              {getPropertyText(property.name, property.nameTranslations, language, 'Propiedad')}
-            </h1>
-            <div className="flex items-center space-x-4 text-sm">
-              {evaluationsStats && publicEvaluations.length > 0 && (
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center space-x-1 bg-violet-50 px-3 py-1 rounded-full">
-                    <Star className="w-4 h-4 text-violet-600 fill-current" />
-                    <span className="font-medium text-violet-700">
-                      {evaluationsStats.averageRating ? Number(evaluationsStats.averageRating).toFixed(1) : '0.0'}
-                    </span>
-                    <span className="text-violet-500">·</span>
-                    <button 
-                      onClick={() => setShowRatingsModal(true)}
-                      className="text-violet-600 hover:text-violet-800 font-medium"
-                    >
-                      {publicEvaluations.length} {publicEvaluations.length === 1 ? 'evaluación pública' : 'evaluaciones públicas'}
-                    </button>
+      {/* Main Content - Airbnb Style */}
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 py-8">
+        {/* Property Header */}
+        <div className="mb-10">
+          {/* Title */}
+          <h1 className="text-[26px] sm:text-[32px] font-semibold text-[#222222] mb-2">
+            {getPropertyText(property.name, property.nameTranslations, language, 'Propiedad')}
+          </h1>
+
+          {/* Meta info row */}
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            {evaluationsStats && publicEvaluations.length > 0 && (
+              <>
+                <button
+                  onClick={() => setShowRatingsModal(true)}
+                  className="flex items-center gap-1 hover:underline"
+                >
+                  <Star className="w-4 h-4 text-[#222222] fill-current" />
+                  <span className="font-medium text-[#222222]">
+                    {evaluationsStats.averageRating ? Number(evaluationsStats.averageRating).toFixed(2) : '0.00'}
+                  </span>
+                </button>
+                <span className="text-[#717171]">·</span>
+                <button
+                  onClick={() => setShowRatingsModal(true)}
+                  className="text-[#222222] underline font-medium"
+                >
+                  {publicEvaluations.length} {publicEvaluations.length === 1 ? 'evaluación' : 'evaluaciones'}
+                </button>
+                <span className="text-[#717171]">·</span>
+              </>
+            )}
+            <span className="text-[#717171]">
+              {getText(property.city, language, '')}, {getText(property.state, language, '')}
+            </span>
+          </div>
+        </div>
+
+        {/* Two Column Layout */}
+        <div className="grid lg:grid-cols-3 gap-12">
+          {/* Left Column - Main Content */}
+          <div className="lg:col-span-2">
+            {/* Host Row - Airbnb style */}
+            <div className="flex items-center justify-between py-6 border-b border-gray-200">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200">
+                  {property.hostContactPhoto ? (
+                    <img
+                      src={property.hostContactPhoto}
+                      alt={property.hostContactName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-[#222222] flex items-center justify-center">
+                      <span className="text-white font-medium text-lg">
+                        {property.hostContactName.charAt(0)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-base font-medium text-[#222222]">
+                    {getAccommodationText(property, language)}
+                  </h2>
+                  <p className="text-sm text-[#717171]">
+                    {property.maxGuests} {t('guests', language)} · {property.bedrooms} {t('rooms', language)} · {property.bathrooms} {t('bathrooms', language)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Highlights Row */}
+            <div className="py-6 border-b border-gray-200">
+              <div className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <Shield className="w-6 h-6 text-[#222222] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-medium text-[#222222]">{property.hostContactName} es un anfitrión verificado</h3>
+                    <p className="text-sm text-[#717171]">Los anfitriones verificados tienen un historial de excelentes evaluaciones.</p>
                   </div>
                 </div>
-              )}
-              <div className="flex items-center space-x-2">
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  Manual 100% completado
-                </span>
+                <div className="flex items-start gap-4">
+                  <Key className="w-6 h-6 text-[#222222] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-medium text-[#222222]">Check-in autónomo</h3>
+                    <p className="text-sm text-[#717171]">Realiza el check-in fácilmente usando las instrucciones del manual.</p>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center text-gray-600">
-                <MapPin className="w-4 h-4 mr-1" />
-                <span>{getText(property.city, language, '')}, {getText(property.state, language, '')}</span>
+            </div>
+
+            {/* Description */}
+            <div className="py-6 border-b border-gray-200">
+              <p className="text-[#484848] leading-relaxed">
+                {getPropertyText(property.description, property.descriptionTranslations, language, t('accommodationWelcome', language))}
+              </p>
+            </div>
+
+            {/* Location */}
+            <div className="py-6 border-b border-gray-200">
+              <h3 className="text-[22px] font-semibold text-[#222222] mb-4">
+                {t('location', language)}
+              </h3>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <MapPin className="w-5 h-5 text-[#717171] flex-shrink-0" />
+                  <div>
+                    <p className="text-[#222222]">{property.street}</p>
+                    <p className="text-[#717171] text-sm">{getText(property.city, language, '')}, {getText(property.state, language, '')}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    try {
+                      const street = property.street?.trim()
+                      const city = getText(property.city, language, '')?.trim()
+                      const state = getText(property.state, language, '')?.trim()
+                      if (!street || !city || !state) {
+                        alert('Lo sentimos, no hay información de ubicación disponible.')
+                        return
+                      }
+                      const address = `${street}, ${city}, ${state}`
+                      const mapsUrl = `https://maps.google.com/maps?q=${encodeURIComponent(address)}`
+                      window.open(mapsUrl, '_blank', 'noopener,noreferrer')
+                    } catch (error) {
+                      console.error('Error opening maps:', error)
+                    }
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-[#222222] border border-[#222222] rounded-lg hover:bg-gray-50 transition-colors w-full sm:w-auto"
+                >
+                  {t('takeMeThere', language)}
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Property Info Grid */}
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Main Property Info */}
-            <div className="lg:col-span-2">
-              {/* Property Type and Details */}
-              <div className="border-b border-gray-200 pb-6 mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">
-                  {getAccommodationText(property, language)}
-                </h2>
-                <div className="flex items-center space-x-4 text-gray-600">
-                  <span>{property.maxGuests} {t('guests', language)}</span>
-                  <span>·</span>
-                  <span>{property.bedrooms} {t('rooms', language)}</span>
-                  <span>·</span>
-                  <span>{property.bathrooms} {t('bathrooms', language)}</span>
+          {/* Right Column - Host Contact Card */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-20">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-6">
+                {/* Host Photo & Name */}
+                <div className="text-center mb-6">
+                  <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 ring-2 ring-gray-100">
+                    {property.hostContactPhoto ? (
+                      <img
+                        src={property.hostContactPhoto}
+                        alt={property.hostContactName}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-[#222222] flex items-center justify-center">
+                        <span className="text-white font-medium text-2xl">
+                          {property.hostContactName.charAt(0)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-semibold text-[#222222]">
+                    {property.hostContactName}
+                  </h3>
+                  <p className="text-sm text-[#717171]">{t('yourHost', language)}</p>
                 </div>
-              </div>
 
-              {/* Description */}
-              <div className="border-b border-gray-200 pb-6 mb-6">
-                <p className="text-gray-700 leading-relaxed">
-                  {getPropertyText(property.description, property.descriptionTranslations, language, t('accommodationWelcome', language))}
-                </p>
-              </div>
-
-              {/* Location */}
-              <div className="border-b border-gray-200 pb-6 mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                  {t('location', language)}
-                </h3>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex items-center space-x-3">
-                    <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                    <div>
-                      <div className="font-medium text-gray-900">{property.street}</div>
-                      <div className="text-gray-600">{getText(property.city, language, '')}, {getText(property.state, language, '')}</div>
-                    </div>
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <p className="font-semibold text-[#222222]">100%</p>
+                    <p className="text-xs text-[#717171]">Tasa respuesta</p>
                   </div>
-                  <Button
-                    onClick={() => {
-                      try {
-                        const street = property.street?.trim()
-                        const city = getText(property.city, language, '')?.trim()
-                        const state = getText(property.state, language, '')?.trim()
-
-                        if (!street || !city || !state) {
-                          alert('Lo sentimos, no hay información de ubicación disponible para esta propiedad.')
-                          return
-                        }
-
-                        const address = `${street}, ${city}, ${state}`
-                        const encodedAddress = encodeURIComponent(address)
-                        const mapsUrl = `https://maps.google.com/maps?q=${encodedAddress}`
-
-                        const newWindow = window.open(mapsUrl, '_blank', 'noopener,noreferrer')
-
-                        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-                          window.location.href = mapsUrl
-                        }
-                      } catch (error) {
-                        console.error('Error opening maps:', error)
-                        alert('No se pudo abrir el mapa. Por favor, intenta de nuevo.')
-                      }
-                    }}
-                    variant="outline"
-                    className="border-violet-200 text-violet-700 hover:bg-violet-50 w-full sm:w-auto"
-                  >
-                    <MapPin className="w-4 h-4 mr-2" />
-                    {t('takeMeThere', language)}
-                  </Button>
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <p className="font-semibold text-[#222222]">&lt; 1h</p>
+                    <p className="text-xs text-[#717171]">Responde en</p>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Host Contact Card */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-24">
-                <Card className="p-6 border border-violet-100 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50">
-                  {/* Host Info */}
-                  <div className="text-center mb-6">
-                    <div className="w-16 h-16 rounded-full overflow-hidden mx-auto mb-3 ring-2 ring-violet-200">
-                      {property.hostContactPhoto ? (
-                        <img 
-                          src={property.hostContactPhoto} 
-                          alt={property.hostContactName}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-violet-100 flex items-center justify-center">
-                          <span className="text-violet-600 font-semibold text-xl">
-                            {property.hostContactName.charAt(0)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <h3 className="font-semibold text-gray-900 mb-1">
-                      {property.hostContactName}
-                    </h3>
-                    <p className="text-sm text-violet-600 font-medium">
-                      {t('yourHost', language)}
-                    </p>
-                  </div>
-
-                  {/* Host Stats */}
-                  <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-                    <div className="text-center p-3 bg-white/50 rounded-lg">
-                      <div className="font-semibold text-violet-700">100%</div>
-                      <div className="text-gray-600">Tasa respuesta</div>
-                    </div>
-                    <div className="text-center p-3 bg-white/50 rounded-lg">
-                      <div className="font-semibold text-violet-700">&lt; 1 hora</div>
-                      <div className="text-gray-600">Tiempo respuesta</div>
-                    </div>
-                  </div>
-                  
-                  {/* Contact Button */}
-                  <Button
-                    onClick={() => {
-                      trackWhatsAppClick(propertyId)
-                      const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${getPropertyText(property.name, property.nameTranslations, language, 'la propiedad')} y necesito ayuda.`)
-                      const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
-                      window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
-                    }}
-                    className="w-full bg-violet-600 hover:bg-violet-700 text-white mb-4"
-                  >
-                    <MessageCircle className="w-4 h-4 mr-2" />
+                {/* Contact Button - Airbnb pink/rose style */}
+                <button
+                  onClick={() => {
+                    trackWhatsAppClick(propertyId)
+                    const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${getPropertyText(property.name, property.nameTranslations, language, 'la propiedad')} y necesito ayuda.`)
+                    const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
+                    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
+                  }}
+                  className="w-full py-3 px-4 bg-gradient-to-r from-[#E00B41] to-[#FF385C] hover:from-[#D00B3C] hover:to-[#E31C5F] text-white font-medium rounded-lg transition-all"
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <MessageCircle className="w-5 h-5" />
                     {t('contactWhatsApp', language)}
-                  </Button>
-
-                  {/* Emergency Block - REMOVED */}
-                </Card>
+                  </span>
+                </button>
               </div>
             </div>
           </div>
@@ -1140,81 +1150,71 @@ export default function PropertyGuidePage() {
           </motion.div>
         )}
 
-        {/* Manual Sections - MOVED TO FIRST POSITION */}
-        <div id="zonas" className="border-b border-gray-200 pb-8 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-900">
+        {/* Manual Sections - Airbnb Style */}
+        <div id="zonas" className="py-8 border-t border-gray-200">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-[22px] font-semibold text-[#222222]">
               {getManualTitle(property, language)}
-            </h3>
-            <Button
+            </h2>
+            <button
               onClick={() => setShowSuggestionBox(true)}
-              variant="ghost"
-              size="sm"
-              className="text-gray-600 hover:text-black"
+              className="flex items-center gap-2 text-sm text-[#222222] hover:underline"
             >
-              <Lightbulb className="w-4 h-4 mr-2" />
+              <Lightbulb className="w-4 h-4" />
               {t('suggestions', language)}
-            </Button>
+            </button>
           </div>
-          
+
           {property.zones.filter(zone => zone.stepsCount && zone.stepsCount > 0).length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-16">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">📖</span>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-[#222222] mb-2">
                 {t('manualInPreparation', language)}
               </h3>
-              <p className="text-gray-600">
+              <p className="text-[#717171]">
                 {t('manualInPreparationDesc', language)}
               </p>
             </div>
           ) : (
             <>
-              {/* Grid 2 columnas para desktop y móvil */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* Zones Grid - Airbnb style */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {property.zones
                   .filter(zone => zone.stepsCount && zone.stepsCount > 0)
                   .sort((a, b) => a.order - b.order)
                   .map((zone, index) => (
                     <motion.div
                       key={zone.id}
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                      transition={{ duration: 0.2, delay: index * 0.05 }}
                     >
-                      <div 
-                        className="bg-white border border-gray-200 rounded-2xl p-4 lg:p-6 cursor-pointer hover:shadow-md hover:border-gray-300 transition-all duration-200 h-full"
+                      <button
+                        className="w-full text-left bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:border-[#222222] hover:shadow-md transition-all duration-200 group"
                         onClick={() => handleZoneClick(zone.id)}
                       >
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 h-full relative">
-                          <div className="flex items-center justify-center lg:justify-start mb-3 lg:mb-0">
-                            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                              {zone.icon ? getZoneIcon(zone.icon, "w-6 h-6 text-gray-700") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-6 h-6 text-gray-700")}
-                            </div>
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-lg bg-gray-50 group-hover:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                            {zone.icon ? getZoneIcon(zone.icon, "w-6 h-6 text-[#222222]") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-6 h-6 text-[#222222]")}
                           </div>
-                          <div className="flex-1 text-center lg:text-left">
-                            <h4 className="font-semibold text-gray-900 text-base lg:text-lg">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-[#222222] truncate">
                               {getText(zone.name, language, t('zone', language))}
                             </h4>
-                            {/* Mostrar número de pasos en móvil */}
-                            <p className="text-sm text-gray-500 mt-1 lg:hidden">
-                              {zone.stepsCount} {zone.stepsCount === 1 ? 'paso' : 'pasos'}
+                            <p className="text-sm text-[#717171]">
+                              {zone.stepsCount} {zone.stepsCount === 1 ? 'instrucción' : 'instrucciones'}
                             </p>
-                            {/* Mostrar descripción en desktop */}
-                            {getText(zone.description, language, '') && (
-                              <p className="text-sm text-gray-500 mt-1 hidden lg:block">
-                                {getText(zone.description, language, '')}
-                              </p>
-                            )}
                           </div>
-                          {isZoneViewed(zone.id) && (
-                            <div className="flex items-center ml-2">
-                              <CheckCircle className="w-5 h-5 text-green-600" />
-                            </div>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {isZoneViewed(zone.id) && (
+                              <CheckCircle className="w-5 h-5 text-[#008A05]" />
+                            )}
+                            <ChevronRight className="w-5 h-5 text-[#717171] group-hover:text-[#222222] transition-colors" />
+                          </div>
                         </div>
-                      </div>
+                      </button>
                     </motion.div>
                   ))}
               </div>
@@ -1320,30 +1320,27 @@ export default function PropertyGuidePage() {
         {/* Guest Reviews Section - Solo mostrar si hay evaluaciones reales */}
         {/* TODO: Implementar carga de evaluaciones reales desde la base de datos */}
 
-        {/* Footer */}
-        <div className="text-center py-8 border-t border-gray-200">
-          <p className="text-gray-600 text-sm mb-2">
+        {/* Footer - Minimal Airbnb style */}
+        <div className="text-center py-12 border-t border-gray-200">
+          <p className="text-[#717171] text-sm">
             {t('digitalManualFooter', language)}
-          </p>
-          <p className="text-gray-500 text-xs">
-            {t('suggestionsFooter', language)}
           </p>
         </div>
       </div>
 
-      {/* Floating WhatsApp Button */}
+      {/* Floating WhatsApp Button - Cleaner style */}
       <motion.button
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 1, type: "spring", stiffness: 200 }}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
         onClick={() => {
           trackWhatsAppClick(propertyId)
           const message = encodeURIComponent(`Hola ${property.hostContactName}, soy huésped de ${getPropertyText(property.name, property.nameTranslations, language, 'la propiedad')} y necesito ayuda.`)
           const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
           window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
         }}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-50 group"
-        whileHover={{ scale: 1.1 }}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-[#25D366] hover:bg-[#20BD5A] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center z-50"
+        whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
         <MessageCircle className="w-6 h-6" />
