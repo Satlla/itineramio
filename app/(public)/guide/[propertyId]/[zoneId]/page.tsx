@@ -980,17 +980,25 @@ export default function ZoneGuidePage({
                               </motion.h2>
                             )}
 
-                            {/* Show content as normal text */}
+                            {/* Show content as normal text - render newlines properly */}
                             {hasContent && (
-                              <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base max-w-full">
-                                {contentText}
+                              <div className="text-gray-700 leading-relaxed text-sm sm:text-base max-w-full space-y-2">
+                                {contentText.split('\n').map((line, i) => (
+                                  <p key={i} className={line.trim() === '' ? 'h-2' : 'break-words'}>
+                                    {line || '\u00A0'}
+                                  </p>
+                                ))}
                               </div>
                             )}
 
                             {/* If only long title exists (no content), show it as normal text, not heading */}
                             {hasTitle && !hasContent && !isShortTitle && (
-                              <div className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-sm sm:text-base max-w-full">
-                                {titleText}
+                              <div className="text-gray-700 leading-relaxed text-sm sm:text-base max-w-full space-y-2">
+                                {titleText.split('\n').map((line, i) => (
+                                  <p key={i} className={line.trim() === '' ? 'h-2' : 'break-words'}>
+                                    {line || '\u00A0'}
+                                  </p>
+                                ))}
                               </div>
                             )}
 
