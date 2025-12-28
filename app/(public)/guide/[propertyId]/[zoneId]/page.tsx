@@ -812,147 +812,59 @@ export default function ZoneGuidePage({
         </div>
       </header>
 
-      {/* Main Content - Dynamic Vertical Timeline */}
-      <main className="max-w-3xl mx-auto px-3 sm:px-4 py-6 sm:py-8 overflow-x-hidden">
-        <div className="relative w-full max-w-full overflow-hidden">
-          {/* Timeline Steps */}
+      {/* Main Content - Clean Airbnb-style Steps */}
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12 overflow-x-hidden">
+        <div className="relative w-full max-w-full">
+          {/* Steps List */}
           {sortedSteps.map((step, index) => (
             <motion.div
               key={step.id}
               id={`step-${index}`}
-              initial={{ opacity: 0, y: 30, scale: 0.9 }}
-              animate={{ 
-                opacity: index <= activeStepIndex ? 1 : 0.3,
-                y: 0,
-                scale: index === activeStepIndex ? 1 : 0.95
+              initial={{ opacity: 0, y: 20 }}
+              animate={{
+                opacity: index <= activeStepIndex ? 1 : 0.5,
+                y: 0
               }}
-              transition={{ 
-                duration: 0.6, 
-                delay: index * 0.15,
-                type: "spring",
-                stiffness: 100
+              transition={{
+                duration: 0.4,
+                delay: index * 0.1,
+                ease: "easeOut"
               }}
-              className={`relative flex mb-6 sm:mb-8 lg:mb-12 ${index <= activeStepIndex ? '' : 'pointer-events-none'}`}
+              className={`relative mb-4 ${index <= activeStepIndex ? '' : 'pointer-events-none'}`}
             >
-              {/* Enhanced Timeline Line */}
-              <div className="flex flex-col items-center mr-4 sm:mr-6 lg:mr-8">
-                {/* Step Number Circle with Glow Effect */}
-                <motion.div 
-                  className={`relative w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold border-2 sm:border-3 z-10 shadow-lg ${
-                    completedSteps.has(step.id)
-                      ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-green-400 shadow-green-400/50'
-                      : index === activeStepIndex
-                      ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white border-violet-400 shadow-violet-400/50'
-                      : index < activeStepIndex
-                      ? 'bg-gradient-to-r from-violet-100 to-purple-100 text-violet-700 border-violet-300'
-                      : 'bg-white text-gray-400 border-gray-300'
-                  }`}
-                  animate={{
-                    scale: 1, // Remove the infinite scaling animation
-                    boxShadow: index === activeStepIndex 
-                      ? "0 0 0 4px rgba(139, 92, 246, 0.2)" // Static shadow instead of animated
-                      : "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
-                  }}
-                  transition={{
-                    scale: { duration: 0.3 }, // Short transition only
-                    boxShadow: { duration: 0.3 }
-                  }}
-                >
-                  {completedSteps.has(step.id) ? (
-                    <motion.div
-                      initial={{ scale: 0, rotate: -180 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ type: "spring", stiffness: 200 }}
-                    >
-                      <Check className="w-6 h-6" />
-                    </motion.div>
-                  ) : (
-                    <span className="text-sm sm:text-base lg:text-lg font-bold">{index + 1}</span>
-                  )}
-                </motion.div>
-                
-                {/* Animated Connecting Line */}
-                {index < sortedSteps.length - 1 && (
-                  <div className="relative mt-3">
-                    {/* Background line */}
-                    <div className="w-0.5 sm:w-1 h-16 sm:h-24 lg:h-32 bg-gray-200" />
-                    
-                    {/* Animated progress line */}
-                    <motion.div
-                      className={`absolute top-0 w-0.5 sm:w-1 ${
-                        animatingLines.has(index)
-                          ? 'bg-gradient-to-b from-violet-500 to-purple-600'
-                          : index < activeStepIndex
-                          ? 'bg-gradient-to-b from-green-500 to-emerald-600'
-                          : 'bg-gray-200'
-                      }`}
-                      initial={{ height: 0 }}
-                      animate={{ 
-                        height: animatingLines.has(index) || index < activeStepIndex ? '100%' : 0 
-                      }}
-                      transition={{ 
-                        duration: animatingLines.has(index) ? 0.8 : 0.3,
-                        ease: "easeInOut"
-                      }}
-                      style={{
-                        background: animatingLines.has(index) 
-                          ? 'linear-gradient(to bottom, #8b5cf6, #a855f7, #10b981)'
-                          : undefined,
-                        borderLeft: animatingLines.has(index) ? '2px dashed rgba(255,255,255,0.5)' : undefined
-                      }}
-                    />
-                    
-                    {/* Flowing particles effect */}
-                    {animatingLines.has(index) && (
-                      <motion.div
-                        className="absolute top-0 left-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full transform -translate-x-1/2 shadow-lg"
-                        animate={{ y: [0, 64, 96, 128] }}
-                        transition={{ duration: 0.8, ease: "easeInOut" }}
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Enhanced Step Content */}
+              {/* Clean Step Card */}
               <motion.div
-                className="flex-1 min-w-0 max-w-full overflow-hidden"
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 + 0.3 }}
+                className="flex-1 min-w-0 max-w-full"
+                whileHover={index === activeStepIndex ? { scale: 1.01 } : {}}
+                transition={{ duration: 0.2 }}
               >
-                <Card className={`relative overflow-hidden transition-all duration-500 ${
-                  index === activeStepIndex 
-                    ? 'border-violet-300 bg-gradient-to-br from-violet-50 to-purple-50 shadow-xl shadow-violet-100' 
+                <div className={`relative bg-white rounded-2xl transition-all duration-300 ${
+                  index === activeStepIndex
+                    ? 'shadow-lg ring-1 ring-gray-900/5'
                     : index < activeStepIndex
-                    ? 'border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 shadow-md'
-                    : 'border-gray-200 bg-white'
+                    ? 'shadow-sm ring-1 ring-gray-900/5'
+                    : 'shadow-sm ring-1 ring-gray-200'
                 }`}>
-                  {/* Glowing border for active step - single animation */}
-                  {index === activeStepIndex && (
-                    <motion.div
-                      className="absolute inset-0 rounded-lg"
-                      initial={{
-                        background: "linear-gradient(0deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.1))"
-                      }}
-                      animate={{
-                        background: [
-                          "linear-gradient(0deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.1))",
-                          "linear-gradient(90deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.2))",
-                          "linear-gradient(180deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.1))",
-                          "linear-gradient(270deg, rgba(168, 85, 247, 0.2), rgba(139, 92, 246, 0.2))",
-                          "linear-gradient(360deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.1))"
-                        ]
-                      }}
-                      transition={{ 
-                        duration: 2, 
-                        ease: "easeInOut",
-                        repeat: 0 // Solo una vez, no infinito
-                      }}
-                    />
-                  )}
-                  
-                  <CardContent className="p-4 sm:p-6 lg:p-8 relative z-10">
+                  {/* Step Number Badge - Airbnb style */}
+                  <div className="absolute -left-3 top-6 z-10">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium shadow-md ${
+                      completedSteps.has(step.id)
+                        ? 'bg-[#008A05] text-white'
+                        : index === activeStepIndex
+                        ? 'bg-[#222222] text-white'
+                        : index < activeStepIndex
+                        ? 'bg-gray-100 text-gray-600'
+                        : 'bg-white text-gray-400 border border-gray-200'
+                    }`}>
+                      {completedSteps.has(step.id) ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        <span>{index + 1}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-6 sm:p-8 pl-8 sm:pl-10">
                     {/* Step Header - Clean, no badges */}
                     <div className="mb-6">
                       {/* Simple content display - title as heading only if short, content always as normal text */}
@@ -970,21 +882,16 @@ export default function ZoneGuidePage({
                           <>
                             {/* Show title as heading only if short and not duplicate of content */}
                             {isShortTitle && !titleEqualsContent && (
-                              <motion.h2
-                                className={`text-lg sm:text-xl font-semibold mb-2 sm:mb-3 break-words ${
-                                  index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
-                                }`}
-                                layoutId={`title-${step.id}`}
-                              >
+                              <h2 className="text-lg sm:text-xl font-medium text-[#222222] mb-3 break-words">
                                 {titleText}
-                              </motion.h2>
+                              </h2>
                             )}
 
                             {/* Show content as normal text - render newlines properly */}
                             {hasContent && (
-                              <div className="text-gray-700 leading-relaxed text-sm sm:text-base max-w-full space-y-2">
+                              <div className="text-[#484848] leading-relaxed text-base max-w-full space-y-3">
                                 {contentText.split('\n').map((line, i) => (
-                                  <p key={i} className={line.trim() === '' ? 'h-2' : 'break-words'}>
+                                  <p key={i} className={line.trim() === '' ? 'h-3' : 'break-words'}>
                                     {line || '\u00A0'}
                                   </p>
                                 ))}
@@ -993,9 +900,9 @@ export default function ZoneGuidePage({
 
                             {/* If only long title exists (no content), show it as normal text, not heading */}
                             {hasTitle && !hasContent && !isShortTitle && (
-                              <div className="text-gray-700 leading-relaxed text-sm sm:text-base max-w-full space-y-2">
+                              <div className="text-[#484848] leading-relaxed text-base max-w-full space-y-3">
                                 {titleText.split('\n').map((line, i) => (
-                                  <p key={i} className={line.trim() === '' ? 'h-2' : 'break-words'}>
+                                  <p key={i} className={line.trim() === '' ? 'h-3' : 'break-words'}>
                                     {line || '\u00A0'}
                                   </p>
                                 ))}
@@ -1004,14 +911,9 @@ export default function ZoneGuidePage({
 
                             {/* If only short title exists (no content), show as heading */}
                             {hasTitle && !hasContent && isShortTitle && (
-                              <motion.h2
-                                className={`text-lg sm:text-xl font-semibold break-words ${
-                                  index === activeStepIndex ? 'text-violet-900' : 'text-gray-900'
-                                }`}
-                                layoutId={`title-${step.id}`}
-                              >
+                              <h2 className="text-lg sm:text-xl font-medium text-[#222222] break-words">
                                 {titleText}
-                              </motion.h2>
+                              </h2>
                             )}
                           </>
                         );
@@ -1133,48 +1035,43 @@ export default function ZoneGuidePage({
                       )}
                     </AnimatePresence>
 
-                    {/* Enhanced Step Actions - Show only for active step */}
+                    {/* Step Actions - Airbnb style buttons */}
                     {index === activeStepIndex && (
                       <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
-                        className="flex gap-2 sm:gap-3 lg:gap-4 pt-4 sm:pt-6 border-t border-gray-200"
+                        transition={{ delay: 0.3 }}
+                        className="flex gap-3 pt-6 mt-6 border-t border-gray-100"
                       >
                         {activeStepIndex > 0 && (
-                          <Button
-                            variant="outline"
+                          <button
                             onClick={prevStep}
-                            className="flex-1 border-violet-200 text-violet-700 hover:bg-violet-50 text-sm sm:text-base"
+                            className="flex-1 px-6 py-3 text-sm font-medium text-[#222222] bg-white border border-[#222222] rounded-lg hover:bg-gray-50 transition-colors"
                           >
-                            <ChevronLeft className="w-4 h-4 mr-2" />
                             {t('previous', language)}
-                          </Button>
+                          </button>
                         )}
-                        
-                        {/* Single step or last step */}
+
                         {(sortedSteps.length === 1 || index === sortedSteps.length - 1) ? (
-                          <Button
+                          <button
                             onClick={finishStep}
                             disabled={completedSteps.has(step.id)}
-                            className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg text-sm sm:text-base"
+                            className="flex-1 px-6 py-3 text-sm font-medium text-white bg-[#222222] rounded-lg hover:bg-[#000000] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                           >
                             {completedSteps.has(step.id) ? t('completed', language) : t('finish', language)}
-                            <Check className="w-4 h-4 ml-2" />
-                          </Button>
+                          </button>
                         ) : (
-                          <Button
+                          <button
                             onClick={nextStep}
-                            className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg text-sm sm:text-base"
+                            className="flex-1 px-6 py-3 text-sm font-medium text-white bg-[#222222] rounded-lg hover:bg-[#000000] transition-colors"
                           >
                             {t('next', language)}
-                            <ChevronRight className="w-4 h-4 ml-2" />
-                          </Button>
+                          </button>
                         )}
                       </motion.div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </motion.div>
             </motion.div>
           ))}
