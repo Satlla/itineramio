@@ -80,6 +80,36 @@ const getText = (value: any, language: string = 'es', fallback: string = '') => 
   return fallback
 }
 
+// Smart text formatting - adds line breaks before emojis and numbered lists
+// This is purely visual and doesn't modify stored data
+const formatTextWithSmartBreaks = (text: string): string[] => {
+  if (!text) return []
+
+  // If text already has line breaks, use them
+  if (text.includes('\n')) {
+    return text.split('\n')
+  }
+
+  // Common emojis that typically start a new section/line
+  const emojiPattern = /(?=[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|🕒|⏰|🌙|📲|📍|🏢|🔗|✅|📘|🎥|👉|💡|⚠️|🔑|🚿|🛏️|🍳|📺|🌡️|♨️|🚗|🅿️|🚌|✈️|🚕)/gu
+
+  // Split by emoji patterns
+  let lines = text.split(emojiPattern).filter(line => line.trim())
+
+  // If no emojis found, try splitting by numbered lists (1., 2., etc.)
+  if (lines.length <= 1) {
+    const numberedPattern = /(?=\b[1-9]\.\s)/g
+    lines = text.split(numberedPattern).filter(line => line.trim())
+  }
+
+  // If still no splits found, return as single line
+  if (lines.length <= 1) {
+    return [text]
+  }
+
+  return lines
+}
+
 // Translations for the public interface
 const translations = {
   es: {
@@ -887,10 +917,10 @@ export default function ZoneGuidePage({
                               </h2>
                             )}
 
-                            {/* Show content as normal text - render newlines properly */}
+                            {/* Show content as normal text - render with smart line breaks */}
                             {hasContent && (
                               <div className="text-[#484848] leading-relaxed text-base max-w-full space-y-3">
-                                {contentText.split('\n').map((line, i) => (
+                                {formatTextWithSmartBreaks(contentText).map((line, i) => (
                                   <p key={i} className={line.trim() === '' ? 'h-3' : 'break-words'}>
                                     {line || '\u00A0'}
                                   </p>
@@ -901,7 +931,7 @@ export default function ZoneGuidePage({
                             {/* If only long title exists (no content), show it as normal text, not heading */}
                             {hasTitle && !hasContent && !isShortTitle && (
                               <div className="text-[#484848] leading-relaxed text-base max-w-full space-y-3">
-                                {titleText.split('\n').map((line, i) => (
+                                {formatTextWithSmartBreaks(titleText).map((line, i) => (
                                   <p key={i} className={line.trim() === '' ? 'h-3' : 'break-words'}>
                                     {line || '\u00A0'}
                                   </p>
