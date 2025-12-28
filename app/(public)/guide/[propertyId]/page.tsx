@@ -938,10 +938,10 @@ export default function PropertyGuidePage() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">
                   {t('location', language)}
                 </h3>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3 flex-1">
-                    <MapPin className="w-5 h-5 text-gray-400" />
-                    <div className="flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-center space-x-3">
+                    <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                    <div>
                       <div className="font-medium text-gray-900">{property.street}</div>
                       <div className="text-gray-600">{getText(property.city, language, '')}, {getText(property.state, language, '')}</div>
                     </div>
@@ -949,59 +949,31 @@ export default function PropertyGuidePage() {
                   <Button
                     onClick={() => {
                       try {
-                        // DEBUG: Log raw property data
-                        console.log('🗺️ DEBUG - Raw property data:', {
-                          street: property.street,
-                          city: property.city,
-                          state: property.state,
-                          cityType: typeof property.city,
-                          stateType: typeof property.state
-                        })
-
-                        // Validar que tengamos datos de ubicación
                         const street = property.street?.trim()
                         const city = getText(property.city, language, '')?.trim()
                         const state = getText(property.state, language, '')?.trim()
 
-                        console.log('🗺️ DEBUG - Processed data:', {
-                          street,
-                          city,
-                          state,
-                          hasStreet: !!street,
-                          hasCity: !!city,
-                          hasState: !!state
-                        })
-
                         if (!street || !city || !state) {
-                          console.error('❌ Missing location data:', { street, city, state })
                           alert('Lo sentimos, no hay información de ubicación disponible para esta propiedad.')
                           return
                         }
 
-                        // Construir la dirección completa
                         const address = `${street}, ${city}, ${state}`
                         const encodedAddress = encodeURIComponent(address)
                         const mapsUrl = `https://maps.google.com/maps?q=${encodedAddress}`
 
-                        console.log('✅ Opening maps with address:', address)
-                        console.log('🌐 Maps URL:', mapsUrl)
-
-                        // Abrir Google Maps
                         const newWindow = window.open(mapsUrl, '_blank', 'noopener,noreferrer')
 
-                        // Verificar si se bloqueó el popup
                         if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-                          console.warn('⚠️ Popup bloqueado, intentando alternativa')
-                          // Fallback: navegar en la misma pestaña
                           window.location.href = mapsUrl
                         }
                       } catch (error) {
-                        console.error('💥 Error opening maps:', error)
+                        console.error('Error opening maps:', error)
                         alert('No se pudo abrir el mapa. Por favor, intenta de nuevo.')
                       }
                     }}
                     variant="outline"
-                    className="border-violet-200 text-violet-700 hover:bg-violet-50 ml-4"
+                    className="border-violet-200 text-violet-700 hover:bg-violet-50 w-full sm:w-auto"
                   >
                     <MapPin className="w-4 h-4 mr-2" />
                     {t('takeMeThere', language)}
