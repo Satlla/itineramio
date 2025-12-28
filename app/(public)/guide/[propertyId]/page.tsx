@@ -1042,7 +1042,7 @@ export default function PropertyGuidePage() {
                     const phoneNumber = property.hostContactPhone.replace(/\s/g, '').replace('+', '')
                     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
                   }}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-[#E00B41] to-[#FF385C] hover:from-[#D00B3C] hover:to-[#E31C5F] text-white font-medium rounded-lg transition-all"
+                  className="w-full py-3 px-4 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition-all"
                 >
                   <span className="flex items-center justify-center gap-2">
                     <MessageCircle className="w-5 h-5" />
