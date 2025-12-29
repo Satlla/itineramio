@@ -1097,98 +1097,107 @@ export default function PropertyGuidePage() {
         </div>
 
 
-        {/* Progress Warning */}
+        {/* Progress Warning - Airbnb Style */}
         {showProgressWarning && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <Card className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <BarChart3 className="w-5 h-5 text-amber-600" />
+            <div className={`p-4 rounded-xl border ${
+              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200 shadow-sm'
+            }`}>
+              <div className="flex items-start gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  darkMode ? 'bg-gray-700' : 'bg-gray-100'
+                }`}>
+                  <BarChart3 className={`w-4 h-4 ${darkMode ? 'text-gray-300' : 'text-[#222222]'}`} />
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-amber-900 mb-1">
+                <div className="flex-1 min-w-0">
+                  <h3 className={`font-medium text-sm mb-1 ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
                     {t('progressWarningTitle', language, { progress: calculateProgress(property.zones).toString() })}
                   </h3>
-                  <p className="text-sm text-amber-800 mb-3">
+                  <p className={`text-xs mb-3 ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>
                     {t('progressWarningDesc', language)}
                   </p>
-                  <div className="w-full bg-amber-200 rounded-full h-2">
+                  <div className={`w-full rounded-full h-1.5 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
                     <motion.div
-                      className="bg-amber-600 h-2 rounded-full"
+                      className="bg-[#222222] h-1.5 rounded-full"
                       initial={{ width: 0 }}
                       animate={{ width: `${calculateProgress(property.zones)}%` }}
                       transition={{ duration: 1, ease: "easeOut" }}
                     />
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <button
                   onClick={() => setShowProgressWarning(false)}
-                  className="text-amber-600 hover:text-amber-700"
+                  className={`p-1 rounded-full transition-colors flex-shrink-0 ${
+                    darkMode ? 'hover:bg-gray-700 text-gray-500' : 'hover:bg-gray-100 text-gray-400'
+                  }`}
                 >
                   <X className="w-4 h-4" />
-                </Button>
+                </button>
               </div>
-            </Card>
+            </div>
           </motion.div>
         )}
 
-        {/* Completion Reward Notification */}
+        {/* Completion Reward Notification - Airbnb Style */}
         {showCompletionReward && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <Card className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+            <div className={`p-4 rounded-xl border ${
+              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200 shadow-sm'
+            }`}>
+              <div className="flex items-start gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  darkMode ? 'bg-green-900/50' : 'bg-green-50'
+                }`}>
+                  <CheckCircle className="w-4 h-4 text-[#008A05]" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-green-900 mb-1">
-                    ¡Felicidades! Has completado el 100% del manual
+                <div className="flex-1 min-w-0">
+                  <h3 className={`font-medium text-sm mb-1 ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
+                    {language === 'es' ? '¡Has completado el manual!' : language === 'en' ? 'You completed the manual!' : 'Vous avez terminé le manuel !'}
                   </h3>
-                  <p className="text-sm text-green-800 mb-3">
-                    Ahora puedes evaluar públicamente esta propiedad. Tu valoración ayudará a futuros huéspedes a tomar mejores decisiones.
+                  <p className={`text-xs mb-3 ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>
+                    {language === 'es' ? '¿Te gustaría evaluar esta propiedad?' : language === 'en' ? 'Would you like to rate this property?' : 'Souhaitez-vous évaluer cette propriété ?'}
                   </p>
-                  <div className="flex space-x-2">
-                    <Button
+                  <div className="flex gap-2">
+                    <button
                       onClick={() => {
                         setShowCompletionReward(false)
                         setShowPublicRatingModal(true)
                       }}
-                      className="bg-green-600 hover:bg-green-700 text-white text-sm"
-                      size="sm"
+                      className="px-3 py-1.5 text-xs font-medium text-white bg-[#222222] rounded-lg hover:bg-black transition-colors"
                     >
-                      <Star className="w-4 h-4 mr-2" />
-                      Evaluar Propiedad
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
+                      <span className="flex items-center gap-1.5">
+                        <Star className="w-3 h-3" />
+                        {language === 'es' ? 'Evaluar' : language === 'en' ? 'Rate' : 'Évaluer'}
+                      </span>
+                    </button>
+                    <button
                       onClick={() => setShowCompletionReward(false)}
-                      className="text-green-600 hover:text-green-700"
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                        darkMode ? 'text-gray-400 hover:text-white' : 'text-[#717171] hover:text-[#222222]'
+                      }`}
                     >
-                      Quizás más tarde
-                    </Button>
+                      {language === 'es' ? 'Ahora no' : language === 'en' ? 'Not now' : 'Pas maintenant'}
+                    </button>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <button
                   onClick={() => setShowCompletionReward(false)}
-                  className="text-green-600 hover:text-green-700"
+                  className={`p-1 rounded-full transition-colors flex-shrink-0 ${
+                    darkMode ? 'hover:bg-gray-700 text-gray-500' : 'hover:bg-gray-100 text-gray-400'
+                  }`}
                 >
                   <X className="w-4 h-4" />
-                </Button>
+                </button>
               </div>
-            </Card>
+            </div>
           </motion.div>
         )}
 
