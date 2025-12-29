@@ -1281,97 +1281,65 @@ export default function PropertyGuidePage() {
           )}
         </div>
 
-        {/* Important Announcements - Compact Airbnb Style */}
+        {/* Important Announcements - Ultra Compact Airbnb Style */}
         {announcements.length > 0 && showAnnouncementsInline && (
-          <div className={`py-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-            {/* Header Row - Compact */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Bell className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-[#222222]'}`} />
-                <h3 className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
-                  {language === 'es' ? 'Avisos importantes' : language === 'en' ? 'Important notices' : 'Avis importants'}
-                </h3>
-                <span className={`text-xs px-1.5 py-0.5 rounded-full ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'}`}>
-                  {announcements.length}
-                </span>
+          <div className={`py-3 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            {/* Single compact container */}
+            <div className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+              {/* Header - Inline with close */}
+              <div className={`flex items-center justify-between px-3 py-2 ${darkMode ? 'border-b border-gray-700' : 'border-b border-gray-200'}`}>
+                <div className="flex items-center gap-1.5">
+                  <Bell className={`w-3.5 h-3.5 ${darkMode ? 'text-gray-400' : 'text-[#484848]'}`} />
+                  <span className={`text-xs font-medium ${darkMode ? 'text-gray-300' : 'text-[#484848]'}`}>
+                    {announcements.length} {language === 'es' ? 'aviso' : language === 'en' ? 'notice' : 'avis'}{announcements.length > 1 ? 's' : ''}
+                  </span>
+                </div>
+                <button
+                  onClick={handleCloseInlineAnnouncements}
+                  className={`p-0.5 rounded transition-colors ${darkMode ? 'hover:bg-gray-700 text-gray-500' : 'hover:bg-gray-200 text-gray-400'}`}
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               </div>
-              <button
-                onClick={handleCloseInlineAnnouncements}
-                className={`p-1 rounded-full transition-colors ${darkMode ? 'hover:bg-gray-700 text-gray-500' : 'hover:bg-gray-100 text-gray-400'}`}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            {/* Announcements List - Compact Cards */}
-            <div className="space-y-2">
-              {announcements
-                .sort((a, b) => {
-                  const priorityOrder = { 'URGENT': 4, 'HIGH': 3, 'NORMAL': 2, 'LOW': 1 }
-                  const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 1
-                  const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 1
-                  if (aPriority !== bPriority) return bPriority - aPriority
-                  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-                })
-                .map((announcement, index) => {
-                  const IconComponent = getAnnouncementIcon(announcement.category)
-                  const isUrgent = announcement.priority === 'URGENT' || announcement.priority === 'HIGH'
+              {/* Announcements - Ultra compact list */}
+              <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                {announcements
+                  .sort((a, b) => {
+                    const priorityOrder = { 'URGENT': 4, 'HIGH': 3, 'NORMAL': 2, 'LOW': 1 }
+                    const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 1
+                    const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 1
+                    if (aPriority !== bPriority) return bPriority - aPriority
+                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                  })
+                  .map((announcement, index) => {
+                    const isUrgent = announcement.priority === 'URGENT' || announcement.priority === 'HIGH'
 
-                  return (
-                    <motion.div
-                      key={announcement.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className={`p-3 rounded-lg border transition-colors ${
-                        darkMode
-                          ? isUrgent ? 'bg-gray-800 border-gray-600' : 'bg-gray-800/50 border-gray-700'
-                          : isUrgent ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-100'
-                      }`}
-                    >
-                      <div className="flex items-start gap-2.5">
-                        {/* Icon - Small */}
-                        <div className={`p-1.5 rounded-md flex-shrink-0 ${
-                          darkMode ? 'bg-gray-700' : 'bg-gray-100'
-                        }`}>
-                          <IconComponent className={`w-3.5 h-3.5 ${darkMode ? 'text-gray-300' : 'text-[#222222]'}`} />
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <h4 className={`font-medium text-sm leading-tight ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
-                              {announcement.title[language as 'es' | 'en' | 'fr'] || announcement.title.es}
-                            </h4>
-                            {isUrgent && (
-                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium flex-shrink-0 ${
-                                darkMode ? 'bg-red-900/50 text-red-400' : 'bg-red-50 text-red-600'
-                              }`}>
-                                {announcement.priority === 'URGENT' ? '!' : '⚠'}
-                              </span>
-                            )}
-                          </div>
-                          <p className={`text-xs leading-relaxed mt-0.5 line-clamp-2 ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>
-                            {announcement.message[language as 'es' | 'en' | 'fr'] || announcement.message.es}
-                          </p>
-                          {(announcement.startDate || announcement.endDate) && (
-                            <div className={`flex items-center text-[10px] mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                              <Clock className="w-2.5 h-2.5 mr-0.5" />
-                              {announcement.startDate && announcement.endDate ? (
-                                <span>{new Date(announcement.startDate).toLocaleDateString()} - {new Date(announcement.endDate).toLocaleDateString()}</span>
-                              ) : announcement.startDate ? (
-                                <span>{new Date(announcement.startDate).toLocaleDateString()}</span>
-                              ) : (
-                                <span>{new Date(announcement.endDate!).toLocaleDateString()}</span>
-                              )}
-                            </div>
+                    return (
+                      <div
+                        key={announcement.id}
+                        className={`px-3 py-2 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                      >
+                        {/* Title + Priority inline */}
+                        <div className="flex items-center gap-1.5">
+                          {isUrgent && (
+                            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                              announcement.priority === 'URGENT' ? 'bg-red-500' : 'bg-amber-500'
+                            }`} />
                           )}
+                          <h4 className={`font-medium text-sm truncate ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
+                            {announcement.title[language as 'es' | 'en' | 'fr'] || announcement.title.es}
+                          </h4>
                         </div>
+                        {/* Message - Single line */}
+                        <p className={`text-xs truncate mt-0.5 ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>
+                          {announcement.message[language as 'es' | 'en' | 'fr'] || announcement.message.es}
+                        </p>
                       </div>
-                    </motion.div>
-                  )
-                })
-              }
+                    )
+                  })
+                }
+              </div>
             </div>
           </div>
         )}
