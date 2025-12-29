@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
+import {
   ArrowLeft,
-  MapPin, 
-  Users, 
-  Bed, 
+  MapPin,
+  Users,
+  Bed,
   Bath,
   Star,
   MessageCircle,
@@ -36,7 +36,9 @@ import {
   AlertTriangle,
   Info,
   Settings,
-  Key
+  Key,
+  Moon,
+  Sun
 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -462,6 +464,7 @@ export default function PropertyGuidePage() {
   const [isSubmittingSuggestion, setIsSubmittingSuggestion] = useState(false)
   const [showProgressWarning, setShowProgressWarning] = useState(false)
   const [language, setLanguage] = useState('es')
+  const [darkMode, setDarkMode] = useState(false)
   const [carouselScrollPosition, setCarouselScrollPosition] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
   const [showRatingsModal, setShowRatingsModal] = useState(false)
@@ -520,6 +523,12 @@ export default function PropertyGuidePage() {
       if (savedLang && ['es', 'en', 'fr'].includes(savedLang)) {
         setLanguage(savedLang)
       }
+    }
+
+    // Load dark mode preference
+    const savedDarkMode = localStorage.getItem('itineramio-darkmode')
+    if (savedDarkMode === 'true') {
+      setDarkMode(true)
     }
   }, [propertyId])
 
@@ -817,16 +826,20 @@ export default function PropertyGuidePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Airbnb-style Minimal Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
+      <header className={`sticky top-0 z-50 backdrop-blur-sm border-b transition-colors duration-300 ${
+        darkMode ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-100'
+      }`}>
         <div className="max-w-6xl mx-auto px-6 sm:px-8">
           <div className="flex items-center justify-between h-14">
             <button
               onClick={() => router.back()}
-              className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
+              className={`p-2 -ml-2 rounded-full transition-colors ${
+                darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+              }`}
             >
-              <ArrowLeft className="w-5 h-5 text-[#222222]" />
+              <ArrowLeft className={`w-5 h-5 ${darkMode ? 'text-white' : 'text-[#222222]'}`} />
             </button>
 
             <div className="flex items-center gap-2">
@@ -840,19 +853,38 @@ export default function PropertyGuidePage() {
                   window.history.replaceState({}, '', url.toString())
                   localStorage.setItem('itineramio-language', newLang)
                 }}
-                className="px-3 py-1.5 text-sm font-medium text-[#222222] bg-transparent border-none focus:ring-0 cursor-pointer hover:bg-gray-100 rounded-lg transition-colors"
+                className={`px-3 py-1.5 text-sm font-medium bg-transparent border-none focus:ring-0 cursor-pointer rounded-lg transition-colors ${
+                  darkMode ? 'text-white hover:bg-gray-700' : 'text-[#222222] hover:bg-gray-100'
+                }`}
               >
                 <option value="es">🇪🇸</option>
                 <option value="en">🇬🇧</option>
                 <option value="fr">🇫🇷</option>
               </select>
 
+              {/* Dark Mode Toggle */}
+              <button
+                onClick={() => {
+                  const newDarkMode = !darkMode
+                  setDarkMode(newDarkMode)
+                  localStorage.setItem('itineramio-darkmode', String(newDarkMode))
+                }}
+                className={`p-2 rounded-full transition-colors ${
+                  darkMode ? 'hover:bg-gray-700 text-yellow-400' : 'hover:bg-gray-100 text-[#222222]'
+                }`}
+                title={darkMode ? 'Modo claro' : 'Modo oscuro'}
+              >
+                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+
               <button
                 onClick={handleShare}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className={`p-2 rounded-full transition-colors ${
+                  darkMode ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-100 text-[#222222]'
+                }`}
                 data-share-button
               >
-                <Share2 className="w-5 h-5 text-[#222222]" />
+                <Share2 className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -864,7 +896,9 @@ export default function PropertyGuidePage() {
         {/* Property Header */}
         <div className="mb-10">
           {/* Title */}
-          <h1 className="text-[26px] sm:text-[32px] font-semibold text-[#222222] mb-2">
+          <h1 className={`text-[26px] sm:text-[32px] font-semibold mb-2 transition-colors ${
+            darkMode ? 'text-white' : 'text-[#222222]'
+          }`}>
             {getPropertyText(property.name, property.nameTranslations, language, 'Propiedad')}
           </h1>
 
@@ -891,7 +925,7 @@ export default function PropertyGuidePage() {
                 <span className="text-[#717171]">·</span>
               </>
             )}
-            <span className="text-[#717171]">
+            <span className={darkMode ? 'text-gray-400' : 'text-[#717171]'}>
               {getText(property.city, language, '')}, {getText(property.state, language, '')}
             </span>
           </div>
@@ -902,7 +936,9 @@ export default function PropertyGuidePage() {
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2">
             {/* Host Row - Airbnb style */}
-            <div className="flex items-center justify-between py-6 border-b border-gray-200">
+            <div className={`flex items-center justify-between py-6 border-b transition-colors ${
+              darkMode ? 'border-gray-700' : 'border-gray-200'
+            }`}>
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200">
                   {property.hostContactPhoto ? (
@@ -920,10 +956,10 @@ export default function PropertyGuidePage() {
                   )}
                 </div>
                 <div>
-                  <h2 className="text-base font-medium text-[#222222]">
+                  <h2 className={`text-base font-medium ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
                     {getAccommodationText(property, language)}
                   </h2>
-                  <p className="text-sm text-[#717171]">
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>
                     {property.maxGuests} {t('guests', language)} · {property.bedrooms} {t('rooms', language)} · {property.bathrooms} {t('bathrooms', language)}
                   </p>
                 </div>
@@ -931,43 +967,43 @@ export default function PropertyGuidePage() {
             </div>
 
             {/* Highlights Row */}
-            <div className="py-6 border-b border-gray-200">
+            <div className={`py-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
               <div className="space-y-4">
                 <div className="flex items-start gap-4">
-                  <Shield className="w-6 h-6 text-[#222222] flex-shrink-0 mt-0.5" />
+                  <Shield className={`w-6 h-6 flex-shrink-0 mt-0.5 ${darkMode ? 'text-white' : 'text-[#222222]'}`} />
                   <div>
-                    <h3 className="font-medium text-[#222222]">{property.hostContactName} es un anfitrión verificado</h3>
-                    <p className="text-sm text-[#717171]">Los anfitriones verificados tienen un historial de excelentes evaluaciones.</p>
+                    <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-[#222222]'}`}>{property.hostContactName} es un anfitrión verificado</h3>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>Los anfitriones verificados tienen un historial de excelentes evaluaciones.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
-                  <Key className="w-6 h-6 text-[#222222] flex-shrink-0 mt-0.5" />
+                  <Key className={`w-6 h-6 flex-shrink-0 mt-0.5 ${darkMode ? 'text-white' : 'text-[#222222]'}`} />
                   <div>
-                    <h3 className="font-medium text-[#222222]">Check-in autónomo</h3>
-                    <p className="text-sm text-[#717171]">Realiza el check-in fácilmente usando las instrucciones del manual.</p>
+                    <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-[#222222]'}`}>Check-in autónomo</h3>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>Realiza el check-in fácilmente usando las instrucciones del manual.</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Description */}
-            <div className="py-6 border-b border-gray-200">
-              <p className="text-[#484848] leading-relaxed">
+            <div className={`py-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <p className={`leading-relaxed ${darkMode ? 'text-gray-300' : 'text-[#484848]'}`}>
                 {getPropertyText(property.description, property.descriptionTranslations, language, t('accommodationWelcome', language))}
               </p>
             </div>
 
             {/* Location */}
-            <div className="py-6 border-b border-gray-200">
-              <h3 className="text-[22px] font-semibold text-[#222222] mb-4">
+            <div className={`py-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h3 className={`text-[22px] font-semibold mb-4 ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
                 {t('location', language)}
               </h3>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <MapPin className="w-5 h-5 text-[#717171] flex-shrink-0" />
+                  <MapPin className={`w-5 h-5 flex-shrink-0 ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`} />
                   <div>
-                    <p className="text-[#222222]">{property.street}</p>
-                    <p className="text-[#717171] text-sm">{getText(property.city, language, '')}, {getText(property.state, language, '')}</p>
+                    <p className={darkMode ? 'text-white' : 'text-[#222222]'}>{property.street}</p>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>{getText(property.city, language, '')}, {getText(property.state, language, '')}</p>
                   </div>
                 </div>
                 <button
@@ -987,7 +1023,11 @@ export default function PropertyGuidePage() {
                       console.error('Error opening maps:', error)
                     }
                   }}
-                  className="px-4 py-2 text-sm font-medium text-[#222222] border border-[#222222] rounded-lg hover:bg-gray-50 transition-colors w-full sm:w-auto"
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors w-full sm:w-auto ${
+                    darkMode
+                      ? 'text-white border border-gray-600 hover:bg-gray-800'
+                      : 'text-[#222222] border border-[#222222] hover:bg-gray-50'
+                  }`}
                 >
                   {t('takeMeThere', language)}
                 </button>
@@ -998,7 +1038,9 @@ export default function PropertyGuidePage() {
           {/* Right Column - Host Contact Card */}
           <div className="lg:col-span-1">
             <div className="sticky top-20">
-              <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-6">
+              <div className={`rounded-xl border shadow-lg p-6 ${
+                darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+              }`}>
                 {/* Host Photo & Name */}
                 <div className="text-center mb-6">
                   <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 ring-2 ring-gray-100">
@@ -1016,21 +1058,21 @@ export default function PropertyGuidePage() {
                       </div>
                     )}
                   </div>
-                  <h3 className="text-lg font-semibold text-[#222222]">
+                  <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
                     {property.hostContactName}
                   </h3>
-                  <p className="text-sm text-[#717171]">{t('yourHost', language)}</p>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>{t('yourHost', language)}</p>
                 </div>
 
                 {/* Stats */}
                 <div className="grid grid-cols-2 gap-3 mb-6">
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <p className="font-semibold text-[#222222]">100%</p>
-                    <p className="text-xs text-[#717171]">Tasa respuesta</p>
+                  <div className={`text-center p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                    <p className={`font-semibold ${darkMode ? 'text-white' : 'text-[#222222]'}`}>100%</p>
+                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>Tasa respuesta</p>
                   </div>
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <p className="font-semibold text-[#222222]">&lt; 1h</p>
-                    <p className="text-xs text-[#717171]">Responde en</p>
+                  <div className={`text-center p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                    <p className={`font-semibold ${darkMode ? 'text-white' : 'text-[#222222]'}`}>&lt; 1h</p>
+                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>Responde en</p>
                   </div>
                 </div>
 
@@ -1151,14 +1193,14 @@ export default function PropertyGuidePage() {
         )}
 
         {/* Manual Sections - Airbnb Style */}
-        <div id="zonas" className="py-8 border-t border-gray-200">
+        <div id="zonas" className={`py-8 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-[22px] font-semibold text-[#222222]">
+            <h2 className={`text-[22px] font-semibold ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
               {getManualTitle(property, language)}
             </h2>
             <button
               onClick={() => setShowSuggestionBox(true)}
-              className="flex items-center gap-2 text-sm text-[#222222] hover:underline"
+              className={`flex items-center gap-2 text-sm hover:underline ${darkMode ? 'text-gray-300' : 'text-[#222222]'}`}
             >
               <Lightbulb className="w-4 h-4" />
               {t('suggestions', language)}
@@ -1192,18 +1234,24 @@ export default function PropertyGuidePage() {
                       transition={{ duration: 0.2, delay: index * 0.05 }}
                     >
                       <button
-                        className="w-full text-left bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:border-[#222222] hover:shadow-md transition-all duration-200 group"
+                        className={`w-full text-left rounded-xl p-4 cursor-pointer transition-all duration-200 group ${
+                          darkMode
+                            ? 'bg-gray-800 border border-gray-700 hover:border-gray-500 hover:shadow-lg'
+                            : 'bg-white border border-gray-200 hover:border-[#222222] hover:shadow-md'
+                        }`}
                         onClick={() => handleZoneClick(zone.id)}
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-lg bg-gray-50 group-hover:bg-gray-100 flex items-center justify-center flex-shrink-0 transition-colors">
-                            {zone.icon ? getZoneIcon(zone.icon, "w-6 h-6 text-[#222222]") : getZoneIcon(getText(zone.name, language, '').toLowerCase(), "w-6 h-6 text-[#222222]")}
+                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                            darkMode ? 'bg-gray-700 group-hover:bg-gray-600' : 'bg-gray-50 group-hover:bg-gray-100'
+                          }`}>
+                            {zone.icon ? getZoneIcon(zone.icon, `w-6 h-6 ${darkMode ? 'text-white' : 'text-[#222222]'}`) : getZoneIcon(getText(zone.name, language, '').toLowerCase(), `w-6 h-6 ${darkMode ? 'text-white' : 'text-[#222222]'}`)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-[#222222] truncate">
+                            <h4 className={`font-medium truncate ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
                               {getText(zone.name, language, t('zone', language))}
                             </h4>
-                            <p className="text-sm text-[#717171]">
+                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>
                               {zone.stepsCount} {zone.stepsCount === 1 ? 'instrucción' : 'instrucciones'}
                             </p>
                           </div>
@@ -1211,7 +1259,9 @@ export default function PropertyGuidePage() {
                             {isZoneViewed(zone.id) && (
                               <CheckCircle className="w-5 h-5 text-[#008A05]" />
                             )}
-                            <ChevronRight className="w-5 h-5 text-[#717171] group-hover:text-[#222222] transition-colors" />
+                            <ChevronRight className={`w-5 h-5 transition-colors ${
+                              darkMode ? 'text-gray-500 group-hover:text-white' : 'text-[#717171] group-hover:text-[#222222]'
+                            }`} />
                           </div>
                         </div>
                       </button>
@@ -1222,32 +1272,30 @@ export default function PropertyGuidePage() {
           )}
         </div>
 
-        {/* Important Announcements - WITH CLOSE BUTTON */}
+        {/* Important Announcements - Compact Airbnb Style */}
         {announcements.length > 0 && showAnnouncementsInline && (
-          <div className="border-b border-gray-200 pb-8 mb-8">
-            <div className="mb-6 flex items-start justify-between">
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold text-gray-900 flex items-center mb-2">
-                  <Bell className="w-6 h-6 mr-2 text-orange-600" />
-                  {language === 'es' ? 'Anuncios Importantes' : language === 'en' ? 'Important Announcements' : 'Annonces Importantes'}
+          <div className={`py-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            {/* Header Row - Compact */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Bell className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-[#222222]'}`} />
+                <h3 className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
+                  {language === 'es' ? 'Avisos importantes' : language === 'en' ? 'Important notices' : 'Avis importants'}
                 </h3>
-                <p className="text-gray-600 text-sm">
-                  {language === 'es' ? 'Información importante que debes conocer' :
-                   language === 'en' ? 'Important information you should know' :
-                   'Informations importantes à connaître'}
-                </p>
+                <span className={`text-xs px-1.5 py-0.5 rounded-full ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'}`}>
+                  {announcements.length}
+                </span>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
                 onClick={handleCloseInlineAnnouncements}
-                className="text-gray-400 hover:text-gray-600 ml-4"
+                className={`p-1 rounded-full transition-colors ${darkMode ? 'hover:bg-gray-700 text-gray-500' : 'hover:bg-gray-100 text-gray-400'}`}
               >
-                <X className="w-5 h-5" />
-              </Button>
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            <div className="space-y-4">
+            {/* Announcements List - Compact Cards */}
+            <div className="space-y-2">
               {announcements
                 .sort((a, b) => {
                   const priorityOrder = { 'URGENT': 4, 'HIGH': 3, 'NORMAL': 2, 'LOW': 1 }
@@ -1258,57 +1306,59 @@ export default function PropertyGuidePage() {
                 })
                 .map((announcement, index) => {
                   const IconComponent = getAnnouncementIcon(announcement.category)
-                  const colorName = getAnnouncementColor(announcement.priority)
+                  const isUrgent = announcement.priority === 'URGENT' || announcement.priority === 'HIGH'
 
                   return (
                     <motion.div
                       key={announcement.id}
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
+                      transition={{ delay: index * 0.05 }}
+                      className={`p-3 rounded-lg border transition-colors ${
+                        darkMode
+                          ? isUrgent ? 'bg-gray-800 border-gray-600' : 'bg-gray-800/50 border-gray-700'
+                          : isUrgent ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-100'
+                      }`}
                     >
-                      <Card className={`p-4 border-l-4 border-l-${colorName}-500 bg-${colorName}-50/30`}>
-                        <div className="flex items-start space-x-3">
-                          <div className={`p-2 rounded-lg bg-${colorName}-100 flex-shrink-0`}>
-                            <IconComponent className={`w-5 h-5 text-${colorName}-600`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-1">
-                              <h4 className="font-semibold text-gray-900 text-sm">
-                                {announcement.title[language as 'es' | 'en' | 'fr'] || announcement.title.es}
-                              </h4>
-                              {announcement.priority !== 'NORMAL' && (
-                                <span className={`px-2 py-1 text-xs rounded-full bg-${colorName}-100 text-${colorName}-700 font-medium`}>
-                                  {getPriorityText(announcement.priority, language)}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-gray-700 text-sm leading-relaxed mb-2">
-                              {announcement.message[language as 'es' | 'en' | 'fr'] || announcement.message.es}
-                            </p>
-                            {(announcement.startDate || announcement.endDate) && (
-                              <div className="flex items-center text-xs text-gray-500">
-                                <Clock className="w-3 h-3 mr-1" />
-                                {announcement.startDate && announcement.endDate ? (
-                                  <span>
-                                    {new Date(announcement.startDate).toLocaleDateString()} - {new Date(announcement.endDate).toLocaleDateString()}
-                                  </span>
-                                ) : announcement.startDate ? (
-                                  <span>
-                                    {language === 'es' ? 'Desde: ' : language === 'en' ? 'From: ' : 'Depuis: '}
-                                    {new Date(announcement.startDate).toLocaleDateString()}
-                                  </span>
-                                ) : (
-                                  <span>
-                                    {language === 'es' ? 'Hasta: ' : language === 'en' ? 'Until: ' : "Jusqu'au: "}
-                                    {new Date(announcement.endDate!).toLocaleDateString()}
-                                  </span>
-                                )}
-                              </div>
+                      <div className="flex items-start gap-2.5">
+                        {/* Icon - Small */}
+                        <div className={`p-1.5 rounded-md flex-shrink-0 ${
+                          darkMode ? 'bg-gray-700' : 'bg-gray-100'
+                        }`}>
+                          <IconComponent className={`w-3.5 h-3.5 ${darkMode ? 'text-gray-300' : 'text-[#222222]'}`} />
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className={`font-medium text-sm leading-tight ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
+                              {announcement.title[language as 'es' | 'en' | 'fr'] || announcement.title.es}
+                            </h4>
+                            {isUrgent && (
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium flex-shrink-0 ${
+                                darkMode ? 'bg-red-900/50 text-red-400' : 'bg-red-50 text-red-600'
+                              }`}>
+                                {announcement.priority === 'URGENT' ? '!' : '⚠'}
+                              </span>
                             )}
                           </div>
+                          <p className={`text-xs leading-relaxed mt-0.5 line-clamp-2 ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>
+                            {announcement.message[language as 'es' | 'en' | 'fr'] || announcement.message.es}
+                          </p>
+                          {(announcement.startDate || announcement.endDate) && (
+                            <div className={`flex items-center text-[10px] mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                              <Clock className="w-2.5 h-2.5 mr-0.5" />
+                              {announcement.startDate && announcement.endDate ? (
+                                <span>{new Date(announcement.startDate).toLocaleDateString()} - {new Date(announcement.endDate).toLocaleDateString()}</span>
+                              ) : announcement.startDate ? (
+                                <span>{new Date(announcement.startDate).toLocaleDateString()}</span>
+                              ) : (
+                                <span>{new Date(announcement.endDate!).toLocaleDateString()}</span>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      </Card>
+                      </div>
                     </motion.div>
                   )
                 })
