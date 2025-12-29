@@ -23,14 +23,7 @@ const SOURCE_TO_LEAD_MAGNET: Record<string, {
   'equilibrado-versatil-excepcional': { ...LEAD_MAGNETS.EQUILIBRADO, archetype: 'Equilibrado' },
   'improvisador-kit-anti-caos': { ...LEAD_MAGNETS.IMPROVISADOR, archetype: 'Improvisador' },
   // PDF/downloadable tools - these get the download email
-  'wifi-card': {
-    title: 'Plantilla WiFi Profesional',
-    subtitle: 'Tarjeta WiFi lista para imprimir',
-    archetype: 'Anfitrion',
-    pages: 1,
-    downloadables: ['Tarjeta WiFi editable', 'Diseño profesional', 'Formato para imprimir'],
-    downloadUrl: '/recursos/plantilla-wifi'
-  },
+  // Note: wifi-card removed - it's now in ONLINE_TOOLS (user downloads directly on page)
   'cleaning-checklist': {
     title: 'Checklist de Limpieza',
     subtitle: 'Lista completa para tu equipo',
@@ -46,7 +39,8 @@ const SOURCE_TO_LEAD_MAGNET: Record<string, {
 
 // Online tools that don't need download email - sequences handle everything
 // Slugs must match what the frontend sends as 'source'
-const ONLINE_TOOLS = ['qr-generator', 'pricing-calculator', 'roi-calculator', 'house-rules-generator']
+// wifi-card: downloads directly on page, no need to email a link
+const ONLINE_TOOLS = ['qr-generator', 'pricing-calculator', 'roi-calculator', 'house-rules-generator', 'wifi-card']
 
 export async function POST(request: NextRequest) {
   try {

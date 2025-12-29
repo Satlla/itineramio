@@ -354,11 +354,6 @@ export default function WiFiCardGenerator() {
                     {/* Content */}
                     <div className="relative z-10 h-full flex flex-col justify-between">
                       <div>
-                        {/* Style emoji decoration */}
-                        <div className="absolute top-0 right-0 text-4xl opacity-30">
-                          {selectedStyle.emoji}
-                        </div>
-
                         {propertyName && (
                           <div className="text-xl font-bold mb-2">
                             {propertyName}
@@ -384,11 +379,6 @@ export default function WiFiCardGenerator() {
                             {password || '••••••••'}
                           </div>
                         </div>
-                      </div>
-
-                      {/* Itineramio branding */}
-                      <div className="mt-6 text-xs opacity-50">
-                        Creado con Itineramio
                       </div>
                     </div>
                   </div>
