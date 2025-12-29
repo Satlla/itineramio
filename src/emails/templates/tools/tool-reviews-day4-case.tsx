@@ -90,8 +90,19 @@ export default function ToolReviewsDay4Case({
             ¿Quieres conseguir resultados similares?
           </Text>
 
+          <Section style={blogBox}>
+            <Text style={blogTitle}>📚 Lectura recomendada</Text>
+            <Text style={blogText}>
+              <strong>Manual Digital Apartamento Turístico: Guía Completa 2026</strong><br />
+              Descubre cómo los mejores anfitriones organizan toda la información de su alojamiento en un solo lugar.
+            </Text>
+            <Link href="https://www.itineramio.com/blog/manual-digital-apartamento-turistico-guia-completa?utm_source=email&utm_medium=sequence&utm_campaign=tool-reviews" style={blogLink}>
+              Leer artículo →
+            </Link>
+          </Section>
+
           <Section style={ctaSection}>
-            <Link href="https://www.itineramio.com/register" style={button}>
+            <Link href="https://www.itineramio.com/register?utm_source=email&utm_medium=sequence&utm_campaign=tool-reviews" style={button}>
               Crear mi manual digital gratis
             </Link>
             <Text style={ctaSubtext}>
@@ -287,4 +298,33 @@ const footer = {
 const footerLink = {
   color: '#999',
   textDecoration: 'underline',
+}
+
+const blogBox = {
+  backgroundColor: '#f0f9ff',
+  border: '1px solid #bae6fd',
+  borderRadius: '8px',
+  padding: '16px',
+  margin: '24px 0',
+}
+
+const blogTitle = {
+  color: '#0369a1',
+  fontSize: '14px',
+  fontWeight: '600' as const,
+  margin: '0 0 8px 0',
+}
+
+const blogText = {
+  color: '#0c4a6e',
+  fontSize: '14px',
+  lineHeight: '1.5',
+  margin: '0 0 12px 0',
+}
+
+const blogLink = {
+  color: '#0369a1',
+  fontSize: '14px',
+  fontWeight: '600' as const,
+  textDecoration: 'none',
 }

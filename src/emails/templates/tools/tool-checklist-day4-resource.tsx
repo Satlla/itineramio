@@ -76,6 +76,19 @@ export default function ToolChecklistDay4Resource({ name }: ToolChecklistDay4Pro
               En el próximo email te contaré sobre un test rápido que hacemos para ayudar a los anfitriones a descubrir sus fortalezas y áreas de mejora. Es gratuito y toma solo 90 segundos.
             </p>
 
+            <div style={{ backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
+              <p style={{ margin: '0 0 8px 0', color: '#0369a1', fontSize: '14px', fontWeight: 600 }}>
+                📚 Lectura recomendada
+              </p>
+              <p style={{ margin: '0 0 12px 0', color: '#0c4a6e', fontSize: '14px', lineHeight: 1.5 }}>
+                <strong>Manual Digital Apartamento Turístico: Guía Completa 2026</strong><br />
+                Descubre cómo los mejores anfitriones organizan toda la información de su alojamiento en un solo lugar.
+              </p>
+              <a href="https://www.itineramio.com/blog/manual-digital-apartamento-turistico-guia-completa?utm_source=email&utm_medium=sequence&utm_campaign=tool-checklist" style={{ color: '#0369a1', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>
+                Leer artículo →
+              </a>
+            </div>
+
             <p style={{ margin: '0', color: '#374151', fontSize: '16px' }}>
               — El equipo de Itineramio
             </p>

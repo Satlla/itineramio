@@ -79,6 +79,19 @@ export default function ToolHouseRulesDay4Prearrivals({ name, rulesData }: Props
               El próximo email: <strong>qué hacer cuando un huésped incumple una norma</strong> (y cómo evitar conflictos).
             </p>
 
+            <div style={{ backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
+              <p style={{ margin: '0 0 8px 0', color: '#0369a1', fontSize: '14px', fontWeight: 600 }}>
+                📚 Lectura recomendada
+              </p>
+              <p style={{ margin: '0 0 12px 0', color: '#0c4a6e', fontSize: '14px', lineHeight: 1.5 }}>
+                <strong>Manual Digital Apartamento Turístico: Guía Completa 2026</strong><br />
+                Descubre cómo los mejores anfitriones organizan toda la información de su alojamiento en un solo lugar.
+              </p>
+              <a href="https://www.itineramio.com/blog/manual-digital-apartamento-turistico-guia-completa?utm_source=email&utm_medium=sequence&utm_campaign=tool-house-rules" style={{ color: '#0369a1', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>
+                Leer artículo →
+              </a>
+            </div>
+
             <p style={{ margin: '0', color: '#374151', fontSize: '16px' }}>
               Un saludo,<br />
               <strong>Alejandro</strong>

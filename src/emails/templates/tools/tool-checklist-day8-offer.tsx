@@ -62,7 +62,7 @@ export default function ToolChecklistDay8Offer({ name }: ToolChecklistDay8Props)
                 Sin tarjeta de crédito · Cancela cuando quieras
               </p>
               <a
-                href="https://www.itineramio.com/pricing?utm_source=email&utm_medium=sequence&utm_campaign=tool_checklist"
+                href="https://www.itineramio.com/register?utm_source=email&utm_medium=sequence&utm_campaign=tool-checklist"
                 style={{
                   display: 'inline-block',
                   backgroundColor: '#ffffff',

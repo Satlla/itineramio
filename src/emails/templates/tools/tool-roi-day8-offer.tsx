@@ -46,7 +46,7 @@ export default function ToolRoiDay8Offer({ name }: Props) {
 
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <a
-                href="https://itineramio.com/register"
+                href="https://www.itineramio.com/register?utm_source=email&utm_medium=sequence&utm_campaign=tool-roi"
                 style={{
                   display: 'inline-block',
                   backgroundColor: '#7c3aed',
