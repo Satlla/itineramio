@@ -16,7 +16,8 @@ import {
   ChevronRight,
   CheckCircle,
   X,
-  ArrowLeft
+  ArrowLeft,
+  Lightbulb
 } from 'lucide-react'
 import { Button } from './Button'
 import { Card } from './Card'
@@ -59,6 +60,83 @@ interface StepEditorProps {
   editingStepId?: string | null
   propertyId?: string
   zoneId?: string
+}
+
+// Formatting help tooltip component
+const FormattingHelp = () => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div className="relative inline-block ml-2">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="text-amber-500 hover:text-amber-600 transition-colors"
+        title="Ayuda de formato"
+      >
+        <Lightbulb className="w-4 h-4" />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setIsOpen(false)}
+            />
+
+            {/* Tooltip */}
+            <motion.div
+              initial={{ opacity: 0, y: -5, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -5, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="absolute left-0 top-6 z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-4 min-w-[280px]"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-medium text-gray-900 text-sm">Formato de texto</h4>
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center justify-between py-1 border-b border-gray-100">
+                  <code className="bg-gray-100 px-2 py-0.5 rounded text-xs">**texto**</code>
+                  <span className="font-semibold text-gray-900">Negrita</span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-b border-gray-100">
+                  <code className="bg-gray-100 px-2 py-0.5 rounded text-xs">*texto*</code>
+                  <span className="italic text-gray-700">Cursiva</span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-b border-gray-100">
+                  <code className="bg-gray-100 px-2 py-0.5 rounded text-xs">__texto__</code>
+                  <span className="underline decoration-2 text-gray-700">Subrayado</span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-b border-gray-100">
+                  <code className="bg-gray-100 px-2 py-0.5 rounded text-xs">~~texto~~</code>
+                  <span className="line-through text-gray-500">Tachado</span>
+                </div>
+                <div className="flex items-center justify-between py-1">
+                  <code className="bg-gray-100 px-2 py-0.5 rounded text-xs">https://...</code>
+                  <span className="text-violet-600 underline">Enlace</span>
+                </div>
+              </div>
+
+              <p className="text-xs text-gray-500 mt-3 pt-2 border-t border-gray-100">
+                Los enlaces se convierten automáticamente en links clicables.
+              </p>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  )
 }
 
 export function StepEditor({
@@ -382,7 +460,10 @@ export function StepEditor({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Instrucciones</label>
+            <div className="flex items-center mb-3">
+              <label className="text-sm font-medium text-gray-700">Instrucciones</label>
+              <FormattingHelp />
+            </div>
             <textarea
               value={step.content[activeLanguage] || ''}
               onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
@@ -430,7 +511,10 @@ export function StepEditor({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Descripción / Instrucciones</label>
+            <div className="flex items-center mb-3">
+              <label className="text-sm font-medium text-gray-700">Descripción / Instrucciones</label>
+              <FormattingHelp />
+            </div>
             <textarea
               value={step.content[activeLanguage] || ''}
               onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
@@ -481,7 +565,10 @@ export function StepEditor({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Descripción / Instrucciones</label>
+            <div className="flex items-center mb-3">
+              <label className="text-sm font-medium text-gray-700">Descripción / Instrucciones</label>
+              <FormattingHelp />
+            </div>
             <textarea
               value={step.content[activeLanguage] || ''}
               onChange={(e) => updateStepContent(step.id, activeLanguage, e.target.value)}
@@ -891,9 +978,12 @@ export function StepEditor({
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Instrucciones del paso
-                              </label>
+                              <div className="flex items-center mb-2">
+                                <label className="text-sm font-medium text-gray-700">
+                                  Instrucciones del paso
+                                </label>
+                                <FormattingHelp />
+                              </div>
                               <textarea
                                 value={steps[activeStep].content[activeLanguage] || ''}
                                 onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
@@ -944,9 +1034,12 @@ export function StepEditor({
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Descripción / Instrucciones
-                              </label>
+                              <div className="flex items-center mb-2">
+                                <label className="text-sm font-medium text-gray-700">
+                                  Descripción / Instrucciones
+                                </label>
+                                <FormattingHelp />
+                              </div>
                               <textarea
                                 value={steps[activeStep].content[activeLanguage] || ''}
                                 onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
@@ -1001,9 +1094,12 @@ export function StepEditor({
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Descripción / Instrucciones
-                              </label>
+                              <div className="flex items-center mb-2">
+                                <label className="text-sm font-medium text-gray-700">
+                                  Descripción / Instrucciones
+                                </label>
+                                <FormattingHelp />
+                              </div>
                               <textarea
                                 value={steps[activeStep].content[activeLanguage] || ''}
                                 onChange={(e) => updateStepContent(steps[activeStep].id, activeLanguage, e.target.value)}
