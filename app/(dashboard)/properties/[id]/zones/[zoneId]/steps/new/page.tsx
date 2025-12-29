@@ -5,8 +5,8 @@ import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { 
-  ArrowLeft, 
+import {
+  ArrowLeft,
   Save,
   FileText,
   Image as ImageIcon,
@@ -14,7 +14,8 @@ import {
   Link as LinkIcon,
   Eye,
   Clock,
-  Info
+  Info,
+  Lightbulb
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
@@ -70,6 +71,25 @@ const stepTypes = [
     description: 'Enlace a recurso externo'
   }
 ]
+
+// Formatting legend component
+const FormattingLegend = () => (
+  <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+    <div className="flex items-start gap-2">
+      <Lightbulb className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+      <div className="text-xs text-amber-800">
+        <p className="font-medium mb-1">Personaliza tu texto con estos estilos:</p>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+          <span><code className="bg-amber-100 px-1 rounded">**texto**</code> → <strong>negrita</strong></span>
+          <span><code className="bg-amber-100 px-1 rounded">*texto*</code> → <em>cursiva</em></span>
+          <span><code className="bg-amber-100 px-1 rounded">__texto__</code> → <span className="underline">subrayado</span></span>
+          <span><code className="bg-amber-100 px-1 rounded">~~texto~~</code> → <span className="line-through">tachado</span></span>
+        </div>
+        <p className="mt-1 text-amber-700">Las URLs se convierten en enlaces automáticamente.</p>
+      </div>
+    </div>
+  </div>
+)
 
 export default function NewStepPage() {
   const router = useRouter()
@@ -303,6 +323,7 @@ export default function NewStepPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Contenido del texto *
                 </label>
+                <FormattingLegend />
                 <textarea
                   {...register('content')}
                   rows={8}
@@ -314,9 +335,6 @@ export default function NewStepPage() {
                 {errors.content && (
                   <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>
                 )}
-                <p className="mt-1 text-xs text-gray-500">
-                  Puedes usar formato markdown para dar estilo al texto
-                </p>
               </div>
             )}
 
@@ -343,6 +361,7 @@ export default function NewStepPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Explicación de la imagen *
                   </label>
+                  <FormattingLegend />
                   <textarea
                     {...register('content')}
                     rows={4}
@@ -381,6 +400,7 @@ export default function NewStepPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Descripción del video *
                   </label>
+                  <FormattingLegend />
                   <textarea
                     {...register('content')}
                     rows={4}
@@ -416,6 +436,7 @@ export default function NewStepPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Descripción del enlace *
                   </label>
+                  <FormattingLegend />
                   <textarea
                     {...register('content')}
                     rows={4}

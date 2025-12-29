@@ -110,6 +110,89 @@ const formatTextWithSmartBreaks = (text: string): string[] => {
   return lines
 }
 
+// Render text with rich formatting
+// Supports: URLs, **bold**, *italic*, __underline__, ~~strikethrough~~
+const renderTextWithFormatting = (text: string): React.ReactNode[] => {
+  if (!text) return []
+
+  // Combined pattern for all formatting types
+  // Order matters: longer patterns first to avoid partial matches
+  const combinedPattern = /(https?:\/\/[^\s<>]+|www\.[^\s<>]+|\*\*[^*]+\*\*|\*[^*]+\*|__[^_]+__|~~[^~]+~~)/gi
+
+  const parts = text.split(combinedPattern)
+
+  return parts.map((part, index) => {
+    if (!part) return null
+
+    // Check if this part is a URL
+    const urlPattern = /^(https?:\/\/[^\s<>]+|www\.[^\s<>]+)$/i
+    if (part.match(urlPattern)) {
+      const href = part.startsWith('www.') ? `https://${part}` : part
+      return (
+        <a
+          key={index}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-violet-600 hover:text-violet-800 underline break-all"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part}
+        </a>
+      )
+    }
+
+    // Check if this part is bold text (**text**)
+    const boldPattern = /^\*\*([^*]+)\*\*$/
+    const boldMatch = part.match(boldPattern)
+    if (boldMatch) {
+      return (
+        <strong key={index} className="font-semibold text-gray-900">
+          {boldMatch[1]}
+        </strong>
+      )
+    }
+
+    // Check if this part is italic text (*text*)
+    const italicPattern = /^\*([^*]+)\*$/
+    const italicMatch = part.match(italicPattern)
+    if (italicMatch) {
+      return (
+        <em key={index} className="italic">
+          {italicMatch[1]}
+        </em>
+      )
+    }
+
+    // Check if this part is underline text (__text__)
+    const underlinePattern = /^__([^_]+)__$/
+    const underlineMatch = part.match(underlinePattern)
+    if (underlineMatch) {
+      return (
+        <span key={index} className="underline decoration-2">
+          {underlineMatch[1]}
+        </span>
+      )
+    }
+
+    // Check if this part is strikethrough text (~~text~~)
+    const strikePattern = /^~~([^~]+)~~$/
+    const strikeMatch = part.match(strikePattern)
+    if (strikeMatch) {
+      return (
+        <span key={index} className="line-through text-gray-500">
+          {strikeMatch[1]}
+        </span>
+      )
+    }
+
+    return part
+  }).filter(Boolean)
+}
+
+// Keep old function name as alias for compatibility
+const renderTextWithLinks = renderTextWithFormatting
+
 // Translations for the public interface
 const translations = {
   es: {
@@ -917,12 +1000,12 @@ export default function ZoneGuidePage({
                               </h2>
                             )}
 
-                            {/* Show content as normal text - render with smart line breaks */}
+                            {/* Show content as normal text - render with smart line breaks and clickable URLs */}
                             {hasContent && (
                               <div className="text-[#484848] leading-relaxed text-base max-w-full space-y-3">
                                 {formatTextWithSmartBreaks(contentText).map((line, i) => (
                                   <p key={i} className={line.trim() === '' ? 'h-3' : 'break-words'}>
-                                    {line || '\u00A0'}
+                                    {line ? renderTextWithLinks(line) : '\u00A0'}
                                   </p>
                                 ))}
                               </div>
@@ -933,7 +1016,7 @@ export default function ZoneGuidePage({
                               <div className="text-[#484848] leading-relaxed text-base max-w-full space-y-3">
                                 {formatTextWithSmartBreaks(titleText).map((line, i) => (
                                   <p key={i} className={line.trim() === '' ? 'h-3' : 'break-words'}>
-                                    {line || '\u00A0'}
+                                    {line ? renderTextWithLinks(line) : '\u00A0'}
                                   </p>
                                 ))}
                               </div>

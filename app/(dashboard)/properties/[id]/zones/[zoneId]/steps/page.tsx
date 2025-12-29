@@ -2,21 +2,22 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence, Reorder } from 'framer-motion'
-import { 
-  Plus, 
-  Type, 
-  Image, 
-  Video, 
-  GripVertical, 
-  Edit, 
-  Trash2, 
+import {
+  Plus,
+  Type,
+  Image,
+  Video,
+  GripVertical,
+  Edit,
+  Trash2,
   Save,
   X,
   ArrowLeft,
   Eye,
   Upload,
   Link,
-  Loader2
+  Loader2,
+  Lightbulb
 } from 'lucide-react'
 import { Button } from '../../../../../../../src/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../../../../src/components/ui/Card'
@@ -66,6 +67,25 @@ const getMultilingualText = (value: any, selectedLanguage: 'es' | 'en' = 'es', f
   }
   return fallback
 }
+
+// Formatting legend component
+const FormattingLegend = () => (
+  <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+    <div className="flex items-start gap-2">
+      <Lightbulb className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+      <div className="text-xs text-amber-800">
+        <p className="font-medium mb-1">Personaliza tu texto con estos estilos:</p>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+          <span><code className="bg-amber-100 px-1 rounded">**texto**</code> → <strong>negrita</strong></span>
+          <span><code className="bg-amber-100 px-1 rounded">*texto*</code> → <em>cursiva</em></span>
+          <span><code className="bg-amber-100 px-1 rounded">__texto__</code> → <span className="underline">subrayado</span></span>
+          <span><code className="bg-amber-100 px-1 rounded">~~texto~~</code> → <span className="line-through">tachado</span></span>
+        </div>
+        <p className="mt-1 text-amber-700">Las URLs se convierten en enlaces automáticamente.</p>
+      </div>
+    </div>
+  </div>
+)
 
 // API integration functions
 const fetchZoneData = async (propertyId: string, zoneId: string) => {
@@ -492,6 +512,7 @@ export default function ZoneStepsPage({
       case StepType.TEXT:
         return (
           <div className="space-y-4">
+            <FormattingLegend />
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Contenido (Español)
@@ -559,6 +580,7 @@ export default function ZoneStepsPage({
                 <p className="text-xs text-gray-500 mt-1">PNG, JPG hasta 10MB</p>
               </div>
             </div>
+            <FormattingLegend />
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Pie de foto (Español)
@@ -673,6 +695,7 @@ export default function ZoneStepsPage({
                 saveToLibrary={true}
               />
             </div>
+            <FormattingLegend />
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Pie de video (Español)
