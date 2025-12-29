@@ -89,6 +89,17 @@ async function getEmailTemplate(templateName: string): Promise<React.FC<any> | n
         return (await import('../emails/templates/tools/tool-qr-day6-test')).default
       case 'tool-qr-day8-offer':
         return (await import('../emails/templates/tools/tool-qr-day8-offer')).default
+      // Tool: Plantilla Reviews templates
+      case 'tool-reviews-day0-delivery':
+        return (await import('../emails/templates/tools/tool-reviews-day0-delivery')).default
+      case 'tool-reviews-day2-mistakes':
+        return (await import('../emails/templates/tools/tool-reviews-day2-mistakes')).default
+      case 'tool-reviews-day4-case':
+        return (await import('../emails/templates/tools/tool-reviews-day4-case')).default
+      case 'tool-reviews-day6-negative':
+        return (await import('../emails/templates/tools/tool-reviews-day6-negative')).default
+      case 'tool-reviews-day8-offer':
+        return (await import('../emails/templates/tools/tool-reviews-day8-offer')).default
       // Tool: Calculadora de ROI templates
       case 'tool-roi-day0-delivery':
         return (await import('../emails/templates/tools/tool-roi-day0-delivery')).default

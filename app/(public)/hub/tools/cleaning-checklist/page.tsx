@@ -19,7 +19,7 @@ import { Navbar } from '../../../../../src/components/layout/Navbar'
 import { SocialShare } from '../../../../../src/components/tools/SocialShare'
 import { LeadCaptureModal } from '../../../../../src/components/tools/LeadCaptureModal'
 import { SuccessModal } from '../../../../../src/components/ui/SuccessModal'
-import html2canvas from 'html2canvas'
+import { generatePDF } from '../../../../../src/lib/pdf-generator'
 
 const checklistStyles = [
   {
@@ -289,17 +289,17 @@ export default function CleaningChecklist() {
     if (!checklistRef.current) return
 
     try {
-      const canvas = await html2canvas(checklistRef.current, {
-        scale: 2,
-        backgroundColor: '#ffffff'
-      })
-
-      const link = document.createElement('a')
-      link.download = `cleaning-checklist-${propertyName || 'itineramio'}.png`
-      link.href = canvas.toDataURL('image/png')
-      link.click()
+      await generatePDF(
+        checklistRef.current,
+        `checklist-limpieza-${propertyName || 'itineramio'}.pdf`,
+        {
+          margin: 15,
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }
+      )
     } catch (error) {
-      console.error('Error generating image:', error)
+      console.error('Error generating PDF:', error)
     }
   }
 
