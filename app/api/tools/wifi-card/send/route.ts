@@ -238,7 +238,7 @@ export async function POST(request: NextRequest) {
     })
 
     await getResend().emails.send({
-      from: 'Itineramio <tools@itineramio.com>',
+      from: 'Itineramio <hola@itineramio.com>',
       to: normalizedEmail,
       subject: `Tu Tarjeta WiFi${propertyName ? ` - ${propertyName}` : ''} 📶`,
       html: htmlContent

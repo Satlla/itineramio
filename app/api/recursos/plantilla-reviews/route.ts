@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
 
     // Send email
     const emailResult = await getResend().emails.send({
-      from: 'Itineramio <recursos@itineramio.com>',
+      from: 'Itineramio <hola@itineramio.com>',
       to: email,
       subject: 'Tu Guía Rápida de Reseñas - Plantilla PRO',
       html: `

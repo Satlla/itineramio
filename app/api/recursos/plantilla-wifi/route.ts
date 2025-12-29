@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
 
     // Send email
     const emailResult = await getResend().emails.send({
-      from: 'Itineramio <recursos@itineramio.com>',
+      from: 'Itineramio <hola@itineramio.com>',
       to: email,
       subject: 'Tu Tarjeta WiFi Profesional - Lista para imprimir',
       html: `
