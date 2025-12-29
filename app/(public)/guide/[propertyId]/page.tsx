@@ -1828,7 +1828,7 @@ export default function PropertyGuidePage() {
               className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[85vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Header - Airbnb style with X button */}
+              {/* Header - Airbnb style with X button and language selector */}
               <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <button
@@ -1840,7 +1840,23 @@ export default function PropertyGuidePage() {
                   <h2 className="text-base font-semibold text-[#222222]">
                     {language === 'es' ? 'Avisos del anfitrión' : language === 'en' ? 'Host announcements' : 'Annonces de l\'hôte'}
                   </h2>
-                  <div className="w-9" /> {/* Spacer for centering */}
+                  {/* Language selector */}
+                  <select
+                    value={language}
+                    onChange={(e) => {
+                      const newLang = e.target.value
+                      setLanguage(newLang)
+                      const url = new URL(window.location.href)
+                      url.searchParams.set('lang', newLang)
+                      window.history.replaceState({}, '', url.toString())
+                      localStorage.setItem('itineramio-language', newLang)
+                    }}
+                    className="text-sm bg-transparent border-none text-[#222222] font-medium cursor-pointer focus:outline-none focus:ring-0 pr-0"
+                  >
+                    <option value="es">🇪🇸</option>
+                    <option value="en">🇬🇧</option>
+                    <option value="fr">🇫🇷</option>
+                  </select>
                 </div>
               </div>
 
