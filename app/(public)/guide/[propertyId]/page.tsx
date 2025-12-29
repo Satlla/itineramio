@@ -1097,50 +1097,74 @@ export default function PropertyGuidePage() {
         </div>
 
 
-        {/* Progress Warning - Airbnb Style */}
-        {showProgressWarning && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
-          >
-            <div className={`p-4 rounded-xl border ${
-              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200 shadow-sm'
-            }`}>
-              <div className="flex items-start gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  darkMode ? 'bg-gray-700' : 'bg-gray-100'
-                }`}>
-                  <BarChart3 className={`w-4 h-4 ${darkMode ? 'text-gray-300' : 'text-[#222222]'}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className={`font-medium text-sm mb-1 ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
-                    {t('progressWarningTitle', language, { progress: calculateProgress(property.zones).toString() })}
-                  </h3>
-                  <p className={`text-xs mb-3 ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>
-                    {t('progressWarningDesc', language)}
-                  </p>
-                  <div className={`w-full rounded-full h-1.5 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
-                    <motion.div
-                      className="bg-[#222222] h-1.5 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${calculateProgress(property.zones)}%` }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                    />
+        {/* Progress Warning - Airbnb Style with colored progress bar */}
+        {showProgressWarning && (() => {
+          const progress = calculateProgress(property.zones)
+          const isGood = progress >= 50
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="my-8"
+            >
+              <div className={`p-5 rounded-2xl ${
+                darkMode ? 'bg-gray-800/80' : 'bg-[#F7F7F7]'
+              }`}>
+                <div className="flex items-start gap-4">
+                  {/* Progress circle indicator */}
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    isGood
+                      ? darkMode ? 'bg-green-900/30' : 'bg-green-50'
+                      : darkMode ? 'bg-red-900/30' : 'bg-red-50'
+                  }`}>
+                    <span className={`text-lg font-semibold ${
+                      isGood
+                        ? darkMode ? 'text-green-400' : 'text-green-600'
+                        : darkMode ? 'text-red-400' : 'text-red-600'
+                    }`}>
+                      {progress}%
+                    </span>
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className={`font-semibold text-base mb-1 ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
+                          {language === 'es' ? 'Tu progreso en el manual' : language === 'en' ? 'Your manual progress' : 'Votre progression'}
+                        </h3>
+                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>
+                          {language === 'es'
+                            ? 'Revisa todas las secciones para una estancia perfecta'
+                            : language === 'en'
+                              ? 'Review all sections for a perfect stay'
+                              : 'Consultez toutes les sections pour un séjour parfait'}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setShowProgressWarning(false)}
+                        className={`p-1.5 rounded-full transition-colors flex-shrink-0 ${
+                          darkMode ? 'hover:bg-gray-700 text-gray-500' : 'hover:bg-gray-200 text-gray-400'
+                        }`}
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div className={`w-full rounded-full h-2 mt-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                      <motion.div
+                        className={`h-2 rounded-full ${isGood ? 'bg-green-500' : 'bg-red-500'}`}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress}%` }}
+                        transition={{ duration: 1, ease: "easeOut" }}
+                      />
+                    </div>
                   </div>
                 </div>
-                <button
-                  onClick={() => setShowProgressWarning(false)}
-                  className={`p-1 rounded-full transition-colors flex-shrink-0 ${
-                    darkMode ? 'hover:bg-gray-700 text-gray-500' : 'hover:bg-gray-100 text-gray-400'
-                  }`}
-                >
-                  <X className="w-4 h-4" />
-                </button>
               </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )
+        })()}
 
         {/* Completion Reward Notification - Airbnb Style */}
         {showCompletionReward && (
@@ -1281,65 +1305,58 @@ export default function PropertyGuidePage() {
           )}
         </div>
 
-        {/* Important Announcements - Ultra Compact Airbnb Style */}
+        {/* Host Announcements - Airbnb Style */}
         {announcements.length > 0 && showAnnouncementsInline && (
-          <div className={`py-3 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-            {/* Single compact container */}
-            <div className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-              {/* Header - Inline with close */}
-              <div className={`flex items-center justify-between px-3 py-2 ${darkMode ? 'border-b border-gray-700' : 'border-b border-gray-200'}`}>
-                <div className="flex items-center gap-1.5">
-                  <Bell className={`w-3.5 h-3.5 ${darkMode ? 'text-gray-400' : 'text-[#484848]'}`} />
-                  <span className={`text-xs font-medium ${darkMode ? 'text-gray-300' : 'text-[#484848]'}`}>
-                    {announcements.length} {language === 'es' ? 'aviso' : language === 'en' ? 'notice' : 'avis'}{announcements.length > 1 ? 's' : ''}
-                  </span>
-                </div>
-                <button
-                  onClick={handleCloseInlineAnnouncements}
-                  className={`p-0.5 rounded transition-colors ${darkMode ? 'hover:bg-gray-700 text-gray-500' : 'hover:bg-gray-200 text-gray-400'}`}
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
+          <div className="my-8">
+            {/* Header row */}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
+                {language === 'es' ? 'Avisos del anfitrión' : language === 'en' ? 'Host announcements' : 'Annonces de l\'hôte'}
+              </h3>
+              <button
+                onClick={handleCloseInlineAnnouncements}
+                className={`text-sm underline ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-[#717171] hover:text-[#222222]'}`}
+              >
+                {language === 'es' ? 'Ocultar' : language === 'en' ? 'Hide' : 'Masquer'}
+              </button>
+            </div>
 
-              {/* Announcements - Ultra compact list */}
-              <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                {announcements
-                  .sort((a, b) => {
-                    const priorityOrder = { 'URGENT': 4, 'HIGH': 3, 'NORMAL': 2, 'LOW': 1 }
-                    const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 1
-                    const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 1
-                    if (aPriority !== bPriority) return bPriority - aPriority
-                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-                  })
-                  .map((announcement, index) => {
-                    const isUrgent = announcement.priority === 'URGENT' || announcement.priority === 'HIGH'
+            {/* Announcements list */}
+            <div className="space-y-3">
+              {announcements
+                .sort((a, b) => {
+                  const priorityOrder = { 'URGENT': 4, 'HIGH': 3, 'NORMAL': 2, 'LOW': 1 }
+                  const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 1
+                  const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 1
+                  if (aPriority !== bPriority) return bPriority - aPriority
+                  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                })
+                .map((announcement) => {
+                  const isUrgent = announcement.priority === 'URGENT' || announcement.priority === 'HIGH'
 
-                    return (
-                      <div
-                        key={announcement.id}
-                        className={`px-3 py-2 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}
-                      >
-                        {/* Title + Priority inline */}
-                        <div className="flex items-center gap-1.5">
-                          {isUrgent && (
-                            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                              announcement.priority === 'URGENT' ? 'bg-red-500' : 'bg-amber-500'
-                            }`} />
-                          )}
-                          <h4 className={`font-medium text-sm truncate ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
-                            {announcement.title[language as 'es' | 'en' | 'fr'] || announcement.title.es}
-                          </h4>
-                        </div>
-                        {/* Message - Single line */}
-                        <p className={`text-xs truncate mt-0.5 ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>
-                          {announcement.message[language as 'es' | 'en' | 'fr'] || announcement.message.es}
-                        </p>
-                      </div>
-                    )
-                  })
-                }
-              </div>
+                  return (
+                    <div
+                      key={announcement.id}
+                      className={`p-4 rounded-xl border-l-4 ${
+                        isUrgent
+                          ? darkMode
+                            ? 'bg-red-900/20 border-l-red-500'
+                            : 'bg-red-50 border-l-red-500'
+                          : darkMode
+                            ? 'bg-gray-800/50 border-l-[#222222]'
+                            : 'bg-[#F7F7F7] border-l-[#222222]'
+                      }`}
+                    >
+                      <h4 className={`font-medium text-sm ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
+                        {announcement.title[language as 'es' | 'en' | 'fr'] || announcement.title.es}
+                      </h4>
+                      <p className={`text-sm mt-1 line-clamp-2 ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>
+                        {announcement.message[language as 'es' | 'en' | 'fr'] || announcement.message.es}
+                      </p>
+                    </div>
+                  )
+                })
+              }
             </div>
           </div>
         )}
