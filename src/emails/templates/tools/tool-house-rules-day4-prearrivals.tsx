@@ -102,7 +102,7 @@ export default function ToolHouseRulesDay4Prearrivals({ name, rulesData }: Props
         <tr>
           <td style={{ textAlign: 'center', paddingTop: '24px' }}>
             <p style={{ margin: 0, color: '#9ca3af', fontSize: '12px' }}>
-              © {new Date().getFullYear()} Itineramio
+              <a href="https://www.itineramio.com/unsubscribe" style={{ color: '#9ca3af', textDecoration: 'none' }}>Cancelar suscripción</a> · © {new Date().getFullYear()} Itineramio
             </p>
           </td>
         </tr>
