@@ -1806,118 +1806,115 @@ export default function PropertyGuidePage() {
         </motion.div>
       )}
 
-      {/* Announcements Modal */}
+      {/* Announcements Modal - Airbnb Style */}
       <AnimatePresence>
         {showAnnouncementsModal && announcements.length > 0 && (
           <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              handleAcceptAnnouncements()
-            }
-          }}
-        >
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                handleAcceptAnnouncements()
+              }
+            }}
           >
-            <div className="p-6">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Bell className="w-8 h-8 text-orange-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  {language === 'es' ? 'Avisos Importantes' : language === 'en' ? 'Important Announcements' : 'Avis Importants'}
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  {language === 'es'
-                    ? 'Tu anfitrión ha dejado algunos avisos importantes para tu estancia.'
-                    : language === 'en'
-                    ? 'Your host has left some important announcements for your stay.'
-                    : 'Votre hôte a laissé quelques annonces importantes pour votre séjour.'
-                  }
-                </p>
-                {/* Language Selector in Modal */}
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-sm text-gray-500">
-                    {language === 'es' ? 'Idioma:' : language === 'en' ? 'Language:' : 'Langue:'}
-                  </span>
-                  <select
-                    value={language}
-                    onChange={(e) => {
-                      const newLang = e.target.value
-                      setLanguage(newLang)
-                      const url = new URL(window.location.href)
-                      url.searchParams.set('lang', newLang)
-                      window.history.replaceState({}, '', url.toString())
-                      localStorage.setItem('itineramio-language', newLang)
-                    }}
-                    className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
+            <motion.div
+              initial={{ y: '100%', opacity: 1 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 1 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[85vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header - Airbnb style with X button */}
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={handleAcceptAnnouncements}
+                    className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors"
                   >
-                    <option value="es">🇪🇸 Español</option>
-                    <option value="en">🇬🇧 English</option>
-                    <option value="fr">🇫🇷 Français</option>
-                  </select>
+                    <X className="w-5 h-5 text-[#222222]" />
+                  </button>
+                  <h2 className="text-base font-semibold text-[#222222]">
+                    {language === 'es' ? 'Avisos del anfitrión' : language === 'en' ? 'Host announcements' : 'Annonces de l\'hôte'}
+                  </h2>
+                  <div className="w-9" /> {/* Spacer for centering */}
                 </div>
               </div>
 
-              <div className="space-y-4 mb-6">
-                {announcements.map((announcement, index) => {
-                  const IconComponent = getAnnouncementIcon(announcement.category)
-                  const priorityColor = getPriorityColor(announcement.priority)
-                  
-                  return (
-                    <div
-                      key={announcement.id}
-                      className={`p-4 rounded-lg border-l-4 ${priorityColor}`}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0 mt-0.5">
-                          <IconComponent className="w-5 h-5 text-gray-600" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 mb-1">
-                            {announcement.title[language as 'es' | 'en' | 'fr'] || announcement.title.es}
-                          </h4>
-                          <p className="text-gray-700 text-sm leading-relaxed">
-                            {announcement.message[language as 'es' | 'en' | 'fr'] || announcement.message.es}
-                          </p>
-                          <div className="flex items-center mt-2 text-xs text-gray-500">
-                            <span className="px-2 py-1 bg-gray-100 rounded-full">
-                              {getPriorityText(announcement.priority, language)}
-                            </span>
+              {/* Content */}
+              <div className="overflow-y-auto max-h-[calc(85vh-140px)] px-6 py-4">
+                {/* Intro text */}
+                <p className="text-[#717171] text-sm mb-6">
+                  {language === 'es'
+                    ? 'Información importante para tu estancia'
+                    : language === 'en'
+                      ? 'Important information for your stay'
+                      : 'Informations importantes pour votre séjour'}
+                </p>
+
+                {/* Announcements list */}
+                <div className="space-y-4">
+                  {announcements
+                    .sort((a, b) => {
+                      const priorityOrder = { 'URGENT': 4, 'HIGH': 3, 'NORMAL': 2, 'LOW': 1 }
+                      const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 1
+                      const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 1
+                      if (aPriority !== bPriority) return bPriority - aPriority
+                      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                    })
+                    .map((announcement) => {
+                      const isUrgent = announcement.priority === 'URGENT' || announcement.priority === 'HIGH'
+
+                      return (
+                        <div
+                          key={announcement.id}
+                          className={`p-4 rounded-xl ${
+                            isUrgent ? 'bg-red-50 border border-red-100' : 'bg-[#F7F7F7]'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            {isUrgent && (
+                              <div className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-white text-xs font-bold">!</span>
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h4 className={`font-semibold text-[15px] mb-1 ${isUrgent ? 'text-red-900' : 'text-[#222222]'}`}>
+                                {announcement.title[language as 'es' | 'en' | 'fr'] || announcement.title.es}
+                              </h4>
+                              <p className={`text-sm leading-relaxed ${isUrgent ? 'text-red-800' : 'text-[#717171]'}`}>
+                                {announcement.message[language as 'es' | 'en' | 'fr'] || announcement.message.es}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  )
-                })}
+                      )
+                    })}
+                </div>
               </div>
 
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={handleDismissAnnouncements}
-                  className="flex-1"
-                >
-                  {language === 'es' ? 'No mostrar de nuevo' : language === 'en' ? 'Don\'t show again' : 'Ne plus afficher'}
-                </Button>
-                <Button
-                  onClick={handleAcceptAnnouncements}
-                  className="flex-1 bg-orange-600 hover:bg-orange-700"
-                >
-                  {language === 'es' ? 'Aceptar' : language === 'en' ? 'Accept' : 'Accepter'}
-                </Button>
+              {/* Footer - Sticky buttons */}
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4">
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleDismissAnnouncements}
+                    className="flex-1 py-3 px-4 text-sm font-semibold text-[#222222] bg-white border border-[#222222] rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    {language === 'es' ? 'No mostrar más' : language === 'en' ? 'Don\'t show again' : 'Ne plus afficher'}
+                  </button>
+                  <button
+                    onClick={handleAcceptAnnouncements}
+                    className="flex-1 py-3 px-4 text-sm font-semibold text-white bg-[#222222] rounded-lg hover:bg-black transition-colors"
+                  >
+                    {language === 'es' ? 'Entendido' : language === 'en' ? 'Got it' : 'Compris'}
+                  </button>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
         )}
       </AnimatePresence>
 
