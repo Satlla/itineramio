@@ -6,18 +6,19 @@ import { motion } from 'framer-motion'
 import {
   Wifi,
   ArrowLeft,
-  Download,
+  Mail,
   Eye,
   EyeOff,
   Copy,
   Check,
-  Printer,
-  Sparkles
+  Sparkles,
+  Loader2,
+  CheckCircle,
+  User
 } from 'lucide-react'
 import { Navbar } from '../../../../../src/components/layout/Navbar'
 import { SocialShare } from '../../../../../src/components/tools/SocialShare'
-import { LeadCaptureModal } from '../../../../../src/components/tools/LeadCaptureModal'
-import html2canvas from 'html2canvas'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 const cardStyles = [
   { id: 'modern', name: 'Moderno', colors: 'from-violet-500 to-purple-600', textColor: 'text-white', emoji: '✨' },
@@ -39,8 +40,15 @@ export default function WiFiCardGenerator() {
   const [showPassword, setShowPassword] = useState(false)
   const [selectedStyle, setSelectedStyle] = useState(cardStyles[0])
   const [copied, setCopied] = useState(false)
-  const [showLeadModal, setShowLeadModal] = useState(false)
-  const [pendingAction, setPendingAction] = useState<'download' | 'print' | null>(null)
+
+  // Email form state
+  const [userName, setUserName] = useState('')
+  const [userEmail, setUserEmail] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [submitSuccess, setSubmitSuccess] = useState(false)
+
   const cardRef = useRef<HTMLDivElement>(null)
 
   const copyPassword = () => {
@@ -49,76 +57,57 @@ export default function WiFiCardGenerator() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleDownloadClick = () => {
-    setPendingAction('download')
-    setShowLeadModal(true)
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmitError('')
 
-  const handlePrintClick = () => {
-    setPendingAction('print')
-    setShowLeadModal(true)
-  }
-
-  const downloadCard = async () => {
-    if (!cardRef.current) return
-
-    try {
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 3,
-        backgroundColor: null
-      })
-
-      const link = document.createElement('a')
-      link.download = `wifi-card-${propertyName || 'itineramio'}.png`
-      link.href = canvas.toDataURL('image/png')
-      link.click()
-    } catch (error) {
-      console.error('Error generating image:', error)
+    if (!userName.trim() || !userEmail.trim()) {
+      setSubmitError('Por favor completa todos los campos')
+      return
     }
-  }
 
-  const printCard = () => {
-    window.print()
-  }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail)) {
+      setSubmitError('Por favor ingresa un email válido')
+      return
+    }
 
-  const handleLeadSubmit = async (data: { name: string; email: string }) => {
+    if (!networkName || !password) {
+      setSubmitError('Completa los datos del WiFi primero')
+      return
+    }
+
+    setIsSubmitting(true)
+
     try {
-      const response = await fetch('/api/leads/capture', {
+      const response = await fetch('/api/tools/wifi-card/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...data,
-          source: 'wifi-card',
-          metadata: {
-            propertyName,
-            style: selectedStyle.name,
-            action: pendingAction
-          }
+          name: userName,
+          email: userEmail,
+          turnstileToken,
+          networkName,
+          password,
+          propertyName,
+          style: selectedStyle
         })
       })
 
       const result = await response.json()
 
-      if (response.ok) {
-        console.log('Lead captured successfully:', result)
-      } else {
-        console.error('Error capturing lead:', result.error)
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al enviar')
       }
+
+      setSubmitSuccess(true)
     } catch (error) {
-      console.error('Error calling lead capture API:', error)
+      setSubmitError(error instanceof Error ? error.message : 'Error al enviar. Inténtalo de nuevo.')
+    } finally {
+      setIsSubmitting(false)
     }
-
-    // Execute pending action
-    if (pendingAction === 'download') {
-      await downloadCard()
-    } else if (pendingAction === 'print') {
-      printCard()
-    }
-
-    // Close modal and reset
-    setShowLeadModal(false)
-    setPendingAction(null)
   }
+
+  const isFormValid = networkName && password && userName && userEmail
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -175,7 +164,7 @@ export default function WiFiCardGenerator() {
             >
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Información WiFi
+                  1. Información WiFi
                 </h2>
 
                 {/* Property Name */}
@@ -195,7 +184,7 @@ export default function WiFiCardGenerator() {
                 {/* Network Name */}
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Nombre de la red WiFi
+                    Nombre de la red WiFi *
                   </label>
                   <input
                     type="text"
@@ -204,15 +193,12 @@ export default function WiFiCardGenerator() {
                     placeholder="Mi_WiFi_5G"
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none text-gray-900 placeholder-gray-400"
                   />
-                  <p className="mt-2 text-sm text-gray-500">
-                    El nombre exacto que aparece en los dispositivos
-                  </p>
                 </div>
 
                 {/* Password */}
                 <div className="mb-8">
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Contraseña
+                    Contraseña *
                   </label>
                   <div className="relative">
                     <input
@@ -226,6 +212,7 @@ export default function WiFiCardGenerator() {
                       <button
                         onClick={() => setShowPassword(!showPassword)}
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        type="button"
                       >
                         {showPassword ? (
                           <EyeOff className="w-5 h-5 text-gray-400" />
@@ -236,6 +223,7 @@ export default function WiFiCardGenerator() {
                       <button
                         onClick={copyPassword}
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        type="button"
                       >
                         {copied ? (
                           <Check className="w-5 h-5 text-green-500" />
@@ -250,7 +238,7 @@ export default function WiFiCardGenerator() {
                 {/* Style Selector */}
                 <div className="mb-8">
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Estilo de tarjeta
+                    2. Estilo de tarjeta
                   </label>
                   <div className="grid grid-cols-5 gap-3">
                     {cardStyles.map((style) => (
@@ -262,6 +250,7 @@ export default function WiFiCardGenerator() {
                             ? 'ring-4 ring-green-500 ring-offset-2 scale-110'
                             : 'hover:scale-105'
                         }`}
+                        type="button"
                       >
                         <div className={`w-full h-full rounded-xl bg-gradient-to-br ${style.colors} flex items-center justify-center`}>
                           <span className="text-2xl">{style.emoji}</span>
@@ -275,25 +264,124 @@ export default function WiFiCardGenerator() {
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="space-y-3">
-                  <button
-                    onClick={handleDownloadClick}
-                    disabled={!networkName || !password}
-                    className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
-                  >
-                    <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                    Descargar tarjeta
-                  </button>
+                {/* Email Form */}
+                <div className="border-t-2 border-gray-100 pt-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                    3. Recibe tu tarjeta por email
+                  </h2>
 
-                  <button
-                    onClick={handlePrintClick}
-                    disabled={!networkName || !password}
-                    className="w-full py-4 bg-white border-2 border-gray-200 text-gray-900 rounded-xl font-bold flex items-center justify-center hover:border-gray-300 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Printer className="w-5 h-5 mr-2" />
-                    Imprimir tarjeta
-                  </button>
+                  {submitSuccess ? (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="bg-green-50 border-2 border-green-200 rounded-2xl p-6 text-center"
+                    >
+                      <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
+                      <h3 className="text-xl font-bold text-green-900 mb-2">
+                        ¡Tarjeta enviada!
+                      </h3>
+                      <p className="text-green-700 mb-4">
+                        Revisa tu bandeja de entrada en <strong>{userEmail}</strong>
+                      </p>
+                      <button
+                        onClick={() => {
+                          setSubmitSuccess(false)
+                          setNetworkName('')
+                          setPassword('')
+                          setPropertyName('')
+                          setUserName('')
+                          setUserEmail('')
+                        }}
+                        className="text-green-600 font-semibold hover:text-green-700"
+                      >
+                        Crear otra tarjeta →
+                      </button>
+                    </motion.div>
+                  ) : (
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      {/* Name */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Tu nombre *
+                        </label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            value={userName}
+                            onChange={(e) => setUserName(e.target.value)}
+                            placeholder="Juan Pérez"
+                            className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none text-gray-900 placeholder-gray-400"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Email */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Tu email *
+                        </label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                          <input
+                            type="email"
+                            value={userEmail}
+                            onChange={(e) => setUserEmail(e.target.value)}
+                            placeholder="juan@ejemplo.com"
+                            className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none text-gray-900 placeholder-gray-400"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Turnstile Captcha */}
+                      {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && (
+                        <div className="flex justify-center">
+                          <Turnstile
+                            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+                            onSuccess={(token) => setTurnstileToken(token)}
+                            onError={() => setTurnstileToken(null)}
+                            options={{ theme: 'light' }}
+                          />
+                        </div>
+                      )}
+
+                      {/* Error */}
+                      {submitError && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700"
+                        >
+                          {submitError}
+                        </motion.div>
+                      )}
+
+                      {/* Submit */}
+                      <button
+                        type="submit"
+                        disabled={!isFormValid || isSubmitting}
+                        className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                            Enviando...
+                          </>
+                        ) : (
+                          <>
+                            <Mail className="w-5 h-5 mr-2" />
+                            Enviar tarjeta a mi email
+                          </>
+                        )}
+                      </button>
+
+                      <p className="text-xs text-center text-gray-500">
+                        Recibirás la tarjeta lista para imprimir + tips de uso
+                      </p>
+                    </form>
+                  )}
                 </div>
               </div>
 
@@ -424,36 +512,6 @@ export default function WiFiCardGenerator() {
           </div>
         </div>
       </div>
-
-      {/* Print Styles */}
-      <style jsx global>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          #wifi-card-print * {
-            visibility: visible;
-          }
-          #wifi-card-print {
-            position: absolute;
-            left: 0;
-            top: 0;
-          }
-        }
-      `}</style>
-
-      {/* Lead Capture Modal */}
-      <LeadCaptureModal
-        isOpen={showLeadModal}
-        onClose={() => {
-          setShowLeadModal(false)
-          setPendingAction(null)
-        }}
-        onSubmit={handleLeadSubmit}
-        title={pendingAction === 'download' ? '¡Descarga tu tarjeta WiFi!' : '¡Imprime tu tarjeta WiFi!'}
-        description="Déjanos tu email para recibir más recursos gratuitos y consejos para tu negocio"
-        downloadLabel={pendingAction === 'download' ? 'Descargar' : 'Continuar a imprimir'}
-      />
     </div>
   )
 }
