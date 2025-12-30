@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     `
 
     await resend.emails.send({
-      from: 'Itineramio <noreply@itineramio.com>',
+      from: 'Itineramio <hola@itineramio.com>',
       to,
       subject: `🌟 Nueva evaluación recibida para ${propertyName}`,
       html: emailHtml

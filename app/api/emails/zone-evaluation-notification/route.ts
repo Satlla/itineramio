@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
     `
 
     const result = await getResend().emails.send({
-      from: 'Itineramio <noreply@itineramio.com>',
+      from: 'Itineramio <hola@itineramio.com>',
       to: [to],
       subject: `🌟 Nueva evaluación de zona: ${zoneName} (${rating}★)`,
       html: emailHtml,

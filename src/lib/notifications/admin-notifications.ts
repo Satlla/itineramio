@@ -22,7 +22,7 @@ export async function notifyNewUserRegistration(user: {
 }) {
   try {
     await getResend().emails.send({
-      from: 'Itineramio Notifications <notifications@itineramio.com>',
+      from: 'Itineramio Notifications <hola@itineramio.com>',
       to: ADMIN_EMAILS,
       subject: `🎉 Nuevo usuario registrado: ${user.name}`,
       html: `
@@ -53,7 +53,7 @@ export async function notifyQuizLeadCaptured(lead: {
 }) {
   try {
     await getResend().emails.send({
-      from: 'Itineramio Notifications <notifications@itineramio.com>',
+      from: 'Itineramio Notifications <hola@itineramio.com>',
       to: ADMIN_EMAILS,
       subject: `📝 Nuevo quiz completado: ${lead.fullName || lead.email}`,
       html: `
@@ -85,7 +85,7 @@ export async function notifyEmailSubscriber(subscriber: {
 }) {
   try {
     await getResend().emails.send({
-      from: 'Itineramio Notifications <notifications@itineramio.com>',
+      from: 'Itineramio Notifications <hola@itineramio.com>',
       to: ADMIN_EMAILS,
       subject: `📧 Nueva suscripción: ${subscriber.email}`,
       html: `
@@ -116,7 +116,7 @@ export async function notifySubscriptionRequest(request: {
 }) {
   try {
     await getResend().emails.send({
-      from: 'Itineramio Notifications <notifications@itineramio.com>',
+      from: 'Itineramio Notifications <hola@itineramio.com>',
       to: ADMIN_EMAILS,
       subject: `⭐ Nueva solicitud de suscripción: ${request.userName} - Plan ${request.requestedPlan}`,
       html: `
@@ -146,7 +146,7 @@ export async function notifyQuizEmailVerified(lead: {
 }) {
   try {
     await getResend().emails.send({
-      from: 'Itineramio Notifications <notifications@itineramio.com>',
+      from: 'Itineramio Notifications <hola@itineramio.com>',
       to: ADMIN_EMAILS,
       subject: `✅ Email verificado: ${lead.fullName || lead.email}`,
       html: `
@@ -176,7 +176,7 @@ export async function notifyHostProfileTestCompleted(test: {
 }) {
   try {
     await getResend().emails.send({
-      from: 'Itineramio Notifications <notifications@itineramio.com>',
+      from: 'Itineramio Notifications <hola@itineramio.com>',
       to: ADMIN_EMAILS,
       subject: `🎯 Test de perfil completado: ${test.archetype}`,
       html: `
