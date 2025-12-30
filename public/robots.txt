@@ -1,27 +1,52 @@
 # Robots.txt for Itineramio
-# https://itineramio.com/robots.txt
+# https://www.itineramio.com/robots.txt
 
 # Allow all crawlers
 User-agent: *
 Allow: /
 
-# Disallow admin and API routes
+# Disallow admin and private routes
 Disallow: /admin/
+Disallow: /admin-*
 Disallow: /api/
 Disallow: /account/
 Disallow: /dashboard/
+Disallow: /properties/
+Disallow: /property-sets/
+Disallow: /subscriptions/
+Disallow: /checkout/
 Disallow: /_next/
 Disallow: /static/
 
-# Allow blog and public content
+# Disallow test and debug pages
+Disallow: /test-*
+Disallow: /debug-*
+Disallow: /test/
+Disallow: /activate-property
+Disallow: /confirm-email-change
+Disallow: /unsubscribe
+Disallow: /ratings/
+
+# Disallow auth pages (no value for SEO)
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+
+# Allow public content explicitly
+Allow: /
 Allow: /blog/
 Allow: /blog/categoria/
 Allow: /pricing
 Allow: /hub/
-Allow: /knowledge/
+Allow: /hub/tools/
+Allow: /recursos/
+Allow: /academia/
+Allow: /faq
+Allow: /comparar/
+Allow: /casos-de-exito/
 
 # Sitemap location
-Sitemap: https://itineramio.com/sitemap.xml
+Sitemap: https://www.itineramio.com/sitemap.xml
 
 # Crawl-delay for polite bots
 Crawl-delay: 1

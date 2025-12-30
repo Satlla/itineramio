@@ -45,8 +45,8 @@ const scaleIn = {
   visible: { opacity: 1, scale: 1 }
 }
 
-// Herramientas interactivas
-const tools = [
+// Herramientas interactivas - ACTIVAS (con embudo completo)
+const activeTools = [
   {
     id: 'qr-generator',
     title: 'Generador de Códigos QR',
@@ -57,7 +57,8 @@ const tools = [
     borderColor: 'border-violet-200',
     href: '/hub/tools/qr-generator',
     badge: 'Gratis',
-    popular: true
+    popular: true,
+    active: true
   },
   {
     id: 'pricing-calculator',
@@ -69,102 +70,108 @@ const tools = [
     borderColor: 'border-blue-200',
     href: '/hub/tools/pricing-calculator',
     badge: 'Popular',
-    popular: true
-  },
-  {
-    id: 'wifi-card',
-    title: 'Generador WiFi Card',
-    description: 'Crea tarjetas WiFi imprimibles con tu red y contraseña',
-    icon: Wifi,
-    color: 'from-green-500 to-emerald-600',
-    bgColor: 'from-green-50 to-emerald-50',
-    borderColor: 'border-green-200',
-    href: '/hub/tools/wifi-card',
-    badge: 'Nuevo',
-    popular: true
-  },
-  {
-    id: 'roi-calculator',
-    title: 'Calculadora ROI',
-    description: 'Calcula cuánto tiempo y dinero ahorras con Itineramio',
-    icon: TrendingUp,
-    color: 'from-orange-500 to-red-600',
-    bgColor: 'from-orange-50 to-red-50',
-    borderColor: 'border-orange-200',
-    href: '/hub/tools/roi-calculator',
-    badge: 'Popular'
-  },
-  {
-    id: 'profitability-calculator',
-    title: 'Calculadora de Rentabilidad',
-    description: 'Descubre si estás ganando dinero o "cambiando dinero de mano"',
-    icon: Calculator,
-    color: 'from-emerald-500 to-green-600',
-    bgColor: 'from-emerald-50 to-green-50',
-    borderColor: 'border-emerald-200',
-    href: '/hub/calculadora-rentabilidad',
-    badge: 'Nuevo',
-    popular: true
-  },
-  {
-    id: 'description-generator',
-    title: 'Generador de Descripciones',
-    description: 'Crea descripciones profesionales para tu listado de Airbnb',
-    icon: FileText,
-    color: 'from-purple-500 to-pink-600',
-    bgColor: 'from-purple-50 to-pink-50',
-    borderColor: 'border-purple-200',
-    href: '/hub/tools/description-generator',
-    badge: 'Nuevo'
-  },
-  {
-    id: 'checkin-builder',
-    title: 'Check-in Template Builder',
-    description: 'Crea checklists personalizados para cada etapa del proceso',
-    icon: CheckSquare,
-    color: 'from-indigo-500 to-blue-600',
-    bgColor: 'from-indigo-50 to-blue-50',
-    borderColor: 'border-indigo-200',
-    href: '/hub/tools/checkin-builder',
-    badge: 'Nuevo',
-    popular: true
-  },
-  {
-    id: 'occupancy-calculator',
-    title: 'Calculadora de Ocupación',
-    description: 'Calcula y optimiza tu tasa de ocupación mensual',
-    icon: BarChart3,
-    color: 'from-emerald-500 to-teal-600',
-    bgColor: 'from-emerald-50 to-teal-50',
-    borderColor: 'border-emerald-200',
-    href: '/hub/tools/occupancy-calculator',
-    badge: 'Popular'
+    popular: true,
+    active: true
   },
   {
     id: 'cleaning-checklist',
     title: 'Checklist de Limpieza',
     description: 'Checklist completo profesional para limpieza de propiedades',
     icon: Sparkles,
-    color: 'from-blue-500 to-cyan-600',
-    bgColor: 'from-blue-50 to-cyan-50',
-    borderColor: 'border-blue-200',
+    color: 'from-emerald-500 to-green-600',
+    bgColor: 'from-emerald-50 to-green-50',
+    borderColor: 'border-emerald-200',
     href: '/hub/tools/cleaning-checklist',
     badge: 'Nuevo',
-    popular: true
+    popular: true,
+    active: true
   },
   {
-    id: 'airbnb-setup',
-    title: 'Checklist Apertura Airbnb',
-    description: 'Lista completa de elementos esenciales para tu alojamiento',
-    icon: Home,
-    color: 'from-violet-500 to-purple-600',
-    bgColor: 'from-violet-50 to-purple-50',
-    borderColor: 'border-violet-200',
-    href: '/hub/tools/airbnb-setup',
+    id: 'house-rules',
+    title: 'Generador de Normas',
+    description: 'Crea normas de la casa profesionales listas para imprimir',
+    icon: FileText,
+    color: 'from-amber-500 to-orange-600',
+    bgColor: 'from-amber-50 to-orange-50',
+    borderColor: 'border-amber-200',
+    href: '/hub/tools/house-rules',
     badge: 'Nuevo',
-    popular: true
+    popular: true,
+    active: true
+  },
+  {
+    id: 'roi-calculator',
+    title: 'Calculadora ROI',
+    description: 'Calcula cuánto tiempo y dinero ahorras automatizando tu gestión',
+    icon: TrendingUp,
+    color: 'from-rose-500 to-pink-600',
+    bgColor: 'from-rose-50 to-pink-50',
+    borderColor: 'border-rose-200',
+    href: '/hub/tools/roi-calculator',
+    badge: 'Nuevo',
+    popular: true,
+    active: true
+  },
+  {
+    id: 'wifi-card',
+    title: 'Generador WiFi Card',
+    description: 'Crea tarjetas WiFi imprimibles con tu red y contraseña',
+    icon: Wifi,
+    color: 'from-sky-500 to-blue-600',
+    bgColor: 'from-sky-50 to-blue-50',
+    borderColor: 'border-sky-200',
+    href: '/hub/tools/wifi-card',
+    badge: 'Nuevo',
+    popular: true,
+    active: true
   }
 ]
+
+// Herramientas PRÓXIMAMENTE (sin embudo completo todavía)
+const comingSoonTools = [
+  {
+    id: 'description-generator',
+    title: 'Generador de Descripciones IA',
+    description: 'Crea descripciones profesionales para tu listado de Airbnb',
+    icon: FileText,
+    color: 'from-gray-400 to-gray-500',
+    bgColor: 'from-gray-50 to-gray-100',
+    borderColor: 'border-gray-200',
+    href: '#',
+    badge: 'Próximamente',
+    popular: false,
+    active: false
+  },
+  {
+    id: 'occupancy-calculator',
+    title: 'Calculadora de Ocupación',
+    description: 'Calcula y optimiza tu tasa de ocupación mensual',
+    icon: BarChart3,
+    color: 'from-gray-400 to-gray-500',
+    bgColor: 'from-gray-50 to-gray-100',
+    borderColor: 'border-gray-200',
+    href: '#',
+    badge: 'Próximamente',
+    popular: false,
+    active: false
+  },
+  {
+    id: 'checkin-builder',
+    title: 'Check-in Template Builder',
+    description: 'Crea checklists personalizados para cada etapa del check-in',
+    icon: CheckSquare,
+    color: 'from-gray-400 to-gray-500',
+    bgColor: 'from-gray-50 to-gray-100',
+    borderColor: 'border-gray-200',
+    href: '#',
+    badge: 'Próximamente',
+    popular: false,
+    active: false
+  }
+]
+
+// Combinar para búsqueda
+const tools = [...activeTools, ...comingSoonTools]
 
 // Plantillas descargables
 const templates = [
@@ -358,16 +365,16 @@ export default function KnowledgeHub() {
               className="grid grid-cols-3 gap-8 mt-12 max-w-3xl mx-auto"
             >
               <motion.div variants={scaleIn} className="text-center">
-                <div className="text-4xl font-bold text-white mb-2">10</div>
-                <div className="text-white/80 text-sm">Herramientas</div>
+                <div className="text-4xl font-bold text-white mb-2">6</div>
+                <div className="text-white/80 text-sm">Herramientas Activas</div>
               </motion.div>
               <motion.div variants={scaleIn} className="text-center">
-                <div className="text-4xl font-bold text-white mb-2">25+</div>
-                <div className="text-white/80 text-sm">Plantillas</div>
+                <div className="text-4xl font-bold text-white mb-2">30+</div>
+                <div className="text-white/80 text-sm">Artículos</div>
               </motion.div>
               <motion.div variants={scaleIn} className="text-center">
-                <div className="text-4xl font-bold text-white mb-2">50+</div>
-                <div className="text-white/80 text-sm">Guías</div>
+                <div className="text-4xl font-bold text-white mb-2">3</div>
+                <div className="text-white/80 text-sm">Próximamente</div>
               </motion.div>
             </motion.div>
           </motion.div>
@@ -494,7 +501,7 @@ export default function KnowledgeHub() {
         </section>
       )}
 
-      {/* Herramientas Interactivas */}
+      {/* Herramientas Activas */}
       {!isSearching && (
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
@@ -507,7 +514,7 @@ export default function KnowledgeHub() {
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="text-4xl font-bold text-gray-900 mb-3">
-                    Herramientas Interactivas
+                    Herramientas Gratuitas
                   </h2>
                   <p className="text-xl text-gray-600">
                     Usa estas herramientas gratis para mejorar tu gestión
@@ -517,63 +524,112 @@ export default function KnowledgeHub() {
               </div>
             </motion.div>
 
-          {filteredTools.length > 0 && (
+            {/* Herramientas ACTIVAS */}
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={staggerContainer}
-              className="grid md:grid-cols-2 gap-8"
+              className="grid md:grid-cols-3 gap-8 mb-16"
             >
-              {filteredTools.map((tool) => {
-              const Icon = tool.icon
-              return (
-                <motion.div
-                  key={tool.id}
-                  variants={scaleIn}
-                  whileHover={{ y: -10, scale: 1.02 }}
-                  className="group relative"
-                >
-                  <Link href={tool.href}>
-                    <div className={`relative p-8 rounded-3xl bg-gradient-to-br ${tool.bgColor} border-2 ${tool.borderColor} hover:shadow-2xl transition-all h-full`}>
-                      {/* Badge */}
-                      {tool.badge && (
-                        <div className="absolute top-4 right-4 px-3 py-1 bg-white rounded-full text-xs font-bold text-gray-900 shadow-lg">
-                          {tool.badge}
-                        </div>
-                      )}
+              {activeTools.map((tool) => {
+                const Icon = tool.icon
+                return (
+                  <motion.div
+                    key={tool.id}
+                    variants={scaleIn}
+                    whileHover={{ y: -10, scale: 1.02 }}
+                    className="group relative"
+                  >
+                    <Link href={tool.href}>
+                      <div className={`relative p-8 rounded-3xl bg-gradient-to-br ${tool.bgColor} border-2 ${tool.borderColor} hover:shadow-2xl transition-all h-full`}>
+                        {/* Badge */}
+                        {tool.badge && (
+                          <div className="absolute top-4 right-4 px-3 py-1 bg-white rounded-full text-xs font-bold text-gray-900 shadow-lg">
+                            {tool.badge}
+                          </div>
+                        )}
 
-                      {/* Popular indicator */}
-                      {tool.popular && (
-                        <div className="absolute -top-3 -left-3">
-                          <Star className="w-8 h-8 text-yellow-400 fill-yellow-400" />
+                        {/* Popular indicator */}
+                        {tool.popular && (
+                          <div className="absolute -top-3 -left-3">
+                            <Star className="w-8 h-8 text-yellow-400 fill-yellow-400" />
+                          </div>
+                        )}
+
+                        {/* Icon */}
+                        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tool.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                          <Icon className="w-8 h-8 text-white" />
                         </div>
-                      )}
+
+                        {/* Content */}
+                        <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-violet-600 group-hover:to-purple-600 transition-all">
+                          {tool.title}
+                        </h3>
+                        <p className="text-gray-600 mb-4">
+                          {tool.description}
+                        </p>
+
+                        {/* CTA */}
+                        <div className="flex items-center text-violet-600 font-semibold group-hover:translate-x-2 transition-transform">
+                          Usar herramienta <ArrowRight className="ml-2 w-4 h-4" />
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                )
+              })}
+            </motion.div>
+
+            {/* Herramientas PRÓXIMAMENTE */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mb-8"
+            >
+              <h3 className="text-2xl font-bold text-gray-400 mb-2">Próximamente</h3>
+              <p className="text-gray-400">Más herramientas en desarrollo</p>
+            </motion.div>
+
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={staggerContainer}
+              className="grid md:grid-cols-3 lg:grid-cols-6 gap-4"
+            >
+              {comingSoonTools.map((tool) => {
+                const Icon = tool.icon
+                return (
+                  <motion.div
+                    key={tool.id}
+                    variants={scaleIn}
+                    className="relative cursor-not-allowed"
+                  >
+                    <div className="relative p-4 rounded-2xl bg-gray-50 border-2 border-gray-200 opacity-60 h-full">
+                      {/* Badge */}
+                      <div className="absolute top-2 right-2 px-2 py-0.5 bg-gray-200 rounded-full text-[10px] font-bold text-gray-500">
+                        {tool.badge}
+                      </div>
 
                       {/* Icon */}
-                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tool.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                        <Icon className="w-8 h-8 text-white" />
+                      <div className="w-10 h-10 rounded-xl bg-gray-200 flex items-center justify-center mb-3">
+                        <Icon className="w-5 h-5 text-gray-400" />
                       </div>
 
                       {/* Content */}
-                      <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-violet-600 group-hover:to-purple-600 transition-all">
+                      <h4 className="text-sm font-bold text-gray-400 mb-1 line-clamp-1">
                         {tool.title}
-                      </h3>
-                      <p className="text-gray-600 mb-4">
+                      </h4>
+                      <p className="text-xs text-gray-400 line-clamp-2">
                         {tool.description}
                       </p>
-
-                      {/* CTA */}
-                      <div className="flex items-center text-violet-600 font-semibold group-hover:translate-x-2 transition-transform">
-                        Usar herramienta <ArrowRight className="ml-2 w-4 h-4" />
-                      </div>
                     </div>
-                  </Link>
-                </motion.div>
-              )
-            })}
+                  </motion.div>
+                )
+              })}
             </motion.div>
-          )}
           </div>
         </section>
       )}
