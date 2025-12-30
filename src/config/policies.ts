@@ -1,13 +1,13 @@
 // Legal policies configuration
 
 export const POLICY_VERSION = '1.0'
-export const POLICY_LAST_UPDATE = '2025-01-19'
+export const POLICY_LAST_UPDATE = '2025-12-30'
 
 export const LEGAL_CONTACT = {
-  companyName: 'Itineramio',
-  email: 'legal@itineramio.com',
-  phone: '+34 XXX XXX XXX',
-  address: 'Calle Ejemplo, 123, Madrid, España'
+  companyName: 'INSTAFY SL',
+  cif: 'B42543173',
+  email: 'hola@itineramio.com',
+  address: 'Calle Castaños 5, Derecha, 03001 Alicante, España'
 }
 
 export const POLICY_URLS = {

@@ -65,15 +65,15 @@ export default function LegalNoticePage() {
                     <td className="py-2 text-gray-700">{LEGAL_CONTACT.companyName}</td>
                   </tr>
                   <tr>
+                    <td className="py-2 font-semibold text-gray-900">CIF:</td>
+                    <td className="py-2 text-gray-700">{LEGAL_CONTACT.cif}</td>
+                  </tr>
+                  <tr>
                     <td className="py-2 font-semibold text-gray-900">Domicilio social:</td>
                     <td className="py-2 text-gray-700">{LEGAL_CONTACT.address}</td>
                   </tr>
                   <tr>
                     <td className="py-2 font-semibold text-gray-900">Email:</td>
-                    <td className="py-2 text-gray-700">{LEGAL_CONTACT.email}</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 font-semibold text-gray-900">Email legal:</td>
                     <td className="py-2 text-gray-700">{LEGAL_CONTACT.email}</td>
                   </tr>
                   <tr>

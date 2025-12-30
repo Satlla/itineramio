@@ -11,6 +11,7 @@ import { ItineramioLogo } from '../../../../../src/components/ui/ItineramioLogo'
 import { Badge } from '../../../../../src/components/ui/Badge'
 import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
 import { ShareLanguageModal } from '../../../../../src/components/ui/ShareLanguageModal'
+import { TextToSpeech } from '../../../../../src/components/ui/TextToSpeech'
 
 interface ZoneStep {
   id: string
@@ -991,6 +992,12 @@ export default function ZoneGuidePage({
                         const isShortTitle = hasTitle && titleText.length < 80;
                         const titleEqualsContent = hasTitle && hasContent && titleText.trim() === contentText.trim();
 
+                        // Get the full text for speech (combine title and content)
+                        const speechText = [
+                          isShortTitle && !titleEqualsContent ? titleText : '',
+                          contentText || (!isShortTitle ? titleText : '')
+                        ].filter(Boolean).join('. ');
+
                         return (
                           <>
                             {/* Show title as heading only if short and not duplicate of content */}
@@ -1027,6 +1034,16 @@ export default function ZoneGuidePage({
                               <h2 className="text-lg sm:text-xl font-medium text-[#222222] break-words">
                                 {titleText}
                               </h2>
+                            )}
+
+                            {/* Audio player for text-to-speech */}
+                            {speechText && (
+                              <div className="mt-4">
+                                <TextToSpeech
+                                  text={speechText}
+                                  language={language as 'es' | 'en' | 'fr'}
+                                />
+                              </div>
                             )}
                           </>
                         );
