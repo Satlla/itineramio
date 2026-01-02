@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Mail, TrendingUp, Users, UserCheck, Download, Search, Filter, ChevronDown, ChevronRight, CheckCircle2, XCircle, ArrowLeft } from 'lucide-react'
+import { Mail, TrendingUp, Users, UserCheck, Download, Search, Filter, ChevronDown, ChevronRight, CheckCircle2, XCircle, ArrowLeft, Trash2, Pencil, X, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 interface QuizAnswer {
@@ -39,6 +39,12 @@ export default function QuizLeadsPage() {
   const [filterVerified, setFilterVerified] = useState<string>('ALL')
   const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null)
 
+  // Edit/Delete state
+  const [editingLead, setEditingLead] = useState<QuizLead | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
   useEffect(() => {
     fetchLeads()
   }, [])
@@ -52,6 +58,66 @@ export default function QuizLeadsPage() {
       console.error('Error fetching quiz leads:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDelete = async (id: string, email: string) => {
+    if (!confirm(`¿Seguro que quieres eliminar el lead de ${email}?`)) return
+
+    setDeletingId(id)
+    setError('')
+
+    try {
+      const res = await fetch(`/api/admin/academia/quiz-leads?id=${id}`, {
+        method: 'DELETE'
+      })
+
+      if (res.ok) {
+        setLeads(leads.filter(l => l.id !== id))
+      } else {
+        const data = await res.json()
+        setError(data.error || 'Error al eliminar')
+      }
+    } catch (err) {
+      setError('Error de conexión')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editingLead) return
+
+    setSaving(true)
+    setError('')
+
+    try {
+      const res = await fetch('/api/admin/academia/quiz-leads', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingLead.id,
+          email: editingLead.email,
+          fullName: editingLead.fullName,
+          level: editingLead.level,
+          converted: editingLead.converted,
+          emailVerified: editingLead.emailVerified
+        })
+      })
+
+      if (res.ok) {
+        setLeads(leads.map(l =>
+          l.id === editingLead.id ? { ...l, ...editingLead } : l
+        ))
+        setEditingLead(null)
+      } else {
+        const data = await res.json()
+        setError(data.error || 'Error al guardar')
+      }
+    } catch (err) {
+      setError('Error de conexión')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -342,12 +408,15 @@ export default function QuizLeadsPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Fecha
                   </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Acciones
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredLeads.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan={9} className="px-6 py-8 text-center text-gray-500">
                       No se encontraron leads
                     </td>
                   </tr>
@@ -418,12 +487,35 @@ export default function QuizLeadsPage() {
                               minute: '2-digit'
                             })}
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <button
+                                onClick={() => setEditingLead(lead)}
+                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                title="Editar"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(lead.id, lead.email)}
+                                disabled={deletingId === lead.id}
+                                className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
+                                title="Eliminar"
+                              >
+                                {deletingId === lead.id ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-4 h-4" />
+                                )}
+                              </button>
+                            </div>
+                          </td>
                         </tr>
 
                         {/* Expanded Row */}
                         {isExpanded && lead.answers && lead.answers.length > 0 && (
                           <tr>
-                            <td colSpan={8} className="px-6 py-6 bg-gray-50">
+                            <td colSpan={9} className="px-6 py-6 bg-gray-50">
                               <div className="space-y-4">
                                 {/* Stats by Category */}
                                 <div className="grid grid-cols-3 gap-4 mb-4">
@@ -510,6 +602,118 @@ export default function QuizLeadsPage() {
         <div className="mt-4 text-center text-sm text-gray-600">
           Mostrando {filteredLeads.length} de {leads.length} leads
         </div>
+
+        {/* Error Toast */}
+        {error && (
+          <div className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
+            <span>{error}</span>
+            <button onClick={() => setError('')} className="text-red-700 hover:text-red-900">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Edit Modal */}
+        {editingLead && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-gray-900">Editar Lead</h3>
+                <button
+                  onClick={() => setEditingLead(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={editingLead.email}
+                    onChange={(e) => setEditingLead({ ...editingLead, email: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                  <input
+                    type="text"
+                    value={editingLead.fullName || ''}
+                    onChange={(e) => setEditingLead({ ...editingLead, fullName: e.target.value || null })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nivel</label>
+                  <select
+                    value={editingLead.level}
+                    onChange={(e) => setEditingLead({ ...editingLead, level: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="BASIC">Principiante</option>
+                    <option value="INTERMEDIATE">Intermedio</option>
+                    <option value="ADVANCED">Avanzado</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-6">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editingLead.emailVerified}
+                      onChange={(e) => setEditingLead({ ...editingLead, emailVerified: e.target.checked })}
+                      className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                    />
+                    <span className="text-sm text-gray-700">Email verificado</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editingLead.converted}
+                      onChange={(e) => setEditingLead({ ...editingLead, converted: e.target.checked })}
+                      className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                    />
+                    <span className="text-sm text-gray-700">Convertido</span>
+                  </label>
+                </div>
+
+                <div className="pt-2 text-sm text-gray-500">
+                  <p>Puntuación: {editingLead.score}/100</p>
+                  <p>Tiempo: {Math.floor(editingLead.timeElapsed / 60)}:{(editingLead.timeElapsed % 60).toString().padStart(2, '0')}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setEditingLead(null)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  disabled={saving}
+                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Guardando...
+                    </>
+                  ) : (
+                    'Guardar'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

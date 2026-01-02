@@ -106,3 +106,91 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
+/**
+ * DELETE /api/admin/academia/quiz-leads?id=xxx
+ * Elimina un quiz lead
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('admin-token')?.value
+
+    if (!token) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    const admin = await verifyAdminToken(token)
+    if (!admin) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID requerido' }, { status: 400 })
+    }
+
+    await prisma.quizLead.delete({
+      where: { id }
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting quiz lead:', error)
+    return NextResponse.json(
+      { error: 'Error al eliminar el lead' },
+      { status: 500 }
+    )
+  }
+}
+
+/**
+ * PATCH /api/admin/academia/quiz-leads
+ * Actualiza un quiz lead
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('admin-token')?.value
+
+    if (!token) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    const admin = await verifyAdminToken(token)
+    if (!admin) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { id, email, fullName, level, converted, emailVerified } = body
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID requerido' }, { status: 400 })
+    }
+
+    const updated = await prisma.quizLead.update({
+      where: { id },
+      data: {
+        ...(email && { email }),
+        ...(fullName !== undefined && { fullName }),
+        ...(level && { level }),
+        ...(converted !== undefined && { converted }),
+        ...(emailVerified !== undefined && {
+          emailVerified,
+          verifiedAt: emailVerified ? new Date() : null
+        })
+      }
+    })
+
+    return NextResponse.json({ success: true, lead: updated })
+  } catch (error) {
+    console.error('Error updating quiz lead:', error)
+    return NextResponse.json(
+      { error: 'Error al actualizar el lead' },
+      { status: 500 }
+    )
+  }
+}
