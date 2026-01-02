@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
         OR: [
           { source: 'academia-coming-soon' },
           { source: { contains: 'academia' } },
-          { tags: { hasSome: ['academia-interest'] } }
+          { tags: { hasSome: ['academia-interest', 'from_academia-coming-soon'] } }
         ]
       },
       orderBy: { createdAt: 'desc' }

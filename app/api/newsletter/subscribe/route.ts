@@ -26,6 +26,25 @@ export async function POST(request: NextRequest) {
     if (existing) {
       // Si ya está suscrito y activo
       if (existing.status === 'active') {
+        // Merge new tags with existing tags
+        const existingTags = existing.tags || []
+        const newTags = tags.filter((t: string) => !existingTags.includes(t))
+
+        if (newTags.length > 0 || (source !== 'unknown' && source !== existing.source)) {
+          // Update with new tags and track new source
+          await prisma.emailSubscriber.update({
+            where: { email: normalizedEmail },
+            data: {
+              tags: [...existingTags, ...newTags],
+              // Keep original source but add new one to tags for tracking
+              ...(source !== 'unknown' && source !== existing.source && {
+                tags: [...existingTags, ...newTags, `from_${source}`]
+              })
+            }
+          })
+          console.log(`📝 Updated subscriber tags: ${normalizedEmail} added ${newTags.join(', ')} from ${source}`)
+        }
+
         return NextResponse.json(
           { message: 'Ya estás suscrito', alreadySubscribed: true },
           { status: 200 }
