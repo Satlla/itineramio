@@ -92,10 +92,23 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Calculate stats for the funnel page
+    const converted = rawLeads.filter(l => l.converted).length
+    const pending = rawLeads.filter(l => !l.converted).length
+    const avgScore = rawLeads.length > 0
+      ? Math.round(rawLeads.reduce((sum, l) => sum + l.score, 0) / rawLeads.length)
+      : 0
+
     return NextResponse.json({
       success: true,
       leads,
-      total: leads.length
+      total: leads.length,
+      stats: {
+        total: leads.length,
+        converted,
+        pending,
+        avgScore
+      }
     })
 
   } catch (error) {
