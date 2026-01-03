@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import Stripe from 'stripe'
 import { prisma } from '../../../../src/lib/prisma'
 import { verifyToken } from '../../../../src/lib/auth'
 
@@ -43,9 +44,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // TODO: Stripe integration not yet implemented
-    // En el futuro, cuando se integre Stripe, descomentar este código:
-    // if (subscription.stripeSubscriptionId) { ... }
+    // Si tiene suscripción de Stripe, cancelarla también en Stripe
+    if (subscription.stripeSubscriptionId && process.env.STRIPE_SECRET_KEY) {
+      try {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+          apiVersion: '2024-12-18.acacia'
+        })
+
+        if (immediate) {
+          // Cancelación inmediata
+          await stripe.subscriptions.cancel(subscription.stripeSubscriptionId)
+          console.log(`✅ Stripe subscription ${subscription.stripeSubscriptionId} canceled immediately`)
+        } else {
+          // Cancelar al final del período
+          await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
+            cancel_at_period_end: true,
+            metadata: {
+              canceled_at: new Date().toISOString(),
+              canceled_by: decoded.userId,
+              cancel_reason: reason || 'User requested'
+            }
+          })
+          console.log(`✅ Stripe subscription ${subscription.stripeSubscriptionId} set to cancel at period end`)
+        }
+      } catch (stripeError) {
+        console.error('Error canceling Stripe subscription:', stripeError)
+        // Continuamos con la cancelación local aunque falle Stripe
+        // El usuario puede contactar soporte si hay problemas
+      }
+    }
 
     // Actualizar estado en nuestra base de datos
     const updateData: any = {

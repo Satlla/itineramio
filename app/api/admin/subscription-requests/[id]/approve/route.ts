@@ -133,11 +133,41 @@ export async function POST(
         const newBillingPeriod = (billingPeriod === 'BIANNUAL' ? 'biannual' :
                                   billingPeriod === 'ANNUAL' ? 'annual' : 'monthly') as 'monthly' | 'biannual' | 'annual'
 
+        // 🔧 FIX: Buscar la factura real pagada para obtener el precio correcto
+        const paidInvoice = await prisma.invoice.findFirst({
+          where: {
+            subscriptionId: existingSubscription.id,
+            status: 'PAID'
+          },
+          orderBy: { createdAt: 'desc' }
+        })
+
+        // Calcular precio teórico si no hay factura
+        let currentMonthsMultiplier = 1
+        let currentDiscountPercent = 0
+        if (currentBillingPeriod === 'biannual') {
+          currentMonthsMultiplier = 6
+          currentDiscountPercent = 10
+        } else if (currentBillingPeriod === 'annual') {
+          currentMonthsMultiplier = 12
+          currentDiscountPercent = 20
+        }
+        const theoreticalPrice = Number(existingSubscription.plan.priceMonthly) * currentMonthsMultiplier * (1 - currentDiscountPercent / 100)
+
+        // Usar precio real de factura o teórico como fallback
+        const actualAmountPaid = paidInvoice ? Number(paidInvoice.finalAmount) : theoreticalPrice
+
+        console.log('💰 Precio para prorrateo:', {
+          facturaEncontrada: !!paidInvoice,
+          precioReal: actualAmountPaid,
+          precioTeorico: theoreticalPrice
+        })
+
         // Calculate proration
         prorationCalculation = calculateProration({
           currentSubscription: {
             planName: existingSubscription.plan.name,
-            amountPaid: Number(existingSubscription.customPrice || existingSubscription.plan.priceMonthly),
+            amountPaid: actualAmountPaid,
             startDate: existingSubscription.startDate,
             endDate: existingSubscription.endDate
           },

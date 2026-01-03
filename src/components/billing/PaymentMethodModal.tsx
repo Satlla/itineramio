@@ -46,7 +46,7 @@ function generatePaymentReference(): string {
 }
 
 export default function PaymentMethodModal({ isOpen, onClose, planDetails }: PaymentMethodModalProps) {
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('bizum')
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('stripe')
   const [paymentProof, setPaymentProof] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [processing, setProcessing] = useState(false)
@@ -139,12 +139,57 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
     setProcessing(true)
 
     try {
-      // If Stripe, redirect to Stripe
+      // If Stripe, redirect to Stripe Checkout
       if (selectedMethod === 'stripe') {
-        // TODO: Integrate with Stripe Checkout
-        toast.error('Stripe estará disponible próximamente')
-        setProcessing(false)
-        return
+        try {
+          // Map billing period to backend format
+          const periodMap: Record<string, string> = {
+            'monthly': 'MONTHLY',
+            'semiannual': 'SEMESTRAL',
+            'annual': 'YEARLY'
+          }
+          const backendPeriod = periodMap[planDetails.billingPeriod.toLowerCase()] || 'MONTHLY'
+
+          const response = await fetch('/api/stripe/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              planCode: planDetails.code,
+              billingPeriod: backendPeriod,
+              // Send proration data if exists
+              hasProration: planDetails.hasProration,
+              proratedAmount: planDetails.proratedAmount,
+              originalPrice: planDetails.price
+            })
+          })
+
+          const data = await response.json()
+
+          if (!response.ok) {
+            if (data.requiresSetup) {
+              toast.error('Stripe no está configurado. Por favor, usa otro método de pago.')
+            } else {
+              toast.error(data.error || 'Error al crear sesión de pago')
+            }
+            setProcessing(false)
+            return
+          }
+
+          if (data.url) {
+            // Redirect to Stripe Checkout
+            window.location.href = data.url
+          } else {
+            toast.error('Error: No se recibió URL de pago')
+            setProcessing(false)
+          }
+          return
+        } catch (error) {
+          console.error('Stripe checkout error:', error)
+          toast.error('Error al conectar con Stripe')
+          setProcessing(false)
+          return
+        }
       }
 
       // Upload payment proof first
@@ -288,6 +333,41 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Selecciona el método de pago</h3>
 
             <div className="space-y-3">
+              {/* Stripe - Tarjeta (First option) */}
+              <button
+                onClick={() => setSelectedMethod('stripe')}
+                className={`w-full p-5 rounded-xl border-2 transition-all text-left ${
+                  selectedMethod === 'stripe'
+                    ? 'border-violet-600 bg-violet-50 ring-2 ring-violet-100'
+                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4 flex-1">
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                      selectedMethod === 'stripe' ? 'bg-violet-600' : 'bg-gray-100'
+                    }`}>
+                      <CreditCard className={`w-6 h-6 ${
+                        selectedMethod === 'stripe' ? 'text-white' : 'text-gray-900'
+                      }`} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-base font-semibold text-gray-900">Tarjeta de crédito/débito</h4>
+                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded">
+                          Recomendado
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">Visa, Mastercard, American Express</p>
+                      <p className="text-xs text-gray-500 mt-2">Pago seguro con Stripe · Activación inmediata</p>
+                    </div>
+                  </div>
+                  {selectedMethod === 'stripe' && (
+                    <Check className="w-6 h-6 text-violet-600 flex-shrink-0 mt-1" />
+                  )}
+                </div>
+              </button>
+
               {/* Bizum */}
               <button
                 onClick={() => setSelectedMethod('bizum')}
@@ -307,12 +387,7 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
                       }`} />
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-base font-semibold text-gray-900">Bizum</h4>
-                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded">
-                          Recomendado
-                        </span>
-                      </div>
+                      <h4 className="text-base font-semibold text-gray-900">Bizum</h4>
                       <p className="text-sm text-gray-600 mt-1">Pago rápido desde tu móvil</p>
                       <p className="text-sm font-medium text-violet-600 mt-2">+34 652 656 440</p>
 
@@ -426,24 +501,6 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
                   )}
                 </div>
               </button>
-
-              {/* Stripe - Coming Soon */}
-              <div className="relative">
-                <div className="w-full p-5 rounded-xl border-2 border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-gray-100">
-                      <CreditCard className="w-6 h-6 text-gray-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-base font-semibold text-gray-900">Tarjeta (Stripe)</h4>
-                      <p className="text-sm text-gray-600 mt-1">Pago automático con tarjeta</p>
-                      <span className="inline-block mt-2 px-2 py-1 bg-gray-200 text-gray-600 text-xs font-medium rounded">
-                        Próximamente
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -525,7 +582,7 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
             </button>
             <button
               onClick={handleSubmit}
-              disabled={processing || uploading || ((selectedMethod === 'bizum' || selectedMethod === 'transfer') && !paymentProof)}
+              disabled={processing || uploading || (selectedMethod !== 'stripe' && !paymentProof)}
               className="flex-1 px-3 sm:px-4 md:px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl disabled:bg-gray-300 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2"
             >
               {uploading ? (

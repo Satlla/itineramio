@@ -193,8 +193,12 @@ export default function SubscriptionsPage() {
   const activeSub = subscriptionData?.subscriptions.find(s => s.status === 'ACTIVE')
   const billingPeriod = activeSub ? calculateBillingPeriod(activeSub.startDate, activeSub.endDate) : null
 
-  // Calcular precio total usando la fuente de verdad para descuentos
-  const totalPrice = activeSub && billingPeriod
+  // Obtener el precio real pagado de la última factura, o calcular el precio de renovación
+  const lastPaidInvoice = invoicesData?.invoices.find(i => i.status === 'PAID')
+  const paidPrice = lastPaidInvoice?.finalAmount || 0
+
+  // Precio de renovación (sin prorrateo)
+  const renewalPrice = activeSub && billingPeriod
     ? (activeSub.plan!.priceMonthly * billingPeriod.months * (
         1 - getDiscount(
           billingPeriod.months === 1 ? 'MONTHLY' :
@@ -203,6 +207,9 @@ export default function SubscriptionsPage() {
         ) / 100
       ))
     : 0
+
+  // Mostrar el precio pagado si existe, si no el de renovación
+  const totalPrice = paidPrice > 0 ? paidPrice : renewalPrice
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
@@ -267,7 +274,10 @@ export default function SubscriptionsPage() {
                     <span className="text-blue-100">/ {billingPeriod?.period.toLowerCase()}</span>
                   </div>
                   <p className="text-blue-100 text-sm mb-6">
-                    Precio de próxima renovación · Consulta el historial de pagos abajo para ver facturas anteriores
+                    {paidPrice > 0 && paidPrice !== renewalPrice
+                      ? `Precio pagado (con prorrateo) · Renovación: €${renewalPrice.toFixed(2)}`
+                      : 'Precio del período actual'
+                    }
                   </p>
 
                   <button

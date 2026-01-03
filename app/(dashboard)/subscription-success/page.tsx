@@ -2,22 +2,36 @@
 
 import React, { useEffect, useState, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { CheckCircle, Clock, CreditCard, Building2, Smartphone, ArrowRight } from 'lucide-react'
+import { CheckCircle, Clock, CreditCard, Building2, Smartphone, ArrowRight, Loader2, XCircle } from 'lucide-react'
 import { trackPurchase, trackBeginCheckout } from '../../../src/lib/analytics'
 
 export default function SubscriptionSuccessPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [paymentMethod, setPaymentMethod] = useState<string>('')
+  const [isStripePayment, setIsStripePayment] = useState(false)
+  const [verifying, setVerifying] = useState(false)
+  const [verified, setVerified] = useState(false)
+  const [verificationError, setVerificationError] = useState<string | null>(null)
+  const [subscriptionInfo, setSubscriptionInfo] = useState<any>(null)
   const trackedRef = useRef(false)
+  const verifiedRef = useRef(false)
 
   useEffect(() => {
     const method = searchParams.get('method')
+    const sessionId = searchParams.get('session_id')
     const plan = searchParams.get('plan')
     const amount = searchParams.get('amount')
     const transactionId = searchParams.get('txn') || `txn_${Date.now()}`
 
     setPaymentMethod(method || '')
+
+    // Check if this is a Stripe payment (has session_id)
+    if (sessionId && !verifiedRef.current) {
+      verifiedRef.current = true
+      setIsStripePayment(true)
+      verifyStripePayment(sessionId)
+    }
 
     // Track purchase conversion (only once)
     if (!trackedRef.current && plan) {
@@ -37,6 +51,34 @@ export default function SubscriptionSuccessPage() {
       })
     }
   }, [searchParams])
+
+  const verifyStripePayment = async (sessionId: string) => {
+    setVerifying(true)
+    setVerificationError(null)
+
+    try {
+      const response = await fetch('/api/stripe/verify-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ sessionId })
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        setVerified(true)
+        setSubscriptionInfo(data.subscription)
+      } else {
+        setVerificationError(data.error || data.message || 'Error al verificar el pago')
+      }
+    } catch (error) {
+      console.error('Error verifying Stripe payment:', error)
+      setVerificationError('Error al conectar con el servidor')
+    } finally {
+      setVerifying(false)
+    }
+  }
 
   const getPaymentMethodInfo = () => {
     switch (paymentMethod) {
@@ -69,6 +111,98 @@ export default function SubscriptionSuccessPage() {
 
   const methodInfo = getPaymentMethodInfo()
 
+  // If Stripe payment, show different UI
+  if (isStripePayment) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 flex items-center justify-center p-4" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
+        <div className="max-w-2xl w-full">
+          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className={`p-8 text-center ${
+              verifying ? 'bg-gradient-to-r from-blue-600 to-indigo-600' :
+              verified ? 'bg-gradient-to-r from-green-600 to-emerald-600' :
+              verificationError ? 'bg-gradient-to-r from-red-600 to-rose-600' :
+              'bg-gradient-to-r from-violet-600 to-purple-600'
+            }`}>
+              {verifying ? (
+                <>
+                  <Loader2 className="w-20 h-20 text-white mx-auto mb-4 animate-spin" />
+                  <h1 className="text-3xl font-bold text-white mb-2">
+                    Verificando pago...
+                  </h1>
+                  <p className="text-blue-100 text-lg">
+                    Estamos confirmando tu pago con Stripe
+                  </p>
+                </>
+              ) : verified ? (
+                <>
+                  <div className="inline-block animate-bounce mb-4">
+                    <CheckCircle className="w-20 h-20 text-white" strokeWidth={2} />
+                  </div>
+                  <h1 className="text-3xl font-bold text-white mb-2">
+                    ¡Pago Confirmado!
+                  </h1>
+                  <p className="text-green-100 text-lg">
+                    Tu suscripción está activa
+                  </p>
+                </>
+              ) : verificationError ? (
+                <>
+                  <XCircle className="w-20 h-20 text-white mx-auto mb-4" />
+                  <h1 className="text-3xl font-bold text-white mb-2">
+                    Error en la verificación
+                  </h1>
+                  <p className="text-red-100 text-lg">
+                    {verificationError}
+                  </p>
+                </>
+              ) : null}
+            </div>
+
+            {/* Content */}
+            <div className="p-8">
+              {verified && subscriptionInfo && (
+                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-8">
+                  <h3 className="font-semibold text-green-900 mb-4">Detalles de tu suscripción</h3>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-green-800">
+                      <strong>Plan:</strong> {subscriptionInfo.planName}
+                    </p>
+                    <p className="text-green-800">
+                      <strong>Válido hasta:</strong> {new Date(subscriptionInfo.endDate).toLocaleDateString('es-ES', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => router.push('/main')}
+                  className="flex-1 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                >
+                  Ir al Dashboard
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => router.push('/account/billing')}
+                  className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
+                >
+                  Ver Facturación
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Manual payment UI (Bizum, Transfer)
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 flex items-center justify-center p-4" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
       <div className="max-w-2xl w-full">

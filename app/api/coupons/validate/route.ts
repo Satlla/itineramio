@@ -49,15 +49,23 @@ export async function POST(request: NextRequest) {
         error: 'Este cupón ha alcanzado su límite de uso'
       })
     }
-    
-    // Check user-specific usage limits - simplified for now
-    // const userUsageCount = coupon.uses.filter(use => use.userId === decoded.userId).length
-    // if (userUsageCount >= coupon.maxUsesPerUser) {
-    //   return NextResponse.json({
-    //     valid: false,
-    //     error: 'Ya has usado este cupón el máximo de veces permitidas'
-    //   })
-    // }
+
+    // Check user-specific usage limits
+    if (coupon.maxUsesPerUser && decoded?.userId) {
+      const userUsageCount = await prisma.couponUse.count({
+        where: {
+          couponId: coupon.id,
+          userId: decoded.userId
+        }
+      })
+
+      if (userUsageCount >= coupon.maxUsesPerUser) {
+        return NextResponse.json({
+          valid: false,
+          error: 'Ya has usado este cupón el máximo de veces permitidas'
+        })
+      }
+    }
     
     // Simplified pricing calculation based on plan
     const planPrices = {
@@ -71,12 +79,20 @@ export async function POST(request: NextRequest) {
     let discountAmount = 0
     let finalAmount = basePrice
 
-    // Calculate discount based on discountPercent
-    if (coupon.discountPercent) {
+    // Calculate discount based on discountPercent OR discountAmount (fixed)
+    if (coupon.discountPercent && Number(coupon.discountPercent) > 0) {
+      // Percentage discount
       discountAmount = basePrice * (Number(coupon.discountPercent) / 100)
       finalAmount = basePrice - discountAmount
+    } else if (coupon.discountAmount && Number(coupon.discountAmount) > 0) {
+      // Fixed amount discount
+      discountAmount = Math.min(Number(coupon.discountAmount), basePrice) // No puede ser más que el precio
+      finalAmount = basePrice - discountAmount
     }
-    
+
+    // Ensure finalAmount is not negative
+    finalAmount = Math.max(0, finalAmount)
+
     return NextResponse.json({
       valid: true,
       coupon: {
@@ -89,7 +105,8 @@ export async function POST(request: NextRequest) {
         originalAmount: basePrice,
         discountAmount,
         finalAmount,
-        percentageOff: Number(coupon.discountPercent) || 0
+        percentageOff: Number(coupon.discountPercent) || 0,
+        fixedAmountOff: Number(coupon.discountAmount) || 0
       },
       details: {
         usesRemaining: coupon.maxUses ? coupon.maxUses - coupon.usedCount : 'Ilimitado',

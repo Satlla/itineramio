@@ -252,23 +252,9 @@ export default function BillingPage() {
     }
   }
 
-  const handleDownloadInvoice = async (invoiceId: string) => {
-    try {
-      const response = await fetch(`/api/user/invoices/${invoiceId}/download`)
-      if (response.ok) {
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `factura-${invoiceId}.pdf`
-        document.body.appendChild(a)
-        a.click()
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
-      }
-    } catch (error) {
-      console.error('Error downloading invoice:', error)
-    }
+  const handleDownloadInvoice = (invoiceId: string) => {
+    // Open invoice in new tab - user can use "Guardar como PDF" button or browser print
+    window.open(`/api/user/invoices/${invoiceId}/download`, '_blank')
   }
 
   const getStatusBadge = (status: string) => {
@@ -856,7 +842,7 @@ export default function BillingPage() {
                               <button
                                 onClick={() => handleDownloadInvoice(invoice.id)}
                                 className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                                title="Descargar PDF"
+                                title="Ver factura"
                               >
                                 <Download className="w-5 h-5" />
                               </button>
@@ -990,7 +976,7 @@ export default function BillingPage() {
                   className="flex-1 bg-violet-600 text-white px-6 py-3 rounded-lg hover:bg-violet-700 transition-colors font-medium flex items-center justify-center gap-2"
                 >
                   <Download className="w-5 h-5" />
-                  Descargar PDF
+                  Ver Factura
                 </button>
                 <button
                   onClick={() => setSelectedInvoice(null)}

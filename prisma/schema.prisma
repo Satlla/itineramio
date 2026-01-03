@@ -528,6 +528,7 @@ model UserSubscription {
   cancelAtPeriodEnd  Boolean           @default(false) @map("cancel_at_period_end")
   cancelReason       String?           @map("cancel_reason")
   canceledAt         DateTime?         @map("canceled_at")
+  stripeSubscriptionId String?         @unique @map("stripe_subscription_id")
   invoices           Invoice[]
   customPlan         CustomPlan?       @relation(fields: [customPlanId], references: [id])
   plan               SubscriptionPlan? @relation(fields: [planId], references: [id])

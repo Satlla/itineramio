@@ -71,13 +71,13 @@ export class InvoiceGeneratorAirbnb {
     let months = 1
     let billingData = null
     try {
-      if (invoice.notes) {
+      if (invoice.notes && invoice.notes.trim().startsWith('{')) {
         const notesData = JSON.parse(invoice.notes)
         months = notesData.months || 1
         billingData = notesData.billingData || null
       }
     } catch (e) {
-      console.error('Error parsing invoice notes:', e)
+      // Notes are plain text, not JSON - this is fine
       months = 1
       billingData = null
     }
@@ -423,6 +423,29 @@ export class InvoiceGeneratorAirbnb {
       vertical-align: middle;
     }
     
+    .print-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #FF385C;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .print-button:hover {
+      background: #E31C5F;
+    }
+
     @media print {
       body {
         background: white;
@@ -433,10 +456,23 @@ export class InvoiceGeneratorAirbnb {
       .payment-section {
         break-inside: avoid;
       }
+      .print-button {
+        display: none !important;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Print/Save Button -->
+  <button class="print-button" onclick="window.print()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 9V2h12v7"/>
+      <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+      <rect x="6" y="14" width="12" height="8"/>
+    </svg>
+    Guardar como PDF
+  </button>
+
   <div class="invoice-wrapper">
     <!-- Header estilo Airbnb -->
     <div class="header">
@@ -469,10 +505,11 @@ export class InvoiceGeneratorAirbnb {
       
       <div class="billing-block">
         <h3>Emisor</h3>
-        <p><strong>${companySettings.companyName || 'Itineramio SL'}</strong></p>
-        ${companySettings.companyTaxId ? `<p>CIF: ${companySettings.companyTaxId}</p>` : '<p>CIF: B12345678</p>'}
-        <p>${companySettings.companyAddress || 'Calle Ejemplo 123'}</p>
-        <p>${companySettings.companyPostalCode || '28001'} ${companySettings.companyCity || 'Madrid'}</p>
+        <p><strong>${companySettings.companyName || 'Alejandro Santalla Sanchez'}</strong></p>
+        <p><em>${companySettings.companyTradeName || 'Itineramio'}</em></p>
+        ${companySettings.companyTaxId ? `<p>NIF: ${companySettings.companyTaxId}</p>` : ''}
+        <p>${companySettings.companyAddress || 'Calle Músico Pau Casals 16, 3ºA'}</p>
+        <p>${companySettings.companyPostalCode || '03010'} ${companySettings.companyCity || 'Alicante'}</p>
         <p>${companySettings.companyCountry || 'España'}</p>
         <p>${companySettings.companyEmail || 'hola@itineramio.com'}</p>
         ${companySettings.companyPhone ? `<p>${companySettings.companyPhone}</p>` : ''}
@@ -578,10 +615,11 @@ export class InvoiceGeneratorAirbnb {
       <div class="footer-content">
         <div class="footer-block">
           <h4>Datos fiscales</h4>
-          <p>${companySettings.companyName || 'Itineramio SL'}</p>
-          <p>CIF: ${companySettings.companyTaxId || 'B12345678'}</p>
-          <p>${companySettings.companyAddress || 'Calle Ejemplo 123'}</p>
-          <p>${companySettings.companyPostalCode || '28001'} ${companySettings.companyCity || 'Madrid'}, ${companySettings.companyCountry || 'España'}</p>
+          <p>${companySettings.companyName || 'Alejandro Santalla Sanchez'}</p>
+          <p><em>${companySettings.companyTradeName || 'Itineramio'}</em></p>
+          ${companySettings.companyTaxId ? `<p>NIF: ${companySettings.companyTaxId}</p>` : ''}
+          <p>${companySettings.companyAddress || 'Calle Músico Pau Casals 16, 3ºA'}</p>
+          <p>${companySettings.companyPostalCode || '03010'} ${companySettings.companyCity || 'Alicante'}, ${companySettings.companyCountry || 'España'}</p>
         </div>
         <div class="footer-block">
           <h4>Información de factura</h4>
@@ -628,19 +666,20 @@ export class InvoiceGeneratorAirbnb {
       })
 
       let companySettings = {
-        companyName: 'Itineramio SL',
+        companyName: 'Alejandro Santalla Sanchez',
+        companyTradeName: 'Itineramio',
         companyEmail: 'hola@itineramio.com',
-        companyPhone: '',
-        companyAddress: 'Calle Ejemplo 123',
-        companyCity: 'Madrid',
-        companyPostalCode: '28001',
+        companyPhone: '+34 652 656 440',
+        companyAddress: 'Calle Músico Pau Casals 16, 3ºA',
+        companyCity: 'Alicante',
+        companyPostalCode: '03010',
         companyCountry: 'España',
-        companyTaxId: 'B12345678',
+        companyTaxId: '53237302F',
         companyBankAccount: 'ES82 0182 0304 8102 0158 7248',
         companyBic: '',
         companyLogoUrl: '',
         companyWebsite: 'https://itineramio.com',
-        paymentBizum: '+34652656440'
+        paymentBizum: '+34 652 656 440'
       }
 
       if (systemSetting && systemSetting.value) {
@@ -655,14 +694,14 @@ export class InvoiceGeneratorAirbnb {
       // Parse properties from notes if available
       let properties: Array<{ id: string; name: string; monthlyFee: number }> = []
       try {
-        if (invoice.notes) {
+        if (invoice.notes && invoice.notes.trim().startsWith('{')) {
           const notesData = JSON.parse(invoice.notes)
           if (notesData.properties) {
             properties = notesData.properties
           }
         }
       } catch (e) {
-        console.error('Error parsing invoice notes:', e)
+        // Notes are plain text, not JSON - this is fine
       }
 
       return {

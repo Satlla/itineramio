@@ -183,7 +183,7 @@ async function handleProrationPreview(
       }
     }
 
-    // 🔧 FIX CRÍTICO: Calcular el precio TOTAL pagado según el periodo de facturación
+    // 🔧 FIX CRÍTICO: Buscar el precio REAL pagado desde la factura
     const currentMonthlyPrice = Number(activeSubscription.plan.priceMonthly)
     let currentMonthsMultiplier = 1
     let currentDiscountPercent = 0
@@ -196,15 +196,27 @@ async function handleProrationPreview(
       currentDiscountPercent = 20
     }
 
-    const currentDiscountedMonthlyPrice = currentMonthlyPrice * (1 - currentDiscountPercent / 100)
-    const currentTotalPricePaid = currentDiscountedMonthlyPrice * currentMonthsMultiplier
+    // Buscar la factura pagada asociada a esta suscripción para obtener el precio real
+    const paidInvoice = await prisma.invoice.findFirst({
+      where: {
+        subscriptionId: activeSubscription.id,
+        status: 'PAID'
+      },
+      orderBy: { createdAt: 'desc' }
+    })
+
+    // Usar el precio real de la factura si existe, si no calcular el teórico
+    const theoreticalPrice = currentMonthlyPrice * currentMonthsMultiplier * (1 - currentDiscountPercent / 100)
+    const currentTotalPricePaid = paidInvoice
+      ? Number(paidInvoice.finalAmount)
+      : theoreticalPrice
 
     console.log('💰 Cálculo de precio total pagado:')
     console.log(`  Periodo: ${currentBillingPeriod}`)
     console.log(`  Precio mensual: €${currentMonthlyPrice}`)
-    console.log(`  Descuento: ${currentDiscountPercent}%`)
-    console.log(`  Meses: ${currentMonthsMultiplier}`)
-    console.log(`  TOTAL PAGADO: €${currentTotalPricePaid.toFixed(2)}`)
+    console.log(`  Precio teórico: €${theoreticalPrice.toFixed(2)}`)
+    console.log(`  Factura encontrada: ${paidInvoice ? 'Sí' : 'No'}`)
+    console.log(`  PRECIO REAL PAGADO: €${currentTotalPricePaid.toFixed(2)}`)
 
     // Verificar si es el mismo plan y período (no permitir)
     const isSamePlan = activeSubscription.plan.code === planCode

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import Stripe from 'stripe'
 import { prisma } from '../../../../src/lib/prisma'
 import { verifyToken } from '../../../../src/lib/auth'
 
@@ -44,17 +45,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // TODO: Integración con Stripe (cuando esté implementado)
-    // if (subscription.stripeSubscriptionId) {
-    //   const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
-    //   await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
-    //     cancel_at_period_end: false,
-    //     metadata: {
-    //       reactivated_at: new Date().toISOString(),
-    //       reactivated_by: decoded.userId
-    //     }
-    //   })
-    // }
+    // Si tiene suscripción de Stripe, reactivarla también en Stripe
+    if (subscription.stripeSubscriptionId && process.env.STRIPE_SECRET_KEY) {
+      try {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+          apiVersion: '2024-12-18.acacia'
+        })
+
+        await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
+          cancel_at_period_end: false,
+          metadata: {
+            reactivated_at: new Date().toISOString(),
+            reactivated_by: decoded.userId
+          }
+        })
+        console.log(`✅ Stripe subscription ${subscription.stripeSubscriptionId} reactivated`)
+      } catch (stripeError) {
+        console.error('Error reactivating Stripe subscription:', stripeError)
+        // Continuamos con la reactivación local aunque falle Stripe
+      }
+    }
 
     // Reactivar en nuestra base de datos
     const reactivatedSubscription = await prisma.userSubscription.update({
