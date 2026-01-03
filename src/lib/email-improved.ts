@@ -138,7 +138,7 @@ export const emailTemplates = {
         @media only screen and (max-width: 600px) {
           .container { padding: 10px !important; }
           .content { padding: 20px !important; }
-          .button { display: block !important; width: 100% !important; }
+          .button { display: block !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; text-align: center !important; }
         }
       </style>
     </head>
@@ -159,9 +159,9 @@ export const emailTemplates = {
           </p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationUrl}" 
+            <a href="${verificationUrl}"
                class="button"
-               style="background: #8b5cf6; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);">
+               style="background: #8b5cf6; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3); box-sizing: border-box; max-width: 100%;">
               Confirmar mi cuenta
             </a>
           </div>

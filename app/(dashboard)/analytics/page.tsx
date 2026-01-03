@@ -30,7 +30,6 @@ import {
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../src/components/ui/Card'
 import { Button } from '../../../src/components/ui/Button'
-import { DashboardNavbar } from '../../../src/components/layout/DashboardNavbar'
 import { useAuth } from '../../../src/providers/AuthProvider'
 import { AnimatedLoadingSpinner } from '../../../src/components/ui/AnimatedLoadingSpinner'
 
@@ -103,10 +102,8 @@ export default function AnalyticsPage() {
   const trends = data?.trends || []
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
-      <DashboardNavbar user={user || undefined} />
-      
-      <main className="pt-16">
+    <div className="min-h-screen bg-gray-50">
+      <main>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <motion.div

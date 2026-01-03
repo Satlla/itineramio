@@ -35,7 +35,6 @@ import FirstPropertyOnboarding from '../../../src/components/ui/FirstPropertyOnb
 import FirstPropertyNotification from '../../../src/components/ui/FirstPropertyNotification'
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Avatar } from '../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../src/components/ui/AnimatedLoadingSpinner'
-import { DashboardNavbar } from '../../../src/components/layout/DashboardNavbar'
 import { DashboardFooter } from '../../../src/components/layout/DashboardFooter'
 import { useAuth } from '../../../src/providers/AuthProvider'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
@@ -516,10 +515,8 @@ export default function DashboardPage(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
-      <DashboardNavbar user={user || undefined} />
-
-      <main className="flex-1 pt-12 sm:pt-14 md:pt-16">
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <main className="flex-1">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-4 md:py-6 pb-4 sm:pb-6 md:pb-8">
           {/* Header */}
           <motion.div
