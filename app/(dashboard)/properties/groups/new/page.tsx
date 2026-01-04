@@ -25,6 +25,7 @@ import { Button } from '../../../../../src/components/ui/Button'
 import { Input } from '../../../../../src/components/ui/Input'
 import { Card } from '../../../../../src/components/ui/Card'
 import { ImageUpload } from '../../../../../src/components/ui/ImageUpload'
+import { AddressAutocomplete } from '../../../../../src/components/ui/AddressAutocomplete'
 import { useFormPersistence } from '../../../../../src/hooks/useFormPersistence'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
 
@@ -198,12 +199,13 @@ function NewPropertySetPageContent() {
   }, [isEditing, editId, reset, router, setValue])
 
   const onSubmit = async (data: CreatePropertySetFormData) => {
+    console.log('📝 Form submitted with data:', data)
     setIsSubmitting(true)
-    
+
     try {
       const url = isEditing ? `/api/property-sets/${editId}` : '/api/property-sets'
       const method = isEditing ? 'PUT' : 'POST'
-      
+
       const response = await fetch(url, {
         method,
         headers: {
@@ -214,25 +216,33 @@ function NewPropertySetPageContent() {
           selectedProperties
         })
       })
-      
+
       const result = await response.json()
-      
+
       if (!response.ok) {
+        console.error('❌ API error:', result)
         throw new Error(result.error || `Error al ${isEditing ? 'actualizar' : 'crear'} el conjunto`)
       }
-      
-      console.log(`Conjunto ${isEditing ? 'actualizado' : 'creado'} exitosamente:`, result.data)
-      
+
+      console.log(`✅ Conjunto ${isEditing ? 'actualizado' : 'creado'} exitosamente:`, result.data)
+
       // Clear saved data and redirect to the new property set
       clearSavedData()
       router.push(`/properties/groups/${result.data.id}`)
     } catch (error) {
-      console.error(`Error ${isEditing ? 'actualizando' : 'creando'} conjunto:`, error)
+      console.error(`❌ Error ${isEditing ? 'actualizando' : 'creando'} conjunto:`, error)
       alert(`Error al ${isEditing ? 'actualizar' : 'crear'} el conjunto. Por favor, inténtalo de nuevo.`)
     } finally {
       setIsSubmitting(false)
     }
   }
+
+  // Debug: log form errors when they change
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      console.log('⚠️ Form validation errors:', errors)
+    }
+  }, [errors])
 
   // Validar campos por step
   const validateStep = (step: number): boolean => {
@@ -479,30 +489,40 @@ function NewPropertySetPageContent() {
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Dirección */}
+                  {/* Dirección con Google Maps Autocomplete */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <MapPin className="inline w-4 h-4 mr-1" />
                       Dirección completa *
                     </label>
-                    <Input
-                      {...register('street')}
-                      placeholder="Avenida del Mar, 123"
+                    <AddressAutocomplete
+                      value={watchedValues.street}
+                      onChange={(addressData) => {
+                        // Usar la dirección formateada completa de Google Maps
+                        setValue('street', addressData.formattedAddress || addressData.street, { shouldValidate: true })
+                        setValue('city', addressData.city, { shouldValidate: true })
+                        setValue('state', addressData.state, { shouldValidate: true })
+                        setValue('country', addressData.country, { shouldValidate: true })
+                        if (addressData.postalCode && addressData.postalCode !== '00000') {
+                          setValue('postalCode', addressData.postalCode, { shouldValidate: true })
+                        }
+                      }}
                       error={!!errors.street}
+                      placeholder="Escribe una dirección y selecciona de la lista..."
                     />
                     {errors.street && (
                       <p className="mt-1 text-sm text-red-600">{errors.street.message}</p>
                     )}
                   </div>
 
-                  {/* Ciudad */}
+                  {/* Ciudad (auto-filled from Google Maps) */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Ciudad *
                     </label>
                     <Input
                       {...register('city')}
-                      placeholder="Madrid"
+                      placeholder="Se autocompleta con la dirección"
                       error={!!errors.city}
                     />
                     {errors.city && (
@@ -510,14 +530,14 @@ function NewPropertySetPageContent() {
                     )}
                   </div>
 
-                  {/* Provincia */}
+                  {/* Provincia (auto-filled from Google Maps) */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Provincia *
                     </label>
                     <Input
                       {...register('state')}
-                      placeholder="Madrid"
+                      placeholder="Se autocompleta con la dirección"
                       error={!!errors.state}
                     />
                     {errors.state && (
@@ -541,7 +561,7 @@ function NewPropertySetPageContent() {
                     )}
                   </div>
 
-                  {/* País */}
+                  {/* País (auto-filled from Google Maps) */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       País *
@@ -785,18 +805,44 @@ function NewPropertySetPageContent() {
                   </div>
                 )}
 
+                {/* Show validation errors if any */}
+                {Object.keys(errors).length > 0 && (
+                  <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <h4 className="text-sm font-medium text-red-800 mb-2">
+                      Por favor corrige los siguientes errores:
+                    </h4>
+                    <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                      {errors.name && <li>Nombre: {errors.name.message}</li>}
+                      {errors.description && <li>Descripción: {errors.description.message}</li>}
+                      {errors.street && <li>Dirección: {errors.street.message}</li>}
+                      {errors.city && <li>Ciudad: {errors.city.message}</li>}
+                      {errors.state && <li>Provincia: {errors.state.message}</li>}
+                      {errors.postalCode && <li>Código postal: {errors.postalCode.message}</li>}
+                      {errors.hostContactName && <li>Nombre de contacto: {errors.hostContactName.message}</li>}
+                      {errors.hostContactPhone && <li>Teléfono: {errors.hostContactPhone.message}</li>}
+                      {errors.hostContactEmail && <li>Email: {errors.hostContactEmail.message}</li>}
+                    </ul>
+                  </div>
+                )}
+
                 <div className="flex justify-between mt-8">
                   <Button onClick={prevStep} type="button" variant="outline">
                     Anterior
                   </Button>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     disabled={isSubmitting}
                     loading={isSubmitting}
+                    onClick={() => {
+                      console.log('🔘 Submit button clicked')
+                      console.log('📋 Form values:', watchedValues)
+                      console.log('❌ Form errors:', errors)
+                      console.log('✅ Form is valid:', isValid)
+                    }}
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    {isSubmitting 
-                      ? (isEditing ? 'Actualizando...' : 'Creando...') 
+                    {isSubmitting
+                      ? (isEditing ? 'Actualizando...' : 'Creando...')
                       : (isEditing ? 'Actualizar Conjunto' : 'Crear Conjunto')
                     }
                   </Button>

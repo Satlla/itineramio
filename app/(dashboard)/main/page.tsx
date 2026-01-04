@@ -916,15 +916,14 @@ export default function DashboardPage(): JSX.Element {
               )}
               </motion.div>
 
-              {/* Property Sets Section - Only show if user has property sets */}
-              {propertySets.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.25 }}
-                  className="mt-6 order-2"
-                >
-                <div className="flex items-center justify-between mb-4 sm:mb-6">
+              {/* Property Sets Section - Always show with option to create */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.25 }}
+                className="mt-6 order-2"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 mb-4 sm:mb-6">
                   <div className="flex items-center space-x-2 sm:space-x-3">
                     {/* Minimalist Property Set Icon - Black vectorial */}
                     <div className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center flex-shrink-0">
@@ -942,6 +941,16 @@ export default function DashboardPage(): JSX.Element {
                       Conjuntos de Propiedades ({loading ? '...' : propertySets.length})
                     </h2>
                   </div>
+                  <Button
+                    asChild
+                    size="sm"
+                    className="bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto"
+                  >
+                    <Link href="/properties/groups/new" className="flex items-center justify-center">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Nuevo Conjunto
+                    </Link>
+                  </Button>
                 </div>
                 
                 {/* Explanatory text */}
@@ -963,6 +972,26 @@ export default function DashboardPage(): JSX.Element {
                   </div>
                 </div>
 
+                {propertySets.length === 0 ? (
+                  <Card className="text-center py-8">
+                    <CardContent>
+                      <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        No tienes conjuntos de propiedades aún
+                      </h3>
+                      <p className="text-gray-600 mb-4 max-w-md mx-auto">
+                        Los conjuntos son perfectos para gestionar hoteles, edificios o complejos con múltiples unidades bajo una misma administración.
+                      </p>
+                      <Button asChild className="bg-indigo-600 hover:bg-indigo-700">
+                        <Link href="/properties/groups/new">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Crear Primer Conjunto
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {propertySets.slice(0, 3).map((propertySet) => (
                     <Card key={propertySet.id} className="hover:shadow-lg transition-shadow">
@@ -1078,8 +1107,8 @@ export default function DashboardPage(): JSX.Element {
                 {/* Ver todos button below property sets */}
                 {propertySets.length > 3 && (
                   <div className="mt-6 text-center">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="w-full sm:w-auto"
                       onClick={() => router.push('/properties/groups')}
                     >
@@ -1088,8 +1117,9 @@ export default function DashboardPage(): JSX.Element {
                     </Button>
                   </div>
                 )}
-                </motion.div>
-              )}
+                  </>
+                )}
+              </motion.div>
             </div>
 
             {/* Right Column - Activity - Order last on mobile */}
