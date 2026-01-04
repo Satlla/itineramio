@@ -209,6 +209,11 @@ Generado con Itineramio - https://itineramio.com
   const handleLeadSubmit = async (data: { name: string; email: string }) => {
     setIsSubmitting(true)
     try {
+      // Get list of selected amenities
+      const selectedAmenities = Object.keys(hasAmenities)
+        .filter(amenity => hasAmenities[amenity as keyof typeof hasAmenities])
+        .map(amenity => amenity.charAt(0).toUpperCase() + amenity.slice(1))
+
       const response = await fetch('/api/leads/capture', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -222,9 +227,13 @@ Generado con Itineramio - https://itineramio.com
             bedrooms,
             bathrooms,
             guests,
+            amenities: selectedAmenities,
             recommendedPrice: pricing.recommendedPrice,
             minPrice: pricing.minPrice,
-            maxPrice: pricing.maxPrice
+            maxPrice: pricing.maxPrice,
+            weekendPrice: pricing.weekendPrice,
+            weeklyDiscount: pricing.weeklyDiscount,
+            monthlyDiscount: pricing.monthlyDiscount
           }
         })
       })
@@ -232,8 +241,8 @@ Generado con Itineramio - https://itineramio.com
       const result = await response.json()
 
       if (response.ok) {
-        console.log('Lead captured successfully:', result)
-        // Unlock downloads - NO automatic download
+        console.log('Lead captured and PDF sent:', result)
+        // Mark as sent - no download needed
         setHasUnlockedDownload(true)
       } else {
         console.error('Error capturing lead:', result.error)
@@ -539,27 +548,25 @@ Generado con Itineramio - https://itineramio.com
                 </div>
               </div>
 
-              {/* Download Button */}
+              {/* Get Analysis Button */}
               {hasUnlockedDownload ? (
-                <div className="space-y-3">
-                  {/* Success message */}
-                  <div className="p-4 bg-green-50 border-2 border-green-200 rounded-xl">
-                    <p className="text-green-800 font-medium flex items-center">
-                      <Check className="w-5 h-5 mr-2" />
-                      ¡Listo! Ya puedes descargar tu análisis
-                    </p>
-                    <p className="text-green-600 text-sm mt-1">
-                      Te hemos enviado un email con más recursos de pricing
-                    </p>
+                <div className="p-6 bg-green-50 border-2 border-green-200 rounded-xl">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Check className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-green-800 font-bold text-lg">
+                        ¡Analisis enviado a tu email!
+                      </p>
+                      <p className="text-green-700 mt-1">
+                        Revisa tu bandeja de entrada. Hemos enviado un PDF con tu analisis de precios completo, incluyendo proyecciones y consejos personalizados.
+                      </p>
+                      <p className="text-green-600 text-sm mt-2">
+                        Si no lo ves, revisa la carpeta de spam.
+                      </p>
+                    </div>
                   </div>
-                  {/* Direct download button - no modal */}
-                  <button
-                    onClick={downloadResults}
-                    className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:shadow-xl transition-all flex items-center justify-center group"
-                  >
-                    <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                    Descargar análisis de precios
-                  </button>
                 </div>
               ) : (
                 <button
@@ -567,7 +574,7 @@ Generado con Itineramio - https://itineramio.com
                   className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:shadow-xl transition-all flex items-center justify-center group"
                 >
                   <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                  Descargar análisis de precios
+                  Recibir analisis por email
                 </button>
               )}
 
@@ -624,9 +631,9 @@ Generado con Itineramio - https://itineramio.com
           setPendingAction(null)
         }}
         onSubmit={handleLeadSubmit}
-        title="¡Descarga tu análisis de precios!"
-        description="Déjanos tu email para recibir este análisis y más recursos gratuitos"
-        downloadLabel="Descargar análisis"
+        title="Recibe tu analisis de precios"
+        description="Te enviaremos un PDF profesional con tu analisis completo, proyecciones de ingresos y consejos personalizados"
+        downloadLabel="Enviar a mi email"
       />
     </div>
   )

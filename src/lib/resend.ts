@@ -2257,3 +2257,76 @@ export async function sendSoapOperaEmail8({
 
   return { success: true, data }
 }
+
+/**
+ * Envia email con analisis de precios y PDF adjunto
+ */
+export async function sendPricingAnalysisEmail({
+  email,
+  userName,
+  propertyType,
+  location,
+  recommendedPrice,
+  minPrice,
+  maxPrice,
+  monthlyProjection,
+  pdfBuffer,
+}: {
+  email: string
+  userName: string
+  propertyType: string
+  location: string
+  recommendedPrice: number
+  minPrice: number
+  maxPrice: number
+  monthlyProjection: number
+  pdfBuffer: Buffer
+}) {
+  const { PricingAnalysisEmail } = await import(
+    '@/emails/templates/pricing-analysis'
+  )
+  const { render } = await import('@react-email/render')
+
+  try {
+    const html = await render(
+      PricingAnalysisEmail({
+        userName,
+        propertyType,
+        location,
+        recommendedPrice,
+        minPrice,
+        maxPrice,
+        monthlyProjection,
+      })
+    )
+
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `Tu analisis de precios - ${recommendedPrice} EUR/noche recomendado`,
+      html,
+      reply_to: REPLY_TO_EMAIL,
+      attachments: [
+        {
+          filename: `analisis-precios-itineramio.pdf`,
+          content: pdfBuffer,
+        },
+      ],
+      tags: [
+        { name: 'type', value: 'pricing_analysis' },
+        { name: 'tool', value: 'pricing-calculator' },
+      ],
+    })
+
+    if (error) {
+      console.error('Error sending pricing analysis email:', error)
+      return { success: false, error }
+    }
+
+    console.log(`[Email Sent] Pricing analysis to ${email}`)
+    return { success: true, data }
+  } catch (error) {
+    console.error('Error rendering or sending pricing analysis email:', error)
+    return { success: false, error }
+  }
+}

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
-import { sendLeadMagnetEmail } from '../../../../src/lib/resend'
+import { sendLeadMagnetEmail, sendPricingAnalysisEmail } from '../../../../src/lib/resend'
 import { LEAD_MAGNETS, type LeadMagnetArchetype } from '../../../../src/data/lead-magnets'
 import { enrollSubscriberInSequences } from '../../../../src/lib/email-sequences'
+import { generatePricingAnalysisPDF } from '../../../../src/lib/pdf-generator-server'
 
 // Map source to lead magnet info for email
 const SOURCE_TO_LEAD_MAGNET: Record<string, {
@@ -218,6 +219,43 @@ export async function POST(request: NextRequest) {
       } catch (emailError) {
         // Log error but don't fail the request
         console.error(`[Email Error] Failed to send to ${normalizedEmail}:`, emailError)
+      }
+    } else if (source === 'pricing-calculator' && metadata) {
+      // Special handling for pricing calculator - send PDF by email
+      try {
+        const amenitiesList = metadata.amenities || []
+        const pdfBuffer = generatePricingAnalysisPDF({
+          propertyType: metadata.propertyType || 'Apartamento',
+          location: metadata.location || 'Centro ciudad',
+          season: metadata.season || 'Temporada Media',
+          bedrooms: metadata.bedrooms || 1,
+          bathrooms: metadata.bathrooms || 1,
+          guests: metadata.guests || 2,
+          amenities: Array.isArray(amenitiesList) ? amenitiesList : [],
+          recommendedPrice: metadata.recommendedPrice || 0,
+          minPrice: metadata.minPrice || 0,
+          maxPrice: metadata.maxPrice || 0,
+          weekendPrice: metadata.weekendPrice || Math.round((metadata.recommendedPrice || 0) * 1.2),
+          weeklyDiscount: metadata.weeklyDiscount || 10,
+          monthlyDiscount: metadata.monthlyDiscount || 20,
+          userName: name
+        })
+
+        await sendPricingAnalysisEmail({
+          email: normalizedEmail,
+          userName: name,
+          propertyType: metadata.propertyType || 'Apartamento',
+          location: metadata.location || 'Centro ciudad',
+          recommendedPrice: metadata.recommendedPrice || 0,
+          minPrice: metadata.minPrice || 0,
+          maxPrice: metadata.maxPrice || 0,
+          monthlyProjection: (metadata.recommendedPrice || 0) * 21, // 70% occupancy
+          pdfBuffer
+        })
+
+        console.log(`[Email Sent] Pricing analysis PDF to ${normalizedEmail}`)
+      } catch (emailError) {
+        console.error(`[Email Error] Failed to send pricing PDF to ${normalizedEmail}:`, emailError)
       }
     } else if (isOnlineTool) {
       console.log(`[Lead Captured] ${name} <${normalizedEmail}> from online tool ${source} - sequence will handle emails`)
