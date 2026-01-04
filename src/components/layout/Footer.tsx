@@ -106,10 +106,10 @@ export function Footer() {
               {t('footer.support', 'Soporte')}
             </h3>
             <ul className="space-y-3">
-              <li><Link href="/help" className="text-gray-600 hover:text-violet-600 transition-colors">{t('footer.help', 'Ayuda')}</Link></li>
               <li><Link href="/faq" className="text-gray-600 hover:text-violet-600 transition-colors">{t('footer.faq', 'Preguntas Frecuentes')}</Link></li>
-              <li><Link href="/onboarding" className="text-gray-600 hover:text-violet-600 transition-colors">{t('footer.documentation', 'Guías')}</Link></li>
+              <li><Link href="/bienvenido" className="text-gray-600 hover:text-violet-600 transition-colors">{t('footer.documentation', 'Guías')}</Link></li>
               <li><Link href="/hub" className="text-gray-600 hover:text-violet-600 transition-colors">{t('footer.tools', 'Herramientas')}</Link></li>
+              <li><Link href="/academia" className="text-gray-600 hover:text-violet-600 transition-colors">{t('footer.academy', 'Academia')}</Link></li>
             </ul>
           </motion.div>
         </div>

@@ -12,11 +12,11 @@ export function DashboardFooter() {
   const currentYear = new Date().getFullYear()
 
   const footerLinks = [
-    { label: 'Ayuda', href: '/help' },
-    { label: 'Privacidad', href: '/privacy' },
-    { label: 'Términos', href: '/terms' },
-    { label: 'Cookies', href: '/cookies' },
-    { label: 'Contacto', href: '/contact' },
+    { label: t('footer.faq', 'FAQ'), href: '/faq' },
+    { label: t('footer.privacy', 'Privacidad'), href: '/legal/privacy' },
+    { label: t('footer.terms', 'Términos'), href: '/legal/terms' },
+    { label: t('footer.cookies', 'Cookies'), href: '/legal/cookies' },
+    { label: t('footer.blog', 'Blog'), href: '/blog' },
   ]
 
   return (

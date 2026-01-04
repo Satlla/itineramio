@@ -459,7 +459,7 @@ export default function LandingPage() {
       </section>
 
       {/* NEW: Enterprise Features Section - Property Sets & Announcements */}
-      <section className="py-24 px-6 bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50">
+      <section id="features" className="py-24 px-6 bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50">
         <div className="max-w-7xl mx-auto">
           <AnimatedSection className="text-center max-w-3xl mx-auto mb-16">
             <motion.div
@@ -688,7 +688,7 @@ export default function LandingPage() {
       </AnimatedSection>
 
       {/* "Cómo funciona" Section */}
-      <section className="py-24 px-6 bg-white">
+      <section id="how-it-works" className="py-24 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           <AnimatedSection className="text-center max-w-3xl mx-auto mb-20">
             <motion.div
@@ -1481,7 +1481,7 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-32 px-6 bg-gradient-to-br from-violet-500 via-purple-600 to-pink-600 relative overflow-hidden">
+      <section id="contact" className="py-32 px-6 bg-gradient-to-br from-violet-500 via-purple-600 to-pink-600 relative overflow-hidden">
         {/* Animated background elements */}
         <motion.div
           animate={{
