@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       publishedTime: post.publishedAt?.toISOString(),
       authors: [post.authorName],
       siteName: 'Itineramio Blog',
-      url: `https://itineramio.com/blog/${slug}`,
+      url: `https://www.itineramio.com/blog/${slug}`,
     },
     twitter: {
       card: 'summary_large_image',
@@ -57,25 +57,31 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       site: '@itineramio',
     },
     alternates: {
-      canonical: `https://itineramio.com/blog/${slug}`,
+      canonical: `https://www.itineramio.com/blog/${slug}`,
     },
   }
 }
 
 // Generate static paths for all published posts
 export async function generateStaticParams() {
-  const posts = await prisma.blogPost.findMany({
-    where: {
-      status: 'PUBLISHED'
-    },
-    select: {
-      slug: true
-    }
-  })
+  try {
+    const posts = await prisma.blogPost.findMany({
+      where: {
+        status: 'PUBLISHED'
+      },
+      select: {
+        slug: true
+      }
+    })
 
-  return posts.map(post => ({
-    slug: post.slug
-  }))
+    return posts.map(post => ({
+      slug: post.slug
+    }))
+  } catch (error) {
+    // Return empty array if database is not accessible during build
+    console.error('Error fetching blog posts for static params:', error)
+    return []
+  }
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
@@ -126,7 +132,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     '@type': 'Article',
     headline: post.title,
     description: post.excerpt,
-    image: post.coverImage || 'https://itineramio.com/og-image.png',
+    image: post.coverImage || 'https://www.itineramio.com/og-image.png',
     datePublished: post.publishedAt?.toISOString(),
     dateModified: post.updatedAt?.toISOString(),
     author: {
@@ -138,12 +144,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       name: 'Itineramio',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://itineramio.com/logo.png',
+        url: 'https://www.itineramio.com/logo.png',
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://itineramio.com/blog/${post.slug}`,
+      '@id': `https://www.itineramio.com/blog/${post.slug}`,
     },
     keywords: post.keywords.join(', '),
     articleSection: categoryNames[post.category],
@@ -158,19 +164,19 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         '@type': 'ListItem',
         position: 1,
         name: 'Inicio',
-        item: 'https://itineramio.com',
+        item: 'https://www.itineramio.com',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Blog',
-        item: 'https://itineramio.com/blog',
+        item: 'https://www.itineramio.com/blog',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: post.title,
-        item: `https://itineramio.com/blog/${post.slug}`,
+        item: `https://www.itineramio.com/blog/${post.slug}`,
       },
     ],
   }
@@ -259,7 +265,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
             {/* Social Share */}
             <ShareButtons
-              url={`https://itineramio.com/blog/${post.slug}`}
+              url={`https://www.itineramio.com/blog/${post.slug}`}
               title={post.title}
               description={post.excerpt}
               className="hidden sm:flex"
@@ -415,7 +421,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </div>
 
             <ShareButtons
-              url={`https://itineramio.com/blog/${post.slug}`}
+              url={`https://www.itineramio.com/blog/${post.slug}`}
               title={post.title}
               description={post.excerpt}
             />

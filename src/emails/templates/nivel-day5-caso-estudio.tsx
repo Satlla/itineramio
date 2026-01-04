@@ -351,7 +351,7 @@ export default function NivelDay5Email({ name, nivel }: NivelDay5EmailProps) {
           2 minutos para conocer tu perfil y recibir tu estrategia personalizada
         </p>
         <a
-          href="https://itineramio.com/host-profile/test"
+          href="https://www.itineramio.com/host-profile/test"
           style={{
             display: 'inline-block',
             background: 'white',
@@ -390,7 +390,7 @@ export default function NivelDay5Email({ name, nivel }: NivelDay5EmailProps) {
           Itineramio - Casos reales de anfitriones como tú
         </p>
         <p style={{ marginTop: '10px' }}>
-          <a href="https://itineramio.com" style={{ color: '#2563eb', textDecoration: 'none' }}>
+          <a href="https://www.itineramio.com" style={{ color: '#2563eb', textDecoration: 'none' }}>
             itineramio.com
           </a>
         </p>

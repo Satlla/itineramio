@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
           // Generar token para descarga directa
           const token = generateDownloadToken(existing.id, metadata.leadMagnetSlug)
           downloadToken = token
-          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
           const downloadUrl = `${baseUrl}/recursos/${metadata.leadMagnetSlug}/download?token=${token}`
 
           await sendLeadMagnetEmail({
@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
       if (leadMagnet) {
         // Generar token para descarga directa
         const token = generateDownloadToken(subscriber.id, metadata.leadMagnetSlug)
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
         const downloadUrl = `${baseUrl}/recursos/${metadata.leadMagnetSlug}/download?token=${token}`
 
         await sendLeadMagnetEmail({

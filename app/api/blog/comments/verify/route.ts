@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Redirect to the blog post with success message
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
     const redirectUrl = new URL(`/blog/${comment.post.slug}`, baseUrl)
     redirectUrl.searchParams.set('verified', 'true')
 
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
 }
 
 function redirectWithMessage(type: 'success' | 'error', message: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
   const redirectUrl = new URL('/blog', baseUrl)
   redirectUrl.searchParams.set(type, message)
   return NextResponse.redirect(redirectUrl.toString())

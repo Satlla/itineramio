@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '../../components/ui/Button'
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher'
 import { ItineramioLogo } from '../../components/ui/ItineramioLogo'
+import { useLocale } from '../../hooks/useLocale'
+import { LANGUAGE_CONFIG } from '../../i18n/config'
 
 interface NavbarProps {
   transparent?: boolean
@@ -16,7 +18,9 @@ interface NavbarProps {
 export function Navbar({ transparent = false }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [showLangMenu, setShowLangMenu] = useState(false)
   const { t } = useTranslation('common')
+  const { currentLanguage, changeLanguage, availableLanguages } = useLocale()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,6 +29,12 @@ export function Navbar({ transparent = false }: NavbarProps) {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const handleLanguageChange = async (lang: string) => {
+    await changeLanguage(lang)
+    setShowLangMenu(false)
+    window.location.reload()
+  }
 
   return (
     <>
@@ -59,28 +69,30 @@ export function Navbar({ transparent = false }: NavbarProps) {
                 href="/funcionalidades"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Funcionalidades
+                {t('navbar.features', 'Funcionalidades')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
                 href="/blog"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Blog
+                {t('navbar.blog', 'Blog')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
+              {/* Academia - hidden for now
               <Link
                 href="/academia"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Academia
+                {t('navbar.academy', 'Academia')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
+              */}
               <Link
                 href="/hub"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Recursos
+                {t('navbar.resources', 'Recursos')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
@@ -94,16 +106,18 @@ export function Navbar({ transparent = false }: NavbarProps) {
                 href="/casos-de-exito"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Casos de Éxito
+                {t('navbar.successStories', 'Casos de Éxito')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
+              {/* Comparar - hidden for now
               <Link
                 href="/comparar"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Comparar
+                {t('navbar.compare', 'Comparar')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
+              */}
             </div>
 
             {/* Right Side Actions */}
@@ -112,10 +126,52 @@ export function Navbar({ transparent = false }: NavbarProps) {
               <Link
                 href="/blog"
                 className="p-2 rounded-lg text-gray-600 hover:text-violet-600 hover:bg-violet-50 transition-colors"
-                title="Buscar en el blog"
+                title={t('navbar.searchArticles', 'Buscar artículos')}
               >
                 <Search className="w-5 h-5" />
               </Link>
+
+              {/* Language Toggle - Desktop */}
+              <div className="hidden lg:block relative">
+                <button
+                  onClick={() => setShowLangMenu(!showLangMenu)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-600 hover:text-violet-600 hover:bg-violet-50 transition-colors"
+                >
+                  <Globe className="w-4 h-4" />
+                  <span className="text-sm font-medium">
+                    {LANGUAGE_CONFIG[currentLanguage as keyof typeof LANGUAGE_CONFIG]?.flag}
+                  </span>
+                </button>
+
+                <AnimatePresence>
+                  {showLangMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-lg border border-gray-200 py-2 min-w-[140px] z-50"
+                    >
+                      {availableLanguages.map((lang) => {
+                        const config = LANGUAGE_CONFIG[lang as keyof typeof LANGUAGE_CONFIG]
+                        return (
+                          <button
+                            key={lang}
+                            onClick={() => handleLanguageChange(lang)}
+                            className={`w-full flex items-center gap-2 px-4 py-2 text-sm transition-colors ${
+                              currentLanguage === lang
+                                ? 'bg-violet-50 text-violet-600 font-medium'
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <span>{config.flag}</span>
+                            <span>{config.name}</span>
+                          </button>
+                        )
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               {/* Auth Buttons */}
               <div className="hidden lg:flex items-center space-x-3">
@@ -185,7 +241,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <Search className="w-5 h-5" />
-                  <span>Buscar artículos...</span>
+                  <span>{t('navbar.searchArticles', 'Buscar artículos...')}</span>
                 </Link>
 
                 {/* Navigation Links */}
@@ -195,28 +251,30 @@ export function Navbar({ transparent = false }: NavbarProps) {
                     className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Funcionalidades
+                    {t('navbar.features', 'Funcionalidades')}
                   </Link>
                   <Link
                     href="/blog"
                     className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Blog
+                    {t('navbar.blog', 'Blog')}
                   </Link>
+                  {/* Academia - hidden for now
                   <Link
                     href="/academia"
                     className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Academia
+                    {t('navbar.academy', 'Academia')}
                   </Link>
+                  */}
                   <Link
                     href="/hub"
                     className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Recursos
+                    {t('navbar.resources', 'Recursos')}
                   </Link>
                   <Link
                     href="/#pricing"
@@ -230,19 +288,48 @@ export function Navbar({ transparent = false }: NavbarProps) {
                     className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Casos de Éxito
+                    {t('navbar.successStories', 'Casos de Éxito')}
                   </Link>
+                  {/* Comparar - hidden for now
                   <Link
                     href="/comparar"
                     className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Comparar
+                    {t('navbar.compare', 'Comparar')}
                   </Link>
+                  */}
+                </div>
+
+                {/* Language Selector - Mobile */}
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-gray-500 mb-3 flex items-center gap-2">
+                    <Globe className="w-4 h-4" />
+                    {t('navbar.language', 'Idioma')}
+                  </p>
+                  <div className="flex gap-2">
+                    {availableLanguages.map((lang) => {
+                      const config = LANGUAGE_CONFIG[lang as keyof typeof LANGUAGE_CONFIG]
+                      return (
+                        <button
+                          key={lang}
+                          onClick={() => handleLanguageChange(lang)}
+                          className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            currentLanguage === lang
+                              ? 'bg-violet-600 text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          <span>{config.flag}</span>
+                          <span>{config.name}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
 
                 {/* Auth Buttons */}
-                <div className="space-y-3 pt-6 border-t">
+                <div className="space-y-3 pt-4 border-t">
                   <Link href="/login" className="block">
                     <Button variant="outline" className="w-full">
                       {t('navbar.login', 'Iniciar Sesión')}

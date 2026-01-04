@@ -32,21 +32,21 @@ const NIVEL_ADVANCED: Record<string, {
         emoji: '📚',
         title: 'Guía Completa: Tu Primer Mes como Anfitrión',
         desc: 'Checklist día a día de qué hacer en tus primeros 30 días. Con plantillas descargables.',
-        url: 'https://itineramio.com/blog/primer-mes-anfitrion-airbnb',
+        url: 'https://www.itineramio.com/blog/primer-mes-anfitrion-airbnb',
         tipo: 'Artículo'
       },
       {
         emoji: '🎓',
         title: 'Curso: Fundamentos de Pricing para Principiantes',
         desc: 'Cómo poner el precio correcto según temporada, ocupación y competencia.',
-        url: 'https://itineramio.com/academia',
+        url: 'https://www.itineramio.com/academia',
         tipo: 'Curso'
       },
       {
         emoji: '💬',
         title: 'Comunidad: Grupo de Anfitriones Principiantes',
         desc: 'Resuelve dudas con otros que están empezando. Nadie te juzga, todos aprendemos.',
-        url: 'https://itineramio.com/academia',
+        url: 'https://www.itineramio.com/academia',
         tipo: 'Comunidad'
       }
     ],
@@ -71,21 +71,21 @@ const NIVEL_ADVANCED: Record<string, {
         emoji: '📊',
         title: 'Artículo: RevPAR vs Ocupación',
         desc: 'Deja de optimizar la métrica equivocada y enfócate en lo que realmente importa.',
-        url: 'https://itineramio.com/blog/revpar-vs-ocupacion-metricas-correctas-airbnb',
+        url: 'https://www.itineramio.com/blog/revpar-vs-ocupacion-metricas-correctas-airbnb',
         tipo: 'Artículo'
       },
       {
         emoji: '🤖',
         title: 'Guía: Stack de Automatización Completo',
         desc: 'Las 7 herramientas que reducen significativamente tu tiempo operativo.',
-        url: 'https://itineramio.com/blog/automatizacion-airbnb-stack-completo',
+        url: 'https://www.itineramio.com/blog/automatizacion-airbnb-stack-completo',
         tipo: 'Guía'
       },
       {
         emoji: '💡',
         title: 'Caso: Optimización en Valencia',
         desc: 'Cómo Laura optimizó pricing y operaciones (caso ilustrativo).',
-        url: 'https://itineramio.com/blog/caso-laura-de-1800-a-3200-euros-mes-historia-completa',
+        url: 'https://www.itineramio.com/blog/caso-laura-de-1800-a-3200-euros-mes-historia-completa',
         tipo: 'Caso de estudio'
       }
     ],
@@ -110,21 +110,21 @@ const NIVEL_ADVANCED: Record<string, {
         emoji: '📋',
         title: 'Framework: Del Modo Bombero al Modo CEO',
         desc: 'Cómo reducir significativamente tu tiempo trabajando más estratégicamente.',
-        url: 'https://itineramio.com/blog/modo-bombero-a-ceo-escalar-airbnb',
+        url: 'https://www.itineramio.com/blog/modo-bombero-a-ceo-escalar-airbnb',
         tipo: 'Framework'
       },
       {
         emoji: '👥',
         title: 'Guía: Delegación Sin Perder Control',
         desc: 'Cómo crear sistemas que funcionen sin ti. SOPs, checklists, KPIs.',
-        url: 'https://itineramio.com/recursos/framework-delegacion',
+        url: 'https://www.itineramio.com/recursos/framework-delegacion',
         tipo: 'Guía'
       },
       {
         emoji: '📈',
         title: 'Caso: Escalado Eficiente de Propiedades',
         desc: 'Caso ilustrativo de cómo escalar sin perder control operativo.',
-        url: 'https://itineramio.com/blog/caso-david-15-propiedades',
+        url: 'https://www.itineramio.com/blog/caso-david-15-propiedades',
         tipo: 'Caso de estudio'
       }
     ],
@@ -149,21 +149,21 @@ const NIVEL_ADVANCED: Record<string, {
         emoji: '🎯',
         title: 'Artículo: Revenue Management Avanzado',
         desc: 'Estrategias de pricing predictivo que usan los profesionales.',
-        url: 'https://itineramio.com/blog/revenue-management-avanzado',
+        url: 'https://www.itineramio.com/blog/revenue-management-avanzado',
         tipo: 'Artículo'
       },
       {
         emoji: '📊',
         title: 'Framework: Multi-Property Operations',
         desc: 'Sistema completo para gestionar múltiples propiedades con eficiencia.',
-        url: 'https://itineramio.com/recursos/multi-property-ops',
+        url: 'https://www.itineramio.com/recursos/multi-property-ops',
         tipo: 'Framework'
       },
       {
         emoji: '🤝',
         title: 'Comunidad: Red de Profesionales',
         desc: 'Networking con otros gestores de portfolio. Colaboraciones y aprendizaje.',
-        url: 'https://itineramio.com/academia',
+        url: 'https://www.itineramio.com/academia',
         tipo: 'Comunidad'
       }
     ],
@@ -303,7 +303,7 @@ export default function NivelDay7Email({ name, nivel }: NivelDay7EmailProps) {
         </div>
         <div style={{ textAlign: 'center' }}>
           <a
-            href="https://itineramio.com/funcionalidades"
+            href="https://www.itineramio.com/funcionalidades"
             style={{
               display: 'inline-block',
               background: 'white',
@@ -320,7 +320,7 @@ export default function NivelDay7Email({ name, nivel }: NivelDay7EmailProps) {
             Ver Planes y Precios
           </a>
           <a
-            href="https://itineramio.com/academia"
+            href="https://www.itineramio.com/academia"
             style={{
               display: 'inline-block',
               background: 'rgba(255,255,255,0.2)',
@@ -356,7 +356,7 @@ export default function NivelDay7Email({ name, nivel }: NivelDay7EmailProps) {
           Si aún no estás listo para un plan, te recomiendo hacer nuestro test de perfil operativo. Es gratuito y te dará insights valiosos sobre tu estilo como anfitrión.
         </p>
         <a
-          href="https://itineramio.com/host-profile/test"
+          href="https://www.itineramio.com/host-profile/test"
           style={{
             display: 'inline-block',
             background: '#10b981',
@@ -399,15 +399,15 @@ export default function NivelDay7Email({ name, nivel }: NivelDay7EmailProps) {
           Itineramio - Tu aliado en alquiler vacacional
         </p>
         <p style={{ marginTop: '10px' }}>
-          <a href="https://itineramio.com" style={{ color: '#2563eb', textDecoration: 'none' }}>
+          <a href="https://www.itineramio.com" style={{ color: '#2563eb', textDecoration: 'none' }}>
             itineramio.com
           </a>
           {' · '}
-          <a href="https://itineramio.com/blog" style={{ color: '#2563eb', textDecoration: 'none' }}>
+          <a href="https://www.itineramio.com/blog" style={{ color: '#2563eb', textDecoration: 'none' }}>
             Blog
           </a>
           {' · '}
-          <a href="https://itineramio.com/academia" style={{ color: '#2563eb', textDecoration: 'none' }}>
+          <a href="https://www.itineramio.com/academia" style={{ color: '#2563eb', textDecoration: 'none' }}>
             Academia
           </a>
         </p>

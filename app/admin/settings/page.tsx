@@ -85,7 +85,7 @@ const defaultSettings: SystemSettings = {
   companyEmail: 'hola@itineramio.com',
   companyPhone: '+34 900 000 000',
   companyAddress: '',
-  companyWebsite: 'https://itineramio.com',
+  companyWebsite: 'https://www.itineramio.com',
   companyTaxId: '',
   companyCity: '',
   companyPostalCode: '',

@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
           ¿Cambiaste de opinión? <a href="/api/email/subscribe?email=${encodeURIComponent(email)}">Volver a suscribirme</a>
         </p>
         <p style="margin-top: 40px; font-size: 14px;">
-          <a href="https://itineramio.com">← Volver a Itineramio</a>
+          <a href="https://www.itineramio.com">← Volver a Itineramio</a>
         </p>
       </body>
       </html>

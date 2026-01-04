@@ -12,7 +12,7 @@ interface Props {
 
 export default function ToolQrDay0Delivery({ name, qrData }: Props) {
   const firstName = name?.split(' ')[0] || 'Anfitrión'
-  const qrUrl = qrData?.url || 'https://itineramio.com'
+  const qrUrl = qrData?.url || 'https://www.itineramio.com'
 
   // Generate QR image using external API (works in emails)
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}&color=7c3aed&bgcolor=f5f3ff`
@@ -81,7 +81,7 @@ export default function ToolQrDay0Delivery({ name, qrData }: Props) {
         <tr>
           <td style={{ textAlign: 'center', paddingTop: '24px' }}>
             <p style={{ margin: 0, color: '#9ca3af', fontSize: '12px' }}>
-              <a href="https://www.itineramio.com/unsubscribe" style={{ color: '#9ca3af', textDecoration: 'none' }}>Cancelar suscripción</a> · © {new Date().getFullYear()} Itineramio
+              <a href={`https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email || "")}`} style={{ color: '#9ca3af', textDecoration: 'none' }}>Cancelar suscripción</a> · © {new Date().getFullYear()} Itineramio
             </p>
           </td>
         </tr>

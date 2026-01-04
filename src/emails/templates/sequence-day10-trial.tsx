@@ -177,7 +177,7 @@ export default function Day10TrialEmail({ name, archetype }: Day10TrialEmailProp
         {/* CTA */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <a
-            href="https://itineramio.com/register"
+            href="https://www.itineramio.com/register"
             style={{
               display: 'inline-block',
               backgroundColor: '#7c3aed',
@@ -211,15 +211,15 @@ export default function Day10TrialEmail({ name, archetype }: Day10TrialEmailProp
       {/* Footer */}
       <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '30px', marginTop: '40px', textAlign: 'center', color: '#9ca3af', fontSize: '12px' }}>
         <p style={{ marginBottom: '10px' }}>
-          <a href="https://itineramio.com" style={{ color: '#7c3aed', textDecoration: 'none' }}>
+          <a href="https://www.itineramio.com" style={{ color: '#7c3aed', textDecoration: 'none' }}>
             Itineramio
           </a>
           {' · '}
-          <a href="https://itineramio.com/blog" style={{ color: '#7c3aed', textDecoration: 'none' }}>
+          <a href="https://www.itineramio.com/blog" style={{ color: '#7c3aed', textDecoration: 'none' }}>
             Blog
           </a>
           {' · '}
-          <a href="https://itineramio.com/recursos" style={{ color: '#7c3aed', textDecoration: 'none' }}>
+          <a href="https://www.itineramio.com/recursos" style={{ color: '#7c3aed', textDecoration: 'none' }}>
             Recursos
           </a>
         </p>

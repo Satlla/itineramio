@@ -326,7 +326,7 @@ export const LeadMagnetDownloadEmail: React.FC<
               </div>
 
               <a
-                href="https://itineramio.com/register"
+                href="https://www.itineramio.com/register"
                 style={{
                   display: 'inline-block',
                   backgroundColor: '#ffffff',
@@ -381,21 +381,21 @@ export const LeadMagnetDownloadEmail: React.FC<
           >
             <p style={{ marginBottom: '10px' }}>
               <a
-                href="https://itineramio.com"
+                href="https://www.itineramio.com"
                 style={{ color: '#7c3aed', textDecoration: 'none' }}
               >
                 Itineramio
               </a>
               {' · '}
               <a
-                href="https://itineramio.com/blog"
+                href="https://www.itineramio.com/blog"
                 style={{ color: '#7c3aed', textDecoration: 'none' }}
               >
                 Blog
               </a>
               {' · '}
               <a
-                href="https://itineramio.com/recursos"
+                href="https://www.itineramio.com/recursos"
                 style={{ color: '#7c3aed', textDecoration: 'none' }}
               >
                 Recursos Gratuitos

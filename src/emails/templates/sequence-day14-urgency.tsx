@@ -294,7 +294,7 @@ export const Day14UrgencyEmail: React.FC<Day14UrgencyEmailProps> = ({
               </p>
 
               <a
-                href="https://itineramio.com/register"
+                href="https://www.itineramio.com/register"
                 style={{
                   display: 'inline-block',
                   backgroundColor: '#7c3aed',
@@ -378,15 +378,15 @@ export const Day14UrgencyEmail: React.FC<Day14UrgencyEmailProps> = ({
             fontSize: '12px'
           }}>
             <p style={{ marginBottom: '10px' }}>
-              <a href="https://itineramio.com" style={{ color: '#7c3aed', textDecoration: 'none' }}>
+              <a href="https://www.itineramio.com" style={{ color: '#7c3aed', textDecoration: 'none' }}>
                 Itineramio
               </a>
               {' · '}
-              <a href="https://itineramio.com/blog" style={{ color: '#7c3aed', textDecoration: 'none' }}>
+              <a href="https://www.itineramio.com/blog" style={{ color: '#7c3aed', textDecoration: 'none' }}>
                 Blog
               </a>
               {' · '}
-              <a href="https://itineramio.com/recursos" style={{ color: '#7c3aed', textDecoration: 'none' }}>
+              <a href="https://www.itineramio.com/recursos" style={{ color: '#7c3aed', textDecoration: 'none' }}>
                 Recursos
               </a>
             </p>

@@ -24,12 +24,7 @@ export async function sendEmail({ to, subject, html, from = 'hola@itineramio.com
     return cleanEmail
   })
 
-  console.log('🔍 EMAIL DEBUG - Starting email send...')
-  console.log('📧 To:', cleanEmails)
-  console.log('📝 Subject:', subject)
-  console.log('👤 From:', from)
-  console.log('🔑 API Key present:', !!process.env.RESEND_API_KEY)
-  console.log('🔑 API Key starts with:', process.env.RESEND_API_KEY?.substring(0, 10))
+  console.log('📧 Sending email to:', cleanEmails[0], '| Subject:', subject)
 
   // Skip email sending if no API key is configured
   if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 'test_key') {
@@ -38,24 +33,19 @@ export async function sendEmail({ to, subject, html, from = 'hola@itineramio.com
   }
 
   try {
-    console.log('🚀 Attempting to send email via Resend...')
-    
     const { data, error } = await resend.emails.send({
       from,
-      to: cleanEmails[0], // Use the cleaned email
+      to: cleanEmails[0],
       subject,
       html,
     })
 
-    console.log('📬 Resend response data:', JSON.stringify(data, null, 2))
-    console.log('❗ Resend response error:', JSON.stringify(error, null, 2))
-
     if (error) {
-      console.error('💥 Error sending email:', error)
+      console.error('❌ Email send failed:', error)
       throw new Error(`Failed to send email: ${JSON.stringify(error)}`)
     }
 
-    console.log('✅ Email sent successfully with ID:', data?.id)
+    console.log('✅ Email sent:', data?.id)
     return data
   } catch (error) {
     console.error('🚨 Email service error:', error)
@@ -187,7 +177,7 @@ export const emailTemplates = {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://itineramio.com/main" 
+          <a href="https://www.itineramio.com/main" 
              style="background: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
             Ir a mi dashboard
           </a>
@@ -264,7 +254,7 @@ export const emailTemplates = {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://itineramio.com/account/billing" 
+          <a href="https://www.itineramio.com/account/billing" 
              style="background: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
             Ver mis facturas
           </a>
@@ -361,7 +351,7 @@ export const emailTemplates = {
         
         ${!params.isPaid ? `
         <div style="text-align: center; margin: 20px 0;">
-          <a href="https://itineramio.com/account/billing" 
+          <a href="https://www.itineramio.com/account/billing" 
              style="background: #10b981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
             💳 Ver mis facturas
           </a>

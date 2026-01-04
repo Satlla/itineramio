@@ -97,7 +97,7 @@ export async function POST(
         isPaid: true,
         paidDate: updatedInvoice.paidDate?.toLocaleDateString('es-ES') || new Date().toLocaleDateString('es-ES'),
         paymentMethod,
-        downloadUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'}/api/invoices/${invoice.id}/download`
+        downloadUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'}/api/invoices/${invoice.id}/download`
       });
 
       await sendEmail({

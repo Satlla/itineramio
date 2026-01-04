@@ -17,8 +17,8 @@ export function StructuredData() {
     "@type": "Organization",
     "name": "Itineramio",
     "alternateName": "Itineramio - Manuales Digitales para Apartamentos Turísticos",
-    "url": "https://itineramio.com",
-    "logo": "https://itineramio.com/logo.png",
+    "url": "https://www.itineramio.com",
+    "logo": "https://www.itineramio.com/logo.png",
     "description": "Plataforma SaaS para crear manuales digitales interactivos para apartamentos y viviendas turísticas. Automatiza la información a huéspedes con códigos QR y zonas personalizadas.",
     "foundingDate": "2024",
     "slogan": "Adiós a las llamadas de madrugada",
@@ -44,14 +44,14 @@ export function StructuredData() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Itineramio",
-    "url": "https://itineramio.com",
+    "url": "https://www.itineramio.com",
     "description": "Crea manuales digitales para apartamentos turísticos. Ahorra tiempo y mejora la experiencia de tus huéspedes.",
     "inLanguage": "es-ES",
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": "https://itineramio.com/blog?q={search_term_string}"
+        "urlTemplate": "https://www.itineramio.com/blog?q={search_term_string}"
       },
       "query-input": "required name=search_term_string"
     }
@@ -123,7 +123,7 @@ export function StructuredData() {
       "Integración con Airbnb",
       "Envío automático pre check-in"
     ],
-    "screenshot": "https://itineramio.com/screenshots/dashboard.png",
+    "screenshot": "https://www.itineramio.com/screenshots/dashboard.png",
     "softwareVersion": "2.0",
     "datePublished": "2024-01-01",
     "author": {
@@ -144,19 +144,19 @@ export function StructuredData() {
         "@type": "ListItem",
         "position": 1,
         "name": "Inicio",
-        "item": "https://itineramio.com"
+        "item": "https://www.itineramio.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Funcionalidades",
-        "item": "https://itineramio.com/funcionalidades"
+        "item": "https://www.itineramio.com/funcionalidades"
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": "Precios",
-        "item": "https://itineramio.com/#pricing"
+        "item": "https://www.itineramio.com/#pricing"
       }
     ]
   }

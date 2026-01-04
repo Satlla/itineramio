@@ -197,7 +197,7 @@ export async function POST(
 
     // Send verification email if needed
     if (!isTrustedUser && verificationToken) {
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
       const verifyUrl = `${baseUrl}/api/blog/comments/verify?token=${verificationToken}`
 
       try {

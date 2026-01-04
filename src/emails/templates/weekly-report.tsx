@@ -66,7 +66,7 @@ export interface WeeklyReportEmailProps {
   }[]
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
 
 export const WeeklyReportEmail = ({
   userName = 'Carlos',

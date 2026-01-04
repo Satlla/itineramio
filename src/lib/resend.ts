@@ -878,7 +878,7 @@ export async function sendTrialWarning3DaysEmail({
   propertyName: string
   daysRemaining: number
 }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
 
   const { data, error } = await resend.emails.send({
     from: FROM_EMAIL,
@@ -966,7 +966,7 @@ export async function sendTrialWarning1DayEmail({
   name: string
   propertyName: string
 }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
 
   const { data, error } = await resend.emails.send({
     from: FROM_EMAIL,
@@ -1050,7 +1050,7 @@ export async function sendTrialExpiredEmail({
   name: string
   propertyName: string
 }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
 
   const { data, error } = await resend.emails.send({
     from: FROM_EMAIL,
@@ -1273,7 +1273,7 @@ export async function sendSoapOperaEmail1({
   name,
   nivel,
 }: SoapOperaEmailParams) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
 
   const nivelContent: Record<SoapOperaNivel, { subject: string; intro: string; story: string; cliffhanger: string }> = {
     principiante: {
@@ -1372,7 +1372,7 @@ export async function sendSoapOperaEmail2({
   name,
   nivel,
 }: SoapOperaEmailParams) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
 
   const nivelContent: Record<SoapOperaNivel, { subject: string; error: string; data: string; cliffhanger: string; articleSlug: string; articleTitle: string }> = {
     principiante: {
@@ -1497,7 +1497,7 @@ export async function sendSoapOperaEmail3({
   name,
   nivel,
 }: SoapOperaEmailParams) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
 
   const nivelContent: Record<SoapOperaNivel, { subject: string; revelation: string; solution: string; tip: string; articleSlug: string; articleTitle: string }> = {
     principiante: {
@@ -1633,7 +1633,7 @@ export async function sendSoapOperaEmail4({
   name,
   nivel,
 }: SoapOperaEmailParams) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
 
   const nivelContent: Record<SoapOperaNivel, { subject: string; caseName: string; before: string; after: string; change: string; result: string; articleSlug: string; articleTitle: string }> = {
     principiante: {
@@ -1790,7 +1790,7 @@ export async function sendSoapOperaEmail5({
   name,
   nivel,
 }: SoapOperaEmailParams) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
 
   const nivelContent: Record<SoapOperaNivel, { subject: string; intro: string; steps: Array<{title: string; desc: string}>; articleSlug: string; articleTitle: string }> = {
     principiante: {
@@ -1934,7 +1934,7 @@ export async function sendSoapOperaEmail6({
   name,
   nivel,
 }: SoapOperaEmailParams) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
 
   const nivelContent: Record<SoapOperaNivel, { subject: string; objections: Array<{q: string; a: string}> }> = {
     principiante: {
@@ -2056,7 +2056,7 @@ export async function sendSoapOperaEmail7({
   name,
   nivel,
 }: SoapOperaEmailParams) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
 
   const nivelContent: Record<SoapOperaNivel, { subject: string; offer: string; bonus: string }> = {
     principiante: {
@@ -2173,7 +2173,7 @@ export async function sendSoapOperaEmail8({
   name,
   nivel,
 }: SoapOperaEmailParams) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
 
   const { data, error } = await resend.emails.send({
     from: FROM_EMAIL,

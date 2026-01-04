@@ -393,7 +393,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               order: zone.order || 0,
               steps: zone.steps || [], // Preserve original steps array
               stepsCount: zone.steps?.length || 0,
-              qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
+              qrUrl: `https://www.itineramio.com/guide/${id}/${zone.id}`,
               lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
               slug: zone.slug
             }
@@ -477,7 +477,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                           order: zone.order || 0,
                           steps: zone.steps || [],
                           stepsCount: zone.steps?.length || 0,
-                          qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
+                          qrUrl: `https://www.itineramio.com/guide/${id}/${zone.id}`,
                           lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
                           slug: zone.slug
                         }
@@ -890,7 +890,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           iconId: 'template',
           order: zones.length + 1,
           stepsCount: 5, // This would come from the API
-          qrUrl: `https://itineramio.com/z/${Math.random().toString(36).substr(2, 6)}`,
+          qrUrl: `https://www.itineramio.com/z/${Math.random().toString(36).substr(2, 6)}`,
           lastUpdated: new Date().toISOString().split('T')[0]
         }
         
@@ -1016,7 +1016,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               order: zone.order || 0,
               steps: zone.steps || [],
               stepsCount: zone.steps?.length || 0,
-              qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
+              qrUrl: `https://www.itineramio.com/guide/${id}/${zone.id}`,
               lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
               slug: zone.slug
             }
@@ -1114,7 +1114,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               order: zone.order || 0,
               steps: zone.steps || [],
               stepsCount: zone.steps?.length || 0,
-              qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
+              qrUrl: `https://www.itineramio.com/guide/${id}/${zone.id}`,
               lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
               slug: zone.slug
             }
@@ -1210,7 +1210,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               order: zone.order || 0,
               steps: zone.steps || [],
               stepsCount: zone.steps?.length || 0,
-              qrUrl: `https://itineramio.com/guide/${id}/${zone.id}`,
+              qrUrl: `https://www.itineramio.com/guide/${id}/${zone.id}`,
               lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
               slug: zone.slug
             }

@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       .reduce((sum, r) => sum + Number(r.amount), 0)
 
     // Build referral link
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
     const referralLink = `${baseUrl}/register?ref=${referralCode}`
 
     return NextResponse.json({

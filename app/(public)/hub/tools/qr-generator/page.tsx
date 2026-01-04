@@ -30,7 +30,7 @@ const qrColors = [
 ]
 
 const qrTemplates = [
-  { id: 'manual', label: 'Manual Digital', icon: Home, url: 'https://itineramio.com/manual/' },
+  { id: 'manual', label: 'Manual Digital', icon: Home, url: 'https://www.itineramio.com/manual/' },
   { id: 'wifi', label: 'Red WiFi', icon: Wifi, url: 'WIFI:T:WPA;S:RedName;P:Password;;' },
   { id: 'contact', label: 'Contacto', icon: Phone, url: 'tel:+34600000000' }
 ]
@@ -258,7 +258,7 @@ export default function QRGenerator() {
                       type="text"
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
-                      placeholder="https://itineramio.com/manual/tu-propiedad"
+                      placeholder="https://www.itineramio.com/manual/tu-propiedad"
                       className="w-full px-4 py-4 pr-12 border-2 border-gray-200 rounded-xl focus:border-violet-500 focus:outline-none text-gray-900 placeholder-gray-400"
                     />
                     <button

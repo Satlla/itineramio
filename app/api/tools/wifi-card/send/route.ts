@@ -116,7 +116,7 @@ function generateWifiCardHTML(data: {
         <div style="background: linear-gradient(135deg, #7c3aed, #6d28d9); border-radius: 16px; padding: 24px; text-align: center;">
           <p style="color: #ffffff; font-size: 16px; font-weight: bold; margin: 0 0 8px 0;">¿Quieres automatizar más consultas?</p>
           <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0 0 16px 0;">Crea tu manual digital completo con Itineramio</p>
-          <a href="https://itineramio.com/register?utm_source=email&utm_medium=tool&utm_campaign=wifi-card"
+          <a href="https://www.itineramio.com/register?utm_source=email&utm_medium=tool&utm_campaign=wifi-card"
              style="display: inline-block; background: #ffffff; color: #7c3aed; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px;">
             Crear mi manual gratis →
           </a>
@@ -125,7 +125,7 @@ function generateWifiCardHTML(data: {
         <!-- Footer -->
         <div style="text-align: center; margin-top: 24px;">
           <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-            <a href="https://itineramio.com/unsubscribe" style="color: #9ca3af; text-decoration: none;">Cancelar suscripción</a>
+            <a href="https://www.itineramio.com/unsubscribe" style="color: #9ca3af; text-decoration: none;">Cancelar suscripción</a>
             · © ${new Date().getFullYear()} Itineramio
           </p>
         </div>

@@ -130,7 +130,7 @@ export const OnboardingDay13TrialEnding: React.FC<OnboardingDay13TrialEndingProp
             {/* CTA */}
             <div style={{ textAlign: 'center', marginBottom: '30px' }}>
               <a
-                href="https://itineramio.com/dashboard/billing?coupon=TRIAL20"
+                href="https://www.itineramio.com/dashboard/billing?coupon=TRIAL20"
                 style={{
                   display: 'inline-block',
                   backgroundColor: '#7c3aed',
@@ -187,7 +187,7 @@ export const OnboardingDay13TrialEnding: React.FC<OnboardingDay13TrialEndingProp
             fontSize: '12px'
           }}>
             <p style={{ marginBottom: '10px' }}>
-              <a href="https://itineramio.com" style={{ color: '#7c3aed', textDecoration: 'none' }}>Itineramio</a>
+              <a href="https://www.itineramio.com" style={{ color: '#7c3aed', textDecoration: 'none' }}>Itineramio</a>
             </p>
             <p style={{ margin: '10px 0' }}>
               <a href="{{unsubscribe}}" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: '11px' }}>

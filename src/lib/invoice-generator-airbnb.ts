@@ -678,7 +678,7 @@ export class InvoiceGeneratorAirbnb {
         companyBankAccount: 'ES82 0182 0304 8102 0158 7248',
         companyBic: '',
         companyLogoUrl: '',
-        companyWebsite: 'https://itineramio.com',
+        companyWebsite: 'https://www.itineramio.com',
         paymentBizum: '+34 652 656 440'
       }
 

@@ -130,7 +130,7 @@ export default function ToolReviewsDay6Negative({
           <Hr style={hr} />
 
           <Text style={footer}>
-            <Link href="https://www.itineramio.com/unsubscribe" style={footerLink}>
+            <Link href={`https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email || "")}`} style={footerLink}>
               Cancelar suscripción
             </Link>
             {' · '}

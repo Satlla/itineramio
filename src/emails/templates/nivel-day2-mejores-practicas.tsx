@@ -247,7 +247,7 @@ export default function NivelDay2Email({ name, nivel }: NivelDay2EmailProps) {
           Itineramio - Tu aliado en alquiler vacacional
         </p>
         <p style={{ marginTop: '10px' }}>
-          <a href="https://itineramio.com" style={{ color: '#2563eb', textDecoration: 'none' }}>
+          <a href="https://www.itineramio.com" style={{ color: '#2563eb', textDecoration: 'none' }}>
             itineramio.com
           </a>
         </p>

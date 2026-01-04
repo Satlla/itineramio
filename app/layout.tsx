@@ -80,7 +80,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Itineramio - Manual Digital para Apartamentos Turísticos',
     description: 'Crea manuales digitales interactivos con códigos QR. Ahorra tiempo cada semana. Prueba gratis 15 días. ¡Adiós a las llamadas de madrugada!',
-    url: 'https://itineramio.com',
+    url: 'https://www.itineramio.com',
     siteName: 'Itineramio',
     images: [
       {
@@ -145,8 +145,8 @@ export default function RootLayout({
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
     description: 'Crea manuales digitales interactivos para tus alojamientos turísticos. Ahorra 8h/semana. Códigos QR, zonas personalizadas y analytics.',
-    url: 'https://itineramio.com',
-    image: 'https://itineramio.com/og-image.jpg',
+    url: 'https://www.itineramio.com',
+    image: 'https://www.itineramio.com/og-image.jpg',
     offers: {
       '@type': 'Offer',
       price: '0',
@@ -163,7 +163,7 @@ export default function RootLayout({
       name: 'Itineramio',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://itineramio.com/logo.png',
+        url: 'https://www.itineramio.com/logo.png',
       },
       contactPoint: {
         '@type': 'ContactPoint',

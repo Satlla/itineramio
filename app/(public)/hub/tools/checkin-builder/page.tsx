@@ -135,7 +135,7 @@ export default function CheckinBuilder() {
       output += '\n'
     })
 
-    output += `\nGenerado con Itineramio - https://itineramio.com\n`
+    output += `\nGenerado con Itineramio - https://www.itineramio.com\n`
     return output
   }
 

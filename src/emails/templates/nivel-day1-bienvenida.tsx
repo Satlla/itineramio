@@ -19,17 +19,17 @@ const NIVEL_CONTENT: Record<string, {
     mensaje: 'Estás en el momento perfecto. Los primeros 6 meses definen tu éxito futuro. Estos recursos te ayudarán a empezar con el pie derecho:',
     recurso1: {
       title: 'Guía: Los 10 Errores Fatales del Principiante',
-      url: 'https://itineramio.com/blog/errores-principiantes-airbnb',
+      url: 'https://www.itineramio.com/blog/errores-principiantes-airbnb',
       desc: 'Evita los errores más comunes que frenan a los nuevos anfitriones'
     },
     recurso2: {
       title: 'Guía: Tu Primer Mes como Anfitrión',
-      url: 'https://itineramio.com/blog/primer-mes-anfitrion-airbnb',
+      url: 'https://www.itineramio.com/blog/primer-mes-anfitrion-airbnb',
       desc: 'Día a día de qué hacer antes, durante y después de cada reserva'
     },
     recurso3: {
       title: 'Template: Manual Básico para Huéspedes',
-      url: 'https://itineramio.com/recursos/manual-basico',
+      url: 'https://www.itineramio.com/recursos/manual-basico',
       desc: 'Descargable listo para personalizar en 10 minutos'
     }
   },
@@ -38,17 +38,17 @@ const NIVEL_CONTENT: Record<string, {
     mensaje: 'Estás en la fase de crecimiento. Has superado los errores básicos, ahora toca aumentar ingresos y reducir tiempo:',
     recurso1: {
       title: 'Artículo: Automatización que Realmente Funciona',
-      url: 'https://itineramio.com/blog/automatizacion-airbnb-stack-completo',
+      url: 'https://www.itineramio.com/blog/automatizacion-airbnb-stack-completo',
       desc: 'El stack completo de herramientas para anfitriones intermedios'
     },
     recurso2: {
       title: 'Caso: Optimización de Apartamentos en Valencia',
-      url: 'https://itineramio.com/blog/caso-laura-de-1800-a-3200-euros-mes-historia-completa',
+      url: 'https://www.itineramio.com/blog/caso-laura-de-1800-a-3200-euros-mes-historia-completa',
       desc: 'Cómo Laura optimizó pricing y operaciones (caso ilustrativo)'
     },
     recurso3: {
       title: 'Guía: RevPAR vs Ocupación',
-      url: 'https://itineramio.com/blog/revpar-vs-ocupacion-metricas-correctas-airbnb',
+      url: 'https://www.itineramio.com/blog/revpar-vs-ocupacion-metricas-correctas-airbnb',
       desc: 'Deja de optimizar la métrica equivocada'
     }
   },
@@ -57,17 +57,17 @@ const NIVEL_CONTENT: Record<string, {
     mensaje: 'Tienes la operación dominada. Ahora el desafío es escalar sin quemarte o perder calidad:',
     recurso1: {
       title: 'Artículo: Del Modo Bombero al Modo CEO',
-      url: 'https://itineramio.com/blog/modo-bombero-a-ceo-escalar-airbnb',
+      url: 'https://www.itineramio.com/blog/modo-bombero-a-ceo-escalar-airbnb',
       desc: 'El framework para reducir significativamente tus horas de trabajo'
     },
     recurso2: {
       title: 'Framework: Delegación Sin Perder Control',
-      url: 'https://itineramio.com/recursos/framework-delegacion',
+      url: 'https://www.itineramio.com/recursos/framework-delegacion',
       desc: 'Cómo crear sistemas que funcionen sin ti'
     },
     recurso3: {
       title: 'Caso: Cómo Gestionar Múltiples Propiedades',
-      url: 'https://itineramio.com/blog/caso-david-15-propiedades',
+      url: 'https://www.itineramio.com/blog/caso-david-15-propiedades',
       desc: 'Caso ilustrativo de escalado eficiente'
     }
   },
@@ -76,17 +76,17 @@ const NIVEL_CONTENT: Record<string, {
     mensaje: 'Tienes un portfolio sólido. Ahora el enfoque es optimización avanzada y ventajas competitivas:',
     recurso1: {
       title: 'Artículo: Revenue Management Avanzado',
-      url: 'https://itineramio.com/blog/revenue-management-avanzado',
+      url: 'https://www.itineramio.com/blog/revenue-management-avanzado',
       desc: 'Estrategias de pricing que usan solo el top 5%'
     },
     recurso2: {
       title: 'Framework: Multi-Property Operations',
-      url: 'https://itineramio.com/recursos/multi-property-ops',
+      url: 'https://www.itineramio.com/recursos/multi-property-ops',
       desc: 'Sistema completo para gestionar 10+ propiedades'
     },
     recurso3: {
       title: 'Comunidad: Red de Profesionales',
-      url: 'https://itineramio.com/academia',
+      url: 'https://www.itineramio.com/academia',
       desc: 'Accede a casos reales y networking con otros pros'
     }
   }
@@ -211,7 +211,7 @@ export default function NivelDay1Email({ name, nivel }: NivelDay1EmailProps) {
           Haz nuestro test de 2 minutos y descubre tu perfil operativo único. Recibirás guías específicas para tu tipo de anfitrión.
         </p>
         <a
-          href="https://itineramio.com/host-profile/test"
+          href="https://www.itineramio.com/host-profile/test"
           style={{
             display: 'inline-block',
             background: 'white',
@@ -250,7 +250,7 @@ export default function NivelDay1Email({ name, nivel }: NivelDay1EmailProps) {
           Itineramio - Recursos para anfitriones de todos los niveles
         </p>
         <p style={{ marginTop: '10px' }}>
-          <a href="https://itineramio.com" style={{ color: '#2563eb', textDecoration: 'none' }}>
+          <a href="https://www.itineramio.com" style={{ color: '#2563eb', textDecoration: 'none' }}>
             itineramio.com
           </a>
         </p>

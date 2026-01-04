@@ -75,7 +75,7 @@ export default function ToolChecklistDay6Test({ name }: ToolChecklistDay6Props) 
                 90 segundos · 100% gratuito · Resultado inmediato
               </p>
               <a
-                href="https://www.itineramio.com/test"
+                href="https://www.itineramio.com/host-profile/test"
                 style={{
                   display: 'inline-block',
                   backgroundColor: '#16a34a',
@@ -116,7 +116,7 @@ export default function ToolChecklistDay6Test({ name }: ToolChecklistDay6Props) 
         <tr>
           <td style={{ textAlign: 'center', paddingTop: '24px' }}>
             <p style={{ margin: 0, color: '#9ca3af', fontSize: '12px' }}>
-              <a href="https://www.itineramio.com/unsubscribe" style={{ color: '#9ca3af', textDecoration: 'none' }}>Cancelar suscripción</a> · <a href="https://www.itineramio.com" style={{ color: '#6b7280', textDecoration: 'none' }}>itineramio.com</a>
+              <a href={`https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email || "")}`} style={{ color: '#9ca3af', textDecoration: 'none' }}>Cancelar suscripción</a> · <a href="https://www.itineramio.com" style={{ color: '#6b7280', textDecoration: 'none' }}>itineramio.com</a>
             </p>
           </td>
         </tr>

@@ -28,7 +28,7 @@ export async function GET() {
     )
     
     // Create response with redirect
-    const response = NextResponse.redirect(new URL('/main', 'https://itineramio.com'))
+    const response = NextResponse.redirect(new URL('/main', 'https://www.itineramio.com'))
     
     // Set cookie
     response.cookies.set({

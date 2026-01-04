@@ -33,7 +33,7 @@ export async function GET() {
     )
     
     // Create magic link
-    const magicLink = `https://itineramio.com/api/auth-redirect?token=${token}`
+    const magicLink = `https://www.itineramio.com/api/auth-redirect?token=${token}`
     
     return NextResponse.json({
       success: true,

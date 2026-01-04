@@ -142,7 +142,7 @@ export default function ToolPricingDay0Delivery({ name, pricingData }: Props) {
         <tr>
           <td style={{ textAlign: 'center', paddingTop: '24px' }}>
             <p style={{ margin: 0, color: '#9ca3af', fontSize: '12px' }}>
-              <a href="https://www.itineramio.com/unsubscribe" style={{ color: '#9ca3af', textDecoration: 'none' }}>Cancelar suscripción</a> · © {new Date().getFullYear()} Itineramio
+              <a href={`https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email || "")}`} style={{ color: '#9ca3af', textDecoration: 'none' }}>Cancelar suscripción</a> · © {new Date().getFullYear()} Itineramio
             </p>
           </td>
         </tr>

@@ -159,7 +159,7 @@ export async function POST(
         dueDate: new Date(invoice.dueDate).toLocaleDateString('es-ES'),
         status: 'PENDING',
         isPaid: false,
-        downloadUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'}/api/invoices/${invoice.id}/download`
+        downloadUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'}/api/invoices/${invoice.id}/download`
       })
 
       await sendEmail({

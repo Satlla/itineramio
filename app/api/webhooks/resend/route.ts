@@ -238,7 +238,7 @@ export async function POST(request: NextRequest) {
  *
  * 1. Ir a https://resend.com/webhooks
  * 2. Crear un nuevo webhook
- * 3. URL del webhook: https://itineramio.com/api/webhooks/resend
+ * 3. URL del webhook: https://www.itineramio.com/api/webhooks/resend
  * 4. Seleccionar eventos a escuchar:
  *    - email.delivered ✅
  *    - email.opened ✅

@@ -121,7 +121,7 @@ export class EmailNotificationService {
     }
 
     const propertiesList = invoice.properties?.map(p => p.name).join(', ') || 'N/A'
-    const dashboardUrl = `${process.env.NEXTAUTH_URL || 'https://itineramio.com'}/admin/payments`
+    const dashboardUrl = `${process.env.NEXTAUTH_URL || 'https://www.itineramio.com'}/admin/payments`
 
     const htmlContent = `
       <!DOCTYPE html>
@@ -250,8 +250,8 @@ Ver en panel admin: ${dashboardUrl}
       return false
     }
 
-    const propertyUrl = `${process.env.NEXTAUTH_URL || 'https://itineramio.com'}/admin/properties`
-    const userUrl = `${process.env.NEXTAUTH_URL || 'https://itineramio.com'}/admin/users`
+    const propertyUrl = `${process.env.NEXTAUTH_URL || 'https://www.itineramio.com'}/admin/properties`
+    const userUrl = `${process.env.NEXTAUTH_URL || 'https://www.itineramio.com'}/admin/users`
 
     const htmlContent = `
       <!DOCTYPE html>
@@ -368,7 +368,7 @@ Ver usuarios: ${userUrl}
       email: string
     }
   }): Promise<boolean> {
-    const dashboardUrl = `${process.env.NEXTAUTH_URL || 'https://itineramio.com'}/properties`
+    const dashboardUrl = `${process.env.NEXTAUTH_URL || 'https://www.itineramio.com'}/properties`
 
     const htmlContent = `
       <!DOCTYPE html>

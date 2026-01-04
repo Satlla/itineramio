@@ -292,9 +292,9 @@ export default function CasosDeExitoPage() {
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </Link>
-              <Link href="/comparar">
+              <Link href="/hub">
                 <button className="px-8 py-4 bg-violet-500 text-white font-semibold rounded-xl hover:bg-violet-400 transition-all border-2 border-violet-400 flex items-center justify-center gap-2">
-                  Ver comparativas
+                  Ver recursos gratuitos
                 </button>
               </Link>
             </div>

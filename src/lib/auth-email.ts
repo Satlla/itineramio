@@ -106,10 +106,19 @@ export class EmailVerificationService {
 
   // Send welcome email
   static async sendWelcomeEmail(email: string, userName: string): Promise<void> {
+    // Calculate trial end date (15 days from now)
+    const trialEndDate = new Date()
+    trialEndDate.setDate(trialEndDate.getDate() + 15)
+    const formattedDate = trialEndDate.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    })
+
     await sendEmail({
       to: email,
       subject: '¡Bienvenido a Itineramio!',
-      html: emailTemplates.welcomeEmail(userName)
+      html: emailTemplates.welcomeEmail(userName, 'https://www.itineramio.com/main', formattedDate)
     })
   }
 

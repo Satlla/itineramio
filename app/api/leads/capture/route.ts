@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
 
     if (leadMagnetInfo && !isOnlineTool) {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
         const downloadUrl = leadMagnetInfo.downloadUrl.startsWith('http')
           ? leadMagnetInfo.downloadUrl
           : `${baseUrl}${leadMagnetInfo.downloadUrl}`

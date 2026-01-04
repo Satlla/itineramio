@@ -190,7 +190,7 @@ export const emailTemplates = {
     </html>
   `,
 
-  welcomeEmail: (userName: string, dashboardUrl: string = 'https://itineramio.com/main') => `
+  welcomeEmail: (userName: string, dashboardUrl: string = 'https://www.itineramio.com/main', trialEndDate?: string) => `
     <!DOCTYPE html>
     <html>
     <head>
@@ -201,47 +201,103 @@ export const emailTemplates = {
     <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background-color: #f5f5f5;">
       <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
         <!-- Header with celebration -->
-        <div style="text-align: center; margin-bottom: 30px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 32px;">🎉 ¡Bienvenido a Itineramio!</h1>
+        <div style="text-align: center; margin-bottom: 0; padding: 40px 30px; background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); border-radius: 16px 16px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 32px;">¡Bienvenido a Itineramio!</h1>
+          <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">Tu cuenta ha sido verificada con éxito</p>
         </div>
-        
+
         <!-- Content -->
-        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-          <h2 style="color: #1e293b; margin-top: 0;">¡Hola ${userName}!</h2>
-          <p style="color: #475569; font-size: 16px;">
-            ¡Tu cuenta ha sido verificada exitosamente! Ya puedes empezar a crear manuales 
-            increíbles para tus propiedades.
+        <div style="background: white; padding: 35px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          <h2 style="color: #1e293b; margin-top: 0; font-size: 24px;">¡Hola ${userName}!</h2>
+          <p style="color: #475569; font-size: 16px; line-height: 1.7;">
+            Gracias por unirte a <strong>Itineramio</strong>. Estamos encantados de tenerte aquí.
+            Ahora puedes empezar a crear manuales digitales increíbles para tus propiedades y
+            ofrecer una experiencia excepcional a tus huéspedes.
           </p>
-          
-          <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 25px 0;">
-            <h3 style="color: #1e293b; margin-top: 0;">✨ ¿Qué puedes hacer ahora?</h3>
-            <ul style="color: #475569; padding-left: 20px;">
-              <li style="margin: 8px 0;">📍 Crear tu primera propiedad</li>
-              <li style="margin: 8px 0;">🏠 Añadir zonas personalizadas</li>
-              <li style="margin: 8px 0;">📱 Generar códigos QR únicos</li>
-              <li style="margin: 8px 0;">🌟 Compartir con tus huéspedes</li>
+
+          <!-- Benefits Section -->
+          <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #8b5cf6;">
+            <h3 style="color: #1e293b; margin: 0 0 15px 0; font-size: 18px;">¿Por qué Itineramio?</h3>
+            <ul style="color: #475569; padding-left: 0; margin: 0; list-style: none;">
+              <li style="margin: 12px 0; padding-left: 28px; position: relative;">
+                <span style="position: absolute; left: 0;">📉</span>
+                <strong>Reduce llamadas hasta un 80%</strong> - Tus huéspedes tendrán toda la información en su móvil
+              </li>
+              <li style="margin: 12px 0; padding-left: 28px; position: relative;">
+                <span style="position: absolute; left: 0;">⭐</span>
+                <strong>Mejora tus valoraciones</strong> - Una experiencia de check-in impecable
+              </li>
+              <li style="margin: 12px 0; padding-left: 28px; position: relative;">
+                <span style="position: absolute; left: 0;">⏰</span>
+                <strong>Ahorra tiempo</strong> - Deja de explicar lo mismo una y otra vez
+              </li>
+              <li style="margin: 12px 0; padding-left: 28px; position: relative;">
+                <span style="position: absolute; left: 0;">📱</span>
+                <strong>QR + Link directo</strong> - Comparte fácilmente por WhatsApp o email
+              </li>
             </ul>
           </div>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${dashboardUrl}" 
-               style="background: #8b5cf6; color: white; padding: 14px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);">
-              Ir a mi dashboard
+
+          ${trialEndDate ? `
+          <!-- Trial Info Section -->
+          <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); padding: 20px; border-radius: 12px; margin: 25px 0; border: 1px solid #a7f3d0; text-align: center;">
+            <p style="color: #065f46; margin: 0; font-size: 16px;">
+              <strong>🎁 Tu período de prueba de 15 días</strong><br>
+              <span style="font-size: 14px; color: #047857;">Válido hasta el <strong>${trialEndDate}</strong></span>
+            </p>
+            <p style="color: #059669; margin: 10px 0 0 0; font-size: 13px;">
+              Disfruta de todas las funcionalidades sin compromiso.
+            </p>
+          </div>
+          ` : ''}
+
+          <!-- First Steps Section -->
+          <div style="background: #faf5ff; padding: 25px; border-radius: 12px; margin: 25px 0;">
+            <h3 style="color: #7c3aed; margin: 0 0 15px 0; font-size: 18px;">🚀 Tus primeros pasos</h3>
+            <ol style="color: #475569; padding-left: 20px; margin: 0;">
+              <li style="margin: 10px 0;"><strong>Crea tu primera propiedad</strong> - Añade los datos básicos de tu alojamiento</li>
+              <li style="margin: 10px 0;"><strong>Configura las zonas</strong> - WiFi, Check-in, Normas, Cocina...</li>
+              <li style="margin: 10px 0;"><strong>Añade fotos y videos</strong> - Haz tu manual más visual</li>
+              <li style="margin: 10px 0;"><strong>Genera tu QR</strong> - ¡Y compártelo con tus huéspedes!</li>
+            </ol>
+          </div>
+
+          <!-- CTA Buttons -->
+          <div style="text-align: center; margin: 35px 0 25px 0;">
+            <a href="${dashboardUrl}"
+               style="background: #8b5cf6; color: white; padding: 16px 40px; text-decoration: none; border-radius: 10px; font-weight: 600; display: inline-block; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4); font-size: 16px;">
+              Crear mi primera propiedad
             </a>
           </div>
-          
-          <div style="border-top: 1px solid #e5e7eb; margin-top: 30px; padding-top: 20px;">
-            <p style="color: #6b7280; font-size: 14px; text-align: center;">
-              💡 <strong>Consejo:</strong> Empieza creando las zonas esenciales como Check-in, 
-              WiFi y Normas de la casa. ¡Tus huéspedes te lo agradecerán!
+
+          <!-- Onboarding Guide Link -->
+          <div style="background: #fef3c7; padding: 20px; border-radius: 12px; margin: 25px 0; text-align: center; border: 1px solid #fcd34d;">
+            <p style="color: #92400e; margin: 0 0 12px 0; font-size: 15px;">
+              <strong>📖 ¿Quieres ver una guía completa paso a paso?</strong>
+            </p>
+            <a href="https://www.itineramio.com/bienvenido"
+               style="color: #d97706; font-weight: 600; text-decoration: underline; font-size: 15px;">
+              Ver guía de onboarding completa →
+            </a>
+          </div>
+
+          <!-- Help Section -->
+          <div style="border-top: 1px solid #e5e7eb; margin-top: 30px; padding-top: 25px; text-align: center;">
+            <p style="color: #6b7280; font-size: 14px; margin: 0;">
+              ¿Tienes dudas? Estamos aquí para ayudarte.<br>
+              Escríbenos a <a href="mailto:hola@itineramio.com" style="color: #8b5cf6; text-decoration: none; font-weight: 500;">hola@itineramio.com</a>
             </p>
           </div>
         </div>
-        
+
         <!-- Footer -->
-        <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 13px;">
-          <p style="margin: 5px 0;">¿Necesitas ayuda? Contáctanos en hola@itineramio.com</p>
-          <p style="margin: 15px 0 5px 0;">© 2024 Itineramio. Todos los derechos reservados.</p>
+        <div style="text-align: center; padding: 25px; color: #94a3b8; font-size: 13px;">
+          <p style="margin: 0 0 10px 0;">
+            <a href="https://www.itineramio.com/blog" style="color: #8b5cf6; text-decoration: none; margin: 0 10px;">Blog</a> |
+            <a href="https://www.itineramio.com/academia" style="color: #8b5cf6; text-decoration: none; margin: 0 10px;">Academia</a> |
+            <a href="https://www.itineramio.com/hub" style="color: #8b5cf6; text-decoration: none; margin: 0 10px;">Recursos</a>
+          </p>
+          <p style="margin: 15px 0 5px 0;">© 2025 Itineramio. Todos los derechos reservados.</p>
         </div>
       </div>
     </body>
@@ -516,7 +572,7 @@ export const emailTemplates = {
         
         \${!params.isPaid ? \`
         <div style="text-align: center; margin: 20px 0;">
-          <a href="https://itineramio.com/subscriptions"
+          <a href="https://www.itineramio.com/subscriptions"
              style="background: #10b981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
             💳 Ver mis facturas
           </a>
@@ -594,7 +650,7 @@ export const emailTemplates = {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://itineramio.com/subscriptions" 
+          <a href="https://www.itineramio.com/subscriptions" 
              style="background: #8b5cf6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
             Ver mis facturas
           </a>
@@ -1008,7 +1064,7 @@ ${params.prorationBreakdown}
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="https://itineramio.com/main" 
+            <a href="https://www.itineramio.com/main" 
                style="background: #8b5cf6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
               Ver todas las evaluaciones
             </a>

@@ -120,7 +120,7 @@ Tu Situación:
 • Costo con Itineramio: €${results.itineramioCost}
 • Ahorro mensual: €${Math.round(results.costPerMonth - results.itineramioCost)}
 
-Generado con Itineramio - https://itineramio.com
+Generado con Itineramio - https://www.itineramio.com
     `.trim()
 
     // Create and download as text file

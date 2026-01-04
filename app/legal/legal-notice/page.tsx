@@ -78,7 +78,7 @@ export default function LegalNoticePage() {
                   </tr>
                   <tr>
                     <td className="py-2 font-semibold text-gray-900">Sitio web:</td>
-                    <td className="py-2 text-gray-700">https://itineramio.com</td>
+                    <td className="py-2 text-gray-700">https://www.itineramio.com</td>
                   </tr>
                 </tbody>
               </table>

@@ -619,6 +619,7 @@ async function sendScheduledEmail(scheduledEmail: any) {
     // Renderizar el template con los datos
     const emailHtml = EmailComponent({
       name: scheduledEmail.recipientName || 'Anfitrión',
+      email: scheduledEmail.recipientEmail,
       ...scheduledEmail.templateData
     })
 

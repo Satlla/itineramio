@@ -122,10 +122,10 @@ export const WelcomeQREmail: React.FC<WelcomeQREmailProps> = ({ name }) => {
                 fontSize: '15px',
                 marginBottom: '20px'
               }}>
-                ¿Quieres ver un manual completo de ejemplo?
+                ¿Quieres crear tu propio manual digital?
               </p>
               <a
-                href="https://itineramio.com/ejemplos/manual-completo"
+                href="https://www.itineramio.com/register"
                 style={{
                   display: 'inline-block',
                   backgroundColor: '#7c3aed',
@@ -137,7 +137,7 @@ export const WelcomeQREmail: React.FC<WelcomeQREmailProps> = ({ name }) => {
                   fontSize: '16px'
                 }}
               >
-                Ver Ejemplo de Manual →
+                Crear mi Manual Gratis →
               </a>
             </div>
 
@@ -157,7 +157,7 @@ export const WelcomeQREmail: React.FC<WelcomeQREmailProps> = ({ name }) => {
                 <strong>¿Listo para crear tu manual completo?</strong>
               </p>
               <a
-                href="https://itineramio.com/register"
+                href="https://www.itineramio.com/register"
                 style={{
                   display: 'inline-block',
                   backgroundColor: '#111827',
@@ -192,7 +192,7 @@ export const WelcomeQREmail: React.FC<WelcomeQREmailProps> = ({ name }) => {
             fontSize: '12px'
           }}>
             <p style={{ marginBottom: '10px' }}>
-              <a href="https://itineramio.com" style={{ color: '#7c3aed', textDecoration: 'none' }}>
+              <a href="https://www.itineramio.com" style={{ color: '#7c3aed', textDecoration: 'none' }}>
                 Itineramio
               </a>
             </p>

@@ -19,12 +19,15 @@ function VerifyRequiredContent() {
   const [isResending, setIsResending] = useState(false)
   const [resendSuccess, setResendSuccess] = useState(false)
   const [userEmail, setUserEmail] = useState('')
+  const [emailError, setEmailError] = useState(false)
 
   useEffect(() => {
     const email = searchParams.get('email')
+    const hasEmailError = searchParams.get('emailError') === 'true'
     if (email) {
       setUserEmail(decodeURIComponent(email))
     }
+    setEmailError(hasEmailError)
   }, [searchParams])
 
   const resendVerificationEmail = async () => {
@@ -92,9 +95,19 @@ function VerifyRequiredContent() {
               Verifica tu email
             </h1>
 
+            {emailError && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+                <p className="text-sm text-amber-800">
+                  ⚠️ <strong>Hubo un problema</strong> al enviar el email de verificación.
+                  Por favor, haz clic en "Reenviar email" para intentarlo de nuevo.
+                </p>
+              </div>
+            )}
+
             <p className="text-gray-600 mb-6">
-              Te hemos enviado un email de verificación. Por favor, revisa tu bandeja de entrada 
-              y haz clic en el enlace para activar tu cuenta.
+              {emailError
+                ? 'Tu cuenta fue creada. Reenvía el email de verificación para activarla.'
+                : 'Te hemos enviado un email de verificación. Por favor, revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.'}
             </p>
 
             {/* Email Input for Resend */}

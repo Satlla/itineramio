@@ -138,7 +138,7 @@ Tu ocupación actual (${metrics.occupancyRate}%) es ${
   'BAJA'
 }
 
-Generado con Itineramio - https://itineramio.com
+Generado con Itineramio - https://www.itineramio.com
     `.trim()
 
     const blob = new Blob([summary], { type: 'text/plain' })

@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     switch (type) {
       case 'verification':
         emailContent = emailTemplates.emailVerification(
-          'https://itineramio.com/verify?token=test123',
+          'https://www.itineramio.com/verify?token=test123',
           'Usuario Test'
         )
         emailSubject = 'Confirma tu cuenta - Itineramio'

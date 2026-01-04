@@ -27,7 +27,7 @@ const ARCHETYPE_CONTENT: Record<EmailArchetype, {
     problem: 'Miden demasiadas métricas y se paralizan por análisis. Tienen dashboards llenos de números pero no saben cuál mover primero.',
     solution: 'Los Estrategas exitosos se enfocan en 3 KPIs maestros que predicen todo lo demás: RevPAR, Direct Booking Ratio, y Guest Acquisition Cost.',
     articleTitle: 'RevPAR vs Ocupación: Por Qué Mides Las Métricas Equivocadas',
-    articleUrl: 'https://itineramio.com/blog/revpar-vs-ocupacion-metricas-correctas-airbnb',
+    articleUrl: 'https://www.itineramio.com/blog/revpar-vs-ocupacion-metricas-correctas-airbnb',
     articleTeaser: 'Descubre por qué muchos anfitriones optimizan ocupación cuando deberían optimizar revenue. Este artículo te muestra el framework exacto de 3 KPIs que usan los mejores anfitriones.',
     leadMagnetTitle: '5 KPIs Esenciales para Estrategas',
     leadMagnetUrl: '/api/lead-magnet/download?archetype=estratega',
@@ -40,7 +40,7 @@ const ARCHETYPE_CONTENT: Record<EmailArchetype, {
     problem: 'Tienes SOPs perfectos en tu cabeza, pero tu equipo no los sigue. Pasas horas coordinando limpieza, check-ins y mantenimiento. Cada día repites las mismas 47 tareas.',
     solution: 'Los Sistemáticos de élite automatizan la mayoría de operaciones rutinarias, manteniendo control total. Liberan tiempo valioso cada semana sin sacrificar calidad.',
     articleTitle: 'Automatización Airbnb: El Stack Completo de Herramientas',
-    articleUrl: 'https://itineramio.com/blog/automatizacion-airbnb-stack-completo',
+    articleUrl: 'https://www.itineramio.com/blog/automatizacion-airbnb-stack-completo',
     articleTeaser: 'El blueprint exacto de automatización que usan anfitriones con 10+ propiedades: PMS, pricing dinámico, comunicación automática, y coordinación de equipo. Todo integrado.',
     leadMagnetTitle: 'Checklist de 47 Tareas Automatizables',
     leadMagnetUrl: '/api/lead-magnet/download?archetype=sistematico',
@@ -53,7 +53,7 @@ const ARCHETYPE_CONTENT: Record<EmailArchetype, {
     problem: 'Escribes descripciones hermosas... que nadie lee. Tu storytelling no se traduce en conversión. Tu tasa de reserva podría mejorar significativamente.',
     solution: 'Los Diferenciadores exitosos usan el framework S.T.O.R.Y. para estructurar su copywriting. No es arte, es ciencia aplicada a la conversión.',
     articleTitle: 'Storytelling que Convierte: Cómo Escribir Descripciones que Multiplican Reservas',
-    articleUrl: 'https://itineramio.com/blog/storytelling-que-convierte-descripciones-airbnb',
+    articleUrl: 'https://www.itineramio.com/blog/storytelling-que-convierte-descripciones-airbnb',
     articleTeaser: 'El framework S.T.O.R.Y. completo con ejemplos antes/después. Aprende cómo mejorar tu ocupación reescribiendo tu descripción. Te muestro exactamente cómo.',
     leadMagnetTitle: 'Framework S.T.O.R.Y. + Templates',
     leadMagnetUrl: '/api/lead-magnet/download?archetype=diferenciador',
@@ -66,7 +66,7 @@ const ARCHETYPE_CONTENT: Record<EmailArchetype, {
     problem: 'Eres el cuello de botella. Sin ti, todo se para. Tu equipo te llama para cada decisión. No delegas porque "es más rápido hacerlo yo mismo".',
     solution: 'Los Ejecutores que escalan crean sistemas que toman decisiones sin ellos. Implementan protocolos de crisis + automatización + delegación estructurada. Resultado: mismo control, mucho menos tiempo.',
     articleTitle: 'Del Modo Bombero al CEO: Cómo Escalar Sin Quemarte',
-    articleUrl: 'https://itineramio.com/blog/modo-bombero-a-ceo-escalar-airbnb',
+    articleUrl: 'https://www.itineramio.com/blog/modo-bombero-a-ceo-escalar-airbnb',
     articleTeaser: 'El plan de 30 días para reducir significativamente tus horas de trabajo sin perder control. Incluye framework de delegación + protocolos de crisis + automatización progresiva.',
     leadMagnetTitle: 'Plan 30 Días: Bombero → CEO',
     leadMagnetUrl: '/api/lead-magnet/download?archetype=ejecutor',
@@ -79,7 +79,7 @@ const ARCHETYPE_CONTENT: Record<EmailArchetype, {
     problem: 'No tienes sistemas. Cada reserva es diferente. Te olvidas de enviar instrucciones. Tu limpiadora no sabe cuándo hay entrada. Trabajas en modo emergencia constante.',
     solution: 'Los Improvisadores que sobreviven implementan el Kit Anti-Caos de 3 niveles: Supervivencia (48h), Estabilidad (2 semanas), Automatización (mes 2). Sistema a prueba de olvidos.',
     articleTitle: 'Kit Anti-Caos para Anfitriones: Del Modo Reactivo al Control Total',
-    articleUrl: 'https://itineramio.com/blog/kit-anti-caos-anfitriones-airbnb',
+    articleUrl: 'https://www.itineramio.com/blog/kit-anti-caos-anfitriones-airbnb',
     articleTeaser: 'Descubre el sistema de 3 niveles que ayuda a anfitriones a mejorar ocupación y reducir tiempo operativo. Incluye 5 alarmas diarias + checklists imprimibles + plan 30 días paso a paso.',
     leadMagnetTitle: 'Kit Anti-Caos Completo',
     leadMagnetUrl: '/api/lead-magnet/download?archetype=improvisador',
@@ -92,7 +92,7 @@ const ARCHETYPE_CONTENT: Record<EmailArchetype, {
     problem: 'Resuelves crisis brillantemente... pero siguen ocurriendo las mismas. No tienes tiempo de crear sistemas porque estás ocupado apagando fuegos.',
     solution: 'Los Resolutores de élite documentan cada crisis resuelta y crean protocolos automáticos. Reducen significativamente las incidencias con el tiempo.',
     articleTitle: 'Del Modo Bombero al CEO: Cómo Escalar Sin Quemarte',
-    articleUrl: 'https://itineramio.com/blog/modo-bombero-a-ceo-escalar-airbnb',
+    articleUrl: 'https://www.itineramio.com/blog/modo-bombero-a-ceo-escalar-airbnb',
     articleTeaser: 'El sistema completo para convertir crisis recurrentes en protocolos automáticos. Incluye los 27 problemas más comunes + soluciones paso a paso.',
     leadMagnetTitle: '27 Crisis Más Comunes (Con Soluciones)',
     leadMagnetUrl: '/api/lead-magnet/download?archetype=resolutor',
@@ -105,7 +105,7 @@ const ARCHETYPE_CONTENT: Record<EmailArchetype, {
     problem: 'Tu experiencia depende de ti. No has documentado qué hace que tus huéspedes digan "WOW". Temes que al delegar pierdas la magia.',
     solution: 'Los Experienciales exitosos documentan su "receta mágica" en protocolos emocionales. Sus equipos replican la experiencia a escala.',
     articleTitle: 'Storytelling que Convierte: Cómo Escribir Descripciones que Multiplican Reservas',
-    articleUrl: 'https://itineramio.com/blog/storytelling-que-convierte-descripciones-airbnb',
+    articleUrl: 'https://www.itineramio.com/blog/storytelling-que-convierte-descripciones-airbnb',
     articleTeaser: 'El framework para documentar y escalar experiencias memorables. De anfitrión único a equipo que entrega magia consistente.',
     leadMagnetTitle: 'Manual de Experiencia Escalable',
     leadMagnetUrl: '/api/lead-magnet/download?archetype=experiencial',
@@ -118,7 +118,7 @@ const ARCHETYPE_CONTENT: Record<EmailArchetype, {
     problem: 'Saltas de táctica en táctica. Pruebas todo un poco. No dominas ninguna área lo suficiente como para destacar.',
     solution: 'Los Equilibrados exitosos eligen 1-2 áreas para dominar mientras mantienen competencia en el resto. Se vuelven "versátiles especializados".',
     articleTitle: 'RevPAR vs Ocupación: Por Qué Mides Las Métricas Equivocadas',
-    articleUrl: 'https://itineramio.com/blog/revpar-vs-ocupacion-metricas-correctas-airbnb',
+    articleUrl: 'https://www.itineramio.com/blog/revpar-vs-ocupacion-metricas-correctas-airbnb',
     articleTeaser: 'El framework para identificar dónde especializarte sin perder tu versatilidad. Estrategia completa para equilibrados.',
     leadMagnetTitle: 'Guía del Versátil Excepcional',
     leadMagnetUrl: '/api/lead-magnet/download?archetype=equilibrado',
@@ -212,7 +212,7 @@ export default function Day2PersonalizedEmail({ name, archetype }: Day2Personali
           {content.leadMagnetValue}
         </p>
         <a
-          href={`https://itineramio.com${content.leadMagnetUrl}`}
+          href={`https://www.itineramio.com${content.leadMagnetUrl}`}
           style={{
             display: 'inline-block',
             background: 'white',
@@ -259,7 +259,7 @@ export default function Day2PersonalizedEmail({ name, archetype }: Day2Personali
           Itineramio - Herramientas para anfitriones profesionales
         </p>
         <p style={{ marginTop: '10px' }}>
-          <a href="https://itineramio.com" style={{ color: '#2563eb', textDecoration: 'none' }}>
+          <a href="https://www.itineramio.com" style={{ color: '#2563eb', textDecoration: 'none' }}>
             itineramio.com
           </a>
         </p>

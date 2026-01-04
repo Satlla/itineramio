@@ -162,7 +162,7 @@ export default function NivelDay3Email({ name, nivel }: NivelDay3EmailProps) {
           <li>Guía PDF personalizada descargable</li>
         </ul>
         <a
-          href="https://itineramio.com/host-profile/test"
+          href="https://www.itineramio.com/host-profile/test"
           style={{
             display: 'inline-block',
             background: 'white',
@@ -220,7 +220,7 @@ export default function NivelDay3Email({ name, nivel }: NivelDay3EmailProps) {
           Itineramio - Descubre tu perfil operativo único
         </p>
         <p style={{ marginTop: '10px' }}>
-          <a href="https://itineramio.com" style={{ color: '#2563eb', textDecoration: 'none' }}>
+          <a href="https://www.itineramio.com" style={{ color: '#2563eb', textDecoration: 'none' }}>
             itineramio.com
           </a>
         </p>

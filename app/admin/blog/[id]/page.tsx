@@ -166,7 +166,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
 
         if (newStatus === 'PUBLISHED') {
           // Show success modal with published URL
-          const productionUrl = `https://itineramio.com/blog/${formData.slug}`
+          const productionUrl = `https://www.itineramio.com/blog/${formData.slug}`
           setPublishedUrl(productionUrl)
           setSuccessMessage('¡Artículo publicado exitosamente!')
           setShowSuccessModal(true)

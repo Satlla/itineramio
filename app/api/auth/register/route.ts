@@ -156,14 +156,24 @@ export async function POST(request: NextRequest) {
       console.log('✅ Affiliate transaction created for referral')
     }
     
-    // Send verification email
+    // Send verification email - CRITICAL: must succeed for user to verify
+    let emailSent = false
     try {
       console.log('🔄 Attempting to send verification email to:', user.email)
       await EmailVerificationService.sendVerificationEmail(user.email, user.name)
       console.log('✅ Verification email sent successfully')
+      emailSent = true
     } catch (emailError) {
       console.error('🚨 CRITICAL: Error sending verification email:', emailError)
       console.error('📊 Error details:', JSON.stringify(emailError, null, 2))
+
+      // Return error to user so they know email wasn't sent
+      return NextResponse.json({
+        success: false,
+        error: 'Tu cuenta fue creada pero no pudimos enviar el email de verificación. Por favor, ve a la página de login e intenta reenviar el email de verificación.',
+        canResendEmail: true,
+        email: user.email
+      }, { status: 500 })
     }
 
     // Send admin notification (async, don't block response)
@@ -174,8 +184,9 @@ export async function POST(request: NextRequest) {
     }).catch(error => {
       console.error('Failed to send admin notification:', error)
     })
-    
+
     return NextResponse.json({
+      success: true,
       message: '¡Enhorabuena! Gracias por registrarte en Itineramio. Te hemos enviado un correo de confirmación.',
       user: {
         id: user.id,

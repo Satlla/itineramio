@@ -90,12 +90,13 @@ export default function RegisterPage() {
       newErrors.email = 'Email inválido'
     }
 
-    // Validar teléfono
-    const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{3,6}$/
+    // Validar teléfono - regex más flexible para formatos internacionales
+    // Acepta: +34612345678, 612 345 678, +1 555 123 4567, (555) 123-4567, etc.
+    const phoneDigits = formData.phone.replace(/[\s\-\(\)\.]/g, '')
     if (!formData.phone) {
       newErrors.phone = 'El teléfono es requerido'
-    } else if (!phoneRegex.test(formData.phone.replace(/\s/g, ''))) {
-      newErrors.phone = 'Teléfono inválido'
+    } else if (!/^\+?[0-9]{7,15}$/.test(phoneDigits)) {
+      newErrors.phone = 'Teléfono inválido (mín. 7 dígitos)'
     }
 
     // Validar contraseña
@@ -148,6 +149,12 @@ export default function RegisterPage() {
       const data = await response.json()
       
       if (!response.ok) {
+        // Handle email sending failure - redirect to verify page so user can resend
+        if (data.canResendEmail && data.email) {
+          router.push(`/verify-required?email=${encodeURIComponent(data.email)}&emailError=true`)
+          return
+        }
+
         // Handle validation errors
         if (data.details && Array.isArray(data.details)) {
           const newErrors = { ...errors }

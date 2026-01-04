@@ -192,7 +192,7 @@ Tu Propiedad:
 • Ofrece descuentos para reservas anticipadas
 • Usa precios dinámicos para maximizar ocupación
 
-Generado con Itineramio - https://itineramio.com
+Generado con Itineramio - https://www.itineramio.com
     `.trim()
 
     const blob = new Blob([summary], { type: 'text/plain' })
@@ -557,10 +557,10 @@ Generado con Itineramio - https://itineramio.com
                     </div>
                     <div>
                       <p className="text-green-800 font-bold text-lg">
-                        ¡Analisis enviado a tu email!
+                        ¡Análisis enviado a tu email!
                       </p>
                       <p className="text-green-700 mt-1">
-                        Revisa tu bandeja de entrada. Hemos enviado un PDF con tu analisis de precios completo, incluyendo proyecciones y consejos personalizados.
+                        Revisa tu bandeja de entrada. Hemos enviado un PDF con tu análisis de precios completo, incluyendo proyecciones y consejos personalizados.
                       </p>
                       <p className="text-green-600 text-sm mt-2">
                         Si no lo ves, revisa la carpeta de spam.
@@ -574,7 +574,7 @@ Generado con Itineramio - https://itineramio.com
                   className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:shadow-xl transition-all flex items-center justify-center group"
                 >
                   <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                  Recibir analisis por email
+                  Recibir análisis por email
                 </button>
               )}
 
@@ -631,8 +631,8 @@ Generado con Itineramio - https://itineramio.com
           setPendingAction(null)
         }}
         onSubmit={handleLeadSubmit}
-        title="Recibe tu analisis de precios"
-        description="Te enviaremos un PDF profesional con tu analisis completo, proyecciones de ingresos y consejos personalizados"
+        title="Recibe tu análisis de precios"
+        description="Te enviaremos un PDF profesional con tu análisis completo, proyecciones de ingresos y consejos personalizados"
         downloadLabel="Enviar a mi email"
       />
     </div>
