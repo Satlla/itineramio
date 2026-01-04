@@ -18,7 +18,8 @@ export interface JWTPayload {
 }
 
 export function signToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' })
+  // Token expiry matches cookie maxAge (30 days) to prevent session loss
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '30d' })
 }
 
 export function verifyToken(token: string): JWTPayload {
