@@ -37,24 +37,24 @@ const createPropertySetSchema = z.object({
   name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').max(100, 'Máximo 100 caracteres'),
   description: z.string().min(10, 'La descripción debe tener al menos 10 caracteres').max(1000, 'Máximo 1000 caracteres'),
   type: z.enum(['HOTEL', 'BUILDING', 'COMPLEX', 'RESORT', 'HOSTEL', 'APARTHOTEL']),
-  
+
   // Dirección
   street: z.string().min(5, 'La dirección debe tener al menos 5 caracteres'),
   city: z.string().min(2, 'La ciudad debe tener al menos 2 caracteres'),
   state: z.string().min(2, 'La provincia debe tener al menos 2 caracteres'),
-  country: z.string().default('España'),
-  postalCode: z.string().regex(/^[0-9]{5}$/, 'Código postal debe tener 5 dígitos'),
-  
+  country: z.string().min(2, 'El país debe tener al menos 2 caracteres').default('España'),
+  postalCode: z.string().min(4, 'Código postal debe tener al menos 4 caracteres').max(10, 'Código postal máximo 10 caracteres'),
+
   // Imagen del conjunto
   profileImage: z.string().optional(),
-  
+
   // Contacto del host
   hostContactName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100, 'Máximo 100 caracteres'),
-  hostContactPhone: z.string().regex(/^[+]?[(]?[0-9\s\-()]{9,}$/, 'Teléfono inválido'),
+  hostContactPhone: z.string().min(9, 'Teléfono debe tener al menos 9 caracteres'),
   hostContactEmail: z.string().email('Email inválido'),
   hostContactLanguage: z.string().default('es'),
   hostContactPhoto: z.string().optional(),
-  
+
   // Selected properties
   selectedProperties: z.array(z.string()).optional()
 })
