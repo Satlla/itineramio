@@ -26,6 +26,20 @@ export const metadata: Metadata = {
     description:
       'Guías prácticas y recursos gratuitos para hacer crecer tu negocio de alquiler vacacional.',
     type: 'website',
+    images: [
+      {
+        url: 'https://www.itineramio.com/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Recursos Gratuitos Itineramio',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Recursos Gratuitos para Anfitriones | Itineramio',
+    description: 'Guías prácticas y recursos gratuitos para hacer crecer tu negocio de alquiler vacacional.',
+    images: ['https://www.itineramio.com/og-image.jpg'],
   },
 }
 

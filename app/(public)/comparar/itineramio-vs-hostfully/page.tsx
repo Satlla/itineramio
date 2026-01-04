@@ -31,7 +31,21 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Itineramio vs Hostfully: Comparativa 2025',
     description: 'Análisis completo de precios y funcionalidades. Descubre la mejor opción para tu alojamiento.',
-    type: 'article'
+    type: 'article',
+    images: [
+      {
+        url: 'https://www.itineramio.com/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Itineramio vs Hostfully Comparativa',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Itineramio vs Hostfully: Comparativa 2025',
+    description: 'Análisis completo de precios y funcionalidades. Descubre la mejor opción para tu alojamiento.',
+    images: ['https://www.itineramio.com/og-image.jpg'],
   }
 }
 

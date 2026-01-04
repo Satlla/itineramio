@@ -31,7 +31,21 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Itineramio vs Hospitable: Comparativa 2025',
     description: 'PMS completo vs Especialista en manuales digitales. Descubre cuál es mejor para ti.',
-    type: 'article'
+    type: 'article',
+    images: [
+      {
+        url: 'https://www.itineramio.com/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Itineramio vs Hospitable Comparativa',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Itineramio vs Hospitable: Comparativa 2025',
+    description: 'PMS completo vs Especialista en manuales digitales. Descubre cuál es mejor para ti.',
+    images: ['https://www.itineramio.com/og-image.jpg'],
   }
 }
 

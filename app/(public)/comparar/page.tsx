@@ -29,7 +29,21 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Comparativas de Software para Alojamientos Turísticos',
     description: 'Análisis detallado de Itineramio vs Touch Stay, Hostfully y Hospitable. Precios, funcionalidades y recomendaciones.',
-    type: 'website'
+    type: 'website',
+    images: [
+      {
+        url: 'https://www.itineramio.com/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Comparativas Itineramio',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Comparativas de Software para Alojamientos Turísticos',
+    description: 'Análisis detallado de Itineramio vs Touch Stay, Hostfully y Hospitable.',
+    images: ['https://www.itineramio.com/og-image.jpg'],
   }
 }
 

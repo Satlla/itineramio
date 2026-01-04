@@ -36,6 +36,20 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Blog - Guías para Apartamentos Turísticos',
     description: 'Consejos prácticos, normativas y mejores prácticas para anfitriones de alojamientos turísticos.',
+    images: [
+      {
+        url: 'https://www.itineramio.com/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Blog Itineramio - Guías para Apartamentos Turísticos',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Blog - Guías para Apartamentos Turísticos',
+    description: 'Consejos prácticos, normativas y mejores prácticas para anfitriones de alojamientos turísticos.',
+    images: ['https://www.itineramio.com/og-image.jpg'],
   }
 }
 
