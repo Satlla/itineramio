@@ -1078,11 +1078,12 @@ export default function PropertySetDetailPage() {
                   <p className="text-gray-600 mb-4">
                     Comienza añadiendo propiedades a este conjunto
                   </p>
-                  <Button asChild className="bg-violet-600 hover:bg-violet-700">
-                    <Link href="/properties/new">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Añadir Primera Propiedad
-                    </Link>
+                  <Button
+                    onClick={handleOpenAddPropertyModal}
+                    className="bg-violet-600 hover:bg-violet-700"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Añadir Primera Propiedad
                   </Button>
                 </CardContent>
               </Card>
