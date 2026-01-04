@@ -111,6 +111,14 @@ export const onboardingCategories: OnboardingCategory[] = [
     icon: 'CreditCard',
     order: 9,
     color: 'emerald'
+  },
+  {
+    slug: 'avisos',
+    name: 'Avisos',
+    description: 'Comunicaciones para huéspedes',
+    icon: 'Bell',
+    order: 10,
+    color: 'amber'
   }
 ]
 
@@ -1797,6 +1805,248 @@ export const onboardingArticles: OnboardingArticle[] = [
       { type: 'note', content: 'Si cancelas y quieres volver, tus datos seguirán ahí. Solo tendrás que elegir un plan nuevo.' }
     ],
     relatedArticles: ['cambiar-plan', 'eliminar-cuenta']
+  },
+
+  // ============================================
+  // AVISOS
+  // ============================================
+  {
+    id: 'que-son-avisos',
+    slug: 'que-son-avisos',
+    category: 'Avisos',
+    categorySlug: 'avisos',
+    title: 'Qué son los avisos y para qué sirven',
+    description: 'Aprende a comunicar información importante a tus huéspedes con el sistema de avisos.',
+    readingTime: 3,
+    order: 1,
+    keywords: ['avisos', 'anuncios', 'comunicación', 'huéspedes', 'notificaciones'],
+    lastUpdated: '2025-01-04',
+    content: [
+      { type: 'paragraph', content: 'Los avisos son mensajes destacados que aparecen en tu manual digital para comunicar información importante a tus huéspedes. Son perfectos para situaciones temporales o permanentes que quieras resaltar.' },
+      { type: 'heading', content: '¿Cuándo usar avisos?', level: 2 },
+      {
+        type: 'list',
+        items: [
+          'Obras o ruidos en el edificio o zona',
+          'Servicios temporalmente no disponibles (WiFi, ascensor, etc.)',
+          'Cambios en horarios de check-in/check-out',
+          'Información sobre aparcamiento',
+          'Eventos especiales en la zona',
+          'Cualquier información que quieras destacar'
+        ]
+      },
+      { type: 'heading', content: 'Características de los avisos', level: 2 },
+      {
+        type: 'list',
+        items: [
+          'Multiidioma: Se muestran en español, inglés y francés automáticamente',
+          'Categorías: Organiza tus avisos por tipo (aparcamiento, limpieza, obras, etc.)',
+          'Prioridades: Urgente, Alta o Normal según la importancia',
+          'Programables: Establece fechas de inicio y fin',
+          'Activar/Desactivar: Controla cuándo son visibles'
+        ]
+      },
+      { type: 'tip', content: 'Los avisos con prioridad "Urgente" aparecen destacados en rojo para que los huéspedes no se los pierdan.' },
+      { type: 'heading', content: '¿Dónde aparecen los avisos?', level: 2 },
+      { type: 'paragraph', content: 'Los avisos aparecen en la parte superior de tu manual digital, antes del contenido de las zonas. Así te aseguras de que los huéspedes los vean nada más entrar.' }
+    ],
+    relatedArticles: ['crear-aviso', 'usar-plantillas-avisos']
+  },
+  {
+    id: 'crear-aviso',
+    slug: 'crear-aviso',
+    category: 'Avisos',
+    categorySlug: 'avisos',
+    title: 'Cómo crear un aviso',
+    description: 'Guía paso a paso para crear avisos y comunicarte con tus huéspedes.',
+    readingTime: 3,
+    order: 2,
+    keywords: ['crear', 'aviso', 'nuevo', 'añadir', 'mensaje'],
+    lastUpdated: '2025-01-04',
+    content: [
+      { type: 'paragraph', content: 'Crear un aviso es muy sencillo. Sigue estos pasos para comunicar información importante a tus huéspedes.' },
+      { type: 'heading', content: 'Pasos para crear un aviso', level: 2 },
+      {
+        type: 'steps',
+        items: [
+          'Ve a tu propiedad y haz clic en "Avisos" en el menú lateral.',
+          'Haz clic en el botón "+ Nuevo aviso".',
+          'Escribe el título del aviso (en español, se traduce automáticamente).',
+          'Escribe el mensaje con los detalles.',
+          'Selecciona una categoría (Aparcamiento, Limpieza, Obras, etc.).',
+          'Elige la prioridad (Normal, Alta o Urgente).',
+          'Opcionalmente, establece fechas de inicio y fin.',
+          'Haz clic en "Guardar aviso".'
+        ]
+      },
+      { type: 'heading', content: 'Campos del aviso', level: 2 },
+      {
+        type: 'list',
+        items: [
+          'Título: Breve y descriptivo (ej: "Sin plaza de aparcamiento")',
+          'Mensaje: Detalles completos de la situación',
+          'Categoría: Ayuda a organizar y mostrar el icono correcto',
+          'Prioridad: Determina cómo se destaca el aviso',
+          'Fechas: Para avisos temporales (obras, eventos, etc.)'
+        ]
+      },
+      { type: 'tip', content: 'Usa títulos cortos y claros. El mensaje es donde puedes dar todos los detalles.' },
+      { type: 'warning', content: 'Los avisos con prioridad "Urgente" deben usarse solo para situaciones realmente importantes para no perder su efectividad.' }
+    ],
+    relatedArticles: ['que-son-avisos', 'usar-plantillas-avisos', 'editar-aviso']
+  },
+  {
+    id: 'usar-plantillas-avisos',
+    slug: 'usar-plantillas-avisos',
+    category: 'Avisos',
+    categorySlug: 'avisos',
+    title: 'Cómo usar las plantillas de avisos',
+    description: 'Ahorra tiempo usando plantillas predefinidas para los avisos más comunes.',
+    readingTime: 2,
+    order: 3,
+    keywords: ['plantillas', 'templates', 'predefinidos', 'rápido', 'ejemplos'],
+    lastUpdated: '2025-01-04',
+    content: [
+      { type: 'paragraph', content: 'Itineramio incluye plantillas predefinidas para los avisos más comunes. Están ya traducidas a español, inglés y francés para que no tengas que escribir nada.' },
+      { type: 'heading', content: 'Plantillas disponibles', level: 2 },
+      {
+        type: 'list',
+        items: [
+          'Check-in temprano no disponible',
+          'Check-out tardío no disponible',
+          'Sin custodia de equipajes',
+          'Sin plaza de aparcamiento',
+          'Sin conexión WiFi',
+          'Servicio temporalmente no disponible',
+          'Obras en el edificio',
+          'Ruidos en la zona'
+        ]
+      },
+      { type: 'heading', content: 'Cómo usar una plantilla', level: 2 },
+      {
+        type: 'steps',
+        items: [
+          'Ve a "Avisos" en tu propiedad.',
+          'Haz clic en "+ Nuevo aviso".',
+          'Verás las plantillas disponibles en la parte superior.',
+          'Haz clic en la plantilla que quieras usar.',
+          'El título y mensaje se rellenan automáticamente.',
+          'Personaliza si lo necesitas.',
+          'Guarda el aviso.'
+        ]
+      },
+      { type: 'tip', content: 'Puedes modificar el texto de la plantilla antes de guardar si necesitas añadir detalles específicos.' }
+    ],
+    relatedArticles: ['crear-aviso', 'editar-aviso']
+  },
+  {
+    id: 'editar-aviso',
+    slug: 'editar-aviso',
+    category: 'Avisos',
+    categorySlug: 'avisos',
+    title: 'Cómo editar un aviso existente',
+    description: 'Aprende a modificar avisos ya creados para actualizar la información.',
+    readingTime: 2,
+    order: 4,
+    keywords: ['editar', 'modificar', 'cambiar', 'actualizar', 'aviso'],
+    lastUpdated: '2025-01-04',
+    content: [
+      { type: 'paragraph', content: 'Puedes editar cualquier aviso en cualquier momento para actualizar la información o corregir errores.' },
+      { type: 'heading', content: 'Pasos para editar un aviso', level: 2 },
+      {
+        type: 'steps',
+        items: [
+          'Ve a "Avisos" en tu propiedad.',
+          'Encuentra el aviso que quieres editar.',
+          'Haz clic en el icono de lápiz (editar).',
+          'Modifica los campos que necesites.',
+          'Haz clic en "Guardar cambios".'
+        ]
+      },
+      { type: 'heading', content: 'Activar o desactivar un aviso', level: 2 },
+      { type: 'paragraph', content: 'No necesitas eliminar un aviso para que deje de mostrarse. Puedes simplemente desactivarlo y volver a activarlo cuando lo necesites.' },
+      {
+        type: 'steps',
+        items: [
+          'Ve a "Avisos" en tu propiedad.',
+          'Encuentra el aviso.',
+          'Haz clic en el interruptor de "Activo".',
+          'El aviso dejará de mostrarse pero no se eliminará.'
+        ]
+      },
+      { type: 'tip', content: 'Desactivar es mejor que eliminar si piensas que vas a necesitar el aviso de nuevo en el futuro.' }
+    ],
+    relatedArticles: ['crear-aviso', 'eliminar-aviso']
+  },
+  {
+    id: 'eliminar-aviso',
+    slug: 'eliminar-aviso',
+    category: 'Avisos',
+    categorySlug: 'avisos',
+    title: 'Cómo eliminar un aviso',
+    description: 'Aprende a eliminar avisos que ya no necesitas.',
+    readingTime: 1,
+    order: 5,
+    keywords: ['eliminar', 'borrar', 'quitar', 'aviso'],
+    lastUpdated: '2025-01-04',
+    content: [
+      { type: 'paragraph', content: 'Si un aviso ya no es relevante y no lo vas a necesitar en el futuro, puedes eliminarlo permanentemente.' },
+      { type: 'heading', content: 'Pasos para eliminar un aviso', level: 2 },
+      {
+        type: 'steps',
+        items: [
+          'Ve a "Avisos" en tu propiedad.',
+          'Encuentra el aviso que quieres eliminar.',
+          'Haz clic en el icono de papelera (eliminar).',
+          'Confirma la eliminación.',
+          'El aviso se eliminará permanentemente.'
+        ]
+      },
+      { type: 'warning', content: 'Esta acción no se puede deshacer. Si crees que vas a necesitar el aviso de nuevo, considera desactivarlo en lugar de eliminarlo.' },
+      { type: 'tip', content: 'Recuerda: desactivar un aviso lo oculta pero lo mantiene guardado. Eliminar lo borra definitivamente.' }
+    ],
+    relatedArticles: ['editar-aviso', 'crear-aviso']
+  },
+  {
+    id: 'programar-avisos',
+    slug: 'programar-avisos',
+    category: 'Avisos',
+    categorySlug: 'avisos',
+    title: 'Cómo programar fechas en los avisos',
+    description: 'Configura fechas de inicio y fin para que los avisos se muestren automáticamente.',
+    readingTime: 2,
+    order: 6,
+    keywords: ['programar', 'fechas', 'inicio', 'fin', 'temporal', 'automático'],
+    lastUpdated: '2025-01-04',
+    content: [
+      { type: 'paragraph', content: 'Los avisos pueden tener fechas de inicio y fin. Esto es muy útil para situaciones temporales como obras, eventos o restricciones por fechas.' },
+      { type: 'heading', content: 'Cuándo usar fechas', level: 2 },
+      {
+        type: 'list',
+        items: [
+          'Obras en el edificio (del 15 al 30 de enero)',
+          'Evento especial en la zona (festival, concierto, etc.)',
+          'Restricciones de tráfico temporales',
+          'Cierre temporal de servicios',
+          'Cualquier situación con fecha conocida de fin'
+        ]
+      },
+      { type: 'heading', content: 'Cómo configurar las fechas', level: 2 },
+      {
+        type: 'steps',
+        items: [
+          'Crea o edita un aviso.',
+          'Activa la opción "Programar fechas".',
+          'Selecciona la fecha de inicio.',
+          'Selecciona la fecha de fin.',
+          'Guarda el aviso.',
+          'El aviso solo se mostrará entre esas fechas.'
+        ]
+      },
+      { type: 'tip', content: 'Si solo pones fecha de inicio, el aviso se mostrará desde esa fecha hasta que lo desactives manualmente.' },
+      { type: 'note', content: 'Si no configuras ninguna fecha, el aviso se mostrará inmediatamente y hasta que lo desactives o elimines.' }
+    ],
+    relatedArticles: ['crear-aviso', 'editar-aviso']
   }
 ]
 
