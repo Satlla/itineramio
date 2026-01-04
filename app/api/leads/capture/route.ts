@@ -3,7 +3,7 @@ import { prisma } from '../../../../src/lib/prisma'
 import { sendLeadMagnetEmail, sendPricingAnalysisEmail } from '../../../../src/lib/resend'
 import { LEAD_MAGNETS, type LeadMagnetArchetype } from '../../../../src/data/lead-magnets'
 import { enrollSubscriberInSequences } from '../../../../src/lib/email-sequences'
-import { generatePricingAnalysisPDF } from '../../../../src/lib/pdf-generator-server'
+// Dynamic import for PDF generator to avoid issues with jsPDF in serverless environment
 
 // Map source to lead magnet info for email
 const SOURCE_TO_LEAD_MAGNET: Record<string, {
@@ -223,6 +223,9 @@ export async function POST(request: NextRequest) {
     } else if (source === 'pricing-calculator' && metadata) {
       // Special handling for pricing calculator - send PDF by email
       try {
+        // Dynamic import to avoid issues with jsPDF in serverless
+        const { generatePricingAnalysisPDF } = await import('../../../../src/lib/pdf-generator-server')
+
         const amenitiesList = metadata.amenities || []
         const pdfBuffer = generatePricingAnalysisPDF({
           propertyType: metadata.propertyType || 'Apartamento',
