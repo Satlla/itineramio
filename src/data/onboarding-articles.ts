@@ -1839,16 +1839,17 @@ export const onboardingArticles: OnboardingArticle[] = [
       {
         type: 'list',
         items: [
-          'Multiidioma: Se muestran en español, inglés y francés automáticamente',
+          'Multiidioma: Escríbelos en español, inglés y francés para llegar a todos tus huéspedes',
           'Categorías: Organiza tus avisos por tipo (aparcamiento, limpieza, obras, etc.)',
           'Prioridades: Urgente, Alta o Normal según la importancia',
-          'Programables: Establece fechas de inicio y fin',
+          'Programables: Establece fechas de inicio y fin para mostrarlos automáticamente',
           'Activar/Desactivar: Controla cuándo son visibles'
         ]
       },
       { type: 'tip', content: 'Los avisos con prioridad "Urgente" aparecen destacados en rojo para que los huéspedes no se los pierdan.' },
       { type: 'heading', content: '¿Dónde aparecen los avisos?', level: 2 },
-      { type: 'paragraph', content: 'Los avisos aparecen en la parte superior de tu manual digital, antes del contenido de las zonas. Así te aseguras de que los huéspedes los vean nada más entrar.' }
+      { type: 'paragraph', content: 'Los avisos aparecen como un popup nada más entrar al manual digital. El huésped puede pulsar "Aceptar" (el aviso seguirá apareciendo en futuras visitas) o "No mostrar más" (no volverá a ver ese aviso).' },
+      { type: 'paragraph', content: 'También se muestran en la parte superior del manual, antes del contenido de las zonas, para que siempre estén visibles.' }
     ],
     relatedArticles: ['crear-aviso', 'usar-plantillas-avisos']
   },
@@ -1871,11 +1872,11 @@ export const onboardingArticles: OnboardingArticle[] = [
         items: [
           'Ve a tu propiedad y haz clic en "Avisos" en el menú lateral.',
           'Haz clic en el botón "+ Nuevo aviso".',
-          'Escribe el título del aviso (en español, se traduce automáticamente).',
-          'Escribe el mensaje con los detalles.',
+          'Escribe el título del aviso en español, inglés y francés.',
+          'Escribe el mensaje con los detalles en los tres idiomas.',
           'Selecciona una categoría (Aparcamiento, Limpieza, Obras, etc.).',
           'Elige la prioridad (Normal, Alta o Urgente).',
-          'Opcionalmente, establece fechas de inicio y fin.',
+          'Opcionalmente, establece una fecha exacta para que aparezca.',
           'Haz clic en "Guardar aviso".'
         ]
       },
@@ -1883,11 +1884,21 @@ export const onboardingArticles: OnboardingArticle[] = [
       {
         type: 'list',
         items: [
-          'Título: Breve y descriptivo (ej: "Sin plaza de aparcamiento")',
-          'Mensaje: Detalles completos de la situación',
+          'Título (ES/EN/FR): Breve y descriptivo en cada idioma',
+          'Mensaje (ES/EN/FR): Detalles completos en cada idioma',
           'Categoría: Ayuda a organizar y mostrar el icono correcto',
           'Prioridad: Determina cómo se destaca el aviso',
-          'Fechas: Para avisos temporales (obras, eventos, etc.)'
+          'Fecha: Para avisos que deben aparecer en una fecha exacta'
+        ]
+      },
+      { type: 'note', content: 'Debes escribir el título y mensaje en los tres idiomas (español, inglés y francés) para que el aviso se muestre correctamente a huéspedes de diferentes países.' },
+      { type: 'heading', content: 'Cómo ven los huéspedes el aviso', level: 2 },
+      { type: 'paragraph', content: 'Cuando un huésped visita tu manual digital, le aparecerá un popup con el aviso. El huésped tiene dos opciones:' },
+      {
+        type: 'list',
+        items: [
+          'Aceptar: El popup se cierra pero el aviso le seguirá apareciendo en futuras visitas.',
+          'No mostrar más: El aviso no volverá a aparecer para ese huésped en las siguientes visitas.'
         ]
       },
       { type: 'tip', content: 'Usa títulos cortos y claros. El mensaje es donde puedes dar todos los detalles.' },
