@@ -1,0 +1,110 @@
+{
+  "hero": {
+    "badge": "Manuales digitales para alojamientos",
+    "title": "Deja de responder las mismas preguntas",
+    "titleHighlight": "una y otra vez",
+    "subtitle": "Crea manuales digitales interactivos para tus propiedades y reduce las consultas de huéspedes hasta un 80%",
+    "cta": "Empezar prueba de 15 días",
+    "secondaryCta": "Ver demo",
+    "trustedBy": "Confiado por +500 anfitriones"
+  },
+  "stats": {
+    "reduction": "Reducción de consultas",
+    "timeSaved": "Horas ahorradas/mes",
+    "satisfaction": "Satisfacción huéspedes",
+    "properties": "Propiedades gestionadas"
+  },
+  "features": {
+    "title": "Todo lo que necesitas para automatizar",
+    "subtitle": "Funcionalidades diseñadas para ahorrarte tiempo",
+    "qr": {
+      "title": "Códigos QR",
+      "description": "Genera códigos QR personalizados para cada propiedad que tus huéspedes pueden escanear"
+    },
+    "zones": {
+      "title": "Zonas personalizables",
+      "description": "Crea secciones para WiFi, check-in, normas, recomendaciones y más"
+    },
+    "multilang": {
+      "title": "Multiidioma",
+      "description": "Tu manual se traduce automáticamente al idioma del huésped"
+    },
+    "analytics": {
+      "title": "Analíticas",
+      "description": "Descubre qué secciones consultan más tus huéspedes"
+    },
+    "alerts": {
+      "title": "Alertas",
+      "description": "Notifica a tus huéspedes sobre obras, eventos o información importante"
+    },
+    "evaluations": {
+      "title": "Evaluaciones",
+      "description": "Recibe feedback de tus huéspedes sobre cada zona"
+    }
+  },
+  "howItWorks": {
+    "title": "Cómo funciona",
+    "subtitle": "En 3 simples pasos tendrás tu manual listo",
+    "step1": {
+      "title": "Crea tu propiedad",
+      "description": "Añade los datos básicos de tu alojamiento"
+    },
+    "step2": {
+      "title": "Configura las zonas",
+      "description": "Añade WiFi, check-in, normas, recomendaciones..."
+    },
+    "step3": {
+      "title": "Comparte con tus huéspedes",
+      "description": "Envía el enlace o imprime el código QR"
+    }
+  },
+  "pricing": {
+    "title": "Precios simples y transparentes",
+    "subtitle": "Elige el plan que mejor se adapte a tus necesidades",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "save": "Ahorra {{percent}}%",
+    "perProperty": "por propiedad",
+    "perMonth": "/mes",
+    "features": "Incluye",
+    "cta": "Empezar prueba de 15 días",
+    "popular": "Más popular",
+    "basic": {
+      "name": "Basic",
+      "description": "Para empezar"
+    },
+    "host": {
+      "name": "Host",
+      "description": "Para anfitriones activos"
+    },
+    "superhost": {
+      "name": "Superhost",
+      "description": "Para profesionales"
+    },
+    "business": {
+      "name": "Business",
+      "description": "Para gestores"
+    }
+  },
+  "testimonials": {
+    "title": "Lo que dicen nuestros usuarios",
+    "subtitle": "Anfitriones como tú que ya han automatizado su gestión"
+  },
+  "cta": {
+    "title": "¿Listo para ahorrar tiempo?",
+    "subtitle": "Únete a cientos de anfitriones que ya usan Itineramio",
+    "button": "Empezar prueba de 15 días",
+    "note": "Sin tarjeta de crédito · Cancela cuando quieras"
+  },
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "q1": "¿Cuánto tiempo tarda en configurarse?",
+    "a1": "La mayoría de usuarios tienen su primer manual listo en menos de 30 minutos.",
+    "q2": "¿Puedo probarlo gratis?",
+    "a2": "Sí, ofrecemos una prueba gratuita de 15 días sin compromiso.",
+    "q3": "¿Funciona con Airbnb y Booking?",
+    "a3": "Sí, puedes usar Itineramio con cualquier plataforma de reservas.",
+    "q4": "¿Mis huéspedes necesitan descargar algo?",
+    "a4": "No, el manual es una página web que funciona en cualquier dispositivo."
+  }
+}

@@ -1,0 +1,407 @@
+{
+  "common": {
+    "backToHub": "Back to Hub",
+    "preview": "Preview",
+    "required": "* Required field",
+    "configuration": "Configuration",
+    "downloadPng": "Download PNG (For web)",
+    "downloadSvg": "Download SVG (For print)",
+    "downloadChecklist": "Download checklist",
+    "printChecklist": "Print checklist",
+    "free": "Free",
+    "popular": "Popular",
+    "new": "New",
+    "comingSoon": "Coming Soon"
+  },
+  "hub": {
+    "badge": "Resource Center for Hosts",
+    "title": "Your complete toolbox",
+    "subtitle": "Free tools, downloadable templates and practical guides to manage your properties like a professional",
+    "searchPlaceholder": "Search tools, templates, guides...",
+    "clear": "Clear",
+    "resultsFound": "results found",
+    "searchResults": "Search results",
+    "resultFound": "result found",
+    "noResults": "No results found",
+    "tryOtherTerms": "Try other search terms",
+    "clearSearch": "Clear search",
+    "stats": {
+      "tools": "Active Tools",
+      "articles": "Articles",
+      "coming": "Coming Soon"
+    },
+    "sections": {
+      "freeTools": "Free Tools",
+      "freeToolsSubtitle": "Use these tools for free to improve your management",
+      "comingSoon": "Coming Soon",
+      "comingSoonSubtitle": "More tools in development",
+      "templates": "Downloadable Templates",
+      "templatesSubtitle": "Ready-to-use templates in Word and PDF",
+      "successStories": "Success Stories",
+      "successStoriesSubtitle": "Real results from hosts like you",
+      "articles": "Guides and Articles",
+      "articlesSubtitle": "Learn the best management practices"
+    },
+    "useTool": "Use tool",
+    "use": "Use",
+    "seeAllArticles": "See all articles",
+    "joinHosts": "Join 500+ successful hosts",
+    "cta": {
+      "title": "Ready to automate your business?",
+      "subtitle": "Join hundreds of hosts already using Itineramio",
+      "button": "Start free",
+      "note": "No credit card required. Free 15-day trial."
+    },
+    "types": {
+      "tool": "Tool",
+      "template": "Template",
+      "guide": "Guide"
+    },
+    "tools": {
+      "qrGenerator": {
+        "title": "QR Code Generator",
+        "description": "Create custom QR codes for your digital manual instantly"
+      },
+      "pricingCalculator": {
+        "title": "Airbnb Pricing Calculator",
+        "description": "Calculate the optimal price for your property based on location and amenities"
+      },
+      "cleaningChecklist": {
+        "title": "Cleaning Checklist",
+        "description": "Complete professional checklist for property cleaning"
+      },
+      "houseRules": {
+        "title": "House Rules Generator",
+        "description": "Create professional house rules ready to print"
+      },
+      "roiCalculator": {
+        "title": "ROI Calculator",
+        "description": "Calculate how much time and money you save by automating your management"
+      },
+      "wifiCard": {
+        "title": "WiFi Card Generator",
+        "description": "Create printable WiFi cards with your network and password"
+      },
+      "descriptionGenerator": {
+        "title": "AI Description Generator",
+        "description": "Create professional descriptions for your Airbnb listing"
+      },
+      "occupancyCalculator": {
+        "title": "Occupancy Calculator",
+        "description": "Calculate and optimize your monthly occupancy rate"
+      },
+      "checkinBuilder": {
+        "title": "Check-in Template Builder",
+        "description": "Create custom checklists for each check-in stage"
+      }
+    }
+  },
+  "wifiCard": {
+    "title": "WiFi Card Generator",
+    "subtitle": "Create printable WiFi cards for your property",
+    "badge": "Eliminate 86% of WiFi inquiries",
+    "shareTitle": "WiFi Card Generator - Itineramio",
+    "shareDescription": "Create printable WiFi cards with professional designs for your property. Eliminate 86% of WiFi inquiries!",
+    "step1": {
+      "title": "1. WiFi Information",
+      "propertyName": "Property name (optional)",
+      "propertyPlaceholder": "Ocean View Apartment",
+      "networkName": "WiFi network name *",
+      "networkPlaceholder": "My_WiFi_5G",
+      "password": "Password *"
+    },
+    "step2": {
+      "title": "2. Card style"
+    },
+    "step3": {
+      "title": "3. Receive your card by email",
+      "yourName": "Your name *",
+      "namePlaceholder": "John Smith",
+      "yourEmail": "Your email *",
+      "emailPlaceholder": "john@example.com",
+      "submit": "Send card to my email",
+      "submitting": "Sending...",
+      "emailNote": "You'll receive the printable card + usage tips"
+    },
+    "success": {
+      "title": "Card sent!",
+      "message": "Check your inbox at",
+      "createAnother": "Create another card →"
+    },
+    "errors": {
+      "completeFields": "Please complete all fields",
+      "invalidEmail": "Please enter a valid email",
+      "completeWifi": "Complete the WiFi details first",
+      "sendError": "Error sending. Please try again."
+    },
+    "card": {
+      "network": "Network:",
+      "password": "Password:",
+      "defaultNetwork": "Your_WiFi_Network"
+    },
+    "howToConnect": {
+      "title": "How to connect:",
+      "step1": "Open WiFi settings on your device",
+      "step2": "Find the network:",
+      "step3": "Enter the password exactly as shown",
+      "step4": "Done! You're connected"
+    },
+    "tips": {
+      "title": "Usage tips",
+      "tip1": "Print on high-quality paper for better durability",
+      "tip2": "Laminate the card to protect it from water",
+      "tip3": "Place it somewhere visible: entrance, table, fridge",
+      "tip4": "Print multiple copies for different locations"
+    },
+    "cta": {
+      "question": "Want to automate more inquiries?",
+      "action": "Create your complete digital manual with Itineramio →"
+    },
+    "styles": {
+      "modern": "Modern",
+      "minimal": "Minimalist",
+      "ocean": "Ocean",
+      "sunset": "Sunset",
+      "forest": "Forest",
+      "vintage": "Vintage",
+      "tropical": "Tropical",
+      "nordic": "Nordic",
+      "urban": "Urban",
+      "pastel": "Pastel"
+    }
+  },
+  "qrGenerator": {
+    "title": "QR Code Generator",
+    "subtitle": "Create custom QR codes for your digital manual",
+    "badge": "100% Free · No registration · Unlimited downloads",
+    "shareTitle": "QR Code Generator - Itineramio",
+    "shareDescription": "Create free custom QR codes for your digital manual. 100% free, no registration, unlimited downloads.",
+    "quickTemplates": "Quick templates",
+    "templates": {
+      "manual": "Digital Manual",
+      "wifi": "WiFi Network",
+      "contact": "Contact"
+    },
+    "urlLabel": "URL or text",
+    "urlPlaceholder": "https://www.itineramio.com/manual/your-property",
+    "urlHint": "Enter any URL, text, phone number or WiFi network",
+    "colorLabel": "QR Color",
+    "generateButton": "Generate QR Code",
+    "loading": "Loading...",
+    "configurePrompt": "Configure and generate your QR code",
+    "downloadReady": "Ready! You can now download your QR code",
+    "emailSent": "We've sent you an email with additional resources",
+    "tips": {
+      "title": "Pro tips",
+      "tip1": "Use short URLs for simpler, more scannable QR codes",
+      "tip2": "Print at minimum 3x3cm size for better readability",
+      "tip3": "Place the QR in visible locations near the entrance",
+      "tip4": "Always test the QR before printing in large quantities"
+    },
+    "cta": {
+      "question": "Don't have a digital manual yet?",
+      "action": "Create one free in 5 minutes with Itineramio →"
+    },
+    "leadModal": {
+      "title": "Download your QR code!",
+      "description": "Leave your email to receive more free resources for your business"
+    }
+  },
+  "cleaningChecklist": {
+    "title": "Professional Cleaning Checklist",
+    "subtitle": "Complete, customizable and downloadable template",
+    "badge": "tasks · 100% customizable · Free",
+    "shareTitle": "Professional Cleaning Checklist - Itineramio",
+    "shareDescription": "Complete and customizable checklist for vacation rental cleaning. Download and print for free.",
+    "customize": "Customize your checklist",
+    "propertyName": "Property name",
+    "propertyNamePlaceholder": "Ocean View Apartment",
+    "propertyAddress": "Address / Street",
+    "propertyAddressPlaceholder": "123 Main Street, Apt 2B, New York",
+    "designStyle": "Design style",
+    "progress": "Progress",
+    "tasksCompleted": "of {{total}} tasks completed",
+    "addCustomTask": "Add custom task",
+    "tips": {
+      "title": "Usage tips",
+      "tip1": "Customize by adding or removing tasks based on your property",
+      "tip2": "Print and laminate for better durability",
+      "tip3": "Leave a visible copy for your cleaning team",
+      "tip4": "Use a dry-erase marker to check tasks"
+    },
+    "sections": {
+      "kitchen": "🍳 Kitchen",
+      "bathroom": "🚿 Bathroom",
+      "bedroom": "🛏️ Bedroom",
+      "livingRoom": "🛋️ Living Room",
+      "general": "🏠 General"
+    },
+    "styles": {
+      "modern": "Modern",
+      "minimalist": "Minimalist",
+      "elegant": "Elegant",
+      "fresh": "Fresh",
+      "warm": "Warm",
+      "professional": "Professional"
+    },
+    "leadModal": {
+      "downloadTitle": "Download your checklist!",
+      "printTitle": "Print your checklist!",
+      "description": "Leave your email to receive more free resources for your business"
+    },
+    "successModal": {
+      "title": "Checklist sent!",
+      "message": "We've sent the checklist to your email. Check your inbox to download it."
+    },
+    "footer": "Created with Itineramio · itineramio.com",
+    "tasks": {
+      "kitchen": {
+        "cleanCountertop": "Clean countertop and table",
+        "cleanAppliances": "Clean appliances exterior",
+        "cleanMicrowave": "Clean microwave interior",
+        "cleanFridge": "Clean fridge interior",
+        "cleanBehindFridge": "Clean behind fridge",
+        "cleanHoodFilter": "Check and clean hood filter",
+        "cleanStovetop": "Clean stovetop/cooktop",
+        "cleanOven": "Clean oven interior",
+        "cleanDishwasher": "Empty and clean dishwasher",
+        "checkDishwasherFilter": "Check dishwasher filter",
+        "cleanSink": "Clean sink and faucet",
+        "restockCleaning": "Restock cleaning supplies"
+      },
+      "bathroom": {
+        "cleanToilet": "Clean and disinfect toilet",
+        "cleanSink": "Clean sink and faucet",
+        "cleanShower": "Clean shower/bathtub",
+        "cleanShowerDoor": "Clean shower door/curtain",
+        "cleanTiles": "Clean tiles and grout",
+        "cleanMirror": "Clean mirror",
+        "emptyTrash": "Empty trash",
+        "restockTowels": "Restock clean towels",
+        "restockToiletPaper": "Restock toilet paper",
+        "restockSoap": "Restock soap and shampoo",
+        "checkDrains": "Check drains"
+      },
+      "bedroom": {
+        "changeSheets": "Change and wash sheets",
+        "lintRollerSheets": "Lint roll sheets",
+        "makeBed": "Make the bed",
+        "cleanNightstands": "Clean nightstands",
+        "cleanClosetInside": "Clean closet inside",
+        "cleanClosetOutside": "Clean closet outside",
+        "checkHangers": "Check available hangers",
+        "cleanUnderBed": "Clean under the bed",
+        "vacuumMattress": "Vacuum mattress",
+        "emptyTrash": "Empty trash"
+      },
+      "livingRoom": {
+        "vacuumSofa": "Vacuum sofa and cushions",
+        "cleanCoffeeTable": "Clean coffee table",
+        "dustFurniture": "Dust furniture",
+        "cleanTV": "Clean TV and screens",
+        "checkRemotes": "Check remote controls",
+        "cleanWindowsInside": "Clean windows inside",
+        "cleanWindowTracks": "Clean window tracks",
+        "cleanBlinds": "Clean blinds",
+        "cleanCurtains": "Clean curtains if needed",
+        "emptyTrash": "Empty trash cans"
+      },
+      "general": {
+        "sweepMopFloors": "Sweep and mop all floors",
+        "vacuumRugs": "Vacuum rugs and doormats",
+        "cleanBaseboards": "Clean baseboards",
+        "cleanDoors": "Clean doors and handles",
+        "cleanSwitches": "Clean light switches",
+        "cleanRadiators": "Clean radiators",
+        "cleanACFilters": "Clean/replace AC filters",
+        "checkEverythingWorks": "Check everything works",
+        "restockConsumables": "Restock consumables (coffee, tea, etc.)",
+        "takeOutTrash": "Take out trash",
+        "ventilateRooms": "Ventilate all rooms",
+        "finalCheck": "Final order and presentation check"
+      }
+    }
+  },
+  "pricingCalculator": {
+    "title": "Pricing Calculator",
+    "subtitle": "Calculate the optimal price for your property",
+    "badge": "Based on 10,000+ successful properties",
+    "shareTitle": "Airbnb Pricing Calculator - Itineramio",
+    "shareDescription": "Calculate the optimal price for your property based on location, amenities and season.",
+    "propertyType": "Property type",
+    "location": "Location",
+    "capacity": "Capacity",
+    "maxGuests": "Maximum guests",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "amenities": "Amenities",
+    "season": "Season",
+    "propertyTypes": {
+      "apartment": "Apartment",
+      "house": "Entire house",
+      "room": "Private room",
+      "studio": "Studio",
+      "villa": "Villa/Chalet"
+    },
+    "locations": {
+      "cityCenter": "City center",
+      "beach": "Beach",
+      "mountain": "Mountain",
+      "suburban": "Suburban",
+      "rural": "Rural"
+    },
+    "seasons": {
+      "high": "High Season",
+      "medium": "Medium Season",
+      "low": "Low Season"
+    },
+    "amenitiesList": {
+      "pool": "Pool",
+      "parking": "Parking",
+      "wifi": "WiFi",
+      "kitchen": "Kitchen",
+      "ac": "Air conditioning",
+      "heating": "Heating",
+      "tv": "TV",
+      "workspace": "Workspace"
+    },
+    "results": {
+      "recommendedPrice": "Recommended Price",
+      "perNight": "/night",
+      "minimum": "Minimum",
+      "maximum": "Maximum",
+      "weekend": "Weekend:",
+      "weeklyDiscount": "Weekly discount:",
+      "monthlyDiscount": "Monthly discount:"
+    },
+    "projection": {
+      "title": "Income projection",
+      "occupancy50": "50% occupancy (15 nights/month):",
+      "occupancy70": "70% occupancy (21 nights/month):",
+      "occupancy90": "90% occupancy (27 nights/month):"
+    },
+    "emailButton": "Receive analysis by email",
+    "emailSent": {
+      "title": "Analysis sent to your email!",
+      "message": "Check your inbox. We've sent a PDF with your complete pricing analysis, including projections and personalized tips.",
+      "spam": "If you don't see it, check your spam folder."
+    },
+    "tips": {
+      "title": "Pricing tips",
+      "tip1": "Adjust prices based on local events and holidays",
+      "tip2": "Monitor direct competition in your area",
+      "tip3": "Offer discounts for early bookings",
+      "tip4": "Use dynamic pricing to maximize occupancy"
+    },
+    "cta": {
+      "title": "Want to automate your pricing?",
+      "subtitle": "Itineramio helps you manage availability and respond to inquiries automatically",
+      "button": "Start free"
+    },
+    "leadModal": {
+      "title": "Receive your pricing analysis",
+      "description": "We'll send you a professional PDF with your complete analysis, income projections and personalized tips",
+      "button": "Send to my email"
+    }
+  }
+}

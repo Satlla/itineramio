@@ -59,10 +59,10 @@ export default function RegisterPage() {
   })
 
   const passwordRequirements = [
-    { regex: /.{8,}/, text: 'Al menos 8 caracteres' },
-    { regex: /[A-Z]/, text: 'Una letra mayúscula' },
-    { regex: /[a-z]/, text: 'Una letra minúscula' },
-    { regex: /[0-9]/, text: 'Un número' },
+    { regex: /.{8,}/, textKey: 'register.passwordRequirements.minLength' },
+    { regex: /[A-Z]/, textKey: 'register.passwordRequirements.uppercase' },
+    { regex: /[a-z]/, textKey: 'register.passwordRequirements.lowercase' },
+    { regex: /[0-9]/, textKey: 'register.passwordRequirements.number' },
   ]
 
   const validateForm = () => {
@@ -75,47 +75,46 @@ export default function RegisterPage() {
       terms: ''
     }
 
-    // Validar nombre
+    // Validate name
     if (!formData.name.trim()) {
-      newErrors.name = 'El nombre es requerido'
+      newErrors.name = t('register.errors.nameRequired')
     } else if (formData.name.length < 2) {
-      newErrors.name = 'El nombre debe tener al menos 2 caracteres'
+      newErrors.name = t('register.errors.nameTooShort')
     }
 
-    // Validar email
+    // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!formData.email) {
-      newErrors.email = 'El email es requerido'
+      newErrors.email = t('register.errors.emailRequired')
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Email inválido'
+      newErrors.email = t('register.errors.emailInvalid')
     }
 
-    // Validar teléfono - regex más flexible para formatos internacionales
-    // Acepta: +34612345678, 612 345 678, +1 555 123 4567, (555) 123-4567, etc.
+    // Validate phone
     const phoneDigits = formData.phone.replace(/[\s\-\(\)\.]/g, '')
     if (!formData.phone) {
-      newErrors.phone = 'El teléfono es requerido'
+      newErrors.phone = t('register.errors.phoneRequired')
     } else if (!/^\+?[0-9]{7,15}$/.test(phoneDigits)) {
-      newErrors.phone = 'Teléfono inválido (mín. 7 dígitos)'
+      newErrors.phone = t('register.errors.invalidPhone')
     }
 
-    // Validar contraseña
+    // Validate password
     if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida'
+      newErrors.password = t('register.errors.passwordRequired')
     } else if (formData.password.length < 8) {
-      newErrors.password = 'La contraseña debe tener al menos 8 caracteres'
+      newErrors.password = t('register.errors.weakPassword')
     }
 
-    // Validar confirmación de contraseña
+    // Validate confirm password
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Debes confirmar tu contraseña'
+      newErrors.confirmPassword = t('register.errors.confirmRequired')
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Las contraseñas no coinciden'
+      newErrors.confirmPassword = t('register.errors.passwordMismatch')
     }
 
-    // Validar términos
+    // Validate terms
     if (!acceptTerms) {
-      newErrors.terms = 'Debes aceptar los términos y condiciones'
+      newErrors.terms = t('register.errors.termsRequired')
     }
 
     setErrors(newErrors)
@@ -168,7 +167,7 @@ export default function RegisterPage() {
           // Show general error
           setErrors(prev => ({
             ...prev,
-            email: data.error || 'Error en el registro'
+            email: data.error || t('register.errors.registrationError')
           }))
         }
         return
@@ -183,9 +182,9 @@ export default function RegisterPage() {
       
     } catch (error) {
       console.error('Registration error:', error)
-      setErrors(prev => ({ 
-        ...prev, 
-        email: 'Error de conexión. Inténtalo de nuevo.' 
+      setErrors(prev => ({
+        ...prev,
+        email: t('register.errors.connectionError')
       }))
     } finally {
       setLoading(false)
@@ -223,7 +222,7 @@ export default function RegisterPage() {
           <Link href="/">
             <Button variant="ghost" size="sm" className="h-8 sm:h-9">
               <ChevronLeft className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Volver</span>
+              <span className="hidden sm:inline">{t('common.back')}</span>
             </Button>
           </Link>
         </div>
@@ -242,10 +241,10 @@ export default function RegisterPage() {
             {/* Title */}
             <div className="text-center mb-6 sm:mb-8">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                Crea tu cuenta
+                {t('register.title')}
               </h1>
               <p className="text-sm sm:text-base text-gray-600">
-                Únete a miles de anfitriones que ya usan Itineramio
+                {t('register.subtitle')}
               </p>
             </div>
 
@@ -256,7 +255,7 @@ export default function RegisterPage() {
                   <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
                 </div>
                 <div className="text-xs sm:text-sm text-gray-700">
-                  <span className="font-semibold">15 días de evaluación:</span> Prueba todas las funcionalidades sin tarjeta de crédito.
+                  <span className="font-semibold">{t('register.trialBenefit')}</span> {t('register.trialDescription')}
                 </div>
               </div>
             </div>
@@ -274,10 +273,10 @@ export default function RegisterPage() {
                   </div>
                   <div>
                     <p className="text-sm sm:text-base font-semibold text-green-800">
-                      ¡Enlace de invitación válido!
+                      {t('register.referralValid')}
                     </p>
                     <p className="text-xs sm:text-sm text-green-600">
-                      Has sido invitado por un miembro de Itineramio
+                      {t('register.referralInvited')}
                     </p>
                   </div>
                 </div>
@@ -289,7 +288,7 @@ export default function RegisterPage() {
               {/* Name */}
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre completo
+                  {t('register.nameLabel')}
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -299,7 +298,7 @@ export default function RegisterPage() {
                     type="text"
                     value={formData.name}
                     onChange={handleInputChange}
-                    placeholder="Juan García"
+                    placeholder={t('register.namePlaceholder')}
                     className="pl-10"
                     error={!!errors.name}
                   />
@@ -312,7 +311,7 @@ export default function RegisterPage() {
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Correo electrónico
+                  {t('register.emailLabel')}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -335,7 +334,7 @@ export default function RegisterPage() {
               {/* Phone */}
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Teléfono móvil
+                  {t('register.phoneLabel')}
                 </label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -345,7 +344,7 @@ export default function RegisterPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    placeholder="+34 600 000 000"
+                    placeholder={t('register.phonePlaceholder')}
                     className="pl-10"
                     error={!!errors.phone}
                   />
@@ -358,7 +357,7 @@ export default function RegisterPage() {
               {/* Password */}
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                  Contraseña
+                  {t('register.password')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -390,8 +389,8 @@ export default function RegisterPage() {
                     {passwordRequirements.map((req, index) => (
                       <div key={index} className="flex items-center space-x-2">
                         <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
-                          req.regex.test(formData.password) 
-                            ? 'bg-green-500' 
+                          req.regex.test(formData.password)
+                            ? 'bg-green-500'
                             : 'bg-gray-300'
                         }`}>
                           {req.regex.test(formData.password) && (
@@ -399,11 +398,11 @@ export default function RegisterPage() {
                           )}
                         </div>
                         <span className={`text-xs ${
-                          req.regex.test(formData.password) 
-                            ? 'text-green-600' 
+                          req.regex.test(formData.password)
+                            ? 'text-green-600'
                             : 'text-gray-500'
                         }`}>
-                          {req.text}
+                          {t(req.textKey)}
                         </span>
                       </div>
                     ))}
@@ -414,7 +413,7 @@ export default function RegisterPage() {
               {/* Confirm Password */}
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirmar contraseña
+                  {t('register.confirmPassword')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -449,13 +448,13 @@ export default function RegisterPage() {
                     className="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 mt-0.5 flex-shrink-0"
                   />
                   <span className="text-xs sm:text-sm text-gray-600">
-                    <strong>*</strong> Acepto los{' '}
+                    {t('register.acceptTermsRequired')}{' '}
                     <Link href="/legal/terms" target="_blank" className="text-violet-600 hover:underline font-medium">
-                      términos y condiciones
+                      {t('register.termsLink')}
                     </Link>
-                    {' '}y la{' '}
+                    {' '}{t('register.andThe')}{' '}
                     <Link href="/legal/privacy" target="_blank" className="text-violet-600 hover:underline font-medium">
-                      política de privacidad
+                      {t('register.privacyLink')}
                     </Link>
                   </span>
                 </label>
@@ -472,7 +471,7 @@ export default function RegisterPage() {
                     className="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 mt-0.5 flex-shrink-0"
                   />
                   <span className="text-xs sm:text-sm text-gray-600">
-                    Deseo recibir comunicaciones de marketing, novedades y ofertas de Itineramio (opcional)
+                    {t('register.marketingConsent')}
                   </span>
                 </label>
               </div>
@@ -487,11 +486,11 @@ export default function RegisterPage() {
                 {loading ? (
                   <>
                     <InlineSpinner className="mr-2" color="white" />
-                    Creando cuenta...
+                    {t('register.creating')}
                   </>
                 ) : (
                   <>
-                    Crear cuenta
+                    {t('register.button')}
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </>
                 )}
@@ -500,9 +499,9 @@ export default function RegisterPage() {
 
             {/* Login Link */}
             <p className="mt-6 text-center text-sm text-gray-600">
-              ¿Ya tienes cuenta?{' '}
+              {t('register.hasAccount')}{' '}
               <Link href="/login" className="font-medium text-violet-600 hover:text-violet-500">
-                Inicia sesión
+                {t('register.signIn')}
               </Link>
             </p>
           </div>
@@ -516,8 +515,8 @@ export default function RegisterPage() {
           >
             <div className="flex items-center justify-center space-x-2 text-xs sm:text-sm text-gray-500">
               <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-              <span className="hidden sm:inline">Tu idioma de registro se guardará permanentemente</span>
-              <span className="sm:hidden">Idioma guardado permanentemente</span>
+              <span className="hidden sm:inline">{t('register.languageSaved')}</span>
+              <span className="sm:hidden">{t('register.languageSavedShort')}</span>
             </div>
           </motion.div>
         </motion.div>

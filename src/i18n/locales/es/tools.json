@@ -1,0 +1,407 @@
+{
+  "common": {
+    "backToHub": "Volver al Hub",
+    "preview": "Vista previa",
+    "required": "* Campo obligatorio",
+    "configuration": "Configuración",
+    "downloadPng": "Descargar PNG (Para web)",
+    "downloadSvg": "Descargar SVG (Para imprimir)",
+    "downloadChecklist": "Descargar checklist",
+    "printChecklist": "Imprimir checklist",
+    "free": "Gratis",
+    "popular": "Popular",
+    "new": "Nuevo",
+    "comingSoon": "Próximamente"
+  },
+  "hub": {
+    "badge": "Centro de Recursos para Anfitriones",
+    "title": "Tu caja de herramientas completa",
+    "subtitle": "Herramientas gratuitas, plantillas descargables y guías prácticas para gestionar tus alojamientos como un profesional",
+    "searchPlaceholder": "Buscar herramientas, plantillas, guías...",
+    "clear": "Limpiar",
+    "resultsFound": "resultados encontrados",
+    "searchResults": "Resultados de búsqueda",
+    "resultFound": "resultado encontrado",
+    "noResults": "No se encontraron resultados",
+    "tryOtherTerms": "Intenta con otros términos de búsqueda",
+    "clearSearch": "Limpiar búsqueda",
+    "stats": {
+      "tools": "Herramientas Activas",
+      "articles": "Artículos",
+      "coming": "Próximamente"
+    },
+    "sections": {
+      "freeTools": "Herramientas Gratuitas",
+      "freeToolsSubtitle": "Usa estas herramientas gratis para mejorar tu gestión",
+      "comingSoon": "Próximamente",
+      "comingSoonSubtitle": "Más herramientas en desarrollo",
+      "templates": "Plantillas Descargables",
+      "templatesSubtitle": "Templates listos para usar en Word y PDF",
+      "successStories": "Historias de éxito",
+      "successStoriesSubtitle": "Resultados reales de anfitriones como tú",
+      "articles": "Guías y Artículos",
+      "articlesSubtitle": "Aprende las mejores prácticas de gestión"
+    },
+    "useTool": "Usar herramienta",
+    "use": "Usar",
+    "seeAllArticles": "Ver todos los artículos",
+    "joinHosts": "Únete a +500 anfitriones exitosos",
+    "cta": {
+      "title": "¿Listo para automatizar tu negocio?",
+      "subtitle": "Únete a cientos de anfitriones que ya usan Itineramio",
+      "button": "Empezar gratis",
+      "note": "Sin tarjeta de crédito. Prueba gratis 15 días."
+    },
+    "types": {
+      "tool": "Herramienta",
+      "template": "Plantilla",
+      "guide": "Guía"
+    },
+    "tools": {
+      "qrGenerator": {
+        "title": "Generador de Códigos QR",
+        "description": "Crea códigos QR personalizados para tu manual digital al instante"
+      },
+      "pricingCalculator": {
+        "title": "Calculadora de Precios Airbnb",
+        "description": "Calcula el precio óptimo para tu alojamiento según ubicación y servicios"
+      },
+      "cleaningChecklist": {
+        "title": "Checklist de Limpieza",
+        "description": "Checklist completo profesional para limpieza de propiedades"
+      },
+      "houseRules": {
+        "title": "Generador de Normas",
+        "description": "Crea normas de la casa profesionales listas para imprimir"
+      },
+      "roiCalculator": {
+        "title": "Calculadora ROI",
+        "description": "Calcula cuánto tiempo y dinero ahorras automatizando tu gestión"
+      },
+      "wifiCard": {
+        "title": "Generador WiFi Card",
+        "description": "Crea tarjetas WiFi imprimibles con tu red y contraseña"
+      },
+      "descriptionGenerator": {
+        "title": "Generador de Descripciones IA",
+        "description": "Crea descripciones profesionales para tu listado de Airbnb"
+      },
+      "occupancyCalculator": {
+        "title": "Calculadora de Ocupación",
+        "description": "Calcula y optimiza tu tasa de ocupación mensual"
+      },
+      "checkinBuilder": {
+        "title": "Check-in Template Builder",
+        "description": "Crea checklists personalizados para cada etapa del check-in"
+      }
+    }
+  },
+  "wifiCard": {
+    "title": "Generador WiFi Card",
+    "subtitle": "Crea tarjetas WiFi imprimibles para tu alojamiento",
+    "badge": "Elimina el 86% de consultas sobre WiFi",
+    "shareTitle": "Generador WiFi Card - Itineramio",
+    "shareDescription": "Crea tarjetas WiFi imprimibles con diseños profesionales para tu alojamiento. ¡Elimina el 86% de consultas sobre WiFi!",
+    "step1": {
+      "title": "1. Información WiFi",
+      "propertyName": "Nombre de tu alojamiento (opcional)",
+      "propertyPlaceholder": "Apartamento Vista al Mar",
+      "networkName": "Nombre de la red WiFi *",
+      "networkPlaceholder": "Mi_WiFi_5G",
+      "password": "Contraseña *"
+    },
+    "step2": {
+      "title": "2. Estilo de tarjeta"
+    },
+    "step3": {
+      "title": "3. Recibe tu tarjeta por email",
+      "yourName": "Tu nombre *",
+      "namePlaceholder": "Juan Pérez",
+      "yourEmail": "Tu email *",
+      "emailPlaceholder": "juan@ejemplo.com",
+      "submit": "Enviar tarjeta a mi email",
+      "submitting": "Enviando...",
+      "emailNote": "Recibirás la tarjeta lista para imprimir + tips de uso"
+    },
+    "success": {
+      "title": "¡Tarjeta enviada!",
+      "message": "Revisa tu bandeja de entrada en",
+      "createAnother": "Crear otra tarjeta →"
+    },
+    "errors": {
+      "completeFields": "Por favor completa todos los campos",
+      "invalidEmail": "Por favor ingresa un email válido",
+      "completeWifi": "Completa los datos del WiFi primero",
+      "sendError": "Error al enviar. Inténtalo de nuevo."
+    },
+    "card": {
+      "network": "Red:",
+      "password": "Contraseña:",
+      "defaultNetwork": "Tu_Red_WiFi"
+    },
+    "howToConnect": {
+      "title": "Cómo conectarse:",
+      "step1": "Abre la configuración WiFi en tu dispositivo",
+      "step2": "Busca la red:",
+      "step3": "Introduce la contraseña exactamente como aparece",
+      "step4": "¡Listo! Ya estás conectado"
+    },
+    "tips": {
+      "title": "Tips de uso",
+      "tip1": "Imprime en papel de alta calidad para mejor durabilidad",
+      "tip2": "Plastifica la tarjeta para protegerla del agua",
+      "tip3": "Colócala en lugar visible: entrada, mesa, refrigerador",
+      "tip4": "Imprime varias copias para diferentes ubicaciones"
+    },
+    "cta": {
+      "question": "¿Quieres automatizar más consultas?",
+      "action": "Crea tu manual digital completo con Itineramio →"
+    },
+    "styles": {
+      "modern": "Moderno",
+      "minimal": "Minimalista",
+      "ocean": "Océano",
+      "sunset": "Atardecer",
+      "forest": "Bosque",
+      "vintage": "Vintage",
+      "tropical": "Tropical",
+      "nordic": "Nórdico",
+      "urban": "Urbano",
+      "pastel": "Pastel"
+    }
+  },
+  "qrGenerator": {
+    "title": "Generador de Códigos QR",
+    "subtitle": "Crea códigos QR personalizados para tu manual digital",
+    "badge": "100% Gratis · Sin registro · Descarga ilimitada",
+    "shareTitle": "Generador de Códigos QR - Itineramio",
+    "shareDescription": "Crea códigos QR personalizados gratis para tu manual digital. 100% gratis, sin registro, descarga ilimitada.",
+    "quickTemplates": "Plantillas rápidas",
+    "templates": {
+      "manual": "Manual Digital",
+      "wifi": "Red WiFi",
+      "contact": "Contacto"
+    },
+    "urlLabel": "URL o texto",
+    "urlPlaceholder": "https://www.itineramio.com/manual/tu-propiedad",
+    "urlHint": "Introduce cualquier URL, texto, teléfono o red WiFi",
+    "colorLabel": "Color del QR",
+    "generateButton": "Generar Código QR",
+    "loading": "Cargando...",
+    "configurePrompt": "Configura y genera tu código QR",
+    "downloadReady": "¡Listo! Ya puedes descargar tu código QR",
+    "emailSent": "Te hemos enviado un email con recursos adicionales",
+    "tips": {
+      "title": "Tips profesionales",
+      "tip1": "Usa URLs cortas para QR códigos más simples y escaneables",
+      "tip2": "Imprime en tamaño mínimo de 3x3cm para mejor legibilidad",
+      "tip3": "Coloca el QR en lugares visibles cerca de la entrada",
+      "tip4": "Prueba siempre el QR antes de imprimir en gran cantidad"
+    },
+    "cta": {
+      "question": "¿No tienes manual digital aún?",
+      "action": "Crea uno gratis en 5 minutos con Itineramio →"
+    },
+    "leadModal": {
+      "title": "¡Descarga tu código QR!",
+      "description": "Déjanos tu email para recibir más recursos gratuitos para tu negocio"
+    }
+  },
+  "cleaningChecklist": {
+    "title": "Checklist de Limpieza Profesional",
+    "subtitle": "Plantilla completa, personalizable y descargable",
+    "badge": "tareas · 100% personalizable · Gratis",
+    "shareTitle": "Checklist de Limpieza Profesional - Itineramio",
+    "shareDescription": "Checklist completo y personalizable para limpieza de alojamientos turísticos. Descarga e imprime gratis.",
+    "customize": "Personaliza tu checklist",
+    "propertyName": "Nombre de la propiedad",
+    "propertyNamePlaceholder": "Apartamento Vista al Mar",
+    "propertyAddress": "Dirección / Calle",
+    "propertyAddressPlaceholder": "Calle Gran Vía 45, 2ºB, Madrid",
+    "designStyle": "Estilo de diseño",
+    "progress": "Progreso",
+    "tasksCompleted": "de {{total}} tareas completadas",
+    "addCustomTask": "Añadir tarea personalizada",
+    "tips": {
+      "title": "Tips de uso",
+      "tip1": "Personaliza agregando o quitando tareas según tu propiedad",
+      "tip2": "Imprime y plastifica para mayor durabilidad",
+      "tip3": "Deja una copia visible para tu equipo de limpieza",
+      "tip4": "Usa un rotulador borrable para marcar tareas"
+    },
+    "sections": {
+      "kitchen": "🍳 Cocina",
+      "bathroom": "🚿 Baño",
+      "bedroom": "🛏️ Dormitorio",
+      "livingRoom": "🛋️ Salón",
+      "general": "🏠 General"
+    },
+    "styles": {
+      "modern": "Moderno",
+      "minimalist": "Minimalista",
+      "elegant": "Elegante",
+      "fresh": "Fresco",
+      "warm": "Cálido",
+      "professional": "Profesional"
+    },
+    "leadModal": {
+      "downloadTitle": "¡Descarga tu checklist!",
+      "printTitle": "¡Imprime tu checklist!",
+      "description": "Déjanos tu email para recibir más recursos gratuitos para tu negocio"
+    },
+    "successModal": {
+      "title": "¡Checklist enviado!",
+      "message": "Te hemos enviado el checklist a tu correo. Revisa tu bandeja de entrada para descargarlo."
+    },
+    "footer": "Creado con Itineramio · itineramio.com",
+    "tasks": {
+      "kitchen": {
+        "cleanCountertop": "Limpiar encimera y mesa",
+        "cleanAppliances": "Limpiar electrodomésticos por fuera",
+        "cleanMicrowave": "Limpiar interior de microondas",
+        "cleanFridge": "Limpiar interior de nevera",
+        "cleanBehindFridge": "Limpiar detrás de la nevera",
+        "cleanHoodFilter": "Revisar y limpiar filtro de extractor",
+        "cleanStovetop": "Limpiar placas/vitrocerámica",
+        "cleanOven": "Limpiar interior de horno",
+        "cleanDishwasher": "Vaciar y limpiar lavavajillas",
+        "checkDishwasherFilter": "Comprobar filtro del lavavajillas",
+        "cleanSink": "Limpiar fregadero y grifería",
+        "restockCleaning": "Reponer productos de limpieza"
+      },
+      "bathroom": {
+        "cleanToilet": "Limpiar y desinfectar inodoro",
+        "cleanSink": "Limpiar lavabo y grifería",
+        "cleanShower": "Limpiar ducha/bañera",
+        "cleanShowerDoor": "Limpiar mampara/cortina de ducha",
+        "cleanTiles": "Limpiar azulejos y juntas",
+        "cleanMirror": "Limpiar espejo",
+        "emptyTrash": "Vaciar papelera",
+        "restockTowels": "Reponer toallas limpias",
+        "restockToiletPaper": "Reponer papel higiénico",
+        "restockSoap": "Reponer jabón y champú",
+        "checkDrains": "Revisar desagües"
+      },
+      "bedroom": {
+        "changeSheets": "Cambiar y lavar sábanas",
+        "lintRollerSheets": "Pasar rodillo quitapelusas a sábanas",
+        "makeBed": "Hacer la cama",
+        "cleanNightstands": "Limpiar mesitas de noche",
+        "cleanClosetInside": "Limpiar armario por dentro",
+        "cleanClosetOutside": "Limpiar armario por fuera",
+        "checkHangers": "Comprobar perchas disponibles",
+        "cleanUnderBed": "Limpiar bajo la cama",
+        "vacuumMattress": "Aspirar colchón",
+        "emptyTrash": "Vaciar papelera"
+      },
+      "livingRoom": {
+        "vacuumSofa": "Aspirar sofá y cojines",
+        "cleanCoffeeTable": "Limpiar mesa de centro",
+        "dustFurniture": "Limpiar muebles (polvo)",
+        "cleanTV": "Limpiar TV y pantallas",
+        "checkRemotes": "Comprobar mandos a distancia",
+        "cleanWindowsInside": "Limpiar ventanas por dentro",
+        "cleanWindowTracks": "Limpiar raíles de ventanas",
+        "cleanBlinds": "Limpiar persianas",
+        "cleanCurtains": "Limpiar cortinas si necesario",
+        "emptyTrash": "Vaciar papeleras"
+      },
+      "general": {
+        "sweepMopFloors": "Barrer y fregar todos los suelos",
+        "vacuumRugs": "Aspirar alfombras y felpudos",
+        "cleanBaseboards": "Limpiar rodapiés",
+        "cleanDoors": "Limpiar puertas y pomos",
+        "cleanSwitches": "Limpiar interruptores",
+        "cleanRadiators": "Limpiar radiadores",
+        "cleanACFilters": "Limpiar/cambiar filtros aire acondicionado",
+        "checkEverythingWorks": "Comprobar que todo funciona",
+        "restockConsumables": "Reponer consumibles (café, té, etc.)",
+        "takeOutTrash": "Sacar basura",
+        "ventilateRooms": "Ventilar todas las habitaciones",
+        "finalCheck": "Verificar orden y presentación final"
+      }
+    }
+  },
+  "pricingCalculator": {
+    "title": "Calculadora de Precios",
+    "subtitle": "Calcula el precio óptimo para tu alojamiento",
+    "badge": "Basado en +10,000 alojamientos exitosos",
+    "shareTitle": "Calculadora de Precios Airbnb - Itineramio",
+    "shareDescription": "Calcula el precio óptimo para tu alojamiento según ubicación, servicios y temporada.",
+    "propertyType": "Tipo de propiedad",
+    "location": "Ubicación",
+    "capacity": "Capacidad",
+    "maxGuests": "Huéspedes máximos",
+    "bedrooms": "Dormitorios",
+    "bathrooms": "Baños",
+    "amenities": "Servicios",
+    "season": "Temporada",
+    "propertyTypes": {
+      "apartment": "Apartamento",
+      "house": "Casa entera",
+      "room": "Habitación privada",
+      "studio": "Estudio",
+      "villa": "Villa/Chalet"
+    },
+    "locations": {
+      "cityCenter": "Centro ciudad",
+      "beach": "Playa",
+      "mountain": "Montaña",
+      "suburban": "Suburbio",
+      "rural": "Rural"
+    },
+    "seasons": {
+      "high": "Temporada Alta",
+      "medium": "Temporada Media",
+      "low": "Temporada Baja"
+    },
+    "amenitiesList": {
+      "pool": "Piscina",
+      "parking": "Parking",
+      "wifi": "WiFi",
+      "kitchen": "Cocina",
+      "ac": "Aire acondicionado",
+      "heating": "Calefacción",
+      "tv": "TV",
+      "workspace": "Espacio de trabajo"
+    },
+    "results": {
+      "recommendedPrice": "Precio Recomendado",
+      "perNight": "/noche",
+      "minimum": "Mínimo",
+      "maximum": "Máximo",
+      "weekend": "Fin de semana:",
+      "weeklyDiscount": "Descuento semanal:",
+      "monthlyDiscount": "Descuento mensual:"
+    },
+    "projection": {
+      "title": "Proyección de ingresos",
+      "occupancy50": "Ocupación 50% (15 noches/mes):",
+      "occupancy70": "Ocupación 70% (21 noches/mes):",
+      "occupancy90": "Ocupación 90% (27 noches/mes):"
+    },
+    "emailButton": "Recibir análisis por email",
+    "emailSent": {
+      "title": "¡Análisis enviado a tu email!",
+      "message": "Revisa tu bandeja de entrada. Hemos enviado un PDF con tu análisis de precios completo, incluyendo proyecciones y consejos personalizados.",
+      "spam": "Si no lo ves, revisa la carpeta de spam."
+    },
+    "tips": {
+      "title": "Consejos de pricing",
+      "tip1": "Ajusta precios según eventos locales y festividades",
+      "tip2": "Monitorea competencia directa en tu zona",
+      "tip3": "Ofrece descuentos para reservas anticipadas",
+      "tip4": "Usa precios dinámicos para maximizar ocupación"
+    },
+    "cta": {
+      "title": "¿Quieres automatizar tu pricing?",
+      "subtitle": "Itineramio te ayuda a gestionar disponibilidad y responder consultas automáticamente",
+      "button": "Empezar gratis"
+    },
+    "leadModal": {
+      "title": "Recibe tu análisis de precios",
+      "description": "Te enviaremos un PDF profesional con tu análisis completo, proyecciones de ingresos y consejos personalizados",
+      "button": "Enviar a mi email"
+    }
+  }
+}

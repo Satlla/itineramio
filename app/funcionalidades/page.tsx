@@ -164,8 +164,8 @@ const features = [
 const benefits = [
   {
     icon: Clock,
-    title: 'Ahorra hasta 2.5 horas/mes',
-    description: 'Por cada propiedad en consultas repetitivas'
+    title: 'Ahorra hasta 8 horas/semana',
+    description: 'Reduciendo consultas repetitivas de huéspedes'
   },
   {
     icon: TrendingUp,

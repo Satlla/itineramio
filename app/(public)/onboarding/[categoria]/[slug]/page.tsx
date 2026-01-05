@@ -43,6 +43,8 @@ import {
   type ArticleSection,
   type OnboardingArticle
 } from '@/data/onboarding-articles'
+import { getRelatedFAQs } from '@/data/help-cross-links'
+import { HELP_CONTENT } from '@/data/help-content'
 
 // Generate consistent pseudo-random likes/dislikes based on article ID
 function generateArticleStats(articleId: string): { likes: number; dislikes: number } {
@@ -534,6 +536,16 @@ export default function ArticlePage() {
   const relatedArticles = useMemo(() => article ? getRelatedArticles(article.id) : [], [article])
   const categoryArticles = useMemo(() => getArticlesByCategory(categorySlug), [categorySlug])
 
+  // Get related FAQs from cross-links
+  const relatedFAQs = useMemo(() => {
+    if (!article) return []
+    const faqIds = getRelatedFAQs(article.slug)
+    return faqIds
+      .map(id => HELP_CONTENT.find(faq => faq.id === id))
+      .filter((faq): faq is typeof HELP_CONTENT[0] => faq !== undefined)
+      .slice(0, 3) // Limit to 3 FAQs
+  }, [article])
+
   if (!article || !category) {
     notFound()
   }
@@ -676,6 +688,29 @@ export default function ArticlePage() {
                     <div className="space-y-3">
                       {relatedArticles.map((related) => (
                         <RelatedArticleCard key={related.id} article={related} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Related FAQs */}
+                {relatedFAQs.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-3">Preguntas frecuentes</h3>
+                    <div className="space-y-2">
+                      {relatedFAQs.map((faq) => (
+                        <Link
+                          key={faq.id}
+                          href="/help"
+                          className="block p-3 rounded-lg bg-violet-50 hover:bg-violet-100 transition-colors group"
+                        >
+                          <p className="text-sm font-medium text-violet-900 group-hover:text-violet-700 line-clamp-2">
+                            {faq.title}
+                          </p>
+                          <p className="text-xs text-violet-600 mt-1 line-clamp-1">
+                            {faq.description}
+                          </p>
+                        </Link>
                       ))}
                     </div>
                   </div>

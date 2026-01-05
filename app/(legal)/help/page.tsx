@@ -113,6 +113,8 @@ export default function HelpPage() {
         return PlayCircle
       case 'blog':
         return Newspaper
+      case 'onboarding':
+        return Book
       default:
         return FileText
     }
@@ -131,6 +133,8 @@ export default function HelpPage() {
         return 'Tutorial'
       case 'blog':
         return 'Artículo'
+      case 'onboarding':
+        return 'Tutorial'
       default:
         return type
     }
@@ -146,6 +150,14 @@ export default function HelpPage() {
         icon: 'text-amber-600'
       }
     }
+    if (source === 'onboarding') {
+      return {
+        bg: 'bg-emerald-50',
+        text: 'text-emerald-700',
+        border: 'border-emerald-200',
+        icon: 'text-emerald-600'
+      }
+    }
     // help center
     return {
       bg: 'bg-violet-50',
@@ -157,7 +169,9 @@ export default function HelpPage() {
 
   // Get icon for source
   const getSourceIcon = (source: string) => {
-    return source === 'blog' ? Newspaper : LifeBuoy
+    if (source === 'blog') return Newspaper
+    if (source === 'onboarding') return Book
+    return LifeBuoy
   }
 
   const faqItems = [
@@ -820,6 +834,14 @@ export default function HelpPage() {
                     className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-amber-600 hover:bg-amber-700 text-white`}
                   >
                     Leer artículo completo
+                    <ExternalLink className="w-4 h-4" />
+                  </Link>
+                ) : selectedItem.source === 'onboarding' ? (
+                  <Link
+                    href={selectedItem.url}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-emerald-600 hover:bg-emerald-700 text-white`}
+                  >
+                    Ver tutorial completo
                     <ExternalLink className="w-4 h-4" />
                   </Link>
                 ) : (

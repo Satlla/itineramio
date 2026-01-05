@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  Mail, 
-  ArrowRight, 
+import {
+  Mail,
+  ArrowRight,
   RefreshCw,
   CheckCircle,
   Zap
@@ -12,8 +12,10 @@ import {
 import Link from 'next/link'
 import { Button } from '../../../src/components/ui'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 function VerifyRequiredContent() {
+  const { t } = useTranslation('auth')
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isResending, setIsResending] = useState(false)
@@ -92,29 +94,28 @@ function VerifyRequiredContent() {
 
             {/* Title */}
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              Verifica tu email
+              {t('verifyRequired.title')}
             </h1>
 
             {emailError && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
                 <p className="text-sm text-amber-800">
-                  ⚠️ <strong>Hubo un problema</strong> al enviar el email de verificación.
-                  Por favor, haz clic en "Reenviar email" para intentarlo de nuevo.
+                  ⚠️ {t('verifyRequired.errorWarning')}
                 </p>
               </div>
             )}
 
             <p className="text-gray-600 mb-6">
               {emailError
-                ? 'Tu cuenta fue creada. Reenvía el email de verificación para activarla.'
-                : 'Te hemos enviado un email de verificación. Por favor, revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.'}
+                ? t('verifyRequired.descriptionError')
+                : t('verifyRequired.description')}
             </p>
 
             {/* Email Input for Resend */}
             <div className="mb-6">
               <input
                 type="email"
-                placeholder="Ingresa tu email"
+                placeholder={t('verifyRequired.emailPlaceholder')}
                 value={userEmail}
                 onChange={(e) => setUserEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
@@ -127,7 +128,7 @@ function VerifyRequiredContent() {
                 <div className="flex items-center justify-center space-x-2">
                   <CheckCircle className="w-4 h-4 text-green-500" />
                   <span className="text-sm text-green-700">
-                    ¡Email enviado! Revisa tu bandeja de entrada.
+                    {t('verifyRequired.success')}
                   </span>
                 </div>
               </div>
@@ -143,11 +144,11 @@ function VerifyRequiredContent() {
               {isResending ? (
                 <>
                   <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Enviando...
+                  {t('verifyRequired.sending')}
                 </>
               ) : (
                 <>
-                  Reenviar email
+                  {t('verifyRequired.resendButton')}
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </>
               )}
@@ -155,21 +156,21 @@ function VerifyRequiredContent() {
 
             {/* Tips */}
             <div className="text-sm text-gray-500 space-y-2">
-              <p>💡 <strong>No encuentras el email?</strong></p>
+              <p>💡 <strong>{t('verifyRequired.tips.title')}</strong></p>
               <ul className="text-left space-y-1 ml-4">
-                <li>• Revisa tu carpeta de spam</li>
-                <li>• Asegúrate de que el email sea correcto</li>
-                <li>• El enlace expira en 24 horas</li>
+                <li>• {t('verifyRequired.tips.checkSpam')}</li>
+                <li>• {t('verifyRequired.tips.checkEmail')}</li>
+                <li>• {t('verifyRequired.tips.expiry')}</li>
               </ul>
             </div>
 
             {/* Back to Login */}
             <div className="mt-6 pt-6 border-t border-gray-100">
-              <Link 
+              <Link
                 href="/login"
                 className="text-sm text-violet-600 hover:text-violet-700 font-medium"
               >
-                ← Volver al login
+                ← {t('verifyRequired.backToLogin')}
               </Link>
             </div>
           </div>
@@ -179,9 +180,21 @@ function VerifyRequiredContent() {
   )
 }
 
+function LoadingFallback() {
+  const { t } = useTranslation('auth')
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-gray-600">{t('verifyRequired.loading')}</p>
+      </div>
+    </div>
+  )
+}
+
 export default function VerifyRequiredPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center"><div className="text-center"><div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div><p className="text-gray-600">Cargando...</p></div></div>}>
+    <Suspense fallback={<LoadingFallback />}>
       <VerifyRequiredContent />
     </Suspense>
   )

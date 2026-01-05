@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 
-// Resultado unificado de búsqueda (blog + ayuda)
+// Resultado unificado de búsqueda (blog + ayuda + onboarding)
 export interface UnifiedSearchResult {
   id: string
-  type: 'faq' | 'guide' | 'resource' | 'tutorial' | 'blog'
-  source: 'help' | 'blog'
+  type: 'faq' | 'guide' | 'resource' | 'tutorial' | 'blog' | 'onboarding'
+  source: 'help' | 'blog' | 'onboarding'
   sourceLabel: string
   title: string
   description: string
@@ -23,6 +23,7 @@ interface SearchResults {
   groupedBySource: Record<string, UnifiedSearchResult[]>
   total: number
   totalHelp: number
+  totalOnboarding: number
   totalBlog: number
   query: string
 }
@@ -34,6 +35,7 @@ export function useSearch(query: string, debounceMs: number = 300) {
     groupedBySource: {},
     total: 0,
     totalHelp: 0,
+    totalOnboarding: 0,
     totalBlog: 0,
     query: ''
   })
@@ -49,6 +51,7 @@ export function useSearch(query: string, debounceMs: number = 300) {
         groupedBySource: {},
         total: 0,
         totalHelp: 0,
+        totalOnboarding: 0,
         totalBlog: 0,
         query: ''
       })
@@ -78,6 +81,7 @@ export function useSearch(query: string, debounceMs: number = 300) {
           groupedBySource: {},
           total: 0,
           totalHelp: 0,
+          totalOnboarding: 0,
           totalBlog: 0,
           query
         })

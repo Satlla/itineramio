@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { HELP_CONTENT, HelpContent } from '../../../../src/data/help-content'
+import { onboardingArticles, OnboardingArticle } from '../../../../src/data/onboarding-articles'
 import { prisma } from '../../../../src/lib/prisma'
 
 // Función para normalizar texto: quita tildes, convierte a minúsculas
@@ -47,9 +48,9 @@ const BLOG_CATEGORY_LABELS: Record<string, string> = {
 
 export interface UnifiedSearchResult {
   id: string
-  type: 'faq' | 'guide' | 'resource' | 'tutorial' | 'blog'
-  source: 'help' | 'blog'  // De dónde viene: Centro de Ayuda o Blog
-  sourceLabel: string      // Etiqueta: "Centro de Ayuda" o "Blog"
+  type: 'faq' | 'guide' | 'resource' | 'tutorial' | 'blog' | 'onboarding'
+  source: 'help' | 'blog' | 'onboarding'  // De dónde viene: Centro de Ayuda, Blog o Onboarding
+  sourceLabel: string      // Etiqueta: "Centro de Ayuda", "Blog" o "Tutoriales"
   title: string
   description: string
   content?: string
@@ -101,7 +102,41 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // 2. BUSCAR EN ARTÍCULOS DEL BLOG (BD)
+    // 2. BUSCAR EN ARTÍCULOS DE ONBOARDING (Tutoriales)
+    const onboardingResults: UnifiedSearchResult[] = onboardingArticles.filter((article) => {
+      // Extraer texto de contenido
+      const contentText = article.content
+        .map(section => {
+          if (section.content) return section.content
+          if (section.items) return section.items.join(' ')
+          return ''
+        })
+        .join(' ')
+
+      const searchText = `${article.title} ${article.description} ${contentText} ${article.keywords.join(' ')}`
+      return fuzzyMatch(searchText, query)
+    }).map((article) => {
+      let score = 0
+      if (fuzzyMatch(article.title, query)) score += 12 // Boost para onboarding (tutoriales son prioritarios)
+      if (fuzzyMatch(article.description, query)) score += 6
+      if (article.keywords.some(kw => fuzzyMatch(kw, query))) score += 4
+
+      return {
+        id: article.id,
+        type: 'onboarding' as const,
+        source: 'onboarding' as const,
+        sourceLabel: 'Tutoriales',
+        title: article.title,
+        description: article.description,
+        tags: article.keywords,
+        url: `/onboarding/${article.categorySlug}/${article.slug}`,
+        category: article.category,
+        score,
+        readTime: article.readingTime
+      }
+    })
+
+    // 3. BUSCAR EN ARTÍCULOS DEL BLOG (BD)
     let blogResults: UnifiedSearchResult[] = []
     try {
       // Normalizar query para búsqueda más tolerante
@@ -170,12 +205,12 @@ export async function GET(request: NextRequest) {
       // Si falla la BD, continuamos solo con resultados estáticos
     }
 
-    // 3. COMBINAR Y ORDENAR TODOS LOS RESULTADOS
-    const allResults = [...helpResults, ...blogResults]
+    // 4. COMBINAR Y ORDENAR TODOS LOS RESULTADOS
+    const allResults = [...helpResults, ...onboardingResults, ...blogResults]
       .sort((a, b) => (b.score || 0) - (a.score || 0))
-      .slice(0, 15) // Limitar a 15 resultados
+      .slice(0, 20) // Limitar a 20 resultados
 
-    // 4. AGRUPAR POR FUENTE (para mostrar secciones)
+    // 5. AGRUPAR POR FUENTE (para mostrar secciones)
     const groupedBySource = allResults.reduce((acc, item) => {
       if (!acc[item.source]) {
         acc[item.source] = []
@@ -184,7 +219,7 @@ export async function GET(request: NextRequest) {
       return acc
     }, {} as Record<string, UnifiedSearchResult[]>)
 
-    // 5. AGRUPAR POR TIPO (para compatibilidad)
+    // 6. AGRUPAR POR TIPO (para compatibilidad)
     const groupedByType = allResults.reduce((acc, item) => {
       if (!acc[item.type]) {
         acc[item.type] = []
@@ -199,6 +234,7 @@ export async function GET(request: NextRequest) {
       groupedBySource,
       total: allResults.length,
       totalHelp: helpResults.length,
+      totalOnboarding: onboardingResults.length,
       totalBlog: blogResults.length,
       query
     })

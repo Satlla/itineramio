@@ -2,8 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import {
   QrCode,
   Download,
@@ -29,13 +29,15 @@ const qrColors = [
   { name: 'Black', color: '#000000', bg: '#ffffff' }
 ]
 
-const qrTemplates = [
-  { id: 'manual', label: 'Manual Digital', icon: Home, url: 'https://www.itineramio.com/manual/' },
-  { id: 'wifi', label: 'Red WiFi', icon: Wifi, url: 'WIFI:T:WPA;S:RedName;P:Password;;' },
-  { id: 'contact', label: 'Contacto', icon: Phone, url: 'tel:+34600000000' }
-]
-
 export default function QRGenerator() {
+  const { t } = useTranslation('tools')
+
+  const qrTemplates = [
+    { id: 'manual', label: t('qrGenerator.templates.manual'), icon: Home, url: 'https://www.itineramio.com/manual/' },
+    { id: 'wifi', label: t('qrGenerator.templates.wifi'), icon: Wifi, url: 'WIFI:T:WPA;S:RedName;P:Password;;' },
+    { id: 'contact', label: t('qrGenerator.templates.contact'), icon: Phone, url: 'tel:+34600000000' }
+  ]
+
   const [url, setUrl] = useState('')
   const [selectedColor, setSelectedColor] = useState(qrColors[0])
   const [qrCode, setQrCode] = useState<any>(null)
@@ -184,11 +186,11 @@ export default function QRGenerator() {
                 className="inline-flex items-center text-violet-600 hover:text-violet-700 font-medium group"
               >
                 <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                Volver al Hub
+                {t('common.backToHub')}
               </Link>
               <SocialShare
-                title="Generador de Códigos QR - Itineramio"
-                description="Crea códigos QR personalizados gratis para tu manual digital. 100% gratis, sin registro, descarga ilimitada."
+                title={t('qrGenerator.shareTitle')}
+                description={t('qrGenerator.shareDescription')}
               />
             </div>
 
@@ -198,17 +200,17 @@ export default function QRGenerator() {
               </div>
               <div>
                 <h1 className="text-5xl font-bold text-gray-900">
-                  Generador de Códigos QR
+                  {t('qrGenerator.title')}
                 </h1>
                 <p className="text-xl text-gray-600 mt-2">
-                  Crea códigos QR personalizados para tu manual digital
+                  {t('qrGenerator.subtitle')}
                 </p>
               </div>
             </div>
 
             <div className="inline-flex items-center space-x-2 px-4 py-2 bg-violet-50 rounded-full border border-violet-200">
               <Sparkles className="w-4 h-4 text-violet-600" />
-              <span className="text-sm font-medium text-violet-900">100% Gratis · Sin registro · Descarga ilimitada</span>
+              <span className="text-sm font-medium text-violet-900">{t('qrGenerator.badge')}</span>
             </div>
           </motion.div>
 
@@ -221,13 +223,13 @@ export default function QRGenerator() {
             >
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Configuración
+                  {t('common.configuration')}
                 </h2>
 
                 {/* Templates */}
                 <div className="mb-8">
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Plantillas rápidas
+                    {t('qrGenerator.quickTemplates')}
                   </label>
                   <div className="grid grid-cols-3 gap-3">
                     {qrTemplates.map((template) => {
@@ -251,14 +253,14 @@ export default function QRGenerator() {
                 {/* URL Input */}
                 <div className="mb-8">
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    URL o texto
+                    {t('qrGenerator.urlLabel')}
                   </label>
                   <div className="relative">
                     <input
                       type="text"
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
-                      placeholder="https://www.itineramio.com/manual/tu-propiedad"
+                      placeholder={t('qrGenerator.urlPlaceholder')}
                       className="w-full px-4 py-4 pr-12 border-2 border-gray-200 rounded-xl focus:border-violet-500 focus:outline-none text-gray-900 placeholder-gray-400"
                     />
                     <button
@@ -273,7 +275,7 @@ export default function QRGenerator() {
                     </button>
                   </div>
                   <p className="mt-2 text-sm text-gray-500">
-                    Introduce cualquier URL, texto, teléfono o red WiFi
+                    {t('qrGenerator.urlHint')}
                   </p>
                 </div>
 
@@ -281,7 +283,7 @@ export default function QRGenerator() {
                 <div className="mb-8">
                   <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
                     <Palette className="w-4 h-4 mr-2" />
-                    Color del QR
+                    {t('qrGenerator.colorLabel')}
                   </label>
                   <div className="grid grid-cols-6 gap-3">
                     {qrColors.map((color) => (
@@ -310,7 +312,7 @@ export default function QRGenerator() {
                   disabled={!url.trim() || !QRCodeStyling}
                   className="w-full py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-violet-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
-                  {!QRCodeStyling ? 'Cargando...' : 'Generar Código QR'}
+                  {!QRCodeStyling ? t('qrGenerator.loading') : t('qrGenerator.generateButton')}
                 </button>
               </div>
 
@@ -318,24 +320,24 @@ export default function QRGenerator() {
               <div className="mt-8 p-6 bg-blue-50 border-2 border-blue-200 rounded-2xl">
                 <h3 className="font-bold text-blue-900 mb-3 flex items-center">
                   <Sparkles className="w-5 h-5 mr-2" />
-                  Tips profesionales
+                  {t('qrGenerator.tips.title')}
                 </h3>
                 <ul className="space-y-2 text-sm text-blue-800">
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Usa URLs cortas para QR códigos más simples y escaneables</span>
+                    <span>{t('qrGenerator.tips.tip1')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Imprime en tamaño mínimo de 3x3cm para mejor legibilidad</span>
+                    <span>{t('qrGenerator.tips.tip2')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Coloca el QR en lugares visibles cerca de la entrada</span>
+                    <span>{t('qrGenerator.tips.tip3')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Prueba siempre el QR antes de imprimir en gran cantidad</span>
+                    <span>{t('qrGenerator.tips.tip4')}</span>
                   </li>
                 </ul>
               </div>
@@ -349,7 +351,7 @@ export default function QRGenerator() {
             >
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl sticky top-24">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Vista previa
+                  {t('common.preview')}
                 </h2>
 
                 {/* QR Code Container */}
@@ -360,7 +362,7 @@ export default function QRGenerator() {
                     <div className="text-center">
                       <QrCode className="w-24 h-24 text-gray-300 mx-auto mb-4" />
                       <p className="text-gray-500">
-                        Configura y genera tu código QR
+                        {t('qrGenerator.configurePrompt')}
                       </p>
                     </div>
                   )}
@@ -375,10 +377,10 @@ export default function QRGenerator() {
                         <div className="p-4 bg-green-50 border-2 border-green-200 rounded-xl mb-4">
                           <p className="text-green-800 font-medium flex items-center">
                             <Check className="w-5 h-5 mr-2" />
-                            ¡Listo! Ya puedes descargar tu código QR
+                            {t('qrGenerator.downloadReady')}
                           </p>
                           <p className="text-green-600 text-sm mt-1">
-                            Te hemos enviado un email con recursos adicionales
+                            {t('qrGenerator.emailSent')}
                           </p>
                         </div>
                         {/* Direct download buttons - no modal */}
@@ -387,14 +389,14 @@ export default function QRGenerator() {
                           className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all group"
                         >
                           <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                          Descargar PNG (Para web)
+                          {t('common.downloadPng')}
                         </button>
                         <button
                           onClick={() => downloadQR('svg')}
                           className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all group"
                         >
                           <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                          Descargar SVG (Para imprimir)
+                          {t('common.downloadSvg')}
                         </button>
                       </>
                     ) : (
@@ -405,14 +407,14 @@ export default function QRGenerator() {
                           className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all group"
                         >
                           <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                          Descargar PNG (Para web)
+                          {t('common.downloadPng')}
                         </button>
                         <button
                           onClick={() => handleDownloadClick('svg')}
                           className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all group"
                         >
                           <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                          Descargar SVG (Para imprimir)
+                          {t('common.downloadSvg')}
                         </button>
                       </>
                     )}
@@ -422,10 +424,10 @@ export default function QRGenerator() {
                 {/* Info Box */}
                 <div className="mt-6 p-4 bg-violet-50 rounded-xl">
                   <p className="text-sm text-violet-900">
-                    <strong>¿No tienes manual digital aún?</strong>
+                    <strong>{t('qrGenerator.cta.question')}</strong>
                     <br />
                     <Link href="/register" className="text-violet-600 hover:text-violet-700 font-semibold underline">
-                      Crea uno gratis en 5 minutos con Itineramio →
+                      {t('qrGenerator.cta.action')}
                     </Link>
                   </p>
                 </div>
@@ -443,9 +445,9 @@ export default function QRGenerator() {
           setPendingAction(null)
         }}
         onSubmit={handleLeadSubmit}
-        title="¡Descarga tu código QR!"
-        description="Déjanos tu email para recibir más recursos gratuitos para tu negocio"
-        downloadLabel={`Descargar ${pendingAction?.format.toUpperCase() || ''}`}
+        title={t('qrGenerator.leadModal.title')}
+        description={t('qrGenerator.leadModal.description')}
+        downloadLabel={`${t('common.downloadPng').split(' ')[0]} ${pendingAction?.format.toUpperCase() || ''}`}
       />
     </div>
   )

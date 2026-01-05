@@ -6,8 +6,10 @@ import { ArrowLeft, Mail } from 'lucide-react'
 import Link from 'next/link'
 import { Button, Input, Card, CardContent, CardHeader, CardTitle } from '../../../src/components/ui'
 import { InlineSpinner } from '../../../src/components/ui/Spinner'
+import { useTranslation } from 'react-i18next'
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation('auth')
   const [email, setEmail] = useState('')
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -37,20 +39,19 @@ export default function ForgotPasswordPage() {
                 <Mail className="w-8 h-8 text-green-600" />
               </div>
               <CardTitle className="text-2xl font-bold text-gray-900">
-                Email enviado
+                {t('forgotPassword.sent.title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center">
               <p className="text-gray-600 mb-6">
-                Te hemos enviado un enlace de restablecimiento a{' '}
-                <span className="font-semibold">{email}</span>
+                {t('forgotPassword.sent.description')}
               </p>
               <p className="text-sm text-gray-500 mb-8">
-                Revisa tu bandeja de entrada y carpeta de spam. El enlace expirará en 1 hora.
+                {t('forgotPassword.sent.checkSpam')}
               </p>
               <Link href="/login">
                 <Button className="w-full bg-violet-600 hover:bg-violet-700">
-                  Volver al login
+                  {t('forgotPassword.backToLogin')}
                 </Button>
               </Link>
             </CardContent>
@@ -70,18 +71,18 @@ export default function ForgotPasswordPage() {
         <Card className="backdrop-blur-sm bg-white/90 border-0 shadow-2xl">
           <CardHeader className="text-center pb-6">
             <CardTitle className="text-2xl font-bold text-gray-900">
-              Recuperar contraseña
+              {t('forgotPassword.title')}
             </CardTitle>
             <p className="text-gray-600 mt-2">
-              Introduce tu email y te enviaremos un enlace para restablecer tu contraseña
+              {t('forgotPassword.subtitle')}
             </p>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email
+                  {t('forgotPassword.email')}
                 </label>
                 <Input
                   type="email"
@@ -101,10 +102,10 @@ export default function ForgotPasswordPage() {
                 {isLoading ? (
                   <>
                     <InlineSpinner className="mr-2" color="white" />
-                    Enviando...
+                    {t('common.sending')}
                   </>
                 ) : (
-                  'Enviar enlace de recuperación'
+                  t('forgotPassword.button')
                 )}
               </Button>
             </form>
@@ -115,7 +116,7 @@ export default function ForgotPasswordPage() {
                 className="inline-flex items-center text-sm text-violet-600 hover:text-violet-700 font-medium"
               >
                 <ArrowLeft className="w-4 h-4 mr-1" />
-                Volver al login
+                {t('forgotPassword.backToLogin')}
               </Link>
             </div>
           </CardContent>

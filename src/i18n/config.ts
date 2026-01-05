@@ -2,189 +2,54 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
+// Import Spanish translations
+import esCommon from './locales/es/common.json'
+import esLanding from './locales/es/landing.json'
+import esAuth from './locales/es/auth.json'
+import esDashboard from './locales/es/dashboard.json'
+import esProperty from './locales/es/property.json'
+import esTools from './locales/es/tools.json'
+
+// Import English translations
+import enCommon from './locales/en/common.json'
+import enLanding from './locales/en/landing.json'
+import enAuth from './locales/en/auth.json'
+import enDashboard from './locales/en/dashboard.json'
+import enProperty from './locales/en/property.json'
+import enTools from './locales/en/tools.json'
+
+// Import French translations
+import frCommon from './locales/fr/common.json'
+import frLanding from './locales/fr/landing.json'
+import frAuth from './locales/fr/auth.json'
+import frDashboard from './locales/fr/dashboard.json'
+import frProperty from './locales/fr/property.json'
+import frTools from './locales/fr/tools.json'
+
 const resources = {
   es: {
-    common: {
-      navigation: {
-        home: "Inicio",
-        dashboard: "Panel",
-        properties: "Propiedades",
-        settings: "Configuración",
-        logout: "Cerrar sesión"
-      },
-      navbar: {
-        features: "Funcionalidades",
-        blog: "Blog",
-        academy: "Academia",
-        resources: "Recursos",
-        pricing: "Precios",
-        successStories: "Casos de Éxito",
-        compare: "Comparar",
-        login: "Iniciar Sesión",
-        register: "Registrarse",
-        searchArticles: "Buscar artículos...",
-        language: "Idioma"
-      },
-      footer: {
-        company: "Empresa",
-        product: "Producto",
-        support: "Soporte",
-        howItWorks: "¿Cómo funciona?",
-        successStories: "Casos de Éxito",
-        contact: "Contacto",
-        blog: "Blog",
-        features: "Características",
-        pricing: "Precios",
-        comparisons: "Comparativas",
-        resources: "Recursos",
-        help: "Ayuda",
-        faq: "Preguntas Frecuentes",
-        documentation: "Guías",
-        academy: "Academia",
-        tools: "Herramientas",
-        newsletter: "Newsletter",
-        newsletterDescription: "Recibe las últimas noticias y actualizaciones de Itineramio directamente en tu bandeja de entrada.",
-        subscribe: "Suscribirse",
-        copyright: "Todos los derechos reservados.",
-        privacy: "Privacidad",
-        terms: "Términos",
-        cookies: "Cookies",
-        language: "Idioma"
-      },
-      buttons: {
-        save: "Guardar",
-        cancel: "Cancelar",
-        getStarted: "Comenzar",
-        learnMore: "Saber más"
-      },
-      status: {
-        loading: "Cargando...",
-        success: "Éxito",
-        error: "Error"
-      }
-    }
+    common: esCommon,
+    landing: esLanding,
+    auth: esAuth,
+    dashboard: esDashboard,
+    property: esProperty,
+    tools: esTools
   },
   en: {
-    common: {
-      navigation: {
-        home: "Home",
-        dashboard: "Dashboard",
-        properties: "Properties",
-        settings: "Settings",
-        logout: "Logout"
-      },
-      navbar: {
-        features: "Features",
-        blog: "Blog",
-        academy: "Academy",
-        resources: "Resources",
-        pricing: "Pricing",
-        successStories: "Success Stories",
-        compare: "Compare",
-        login: "Login",
-        register: "Sign Up",
-        searchArticles: "Search articles...",
-        language: "Language"
-      },
-      footer: {
-        company: "Company",
-        product: "Product",
-        support: "Support",
-        howItWorks: "How it works",
-        successStories: "Success Stories",
-        contact: "Contact",
-        blog: "Blog",
-        features: "Features",
-        pricing: "Pricing",
-        comparisons: "Comparisons",
-        resources: "Resources",
-        help: "Help",
-        faq: "FAQ",
-        documentation: "Guides",
-        academy: "Academy",
-        tools: "Tools",
-        newsletter: "Newsletter",
-        newsletterDescription: "Get the latest news and updates from Itineramio directly in your inbox.",
-        subscribe: "Subscribe",
-        copyright: "All rights reserved.",
-        privacy: "Privacy",
-        terms: "Terms",
-        cookies: "Cookies",
-        language: "Language"
-      },
-      buttons: {
-        save: "Save",
-        cancel: "Cancel",
-        getStarted: "Get Started",
-        learnMore: "Learn More"
-      },
-      status: {
-        loading: "Loading...",
-        success: "Success",
-        error: "Error"
-      }
-    }
+    common: enCommon,
+    landing: enLanding,
+    auth: enAuth,
+    dashboard: enDashboard,
+    property: enProperty,
+    tools: enTools
   },
   fr: {
-    common: {
-      navigation: {
-        home: "Accueil",
-        dashboard: "Tableau de bord",
-        properties: "Propriétés",
-        settings: "Paramètres",
-        logout: "Déconnexion"
-      },
-      navbar: {
-        features: "Fonctionnalités",
-        blog: "Blog",
-        academy: "Académie",
-        resources: "Ressources",
-        pricing: "Tarifs",
-        successStories: "Témoignages",
-        compare: "Comparer",
-        login: "Connexion",
-        register: "S'inscrire",
-        searchArticles: "Rechercher des articles...",
-        language: "Langue"
-      },
-      footer: {
-        company: "Entreprise",
-        product: "Produit",
-        support: "Support",
-        howItWorks: "Comment ça marche",
-        successStories: "Témoignages",
-        contact: "Contact",
-        blog: "Blog",
-        features: "Fonctionnalités",
-        pricing: "Tarifs",
-        comparisons: "Comparatifs",
-        resources: "Ressources",
-        help: "Aide",
-        faq: "FAQ",
-        documentation: "Guides",
-        academy: "Académie",
-        tools: "Outils",
-        newsletter: "Newsletter",
-        newsletterDescription: "Recevez les dernières nouvelles et mises à jour d'Itineramio directement dans votre boîte mail.",
-        subscribe: "S'abonner",
-        copyright: "Tous droits réservés.",
-        privacy: "Confidentialité",
-        terms: "Conditions",
-        cookies: "Cookies",
-        language: "Langue"
-      },
-      buttons: {
-        save: "Enregistrer",
-        cancel: "Annuler",
-        getStarted: "Commencer",
-        learnMore: "En savoir plus"
-      },
-      status: {
-        loading: "Chargement...",
-        success: "Succès",
-        error: "Erreur"
-      }
-    }
+    common: frCommon,
+    landing: frLanding,
+    auth: frAuth,
+    dashboard: frDashboard,
+    property: frProperty,
+    tools: frTools
   }
 }
 
@@ -194,6 +59,8 @@ i18n
   .init({
     resources,
     fallbackLng: 'es',
+    defaultNS: 'common',
+    ns: ['common', 'landing', 'auth', 'dashboard', 'property', 'tools'],
     debug: false,
     interpolation: {
       escapeValue: false

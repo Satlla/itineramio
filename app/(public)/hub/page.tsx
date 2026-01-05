@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
@@ -22,6 +22,7 @@ import {
   Trophy,
   BarChart3
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Navbar } from '../../../src/components/layout/Navbar'
 
 // Animation variants
@@ -45,133 +46,121 @@ const scaleIn = {
   visible: { opacity: 1, scale: 1 }
 }
 
-// Herramientas interactivas - ACTIVAS (con embudo completo)
-const activeTools = [
+// Tool configs - titles/descriptions come from translations
+const activeToolsConfig = [
   {
     id: 'qr-generator',
-    title: 'Generador de Códigos QR',
-    description: 'Crea códigos QR personalizados para tu manual digital al instante',
+    titleKey: 'qrGenerator',
     icon: QrCode,
     color: 'from-violet-500 to-purple-600',
     bgColor: 'from-violet-50 to-purple-50',
     borderColor: 'border-violet-200',
     href: '/hub/tools/qr-generator',
-    badge: 'Gratis',
+    badgeKey: 'free',
     popular: true,
     active: true
   },
   {
     id: 'pricing-calculator',
-    title: 'Calculadora de Precios Airbnb',
-    description: 'Calcula el precio óptimo para tu alojamiento según ubicación y servicios',
+    titleKey: 'pricingCalculator',
     icon: Calculator,
     color: 'from-blue-500 to-cyan-600',
     bgColor: 'from-blue-50 to-cyan-50',
     borderColor: 'border-blue-200',
     href: '/hub/tools/pricing-calculator',
-    badge: 'Popular',
+    badgeKey: 'popular',
     popular: true,
     active: true
   },
   {
     id: 'cleaning-checklist',
-    title: 'Checklist de Limpieza',
-    description: 'Checklist completo profesional para limpieza de propiedades',
+    titleKey: 'cleaningChecklist',
     icon: Sparkles,
     color: 'from-emerald-500 to-green-600',
     bgColor: 'from-emerald-50 to-green-50',
     borderColor: 'border-emerald-200',
     href: '/hub/tools/cleaning-checklist',
-    badge: 'Nuevo',
+    badgeKey: 'new',
     popular: true,
     active: true
   },
   {
     id: 'house-rules',
-    title: 'Generador de Normas',
-    description: 'Crea normas de la casa profesionales listas para imprimir',
+    titleKey: 'houseRules',
     icon: FileText,
     color: 'from-amber-500 to-orange-600',
     bgColor: 'from-amber-50 to-orange-50',
     borderColor: 'border-amber-200',
     href: '/hub/tools/house-rules',
-    badge: 'Nuevo',
+    badgeKey: 'new',
     popular: true,
     active: true
   },
   {
     id: 'roi-calculator',
-    title: 'Calculadora ROI',
-    description: 'Calcula cuánto tiempo y dinero ahorras automatizando tu gestión',
+    titleKey: 'roiCalculator',
     icon: TrendingUp,
     color: 'from-rose-500 to-pink-600',
     bgColor: 'from-rose-50 to-pink-50',
     borderColor: 'border-rose-200',
     href: '/hub/tools/roi-calculator',
-    badge: 'Nuevo',
+    badgeKey: 'new',
     popular: true,
     active: true
   },
   {
     id: 'wifi-card',
-    title: 'Generador WiFi Card',
-    description: 'Crea tarjetas WiFi imprimibles con tu red y contraseña',
+    titleKey: 'wifiCard',
     icon: Wifi,
     color: 'from-sky-500 to-blue-600',
     bgColor: 'from-sky-50 to-blue-50',
     borderColor: 'border-sky-200',
     href: '/hub/tools/wifi-card',
-    badge: 'Nuevo',
+    badgeKey: 'new',
     popular: true,
     active: true
   }
 ]
 
-// Herramientas PRÓXIMAMENTE (sin embudo completo todavía)
-const comingSoonTools = [
+// Coming soon tools config
+const comingSoonToolsConfig = [
   {
     id: 'description-generator',
-    title: 'Generador de Descripciones IA',
-    description: 'Crea descripciones profesionales para tu listado de Airbnb',
+    titleKey: 'descriptionGenerator',
     icon: FileText,
     color: 'from-gray-400 to-gray-500',
     bgColor: 'from-gray-50 to-gray-100',
     borderColor: 'border-gray-200',
     href: '#',
-    badge: 'Próximamente',
+    badgeKey: 'comingSoon',
     popular: false,
     active: false
   },
   {
     id: 'occupancy-calculator',
-    title: 'Calculadora de Ocupación',
-    description: 'Calcula y optimiza tu tasa de ocupación mensual',
+    titleKey: 'occupancyCalculator',
     icon: BarChart3,
     color: 'from-gray-400 to-gray-500',
     bgColor: 'from-gray-50 to-gray-100',
     borderColor: 'border-gray-200',
     href: '#',
-    badge: 'Próximamente',
+    badgeKey: 'comingSoon',
     popular: false,
     active: false
   },
   {
     id: 'checkin-builder',
-    title: 'Check-in Template Builder',
-    description: 'Crea checklists personalizados para cada etapa del check-in',
+    titleKey: 'checkinBuilder',
     icon: CheckSquare,
     color: 'from-gray-400 to-gray-500',
     bgColor: 'from-gray-50 to-gray-100',
     borderColor: 'border-gray-200',
     href: '#',
-    badge: 'Próximamente',
+    badgeKey: 'comingSoon',
     popular: false,
     active: false
   }
 ]
-
-// Combinar para búsqueda
-const tools = [...activeTools, ...comingSoonTools]
 
 // Plantillas descargables
 const templates = [
@@ -245,8 +234,31 @@ const articles = [
 ]
 
 export default function KnowledgeHub() {
+  const { t } = useTranslation('tools')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+
+  // Generate tools with translations
+  const activeTools = useMemo(() =>
+    activeToolsConfig.map(tool => ({
+      ...tool,
+      title: t(`hub.tools.${tool.titleKey}.title`),
+      description: t(`hub.tools.${tool.titleKey}.description`),
+      badge: t(`common.${tool.badgeKey}`)
+    })), [t]
+  )
+
+  const comingSoonTools = useMemo(() =>
+    comingSoonToolsConfig.map(tool => ({
+      ...tool,
+      title: t(`hub.tools.${tool.titleKey}.title`),
+      description: t(`hub.tools.${tool.titleKey}.description`),
+      badge: t(`common.${tool.badgeKey}`)
+    })), [t]
+  )
+
+  // Combine for search
+  const tools = [...activeTools, ...comingSoonTools]
 
   // Filter functions
   const filterBySearch = (item: any) => {
@@ -312,21 +324,21 @@ export default function KnowledgeHub() {
               className="inline-flex items-center space-x-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 mb-6"
             >
               <Sparkles className="w-4 h-4 text-white" />
-              <span className="text-sm font-medium text-white">Centro de Recursos para Anfitriones</span>
+              <span className="text-sm font-medium text-white">{t('hub.badge')}</span>
             </motion.div>
 
             <motion.h1
               variants={fadeInUp}
               className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight"
             >
-              Tu caja de herramientas completa
+              {t('hub.title')}
             </motion.h1>
 
             <motion.p
               variants={fadeInUp}
               className="text-xl sm:text-2xl text-white/90 mb-12 leading-relaxed"
             >
-              Herramientas gratuitas, plantillas descargables y guías prácticas para gestionar tus alojamientos como un profesional
+              {t('hub.subtitle')}
             </motion.p>
 
             {/* Search Bar */}
@@ -338,7 +350,7 @@ export default function KnowledgeHub() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Buscar herramientas, plantillas, guías..."
+                  placeholder={t('hub.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border-2 border-transparent focus:border-violet-500 focus:outline-none text-gray-900 placeholder-gray-400 shadow-2xl"
@@ -348,13 +360,13 @@ export default function KnowledgeHub() {
                     onClick={() => setSearchQuery('')}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 font-medium text-sm"
                   >
-                    Limpiar
+                    {t('hub.clear')}
                   </button>
                 )}
               </div>
               {searchQuery && hasResults && (
                 <div className="mt-4 text-center text-white/90 text-sm">
-                  {allResults.length} resultados encontrados
+                  {allResults.length} {t('hub.resultsFound')}
                 </div>
               )}
             </motion.div>
@@ -366,15 +378,15 @@ export default function KnowledgeHub() {
             >
               <motion.div variants={scaleIn} className="text-center">
                 <div className="text-4xl font-bold text-white mb-2">6</div>
-                <div className="text-white/80 text-sm">Herramientas Activas</div>
+                <div className="text-white/80 text-sm">{t('hub.stats.tools')}</div>
               </motion.div>
               <motion.div variants={scaleIn} className="text-center">
                 <div className="text-4xl font-bold text-white mb-2">30+</div>
-                <div className="text-white/80 text-sm">Artículos</div>
+                <div className="text-white/80 text-sm">{t('hub.stats.articles')}</div>
               </motion.div>
               <motion.div variants={scaleIn} className="text-center">
                 <div className="text-4xl font-bold text-white mb-2">3</div>
-                <div className="text-white/80 text-sm">Próximamente</div>
+                <div className="text-white/80 text-sm">{t('hub.stats.coming')}</div>
               </motion.div>
             </motion.div>
           </motion.div>
@@ -393,10 +405,10 @@ export default function KnowledgeHub() {
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="text-4xl font-bold text-gray-900 mb-3">
-                    Resultados de búsqueda
+                    {t('hub.searchResults')}
                   </h2>
                   <p className="text-xl text-gray-600">
-                    {allResults.length} {allResults.length === 1 ? 'resultado encontrado' : 'resultados encontrados'} para "{searchQuery}"
+                    {allResults.length} {allResults.length === 1 ? t('hub.resultFound') : t('hub.resultsFound')} para "{searchQuery}"
                   </p>
                 </div>
                 <Search className="w-12 h-12 text-violet-600" />
@@ -411,13 +423,13 @@ export default function KnowledgeHub() {
                 className="text-center py-16"
               >
                 <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">No se encontraron resultados</h3>
-                <p className="text-gray-600 mb-4">Intenta con otros términos de búsqueda</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">{t('hub.noResults')}</h3>
+                <p className="text-gray-600 mb-4">{t('hub.tryOtherTerms')}</p>
                 <button
                   onClick={() => setSearchQuery('')}
                   className="text-violet-600 hover:text-violet-700 font-semibold"
                 >
-                  Limpiar búsqueda
+                  {t('hub.clearSearch')}
                 </button>
               </motion.div>
             )}
@@ -486,7 +498,7 @@ export default function KnowledgeHub() {
                             )}
                             {isTool && (
                               <div className="flex items-center text-violet-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
-                                Usar <ArrowRight className="ml-1 w-4 h-4" />
+                                {t('hub.use')} <ArrowRight className="ml-1 w-4 h-4" />
                               </div>
                             )}
                           </div>
@@ -514,10 +526,10 @@ export default function KnowledgeHub() {
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="text-4xl font-bold text-gray-900 mb-3">
-                    Herramientas Gratuitas
+                    {t('hub.sections.freeTools')}
                   </h2>
                   <p className="text-xl text-gray-600">
-                    Usa estas herramientas gratis para mejorar tu gestión
+                    {t('hub.sections.freeToolsSubtitle')}
                   </p>
                 </div>
                 <Zap className="w-12 h-12 text-violet-600" />
@@ -572,7 +584,7 @@ export default function KnowledgeHub() {
 
                         {/* CTA */}
                         <div className="flex items-center text-violet-600 font-semibold group-hover:translate-x-2 transition-transform">
-                          Usar herramienta <ArrowRight className="ml-2 w-4 h-4" />
+                          {t('hub.useTool')} <ArrowRight className="ml-2 w-4 h-4" />
                         </div>
                       </div>
                     </Link>
@@ -588,8 +600,8 @@ export default function KnowledgeHub() {
               viewport={{ once: true }}
               className="mb-8"
             >
-              <h3 className="text-2xl font-bold text-gray-400 mb-2">Próximamente</h3>
-              <p className="text-gray-400">Más herramientas en desarrollo</p>
+              <h3 className="text-2xl font-bold text-gray-400 mb-2">{t('hub.sections.comingSoon')}</h3>
+              <p className="text-gray-400">{t('hub.sections.comingSoonSubtitle')}</p>
             </motion.div>
 
             <motion.div
@@ -647,10 +659,10 @@ export default function KnowledgeHub() {
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="text-4xl font-bold text-gray-900 mb-3">
-                    Plantillas Descargables
+                    {t('hub.sections.templates')}
                   </h2>
                   <p className="text-xl text-gray-600">
-                    Templates listos para usar en Word y PDF
+                    {t('hub.sections.templatesSubtitle')}
                   </p>
                 </div>
                 <Download className="w-12 h-12 text-blue-600" />
@@ -722,14 +734,14 @@ export default function KnowledgeHub() {
               className="inline-flex items-center space-x-2 px-4 py-2 bg-white rounded-full border border-violet-200 mb-6"
             >
               <Trophy className="w-4 h-4 text-violet-600" />
-              <span className="text-sm font-medium text-violet-900">Historias de éxito</span>
+              <span className="text-sm font-medium text-violet-900">{t('hub.sections.successStories')}</span>
             </motion.div>
 
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Resultados reales de anfitriones como tú
+              {t('hub.sections.successStoriesSubtitle')}
             </h2>
             <p className="text-xl text-gray-600">
-              Descubre cómo otros anfitriones transformaron su gestión
+              {t('hub.sections.successStoriesSubtitle')}
             </p>
           </motion.div>
 
@@ -884,7 +896,7 @@ export default function KnowledgeHub() {
                 whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center px-12 py-5 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white rounded-full text-xl font-bold hover:shadow-2xl hover:shadow-violet-500/30 transition-all group"
               >
-                Únete a +500 anfitriones exitosos
+                {t('hub.joinHosts')}
                 <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
               </motion.button>
             </Link>
@@ -906,10 +918,10 @@ export default function KnowledgeHub() {
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="text-4xl font-bold text-gray-900 mb-3">
-                    Guías y Artículos
+                    {t('hub.sections.articles')}
                   </h2>
                   <p className="text-xl text-gray-600">
-                    Aprende las mejores prácticas de gestión
+                    {t('hub.sections.articlesSubtitle')}
                   </p>
                 </div>
                 <BookOpen className="w-12 h-12 text-green-600" />
@@ -965,7 +977,7 @@ export default function KnowledgeHub() {
                 whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-full text-lg font-semibold hover:shadow-xl transition-all group"
               >
-                Ver todos los artículos
+                {t('hub.seeAllArticles')}
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </motion.button>
             </Link>
@@ -984,10 +996,10 @@ export default function KnowledgeHub() {
             viewport={{ once: true }}
           >
             <h2 className="text-5xl font-bold text-white mb-6">
-              ¿Listo para automatizar tu negocio?
+              {t('hub.cta.title')}
             </h2>
             <p className="text-2xl text-white/90 mb-12">
-              Únete a cientos de anfitriones que ya usan Itineramio
+              {t('hub.cta.subtitle')}
             </p>
 
             <Link href="/register">
@@ -996,13 +1008,13 @@ export default function KnowledgeHub() {
                 whileTap={{ scale: 0.95 }}
                 className="inline-flex items-center px-12 py-5 bg-white text-violet-600 rounded-full text-xl font-bold hover:shadow-2xl transition-all group"
               >
-                Empezar gratis
+                {t('hub.cta.button')}
                 <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
               </motion.button>
             </Link>
 
             <p className="mt-6 text-white/80 text-sm">
-              Sin tarjeta de crédito. Prueba gratis 15 días.
+              {t('hub.cta.note')}
             </p>
           </motion.div>
         </div>

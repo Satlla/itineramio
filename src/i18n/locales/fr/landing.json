@@ -1,0 +1,110 @@
+{
+  "hero": {
+    "badge": "Manuels numériques pour hébergements",
+    "title": "Arrêtez de répondre aux mêmes questions",
+    "titleHighlight": "encore et encore",
+    "subtitle": "Créez des manuels numériques interactifs pour vos propriétés et réduisez les demandes des clients jusqu'à 80%",
+    "cta": "Démarrer l'essai de 15 jours",
+    "secondaryCta": "Voir la démo",
+    "trustedBy": "Plus de 500 hôtes nous font confiance"
+  },
+  "stats": {
+    "reduction": "Réduction des demandes",
+    "timeSaved": "Heures économisées/mois",
+    "satisfaction": "Satisfaction des clients",
+    "properties": "Propriétés gérées"
+  },
+  "features": {
+    "title": "Tout ce dont vous avez besoin pour automatiser",
+    "subtitle": "Des fonctionnalités conçues pour vous faire gagner du temps",
+    "qr": {
+      "title": "Codes QR",
+      "description": "Générez des codes QR personnalisés pour chaque propriété que vos clients peuvent scanner"
+    },
+    "zones": {
+      "title": "Zones personnalisables",
+      "description": "Créez des sections pour WiFi, check-in, règles, recommandations et plus encore"
+    },
+    "multilang": {
+      "title": "Multilingue",
+      "description": "Votre manuel est automatiquement traduit dans la langue du client"
+    },
+    "analytics": {
+      "title": "Analytiques",
+      "description": "Découvrez quelles sections vos clients consultent le plus"
+    },
+    "alerts": {
+      "title": "Alertes",
+      "description": "Informez vos clients des travaux, événements ou informations importantes"
+    },
+    "evaluations": {
+      "title": "Évaluations",
+      "description": "Recevez les commentaires de vos clients sur chaque zone"
+    }
+  },
+  "howItWorks": {
+    "title": "Comment ça marche",
+    "subtitle": "En 3 étapes simples, votre manuel sera prêt",
+    "step1": {
+      "title": "Créez votre propriété",
+      "description": "Ajoutez les informations de base de votre hébergement"
+    },
+    "step2": {
+      "title": "Configurez les zones",
+      "description": "Ajoutez WiFi, check-in, règles, recommandations..."
+    },
+    "step3": {
+      "title": "Partagez avec vos clients",
+      "description": "Envoyez le lien ou imprimez le code QR"
+    }
+  },
+  "pricing": {
+    "title": "Tarifs simples et transparents",
+    "subtitle": "Choisissez le plan qui correspond le mieux à vos besoins",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "save": "Économisez {{percent}}%",
+    "perProperty": "par propriété",
+    "perMonth": "/mois",
+    "features": "Inclus",
+    "cta": "Démarrer l'essai de 15 jours",
+    "popular": "Le plus populaire",
+    "basic": {
+      "name": "Basic",
+      "description": "Pour commencer"
+    },
+    "host": {
+      "name": "Host",
+      "description": "Pour les hôtes actifs"
+    },
+    "superhost": {
+      "name": "Superhost",
+      "description": "Pour les professionnels"
+    },
+    "business": {
+      "name": "Business",
+      "description": "Pour les gestionnaires"
+    }
+  },
+  "testimonials": {
+    "title": "Ce que disent nos utilisateurs",
+    "subtitle": "Des hôtes comme vous qui ont déjà automatisé leur gestion"
+  },
+  "cta": {
+    "title": "Prêt à gagner du temps ?",
+    "subtitle": "Rejoignez des centaines d'hôtes qui utilisent déjà Itineramio",
+    "button": "Démarrer l'essai de 15 jours",
+    "note": "Sans carte de crédit · Annulez quand vous voulez"
+  },
+  "faq": {
+    "title": "Questions fréquentes",
+    "q1": "Combien de temps faut-il pour configurer ?",
+    "a1": "La plupart des utilisateurs ont leur premier manuel prêt en moins de 30 minutes.",
+    "q2": "Puis-je l'essayer gratuitement ?",
+    "a2": "Oui, nous offrons un essai gratuit de 15 jours sans engagement.",
+    "q3": "Est-ce compatible avec Airbnb et Booking ?",
+    "a3": "Oui, vous pouvez utiliser Itineramio avec n'importe quelle plateforme de réservation.",
+    "q4": "Mes clients doivent-ils télécharger quelque chose ?",
+    "a4": "Non, le manuel est une page web qui fonctionne sur n'importe quel appareil."
+  }
+}

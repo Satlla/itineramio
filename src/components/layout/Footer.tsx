@@ -37,7 +37,7 @@ export function Footer() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              Crea manuales digitales interactivos para tus alojamientos. Automatiza la experiencia de tus huéspedes con códigos QR y reduce las consultas hasta un 80%.
+              {t('meta.siteDescription', 'Crea manuales digitales interactivos para tus alojamientos turísticos')}
             </motion.p>
 
             {/* Contact Info */}

@@ -1,14 +1,70 @@
 {
   "welcome": {
+    "greeting": "Hola, {{name}} 👋",
+    "subtitle": "Aquí tienes un resumen de tus propiedades y manuales",
     "title": "¡Hola, {{name}}!",
-    "subtitle": "Gestiona tus propiedades y manuales desde aquí",
     "getStarted": "Comenzar"
   },
   "stats": {
+    "properties": "Propiedades",
+    "views": "Vistas",
+    "minutesSaved": "Min. ahorrados",
+    "zonesViewed": "Zonas vistas",
     "totalProperties": "Propiedades totales",
     "activeManuals": "Manuales activos",
     "totalViews": "Visualizaciones totales",
     "thisMonth": "Este mes"
+  },
+  "properties": {
+    "title": "Mis Propiedades",
+    "addProperty": "Añadir propiedad",
+    "noProperties": "No tienes propiedades aún",
+    "createFirst": "Crea tu primera propiedad",
+    "viewAll": "Ver todas las propiedades",
+    "rooms": "hab",
+    "bathrooms": "baños",
+    "guests": "huéspedes",
+    "zones": "zonas",
+    "active": "Activa",
+    "inactive": "Inactiva",
+    "inGroup": "En conjunto",
+    "edit": "Editar",
+    "manage": "Gestionar propiedad",
+    "duplicate": "Duplicar",
+    "publicView": "Vista pública",
+    "delete": "Eliminar",
+    "share": "Compartir",
+    "linkCopied": "Enlace copiado",
+    "deleteConfirm": "¿Estás seguro de que quieres eliminar la propiedad \"{{name}}\"? Esta acción no se puede deshacer.",
+    "deleteError": "Error al eliminar la propiedad. Por favor, inténtalo de nuevo."
+  },
+  "propertySets": {
+    "title": "Conjuntos de Propiedades",
+    "infoTitle": "¿Qué son los Conjuntos de Propiedades?",
+    "infoDescription": "Los conjuntos agrupan propiedades que pertenecen a un mismo edificio, hotel, complejo o resort. Ideal para gestionar múltiples apartamentos en un mismo lugar con información compartida.",
+    "properties": "Propiedades",
+    "zones": "Zonas",
+    "views": "Vistas",
+    "manage": "Gestionar",
+    "edit": "Editar",
+    "share": "Compartir",
+    "viewAll": "Ver todos los conjuntos",
+    "types": {
+      "hotel": "Hotel",
+      "building": "Edificio",
+      "complex": "Complejo",
+      "resort": "Resort",
+      "hostel": "Hostel",
+      "aparthotel": "Aparthotel"
+    }
+  },
+  "activity": {
+    "title": "Actividad Reciente",
+    "noActivity": "No hay actividad reciente"
+  },
+  "loading": {
+    "dashboard": "Cargando tu panel...",
+    "general": "Cargando..."
   },
   "quickActions": {
     "title": "Acciones rápidas",
@@ -16,25 +72,6 @@
     "createManual": "Crear manual",
     "uploadMedia": "Subir archivos",
     "viewAnalytics": "Ver estadísticas"
-  },
-  "recentActivity": {
-    "title": "Actividad reciente",
-    "noActivity": "No hay actividad reciente",
-    "propertyCreated": "Propiedad creada",
-    "manualPublished": "Manual publicado",
-    "mediaUploaded": "Archivos subidos",
-    "guestViewed": "Huésped vio el manual"
-  },
-  "properties": {
-    "title": "Mis propiedades",
-    "viewAll": "Ver todas",
-    "noProperties": "No tienes propiedades aún",
-    "createFirst": "Crea tu primera propiedad",
-    "edit": "Editar",
-    "view": "Ver",
-    "duplicate": "Duplicar",
-    "archive": "Archivar",
-    "delete": "Eliminar"
   },
   "navigation": {
     "overview": "Resumen",

@@ -56,7 +56,7 @@ const comparisons = [
     tagline: 'El líder del mercado',
     description: 'Touch Stay es el software de manuales más conocido a nivel mundial. Compara precios, funcionalidades y descubre por qué Itineramio es la mejor alternativa en español.',
     highlights: [
-      { label: '25% más económico', positive: true },
+      { label: 'Duplicación masiva (50 props)', positive: true },
       { label: 'QR por zona (exclusivo)', positive: true },
       { label: 'Soporte en español', positive: true },
     ],

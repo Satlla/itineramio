@@ -1,0 +1,110 @@
+{
+  "hero": {
+    "badge": "Digital manuals for accommodations",
+    "title": "Stop answering the same questions",
+    "titleHighlight": "over and over again",
+    "subtitle": "Create interactive digital manuals for your properties and reduce guest inquiries by up to 80%",
+    "cta": "Start 15-day trial",
+    "secondaryCta": "View demo",
+    "trustedBy": "Trusted by 500+ hosts"
+  },
+  "stats": {
+    "reduction": "Query reduction",
+    "timeSaved": "Hours saved/month",
+    "satisfaction": "Guest satisfaction",
+    "properties": "Properties managed"
+  },
+  "features": {
+    "title": "Everything you need to automate",
+    "subtitle": "Features designed to save you time",
+    "qr": {
+      "title": "QR Codes",
+      "description": "Generate custom QR codes for each property that your guests can scan"
+    },
+    "zones": {
+      "title": "Customizable Zones",
+      "description": "Create sections for WiFi, check-in, rules, recommendations and more"
+    },
+    "multilang": {
+      "title": "Multi-language",
+      "description": "Your manual is automatically translated to the guest's language"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "description": "Discover which sections your guests consult the most"
+    },
+    "alerts": {
+      "title": "Alerts",
+      "description": "Notify your guests about construction, events or important information"
+    },
+    "evaluations": {
+      "title": "Evaluations",
+      "description": "Receive feedback from your guests about each zone"
+    }
+  },
+  "howItWorks": {
+    "title": "How it works",
+    "subtitle": "In 3 simple steps your manual will be ready",
+    "step1": {
+      "title": "Create your property",
+      "description": "Add your accommodation's basic information"
+    },
+    "step2": {
+      "title": "Configure the zones",
+      "description": "Add WiFi, check-in, rules, recommendations..."
+    },
+    "step3": {
+      "title": "Share with your guests",
+      "description": "Send the link or print the QR code"
+    }
+  },
+  "pricing": {
+    "title": "Simple and transparent pricing",
+    "subtitle": "Choose the plan that best fits your needs",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save": "Save {{percent}}%",
+    "perProperty": "per property",
+    "perMonth": "/month",
+    "features": "Includes",
+    "cta": "Start 15-day trial",
+    "popular": "Most popular",
+    "basic": {
+      "name": "Basic",
+      "description": "To get started"
+    },
+    "host": {
+      "name": "Host",
+      "description": "For active hosts"
+    },
+    "superhost": {
+      "name": "Superhost",
+      "description": "For professionals"
+    },
+    "business": {
+      "name": "Business",
+      "description": "For managers"
+    }
+  },
+  "testimonials": {
+    "title": "What our users say",
+    "subtitle": "Hosts like you who have already automated their management"
+  },
+  "cta": {
+    "title": "Ready to save time?",
+    "subtitle": "Join hundreds of hosts who already use Itineramio",
+    "button": "Start 15-day trial",
+    "note": "No credit card required · Cancel anytime"
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "q1": "How long does it take to set up?",
+    "a1": "Most users have their first manual ready in less than 30 minutes.",
+    "q2": "Can I try it for free?",
+    "a2": "Yes, we offer a free 15-day trial with no strings attached.",
+    "q3": "Does it work with Airbnb and Booking?",
+    "a3": "Yes, you can use Itineramio with any booking platform.",
+    "q4": "Do my guests need to download anything?",
+    "a4": "No, the manual is a web page that works on any device."
+  }
+}

@@ -17,8 +17,10 @@ import { Button, Input } from '../../../src/components/ui'
 import { InlineSpinner } from '../../../src/components/ui/Spinner'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '../../../src/providers/AuthProvider'
+import { useTranslation } from 'react-i18next'
 
 function LoginContent() {
+  const { t } = useTranslation('auth')
   const router = useRouter()
   const searchParams = useSearchParams()
   const { login } = useAuth()
@@ -53,7 +55,7 @@ function LoginContent() {
     if (verified === 'true') {
       setMessages(prev => ({
         ...prev,
-        success: '¡Email verificado exitosamente! Ya puedes iniciar sesión.'
+        success: t('login.success.emailVerified')
       }))
     } else if (error) {
       setErrors(prev => ({
@@ -79,16 +81,16 @@ function LoginContent() {
     // Validar email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!formData.email) {
-      newErrors.email = 'El email es requerido'
+      newErrors.email = t('login.errors.emailRequired')
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Email inválido'
+      newErrors.email = t('login.errors.emailInvalid')
     }
 
-    // Validar contraseña
+    // Validate password
     if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida'
+      newErrors.password = t('login.errors.passwordRequired')
     } else if (formData.password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres'
+      newErrors.password = t('login.errors.passwordTooShort')
     }
 
     setErrors(newErrors)
@@ -130,7 +132,7 @@ function LoginContent() {
         
         setErrors(prev => ({
           ...prev,
-          general: data.error || 'Error en el login'
+          general: data.error || t('login.errors.loginError')
         }))
         return
       }
@@ -152,15 +154,15 @@ function LoginContent() {
       } else {
         setErrors(prev => ({
           ...prev,
-          general: 'Error en el login'
+          general: t('login.errors.loginError')
         }))
       }
       
     } catch (error) {
       console.error('Login error:', error)
-      setErrors(prev => ({ 
-        ...prev, 
-        general: 'Error de conexión. Inténtalo de nuevo.' 
+      setErrors(prev => ({
+        ...prev,
+        general: t('login.errors.connectionError')
       }))
     } finally {
       setLoading(false)
@@ -185,7 +187,7 @@ function LoginContent() {
     if (!formData.email) {
       setErrors(prev => ({
         ...prev,
-        email: 'Ingresa tu email para reenviar la verificación'
+        email: t('login.errors.enterEmailToResend')
       }))
       return
     }
@@ -208,18 +210,18 @@ function LoginContent() {
       if (response.ok) {
         setMessages(prev => ({
           ...prev,
-          success: 'Email de verificación enviado. Revisa tu bandeja de entrada.'
+          success: t('login.success.verificationSent')
         }))
       } else {
         setErrors(prev => ({
           ...prev,
-          general: data.error || 'Error al enviar email de verificación'
+          general: data.error || t('login.errors.resendError')
         }))
       }
     } catch (error) {
       setErrors(prev => ({
         ...prev,
-        general: 'Error de conexión. Inténtalo de nuevo.'
+        general: t('login.errors.connectionError')
       }))
     } finally {
       setResendingEmail(false)
@@ -248,7 +250,7 @@ function LoginContent() {
           <Link href="/">
             <Button variant="ghost" size="sm" className="h-8 sm:h-9">
               <ChevronLeft className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Volver</span>
+              <span className="hidden sm:inline">{t('common.back')}</span>
             </Button>
           </Link>
         </div>
@@ -267,10 +269,10 @@ function LoginContent() {
             {/* Title */}
             <div className="text-center mb-6 sm:mb-8">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                Bienvenido de vuelta
+                {t('login.welcome')}
               </h1>
               <p className="text-sm sm:text-base text-gray-600">
-                Inicia sesión en tu cuenta de Itineramio
+                {t('login.subtitle')}
               </p>
             </div>
 
@@ -307,10 +309,10 @@ function LoginContent() {
                     {resendingEmail ? (
                       <>
                         <InlineSpinner size="xs" className="mr-1" />
-                        Enviando...
+                        {t('common.sending')}
                       </>
                     ) : (
-                      'Reenviar email'
+                      t('login.resendEmail')
                     )}
                   </Button>
                 </div>
@@ -332,7 +334,7 @@ function LoginContent() {
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Correo electrónico
+                  {t('login.emailLabel')}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -356,7 +358,7 @@ function LoginContent() {
               {/* Password */}
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                  Contraseña
+                  {t('login.password')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -393,14 +395,14 @@ function LoginContent() {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-4 h-4 text-[#FF385C] border-gray-300 rounded focus:ring-[#FF385C]"
                   />
-                  <span className="text-sm text-gray-600">Recordarme</span>
+                  <span className="text-sm text-gray-600">{t('login.rememberMe')}</span>
                 </label>
 
                 <Link
                   href="/forgot-password"
                   className="text-sm text-[#FF385C] hover:text-[#FF385C]/80 hover:underline"
                 >
-                  ¿Olvidaste tu contraseña?
+                  {t('login.forgotPassword')}
                 </Link>
               </div>
 
@@ -414,11 +416,11 @@ function LoginContent() {
                 {loading ? (
                   <>
                     <InlineSpinner className="mr-2" color="white" />
-                    Iniciando sesión...
+                    {t('common.loggingIn')}
                   </>
                 ) : (
                   <>
-                    Iniciar sesión
+                    {t('login.button')}
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </>
                 )}
@@ -427,9 +429,9 @@ function LoginContent() {
 
             {/* Register Link */}
             <p className="mt-6 text-center text-sm text-gray-600">
-              ¿No tienes cuenta?{' '}
+              {t('login.noAccount')}{' '}
               <Link href="/register" className="font-medium text-[#FF385C] hover:text-[#FF385C]/80">
-                Regístrate ahora
+                {t('login.signUp')}
               </Link>
             </p>
           </div>
@@ -442,9 +444,9 @@ function LoginContent() {
             className="mt-4 sm:mt-6 text-center"
           >
             <div className="bg-white/80 rounded-lg p-3 sm:p-4 text-xs sm:text-sm text-gray-600">
-              <span className="font-medium text-[#FF385C]">✨ 15 días de evaluación</span>
-              <span className="hidden sm:inline"> + Planes desde €9/mes</span>
-              <span className="sm:hidden block mt-1">Planes desde €9/mes</span>
+              <span className="font-medium text-[#FF385C]">✨ {t('common.trialInfo')}</span>
+              <span className="hidden sm:inline"> + {t('common.plansFrom')}</span>
+              <span className="sm:hidden block mt-1">{t('common.plansFrom')}</span>
             </div>
           </motion.div>
         </motion.div>
@@ -453,9 +455,21 @@ function LoginContent() {
   )
 }
 
+function LoadingFallback() {
+  const { t } = useTranslation('auth')
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-gray-600">{t('common.loading')}</p>
+      </div>
+    </div>
+  )
+}
+
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-purple-50 flex items-center justify-center"><div className="text-center"><div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div><p className="text-gray-600">Cargando...</p></div></div>}>
+    <Suspense fallback={<LoadingFallback />}>
       <LoginContent />
     </Suspense>
   )

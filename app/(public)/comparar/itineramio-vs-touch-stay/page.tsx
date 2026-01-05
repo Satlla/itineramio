@@ -237,7 +237,7 @@ export default function TouchStayComparisonPage() {
               </p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2 text-green-700">
-                  <Check className="w-4 h-4" /> 25% más económico
+                  <Check className="w-4 h-4" /> Duplicación masiva (hasta 50 props)
                 </li>
                 <li className="flex items-center gap-2 text-green-700">
                   <Check className="w-4 h-4" /> QR individuales por zona (único)
@@ -376,7 +376,7 @@ export default function TouchStayComparisonPage() {
               Comparativa de precios
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Itineramio es hasta un 25% más económico con más funcionalidades incluidas
+              Itineramio ofrece más funcionalidades a precios competitivos
             </p>
           </div>
 

@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import {
   Wifi,
   ArrowLeft,
@@ -20,20 +21,22 @@ import { Navbar } from '../../../../../src/components/layout/Navbar'
 import { SocialShare } from '../../../../../src/components/tools/SocialShare'
 import { Turnstile } from '@marsidev/react-turnstile'
 
-const cardStyles = [
-  { id: 'modern', name: 'Moderno', colors: 'from-violet-500 to-purple-600', textColor: 'text-white', emoji: '✨' },
-  { id: 'minimal', name: 'Minimalista', colors: 'from-gray-50 to-white', textColor: 'text-gray-900', border: 'border-4 border-gray-900', emoji: '⚪' },
-  { id: 'ocean', name: 'Océano', colors: 'from-blue-400 to-cyan-500', textColor: 'text-white', emoji: '🌊' },
-  { id: 'sunset', name: 'Atardecer', colors: 'from-orange-400 via-pink-500 to-rose-500', textColor: 'text-white', emoji: '🌅' },
-  { id: 'forest', name: 'Bosque', colors: 'from-emerald-600 to-green-700', textColor: 'text-white', emoji: '🌲' },
-  { id: 'vintage', name: 'Vintage', colors: 'from-amber-100 to-orange-200', textColor: 'text-amber-900', border: 'border-8 border-amber-800', emoji: '📻' },
-  { id: 'tropical', name: 'Tropical', colors: 'from-lime-400 via-emerald-400 to-teal-500', textColor: 'text-white', emoji: '🌴' },
-  { id: 'nordic', name: 'Nórdico', colors: 'from-slate-100 to-blue-100', textColor: 'text-slate-800', emoji: '❄️' },
-  { id: 'urban', name: 'Urbano', colors: 'from-zinc-800 to-neutral-900', textColor: 'text-white', emoji: '🏙️' },
-  { id: 'pastel', name: 'Pastel', colors: 'from-pink-200 via-purple-200 to-indigo-200', textColor: 'text-purple-900', emoji: '🎨' }
-]
-
 export default function WiFiCardGenerator() {
+  const { t } = useTranslation('tools')
+
+  const cardStyles = [
+    { id: 'modern', name: t('wifiCard.styles.modern'), colors: 'from-violet-500 to-purple-600', textColor: 'text-white', emoji: '✨' },
+    { id: 'minimal', name: t('wifiCard.styles.minimal'), colors: 'from-gray-50 to-white', textColor: 'text-gray-900', border: 'border-4 border-gray-900', emoji: '⚪' },
+    { id: 'ocean', name: t('wifiCard.styles.ocean'), colors: 'from-blue-400 to-cyan-500', textColor: 'text-white', emoji: '🌊' },
+    { id: 'sunset', name: t('wifiCard.styles.sunset'), colors: 'from-orange-400 via-pink-500 to-rose-500', textColor: 'text-white', emoji: '🌅' },
+    { id: 'forest', name: t('wifiCard.styles.forest'), colors: 'from-emerald-600 to-green-700', textColor: 'text-white', emoji: '🌲' },
+    { id: 'vintage', name: t('wifiCard.styles.vintage'), colors: 'from-amber-100 to-orange-200', textColor: 'text-amber-900', border: 'border-8 border-amber-800', emoji: '📻' },
+    { id: 'tropical', name: t('wifiCard.styles.tropical'), colors: 'from-lime-400 via-emerald-400 to-teal-500', textColor: 'text-white', emoji: '🌴' },
+    { id: 'nordic', name: t('wifiCard.styles.nordic'), colors: 'from-slate-100 to-blue-100', textColor: 'text-slate-800', emoji: '❄️' },
+    { id: 'urban', name: t('wifiCard.styles.urban'), colors: 'from-zinc-800 to-neutral-900', textColor: 'text-white', emoji: '🏙️' },
+    { id: 'pastel', name: t('wifiCard.styles.pastel'), colors: 'from-pink-200 via-purple-200 to-indigo-200', textColor: 'text-purple-900', emoji: '🎨' }
+  ]
+
   const [networkName, setNetworkName] = useState('')
   const [password, setPassword] = useState('')
   const [propertyName, setPropertyName] = useState('')
@@ -62,17 +65,17 @@ export default function WiFiCardGenerator() {
     setSubmitError('')
 
     if (!userName.trim() || !userEmail.trim()) {
-      setSubmitError('Por favor completa todos los campos')
+      setSubmitError(t('wifiCard.errors.completeFields'))
       return
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail)) {
-      setSubmitError('Por favor ingresa un email válido')
+      setSubmitError(t('wifiCard.errors.invalidEmail'))
       return
     }
 
     if (!networkName || !password) {
-      setSubmitError('Completa los datos del WiFi primero')
+      setSubmitError(t('wifiCard.errors.completeWifi'))
       return
     }
 
@@ -96,12 +99,12 @@ export default function WiFiCardGenerator() {
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || 'Error al enviar')
+        throw new Error(result.error || t('wifiCard.errors.sendError'))
       }
 
       setSubmitSuccess(true)
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Error al enviar. Inténtalo de nuevo.')
+      setSubmitError(error instanceof Error ? error.message : t('wifiCard.errors.sendError'))
     } finally {
       setIsSubmitting(false)
     }
@@ -127,11 +130,11 @@ export default function WiFiCardGenerator() {
                 className="inline-flex items-center text-violet-600 hover:text-violet-700 font-medium group"
               >
                 <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                Volver al Hub
+                {t('common.backToHub')}
               </Link>
               <SocialShare
-                title="Generador WiFi Card - Itineramio"
-                description="Crea tarjetas WiFi imprimibles con diseños profesionales para tu alojamiento. ¡Elimina el 86% de consultas sobre WiFi!"
+                title={t('wifiCard.shareTitle')}
+                description={t('wifiCard.shareDescription')}
               />
             </div>
 
@@ -141,17 +144,17 @@ export default function WiFiCardGenerator() {
               </div>
               <div>
                 <h1 className="text-5xl font-bold text-gray-900">
-                  Generador WiFi Card
+                  {t('wifiCard.title')}
                 </h1>
                 <p className="text-xl text-gray-600 mt-2">
-                  Crea tarjetas WiFi imprimibles para tu alojamiento
+                  {t('wifiCard.subtitle')}
                 </p>
               </div>
             </div>
 
             <div className="inline-flex items-center space-x-2 px-4 py-2 bg-green-50 rounded-full border border-green-200">
               <Sparkles className="w-4 h-4 text-green-600" />
-              <span className="text-sm font-medium text-green-900">Elimina el 86% de consultas sobre WiFi</span>
+              <span className="text-sm font-medium text-green-900">{t('wifiCard.badge')}</span>
             </div>
           </motion.div>
 
@@ -164,19 +167,19 @@ export default function WiFiCardGenerator() {
             >
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  1. Información WiFi
+                  {t('wifiCard.step1.title')}
                 </h2>
 
                 {/* Property Name */}
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Nombre de tu alojamiento (opcional)
+                    {t('wifiCard.step1.propertyName')}
                   </label>
                   <input
                     type="text"
                     value={propertyName}
                     onChange={(e) => setPropertyName(e.target.value)}
-                    placeholder="Apartamento Vista al Mar"
+                    placeholder={t('wifiCard.step1.propertyPlaceholder')}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none text-gray-900 placeholder-gray-400"
                   />
                 </div>
@@ -184,13 +187,13 @@ export default function WiFiCardGenerator() {
                 {/* Network Name */}
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Nombre de la red WiFi *
+                    {t('wifiCard.step1.networkName')}
                   </label>
                   <input
                     type="text"
                     value={networkName}
                     onChange={(e) => setNetworkName(e.target.value)}
-                    placeholder="Mi_WiFi_5G"
+                    placeholder={t('wifiCard.step1.networkPlaceholder')}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none text-gray-900 placeholder-gray-400"
                   />
                 </div>
@@ -198,7 +201,7 @@ export default function WiFiCardGenerator() {
                 {/* Password */}
                 <div className="mb-8">
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Contraseña *
+                    {t('wifiCard.step1.password')}
                   </label>
                   <div className="relative">
                     <input
@@ -238,7 +241,7 @@ export default function WiFiCardGenerator() {
                 {/* Style Selector */}
                 <div className="mb-8">
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    2. Estilo de tarjeta
+                    {t('wifiCard.step2.title')}
                   </label>
                   <div className="grid grid-cols-5 gap-3">
                     {cardStyles.map((style) => (
@@ -267,7 +270,7 @@ export default function WiFiCardGenerator() {
                 {/* Email Form */}
                 <div className="border-t-2 border-gray-100 pt-6">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                    3. Recibe tu tarjeta por email
+                    {t('wifiCard.step3.title')}
                   </h2>
 
                   {submitSuccess ? (
@@ -278,10 +281,10 @@ export default function WiFiCardGenerator() {
                     >
                       <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
                       <h3 className="text-xl font-bold text-green-900 mb-2">
-                        ¡Tarjeta enviada!
+                        {t('wifiCard.success.title')}
                       </h3>
                       <p className="text-green-700 mb-4">
-                        Revisa tu bandeja de entrada en <strong>{userEmail}</strong>
+                        {t('wifiCard.success.message')} <strong>{userEmail}</strong>
                       </p>
                       <button
                         onClick={() => {
@@ -294,7 +297,7 @@ export default function WiFiCardGenerator() {
                         }}
                         className="text-green-600 font-semibold hover:text-green-700"
                       >
-                        Crear otra tarjeta →
+                        {t('wifiCard.success.createAnother')}
                       </button>
                     </motion.div>
                   ) : (
@@ -302,7 +305,7 @@ export default function WiFiCardGenerator() {
                       {/* Name */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Tu nombre *
+                          {t('wifiCard.step3.yourName')}
                         </label>
                         <div className="relative">
                           <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -310,7 +313,7 @@ export default function WiFiCardGenerator() {
                             type="text"
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
-                            placeholder="Juan Pérez"
+                            placeholder={t('wifiCard.step3.namePlaceholder')}
                             className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none text-gray-900 placeholder-gray-400"
                             disabled={isSubmitting}
                           />
@@ -320,7 +323,7 @@ export default function WiFiCardGenerator() {
                       {/* Email */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Tu email *
+                          {t('wifiCard.step3.yourEmail')}
                         </label>
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -328,7 +331,7 @@ export default function WiFiCardGenerator() {
                             type="email"
                             value={userEmail}
                             onChange={(e) => setUserEmail(e.target.value)}
-                            placeholder="juan@ejemplo.com"
+                            placeholder={t('wifiCard.step3.emailPlaceholder')}
                             className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none text-gray-900 placeholder-gray-400"
                             disabled={isSubmitting}
                           />
@@ -367,18 +370,18 @@ export default function WiFiCardGenerator() {
                         {isSubmitting ? (
                           <>
                             <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                            Enviando...
+                            {t('wifiCard.step3.submitting')}
                           </>
                         ) : (
                           <>
                             <Mail className="w-5 h-5 mr-2" />
-                            Enviar tarjeta a mi email
+                            {t('wifiCard.step3.submit')}
                           </>
                         )}
                       </button>
 
                       <p className="text-xs text-center text-gray-500">
-                        Recibirás la tarjeta lista para imprimir + tips de uso
+                        {t('wifiCard.step3.emailNote')}
                       </p>
                     </form>
                   )}
@@ -389,24 +392,24 @@ export default function WiFiCardGenerator() {
               <div className="mt-8 p-6 bg-green-50 border-2 border-green-200 rounded-2xl">
                 <h3 className="font-bold text-green-900 mb-3 flex items-center">
                   <Sparkles className="w-5 h-5 mr-2" />
-                  Tips de uso
+                  {t('wifiCard.tips.title')}
                 </h3>
                 <ul className="space-y-2 text-sm text-green-800">
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Imprime en papel de alta calidad para mejor durabilidad</span>
+                    <span>{t('wifiCard.tips.tip1')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Plastifica la tarjeta para protegerla del agua</span>
+                    <span>{t('wifiCard.tips.tip2')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Colócala en lugar visible: entrada, mesa, refrigerador</span>
+                    <span>{t('wifiCard.tips.tip3')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Imprime varias copias para diferentes ubicaciones</span>
+                    <span>{t('wifiCard.tips.tip4')}</span>
                   </li>
                 </ul>
               </div>
@@ -420,7 +423,7 @@ export default function WiFiCardGenerator() {
             >
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl sticky top-24">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Vista previa
+                  {t('common.preview')}
                 </h2>
 
                 {/* WiFi Card Preview */}
@@ -455,14 +458,14 @@ export default function WiFiCardGenerator() {
 
                       <div className="space-y-4">
                         <div>
-                          <div className="text-sm opacity-70 mb-1">Red:</div>
+                          <div className="text-sm opacity-70 mb-1">{t('wifiCard.card.network')}</div>
                           <div className="text-2xl font-bold break-all">
-                            {networkName || 'Tu_Red_WiFi'}
+                            {networkName || t('wifiCard.card.defaultNetwork')}
                           </div>
                         </div>
 
                         <div>
-                          <div className="text-sm opacity-70 mb-1">Contraseña:</div>
+                          <div className="text-sm opacity-70 mb-1">{t('wifiCard.card.password')}</div>
                           <div className="text-2xl font-bold break-all">
                             {password || '••••••••'}
                           </div>
@@ -475,24 +478,24 @@ export default function WiFiCardGenerator() {
                 {/* Instructions */}
                 <div className="p-6 bg-gray-50 rounded-2xl">
                   <h3 className="font-bold text-gray-900 mb-3">
-                    Cómo conectarse:
+                    {t('wifiCard.howToConnect.title')}
                   </h3>
                   <ol className="space-y-2 text-sm text-gray-700">
                     <li className="flex items-start">
                       <span className="font-bold mr-2 w-5">1.</span>
-                      <span>Abre la configuración WiFi en tu dispositivo</span>
+                      <span>{t('wifiCard.howToConnect.step1')}</span>
                     </li>
                     <li className="flex items-start">
                       <span className="font-bold mr-2 w-5">2.</span>
-                      <span>Busca la red: <strong>{networkName || 'Tu_Red_WiFi'}</strong></span>
+                      <span>{t('wifiCard.howToConnect.step2')} <strong>{networkName || t('wifiCard.card.defaultNetwork')}</strong></span>
                     </li>
                     <li className="flex items-start">
                       <span className="font-bold mr-2 w-5">3.</span>
-                      <span>Introduce la contraseña exactamente como aparece</span>
+                      <span>{t('wifiCard.howToConnect.step3')}</span>
                     </li>
                     <li className="flex items-start">
                       <span className="font-bold mr-2 w-5">4.</span>
-                      <span>¡Listo! Ya estás conectado</span>
+                      <span>{t('wifiCard.howToConnect.step4')}</span>
                     </li>
                   </ol>
                 </div>
@@ -500,10 +503,10 @@ export default function WiFiCardGenerator() {
                 {/* CTA */}
                 <div className="mt-6 p-4 bg-violet-50 rounded-xl">
                   <p className="text-sm text-violet-900">
-                    <strong>¿Quieres automatizar más consultas?</strong>
+                    <strong>{t('wifiCard.cta.question')}</strong>
                     <br />
                     <Link href="/register" className="text-violet-600 hover:text-violet-700 font-semibold underline">
-                      Crea tu manual digital completo con Itineramio →
+                      {t('wifiCard.cta.action')}
                     </Link>
                   </p>
                 </div>

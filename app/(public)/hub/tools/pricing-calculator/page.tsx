@@ -18,36 +18,40 @@ import {
   Download,
   Check
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Navbar } from '../../../../../src/components/layout/Navbar'
 import { SocialShare } from '../../../../../src/components/tools/SocialShare'
 import { LeadCaptureModal } from '../../../../../src/components/tools/LeadCaptureModal'
 
-const propertyTypes = [
-  { id: 'apartment', label: 'Apartamento', multiplier: 1.0 },
-  { id: 'house', label: 'Casa entera', multiplier: 1.3 },
-  { id: 'room', label: 'Habitación privada', multiplier: 0.6 },
-  { id: 'studio', label: 'Estudio', multiplier: 0.9 },
-  { id: 'villa', label: 'Villa/Chalet', multiplier: 1.8 }
+// Config only - labels come from translations
+const propertyTypesConfig = [
+  { id: 'apartment', labelKey: 'apartment', multiplier: 1.0 },
+  { id: 'house', labelKey: 'house', multiplier: 1.3 },
+  { id: 'room', labelKey: 'room', multiplier: 0.6 },
+  { id: 'studio', labelKey: 'studio', multiplier: 0.9 },
+  { id: 'villa', labelKey: 'villa', multiplier: 1.8 }
 ]
 
-const locations = [
-  { id: 'city-center', label: 'Centro ciudad', multiplier: 1.4 },
-  { id: 'beach', label: 'Playa', multiplier: 1.5 },
-  { id: 'mountain', label: 'Montaña', multiplier: 1.2 },
-  { id: 'suburban', label: 'Suburbio', multiplier: 0.9 },
-  { id: 'rural', label: 'Rural', multiplier: 0.7 }
+const locationsConfig = [
+  { id: 'city-center', labelKey: 'cityCenter', multiplier: 1.4 },
+  { id: 'beach', labelKey: 'beach', multiplier: 1.5 },
+  { id: 'mountain', labelKey: 'mountain', multiplier: 1.2 },
+  { id: 'suburban', labelKey: 'suburban', multiplier: 0.9 },
+  { id: 'rural', labelKey: 'rural', multiplier: 0.7 }
 ]
 
-const seasons = [
-  { id: 'high', label: 'Temporada Alta', multiplier: 1.5 },
-  { id: 'medium', label: 'Temporada Media', multiplier: 1.0 },
-  { id: 'low', label: 'Temporada Baja', multiplier: 0.7 }
+const seasonsConfig = [
+  { id: 'high', labelKey: 'high', multiplier: 1.5 },
+  { id: 'medium', labelKey: 'medium', multiplier: 1.0 },
+  { id: 'low', labelKey: 'low', multiplier: 0.7 }
 ]
 
 export default function PricingCalculator() {
-  const [propertyType, setPropertyType] = useState(propertyTypes[0])
-  const [location, setLocation] = useState(locations[0])
-  const [season, setSeason] = useState(seasons[1])
+  const { t } = useTranslation('tools')
+
+  const [propertyType, setPropertyType] = useState(propertyTypesConfig[0])
+  const [location, setLocation] = useState(locationsConfig[0])
+  const [season, setSeason] = useState(seasonsConfig[1])
   const [bedrooms, setBedrooms] = useState(1)
   const [bathrooms, setBathrooms] = useState(1)
   const [guests, setGuests] = useState(2)
@@ -274,11 +278,11 @@ Generado con Itineramio - https://www.itineramio.com
                 className="inline-flex items-center text-violet-600 hover:text-violet-700 font-medium group"
               >
                 <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                Volver al Hub
+                {t('common.backToHub')}
               </Link>
               <SocialShare
-                title="Calculadora de Precios Airbnb - Itineramio"
-                description="Calcula el precio óptimo para tu alojamiento según ubicación, servicios y temporada."
+                title={t('pricingCalculator.shareTitle')}
+                description={t('pricingCalculator.shareDescription')}
               />
             </div>
 
@@ -288,17 +292,17 @@ Generado con Itineramio - https://www.itineramio.com
               </div>
               <div>
                 <h1 className="text-5xl font-bold text-gray-900">
-                  Calculadora de Precios
+                  {t('pricingCalculator.title')}
                 </h1>
                 <p className="text-xl text-gray-600 mt-2">
-                  Calcula el precio óptimo para tu alojamiento
+                  {t('pricingCalculator.subtitle')}
                 </p>
               </div>
             </div>
 
             <div className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-full border border-blue-200">
               <Sparkles className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-900">Basado en +10,000 alojamientos exitosos</span>
+              <span className="text-sm font-medium text-blue-900">{t('pricingCalculator.badge')}</span>
             </div>
           </motion.div>
 
@@ -314,10 +318,10 @@ Generado con Itineramio - https://www.itineramio.com
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                   <Home className="w-6 h-6 mr-3 text-blue-600" />
-                  Tipo de propiedad
+                  {t('pricingCalculator.propertyType')}
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
-                  {propertyTypes.map((type) => (
+                  {propertyTypesConfig.map((type) => (
                     <button
                       key={type.id}
                       onClick={() => setPropertyType(type)}
@@ -327,7 +331,7 @@ Generado con Itineramio - https://www.itineramio.com
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      <span className="font-semibold">{type.label}</span>
+                      <span className="font-semibold">{t(`pricingCalculator.propertyTypes.${type.labelKey}`)}</span>
                     </button>
                   ))}
                 </div>
@@ -337,10 +341,10 @@ Generado con Itineramio - https://www.itineramio.com
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                   <MapPin className="w-6 h-6 mr-3 text-blue-600" />
-                  Ubicación
+                  {t('pricingCalculator.location')}
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
-                  {locations.map((loc) => (
+                  {locationsConfig.map((loc) => (
                     <button
                       key={loc.id}
                       onClick={() => setLocation(loc)}
@@ -350,7 +354,7 @@ Generado con Itineramio - https://www.itineramio.com
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      <span className="font-semibold">{loc.label}</span>
+                      <span className="font-semibold">{t(`pricingCalculator.locations.${loc.labelKey}`)}</span>
                     </button>
                   ))}
                 </div>
@@ -360,14 +364,14 @@ Generado con Itineramio - https://www.itineramio.com
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                   <Users className="w-6 h-6 mr-3 text-blue-600" />
-                  Capacidad
+                  {t('pricingCalculator.capacity')}
                 </h2>
 
                 <div className="space-y-6">
                   {/* Guests */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      Huéspedes máximos
+                      {t('pricingCalculator.maxGuests')}
                     </label>
                     <div className="flex items-center space-x-4">
                       <input
@@ -387,7 +391,7 @@ Generado con Itineramio - https://www.itineramio.com
                   {/* Bedrooms */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      Dormitorios
+                      {t('pricingCalculator.bedrooms')}
                     </label>
                     <div className="flex items-center space-x-4">
                       <input
@@ -407,7 +411,7 @@ Generado con Itineramio - https://www.itineramio.com
                   {/* Bathrooms */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      Baños
+                      {t('pricingCalculator.bathrooms')}
                     </label>
                     <div className="flex items-center space-x-4">
                       <input
@@ -430,7 +434,7 @@ Generado con Itineramio - https://www.itineramio.com
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                   <Star className="w-6 h-6 mr-3 text-blue-600" />
-                  Servicios
+                  {t('pricingCalculator.amenities')}
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
                   {Object.keys(hasAmenities).map((amenity) => (
@@ -443,7 +447,7 @@ Generado con Itineramio - https://www.itineramio.com
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      <span className="font-semibold capitalize">{amenity}</span>
+                      <span className="font-semibold">{t(`pricingCalculator.amenitiesList.${amenity}`)}</span>
                     </button>
                   ))}
                 </div>
@@ -453,10 +457,10 @@ Generado con Itineramio - https://www.itineramio.com
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                   <Calendar className="w-6 h-6 mr-3 text-blue-600" />
-                  Temporada
+                  {t('pricingCalculator.season')}
                 </h2>
                 <div className="grid grid-cols-3 gap-3">
-                  {seasons.map((s) => (
+                  {seasonsConfig.map((s) => (
                     <button
                       key={s.id}
                       onClick={() => setSeason(s)}
@@ -466,7 +470,7 @@ Generado con Itineramio - https://www.itineramio.com
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      <span className="font-semibold text-sm">{s.label}</span>
+                      <span className="font-semibold text-sm">{t(`pricingCalculator.seasons.${s.labelKey}`)}</span>
                     </button>
                   ))}
                 </div>
@@ -492,34 +496,34 @@ Generado con Itineramio - https://www.itineramio.com
                 />
 
                 <div className="relative z-10">
-                  <h2 className="text-2xl font-bold mb-2">Precio Recomendado</h2>
+                  <h2 className="text-2xl font-bold mb-2">{t('pricingCalculator.results.recommendedPrice')}</h2>
                   <div className="text-7xl font-bold mb-6">
                     €{pricing.recommendedPrice}
-                    <span className="text-2xl text-white/80">/noche</span>
+                    <span className="text-2xl text-white/80">{t('pricingCalculator.results.perNight')}</span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                      <div className="text-sm text-white/80 mb-1">Mínimo</div>
+                      <div className="text-sm text-white/80 mb-1">{t('pricingCalculator.results.minimum')}</div>
                       <div className="text-2xl font-bold">€{pricing.minPrice}</div>
                     </div>
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                      <div className="text-sm text-white/80 mb-1">Máximo</div>
+                      <div className="text-sm text-white/80 mb-1">{t('pricingCalculator.results.maximum')}</div>
                       <div className="text-2xl font-bold">€{pricing.maxPrice}</div>
                     </div>
                   </div>
 
                   <div className="space-y-3 pt-6 border-t border-white/20">
                     <div className="flex justify-between">
-                      <span className="text-white/80">Fin de semana:</span>
-                      <span className="font-bold">€{pricing.weekendPrice}/noche</span>
+                      <span className="text-white/80">{t('pricingCalculator.results.weekend')}</span>
+                      <span className="font-bold">€{pricing.weekendPrice}{t('pricingCalculator.results.perNight')}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/80">Descuento semanal:</span>
+                      <span className="text-white/80">{t('pricingCalculator.results.weeklyDiscount')}</span>
                       <span className="font-bold">{pricing.weeklyDiscount}%</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/80">Descuento mensual:</span>
+                      <span className="text-white/80">{t('pricingCalculator.results.monthlyDiscount')}</span>
                       <span className="font-bold">{pricing.monthlyDiscount}%</span>
                     </div>
                   </div>
@@ -530,19 +534,19 @@ Generado con Itineramio - https://www.itineramio.com
               <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-lg">
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
                   <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
-                  Proyección de ingresos
+                  {t('pricingCalculator.projection.title')}
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                    <span className="text-gray-600">Ocupación 50% (15 noches/mes):</span>
+                    <span className="text-gray-600">{t('pricingCalculator.projection.occupancy50')}</span>
                     <span className="font-bold text-gray-900">€{pricing.recommendedPrice * 15}</span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                    <span className="text-gray-600">Ocupación 70% (21 noches/mes):</span>
+                    <span className="text-gray-600">{t('pricingCalculator.projection.occupancy70')}</span>
                     <span className="font-bold text-gray-900">€{pricing.recommendedPrice * 21}</span>
                   </div>
                   <div className="flex justify-between items-center pt-3">
-                    <span className="text-gray-900 font-semibold">Ocupación 90% (27 noches/mes):</span>
+                    <span className="text-gray-900 font-semibold">{t('pricingCalculator.projection.occupancy90')}</span>
                     <span className="font-bold text-green-600 text-xl">€{pricing.recommendedPrice * 27}</span>
                   </div>
                 </div>
@@ -557,13 +561,13 @@ Generado con Itineramio - https://www.itineramio.com
                     </div>
                     <div>
                       <p className="text-green-800 font-bold text-lg">
-                        ¡Análisis enviado a tu email!
+                        {t('pricingCalculator.emailSent.title')}
                       </p>
                       <p className="text-green-700 mt-1">
-                        Revisa tu bandeja de entrada. Hemos enviado un PDF con tu análisis de precios completo, incluyendo proyecciones y consejos personalizados.
+                        {t('pricingCalculator.emailSent.message')}
                       </p>
                       <p className="text-green-600 text-sm mt-2">
-                        Si no lo ves, revisa la carpeta de spam.
+                        {t('pricingCalculator.emailSent.spam')}
                       </p>
                     </div>
                   </div>
@@ -574,7 +578,7 @@ Generado con Itineramio - https://www.itineramio.com
                   className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:shadow-xl transition-all flex items-center justify-center group"
                 >
                   <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                  Recibir análisis por email
+                  {t('pricingCalculator.emailButton')}
                 </button>
               )}
 
@@ -582,24 +586,24 @@ Generado con Itineramio - https://www.itineramio.com
               <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 border-2 border-orange-200">
                 <h3 className="font-bold text-orange-900 mb-3 flex items-center">
                   <Info className="w-5 h-5 mr-2" />
-                  Consejos de pricing
+                  {t('pricingCalculator.tips.title')}
                 </h3>
                 <ul className="space-y-2 text-sm text-orange-800">
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Ajusta precios según eventos locales y festividades</span>
+                    <span>{t('pricingCalculator.tips.tip1')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Monitorea competencia directa en tu zona</span>
+                    <span>{t('pricingCalculator.tips.tip2')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Ofrece descuentos para reservas anticipadas</span>
+                    <span>{t('pricingCalculator.tips.tip3')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Usa precios dinámicos para maximizar ocupación</span>
+                    <span>{t('pricingCalculator.tips.tip4')}</span>
                   </li>
                 </ul>
               </div>
@@ -607,14 +611,14 @@ Generado con Itineramio - https://www.itineramio.com
               {/* CTA */}
               <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-6 border-2 border-violet-200">
                 <h3 className="text-lg font-bold text-gray-900 mb-3">
-                  ¿Quieres automatizar tu pricing?
+                  {t('pricingCalculator.cta.title')}
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Itineramio te ayuda a gestionar disponibilidad y responder consultas automáticamente
+                  {t('pricingCalculator.cta.subtitle')}
                 </p>
                 <Link href="/register">
                   <button className="w-full py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white rounded-xl font-bold hover:shadow-2xl transition-all">
-                    Empezar gratis
+                    {t('pricingCalculator.cta.button')}
                   </button>
                 </Link>
               </div>
@@ -631,9 +635,9 @@ Generado con Itineramio - https://www.itineramio.com
           setPendingAction(null)
         }}
         onSubmit={handleLeadSubmit}
-        title="Recibe tu análisis de precios"
-        description="Te enviaremos un PDF profesional con tu análisis completo, proyecciones de ingresos y consejos personalizados"
-        downloadLabel="Enviar a mi email"
+        title={t('pricingCalculator.leadModal.title')}
+        description={t('pricingCalculator.leadModal.description')}
+        downloadLabel={t('pricingCalculator.leadModal.button')}
       />
     </div>
   )

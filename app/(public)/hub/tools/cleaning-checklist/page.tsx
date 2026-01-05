@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useMemo } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
@@ -15,16 +15,17 @@ import {
   ChevronDown,
   ChevronRight
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Navbar } from '../../../../../src/components/layout/Navbar'
 import { SocialShare } from '../../../../../src/components/tools/SocialShare'
 import { LeadCaptureModal } from '../../../../../src/components/tools/LeadCaptureModal'
 import { SuccessModal } from '../../../../../src/components/ui/SuccessModal'
 import { generatePDF } from '../../../../../src/lib/pdf-generator'
 
-const checklistStyles = [
+const checklistStylesConfig = [
   {
     id: 'modern',
-    name: 'Moderno',
+    nameKey: 'modern',
     colors: 'from-blue-500 to-cyan-500',
     textColor: 'text-gray-900',
     bgColor: 'bg-white',
@@ -33,7 +34,7 @@ const checklistStyles = [
   },
   {
     id: 'minimalist',
-    name: 'Minimalista',
+    nameKey: 'minimalist',
     colors: 'from-gray-800 to-gray-900',
     textColor: 'text-gray-900',
     bgColor: 'bg-gray-50',
@@ -43,7 +44,7 @@ const checklistStyles = [
   },
   {
     id: 'elegant',
-    name: 'Elegante',
+    nameKey: 'elegant',
     colors: 'from-purple-600 to-pink-600',
     textColor: 'text-gray-900',
     bgColor: 'bg-gradient-to-br from-purple-50 to-pink-50',
@@ -52,7 +53,7 @@ const checklistStyles = [
   },
   {
     id: 'fresh',
-    name: 'Fresco',
+    nameKey: 'fresh',
     colors: 'from-green-500 to-emerald-600',
     textColor: 'text-gray-900',
     bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50',
@@ -61,7 +62,7 @@ const checklistStyles = [
   },
   {
     id: 'warm',
-    name: 'Cálido',
+    nameKey: 'warm',
     colors: 'from-orange-400 to-amber-500',
     textColor: 'text-gray-900',
     bgColor: 'bg-gradient-to-br from-orange-50 to-amber-50',
@@ -70,7 +71,7 @@ const checklistStyles = [
   },
   {
     id: 'professional',
-    name: 'Profesional',
+    nameKey: 'professional',
     colors: 'from-indigo-600 to-blue-700',
     textColor: 'text-gray-900',
     bgColor: 'bg-white',
@@ -88,103 +89,93 @@ interface ChecklistItem {
 
 interface ChecklistSection {
   id: string
+  titleKey?: string
   title: string
   items: ChecklistItem[]
 }
 
-const defaultSections: ChecklistSection[] = [
+// Task keys by section - for translation lookup
+const sectionTaskKeys = {
+  kitchen: ['cleanCountertop', 'cleanAppliances', 'cleanMicrowave', 'cleanFridge', 'cleanBehindFridge', 'cleanHoodFilter', 'cleanStovetop', 'cleanOven', 'cleanDishwasher', 'checkDishwasherFilter', 'cleanSink', 'restockCleaning'],
+  bathroom: ['cleanToilet', 'cleanSink', 'cleanShower', 'cleanShowerDoor', 'cleanTiles', 'cleanMirror', 'emptyTrash', 'restockTowels', 'restockToiletPaper', 'restockSoap', 'checkDrains'],
+  bedroom: ['changeSheets', 'lintRollerSheets', 'makeBed', 'cleanNightstands', 'cleanClosetInside', 'cleanClosetOutside', 'checkHangers', 'cleanUnderBed', 'vacuumMattress', 'emptyTrash'],
+  livingRoom: ['vacuumSofa', 'cleanCoffeeTable', 'dustFurniture', 'cleanTV', 'checkRemotes', 'cleanWindowsInside', 'cleanWindowTracks', 'cleanBlinds', 'cleanCurtains', 'emptyTrash'],
+  general: ['sweepMopFloors', 'vacuumRugs', 'cleanBaseboards', 'cleanDoors', 'cleanSwitches', 'cleanRadiators', 'cleanACFilters', 'checkEverythingWorks', 'restockConsumables', 'takeOutTrash', 'ventilateRooms', 'finalCheck']
+}
+
+// Function to generate default sections with translations
+const getDefaultSections = (t: (key: string) => string): ChecklistSection[] => [
   {
-    id: 'cocina',
-    title: '🍳 Cocina',
-    items: [
-      { id: '1', text: 'Limpiar encimera y mesa', checked: false },
-      { id: '2', text: 'Limpiar electrodomésticos por fuera', checked: false },
-      { id: '3', text: 'Limpiar interior de microondas', checked: false },
-      { id: '4', text: 'Limpiar interior de nevera', checked: false },
-      { id: '5', text: 'Limpiar detrás de la nevera', checked: false },
-      { id: '6', text: 'Revisar y limpiar filtro de extractor', checked: false },
-      { id: '7', text: 'Limpiar placas/vitrocerámica', checked: false },
-      { id: '8', text: 'Limpiar interior de horno', checked: false },
-      { id: '9', text: 'Vaciar y limpiar lavavajillas', checked: false },
-      { id: '10', text: 'Comprobar filtro del lavavajillas', checked: false },
-      { id: '11', text: 'Limpiar fregadero y grifería', checked: false },
-      { id: '12', text: 'Reponer productos de limpieza', checked: false }
-    ]
+    id: 'kitchen',
+    titleKey: 'kitchen',
+    title: t('cleaningChecklist.sections.kitchen'),
+    items: sectionTaskKeys.kitchen.map((key, i) => ({
+      id: `k${i + 1}`,
+      text: t(`cleaningChecklist.tasks.kitchen.${key}`),
+      checked: false
+    }))
   },
   {
-    id: 'bano',
-    title: '🚿 Baño',
-    items: [
-      { id: '13', text: 'Limpiar y desinfectar inodoro', checked: false },
-      { id: '14', text: 'Limpiar lavabo y grifería', checked: false },
-      { id: '15', text: 'Limpiar ducha/bañera', checked: false },
-      { id: '16', text: 'Limpiar mampara/cortina de ducha', checked: false },
-      { id: '17', text: 'Limpiar azulejos y juntas', checked: false },
-      { id: '18', text: 'Limpiar espejo', checked: false },
-      { id: '19', text: 'Vaciar papelera', checked: false },
-      { id: '20', text: 'Reponer toallas limpias', checked: false },
-      { id: '21', text: 'Reponer papel higiénico', checked: false },
-      { id: '22', text: 'Reponer jabón y champú', checked: false },
-      { id: '23', text: 'Revisar desagües', checked: false }
-    ]
+    id: 'bathroom',
+    titleKey: 'bathroom',
+    title: t('cleaningChecklist.sections.bathroom'),
+    items: sectionTaskKeys.bathroom.map((key, i) => ({
+      id: `b${i + 1}`,
+      text: t(`cleaningChecklist.tasks.bathroom.${key}`),
+      checked: false
+    }))
   },
   {
-    id: 'dormitorio',
-    title: '🛏️ Dormitorio',
-    items: [
-      { id: '24', text: 'Cambiar y lavar sábanas', checked: false },
-      { id: '25', text: 'Pasar rodillo quitapelusas a sábanas', checked: false },
-      { id: '26', text: 'Hacer la cama', checked: false },
-      { id: '27', text: 'Limpiar mesitas de noche', checked: false },
-      { id: '28', text: 'Limpiar armario por dentro', checked: false },
-      { id: '29', text: 'Limpiar armario por fuera', checked: false },
-      { id: '30', text: 'Comprobar perchas disponibles', checked: false },
-      { id: '31', text: 'Limpiar bajo la cama', checked: false },
-      { id: '32', text: 'Aspirar colchón', checked: false },
-      { id: '33', text: 'Vaciar papelera', checked: false }
-    ]
+    id: 'bedroom',
+    titleKey: 'bedroom',
+    title: t('cleaningChecklist.sections.bedroom'),
+    items: sectionTaskKeys.bedroom.map((key, i) => ({
+      id: `br${i + 1}`,
+      text: t(`cleaningChecklist.tasks.bedroom.${key}`),
+      checked: false
+    }))
   },
   {
-    id: 'salon',
-    title: '🛋️ Salón',
-    items: [
-      { id: '34', text: 'Aspirar sofá y cojines', checked: false },
-      { id: '35', text: 'Limpiar mesa de centro', checked: false },
-      { id: '36', text: 'Limpiar muebles (polvo)', checked: false },
-      { id: '37', text: 'Limpiar TV y pantallas', checked: false },
-      { id: '38', text: 'Comprobar mandos a distancia', checked: false },
-      { id: '39', text: 'Limpiar ventanas por dentro', checked: false },
-      { id: '40', text: 'Limpiar raíles de ventanas', checked: false },
-      { id: '41', text: 'Limpiar persianas', checked: false },
-      { id: '42', text: 'Limpiar cortinas si necesario', checked: false },
-      { id: '43', text: 'Vaciar papeleras', checked: false }
-    ]
+    id: 'livingRoom',
+    titleKey: 'livingRoom',
+    title: t('cleaningChecklist.sections.livingRoom'),
+    items: sectionTaskKeys.livingRoom.map((key, i) => ({
+      id: `l${i + 1}`,
+      text: t(`cleaningChecklist.tasks.livingRoom.${key}`),
+      checked: false
+    }))
   },
   {
     id: 'general',
-    title: '🏠 General',
-    items: [
-      { id: '44', text: 'Barrer y fregar todos los suelos', checked: false },
-      { id: '45', text: 'Aspirar alfombras y felpudos', checked: false },
-      { id: '46', text: 'Limpiar rodapiés', checked: false },
-      { id: '47', text: 'Limpiar puertas y pomos', checked: false },
-      { id: '48', text: 'Limpiar interruptores', checked: false },
-      { id: '49', text: 'Limpiar radiadores', checked: false },
-      { id: '50', text: 'Limpiar/cambiar filtros aire acondicionado', checked: false },
-      { id: '51', text: 'Comprobar que todo funciona', checked: false },
-      { id: '52', text: 'Reponer consumibles (café, té, etc.)', checked: false },
-      { id: '53', text: 'Sacar basura', checked: false },
-      { id: '54', text: 'Ventilar todas las habitaciones', checked: false },
-      { id: '55', text: 'Verificar orden y presentación final', checked: false }
-    ]
+    titleKey: 'general',
+    title: t('cleaningChecklist.sections.general'),
+    items: sectionTaskKeys.general.map((key, i) => ({
+      id: `g${i + 1}`,
+      text: t(`cleaningChecklist.tasks.general.${key}`),
+      checked: false
+    }))
   }
 ]
 
 export default function CleaningChecklist() {
+  const { t, i18n } = useTranslation('tools')
+
+  // Memoize default sections based on current language
+  const defaultSections = useMemo(() => getDefaultSections(t), [t, i18n.language])
+
   const [propertyName, setPropertyName] = useState('')
   const [propertyAddress, setPropertyAddress] = useState('')
-  const [sections, setSections] = useState<ChecklistSection[]>(defaultSections)
-  const [selectedStyle, setSelectedStyle] = useState(checklistStyles[0])
+  const [sections, setSections] = useState<ChecklistSection[]>([])
+  const [selectedStyle, setSelectedStyle] = useState(checklistStylesConfig[0])
+  const [initialized, setInitialized] = useState(false)
+
+  // Initialize sections on mount and when language changes
+  React.useEffect(() => {
+    if (!initialized) {
+      setSections(defaultSections)
+      setInitialized(true)
+    }
+  }, [defaultSections, initialized])
   const [editingItem, setEditingItem] = useState<string | null>(null)
   const [showLeadModal, setShowLeadModal] = useState(false)
   const [pendingAction, setPendingAction] = useState<'download' | 'print' | null>(null)
@@ -378,11 +369,11 @@ export default function CleaningChecklist() {
                 className="inline-flex items-center text-violet-600 hover:text-violet-700 font-medium group"
               >
                 <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                Volver al Hub
+                {t('common.backToHub')}
               </Link>
               <SocialShare
-                title="Checklist de Limpieza Profesional - Itineramio"
-                description="Checklist completo y personalizable para limpieza de alojamientos turísticos. Descarga e imprime gratis."
+                title={t('cleaningChecklist.shareTitle')}
+                description={t('cleaningChecklist.shareDescription')}
               />
             </div>
 
@@ -392,17 +383,17 @@ export default function CleaningChecklist() {
               </div>
               <div>
                 <h1 className="text-5xl font-bold text-gray-900">
-                  Checklist de Limpieza Profesional
+                  {t('cleaningChecklist.title')}
                 </h1>
                 <p className="text-xl text-gray-600 mt-2">
-                  Plantilla completa, personalizable y descargable
+                  {t('cleaningChecklist.subtitle')}
                 </p>
               </div>
             </div>
 
             <div className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-full border border-blue-200">
               <Sparkles className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-900">{totalTasks} tareas · 100% personalizable · Gratis</span>
+              <span className="text-sm font-medium text-blue-900">{totalTasks} {t('cleaningChecklist.badge')}</span>
             </div>
           </motion.div>
 
@@ -415,19 +406,19 @@ export default function CleaningChecklist() {
             >
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Personaliza tu checklist
+                  {t('cleaningChecklist.customize')}
                 </h2>
 
                 {/* Property Name */}
                 <div className="mb-4">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Nombre de la propiedad
+                    {t('cleaningChecklist.propertyName')}
                   </label>
                   <input
                     type="text"
                     value={propertyName}
                     onChange={(e) => setPropertyName(e.target.value)}
-                    placeholder="Apartamento Vista al Mar"
+                    placeholder={t('cleaningChecklist.propertyNamePlaceholder')}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none text-gray-900 placeholder-gray-400"
                   />
                 </div>
@@ -435,13 +426,13 @@ export default function CleaningChecklist() {
                 {/* Property Address */}
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Dirección / Calle
+                    {t('cleaningChecklist.propertyAddress')}
                   </label>
                   <input
                     type="text"
                     value={propertyAddress}
                     onChange={(e) => setPropertyAddress(e.target.value)}
-                    placeholder="Calle Gran Vía 45, 2ºB, Madrid"
+                    placeholder={t('cleaningChecklist.propertyAddressPlaceholder')}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none text-gray-900 placeholder-gray-400"
                   />
                 </div>
@@ -449,10 +440,10 @@ export default function CleaningChecklist() {
                 {/* Style Selector */}
                 <div className="mb-8">
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Estilo de diseño
+                    {t('cleaningChecklist.designStyle')}
                   </label>
                   <div className="grid grid-cols-3 gap-3">
-                    {checklistStyles.map((style) => (
+                    {checklistStylesConfig.map((style) => (
                       <button
                         key={style.id}
                         onClick={() => setSelectedStyle(style)}
@@ -468,7 +459,7 @@ export default function CleaningChecklist() {
                             <Check className="w-6 h-6 text-white absolute inset-0 m-auto z-10 drop-shadow-lg" />
                           )}
                         </div>
-                        <span className="text-xs text-gray-600 mt-1 block">{style.name}</span>
+                        <span className="text-xs text-gray-600 mt-1 block">{t(`cleaningChecklist.styles.${style.nameKey}`)}</span>
                       </button>
                     ))}
                   </div>
@@ -477,7 +468,7 @@ export default function CleaningChecklist() {
                 {/* Progress */}
                 <div className="mb-6 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-green-900">Progreso</span>
+                    <span className="text-sm font-semibold text-green-900">{t('cleaningChecklist.progress')}</span>
                     <span className="text-2xl font-bold text-green-600">{progressPercent}%</span>
                   </div>
                   <div className="w-full h-3 bg-green-100 rounded-full overflow-hidden">
@@ -489,7 +480,7 @@ export default function CleaningChecklist() {
                     />
                   </div>
                   <p className="text-xs text-green-700 mt-2">
-                    {completedTasks} de {totalTasks} tareas completadas
+                    {completedTasks} {t('cleaningChecklist.tasksCompleted', { total: totalTasks })}
                   </p>
                 </div>
 
@@ -500,7 +491,7 @@ export default function CleaningChecklist() {
                     className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all group"
                   >
                     <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                    Descargar checklist
+                    {t('common.downloadChecklist')}
                   </button>
 
                   <button
@@ -508,7 +499,7 @@ export default function CleaningChecklist() {
                     className="w-full py-4 bg-white border-2 border-gray-200 text-gray-900 rounded-xl font-bold flex items-center justify-center hover:border-gray-300 hover:shadow-lg transition-all"
                   >
                     <Printer className="w-5 h-5 mr-2" />
-                    Imprimir checklist
+                    {t('common.printChecklist')}
                   </button>
                 </div>
               </div>
@@ -517,24 +508,24 @@ export default function CleaningChecklist() {
               <div className="mt-8 p-6 bg-blue-50 border-2 border-blue-200 rounded-2xl">
                 <h3 className="font-bold text-blue-900 mb-3 flex items-center">
                   <Sparkles className="w-5 h-5 mr-2" />
-                  Tips de uso
+                  {t('cleaningChecklist.tips.title')}
                 </h3>
                 <ul className="space-y-2 text-sm text-blue-800">
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Personaliza agregando o quitando tareas según tu propiedad</span>
+                    <span>{t('cleaningChecklist.tips.tip1')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Imprime y plastifica para mayor durabilidad</span>
+                    <span>{t('cleaningChecklist.tips.tip2')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Deja una copia visible para tu equipo de limpieza</span>
+                    <span>{t('cleaningChecklist.tips.tip3')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Usa un rotulador borrable para marcar tareas</span>
+                    <span>{t('cleaningChecklist.tips.tip4')}</span>
                   </li>
                 </ul>
               </div>
@@ -549,7 +540,7 @@ export default function CleaningChecklist() {
             >
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Vista previa
+                  {t('common.preview')}
                 </h2>
 
                 {/* Checklist Preview */}
@@ -680,7 +671,7 @@ export default function CleaningChecklist() {
                                   className="flex items-center space-x-2 ml-8 mt-2 text-sm text-gray-500 hover:text-blue-600 transition-colors"
                                 >
                                   <Plus className="w-4 h-4" />
-                                  <span>Añadir tarea personalizada</span>
+                                  <span>{t('cleaningChecklist.addCustomTask')}</span>
                                 </button>
                               )}
                             </div>
@@ -693,7 +684,7 @@ export default function CleaningChecklist() {
                   {/* Footer */}
                   <div className="mt-8 pt-6 border-t border-gray-200 text-center">
                     <p className="text-xs text-gray-500">
-                      Creado con Itineramio · itineramio.com
+                      {t('cleaningChecklist.footer')}
                     </p>
                   </div>
                 </div>
@@ -728,17 +719,17 @@ export default function CleaningChecklist() {
           setPendingAction(null)
         }}
         onSubmit={handleLeadSubmit}
-        title={pendingAction === 'download' ? '¡Descarga tu checklist!' : '¡Imprime tu checklist!'}
-        description="Déjanos tu email para recibir más recursos gratuitos para tu negocio"
-        downloadLabel={pendingAction === 'download' ? 'Descargar' : 'Continuar a imprimir'}
+        title={pendingAction === 'download' ? t('cleaningChecklist.leadModal.downloadTitle') : t('cleaningChecklist.leadModal.printTitle')}
+        description={t('cleaningChecklist.leadModal.description')}
+        downloadLabel={pendingAction === 'download' ? t('common.downloadChecklist') : t('common.printChecklist')}
       />
 
       {/* Success Modal */}
       <SuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        title="¡Checklist enviado!"
-        message="Te hemos enviado el checklist a tu correo. Revisa tu bandeja de entrada para descargarlo."
+        title={t('cleaningChecklist.successModal.title')}
+        message={t('cleaningChecklist.successModal.message')}
         autoClose={true}
         autoCloseDelay={5000}
       />
