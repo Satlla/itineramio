@@ -108,7 +108,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
     {
       icon: Clock,
       title: "Ahorra tiempo",
-      description: "Hasta 2.5 horas/mes por propiedad"
+      description: "Hasta 8 horas/semana en gestión"
     },
     {
       icon: Sparkles,
