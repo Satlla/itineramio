@@ -41,12 +41,46 @@ export async function PATCH(
     // Actualizar la propiedad
     const updatedProperty = await prisma.property.update({
       where: { id: existingProperty.id },
-      data: { 
+      data: {
         status: newStatus,
         isPublished: newIsPublished,
         publishedAt: newIsPublished ? new Date() : null
       }
     })
+
+    // Si se está activando la propiedad, también publicar todas las zonas y pasos
+    if (newIsPublished) {
+      // Actualizar todas las zonas de esta propiedad
+      await prisma.zone.updateMany({
+        where: { propertyId: existingProperty.id },
+        data: {
+          status: 'ACTIVE',
+          isPublished: true
+        }
+      })
+
+      // Obtener todas las zonas para actualizar sus pasos
+      const zones = await prisma.zone.findMany({
+        where: { propertyId: existingProperty.id },
+        select: { id: true }
+      })
+
+      // Actualizar todos los pasos de las zonas
+      if (zones.length > 0) {
+        await prisma.step.updateMany({
+          where: {
+            zoneId: {
+              in: zones.map(z => z.id)
+            }
+          },
+          data: {
+            isPublished: true
+          }
+        })
+      }
+
+      console.log(`✅ Published ${zones.length} zones and their steps for property ${existingProperty.id}`)
+    }
 
     return NextResponse.json({
       success: true,

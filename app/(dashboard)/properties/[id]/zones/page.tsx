@@ -2635,13 +2635,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-xs sm:text-sm font-medium text-amber-800 mb-1">
-                  {t('propertyZones.inactiveProperty')}
+                  Propiedad inactiva
                 </h3>
                 <p className="text-xs sm:text-sm text-amber-700 mb-2">
-                  {t('propertyZones.inactiveDescription')}
+                  Esta propiedad no está activa. Los huéspedes no pueden ver el manual.
                 </p>
                 <p className="text-xs sm:text-sm text-amber-700">
-                  {t('propertyZones.inactiveRecommendation')}
+                  Activa la propiedad para que los huéspedes puedan acceder al manual.
                 </p>
               </div>
             </div>
@@ -2661,8 +2661,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     setPropertyStatus('ACTIVE')
                     addNotification({
                       type: 'info',
-                      title: t('propertyZones.propertyActivated'),
-                      message: t('propertyZones.propertyActivatedMessage'),
+                      title: 'Propiedad activada',
+                      message: 'La propiedad ahora está visible para los huéspedes',
                       read: false
                     })
 
@@ -2674,8 +2674,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     console.error('Failed to activate property:', result.error)
                     addNotification({
                       type: 'error',
-                      title: t('propertyZones.errorActivating'),
-                      message: result.error || t('propertyZones.errorActivatingMessage'),
+                      title: 'Error al activar',
+                      message: result.error || 'No se pudo activar la propiedad',
                       read: false
                     })
                   }
@@ -2683,8 +2683,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   console.error('Error activating property:', error)
                   addNotification({
                     type: 'error',
-                    title: t('zones.error'),
-                    message: t('propertyZones.errorActivatingMessage'),
+                    title: 'Error',
+                    message: 'No se pudo activar la propiedad',
                     read: false
                   })
                 }
@@ -2692,7 +2692,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               size="sm"
               className="bg-amber-600 hover:bg-amber-700 text-white w-full md:w-auto"
             >
-              {t('propertyZones.activateProperty')}
+              Activar propiedad
             </Button>
           </div>
         </div>
