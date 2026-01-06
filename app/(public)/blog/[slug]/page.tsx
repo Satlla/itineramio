@@ -103,16 +103,62 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     data: { views: { increment: 1 } }
   })
 
-  // Get related posts
-  const relatedPosts = await prisma.blogPost.findMany({
+  // Get related posts with variety:
+  // 1. First try same category
+  // 2. Then fill with other categories (educational mix)
+  // 3. Shuffle to make them change
+  const sameCategoryPosts = await prisma.blogPost.findMany({
     where: {
       status: 'PUBLISHED',
       category: post.category,
       id: { not: post.id }
     },
-    take: 3,
-    orderBy: { publishedAt: 'desc' }
+    take: 6,
+    orderBy: { views: 'desc' }
   })
+
+  // Get posts from other categories for variety
+  const otherCategoryPosts = await prisma.blogPost.findMany({
+    where: {
+      status: 'PUBLISHED',
+      category: { not: post.category },
+      id: { not: post.id }
+    },
+    take: 6,
+    orderBy: [
+      { views: 'desc' },
+      { publishedAt: 'desc' }
+    ]
+  })
+
+  // Combine and shuffle for variety, then take 3
+  const allPosts = [...sameCategoryPosts, ...otherCategoryPosts]
+
+  // Simple shuffle using current timestamp as seed for some variety
+  const shuffled = allPosts
+    .map((p, i) => ({ post: p, sort: (Date.now() % 1000) + i * 137 }))
+    .sort((a, b) => (a.sort % 7) - (b.sort % 7))
+    .map(({ post }) => post)
+
+  // Ensure at least 1 from same category if available, rest mixed
+  const relatedPosts: typeof sameCategoryPosts = []
+  const usedIds = new Set<string>()
+
+  // Add 1 from same category first (if available)
+  if (sameCategoryPosts.length > 0) {
+    const randomIndex = Date.now() % sameCategoryPosts.length
+    relatedPosts.push(sameCategoryPosts[randomIndex])
+    usedIds.add(sameCategoryPosts[randomIndex].id)
+  }
+
+  // Fill the rest with shuffled posts (mix of categories)
+  for (const p of shuffled) {
+    if (relatedPosts.length >= 3) break
+    if (!usedIds.has(p.id)) {
+      relatedPosts.push(p)
+      usedIds.add(p.id)
+    }
+  }
 
   // Category display names
   const categoryNames: Record<string, string> = {

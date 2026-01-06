@@ -279,6 +279,17 @@ export function BlogComments({ slug }: BlogCommentsProps) {
         )}
       </AnimatePresence>
 
+      {/* Be the first to comment - shown when no comments */}
+      {!isLoading && comments.length === 0 && (
+        <div className="text-center py-8 mb-6 bg-violet-50 rounded-xl border border-violet-100">
+          <MessageCircle className="w-10 h-10 text-violet-400 mx-auto mb-3" />
+          <h4 className="font-semibold text-gray-900 mb-1">Se el primero en comentar</h4>
+          <p className="text-gray-500 text-sm">
+            Comparte tu opinion sobre este articulo
+          </p>
+        </div>
+      )}
+
       {/* Main Comment Form */}
       <div className="bg-gray-50 rounded-xl p-6 mb-8">
         <h4 className="font-semibold text-gray-900 mb-4">Deja un comentario</h4>
@@ -632,15 +643,7 @@ export function BlogComments({ slug }: BlogCommentsProps) {
             </motion.div>
           ))}
         </div>
-      ) : (
-        <div className="text-center py-12 bg-gray-50 rounded-xl">
-          <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h4 className="font-semibold text-gray-900 mb-2">Se el primero en comentar</h4>
-          <p className="text-gray-500">
-            Comparte tu opinion sobre este articulo
-          </p>
-        </div>
-      )}
+      ) : null}
     </section>
   )
 }
