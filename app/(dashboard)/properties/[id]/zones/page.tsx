@@ -58,6 +58,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
 import { getCleanZoneUrl } from '../../../../../src/lib/slug-resolver'
 import { generateSlug } from '../../../../../src/lib/slug-utils'
+import { useTranslation } from 'react-i18next'
 
 interface Zone {
   id: string
@@ -72,11 +73,39 @@ interface Zone {
   slug?: string
 }
 
+// Helper function to get zone text from i18n object or string
+const getZoneText = (text: any, fallback: string = ''): string => {
+  if (!text) return fallback
+  if (typeof text === 'string') return text
+  if (typeof text === 'object') {
+    return text.es || text.en || text.fr || fallback
+  }
+  return fallback
+}
+
+// Helper function to transform zones from API response
+// API returns 'icon' but UI expects 'iconId'
+const transformZonesFromApi = (zonesData: any[], propertyId: string): Zone[] => {
+  return zonesData.map((zone: any) => ({
+    id: zone.id,
+    name: getZoneText(zone.name),
+    description: getZoneText(zone.description),
+    iconId: zone.icon || zone.iconId || '', // API uses 'icon', transform to 'iconId'
+    order: zone.order || 0,
+    steps: zone.steps || [],
+    stepsCount: zone.steps?.length || 0,
+    qrUrl: `https://www.itineramio.com/guide/${propertyId}/${zone.id}`,
+    lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    slug: zone.slug
+  }))
+}
+
 export default function PropertyZonesPage({ params }: { params: Promise<{ id: string }> }) {
   const [id, setId] = useState<string>('')
   const router = useRouter()
   const { user } = useAuth()
   const { addNotification } = useNotifications()
+  const { t } = useTranslation('dashboard')
   const [zones, setZones] = useState<Zone[]>([])
   const [propertyName, setPropertyName] = useState<string>('')
   const [propertyCode, setPropertyCode] = useState<string>('')
@@ -627,7 +656,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         const zonesResponse = await fetch(`/api/properties/${id}/zones`)
         const zonesResult = await zonesResponse.json()
         if (zonesResult.success) {
-          setZones(zonesResult.data)
+          setZones(transformZonesFromApi(zonesResult.data, id))
         }
 
         setFormData({ name: '', description: '', iconId: '' })
@@ -929,7 +958,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         const zonesResponse = await fetch(`/api/properties/${id}/zones`)
         const zonesResult = await zonesResponse.json()
         if (zonesResult.success) {
-          setZones(zonesResult.data)
+          setZones(transformZonesFromApi(zonesResult.data, id))
         }
         
         setShowInspirationModal(false)
@@ -1276,7 +1305,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         const zonesResponse = await fetch(`/api/properties/${id}/zones`)
         const zonesResult = await zonesResponse.json()
         if (zonesResult.success) {
-          setZones(zonesResult.data)
+          setZones(transformZonesFromApi(zonesResult.data, id))
         }
         
         setShowElementSelector(false)
@@ -1888,7 +1917,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         const zonesResponse = await fetch(`/api/properties/${id}/zones`)
         const zonesResult = await zonesResponse.json()
         if (zonesResult.success) {
-          setZones(zonesResult.data)
+          setZones(transformZonesFromApi(zonesResult.data, id))
         }
 
         setFormData({ name: '', description: '', iconId: '' })
@@ -2360,42 +2389,42 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                       <DropdownMenu.Item
                         className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                         onSelect={async () => {
-                          console.log('🔍 Opening steps editor for zone:', zone.id, zone)
+                          console.log('Opening steps editor for zone:', zone.id, zone)
                           setEditingZoneForSteps(zone)
                           await loadZoneSteps(zone.id)
                           setShowStepEditor(true)
                         }}
                       >
                         <Edit className="h-4 w-4 mr-2" />
-                        Editar
+                        {t('zones.edit')}
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
                         className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                         onSelect={() => handleEditZone(zone)}
                       >
                         <FileText className="h-4 w-4 mr-2" />
-                        Configurar
+                        {t('zones.configure')}
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
                         className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                         onSelect={() => handleCopyURL(zone)}
                       >
                         <Copy className="h-4 w-4 mr-2" />
-                        Copiar URL
+                        {t('zones.copyUrl')}
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
                         className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                         onSelect={() => handleShowQR(zone)}
                       >
                         <QrCode className="h-4 w-4 mr-2" />
-                        Ver Código QR
+                        {t('zones.viewQr')}
                       </DropdownMenu.Item>
                       <DropdownMenu.Item
                         className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                         onSelect={() => handleCopyZone(zone)}
                       >
                         <Copy className="h-4 w-4 mr-2" />
-                        Copiar zona
+                        {t('zones.copyZone')}
                       </DropdownMenu.Item>
                       <DropdownMenu.Separator className="my-1 h-px bg-gray-200" />
                       <DropdownMenu.Item
@@ -2403,7 +2432,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                         onSelect={() => handleDeleteZone(zone)}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Eliminar
+                        {t('zones.delete')}
                       </DropdownMenu.Item>
                     </DropdownMenu.Content>
                   </DropdownMenu.Portal>
@@ -2484,28 +2513,28 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                           onSelect={() => handleEditZone(zone)}
                         >
                           <FileText className="h-4 w-4 mr-2" />
-                          Configurar
+                          {t('zones.configure')}
                         </DropdownMenu.Item>
                         <DropdownMenu.Item
                           className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                           onSelect={() => handleCopyURL(zone)}
                         >
                           <Copy className="h-4 w-4 mr-2" />
-                          Copiar URL
+                          {t('zones.copyUrl')}
                         </DropdownMenu.Item>
                         <DropdownMenu.Item
                           className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                           onSelect={() => handleShowQR(zone)}
                         >
                           <QrCode className="h-4 w-4 mr-2" />
-                          Ver Código QR
+                          {t('zones.viewQr')}
                         </DropdownMenu.Item>
                         <DropdownMenu.Item
                           className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                           onSelect={() => handleCopyZone(zone)}
                         >
                           <Copy className="h-4 w-4 mr-2" />
-                          Copiar zona
+                          {t('zones.copyZone')}
                         </DropdownMenu.Item>
                         <DropdownMenu.Separator className="my-1 h-px bg-gray-200" />
                         <DropdownMenu.Item
@@ -2513,7 +2542,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                           onSelect={() => handleDeleteZone(zone)}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
-                          Eliminar
+                          {t('zones.delete')}
                         </DropdownMenu.Item>
                       </DropdownMenu.Content>
                     </DropdownMenu.Portal>
@@ -2590,7 +2619,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   // Show loading spinner when loading zones
   if (isLoadingZones) {
-    return <AnimatedLoadingSpinner text="Cargando zonas..." type="zones" />
+    return <AnimatedLoadingSpinner text={t('loading.zones')} type="zones" />
   }
 
   return (
@@ -2606,13 +2635,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-xs sm:text-sm font-medium text-amber-800 mb-1">
-                  Propiedad Inactiva - No visible para huéspedes
+                  {t('propertyZones.inactiveProperty')}
                 </h3>
                 <p className="text-xs sm:text-sm text-amber-700 mb-2">
-                  Esta propiedad está actualmente inactiva. Los huéspedes no podrán acceder a los manuales hasta que la actives.
+                  {t('propertyZones.inactiveDescription')}
                 </p>
                 <p className="text-xs sm:text-sm text-amber-700">
-                  <strong>Recomendación:</strong> Completa todas las zonas con sus instrucciones antes de activar la propiedad para ofrecer la mejor experiencia a tus huéspedes.
+                  {t('propertyZones.inactiveRecommendation')}
                 </p>
               </div>
             </div>
@@ -2632,8 +2661,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     setPropertyStatus('ACTIVE')
                     addNotification({
                       type: 'info',
-                      title: '✅ Propiedad Activada',
-                      message: 'Tu propiedad ya está visible para los huéspedes',
+                      title: t('propertyZones.propertyActivated'),
+                      message: t('propertyZones.propertyActivatedMessage'),
                       read: false
                     })
 
@@ -2645,8 +2674,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     console.error('Failed to activate property:', result.error)
                     addNotification({
                       type: 'error',
-                      title: 'Error al activar',
-                      message: result.error || 'No se pudo activar la propiedad',
+                      title: t('propertyZones.errorActivating'),
+                      message: result.error || t('propertyZones.errorActivatingMessage'),
                       read: false
                     })
                   }
@@ -2654,8 +2683,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   console.error('Error activating property:', error)
                   addNotification({
                     type: 'error',
-                    title: 'Error',
-                    message: 'No se pudo activar la propiedad',
+                    title: t('zones.error'),
+                    message: t('propertyZones.errorActivatingMessage'),
                     read: false
                   })
                 }
@@ -2663,7 +2692,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               size="sm"
               className="bg-amber-600 hover:bg-amber-700 text-white w-full md:w-auto"
             >
-              Activar Propiedad
+              {t('propertyZones.activateProperty')}
             </Button>
           </div>
         </div>
@@ -2681,7 +2710,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           >
             <div className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2">
               <CheckCircle className="w-5 h-5" />
-              <span className="font-medium">Manual copiado al portapapeles</span>
+              <span className="font-medium">{t('propertyZones.manualCopied')}</span>
             </div>
           </div>
         )}
@@ -2695,20 +2724,20 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             onClick={() => router.push(`/properties/groups/${propertySetId}`)}
             className="flex items-center text-gray-600 hover:text-gray-900"
           >
-            <svg 
-              className="w-5 h-5 mr-2" 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M10 19l-7-7m0 0l7-7m-7 7h18" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
               />
             </svg>
-            Volver al conjunto
+            {t('propertyZones.backToGroup')}
           </Button>
         </div>
       )}
@@ -2727,7 +2756,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="text-3xl font-bold text-gray-900">
-              Zonas de {propertyName || 'la Propiedad'}
+              {propertyName ? t('zones.title', { name: propertyName }) : t('zones.titleDefault')}
             </h1>
             {propertyCode && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
@@ -2737,7 +2766,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             )}
           </div>
           <p className="text-gray-600 mt-2">
-            Gestiona las diferentes zonas y sus códigos QR para facilitar la experiencia de tus huéspedes
+            {t('zones.subtitle')}
           </p>
         </div>
         <div className="hidden lg:flex items-center gap-6">
@@ -2746,7 +2775,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             onClick={handleViewEvaluations}
             className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors relative"
           >
-            Evaluaciones
+            {t('propertyZones.evaluations')}
             {unreadEvaluations > 0 && (
               <span className="absolute -top-2 -right-0 translate-x-full bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center ml-1">
                 {unreadEvaluations}
@@ -2758,14 +2787,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             onClick={() => router.push(`/properties/${id}/announcements`)}
             className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
           >
-            Avisos
+            {t('propertyZones.announcements')}
           </button>
 
           <button
             onClick={() => router.push(`/properties/${id}/analytics`)}
             className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors"
           >
-            Analíticas
+            {t('propertyZones.analytics')}
           </button>
 
           <button
@@ -2774,7 +2803,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               window.open(publicUrl, '_blank')
             }}
             className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-            aria-label="Vista pública"
+            aria-label={t('propertyZones.publicView')}
           >
             <Eye className="w-5 h-5 text-gray-700" />
           </button>
@@ -2797,14 +2826,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   onSelect={() => setShowPropertyQRModal(true)}
                 >
                   <QrCode className="h-4 w-4 mr-2" />
-                  QR del Apartamento Completo
+                  {t('propertyZones.propertyQr')}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                   onSelect={() => router.push(`/properties/new?edit=${id}`)}
                 >
                   <Edit className="h-4 w-4 mr-2" />
-                  Editar Propiedad
+                  {t('propertyZones.editProperty')}
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
@@ -2822,20 +2851,20 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               onClick={handleViewEvaluations}
               className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors relative"
             >
-              Evaluaciones
+              {t('propertyZones.evaluations')}
               {unreadEvaluations > 0 && (
                 <span className="absolute -top-2 -right-0 translate-x-full bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center ml-1">
                   {unreadEvaluations}
                 </span>
               )}
             </button>
-            
+
             {/* Avisos - Keep text */}
             <button
               onClick={() => router.push(`/properties/${id}/announcements`)}
               className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors"
             >
-              Avisos
+              {t('propertyZones.announcements')}
             </button>
 
             {/* Analíticas - Keep text */}
@@ -2843,7 +2872,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               onClick={() => router.push(`/properties/${id}/analytics`)}
               className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors"
             >
-              Analíticas
+              {t('propertyZones.analytics')}
             </button>
           </div>
 
@@ -2856,21 +2885,21 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 window.open(publicUrl, '_blank')
               }}
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Vista pública"
+              aria-label={t('propertyZones.publicView')}
             >
               <Eye className="w-5 h-5 text-gray-700" />
             </button>
-            
-            
+
+
             {/* QR Code */}
             <button
               onClick={() => setShowPropertyQRModal(true)}
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Código QR"
+              aria-label={t('zones.viewQr')}
             >
               <QrCode className="w-5 h-5 text-gray-700" />
             </button>
-            
+
           </div>
         </div>
       </div>
@@ -2882,36 +2911,36 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             <div className="flex items-center">
               <MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-violet-600 flex-shrink-0" />
               <div className="ml-3 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Zonas</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">{t('zones.totalZones')}</p>
                 <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{zones.length}</p>
               </div>
             </div>
-            
+
             <div className="flex items-center">
               <QrCode className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
               <div className="ml-3 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">QR Codes</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">{t('zones.qrCodes')}</p>
                 <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{zones.length}</p>
               </div>
             </div>
-            
+
             <div className="flex items-center">
               <Edit className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 flex-shrink-0" />
               <div className="ml-3 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Steps</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">{t('zones.totalSteps')}</p>
                 <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">
                   {zones.reduce((acc, zone) => acc + (zone.stepsCount || 0), 0)}
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center">
               <div className="h-6 w-6 sm:h-8 sm:w-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <div className="h-3 w-3 sm:h-4 sm:w-4 bg-orange-600 rounded-full"></div>
               </div>
               <div className="ml-3 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Última Act.</p>
-                <p className="text-sm sm:text-lg font-semibold text-gray-900 truncate">Hoy</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">{t('zones.lastUpdate')}</p>
+                <p className="text-sm sm:text-lg font-semibold text-gray-900 truncate">{t('zones.today')}</p>
               </div>
             </div>
           </div>
@@ -2926,7 +2955,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           {/* Mobile header for zones */}
           <div className="lg:hidden mb-4">
             <h2 className="text-xl font-semibold text-gray-900">
-              Tus zonas en {propertyName || 'la propiedad'}
+              {propertyName ? t('zones.yourZonesIn', { name: propertyName }) : t('zones.yourZones')}
             </h2>
           </div>
 
@@ -2935,7 +2964,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             <div className="hidden lg:block mb-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-gray-900">
-                  Tus zonas
+                  {t('zones.yourZones')}
                 </h2>
                 <div className="flex gap-3">
                   <Button
@@ -2944,14 +2973,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     className="border-violet-200 text-violet-700 hover:bg-violet-50"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Zona Personalizada
+                    {t('zones.customZone')}
                   </Button>
                   <Button
                     onClick={handleOpenMultiSelect}
                     className="bg-violet-600 hover:bg-violet-700"
                   >
                     <Plus className="w-5 h-5 mr-2" />
-                    Elementos Predefinidos
+                    {t('zones.predefinedElements')}
                   </Button>
                 </div>
               </div>
@@ -2964,10 +2993,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   <MapPin className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Crea tu primer manual digital
+                  {t('zones.createFirst')}
                 </h3>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  Añade zonas con instrucciones para que tus huéspedes tengan toda la información que necesitan.
+                  {t('zones.createFirstDescription')}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button
@@ -2976,14 +3005,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     className="border-violet-200 text-violet-700 hover:bg-violet-50 flex-1 sm:flex-none"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Zona Personalizada
+                    {t('zones.customZone')}
                   </Button>
                   <Button
                     onClick={handleOpenMultiSelect}
                     className="bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-none"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Elementos Predefinidos
+                    {t('zones.predefinedElements')}
                   </Button>
                 </div>
               </Card>
@@ -3054,39 +3083,39 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   <Plus className="w-6 h-6 text-violet-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900">
-                  {editingZone ? 'Editar Zona' : 'Crear Zona Personalizada'}
+                  {editingZone ? t('zones.editZone') : t('zones.createCustomZone')}
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  {editingZone ? 'Modifica los detalles de tu zona' : 'Diseña una zona completamente personalizada con tu propio nombre e icono'}
+                  {editingZone ? t('zones.modifyDetails') : t('zones.designCustom')}
                 </p>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nombre de la zona
+                    {t('zones.zoneName')}
                   </label>
                   <Input
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Ej: Cocina, Baño, Entrada..."
+                    placeholder={t('zones.zoneNamePlaceholder')}
                   />
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Descripción (opcional)
+                    {t('zones.descriptionOptional')}
                   </label>
                   <Input
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Breve descripción de la zona"
+                    placeholder={t('zones.descriptionPlaceholder')}
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Icono
+                    {t('zones.icon')}
                   </label>
                   <div className="flex items-center space-x-3">
                     <ZoneIconDisplay iconId={formData.iconId} size="md" />
@@ -3095,19 +3124,19 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                       onClick={() => setShowIconSelector(true)}
                       className="flex-1"
                     >
-                      {formData.iconId ? 'Cambiar Icono' : 'Seleccionar Icono'}
+                      {formData.iconId ? t('zones.changeIcon') : t('zones.selectIcon')}
                     </Button>
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex space-x-3 mt-6">
                 <Button
                   variant="outline"
                   onClick={resetForm}
                   className="flex-1"
                 >
-                  Cancelar
+                  {t('zones.cancel')}
                 </Button>
                 <Button
                   onClick={editingZone ? handleUpdateZone : handleCreateZone}
@@ -3117,7 +3146,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   {(isCreatingZone || isUpdatingZone) ? (
                     <InlineLoadingSpinner />
                   ) : (
-                    editingZone ? 'Actualizar' : 'Crear'
+                    editingZone ? t('zones.update') : t('zones.create')
                   )}
                 </Button>
               </div>
@@ -3168,7 +3197,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             >
               <div className="p-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">QR Code - {getZoneText(selectedZoneForQR.name)}</h3>
+                  <h3 className="text-lg font-semibold">{t('zones.qrCodeTitle', { name: getZoneText(selectedZoneForQR.name) })}</h3>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -3193,7 +3222,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <p className="text-sm text-gray-600 text-center">
-                    Los huéspedes pueden escanear este código QR para acceder a las instrucciones de esta zona.
+                    {t('zones.qrScanMessage')}
                   </p>
                 </div>
               </div>
@@ -3231,7 +3260,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             >
               <div className="p-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">QR Code - {propertyName}</h3>
+                  <h3 className="text-lg font-semibold">{t('zones.qrCodeTitle', { name: propertyName })}</h3>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -3241,7 +3270,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   </Button>
                 </div>
               </div>
-              
+
               <div className="p-4">
                 <QRCodeDisplay
                   propertyId={id}
@@ -3249,10 +3278,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   size="lg"
                   showTitle={false}
                 />
-                
+
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <p className="text-sm text-gray-600 text-center">
-                    Los huéspedes pueden escanear este código QR para acceder al manual completo del apartamento.
+                    {t('zones.qrPropertyScanMessage')}
                   </p>
                   <div className="mt-3 flex justify-center">
                     <Button
@@ -3267,7 +3296,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                       className="flex items-center gap-2"
                     >
                       <Copy className="w-4 h-4" />
-                      Copiar Enlace
+                      {t('zones.copyLink')}
                     </Button>
                   </div>
                 </div>
