@@ -859,11 +859,18 @@ function PropertiesPageContent() {
   }
 
   const handleToggleProperty = async (propertyId: string) => {
+    // Guardar estado original para poder revertir
+    const originalProperty = properties.find(p => p.id === propertyId)
+    if (!originalProperty) return
+
+    const originalStatus = originalProperty.status
+    const originalIsPublished = originalProperty.isPublished
+
     try {
-      // Actualizar localmente primero para feedback inmediato
+      // Actualizar localmente primero para feedback inmediato (optimistic update)
+      const newStatus = originalStatus === 'ACTIVE' ? 'DRAFT' : 'ACTIVE'
       setProperties(prev => prev.map(p => {
         if (p.id === propertyId) {
-          const newStatus = p.status === 'ACTIVE' ? 'DRAFT' : 'ACTIVE'
           return {
             ...p,
             status: newStatus,
@@ -884,18 +891,32 @@ function PropertiesPageContent() {
       }
 
       const result = await response.json()
+
+      // Actualizar con los datos confirmados del servidor
+      if (result.success && result.data) {
+        setProperties(prev => prev.map(p => {
+          if (p.id === propertyId) {
+            return {
+              ...p,
+              status: result.data.status,
+              isPublished: result.data.isPublished
+            }
+          }
+          return p
+        }))
+      }
+
       console.log(result.message)
 
     } catch (error) {
       console.error('Error toggling property:', error)
-      // Revertir el cambio en caso de error
+      // Revertir al estado original en caso de error
       setProperties(prev => prev.map(p => {
         if (p.id === propertyId) {
-          const newStatus = p.status === 'ACTIVE' ? 'DRAFT' : 'ACTIVE'
           return {
             ...p,
-            status: newStatus,
-            isPublished: newStatus === 'ACTIVE'
+            status: originalStatus,
+            isPublished: originalIsPublished
           }
         }
         return p
