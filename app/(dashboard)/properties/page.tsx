@@ -1171,9 +1171,9 @@ function PropertiesPageContent() {
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
             <div className="w-full sm:w-auto">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('properties.title')}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Mis Propiedades</h1>
               <p className="text-sm sm:text-base text-gray-600 mt-1">
-                {t('properties.subtitle')}
+                Gestiona tus propiedades y manuales digitales
               </p>
             </div>
 
@@ -1202,16 +1202,16 @@ function PropertiesPageContent() {
                 <Link href="/properties/new" className="w-full sm:w-auto">
                   <Button className="bg-violet-600 hover:bg-violet-700 w-full sm:w-auto text-sm">
                     <Plus className="w-4 h-4 mr-1.5 sm:mr-2" />
-                    <span className="sm:hidden">{t('properties.newShort')}</span>
-                    <span className="hidden sm:inline">{t('properties.addProperty')}</span>
+                    <span className="sm:hidden">Nueva</span>
+                    <span className="hidden sm:inline">Añadir propiedad</span>
                   </Button>
                 </Link>
               </div>
               <Link href="/property-sets/new" className="w-full sm:w-auto">
                 <Button variant="outline" className="border-violet-600 text-violet-600 hover:bg-violet-50 w-full sm:w-auto text-sm">
                   <Building2 className="w-4 h-4 mr-1.5 sm:mr-2" />
-                  <span className="sm:hidden">{t('propertySets.groupShort')}</span>
-                  <span className="hidden sm:inline">{t('propertySets.createNew')}</span>
+                  <span className="sm:hidden">Conjunto</span>
+                  <span className="hidden sm:inline">Crear Conjunto</span>
                 </Button>
               </Link>
             </div>
@@ -1241,7 +1241,7 @@ function PropertiesPageContent() {
                   </div>
                   <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
                     <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">
-                      {activeTab === 'properties' ? t('stats.properties') : t('propertySets.title')}
+                      {activeTab === 'properties' ? 'Propiedades' : 'Conjuntos'}
                     </p>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {activeTab === 'properties'
@@ -1258,11 +1258,11 @@ function PropertiesPageContent() {
                     <Timer className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-600" />
                   </div>
                   <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{t('stats.time')}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Tiempo Ahorrado</p>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {stats.monthlyTimeSaved}
                     </p>
-                    <p className="text-[10px] sm:text-xs text-gray-500">{t('stats.minMonth')}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">min/mes</p>
                   </div>
                 </div>
               </Card>
@@ -1273,11 +1273,11 @@ function PropertiesPageContent() {
                     <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-green-600" />
                   </div>
                   <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{t('stats.queries')}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Consultas</p>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {stats.totalQueries}
                     </p>
-                    <p className="text-[10px] sm:text-xs text-gray-500">{t('stats.avoidedMonth')}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">evitadas/mes</p>
                   </div>
                 </div>
               </Card>
@@ -1296,7 +1296,7 @@ function PropertiesPageContent() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              {t('properties.individual')}
+              Propiedades
               <span className="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">
                 {properties.filter(property => !property.propertySetId).length}
               </span>
@@ -1309,7 +1309,7 @@ function PropertiesPageContent() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              {t('propertySets.title')}
+              Conjuntos de Propiedades
               <span className="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">
                 {propertySets.length}
               </span>
@@ -1329,8 +1329,8 @@ function PropertiesPageContent() {
                   <Lightbulb className="w-5 h-5 text-violet-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 text-sm">{t('recommendations.dailyTitle')}</h3>
-                  <p className="text-xs text-gray-600">{t('recommendations.optimizationTips')}</p>
+                  <h3 className="font-semibold text-gray-900 text-sm">Recomendaciones del Día</h3>
+                  <p className="text-xs text-gray-600">Consejos para optimizar tu negocio</p>
                 </div>
               </div>
               <Button
@@ -1338,7 +1338,7 @@ function PropertiesPageContent() {
                 variant="outline"
                 className="text-xs px-3 py-2 border-violet-200 text-violet-600 hover:bg-violet-50"
               >
-                {t('recommendations.viewTips')}
+                Ver consejos
                 <ArrowRight className="w-3 h-3 ml-1" />
               </Button>
             </div>
@@ -1349,7 +1349,7 @@ function PropertiesPageContent() {
         {loading ? (
           <Card className="p-12 text-center">
             <InlineLoadingSpinner
-              text={activeTab === 'properties' ? t('loading.properties') : t('loading.propertySets')}
+              text={activeTab === 'properties' ? 'Cargando propiedades...' : 'Cargando conjuntos...'}
               type={activeTab === 'properties' ? 'properties' : 'properties'}
             />
           </Card>
@@ -1359,11 +1359,11 @@ function PropertiesPageContent() {
               <span className="text-red-600 text-xl">!</span>
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {activeTab === 'properties' ? t('errors.loadingProperties') : t('errors.loadingPropertySets')}
+              {activeTab === 'properties' ? 'Error al cargar propiedades' : 'Error al cargar conjuntos'}
             </h3>
             <p className="text-gray-600 mb-6">{error}</p>
             <Button onClick={activeTab === 'properties' ? fetchProperties : fetchPropertySets} variant="outline">
-              {t('common.retry')}
+              Reintentar
             </Button>
           </Card>
         ) : activeTab === 'properties' ? (
@@ -1380,10 +1380,10 @@ function PropertiesPageContent() {
                 <Card className="p-12 text-center">
                   <Home className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    {t('properties.noIndividualProperties')}
+                    No tienes propiedades individuales
                   </h3>
                   <p className="text-gray-600 mb-6">
-                    {t('properties.createFirstOrGroup')}
+                    Crea tu primera propiedad o agrupa varias en un conjunto
                   </p>
                   <div className="flex items-center justify-center gap-3">
                     {/* Floating Lightbulb - OUTSIDE button, on the left - CLICKEABLE */}
@@ -1407,7 +1407,7 @@ function PropertiesPageContent() {
                     <Link href="/properties/new">
                       <Button>
                         <Plus className="w-4 h-4 mr-2" />
-                        {t('properties.createFirst')}
+                        Crear primera propiedad
                       </Button>
                     </Link>
                   </div>
@@ -1420,7 +1420,7 @@ function PropertiesPageContent() {
                   <Card className="p-6">
                     <div className="flex items-center mb-4">
                       <Lightbulb className="w-5 h-5 text-violet-600 mr-2" />
-                      <h3 className="text-lg font-semibold text-gray-900">{t('gettingStarted.title')}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">Primeros Pasos</h3>
                     </div>
 
                     <div className="space-y-4">
@@ -1435,17 +1435,17 @@ function PropertiesPageContent() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="text-sm font-semibold text-gray-900 mb-1">
-                              {t('gettingStarted.createFirstProperty')}
+                              Crea tu primera propiedad
                             </h4>
                             <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-                              {t('gettingStarted.createFirstPropertyDesc')}
+                              Añade los datos básicos de tu alojamiento y configura las zonas
                             </p>
                             <Link href="/properties/new">
                               <Button
                                 size="sm"
                                 className="text-xs h-8 px-3 bg-blue-600 hover:bg-blue-700"
                               >
-                                {t('gettingStarted.createPropertyBtn')}
+                                Crear propiedad
                                 <ArrowRight className="w-3 h-3 ml-1" />
                               </Button>
                             </Link>
@@ -1465,10 +1465,10 @@ function PropertiesPageContent() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="text-sm font-semibold text-gray-900 mb-1">
-                              {t('gettingStarted.multipleProperties')}
+                              ¿Tienes varias propiedades?
                             </h4>
                             <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-                              {t('gettingStarted.multiplePropertiesDesc')}
+                              Agrúpalas en conjuntos para gestionar zonas comunes y configuración
                             </p>
                             <Link href="/property-sets/new">
                               <Button
@@ -1476,7 +1476,7 @@ function PropertiesPageContent() {
                                 variant="outline"
                                 className="text-xs h-8 px-3"
                               >
-                                {t('propertySets.createNew')}
+                                Crear Conjunto
                                 <ArrowRight className="w-3 h-3 ml-1" />
                               </Button>
                             </Link>
@@ -1498,7 +1498,7 @@ function PropertiesPageContent() {
                     <div className="relative max-w-md">
                       <Input
                         type="text"
-                        placeholder={t('properties.searchPlaceholder')}
+                        placeholder="Buscar propiedades..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="pl-10 pr-4"
@@ -1524,10 +1524,10 @@ function PropertiesPageContent() {
                       <Card className="p-8 text-center">
                         <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          {t('properties.noSearchResults')}
+                          Sin resultados
                         </h3>
                         <p className="text-gray-600">
-                          {t('properties.noSearchResultsFor', { query: searchQuery })}
+                          No se encontraron propiedades para "{searchQuery}"
                         </p>
                       </Card>
                     )
@@ -1572,7 +1572,7 @@ function PropertiesPageContent() {
                               handleEditProperty(property.id)
                             }}
                           >
-                            {t('properties.edit')}
+                            Editar
                           </div>
                         </div>
                       </div>
@@ -1594,7 +1594,7 @@ function PropertiesPageContent() {
                               {property.propertySetId && property.propertySet && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                                   <Building2 className="w-3 h-3 mr-1" />
-                                  {t('properties.belongsTo', { name: property.propertySet.name })}
+                                  En: {property.propertySet.name}
                                 </span>
                               )}
                             </div>
@@ -1602,37 +1602,37 @@ function PropertiesPageContent() {
                               {getText(property.city, '')}, {getText(property.state, '')}
                             </p>
                             <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
-                              <span>{property.bedrooms} {t('properties.rooms')}</span>
-                              <span>{property.bathrooms} {t('properties.bathrooms')}</span>
-                              <span>{property.maxGuests} {t('properties.guests')}</span>
+                              <span>{property.bedrooms} hab</span>
+                              <span>{property.bathrooms} baños</span>
+                              <span>{property.maxGuests} huéspedes</span>
                             </div>
                             
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-sm min-w-0">
-                                <div className="flex items-center text-gray-600" title={t('properties.zonesTitle')}>
+                                <div className="flex items-center text-gray-600" title="Zonas">
                                   <Layers className="h-4 w-4 mr-1 text-violet-500" />
-                                  <span>{property.zonesCount} {t('properties.zones')}</span>
+                                  <span>{property.zonesCount} zonas</span>
                                 </div>
                                 {(property.stepsCount || 0) > 0 && (
-                                  <div className="flex items-center text-gray-600" title={t('properties.stepsTitle')}>
+                                  <div className="flex items-center text-gray-600" title="Pasos">
                                     <FileText className="h-4 w-4 mr-1 text-blue-500" />
-                                    <span>{property.stepsCount} {t('properties.steps')}</span>
+                                    <span>{property.stepsCount} pasos</span>
                                   </div>
                                 )}
                                 {(property.videosCount || 0) > 0 && (
-                                  <div className="flex items-center text-gray-600" title={t('properties.videosTitle')}>
+                                  <div className="flex items-center text-gray-600" title="Vídeos">
                                     <Video className="h-4 w-4 mr-1 text-red-500" />
                                     <span>{property.videosCount}</span>
                                   </div>
                                 )}
                                 {property.totalViews > 0 && (
-                                  <div className="flex items-center text-gray-600" title={t('properties.totalViews')}>
+                                  <div className="flex items-center text-gray-600" title="Visitas totales">
                                     <Eye className="h-4 w-4 mr-1 text-green-500" />
                                     <span>{property.totalViews}</span>
                                   </div>
                                 )}
                                 {property.avgRating && property.avgRating > 0 && (
-                                  <div className="flex items-center text-gray-600" title={t('properties.averageRating')}>
+                                  <div className="flex items-center text-gray-600" title="Valoración media">
                                     <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
                                     <span>{Number(property.avgRating).toFixed(1)}</span>
                                   </div>
@@ -1648,14 +1648,14 @@ function PropertiesPageContent() {
                                       ? 'bg-green-100 text-green-800'
                                       : 'bg-gray-100 text-gray-600'
                                   }`}>
-                                    {property.isPublished ? t('properties.published') : t('properties.unpublished')}
+                                    {property.isPublished ? 'Publicada' : 'No publicada'}
                                   </span>
                                 </div>
                                 
                                 {/* Switch para activar/desactivar */}
                                 <div className="flex items-center space-x-2">
                                   <span className="text-sm text-gray-600">
-                                    {property.status === 'ACTIVE' ? t('properties.active') : t('properties.inactive')}
+                                    {property.status === 'ACTIVE' ? 'Activa' : 'Inactiva'}
                                   </span>
                                   <label className="relative inline-flex items-center cursor-pointer" onClick={(e) => e.stopPropagation()}>
                                     <input
@@ -1684,21 +1684,21 @@ function PropertiesPageContent() {
                                   onSelect={() => handleViewEvaluations(property.id)}
                                 >
                                   <Star className="h-4 w-4 mr-2" />
-                                  {t('properties.evaluations')}
+                                  Valoraciones
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                   onSelect={() => handleEditProperty(property.id)}
                                 >
                                   <Edit2 className="h-4 w-4 mr-2" />
-                                  {t('properties.editProperty')}
+                                  Editar propiedad
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                   onSelect={() => router.push(getFriendlyUrl(property))}
                                 >
                                   <Building2 className="h-4 w-4 mr-2" />
-                                  {t('properties.manage')}
+                                  Gestionar zonas
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
@@ -1712,7 +1712,7 @@ function PropertiesPageContent() {
                                   }}
                                 >
                                   <Copy className="h-4 w-4 mr-2" />
-                                  {t('properties.duplicate')}
+                                  Duplicar
                                 </DropdownMenu.Item>
                                 {property.status === 'ACTIVE' && (
                                   <DropdownMenu.Item
@@ -1720,7 +1720,7 @@ function PropertiesPageContent() {
                                     onSelect={() => handleViewManual(property.id)}
                                   >
                                     <ExternalLink className="h-4 w-4 mr-2" />
-                                    {t('properties.publicView')}
+                                    Ver manual público
                                   </DropdownMenu.Item>
                                 )}
                                 <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
@@ -1729,7 +1729,7 @@ function PropertiesPageContent() {
                                   onSelect={() => handleDeleteProperty(property.id)}
                                 >
                                   <Trash2 className="h-4 w-4 mr-2" />
-                                  {t('properties.delete')}
+                                  Eliminar
                                 </DropdownMenu.Item>
                               </DropdownMenu.Content>
                             </DropdownMenu.Portal>
@@ -1751,7 +1751,7 @@ function PropertiesPageContent() {
                   <Card className="p-6">
                     <div className="flex items-center mb-4">
                       <Lightbulb className="w-5 h-5 text-violet-600 mr-2" />
-                      <h3 className="text-lg font-semibold text-gray-900">{t('recommendations.title')}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">Recomendaciones</h3>
                     </div>
                     
                     {(() => {
@@ -1810,15 +1810,15 @@ function PropertiesPageContent() {
             <Card className="p-12 text-center">
               <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {t('propertySets.noPropertySets')}
+                No tienes conjuntos de propiedades
               </h3>
               <p className="text-gray-600 mb-6">
-                {t('propertySets.createGroupDescription')}
+                Agrupa propiedades similares para gestionar zonas comunes
               </p>
               <Link href="/property-sets/new">
                 <Button>
                   <Plus className="w-4 h-4 mr-2" />
-                  {t('propertySets.createFirstGroup')}
+                  Crear primer conjunto
                 </Button>
               </Link>
             </Card>
@@ -1852,7 +1852,7 @@ function PropertiesPageContent() {
                               className="mt-2 text-center text-xs text-violet-600 underline cursor-pointer hover:text-violet-800"
                               onClick={() => router.push(`/property-sets/new?edit=${propertySet.id}`)}
                             >
-                              {t('propertySets.edit')}
+                              Editar
                             </div>
                           </div>
                         </div>
@@ -1868,24 +1868,24 @@ function PropertiesPageContent() {
                                 {propertySet.city}, {propertySet.state}
                               </p>
                               <p className="text-sm text-gray-500 mb-3">
-                                {propertySet.type === 'HOTEL' && t('propertySets.types.hotel')}
-                                {propertySet.type === 'BUILDING' && t('propertySets.types.building')}
-                                {propertySet.type === 'COMPLEX' && t('propertySets.types.complex')}
-                                {propertySet.type === 'RESORT' && t('propertySets.types.resort')}
-                                {propertySet.type === 'HOSTEL' && t('propertySets.types.hostel')}
-                                {propertySet.type === 'APARTHOTEL' && t('propertySets.types.aparthotel')}
+                                {propertySet.type === 'HOTEL' && 'Hotel'}
+                                {propertySet.type === 'BUILDING' && 'Edificio'}
+                                {propertySet.type === 'COMPLEX' && 'Complejo'}
+                                {propertySet.type === 'RESORT' && 'Resort'}
+                                {propertySet.type === 'HOSTEL' && 'Hostel'}
+                                {propertySet.type === 'APARTHOTEL' && 'Aparthotel'}
                               </p>
                               
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-4 text-sm">
                                   <div className="flex items-center text-gray-600">
                                     <Home className="h-4 w-4 mr-1" />
-                                    <span>{propertySet.propertiesCount} {t('propertySets.properties')}</span>
+                                    <span>{propertySet.propertiesCount} propiedades</span>
                                   </div>
                                   {propertySet.totalViews > 0 && (
                                     <div className="flex items-center text-gray-600">
                                       <Eye className="h-4 w-4 mr-1" />
-                                      <span>{propertySet.totalViews} {t('propertySets.views')}</span>
+                                      <span>{propertySet.totalViews} visitas</span>
                                     </div>
                                   )}
                                   {propertySet.avgRating > 0 && (
@@ -1912,14 +1912,14 @@ function PropertiesPageContent() {
                                     onSelect={() => router.push(`/property-sets/new?edit=${propertySet.id}`)}
                                   >
                                     <Edit2 className="h-4 w-4 mr-2" />
-                                    {t('propertySets.edit')}
+                                    Editar
                                   </DropdownMenu.Item>
                                   <DropdownMenu.Item
                                     className="flex items-center px-2 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                                     onSelect={() => router.push(`/properties/groups/${propertySet.id}`)}
                                   >
                                     <Eye className="h-4 w-4 mr-2" />
-                                    {t('propertySets.viewProperties')}
+                                    Ver propiedades
                                   </DropdownMenu.Item>
                                   <DropdownMenu.Separator className="h-px my-1 bg-gray-200" />
                                   <DropdownMenu.Item
@@ -1927,7 +1927,7 @@ function PropertiesPageContent() {
                                     onSelect={() => handleDeletePropertySet(propertySet)}
                                   >
                                     <Trash2 className="h-4 w-4 mr-2" />
-                                    {t('propertySets.deleteGroup')}
+                                    Eliminar conjunto
                                   </DropdownMenu.Item>
                                 </DropdownMenu.Content>
                               </DropdownMenu.Portal>
@@ -1944,7 +1944,7 @@ function PropertiesPageContent() {
                               className="w-full"
                               onClick={() => router.push(`/properties/groups/${propertySet.id}`)}
                             >
-                              {t('propertySets.manage')}
+                              Gestionar propiedades
                             </Button>
                           </div>
                         </div>
