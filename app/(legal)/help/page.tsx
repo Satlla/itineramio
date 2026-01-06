@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   HelpCircle,
@@ -11,6 +11,7 @@ import {
   Video,
   Search,
   ChevronRight,
+  ChevronDown,
   ExternalLink,
   Users,
   Zap,
@@ -26,17 +27,54 @@ import {
   ArrowRight,
   X,
   Send,
-  CheckCircle2
+  CheckCircle2,
+  GraduationCap
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '../../../src/components/ui/Button'
 import { Card } from '../../../src/components/ui/Card'
 import { useSearch, UnifiedSearchResult } from '../../../src/hooks/useSearch'
+import { HELP_CONTENT, HelpContent } from '../../../src/data/help-content'
+import { getRelatedOnboarding } from '../../../src/data/help-cross-links'
+import { onboardingArticles } from '../../../src/data/onboarding-articles'
 
 export default function HelpPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedItem, setSelectedItem] = useState<UnifiedSearchResult | null>(null)
+  const [expandedFaq, setExpandedFaq] = useState<string | null>(null)
+  const [expandedCategory, setExpandedCategory] = useState<string | null>('Primeros Pasos')
   const { results, loading, error } = useSearch(searchQuery)
+
+  // Agrupar FAQs por categoría
+  const faqsByCategory = useMemo(() => {
+    const grouped: Record<string, HelpContent[]> = {}
+    HELP_CONTENT.filter(item => item.type === 'faq').forEach(faq => {
+      if (!grouped[faq.category]) {
+        grouped[faq.category] = []
+      }
+      grouped[faq.category].push(faq)
+    })
+    return grouped
+  }, [])
+
+  // Obtener tutoriales relacionados para un FAQ
+  const getRelatedTutorials = (faqId: string) => {
+    const onboardingSlugs = getRelatedOnboarding(faqId)
+    return onboardingSlugs
+      .map(slug => onboardingArticles.find(a => a.slug === slug))
+      .filter((a): a is typeof onboardingArticles[0] => a !== undefined)
+      .slice(0, 2)
+  }
+
+  // Categorías principales para mostrar (las más importantes primero)
+  const mainCategories = [
+    'Primeros Pasos',
+    'Gestión de Propiedades',
+    'Zonas del Manual',
+    'Códigos QR',
+    'Compartir el Manual',
+    'Cuenta y Suscripción'
+  ]
 
   // Estado del formulario de preguntas
   const [questionForm, setQuestionForm] = useState({
@@ -174,77 +212,6 @@ export default function HelpPage() {
     return LifeBuoy
   }
 
-  const faqItems = [
-    // Básico
-    {
-      question: "¿Cómo creo mi primer manual digital?",
-      answer: "Primero, crea una propiedad en tu dashboard. Luego añade zonas (como WiFi, check-in, etc.) y para cada zona crea pasos con instrucciones detalladas. Puedes incluir texto, imágenes y videos."
-    },
-    {
-      question: "¿Cómo funcionan los códigos QR?",
-      answer: "Cada zona genera automáticamente un código QR único. Los huéspedes lo escanean con su móvil y acceden directamente a las instrucciones de esa zona específica."
-    },
-    {
-      question: "¿Puedo personalizar el diseño del manual?",
-      answer: "Sí, puedes personalizar colores, iconos y agregar tu logo. También puedes organizar las zonas según tus necesidades específicas."
-    },
-    {
-      question: "¿Es compatible con todos los dispositivos?",
-      answer: "Absolutamente. Los manuales están optimizados para móviles, tablets y ordenadores. No requieren apps adicionales."
-    },
-    {
-      question: "¿Cómo actualizo la información?",
-      answer: "Los cambios se aplican en tiempo real. Cuando actualizas información en tu dashboard, todos los códigos QR muestran automáticamente el contenido actualizado."
-    },
-    {
-      question: "¿Qué pasa si mis huéspedes no hablan español?",
-      answer: "Itineramio soporta múltiples idiomas. Puedes crear contenido en español, inglés y francés para el mismo manual."
-    },
-    // Conjuntos de propiedades
-    {
-      question: "¿Qué es un conjunto de propiedades?",
-      answer: "Un conjunto de propiedades es una forma de agrupar múltiples propiedades bajo una misma gestión. Ideal para hoteles, edificios de apartamentos, complejos turísticos o hosts con varias propiedades en la misma zona."
-    },
-    {
-      question: "¿Cómo creo un conjunto de propiedades?",
-      answer: "Ve a tu dashboard > Conjuntos > 'Nuevo Conjunto'. Completa los 4 pasos: información básica (nombre, descripción, tipo), ubicación, contacto, y selección de propiedades para añadir."
-    },
-    {
-      question: "¿Una propiedad puede estar en varios conjuntos?",
-      answer: "No, cada propiedad solo puede pertenecer a un conjunto a la vez. Si mueves una propiedad a otro conjunto, se quitará del anterior automáticamente."
-    },
-    // Duplicar propiedades
-    {
-      question: "¿Cómo duplico una propiedad?",
-      answer: "Haz clic en el menú de la propiedad (···) > 'Duplicar'. Elige cuántas copias crear, si compartir medios (fotos/videos), y si añadirlas al mismo conjunto. Las copias se nombran automáticamente."
-    },
-    {
-      question: "¿Qué se copia al duplicar una propiedad?",
-      answer: "Se copia: nombre (con número), todas las zonas, todos los pasos, traducciones, y opcionalmente los medios (fotos/videos). NO se copian: estadísticas, evaluaciones ni el historial de visitantes."
-    },
-    {
-      question: "¿Cuántas propiedades puedo duplicar a la vez?",
-      answer: "Puedes crear hasta 50 copias de una propiedad en una sola operación. Ideal para hoteles con muchas habitaciones similares. Si necesitas más, simplemente repite el proceso."
-    },
-    // Zonas y pasos
-    {
-      question: "¿Qué zonas debería incluir en mi manual?",
-      answer: "Recomendamos incluir: WiFi, Check-in/out, Electrodomésticos, Calefacción/AC, Normas de la casa, Información del barrio, Contacto de emergencia, y cualquier zona específica de tu propiedad."
-    },
-    {
-      question: "¿Puedo reordenar las zonas?",
-      answer: "Sí, arrastra las zonas usando el icono de arrastre para cambiar el orden. El nuevo orden se refleja inmediatamente en el manual del huésped."
-    },
-    // Medios
-    {
-      question: "¿Qué formatos de video son compatibles?",
-      answer: "Aceptamos MP4, MOV, WebM y la mayoría de formatos comunes. Los videos se comprimen automáticamente para una carga rápida en dispositivos móviles."
-    },
-    {
-      question: "¿Hay límite de tamaño para fotos y videos?",
-      answer: "Fotos: máximo 10MB por imagen. Videos: máximo 100MB por video. Recomendamos videos cortos de 30-60 segundos para instrucciones específicas."
-    }
-  ]
 
   const supportChannels = [
     {
@@ -278,19 +245,19 @@ export default function HelpPage() {
       icon: Book,
       title: "Guía de inicio rápido",
       description: "Tutorial paso a paso para comenzar",
-      href: "#quick-start"
+      href: "/onboarding"
     },
     {
-      icon: Video,
-      title: "Videos tutoriales",
-      description: "Aprende visualmente cómo usar Itineramio",
-      href: "#tutorials"
+      icon: BookOpen,
+      title: "Blog de recursos",
+      description: "Artículos y guías para anfitriones",
+      href: "/blog"
     },
     {
-      icon: Users,
-      title: "Comunidad",
-      description: "Conecta con otros anfitriones",
-      href: "#community"
+      icon: FileText,
+      title: "Funcionalidades",
+      description: "Descubre todo lo que puedes hacer",
+      href: "/funcionalidades"
     }
   ]
 
@@ -555,7 +522,7 @@ export default function HelpPage() {
           </div>
         </motion.div>
 
-        {/* FAQ Section */}
+        {/* FAQ Section - Accordion por categorías */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -564,26 +531,124 @@ export default function HelpPage() {
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
             Preguntas Frecuentes
           </h2>
-          <div className="max-w-4xl mx-auto">
-            {faqItems.map((item, index) => (
-              <motion.div
-                key={index}
-                className="mb-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.7 + index * 0.1 }}
-              >
-                <Card className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                    <HelpCircle className="w-5 h-5 text-violet-600 mr-2" />
-                    {item.question}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {item.answer}
-                  </p>
+          <div className="max-w-4xl mx-auto space-y-4">
+            {mainCategories.map((category) => {
+              const faqs = faqsByCategory[category] || []
+              if (faqs.length === 0) return null
+              const isExpanded = expandedCategory === category
+
+              return (
+                <Card key={category} className="overflow-hidden">
+                  {/* Category Header */}
+                  <button
+                    onClick={() => setExpandedCategory(isExpanded ? null : category)}
+                    className="w-full p-4 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-violet-100 rounded-lg flex items-center justify-center">
+                        <HelpCircle className="w-5 h-5 text-violet-600" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="font-semibold text-gray-900">{category}</h3>
+                        <p className="text-sm text-gray-500">{faqs.length} preguntas</p>
+                      </div>
+                    </div>
+                    <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* FAQs List */}
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="divide-y divide-gray-100">
+                          {faqs.slice(0, 10).map((faq) => {
+                            const isFaqExpanded = expandedFaq === faq.id
+                            const relatedTutorials = getRelatedTutorials(faq.id)
+
+                            return (
+                              <div key={faq.id} className="border-l-2 border-transparent hover:border-violet-400 transition-colors">
+                                <button
+                                  onClick={() => setExpandedFaq(isFaqExpanded ? null : faq.id)}
+                                  className="w-full p-4 text-left hover:bg-violet-50/50 transition-colors"
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <h4 className="font-medium text-gray-900 pr-4">{faq.title}</h4>
+                                    <ChevronRight className={`w-4 h-4 text-gray-400 flex-shrink-0 mt-1 transition-transform ${isFaqExpanded ? 'rotate-90' : ''}`} />
+                                  </div>
+                                </button>
+
+                                <AnimatePresence>
+                                  {isFaqExpanded && (
+                                    <motion.div
+                                      initial={{ height: 0, opacity: 0 }}
+                                      animate={{ height: 'auto', opacity: 1 }}
+                                      exit={{ height: 0, opacity: 0 }}
+                                      className="overflow-hidden"
+                                    >
+                                      <div className="px-4 pb-4">
+                                        <p className="text-gray-600 leading-relaxed mb-4">
+                                          {faq.content}
+                                        </p>
+
+                                        {/* Tutoriales relacionados */}
+                                        {relatedTutorials.length > 0 && (
+                                          <div className="mt-4 p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                                            <p className="text-xs font-medium text-emerald-700 mb-2 flex items-center gap-1">
+                                              <GraduationCap className="w-3 h-3" />
+                                              Tutoriales relacionados:
+                                            </p>
+                                            <div className="space-y-2">
+                                              {relatedTutorials.map((tutorial) => (
+                                                <Link
+                                                  key={tutorial.slug}
+                                                  href={`/onboarding/${tutorial.categorySlug}/${tutorial.slug}`}
+                                                  className="flex items-center gap-2 text-sm text-emerald-700 hover:text-emerald-900 hover:underline"
+                                                >
+                                                  <Book className="w-3 h-3" />
+                                                  {tutorial.title}
+                                                </Link>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {/* Tags */}
+                                        <div className="mt-3 flex flex-wrap gap-1">
+                                          {faq.tags.slice(0, 4).map((tag, idx) => (
+                                            <span key={idx} className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">
+                                              {tag}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            )
+                          })}
+                        </div>
+
+                        {/* Ver más link si hay más de 10 */}
+                        {faqs.length > 10 && (
+                          <div className="p-3 bg-gray-50 text-center border-t">
+                            <span className="text-sm text-gray-500">
+                              +{faqs.length - 10} preguntas más en esta categoría
+                            </span>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </Card>
-              </motion.div>
-            ))}
+              )
+            })}
           </div>
         </motion.div>
 
