@@ -137,7 +137,8 @@
     "card": {
       "network": "Network:",
       "password": "Password:",
-      "defaultNetwork": "Your_WiFi_Network"
+      "defaultNetwork": "Your_WiFi_Network",
+      "scanToConnect": "Scan to connect"
     },
     "howToConnect": {
       "title": "How to connect:",

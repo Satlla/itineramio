@@ -2,9 +2,10 @@ import * as React from 'react'
 
 interface ToolChecklistDay6Props {
   name: string
+  email?: string
 }
 
-export default function ToolChecklistDay6Test({ name }: ToolChecklistDay6Props) {
+export default function ToolChecklistDay6Test({ name, email }: ToolChecklistDay6Props) {
   const firstName = name?.split(' ')[0] || 'Anfitrión'
 
   return (

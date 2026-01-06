@@ -8,24 +8,30 @@ export const CookieBanner: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    // Check if user has already accepted cookies
+    // Check if user has already made a choice
     const cookiesAccepted = localStorage.getItem('cookiesAccepted')
     if (!cookiesAccepted) {
       // Show banner after a short delay
       setTimeout(() => {
         setIsVisible(true)
-      }, 1000)
+      }, 1500)
     }
   }, [])
 
   const handleAccept = () => {
     localStorage.setItem('cookiesAccepted', 'true')
     setIsVisible(false)
+
+    // Emit event for ConditionalTracking to load scripts
+    window.dispatchEvent(new CustomEvent('cookieConsentChanged', { detail: 'true' }))
   }
 
   const handleReject = () => {
     localStorage.setItem('cookiesAccepted', 'essential')
     setIsVisible(false)
+
+    // Emit event (essential only = no marketing/analytics)
+    window.dispatchEvent(new CustomEvent('cookieConsentChanged', { detail: 'essential' }))
   }
 
   if (!isVisible) {

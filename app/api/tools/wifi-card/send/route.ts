@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
 import { Resend } from 'resend'
 import { enrollSubscriberInSequences } from '../../../../../src/lib/email-sequences'
+import QRCode from 'qrcode'
 
 // Lazy initialization of Resend to avoid build errors
 let resend: Resend | null = null
@@ -45,6 +46,7 @@ function generateWifiCardHTML(data: {
   networkName: string
   password: string
   style: { colors: string; textColor: string; name: string }
+  qrCodeDataUrl?: string
 }): string {
   // Map style names to actual colors for email (can't use Tailwind)
   const styleColors: Record<string, { bg: string; text: string }> = {
@@ -73,12 +75,25 @@ function generateWifiCardHTML(data: {
 
         <!-- WiFi Card -->
         <div style="background: ${colors.bg}; color: ${colors.text}; border-radius: 24px; padding: 32px; ${borderStyle} margin-bottom: 24px;">
-          ${data.propertyName ? `<p style="font-size: 20px; font-weight: bold; margin: 0 0 8px 0;">${data.propertyName}</p>` : ''}
-
-          <div style="display: flex; align-items: center; margin-bottom: 24px;">
-            <span style="font-size: 32px; margin-right: 8px;">📶</span>
-            <span style="font-size: 28px; font-weight: bold;">WiFi</span>
-          </div>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="vertical-align: top;">
+                ${data.propertyName ? `<p style="font-size: 20px; font-weight: bold; margin: 0 0 8px 0;">${data.propertyName}</p>` : ''}
+                <div style="margin-bottom: 24px;">
+                  <span style="font-size: 32px; margin-right: 8px;">📶</span>
+                  <span style="font-size: 28px; font-weight: bold;">WiFi</span>
+                </div>
+              </td>
+              ${data.qrCodeDataUrl ? `
+              <td style="vertical-align: top; text-align: right; width: 140px;">
+                <div style="background: #ffffff; border-radius: 12px; padding: 8px; display: inline-block;">
+                  <img src="${data.qrCodeDataUrl}" alt="WiFi QR Code" style="width: 100px; height: 100px; display: block;" />
+                  <p style="font-size: 10px; color: #6b7280; margin: 4px 0 0 0; text-align: center;">Escanea para conectar</p>
+                </div>
+              </td>
+              ` : ''}
+            </tr>
+          </table>
 
           <div style="margin-bottom: 16px;">
             <p style="font-size: 14px; opacity: 0.7; margin: 0 0 4px 0;">Red:</p>
@@ -229,12 +244,32 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Generate WiFi QR code as data URL
+    // WiFi QR format: WIFI:T:WPA;S:<SSID>;P:<PASSWORD>;;
+    const wifiString = `WIFI:T:WPA;S:${networkName};P:${password};;`
+    let qrCodeDataUrl: string | undefined
+
+    try {
+      qrCodeDataUrl = await QRCode.toDataURL(wifiString, {
+        width: 200,
+        margin: 1,
+        color: {
+          dark: '#1f2937',
+          light: '#ffffff'
+        }
+      })
+    } catch (qrError) {
+      console.error('Failed to generate QR code:', qrError)
+      // Continue without QR code if generation fails
+    }
+
     // Generate and send email with WiFi card
     const htmlContent = generateWifiCardHTML({
       propertyName,
       networkName,
       password,
-      style: style || { name: 'Moderno', colors: '', textColor: '' }
+      style: style || { name: 'Moderno', colors: '', textColor: '' },
+      qrCodeDataUrl
     })
 
     await getResend().emails.send({

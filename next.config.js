@@ -16,6 +16,16 @@ const nextConfig = {
   images: {
     domains: ['k1f4x7ksxbn13s8z.public.blob.vercel-storage.com', 'images.unsplash.com'],
   },
+  // Redirects for legacy/short URLs
+  async redirects() {
+    return [
+      {
+        source: '/tools/:path*',
+        destination: '/hub/tools/:path*',
+        permanent: true,
+      },
+    ]
+  },
   // Strategic caching headers
   async headers() {
     return [

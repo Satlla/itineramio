@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -15,7 +15,8 @@ import {
   Sparkles,
   Loader2,
   CheckCircle,
-  User
+  User,
+  QrCode
 } from 'lucide-react'
 import { Navbar } from '../../../../../src/components/layout/Navbar'
 import { SocialShare } from '../../../../../src/components/tools/SocialShare'
@@ -52,7 +53,67 @@ export default function WiFiCardGenerator() {
   const [submitError, setSubmitError] = useState('')
   const [submitSuccess, setSubmitSuccess] = useState(false)
 
+  // QR Code state
+  const [QRCodeStyling, setQRCodeStyling] = useState<any>(null)
+  const [qrCode, setQrCode] = useState<any>(null)
+
   const cardRef = useRef<HTMLDivElement>(null)
+  const qrRef = useRef<HTMLDivElement>(null)
+
+  // Dynamically import qr-code-styling on client side only
+  useEffect(() => {
+    import('qr-code-styling').then((module) => {
+      setQRCodeStyling(() => module.default)
+    })
+  }, [])
+
+  // Generate WiFi QR code when network name or password changes
+  useEffect(() => {
+    if (!QRCodeStyling || !networkName || !password) {
+      // Clear QR code if no data
+      if (qrRef.current) {
+        qrRef.current.innerHTML = ''
+      }
+      setQrCode(null)
+      return
+    }
+
+    // WiFi QR code format: WIFI:T:WPA;S:<SSID>;P:<PASSWORD>;;
+    const wifiString = `WIFI:T:WPA;S:${networkName};P:${password};;`
+
+    const qr = new QRCodeStyling({
+      width: 120,
+      height: 120,
+      data: wifiString,
+      margin: 0,
+      qrOptions: {
+        typeNumber: 0,
+        mode: 'Byte',
+        errorCorrectionLevel: 'M'
+      },
+      dotsOptions: {
+        type: 'rounded',
+        color: '#1f2937'
+      },
+      backgroundOptions: {
+        color: '#ffffff'
+      },
+      cornersSquareOptions: {
+        type: 'extra-rounded',
+        color: '#1f2937'
+      },
+      cornersDotOptions: {
+        type: 'dot',
+        color: '#1f2937'
+      }
+    })
+
+    if (qrRef.current) {
+      qrRef.current.innerHTML = ''
+      qr.append(qrRef.current)
+    }
+    setQrCode(qr)
+  }, [QRCodeStyling, networkName, password])
 
   const copyPassword = () => {
     navigator.clipboard.writeText(password)
@@ -444,29 +505,48 @@ export default function WiFiCardGenerator() {
 
                     {/* Content */}
                     <div className="relative z-10 h-full flex flex-col justify-between">
-                      <div>
-                        {propertyName && (
-                          <div className="text-xl font-bold mb-2">
-                            {propertyName}
+                      <div className="flex justify-between items-start">
+                        <div>
+                          {propertyName && (
+                            <div className="text-xl font-bold mb-2">
+                              {propertyName}
+                            </div>
+                          )}
+                          <div className="flex items-center space-x-2">
+                            <Wifi className="w-8 h-8" />
+                            <span className="text-2xl font-bold">WiFi</span>
+                          </div>
+                        </div>
+
+                        {/* QR Code - Scan to connect */}
+                        {(networkName && password) ? (
+                          <div className="bg-white rounded-xl p-2 shadow-lg">
+                            <div ref={qrRef} className="w-[100px] h-[100px]" />
+                            <p className="text-[8px] text-gray-500 text-center mt-1 font-medium">
+                              {t('wifiCard.card.scanToConnect')}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="bg-white/30 rounded-xl p-3 flex items-center justify-center w-[116px] h-[116px]">
+                            <div className="text-center opacity-60">
+                              <QrCode className="w-10 h-10 mx-auto mb-1" />
+                              <p className="text-[10px]">QR</p>
+                            </div>
                           </div>
                         )}
-                        <div className="flex items-center space-x-2 mb-6">
-                          <Wifi className="w-8 h-8" />
-                          <span className="text-2xl font-bold">WiFi</span>
-                        </div>
                       </div>
 
-                      <div className="space-y-4">
+                      <div className="space-y-3 mt-4">
                         <div>
                           <div className="text-sm opacity-70 mb-1">{t('wifiCard.card.network')}</div>
-                          <div className="text-2xl font-bold break-all">
+                          <div className="text-xl font-bold break-all">
                             {networkName || t('wifiCard.card.defaultNetwork')}
                           </div>
                         </div>
 
                         <div>
                           <div className="text-sm opacity-70 mb-1">{t('wifiCard.card.password')}</div>
-                          <div className="text-2xl font-bold break-all">
+                          <div className="text-xl font-bold break-all">
                             {password || '••••••••'}
                           </div>
                         </div>

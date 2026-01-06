@@ -14,7 +14,7 @@ export default function ToolQrDay6Test({ name, email }: Props) {
         <tr>
           <td style={{ textAlign: 'center', paddingBottom: '32px' }}>
             <p style={{ margin: '0 0 6px 0', color: '#999', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px' }}>Itineramio</p>
-            <h1 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '24px', fontWeight: 600 }}>El truco del QR para reseñas</h1>
+            <h1 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '24px', fontWeight: 600 }}>¿Qué tipo de anfitrión eres?</h1>
           </td>
         </tr>
 
@@ -25,37 +25,57 @@ export default function ToolQrDay6Test({ name, email }: Props) {
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              ¿Sabías que los anfitriones que facilitan dejar reseña consiguen <strong>un 40% más de valoraciones</strong>?
+              Después de ayudar a cientos de anfitriones, hemos identificado <strong>8 perfiles operativos</strong> diferentes. Cada uno tiene fortalezas únicas y puntos ciegos específicos.
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              El truco es simple: un QR que lleve directamente a la página de reseñas de tu anuncio.
+              Conocer tu perfil te ayuda a entender por qué ciertas cosas te cuestan más que a otros (y viceversa).
             </p>
 
             <div style={{ backgroundColor: '#f3f4f6', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}>
               <p style={{ margin: '0 0 12px 0', color: '#374151', fontSize: '15px', fontWeight: 600 }}>
-                📍 Dónde colocar el QR de reseñas:
+                🎯 Algunos perfiles:
               </p>
               <ul style={{ margin: 0, paddingLeft: '20px', color: '#374151', fontSize: '14px', lineHeight: 1.8 }}>
-                <li>En la puerta de salida (momento check-out)</li>
-                <li>En el mensaje de despedida</li>
-                <li>En la cocina junto a un "¡Gracias!"</li>
-                <li>En un pequeño marco de 10x10 cm</li>
+                <li><strong>Estratega</strong> — Orientado a datos y optimización</li>
+                <li><strong>Sistemático</strong> — Procesos y automatización</li>
+                <li><strong>Diferenciador</strong> — Experiencias únicas</li>
+                <li><strong>Ejecutor</strong> — Acción rápida y directa</li>
               </ul>
             </div>
 
-            <div style={{ backgroundColor: '#fef3c7', border: '1px solid #fcd34d', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
-              <p style={{ margin: 0, color: '#92400e', fontSize: '14px' }}>
-                <strong>💡 Mensaje que funciona:</strong> "¿Disfrutaste tu estancia? Tu reseña nos ayuda mucho. Escanea y cuéntanos tu experiencia."
+            {/* CTA Box */}
+            <div style={{ backgroundColor: '#f0fdf4', border: '2px solid #86efac', borderRadius: '12px', padding: '24px', marginBottom: '24px', textAlign: 'center' as const }}>
+              <p style={{ margin: '0 0 8px 0', fontSize: '32px' }}>🧪</p>
+              <p style={{ margin: '0 0 8px 0', color: '#166534', fontSize: '18px', fontWeight: 600 }}>
+                Test de Perfil de Anfitrión
               </p>
+              <p style={{ margin: '0 0 16px 0', color: '#15803d', fontSize: '14px' }}>
+                90 segundos · 100% gratuito · Resultado inmediato
+              </p>
+              <a
+                href="https://www.itineramio.com/host-profile/test"
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#16a34a',
+                  color: '#ffffff',
+                  padding: '14px 28px',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  fontWeight: 600,
+                  fontSize: '15px'
+                }}
+              >
+                Hacer el Test Gratis →
+              </a>
             </div>
 
-            <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Mañana te cuento cómo profesionalizar toda tu gestión de huéspedes.
+            <p style={{ margin: '0 0 20px 0', color: '#6b7280', fontSize: '14px', lineHeight: 1.6 }}>
+              <em>Al completar el test recibirás tu perfil detallado, fortalezas, áreas de mejora y una guía personalizada.</em>
             </p>
 
             <p style={{ margin: '0', color: '#374151', fontSize: '16px' }}>
-              Alejandro
+              — El equipo de Itineramio
             </p>
           </td>
         </tr>
@@ -63,7 +83,7 @@ export default function ToolQrDay6Test({ name, email }: Props) {
         <tr>
           <td style={{ textAlign: 'center', paddingTop: '24px' }}>
             <p style={{ margin: 0, color: '#9ca3af', fontSize: '12px' }}>
-              <a href={`https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email || "")}`} style={{ color: '#9ca3af', textDecoration: 'none' }}>Cancelar suscripción</a> · © {new Date().getFullYear()} Itineramio
+              <a href={`https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email || "")}`} style={{ color: '#9ca3af', textDecoration: 'none' }}>Cancelar suscripción</a> · <a href="https://www.itineramio.com" style={{ color: '#6b7280', textDecoration: 'none' }}>itineramio.com</a>
             </p>
           </td>
         </tr>

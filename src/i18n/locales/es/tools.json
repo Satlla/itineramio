@@ -137,7 +137,8 @@
     "card": {
       "network": "Red:",
       "password": "Contraseña:",
-      "defaultNetwork": "Tu_Red_WiFi"
+      "defaultNetwork": "Tu_Red_WiFi",
+      "scanToConnect": "Escanea para conectar"
     },
     "howToConnect": {
       "title": "Cómo conectarse:",
