@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../../../../src/lib/prisma'
+import { generateSlug } from '../../../../src/lib/slug-utils'
 
 const JWT_SECRET = 'itineramio-secret-key-2024'
 
@@ -53,6 +54,9 @@ export async function POST(request: NextRequest) {
             }
           },
           orderBy: { id: 'asc' }
+        },
+        announcements: {
+          orderBy: { createdAt: 'asc' }
         }
       }
     })
@@ -135,6 +139,26 @@ export async function POST(request: NextRequest) {
         newName = `Propiedad Duplicada ${i + 1}`
       }
 
+      // Generate unique slug for the new property
+      const nameForSlug = typeof newName === 'string' ? newName : (newName as any).es || ''
+      const baseSlug = generateSlug(nameForSlug)
+
+      // Find unique slug by checking existing slugs
+      let slugSuffix = 0
+      let finalSlug = baseSlug
+      while (true) {
+        const testSlug = slugSuffix === 0 ? baseSlug : `${baseSlug}-${slugSuffix}`
+        const existingProperty = await prisma.property.findFirst({
+          where: { slug: testSlug },
+          select: { id: true }
+        })
+        if (!existingProperty) {
+          finalSlug = testSlug
+          break
+        }
+        slugSuffix++
+      }
+
       // Create the new property
       const newProperty = await prisma.property.create({
         data: {
@@ -143,6 +167,7 @@ export async function POST(request: NextRequest) {
           buildingId: originalProperty.buildingId,
           propertySetId: assignToSet && propertySetId ? propertySetId : null,
           name: typeof newName === 'string' ? newName : JSON.stringify(newName),
+          slug: finalSlug, // Add unique slug
           description: typeof originalProperty.description === 'string' ? originalProperty.description : JSON.stringify(originalProperty.description),
           street: typeof originalProperty.street === 'string' ? originalProperty.street : JSON.stringify(originalProperty.street),
           city: typeof originalProperty.city === 'string' ? originalProperty.city : JSON.stringify(originalProperty.city),
@@ -175,12 +200,38 @@ export async function POST(request: NextRequest) {
 
       // Copy zones and their steps
       for (const originalZone of zonesToCopy) {
+        // Generate slug for the zone
+        const zoneName = typeof originalZone.name === 'string'
+          ? originalZone.name
+          : (originalZone.name as any)?.es || 'zona'
+        const zoneBaseSlug = generateSlug(zoneName)
+
+        // Find unique zone slug within this property
+        let zoneSlugSuffix = 0
+        let finalZoneSlug = zoneBaseSlug
+        while (true) {
+          const testZoneSlug = zoneSlugSuffix === 0 ? zoneBaseSlug : `${zoneBaseSlug}-${zoneSlugSuffix}`
+          const existingZone = await prisma.zone.findFirst({
+            where: {
+              propertyId: newProperty.id,
+              slug: testZoneSlug
+            },
+            select: { id: true }
+          })
+          if (!existingZone) {
+            finalZoneSlug = testZoneSlug
+            break
+          }
+          zoneSlugSuffix++
+        }
+
         const newZone = await prisma.zone.create({
           data: {
             propertyId: newProperty.id,
             organizationId: originalZone.organizationId,
             buildingId: originalZone.buildingId,
             name: originalZone.name as any,
+            slug: finalZoneSlug, // Add unique zone slug
             description: originalZone.description as any,
             icon: originalZone.icon,
             color: originalZone.color,
@@ -206,6 +257,24 @@ export async function POST(request: NextRequest) {
               type: originalStep.type,
               order: originalStep.order,
               isPublished: autoPublish !== undefined ? autoPublish : originalStep.isPublished
+            }
+          })
+        }
+      }
+
+      // Copy announcements (avisos) from the original property
+      if (originalProperty.announcements && originalProperty.announcements.length > 0) {
+        for (const originalAnnouncement of originalProperty.announcements) {
+          await prisma.announcement.create({
+            data: {
+              propertyId: newProperty.id,
+              title: originalAnnouncement.title as any,
+              message: originalAnnouncement.message as any,
+              category: originalAnnouncement.category,
+              priority: originalAnnouncement.priority,
+              isActive: originalAnnouncement.isActive,
+              startDate: originalAnnouncement.startDate,
+              endDate: originalAnnouncement.endDate
             }
           })
         }
