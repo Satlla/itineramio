@@ -2756,7 +2756,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="text-3xl font-bold text-gray-900">
-              {propertyName ? t('zones.title', { name: propertyName }) : t('zones.titleDefault')}
+              {propertyName ? t('zones.title', { name: propertyName, defaultValue: `Zonas de ${propertyName}` }) : t('zones.titleDefault', 'Zonas de la Propiedad')}
             </h1>
             {propertyCode && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
@@ -2766,7 +2766,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             )}
           </div>
           <p className="text-gray-600 mt-2">
-            {t('zones.subtitle')}
+            {t('zones.subtitle', 'Gestiona las diferentes zonas y sus códigos QR')}
           </p>
         </div>
         <div className="hidden lg:flex items-center gap-6">
@@ -2775,7 +2775,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             onClick={handleViewEvaluations}
             className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors relative"
           >
-            {t('propertyZones.evaluations')}
+            {t('propertyZones.evaluations', 'Evaluaciones')}
             {unreadEvaluations > 0 && (
               <span className="absolute -top-2 -right-0 translate-x-full bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center ml-1">
                 {unreadEvaluations}
@@ -2787,14 +2787,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             onClick={() => router.push(`/properties/${id}/announcements`)}
             className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
           >
-            {t('propertyZones.announcements')}
+            {t('propertyZones.announcements', 'Avisos')}
           </button>
 
           <button
             onClick={() => router.push(`/properties/${id}/analytics`)}
             className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors"
           >
-            {t('propertyZones.analytics')}
+            {t('propertyZones.analytics', 'Analíticas')}
           </button>
 
           <button
@@ -2851,7 +2851,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               onClick={handleViewEvaluations}
               className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors relative"
             >
-              {t('propertyZones.evaluations')}
+              {t('propertyZones.evaluations', 'Evaluaciones')}
               {unreadEvaluations > 0 && (
                 <span className="absolute -top-2 -right-0 translate-x-full bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center ml-1">
                   {unreadEvaluations}
@@ -2864,7 +2864,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               onClick={() => router.push(`/properties/${id}/announcements`)}
               className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors"
             >
-              {t('propertyZones.announcements')}
+              {t('propertyZones.announcements', 'Avisos')}
             </button>
 
             {/* Analíticas - Keep text */}
@@ -2872,7 +2872,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               onClick={() => router.push(`/properties/${id}/analytics`)}
               className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors"
             >
-              {t('propertyZones.analytics')}
+              {t('propertyZones.analytics', 'Analíticas')}
             </button>
           </div>
 

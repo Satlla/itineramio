@@ -469,7 +469,7 @@ const calculateAggregateStats = (properties: Property[]) => {
 }
 
 function PropertiesPageContent() {
-  const { t } = useTranslation('common')
+  const { t } = useTranslation('dashboard')
   const router = useRouter()
   const searchParams = useSearchParams()
   const { generateZoneWarnings } = useNotifications()
@@ -1171,9 +1171,9 @@ function PropertiesPageContent() {
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
             <div className="w-full sm:w-auto">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Mis Propiedades</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('properties.title')}</h1>
               <p className="text-sm sm:text-base text-gray-600 mt-1">
-                Gestiona y organiza todas tus propiedades desde un solo lugar
+                {t('properties.subtitle')}
               </p>
             </div>
 
@@ -1202,16 +1202,16 @@ function PropertiesPageContent() {
                 <Link href="/properties/new" className="w-full sm:w-auto">
                   <Button className="bg-violet-600 hover:bg-violet-700 w-full sm:w-auto text-sm">
                     <Plus className="w-4 h-4 mr-1.5 sm:mr-2" />
-                    <span className="sm:hidden">Nueva</span>
-                    <span className="hidden sm:inline">Nueva Propiedad</span>
+                    <span className="sm:hidden">{t('properties.newShort')}</span>
+                    <span className="hidden sm:inline">{t('properties.addProperty')}</span>
                   </Button>
                 </Link>
               </div>
               <Link href="/property-sets/new" className="w-full sm:w-auto">
                 <Button variant="outline" className="border-violet-600 text-violet-600 hover:bg-violet-50 w-full sm:w-auto text-sm">
                   <Building2 className="w-4 h-4 mr-1.5 sm:mr-2" />
-                  <span className="sm:hidden">Conjunto</span>
-                  <span className="hidden sm:inline">Crear Conjunto</span>
+                  <span className="sm:hidden">{t('propertySets.groupShort')}</span>
+                  <span className="hidden sm:inline">{t('propertySets.createNew')}</span>
                 </Button>
               </Link>
             </div>
@@ -1241,7 +1241,7 @@ function PropertiesPageContent() {
                   </div>
                   <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
                     <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">
-                      {activeTab === 'properties' ? 'Propiedades' : 'Conjuntos'}
+                      {activeTab === 'properties' ? t('stats.properties') : t('propertySets.title')}
                     </p>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {activeTab === 'properties'
@@ -1258,11 +1258,11 @@ function PropertiesPageContent() {
                     <Timer className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-600" />
                   </div>
                   <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Tiempo</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{t('stats.time')}</p>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {stats.monthlyTimeSaved}
                     </p>
-                    <p className="text-[10px] sm:text-xs text-gray-500">min/mes</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">{t('stats.minMonth')}</p>
                   </div>
                 </div>
               </Card>
@@ -1273,11 +1273,11 @@ function PropertiesPageContent() {
                     <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-green-600" />
                   </div>
                   <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Consultas</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{t('stats.queries')}</p>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {stats.totalQueries}
                     </p>
-                    <p className="text-[10px] sm:text-xs text-gray-500">evitadas/mes</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">{t('stats.avoidedMonth')}</p>
                   </div>
                 </div>
               </Card>
@@ -1296,7 +1296,7 @@ function PropertiesPageContent() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Propiedades individuales
+              {t('properties.individual')}
               <span className="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">
                 {properties.filter(property => !property.propertySetId).length}
               </span>
@@ -1309,7 +1309,7 @@ function PropertiesPageContent() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Conjuntos de propiedades
+              {t('propertySets.title')}
               <span className="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">
                 {propertySets.length}
               </span>
@@ -1329,16 +1329,16 @@ function PropertiesPageContent() {
                   <Lightbulb className="w-5 h-5 text-violet-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 text-sm">Recomendaciones diarias</h3>
-                  <p className="text-xs text-gray-600">Consejos de optimización</p>
+                  <h3 className="font-semibold text-gray-900 text-sm">{t('recommendations.dailyTitle')}</h3>
+                  <p className="text-xs text-gray-600">{t('recommendations.optimizationTips')}</p>
                 </div>
               </div>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant="outline"
                 className="text-xs px-3 py-2 border-violet-200 text-violet-600 hover:bg-violet-50"
               >
-                Ver consejos
+                {t('recommendations.viewTips')}
                 <ArrowRight className="w-3 h-3 ml-1" />
               </Button>
             </div>
@@ -1348,8 +1348,8 @@ function PropertiesPageContent() {
         {/* Loading, Error, and Content */}
         {loading ? (
           <Card className="p-12 text-center">
-            <InlineLoadingSpinner 
-              text={activeTab === 'properties' ? 'Cargando propiedades...' : 'Cargando conjuntos...'} 
+            <InlineLoadingSpinner
+              text={activeTab === 'properties' ? t('loading.properties') : t('loading.propertySets')}
               type={activeTab === 'properties' ? 'properties' : 'properties'}
             />
           </Card>
@@ -1359,11 +1359,11 @@ function PropertiesPageContent() {
               <span className="text-red-600 text-xl">!</span>
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Error al cargar {activeTab === 'properties' ? 'propiedades' : 'conjuntos'}
+              {activeTab === 'properties' ? t('errors.loadingProperties') : t('errors.loadingPropertySets')}
             </h3>
             <p className="text-gray-600 mb-6">{error}</p>
             <Button onClick={activeTab === 'properties' ? fetchProperties : fetchPropertySets} variant="outline">
-              Reintentar
+              {t('common.retry')}
             </Button>
           </Card>
         ) : activeTab === 'properties' ? (
@@ -1380,10 +1380,10 @@ function PropertiesPageContent() {
                 <Card className="p-12 text-center">
                   <Home className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    No tienes propiedades individuales
+                    {t('properties.noIndividualProperties')}
                   </h3>
                   <p className="text-gray-600 mb-6">
-                    Crea tu primera propiedad individual o considera crear un conjunto
+                    {t('properties.createFirstOrGroup')}
                   </p>
                   <div className="flex items-center justify-center gap-3">
                     {/* Floating Lightbulb - OUTSIDE button, on the left - CLICKEABLE */}
@@ -1407,7 +1407,7 @@ function PropertiesPageContent() {
                     <Link href="/properties/new">
                       <Button>
                         <Plus className="w-4 h-4 mr-2" />
-                        Crear primera propiedad
+                        {t('properties.createFirst')}
                       </Button>
                     </Link>
                   </div>
@@ -1420,9 +1420,9 @@ function PropertiesPageContent() {
                   <Card className="p-6">
                     <div className="flex items-center mb-4">
                       <Lightbulb className="w-5 h-5 text-violet-600 mr-2" />
-                      <h3 className="text-lg font-semibold text-gray-900">Primeros pasos</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">{t('gettingStarted.title')}</h3>
                     </div>
-                    
+
                     <div className="space-y-4">
                       <motion.div
                         initial={{ opacity: 0, x: 20 }}
@@ -1435,17 +1435,17 @@ function PropertiesPageContent() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="text-sm font-semibold text-gray-900 mb-1">
-                              Crear primera propiedad
+                              {t('gettingStarted.createFirstProperty')}
                             </h4>
                             <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-                              Comienza creando tu primera propiedad para gestionar sus zonas y contenido
+                              {t('gettingStarted.createFirstPropertyDesc')}
                             </p>
                             <Link href="/properties/new">
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 className="text-xs h-8 px-3 bg-blue-600 hover:bg-blue-700"
                               >
-                                Crear propiedad
+                                {t('gettingStarted.createPropertyBtn')}
                                 <ArrowRight className="w-3 h-3 ml-1" />
                               </Button>
                             </Link>
@@ -1465,18 +1465,18 @@ function PropertiesPageContent() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="text-sm font-semibold text-gray-900 mb-1">
-                              ¿Múltiples propiedades?
+                              {t('gettingStarted.multipleProperties')}
                             </h4>
                             <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-                              Si tienes varias propiedades en el mismo lugar, considera crear un conjunto
+                              {t('gettingStarted.multiplePropertiesDesc')}
                             </p>
                             <Link href="/property-sets/new">
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 variant="outline"
                                 className="text-xs h-8 px-3"
                               >
-                                Crear Conjunto
+                                {t('propertySets.createNew')}
                                 <ArrowRight className="w-3 h-3 ml-1" />
                               </Button>
                             </Link>
@@ -1498,7 +1498,7 @@ function PropertiesPageContent() {
                     <div className="relative max-w-md">
                       <Input
                         type="text"
-                        placeholder="Buscar propiedades por nombre, ciudad o estado..."
+                        placeholder={t('properties.searchPlaceholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="pl-10 pr-4"
@@ -1524,10 +1524,10 @@ function PropertiesPageContent() {
                       <Card className="p-8 text-center">
                         <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          No se encontraron propiedades
+                          {t('properties.noSearchResults')}
                         </h3>
                         <p className="text-gray-600">
-                          No hay propiedades que coincidan con "{searchQuery}"
+                          {t('properties.noSearchResultsFor', { query: searchQuery })}
                         </p>
                       </Card>
                     )
@@ -1550,7 +1550,7 @@ function PropertiesPageContent() {
                   }
                 }}>
                   <CardContent className="p-6">
-                    <div className="flex space-x-4">
+                    <div className="flex space-x-4 overflow-hidden">
                       {/* Property Image */}
                       <div className="flex-shrink-0">
                         <div className="text-center">
@@ -1565,14 +1565,14 @@ function PropertiesPageContent() {
                               <Home className="w-8 h-8 text-white" />
                             </div>
                           )}
-                          <div 
+                          <div
                             className="mt-2 text-center text-xs text-violet-600 underline cursor-pointer hover:text-violet-800"
                             onClick={(e) => {
                               e.stopPropagation()
                               handleEditProperty(property.id)
                             }}
                           >
-                            Editar
+                            {t('properties.edit')}
                           </div>
                         </div>
                       </div>
@@ -1594,7 +1594,7 @@ function PropertiesPageContent() {
                               {property.propertySetId && property.propertySet && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                                   <Building2 className="w-3 h-3 mr-1" />
-                                  Pertenece a {property.propertySet.name}
+                                  {t('properties.belongsTo', { name: property.propertySet.name })}
                                 </span>
                               )}
                             </div>
@@ -1602,37 +1602,37 @@ function PropertiesPageContent() {
                               {getText(property.city, '')}, {getText(property.state, '')}
                             </p>
                             <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
-                              <span>{property.bedrooms} hab</span>
-                              <span>{property.bathrooms} baños</span>
-                              <span>{property.maxGuests} huéspedes</span>
+                              <span>{property.bedrooms} {t('properties.rooms')}</span>
+                              <span>{property.bathrooms} {t('properties.bathrooms')}</span>
+                              <span>{property.maxGuests} {t('properties.guests')}</span>
                             </div>
                             
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3 text-sm">
-                                <div className="flex items-center text-gray-600" title="Zonas del manual">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-sm min-w-0">
+                                <div className="flex items-center text-gray-600" title={t('properties.zonesTitle')}>
                                   <Layers className="h-4 w-4 mr-1 text-violet-500" />
-                                  <span>{property.zonesCount} zonas</span>
+                                  <span>{property.zonesCount} {t('properties.zones')}</span>
                                 </div>
                                 {(property.stepsCount || 0) > 0 && (
-                                  <div className="flex items-center text-gray-600" title="Pasos/instrucciones">
+                                  <div className="flex items-center text-gray-600" title={t('properties.stepsTitle')}>
                                     <FileText className="h-4 w-4 mr-1 text-blue-500" />
-                                    <span>{property.stepsCount} pasos</span>
+                                    <span>{property.stepsCount} {t('properties.steps')}</span>
                                   </div>
                                 )}
                                 {(property.videosCount || 0) > 0 && (
-                                  <div className="flex items-center text-gray-600" title="Videos">
+                                  <div className="flex items-center text-gray-600" title={t('properties.videosTitle')}>
                                     <Video className="h-4 w-4 mr-1 text-red-500" />
                                     <span>{property.videosCount}</span>
                                   </div>
                                 )}
                                 {property.totalViews > 0 && (
-                                  <div className="flex items-center text-gray-600" title="Visitas totales">
+                                  <div className="flex items-center text-gray-600" title={t('properties.totalViews')}>
                                     <Eye className="h-4 w-4 mr-1 text-green-500" />
                                     <span>{property.totalViews}</span>
                                   </div>
                                 )}
                                 {property.avgRating && property.avgRating > 0 && (
-                                  <div className="flex items-center text-gray-600" title="Valoración media">
+                                  <div className="flex items-center text-gray-600" title={t('properties.averageRating')}>
                                     <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
                                     <span>{Number(property.avgRating).toFixed(1)}</span>
                                   </div>
@@ -1640,22 +1640,22 @@ function PropertiesPageContent() {
                               </div>
                               
                               {/* Status and Publication Toggle */}
-                              <div className="flex flex-col items-end space-y-2">
+                              <div className="flex flex-col items-end space-y-2 flex-shrink-0 ml-2">
                                 {/* Publication Status Indicator */}
                                 <div className="flex items-center space-x-2">
                                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                    property.isPublished 
-                                      ? 'bg-green-100 text-green-800' 
+                                    property.isPublished
+                                      ? 'bg-green-100 text-green-800'
                                       : 'bg-gray-100 text-gray-600'
                                   }`}>
-                                    {property.isPublished ? 'Publicada' : 'No publicada'}
+                                    {property.isPublished ? t('properties.published') : t('properties.unpublished')}
                                   </span>
                                 </div>
                                 
                                 {/* Switch para activar/desactivar */}
                                 <div className="flex items-center space-x-2">
                                   <span className="text-sm text-gray-600">
-                                    {property.status === 'ACTIVE' ? 'Activa' : 'Inactiva'}
+                                    {property.status === 'ACTIVE' ? t('properties.active') : t('properties.inactive')}
                                   </span>
                                   <label className="relative inline-flex items-center cursor-pointer" onClick={(e) => e.stopPropagation()}>
                                     <input
@@ -1684,35 +1684,35 @@ function PropertiesPageContent() {
                                   onSelect={() => handleViewEvaluations(property.id)}
                                 >
                                   <Star className="h-4 w-4 mr-2" />
-                                  Evaluaciones
+                                  {t('properties.evaluations')}
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                   onSelect={() => handleEditProperty(property.id)}
                                 >
                                   <Edit2 className="h-4 w-4 mr-2" />
-                                  Editar propiedad
+                                  {t('properties.editProperty')}
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                   onSelect={() => router.push(getFriendlyUrl(property))}
                                 >
                                   <Building2 className="h-4 w-4 mr-2" />
-                                  Gestionar propiedad
+                                  {t('properties.manage')}
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item
                                   className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                   onSelect={(e) => {
                                     e.preventDefault()
                                     e.stopPropagation()
-                                    // Usar un timeout más largo para asegurar que el dropdown se cierre primero
+                                    // Usar un timeout para asegurar que el dropdown se cierre primero
                                     setTimeout(() => {
                                       handleDuplicateProperty(property)
                                     }, 100)
                                   }}
                                 >
                                   <Copy className="h-4 w-4 mr-2" />
-                                  Duplicar
+                                  {t('properties.duplicate')}
                                 </DropdownMenu.Item>
                                 {property.status === 'ACTIVE' && (
                                   <DropdownMenu.Item
@@ -1720,7 +1720,7 @@ function PropertiesPageContent() {
                                     onSelect={() => handleViewManual(property.id)}
                                   >
                                     <ExternalLink className="h-4 w-4 mr-2" />
-                                    Vista pública
+                                    {t('properties.publicView')}
                                   </DropdownMenu.Item>
                                 )}
                                 <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
@@ -1729,7 +1729,7 @@ function PropertiesPageContent() {
                                   onSelect={() => handleDeleteProperty(property.id)}
                                 >
                                   <Trash2 className="h-4 w-4 mr-2" />
-                                  Eliminar
+                                  {t('properties.delete')}
                                 </DropdownMenu.Item>
                               </DropdownMenu.Content>
                             </DropdownMenu.Portal>
@@ -1751,7 +1751,7 @@ function PropertiesPageContent() {
                   <Card className="p-6">
                     <div className="flex items-center mb-4">
                       <Lightbulb className="w-5 h-5 text-violet-600 mr-2" />
-                      <h3 className="text-lg font-semibold text-gray-900">Recomendaciones</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">{t('recommendations.title')}</h3>
                     </div>
                     
                     {(() => {
@@ -1810,15 +1810,15 @@ function PropertiesPageContent() {
             <Card className="p-12 text-center">
               <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No tienes conjuntos de propiedades
+                {t('propertySets.noPropertySets')}
               </h3>
               <p className="text-gray-600 mb-6">
-                Crea un conjunto para agrupar múltiples propiedades bajo la misma gestión
+                {t('propertySets.createGroupDescription')}
               </p>
               <Link href="/property-sets/new">
                 <Button>
                   <Plus className="w-4 h-4 mr-2" />
-                  Crear primer conjunto
+                  {t('propertySets.createFirstGroup')}
                 </Button>
               </Link>
             </Card>
@@ -1848,11 +1848,11 @@ function PropertiesPageContent() {
                                 <Building2 className="w-10 h-10 text-white" />
                               </div>
                             )}
-                            <div 
+                            <div
                               className="mt-2 text-center text-xs text-violet-600 underline cursor-pointer hover:text-violet-800"
                               onClick={() => router.push(`/property-sets/new?edit=${propertySet.id}`)}
                             >
-                              Editar
+                              {t('propertySets.edit')}
                             </div>
                           </div>
                         </div>
@@ -1868,24 +1868,24 @@ function PropertiesPageContent() {
                                 {propertySet.city}, {propertySet.state}
                               </p>
                               <p className="text-sm text-gray-500 mb-3">
-                                {propertySet.type === 'HOTEL' && 'Hotel'}
-                                {propertySet.type === 'BUILDING' && 'Edificio'}
-                                {propertySet.type === 'COMPLEX' && 'Complejo'}
-                                {propertySet.type === 'RESORT' && 'Resort'}
-                                {propertySet.type === 'HOSTEL' && 'Hostel'}
-                                {propertySet.type === 'APARTHOTEL' && 'Aparthotel'}
+                                {propertySet.type === 'HOTEL' && t('propertySets.types.hotel')}
+                                {propertySet.type === 'BUILDING' && t('propertySets.types.building')}
+                                {propertySet.type === 'COMPLEX' && t('propertySets.types.complex')}
+                                {propertySet.type === 'RESORT' && t('propertySets.types.resort')}
+                                {propertySet.type === 'HOSTEL' && t('propertySets.types.hostel')}
+                                {propertySet.type === 'APARTHOTEL' && t('propertySets.types.aparthotel')}
                               </p>
                               
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-4 text-sm">
                                   <div className="flex items-center text-gray-600">
                                     <Home className="h-4 w-4 mr-1" />
-                                    <span>{propertySet.propertiesCount} propiedades</span>
+                                    <span>{propertySet.propertiesCount} {t('propertySets.properties')}</span>
                                   </div>
                                   {propertySet.totalViews > 0 && (
                                     <div className="flex items-center text-gray-600">
                                       <Eye className="h-4 w-4 mr-1" />
-                                      <span>{propertySet.totalViews} vistas</span>
+                                      <span>{propertySet.totalViews} {t('propertySets.views')}</span>
                                     </div>
                                   )}
                                   {propertySet.avgRating > 0 && (
@@ -1912,14 +1912,14 @@ function PropertiesPageContent() {
                                     onSelect={() => router.push(`/property-sets/new?edit=${propertySet.id}`)}
                                   >
                                     <Edit2 className="h-4 w-4 mr-2" />
-                                    Editar
+                                    {t('propertySets.edit')}
                                   </DropdownMenu.Item>
                                   <DropdownMenu.Item
                                     className="flex items-center px-2 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                                     onSelect={() => router.push(`/properties/groups/${propertySet.id}`)}
                                   >
                                     <Eye className="h-4 w-4 mr-2" />
-                                    Ver propiedades
+                                    {t('propertySets.viewProperties')}
                                   </DropdownMenu.Item>
                                   <DropdownMenu.Separator className="h-px my-1 bg-gray-200" />
                                   <DropdownMenu.Item
@@ -1927,7 +1927,7 @@ function PropertiesPageContent() {
                                     onSelect={() => handleDeletePropertySet(propertySet)}
                                   >
                                     <Trash2 className="h-4 w-4 mr-2" />
-                                    Eliminar conjunto
+                                    {t('propertySets.deleteGroup')}
                                   </DropdownMenu.Item>
                                 </DropdownMenu.Content>
                               </DropdownMenu.Portal>
@@ -1944,7 +1944,7 @@ function PropertiesPageContent() {
                               className="w-full"
                               onClick={() => router.push(`/properties/groups/${propertySet.id}`)}
                             >
-                              Gestionar conjunto
+                              {t('propertySets.manage')}
                             </Button>
                           </div>
                         </div>
@@ -1972,7 +1972,7 @@ function PropertiesPageContent() {
             >
               {/* Modal Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-100">
-                <h3 className="text-xl font-semibold text-gray-900">Compartir enlace</h3>
+                <h3 className="text-xl font-semibold text-gray-900">{t('modals.share.title')}</h3>
                 <button
                   onClick={closeShareModal}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -2011,7 +2011,7 @@ function PropertiesPageContent() {
                 {/* URL Input */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Enlace del manual
+                    {t('modals.share.manualLink')}
                   </label>
                   <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
                     <input
@@ -2027,12 +2027,12 @@ function PropertiesPageContent() {
                       {copied ? (
                         <>
                           <Check className="w-4 h-4" />
-                          <span className="text-sm font-medium">Copiado</span>
+                          <span className="text-sm font-medium">{t('modals.share.copied')}</span>
                         </>
                       ) : (
                         <>
                           <Copy className="w-4 h-4" />
-                          <span className="text-sm font-medium">Copiar</span>
+                          <span className="text-sm font-medium">{t('modals.share.copy')}</span>
                         </>
                       )}
                     </button>
@@ -2042,7 +2042,7 @@ function PropertiesPageContent() {
                 {/* Info Message */}
                 <div className="bg-blue-50 rounded-lg p-4">
                   <p className="text-sm text-blue-800">
-                    <strong>💡 Consejo:</strong> Comparte este enlace con tus huéspedes para que accedan al manual interactivo de tu propiedad desde cualquier dispositivo.
+                    {t('modals.share.tip')}
                   </p>
                 </div>
               </div>
@@ -2054,7 +2054,7 @@ function PropertiesPageContent() {
                     onClick={closeShareModal}
                     variant="outline"
                   >
-                    Cerrar
+                    {t('common.close')}
                   </Button>
                   <Button
                     onClick={() => {
@@ -2063,7 +2063,7 @@ function PropertiesPageContent() {
                     }}
                     className="bg-violet-600 hover:bg-violet-700"
                   >
-                    Ver manual
+                    {t('modals.share.viewManual')}
                   </Button>
                 </div>
               </div>
@@ -2076,10 +2076,10 @@ function PropertiesPageContent() {
           <div className="mb-6">
             <div className="flex items-center mb-4">
               <Lightbulb className="w-5 h-5 text-violet-600 mr-2" />
-              <h3 className="text-lg font-semibold text-gray-900">Recomendaciones diarias</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('recommendations.dailyTitle')}</h3>
             </div>
             <p className="text-sm text-gray-600">
-              Consejos diarios para aprovechar al máximo Itineramio y mejorar la experiencia de tus huéspedes
+              {t('recommendations.dailyDescription')}
             </p>
           </div>
           
@@ -2172,7 +2172,7 @@ function PropertiesPageContent() {
                     onClick={() => setRecommendationModalOpen(false)}
                     variant="outline"
                   >
-                    Cerrar
+                    {t('common.close')}
                   </Button>
                   {selectedRecommendation.actionUrl && (
                     <Button
@@ -2182,7 +2182,7 @@ function PropertiesPageContent() {
                       }}
                       className="bg-violet-600 hover:bg-violet-700"
                     >
-                      Ir a la sección
+                      {t('recommendations.goToSection')}
                     </Button>
                   )}
                 </div>
@@ -2207,7 +2207,7 @@ function PropertiesPageContent() {
               {/* Modal Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-100">
                 <h3 className="text-xl font-semibold text-gray-900">
-                  Duplicar Propiedad
+                  {t('modals.duplicate.title')}
                 </h3>
                 <button
                   onClick={closeDuplicateModal}
@@ -2248,7 +2248,7 @@ function PropertiesPageContent() {
                   {/* Number of duplicates */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ¿Cuántas propiedades quieres crear?
+                      {t('modals.duplicate.howMany')}
                     </label>
 
                     {/* Mobile-friendly counter with icon buttons */}
@@ -2268,7 +2268,7 @@ function PropertiesPageContent() {
                       <div className="flex-1 text-center px-2">
                         <div className="text-5xl font-black text-violet-600 tracking-tight">{duplicateCount}</div>
                         <div className="text-xs font-medium text-violet-700 mt-1 uppercase tracking-wide">
-                          {duplicateCount === 1 ? 'Propiedad' : 'Propiedades'}
+                          {duplicateCount === 1 ? t('modals.duplicate.property') : t('modals.duplicate.properties')}
                         </div>
                       </div>
 
@@ -2285,7 +2285,7 @@ function PropertiesPageContent() {
                     </div>
 
                     <p className="mt-2 text-xs text-gray-500 text-center">
-                      Se crearán como: {getText(propertyToDuplicate.name, 'Propiedad')} 2, {getText(propertyToDuplicate.name, 'Propiedad')} 3, etc.
+                      {t('modals.duplicate.createdAs', { name: getText(propertyToDuplicate.name, t('modals.duplicate.property')) })}
                     </p>
                   </div>
 
@@ -2300,10 +2300,10 @@ function PropertiesPageContent() {
                       />
                       <div>
                         <span className="text-sm font-medium text-gray-700">
-                          Compartir medios (imágenes y videos)
+                          {t('modals.duplicate.shareMedia')}
                         </span>
                         <p className="text-xs text-gray-500 mt-1">
-                          Las nuevas propiedades usarán las mismas imágenes y videos que la original
+                          {t('modals.duplicate.shareMediaDesc')}
                         </p>
                       </div>
                     </label>
@@ -2312,7 +2312,7 @@ function PropertiesPageContent() {
                   {/* Copy complete property or select zones */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-3">
-                      ¿Qué quieres copiar?
+                      {t('modals.duplicate.whatToCopy')}
                     </label>
                     <div className="space-y-3">
                       <label className="flex items-center space-x-3">
@@ -2325,10 +2325,10 @@ function PropertiesPageContent() {
                         />
                         <div>
                           <span className="text-sm font-medium text-gray-700">
-                            Propiedad completa
+                            {t('modals.duplicate.completeProperty')}
                           </span>
                           <p className="text-xs text-gray-500">
-                            Copiar todas las zonas y pasos de la propiedad
+                            {t('modals.duplicate.completePropertyDesc')}
                           </p>
                         </div>
                       </label>
@@ -2342,10 +2342,10 @@ function PropertiesPageContent() {
                         />
                         <div>
                           <span className="text-sm font-medium text-gray-700">
-                            Solo zonas específicas
+                            {t('modals.duplicate.specificZones')}
                           </span>
                           <p className="text-xs text-gray-500">
-                            Seleccionar qué zonas copiar
+                            {t('modals.duplicate.specificZonesDesc')}
                           </p>
                         </div>
                       </label>
@@ -2354,7 +2354,7 @@ function PropertiesPageContent() {
                     {/* Zone selection (only if not copying complete property) */}
                     {!copyCompleteProperty && propertyToDuplicate.zones && (
                       <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                        <p className="text-sm font-medium text-gray-700 mb-2">Seleccionar zonas:</p>
+                        <p className="text-sm font-medium text-gray-700 mb-2">{t('modals.duplicate.selectZones')}</p>
                         <div className="space-y-2 max-h-32 overflow-y-auto">
                           {propertyToDuplicate.zones.map((zone: any) => (
                             <label key={zone.id} className="flex items-center space-x-2">
@@ -2390,7 +2390,7 @@ function PropertiesPageContent() {
                         className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
                       />
                       <span className="text-sm font-medium text-gray-700">
-                        Asignar a un conjunto de propiedades
+                        {t('modals.duplicate.assignToGroup')}
                       </span>
                     </label>
 
@@ -2400,7 +2400,7 @@ function PropertiesPageContent() {
                         onChange={(e) => setSelectedPropertySet(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
                       >
-                        <option value="">Seleccionar conjunto...</option>
+                        <option value="">{t('modals.duplicate.selectGroup')}</option>
                         {propertySets.map((set) => (
                           <option key={set.id} value={set.id}>
                             {set.name}
@@ -2421,10 +2421,10 @@ function PropertiesPageContent() {
                       />
                       <div>
                         <span className="text-sm font-medium text-gray-700">
-                          Publicar automáticamente
+                          {t('modals.duplicate.autoPublish')}
                         </span>
                         <p className="text-xs text-gray-500 mt-1">
-                          Las nuevas propiedades se publicarán inmediatamente para ser visibles en la vista pública
+                          {t('modals.duplicate.autoPublishDesc')}
                         </p>
                       </div>
                     </label>
@@ -2440,7 +2440,7 @@ function PropertiesPageContent() {
                     variant="outline"
                     disabled={isDuplicating}
                   >
-                    Cancelar
+                    {t('common.cancel')}
                   </Button>
                   <Button
                     onClick={handleDuplicateSubmit}
@@ -2450,10 +2450,10 @@ function PropertiesPageContent() {
                     {isDuplicating ? (
                       <>
                         <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                        Duplicando...
+                        {t('modals.duplicate.duplicating')}
                       </>
                     ) : (
-                      `Crear ${duplicateCount} ${duplicateCount === 1 ? 'propiedad' : 'propiedades'}`
+                      t('modals.duplicate.createCount', { count: duplicateCount })
                     )}
                   </Button>
                 </div>
@@ -2479,10 +2479,10 @@ function PropertiesPageContent() {
               <div className="flex items-center justify-between p-6 border-b border-gray-100">
                 <div>
                   <h3 className="text-xl font-semibold text-gray-900">
-                    Evaluaciones de {getText(selectedPropertyForEvaluations.name, 'Propiedad')}
+                    {t('modals.evaluations.title', { name: getText(selectedPropertyForEvaluations.name, t('modals.duplicate.property')) })}
                   </h3>
                   <p className="text-sm text-gray-600 mt-1">
-                    Gestiona las evaluaciones de los huéspedes
+                    {t('modals.evaluations.subtitle')}
                   </p>
                 </div>
                 <button
@@ -2498,16 +2498,16 @@ function PropertiesPageContent() {
                 {loadingEvaluations ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
-                    <span className="ml-3 text-gray-600">Cargando evaluaciones...</span>
+                    <span className="ml-3 text-gray-600">{t('modals.evaluations.loading')}</span>
                   </div>
                 ) : propertyEvaluations.length === 0 ? (
                   <div className="text-center py-12">
                     <Star className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                     <h4 className="text-lg font-medium text-gray-900 mb-2">
-                      Sin evaluaciones aún
+                      {t('modals.evaluations.noEvaluations')}
                     </h4>
                     <p className="text-gray-600">
-                      Los huéspedes aún no han dejado evaluaciones para esta propiedad
+                      {t('modals.evaluations.noEvaluationsDesc')}
                     </p>
                   </div>
                 ) : (
@@ -2532,7 +2532,7 @@ function PropertiesPageContent() {
                               </span>
                             </div>
                             <span className="text-sm text-gray-600">
-                              por {evaluation.userName}
+                              {t('modals.evaluations.by', { name: evaluation.userName })}
                             </span>
                           </div>
                           <div className="flex items-center space-x-2">
@@ -2541,18 +2541,18 @@ function PropertiesPageContent() {
                                 ? 'bg-green-100 text-green-800'
                                 : 'bg-gray-100 text-gray-600'
                             }`}>
-                              {evaluation.isPublic ? 'Pública' : 'Privada'}
+                              {evaluation.isPublic ? t('modals.evaluations.public') : t('modals.evaluations.private')}
                             </span>
                             <Button
                               size="sm"
                               variant={evaluation.isPublic ? "outline" : "default"}
                               onClick={() => handleToggleEvaluationPublic(evaluation.id, evaluation.isPublic)}
-                              className={evaluation.isPublic 
-                                ? "text-gray-600 hover:text-gray-800" 
+                              className={evaluation.isPublic
+                                ? "text-gray-600 hover:text-gray-800"
                                 : "bg-green-600 hover:bg-green-700 text-white"
                               }
                             >
-                              {evaluation.isPublic ? 'Hacer privada' : 'Hacer pública'}
+                              {evaluation.isPublic ? t('modals.evaluations.makePrivate') : t('modals.evaluations.makePublic')}
                             </Button>
                           </div>
                         </div>
@@ -2567,7 +2567,7 @@ function PropertiesPageContent() {
                         
                         <div className="flex items-center justify-between text-xs text-gray-500">
                           <span>
-                            {evaluation.reviewType === 'zone' ? 'Evaluación de zona' : 'Evaluación general'}
+                            {evaluation.reviewType === 'zone' ? t('modals.evaluations.zoneEvaluation') : t('modals.evaluations.generalEvaluation')}
                           </span>
                           <span>
                             {new Date(evaluation.createdAt).toLocaleDateString('es-ES', {
@@ -2591,7 +2591,7 @@ function PropertiesPageContent() {
                   <div className="text-sm text-gray-600">
                     {propertyEvaluations.length > 0 && (
                       <span>
-                        {propertyEvaluations.filter(e => e.isPublic).length} de {propertyEvaluations.length} evaluaciones públicas
+                        {t('modals.evaluations.publicCount', { public: propertyEvaluations.filter(e => e.isPublic).length, total: propertyEvaluations.length })}
                       </span>
                     )}
                   </div>
@@ -2599,7 +2599,7 @@ function PropertiesPageContent() {
                     onClick={closeEvaluationsModal}
                     variant="outline"
                   >
-                    Cerrar
+                    {t('common.close')}
                   </Button>
                 </div>
               </div>
@@ -2628,10 +2628,10 @@ function PropertiesPageContent() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      Eliminar Propiedad
+                      {t('modals.delete.title')}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      Esta acción no se puede deshacer
+                      {t('modals.delete.cannotUndo')}
                     </p>
                   </div>
                 </div>
@@ -2669,7 +2669,7 @@ function PropertiesPageContent() {
                     </p>
                     <div className="flex items-center space-x-2 mt-1">
                       <span className="text-xs text-gray-500">
-                        {propertyToDelete.zonesCount || 0} zonas configuradas
+                        {t('modals.delete.zonesConfigured', { count: propertyToDelete.zonesCount || 0 })}
                       </span>
                     </div>
                   </div>
@@ -2681,17 +2681,17 @@ function PropertiesPageContent() {
                     <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                     <div>
                       <h5 className="font-medium text-red-800 mb-1">
-                        ¿Estás seguro de que quieres eliminar esta propiedad?
+                        {t('modals.delete.confirmQuestion')}
                       </h5>
                       <p className="text-sm text-red-700 leading-relaxed">
-                        Se eliminarán <strong>permanentemente</strong> todos los datos asociados:
+                        {t('modals.delete.permanentlyDeleted')}
                       </p>
                       <ul className="text-sm text-red-700 mt-2 space-y-1">
-                        <li>• Todas las zonas y sus instrucciones</li>
-                        <li>• Códigos QR y enlaces de acceso</li>
-                        <li>• Estadísticas y análisis</li>
-                        <li>• Evaluaciones y comentarios</li>
-                        <li>• Historial de actividad</li>
+                        <li>{t('modals.delete.allZones')}</li>
+                        <li>{t('modals.delete.qrCodes')}</li>
+                        <li>{t('modals.delete.statistics')}</li>
+                        <li>{t('modals.delete.evaluationsComments')}</li>
+                        <li>{t('modals.delete.activityHistory')}</li>
                       </ul>
                     </div>
                   </div>
@@ -2700,11 +2700,11 @@ function PropertiesPageContent() {
                 {/* Confirmation Input */}
                 <div className="mb-6">
                   <p className="text-sm text-gray-700 mb-3">
-                    Para confirmar, escribe <strong>"ELIMINAR"</strong> en el campo de abajo:
+                    {t('modals.delete.typeToConfirm')}
                   </p>
                   <input
                     type="text"
-                    placeholder="Escribe ELIMINAR para confirmar"
+                    placeholder={t('modals.delete.typePlaceholder')}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
                     id="deleteConfirmation"
                   />
@@ -2719,7 +2719,7 @@ function PropertiesPageContent() {
                     variant="outline"
                     disabled={isDeleting}
                   >
-                    Cancelar
+                    {t('common.cancel')}
                   </Button>
                   <Button
                     onClick={() => {
@@ -2727,7 +2727,7 @@ function PropertiesPageContent() {
                       if (input?.value === 'ELIMINAR') {
                         confirmDeleteProperty()
                       } else {
-                        setSuccessMessage('Debes escribir "ELIMINAR" para confirmar')
+                        setSuccessMessage(t('modals.delete.mustTypeDelete'))
                         setSuccessModalOpen(true)
                       }
                     }}
@@ -2737,12 +2737,12 @@ function PropertiesPageContent() {
                     {isDeleting ? (
                       <>
                         <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                        Eliminando...
+                        {t('modals.delete.deleting')}
                       </>
                     ) : (
                       <>
                         <Trash2 className="w-4 h-4 mr-2" />
-                        Eliminar Propiedad
+                        {t('modals.delete.deleteProperty')}
                       </>
                     )}
                   </Button>
@@ -2773,10 +2773,10 @@ function PropertiesPageContent() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      Eliminar Conjunto de Propiedades
+                      {t('modals.deleteSet.title')}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      Esta acción es irreversible
+                      {t('modals.deleteSet.irreversible')}
                     </p>
                   </div>
                 </div>
@@ -2793,44 +2793,44 @@ function PropertiesPageContent() {
                 <div className="space-y-4">
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                     <h4 className="font-semibold text-red-900 mb-2">
-                      ⚠️ ADVERTENCIA: Esta acción eliminará:
+                      {t('modals.deleteSet.warning')}
                     </h4>
                     <ul className="space-y-2 text-sm text-red-800">
                       <li className="flex items-start">
-                        <span className="mr-2">•</span>
-                        <span>El conjunto <strong>"{propertySetToDelete.name}"</strong></span>
+                        <span className="mr-2">-</span>
+                        <span>{t('modals.deleteSet.theGroup', { name: propertySetToDelete.name })}</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="mr-2">•</span>
-                        <span><strong>{propertySetToDelete.propertiesCount} propiedades</strong> dentro del conjunto</span>
+                        <span className="mr-2">-</span>
+                        <span>{t('modals.deleteSet.propertiesInGroup', { count: propertySetToDelete.propertiesCount })}</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="mr-2">•</span>
-                        <span>Todas las zonas, instrucciones y contenido multimedia asociado</span>
+                        <span className="mr-2">-</span>
+                        <span>{t('modals.deleteSet.allZonesMedia')}</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="mr-2">•</span>
-                        <span>Todas las evaluaciones y estadísticas</span>
+                        <span className="mr-2">-</span>
+                        <span>{t('modals.deleteSet.allEvaluationsStats')}</span>
                       </li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <p className="text-sm text-gray-700 mb-3">
-                      Para confirmar la eliminación, escribe <strong>ELIMINAR CONJUNTO</strong> en el campo de abajo:
+                      {t('modals.deleteSet.typeToConfirm')}
                     </p>
                     <input
                       type="text"
                       id="deleteSetConfirmation"
-                      placeholder="Escribe ELIMINAR CONJUNTO"
+                      placeholder={t('modals.deleteSet.typePlaceholder')}
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                       autoComplete="off"
                     />
                   </div>
                   
                   <div className="text-sm text-gray-600">
-                    <p className="font-medium mb-1">Alternativa recomendada:</p>
-                    <p>En lugar de eliminar, puedes archivar el conjunto o cambiar su estado a borrador.</p>
+                    <p className="font-medium mb-1">{t('modals.deleteSet.alternativeTitle')}</p>
+                    <p>{t('modals.deleteSet.alternativeDesc')}</p>
                   </div>
                 </div>
               </div>
@@ -2842,7 +2842,7 @@ function PropertiesPageContent() {
                     onClick={closeDeletePropertySetModal}
                     variant="outline"
                   >
-                    Cancelar
+                    {t('common.cancel')}
                   </Button>
                   <Button
                     onClick={() => {
@@ -2850,7 +2850,7 @@ function PropertiesPageContent() {
                       if (input?.value === 'ELIMINAR CONJUNTO') {
                         confirmDeletePropertySet()
                       } else {
-                        setSuccessMessage('Debes escribir "ELIMINAR CONJUNTO" para confirmar')
+                        setSuccessMessage(t('modals.deleteSet.mustTypeDeleteGroup'))
                         setSuccessModalOpen(true)
                       }
                     }}
@@ -2860,12 +2860,12 @@ function PropertiesPageContent() {
                     {isDeletingPropertySet ? (
                       <>
                         <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                        Eliminando...
+                        {t('modals.delete.deleting')}
                       </>
                     ) : (
                       <>
                         <Trash2 className="w-4 h-4 mr-2" />
-                        Eliminar Conjunto
+                        {t('modals.deleteSet.deleteGroup')}
                       </>
                     )}
                   </Button>
@@ -2874,7 +2874,7 @@ function PropertiesPageContent() {
             </motion.div>
           </div>
         )}
-        
+
         {/* Success/Error Modal */}
         {successModalOpen && (
           <div 
@@ -2904,12 +2904,12 @@ function PropertiesPageContent() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {successMessage.toLowerCase().includes('error') ? 'Error' : '¡Éxito!'}
+                      {successMessage.toLowerCase().includes('error') ? t('modals.result.error') : t('modals.result.success')}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      {successMessage.toLowerCase().includes('error') 
-                        ? 'Ha ocurrido un problema' 
-                        : 'Operación completada correctamente'
+                      {successMessage.toLowerCase().includes('error')
+                        ? t('modals.result.problemOccurred')
+                        : t('modals.result.operationCompleted')
                       }
                     </p>
                   </div>
@@ -2953,12 +2953,12 @@ function PropertiesPageContent() {
                     {successMessage.toLowerCase().includes('error') ? (
                       <>
                         <AlertTriangle className="w-4 h-4 mr-2" />
-                        Entendido
+                        {t('modals.result.understood')}
                       </>
                     ) : (
                       <>
                         <CheckCircle className="w-4 h-4 mr-2" />
-                        Continuar
+                        {t('modals.result.continue')}
                       </>
                     )}
                   </Button>

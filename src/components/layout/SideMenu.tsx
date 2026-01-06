@@ -15,7 +15,8 @@ import {
   CreditCard,
   Home,
   Bell,
-  Receipt
+  Receipt,
+  Layers
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
@@ -52,7 +53,14 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
       icon: <Home className="w-5 h-5" />,
       label: "Mis Propiedades",
       href: "/properties",
-      description: "Gestionar propiedades y conjuntos",
+      description: "Gestionar tus propiedades",
+      mobileOnly: true
+    },
+    {
+      icon: <Layers className="w-5 h-5" />,
+      label: "Conjuntos",
+      href: "/property-sets",
+      description: "Agrupar propiedades similares",
       mobileOnly: true
     },
     {
