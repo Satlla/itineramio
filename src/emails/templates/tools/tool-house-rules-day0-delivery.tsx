@@ -2,13 +2,14 @@ import * as React from 'react'
 
 interface Props {
   name: string
+  email: string
   rulesData?: {
     propertyName?: string
     rulesCount?: number
   }
 }
 
-export default function ToolHouseRulesDay0Delivery({ name, rulesData }: Props) {
+export default function ToolHouseRulesDay0Delivery({ name, email, rulesData }: Props) {
   const firstName = name?.split(' ')[0] || 'Anfitrión'
   const propertyName = rulesData?.propertyName || 'tu alojamiento'
 
