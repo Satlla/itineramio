@@ -5,8 +5,9 @@ import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { 
-  ArrowLeft, 
+import { useTranslation } from 'react-i18next'
+import {
+  ArrowLeft,
   Save,
   Info,
   Image as ImageIcon
@@ -62,12 +63,13 @@ const zoneColors = [
 ]
 
 export default function NewZonePage() {
+  const { t } = useTranslation('zones')
   const router = useRouter()
   const params = useParams()
   const searchParams = useSearchParams()
   const propertyId = params.id as string
   const templateId = searchParams.get('template')
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [propertyName, setPropertyName] = useState('')
 
@@ -137,7 +139,7 @@ export default function NewZonePage() {
       router.push(`/properties/${propertyId}/zones`)
     } catch (error) {
       console.error('Error creating zone:', error)
-      alert('Error al crear la zona. Por favor, inténtalo de nuevo.')
+      alert(t('errorCreatingZone'))
     } finally {
       setIsSubmitting(false)
     }
@@ -152,13 +154,13 @@ export default function NewZonePage() {
             <Link href={`/properties/${propertyId}/zones`}>
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
+                {t('buttons.back')}
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Nueva Zona</h1>
+              <h1 className="text-3xl font-bold text-gray-900">{t('newZone')}</h1>
               <p className="text-gray-600 mt-1">
-                {propertyName && `Crear nueva zona para ${propertyName}`}
+                {propertyName && t('createNewZoneFor', { propertyName })}
               </p>
             </div>
           </div>
@@ -172,7 +174,7 @@ export default function NewZonePage() {
                 {/* Icon Selection */}
                 <div className="flex-1">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Icono de la zona *
+                    {t('form.iconLabel')}
                   </label>
                   <div className="grid grid-cols-4 gap-2">
                     {Object.entries(zoneTemplates).slice(0, 12).map(([key, template]) => (
@@ -201,7 +203,7 @@ export default function NewZonePage() {
                 {/* Color Selection */}
                 <div className="flex-1">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Color de fondo
+                    {t('form.colorLabel')}
                   </label>
                   <div className="grid grid-cols-5 gap-2">
                     {zoneColors.map((color) => (
@@ -226,7 +228,7 @@ export default function NewZonePage() {
 
               {/* Preview */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-2">Vista previa:</p>
+                <p className="text-sm text-gray-600 mb-2">{t('form.preview')}</p>
                 <div className="flex items-center space-x-3">
                   <div className={`
                     w-16 h-16 rounded-lg flex items-center justify-center text-3xl
@@ -236,9 +238,9 @@ export default function NewZonePage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">
-                      {watchedValues.name || 'Nombre de la zona'}
+                      {watchedValues.name || t('form.defaultZoneName')}
                     </h3>
-                    <p className="text-sm text-gray-600">0 pasos</p>
+                    <p className="text-sm text-gray-600">0 {t('detail.stepsCount')}</p>
                   </div>
                 </div>
               </div>
@@ -246,11 +248,11 @@ export default function NewZonePage() {
               {/* Zone Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nombre de la zona *
+                  {t('form.nameLabel')}
                 </label>
                 <Input
                   {...register('name')}
-                  placeholder="Ej: Cocina principal"
+                  placeholder={t('form.namePlaceholder')}
                   error={!!errors.name}
                 />
                 {errors.name && (
@@ -261,12 +263,12 @@ export default function NewZonePage() {
               {/* Description */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Descripción *
+                  {t('form.descriptionLabel')}
                 </label>
                 <textarea
                   {...register('description')}
                   rows={4}
-                  placeholder="Describe qué información contendrá esta zona del manual..."
+                  placeholder={t('form.descriptionPlaceholder')}
                   className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 ${
                     errors.description ? 'border-red-300' : ''
                   }`}
@@ -279,7 +281,7 @@ export default function NewZonePage() {
               {/* Order */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Orden de aparición
+                  {t('form.orderLabel')}
                 </label>
                 <Input
                   type="number"
@@ -292,7 +294,7 @@ export default function NewZonePage() {
                   <p className="mt-1 text-sm text-red-600">{errors.order.message}</p>
                 )}
                 <p className="mt-1 text-xs text-gray-500">
-                  Las zonas se mostrarán ordenadas de menor a mayor
+                  {t('form.orderHint')}
                 </p>
               </div>
 
@@ -302,8 +304,7 @@ export default function NewZonePage() {
                   <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                   <div className="ml-3">
                     <p className="text-sm text-blue-800">
-                      <strong>Siguiente paso:</strong> Después de crear la zona, podrás añadir pasos con 
-                      instrucciones detalladas, imágenes y videos para guiar a tus huéspedes.
+                      <strong>{t('info.nextStep')}</strong> {t('info.nextStepDescription')}
                     </p>
                   </div>
                 </div>
@@ -313,7 +314,7 @@ export default function NewZonePage() {
             <div className="flex justify-end space-x-3 mt-8">
               <Link href={`/properties/${propertyId}/zones`}>
                 <Button type="button" variant="outline">
-                  Cancelar
+                  {t('buttons.cancel')}
                 </Button>
               </Link>
               <Button
@@ -323,12 +324,12 @@ export default function NewZonePage() {
                 {isSubmitting ? (
                   <>
                     <InlineSpinner className="mr-2" color="white" />
-                    Creando...
+                    {t('buttons.creating')}
                   </>
                 ) : (
                   <>
                     <Save className="w-4 h-4 mr-2" />
-                    Crear Zona
+                    {t('createZone')}
                   </>
                 )}
               </Button>
@@ -340,7 +341,7 @@ export default function NewZonePage() {
         {!templateId && (
           <div className="mt-8">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Plantillas Rápidas
+              {t('templates.title')}
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {Object.entries(zoneTemplates).map(([key, template]) => (

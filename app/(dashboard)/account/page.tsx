@@ -20,10 +20,12 @@ import {
 import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '../../../src/components/ui'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../../../src/providers/AuthProvider'
+import { useTranslation } from 'react-i18next'
 
 export default function AccountPage() {
   const router = useRouter()
   const { user, refreshUser } = useAuth()
+  const { t } = useTranslation('account')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
@@ -31,7 +33,7 @@ export default function AccountPage() {
   const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [showSuccessToast, setShowSuccessToast] = useState(false)
-  
+
   // Form data
   const [formData, setFormData] = useState({
     firstName: '',
@@ -73,12 +75,12 @@ export default function AccountPage() {
 
     // Validate file
     if (!file.type.startsWith('image/')) {
-      setErrors({ image: 'Por favor selecciona una imagen válida' })
+      setErrors({ image: t('errors.invalidImage') })
       return
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setErrors({ image: 'La imagen debe ser menor a 5MB' })
+      setErrors({ image: t('errors.imageTooLarge') })
       return
     }
 
@@ -89,39 +91,39 @@ export default function AccountPage() {
       const formData = new FormData()
       formData.append('file', file)
 
-      console.log('🌐 Making upload request to /api/upload')
-      console.log('🍪 Current cookies:', document.cookie)
+      console.log('Making upload request to /api/upload')
+      console.log('Current cookies:', document.cookie)
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       })
 
-      console.log('📡 Upload response status:', response.status, response.statusText)
+      console.log('Upload response status:', response.status, response.statusText)
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('❌ Upload response not ok:', errorText)
+        console.error('Upload response not ok:', errorText)
         throw new Error(`Upload failed: ${response.status} - ${errorText}`)
       }
 
       const result = await response.json()
-      console.log('📄 Upload response data:', result)
+      console.log('Upload response data:', result)
 
       if (result.success) {
         // Set the uploaded image URL
         setProfileImage(result.url)
-        console.log('✅ Profile image uploaded successfully:', result.url)
+        console.log('Profile image uploaded successfully:', result.url)
       } else if (result.duplicate && result.existingMedia?.url) {
         // Handle duplicate image - use existing media
         setProfileImage(result.existingMedia.url)
-        console.log('✅ Using existing image from media library:', result.existingMedia.url)
+        console.log('Using existing image from media library:', result.existingMedia.url)
       } else {
-        console.error('❌ Upload result not successful:', result)
+        console.error('Upload result not successful:', result)
         throw new Error(result.error || result.message || 'Upload failed')
       }
     } catch (error) {
       console.error('Error uploading profile image:', error)
-      setErrors({ image: 'Error al subir la imagen. Inténtalo de nuevo.' })
+      setErrors({ image: t('errors.uploadError') })
     } finally {
       setLoading(false)
     }
@@ -131,11 +133,11 @@ export default function AccountPage() {
     const newErrors: Record<string, string> = {}
 
     if (!formData.email?.trim()) {
-      newErrors.email = 'Email es requerido'
+      newErrors.email = t('errors.emailRequired')
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       if (!emailRegex.test(formData.email.trim())) {
-        newErrors.email = 'Email inválido'
+        newErrors.email = t('errors.emailInvalid')
       }
     }
 
@@ -147,17 +149,17 @@ export default function AccountPage() {
     const newErrors: Record<string, string> = {}
 
     if (!confirmationPassword) {
-      newErrors.currentPassword = 'Debes ingresar tu contraseña actual'
+      newErrors.currentPassword = t('errors.currentPasswordRequired')
     }
 
     if (!formData.newPassword) {
-      newErrors.newPassword = 'Debes ingresar una nueva contraseña'
+      newErrors.newPassword = t('errors.newPasswordRequired')
     } else if (formData.newPassword.length < 8) {
-      newErrors.newPassword = 'La contraseña debe tener al menos 8 caracteres'
+      newErrors.newPassword = t('errors.passwordMinLength')
     }
 
     if (formData.newPassword !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Las contraseñas no coinciden'
+      newErrors.confirmPassword = t('errors.passwordMismatch')
     }
 
     setErrors(newErrors)
@@ -235,20 +237,20 @@ export default function AccountPage() {
         // Also refresh the user context
         await refreshUser()
       } else {
-        const data = await response.json().catch(() => ({ error: 'Error desconocido' }))
+        const data = await response.json().catch(() => ({ error: t('errors.unknownError') }))
         console.log('Error response:', data)
-        
+
         // If unauthorized, redirect to login
         if (response.status === 401) {
           window.location.href = '/login'
           return
         }
-        
+
         setErrors({ general: data.error || `Error ${response.status}: ${response.statusText}` })
       }
     } catch (error) {
       console.error('Request error:', error)
-      setErrors({ general: 'Error de conexión: ' + (error instanceof Error ? error.message : 'Error desconocido') })
+      setErrors({ general: t('errors.connectionError') + ': ' + (error instanceof Error ? error.message : t('errors.unknownError')) })
     } finally {
       setLoading(false)
     }
@@ -257,7 +259,7 @@ export default function AccountPage() {
 
   const handleEmailChangeRequest = async () => {
     if (!confirmationPassword) {
-      setErrors({ general: 'Por favor, ingresa tu contraseña' })
+      setErrors({ general: t('errors.enterPassword') })
       return
     }
 
@@ -280,22 +282,22 @@ export default function AccountPage() {
         setConfirmationPassword('')
         setShowSuccessToast(true)
         setTimeout(() => setShowSuccessToast(false), 5000)
-        
+
         // Reset email to original value since change is pending
         if (user) {
           setFormData(prev => ({ ...prev, email: user.email }))
         }
-        
+
         // Show info message
-        setErrors({ 
-          general: '✅ Se ha enviado un email de confirmación a tu dirección actual. Por favor, revisa tu bandeja de entrada para completar el cambio.' 
+        setErrors({
+          general: t('errors.emailChangeSent')
         })
       } else {
-        setErrors({ general: data.error || 'Error al solicitar cambio de email' })
+        setErrors({ general: data.error || t('errors.emailChangeRequestError') })
       }
     } catch (error) {
       console.error('Error requesting email change:', error)
-      setErrors({ general: 'Error de conexión' })
+      setErrors({ general: t('errors.connectionError') })
     } finally {
       setLoading(false)
     }
@@ -330,10 +332,10 @@ export default function AccountPage() {
         setFormData(prev => ({ ...prev, newPassword: '', confirmPassword: '' }))
       } else {
         const data = await response.json()
-        setErrors({ general: data.error || 'Error al cambiar contraseña' })
+        setErrors({ general: data.error || t('errors.changePasswordError') })
       }
     } catch (error) {
-      setErrors({ general: 'Error de conexión' })
+      setErrors({ general: t('errors.connectionError') })
     } finally {
       setLoading(false)
     }
@@ -341,7 +343,7 @@ export default function AccountPage() {
 
   const handleDeleteAccount = async () => {
     if (!confirmationPassword) {
-      setErrors({ delete: 'Debes ingresar tu contraseña para eliminar la cuenta' })
+      setErrors({ delete: t('errors.deletePasswordRequired') })
       return
     }
 
@@ -359,10 +361,10 @@ export default function AccountPage() {
         router.push('/')
       } else {
         const data = await response.json()
-        setErrors({ delete: data.error || 'Error al eliminar cuenta' })
+        setErrors({ delete: data.error || t('errors.deleteError') })
       }
     } catch (error) {
-      setErrors({ delete: 'Error de conexión' })
+      setErrors({ delete: t('errors.connectionError') })
     } finally {
       setLoading(false)
     }
@@ -375,21 +377,21 @@ export default function AccountPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Configuración de Cuenta</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('title')}</h1>
 
           {/* Profile Picture */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Foto de Perfil</CardTitle>
+              <CardTitle>{t('profile.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-6">
                 <div className="relative">
                   <div className="w-24 h-24 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center overflow-hidden">
                     {profileImage ? (
-                      <img 
-                        src={profileImage} 
-                        alt="Profile" 
+                      <img
+                        src={profileImage}
+                        alt={t('profile.altText')}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -398,9 +400,9 @@ export default function AccountPage() {
                   </div>
                   <label className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-lg cursor-pointer hover:bg-gray-50">
                     <Camera className="w-4 h-4 text-gray-600" />
-                    <input 
-                      type="file" 
-                      className="hidden" 
+                    <input
+                      type="file"
+                      className="hidden"
                       accept="image/*"
                       onChange={handleImageChange}
                     />
@@ -408,7 +410,7 @@ export default function AccountPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">
-                    Sube una foto de perfil. Máximo 5MB.
+                    {t('profile.uploadHint')}
                   </p>
                   {errors.image && (
                     <p className="text-sm text-red-500 mt-1">{errors.image}</p>
@@ -421,35 +423,35 @@ export default function AccountPage() {
           {/* Personal Information */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Información Personal</CardTitle>
+              <CardTitle>{t('personalInfo.title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nombre
+                    {t('personalInfo.firstName')}
                   </label>
                   <Input
                     value={formData.firstName}
                     onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                    placeholder="Tu nombre"
+                    placeholder={t('personalInfo.firstNamePlaceholder')}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Apellido
+                    {t('personalInfo.lastName')}
                   </label>
                   <Input
                     value={formData.lastName}
                     onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                    placeholder="Tu apellido"
+                    placeholder={t('personalInfo.lastNamePlaceholder')}
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Correo Electrónico
+                  {t('personalInfo.email')}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -458,7 +460,7 @@ export default function AccountPage() {
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                     className="pl-10"
-                    placeholder="tu@email.com"
+                    placeholder={t('personalInfo.emailPlaceholder')}
                     error={!!errors.email}
                   />
                 </div>
@@ -469,7 +471,7 @@ export default function AccountPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Teléfono
+                  {t('personalInfo.phone')}
                 </label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -478,7 +480,7 @@ export default function AccountPage() {
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                     className="pl-10"
-                    placeholder="+34 600 000 000"
+                    placeholder={t('personalInfo.phonePlaceholder')}
                   />
                 </div>
               </div>
@@ -488,12 +490,12 @@ export default function AccountPage() {
           {/* Change Password */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Cambiar Contraseña</CardTitle>
+              <CardTitle>{t('password.title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nueva Contraseña
+                  {t('password.newPassword')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -502,7 +504,7 @@ export default function AccountPage() {
                     value={formData.newPassword}
                     onChange={(e) => setFormData(prev => ({ ...prev, newPassword: e.target.value }))}
                     className="pl-10 pr-10"
-                    placeholder="Mínimo 8 caracteres"
+                    placeholder={t('password.newPasswordPlaceholder')}
                     error={!!errors.newPassword}
                   />
                   <button
@@ -520,7 +522,7 @@ export default function AccountPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirmar Nueva Contraseña
+                  {t('password.confirmPassword')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -529,7 +531,7 @@ export default function AccountPage() {
                     value={formData.confirmPassword}
                     onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                     className="pl-10"
-                    placeholder="Repite la contraseña"
+                    placeholder={t('password.confirmPasswordPlaceholder')}
                     error={!!errors.confirmPassword}
                   />
                 </div>
@@ -537,7 +539,7 @@ export default function AccountPage() {
                   <p className="text-sm text-red-500 mt-1">{errors.confirmPassword}</p>
                 )}
               </div>
-              
+
               <div className="flex justify-end">
                 <Button
                   onClick={handleChangePassword}
@@ -545,7 +547,7 @@ export default function AccountPage() {
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   <Lock className="w-4 h-4 mr-2" />
-                  Cambiar Contraseña
+                  {t('password.changeButton')}
                 </Button>
               </div>
             </CardContent>
@@ -560,21 +562,21 @@ export default function AccountPage() {
               className="bg-violet-600 hover:bg-violet-700"
             >
               <Save className="w-4 h-4 mr-2" />
-              {loading ? 'Guardando...' : 'Guardar Cambios'}
+              {loading ? t('save.saving') : t('save.button')}
             </Button>
           </div>
 
           {/* Notifications Settings */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Notificaciones</CardTitle>
+              <CardTitle>{t('notifications.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-1">Configuración de Notificaciones</h3>
+                  <h3 className="font-medium text-gray-900 mb-1">{t('notifications.settingsTitle')}</h3>
                   <p className="text-sm text-gray-600">
-                    Gestiona cómo y cuándo quieres recibir notificaciones por email
+                    {t('notifications.settingsDescription')}
                   </p>
                 </div>
                 <Button
@@ -582,7 +584,7 @@ export default function AccountPage() {
                   variant="outline"
                 >
                   <Bell className="w-4 h-4 mr-2" />
-                  Configurar
+                  {t('notifications.configureButton')}
                 </Button>
               </div>
             </CardContent>
@@ -593,15 +595,15 @@ export default function AccountPage() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <CreditCard className="w-5 h-5 mr-2" />
-                Facturación y Suscripción
+                {t('billing.title')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-1">Datos de Facturación</h3>
+                  <h3 className="font-medium text-gray-900 mb-1">{t('billing.cardTitle')}</h3>
                   <p className="text-sm text-gray-600">
-                    Gestiona tu plan, datos fiscales y programa de afiliados
+                    {t('billing.cardDescription')}
                   </p>
                 </div>
                 <Button
@@ -609,7 +611,7 @@ export default function AccountPage() {
                   variant="outline"
                 >
                   <CreditCard className="w-4 h-4 mr-2" />
-                  Gestionar
+                  {t('billing.manageButton')}
                 </Button>
               </div>
             </CardContent>
@@ -620,15 +622,15 @@ export default function AccountPage() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Gift className="w-5 h-5 mr-2 text-violet-600" />
-                Programa de Referidos
+                {t('referrals.title')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-1">Invita y Gana</h3>
+                  <h3 className="font-medium text-gray-900 mb-1">{t('referrals.cardTitle')}</h3>
                   <p className="text-sm text-gray-600">
-                    Comparte tu enlace y gana el 20% de cada suscripción referida
+                    {t('referrals.cardDescription')}
                   </p>
                 </div>
                 <Button
@@ -637,7 +639,7 @@ export default function AccountPage() {
                   className="border-violet-200 text-violet-600 hover:bg-violet-50"
                 >
                   <Gift className="w-4 h-4 mr-2" />
-                  Ver Programa
+                  {t('referrals.viewButton')}
                 </Button>
               </div>
             </CardContent>
@@ -648,20 +650,20 @@ export default function AccountPage() {
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">Eliminar Cuenta</h3>
+                  <h3 className="font-medium text-gray-900 mb-2">{t('deleteAccount.title')}</h3>
                   <p className="text-sm text-gray-600 mb-4">
-                    Una vez que elimines tu cuenta, no hay vuelta atrás. Esta acción es permanente e irreversible.
+                    {t('deleteAccount.description')}
                   </p>
                   <div className="p-4 bg-red-100 border border-red-200 rounded-lg mb-4">
                     <p className="text-sm text-red-800 font-medium mb-2">
-                      ⚠️ ADVERTENCIA: Al eliminar tu cuenta:
+                      {t('deleteAccount.warning')}
                     </p>
                     <ul className="text-sm text-red-700 space-y-1 list-disc list-inside">
-                      <li>Se eliminarán TODAS tus propiedades</li>
-                      <li>Se eliminarán TODOS los manuales y zonas creadas</li>
-                      <li>Se perderán TODAS las imágenes y archivos subidos</li>
-                      <li>NO podrás recuperar ningún dato</li>
-                      <li>Esta acción es IRREVERSIBLE</li>
+                      <li>{t('deleteAccount.warningItems.properties')}</li>
+                      <li>{t('deleteAccount.warningItems.manuals')}</li>
+                      <li>{t('deleteAccount.warningItems.files')}</li>
+                      <li>{t('deleteAccount.warningItems.noRecovery')}</li>
+                      <li>{t('deleteAccount.warningItems.irreversible')}</li>
                     </ul>
                   </div>
                   <Button
@@ -670,7 +672,7 @@ export default function AccountPage() {
                     className="bg-red-600 hover:bg-red-700"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Eliminar Cuenta
+                    {t('deleteAccount.button')}
                   </Button>
                 </div>
               </div>
@@ -687,41 +689,41 @@ export default function AccountPage() {
               className="bg-white rounded-xl p-6 max-w-md w-full"
             >
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                {user && formData.email !== user.email ? '🔐 Verificación de Seguridad' : 'Cambiar Contraseña'}
+                {user && formData.email !== user.email ? t('passwordModal.securityVerification') : t('passwordModal.changePassword')}
               </h2>
               {user && formData.email !== user.email ? (
                 <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6">
                   <div className="flex">
                     <div className="ml-3">
                       <p className="text-sm text-amber-700">
-                        <strong>Cambio de email detectado</strong>
+                        <strong>{t('passwordModal.emailChangeDetected')}</strong>
                       </p>
                       <p className="text-sm text-amber-600 mt-1">
-                        Para tu seguridad, necesitamos verificar tu identidad antes de cambiar tu email.
+                        {t('passwordModal.emailChangeDescription')}
                       </p>
                       <div className="mt-2 text-xs text-amber-600">
-                        <p>• Se enviará un email de confirmación a tu dirección actual</p>
-                        <p>• Deberás confirmar el cambio desde ese email</p>
-                        <p>• Tu cuenta estará protegida durante todo el proceso</p>
+                        <p>* {t('passwordModal.emailChangeSteps.step1')}</p>
+                        <p>* {t('passwordModal.emailChangeSteps.step2')}</p>
+                        <p>* {t('passwordModal.emailChangeSteps.step3')}</p>
                       </div>
                     </div>
                   </div>
                 </div>
               ) : (
                 <p className="text-gray-600 mb-6">
-                  Introduce tu contraseña actual para confirmar el cambio.
+                  {t('passwordModal.enterCurrentPassword')}
                 </p>
               )}
-              
+
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Contraseña Actual
+                  {t('password.currentPassword')}
                 </label>
                 <Input
                   type="password"
                   value={confirmationPassword}
                   onChange={(e) => setConfirmationPassword(e.target.value)}
-                  placeholder="Tu contraseña actual"
+                  placeholder={t('password.currentPasswordPlaceholder')}
                 />
                 {errors.currentPassword && (
                   <p className="text-sm text-red-500 mt-1">{errors.currentPassword}</p>
@@ -745,14 +747,14 @@ export default function AccountPage() {
                   }}
                   className="flex-1"
                 >
-                  Cancelar
+                  {t('passwordModal.cancelButton')}
                 </Button>
                 <Button
                   onClick={user && formData.email !== user.email ? handleSaveBasicInfo : confirmPasswordChange}
                   disabled={loading || !confirmationPassword}
                   className="flex-1 bg-blue-600 hover:bg-blue-700"
                 >
-                  {loading ? 'Procesando...' : (user && formData.email !== user.email ? 'Confirmar Cambio' : 'Cambiar Contraseña')}
+                  {loading ? t('passwordModal.processing') : (user && formData.email !== user.email ? t('passwordModal.confirmButton') : t('password.changeButton'))}
                 </Button>
               </div>
             </motion.div>
@@ -768,22 +770,21 @@ export default function AccountPage() {
               className="bg-white rounded-xl p-6 max-w-md w-full"
             >
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                ¿Estás absolutamente seguro?
+                {t('deleteAccount.modal.title')}
               </h2>
               <p className="text-gray-600 mb-6">
-                Esta acción eliminará permanentemente tu cuenta y todos tus datos. 
-                No podrás recuperar nada después de esto.
+                {t('deleteAccount.modal.description')}
               </p>
-              
+
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Escribe tu contraseña para confirmar
+                  {t('deleteAccount.modal.passwordLabel')}
                 </label>
                 <Input
                   type="password"
                   value={confirmationPassword}
                   onChange={(e) => setConfirmationPassword(e.target.value)}
-                  placeholder="Tu contraseña"
+                  placeholder={t('deleteAccount.modal.passwordPlaceholder')}
                 />
                 {errors.delete && (
                   <p className="text-sm text-red-500 mt-1">{errors.delete}</p>
@@ -800,7 +801,7 @@ export default function AccountPage() {
                   }}
                   className="flex-1"
                 >
-                  Cancelar
+                  {t('deleteAccount.modal.cancelButton')}
                 </Button>
                 <Button
                   variant="destructive"
@@ -808,7 +809,7 @@ export default function AccountPage() {
                   disabled={loading || !confirmationPassword}
                   className="flex-1 bg-red-600 hover:bg-red-700"
                 >
-                  {loading ? 'Eliminando...' : 'Sí, eliminar mi cuenta'}
+                  {loading ? t('deleteAccount.modal.deleting') : t('deleteAccount.modal.confirmButton')}
                 </Button>
               </div>
             </motion.div>
@@ -827,7 +828,7 @@ export default function AccountPage() {
               <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
               </div>
-              <span>Perfil actualizado correctamente</span>
+              <span>{t('successToast')}</span>
             </motion.div>
           </div>
         )}

@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react'
 import { CheckCircle2, X, CreditCard, Calendar, Building2, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 interface NotificationData {
   id: string
@@ -20,6 +21,7 @@ interface SubscriptionActivatedModalProps {
 
 export const SubscriptionActivatedModal: React.FC<SubscriptionActivatedModalProps> = ({ onClose, notification }) => {
   const router = useRouter()
+  const { t } = useTranslation('common')
 
   useEffect(() => {
     // Marcar la notificación como leída al mostrar el modal
@@ -70,10 +72,10 @@ export const SubscriptionActivatedModal: React.FC<SubscriptionActivatedModalProp
               <CheckCircle2 className="h-8 w-8 sm:h-12 sm:w-12 text-white" />
             </div>
             <h2 className="text-base sm:text-lg md:text-xl sm:text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold mb-2">
-              ¡Suscripción Activada!
+              {t('modals.subscriptionActivated.title')}
             </h2>
             <p className="text-sm sm:text-base text-green-100">
-              Tu plan {planName} está listo para usar
+              {t('modals.subscriptionActivated.planReady', { planName })}
             </p>
           </div>
         </div>
@@ -86,9 +88,9 @@ export const SubscriptionActivatedModal: React.FC<SubscriptionActivatedModalProp
                 <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="text-sm sm:text-base font-semibold text-gray-900">Gestiona más propiedades</h3>
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900">{t('modals.subscriptionActivated.manageMoreProperties')}</h3>
                 <p className="text-xs sm:text-sm text-gray-600">
-                  Ahora puedes crear y gestionar más propiedades según tu plan
+                  {t('modals.subscriptionActivated.manageMorePropertiesDesc')}
                 </p>
               </div>
             </div>
@@ -98,9 +100,9 @@ export const SubscriptionActivatedModal: React.FC<SubscriptionActivatedModalProp
                 <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
               </div>
               <div>
-                <h3 className="text-sm sm:text-base font-semibold text-gray-900">Acceso a funciones premium</h3>
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900">{t('modals.subscriptionActivated.premiumAccess')}</h3>
                 <p className="text-xs sm:text-sm text-gray-600">
-                  Disfruta de todas las funciones incluidas en {planName}
+                  {t('modals.subscriptionActivated.premiumAccessDesc', { planName })}
                 </p>
               </div>
             </div>
@@ -110,21 +112,21 @@ export const SubscriptionActivatedModal: React.FC<SubscriptionActivatedModalProp
                 <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
               </div>
               <div>
-                <h3 className="text-sm sm:text-base font-semibold text-gray-900">Facturación transparente</h3>
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900">{t('modals.subscriptionActivated.transparentBilling')}</h3>
                 <p className="text-xs sm:text-sm text-gray-600">
-                  Consulta tus facturas y renueva fácilmente desde tu panel
+                  {t('modals.subscriptionActivated.transparentBillingDesc')}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Botones de acción */}
+          {/* Botones de accion */}
           <div className="space-y-2 sm:space-y-3 pt-3 sm:pt-4 border-t">
             <button
               onClick={handleCreateProperty}
               className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg text-sm sm:text-base font-medium hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
             >
-              Crear Nueva Propiedad
+              {t('modals.subscriptionActivated.createNewProperty')}
               <ArrowRight className="h-4 w-4" />
             </button>
 
@@ -132,7 +134,7 @@ export const SubscriptionActivatedModal: React.FC<SubscriptionActivatedModalProp
               onClick={handleViewSubscription}
               className="w-full border-2 border-gray-200 text-gray-700 py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg text-sm sm:text-base font-medium hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
             >
-              Ver Detalles de Suscripción
+              {t('modals.subscriptionActivated.viewSubscriptionDetails')}
               <ArrowRight className="h-4 w-4" />
             </button>
 
@@ -140,12 +142,12 @@ export const SubscriptionActivatedModal: React.FC<SubscriptionActivatedModalProp
               onClick={handleGoToDashboard}
               className="w-full text-gray-600 hover:text-gray-900 py-2 text-sm sm:text-base font-medium underline underline-offset-4 transition-colors"
             >
-              Ir a Dashboard
+              {t('modals.subscriptionActivated.goToDashboard')}
             </button>
           </div>
 
           <p className="text-[10px] sm:text-xs text-center text-gray-500">
-            Si tienes alguna pregunta, no dudes en contactarnos en{' '}
+            {t('modals.subscriptionActivated.contactUs')}{' '}
             <a href="mailto:hola@itineramio.com" className="text-green-600 hover:underline">
               hola@itineramio.com
             </a>

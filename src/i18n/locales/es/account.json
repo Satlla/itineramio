@@ -1,0 +1,220 @@
+{
+  "title": "Configuracion de Cuenta",
+  "profile": {
+    "title": "Foto de Perfil",
+    "uploadHint": "Sube una foto de perfil. Maximo 5MB.",
+    "altText": "Perfil"
+  },
+  "personalInfo": {
+    "title": "Informacion Personal",
+    "firstName": "Nombre",
+    "firstNamePlaceholder": "Tu nombre",
+    "lastName": "Apellido",
+    "lastNamePlaceholder": "Tu apellido",
+    "email": "Correo Electronico",
+    "emailPlaceholder": "tu@email.com",
+    "phone": "Telefono",
+    "phonePlaceholder": "+34 600 000 000"
+  },
+  "password": {
+    "title": "Cambiar Contrasena",
+    "newPassword": "Nueva Contrasena",
+    "newPasswordPlaceholder": "Minimo 8 caracteres",
+    "confirmPassword": "Confirmar Nueva Contrasena",
+    "confirmPasswordPlaceholder": "Repite la contrasena",
+    "changeButton": "Cambiar Contrasena",
+    "currentPassword": "Contrasena Actual",
+    "currentPasswordPlaceholder": "Tu contrasena actual"
+  },
+  "save": {
+    "button": "Guardar Cambios",
+    "saving": "Guardando..."
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "settingsTitle": "Configuracion de Notificaciones",
+    "settingsDescription": "Gestiona como y cuando quieres recibir notificaciones por email",
+    "configureButton": "Configurar"
+  },
+  "billing": {
+    "title": "Facturacion y Suscripcion",
+    "cardTitle": "Datos de Facturacion",
+    "cardDescription": "Gestiona tu plan, datos fiscales y programa de afiliados",
+    "manageButton": "Gestionar",
+    "pageSubtitle": "Gestiona tus datos de facturacion e historial de pagos",
+    "back": "Volver",
+    "currentPlan": "Plan Actual",
+    "noPlan": "Sin Plan",
+    "nextRenewal": "Proxima Renovacion",
+    "active": "Activa",
+    "inactive": "Inactiva",
+    "tabs": {
+      "data": "Datos de Facturacion",
+      "history": "Historial de Facturas"
+    },
+    "checkoutInfo": "Completa tus datos de facturacion. Necesitamos esta informacion para emitir facturas legalmente validas. Despues continuaras con tu compra.",
+    "entityType": {
+      "title": "Tipo de Entidad",
+      "company": "Empresa",
+      "companyDescription": "Sociedad limitada, S.A., etc.",
+      "selfEmployed": "Autonomo",
+      "selfEmployedDescription": "Trabajador por cuenta propia",
+      "individual": "Particular",
+      "individualDescription": "Persona fisica"
+    },
+    "fiscalData": {
+      "title": "Datos Fiscales",
+      "companyName": "Razon Social",
+      "companyNamePlaceholder": "Ej: Itineramio S.L.",
+      "cif": "CIF",
+      "cifPlaceholder": "Ej: B12345678",
+      "tradeName": "Nombre Comercial",
+      "tradeNamePlaceholder": "Ej: Juan Perez - Gestion de Propiedades",
+      "nif": "NIF",
+      "nifPlaceholder": "Ej: 12345678A",
+      "businessActivity": "Actividad Empresarial",
+      "businessActivityPlaceholder": "Ej: Gestion de alojamientos turisticos",
+      "firstName": "Nombre",
+      "firstNamePlaceholder": "Ej: Juan",
+      "lastName": "Apellidos",
+      "lastNamePlaceholder": "Ej: Perez Garcia",
+      "nationalId": "DNI/NIE",
+      "nationalIdPlaceholder": "Ej: 12345678A"
+    },
+    "contact": {
+      "title": "Informacion de Contacto",
+      "email": "Email",
+      "emailPlaceholder": "contacto@empresa.com",
+      "phone": "Telefono",
+      "phonePlaceholder": "+34 600 000 000"
+    },
+    "address": {
+      "title": "Direccion Fiscal",
+      "address": "Direccion",
+      "addressPlaceholder": "Calle, numero, piso, puerta",
+      "city": "Ciudad",
+      "cityPlaceholder": "Ej: Madrid",
+      "postalCode": "Codigo Postal",
+      "postalCodePlaceholder": "Ej: 28001",
+      "country": "Pais",
+      "countries": {
+        "spain": "Espana",
+        "portugal": "Portugal",
+        "france": "Francia",
+        "italy": "Italia",
+        "germany": "Alemania",
+        "uk": "Reino Unido",
+        "other": "Otro"
+      }
+    },
+    "infoNote": {
+      "title": "Sobre tus datos de facturacion",
+      "description": "Esta informacion se utilizara unicamente para emitir facturas validas segun la normativa fiscal espanola. Los pagos se realizan mediante transferencia bancaria o tarjeta de credito a traves de Stripe."
+    },
+    "buttons": {
+      "cancel": "Cancelar",
+      "save": "Guardar Datos de Facturacion",
+      "saving": "Guardando..."
+    },
+    "success": "Informacion de facturacion guardada correctamente",
+    "error": "Error al guardar la informacion. Por favor, intentalo de nuevo."
+  },
+  "invoices": {
+    "title": "Historial de Facturas",
+    "noInvoices": "No tienes facturas aun",
+    "noInvoicesDescription": "Tus facturas apareceran aqui cuando realices pagos",
+    "status": {
+      "paid": "Pagada",
+      "pending": "Pendiente",
+      "overdue": "Vencida",
+      "cancelled": "Cancelada"
+    },
+    "paidOn": "Pagado",
+    "viewInvoice": "Ver factura",
+    "downloadInvoice": "Descargar factura",
+    "modal": {
+      "title": "Factura",
+      "billedTo": "FACTURADO A",
+      "invoiceDetails": "DETALLES DE FACTURA",
+      "number": "Numero",
+      "date": "Fecha",
+      "dueDate": "Vencimiento",
+      "paidDate": "Pagado",
+      "description": "DESCRIPCION",
+      "amount": "IMPORTE",
+      "subscription": "Suscripcion",
+      "billingPeriod": "Periodo de facturacion",
+      "discount": "Descuento",
+      "total": "Total",
+      "paid": "Pagado",
+      "footer": "Gracias por confiar en Itineramio",
+      "footerContact": "Si tienes alguna pregunta, contacta con hola@itineramio.com",
+      "viewButton": "Ver Factura",
+      "closeButton": "Cerrar"
+    }
+  },
+  "referrals": {
+    "title": "Programa de Referidos",
+    "cardTitle": "Invita y Gana",
+    "cardDescription": "Comparte tu enlace y gana el 20% de cada suscripcion referida",
+    "viewButton": "Ver Programa"
+  },
+  "deleteAccount": {
+    "title": "Eliminar Cuenta",
+    "description": "Una vez que elimines tu cuenta, no hay vuelta atras. Esta accion es permanente e irreversible.",
+    "warning": "ADVERTENCIA: Al eliminar tu cuenta:",
+    "warningItems": {
+      "properties": "Se eliminaran TODAS tus propiedades",
+      "manuals": "Se eliminaran TODOS los manuales y zonas creadas",
+      "files": "Se perderan TODAS las imagenes y archivos subidos",
+      "noRecovery": "NO podras recuperar ningun dato",
+      "irreversible": "Esta accion es IRREVERSIBLE"
+    },
+    "button": "Eliminar Cuenta",
+    "modal": {
+      "title": "Estas absolutamente seguro?",
+      "description": "Esta accion eliminara permanentemente tu cuenta y todos tus datos. No podras recuperar nada despues de esto.",
+      "passwordLabel": "Escribe tu contrasena para confirmar",
+      "passwordPlaceholder": "Tu contrasena",
+      "cancelButton": "Cancelar",
+      "confirmButton": "Si, eliminar mi cuenta",
+      "deleting": "Eliminando..."
+    }
+  },
+  "passwordModal": {
+    "securityVerification": "Verificacion de Seguridad",
+    "changePassword": "Cambiar Contrasena",
+    "emailChangeDetected": "Cambio de email detectado",
+    "emailChangeDescription": "Para tu seguridad, necesitamos verificar tu identidad antes de cambiar tu email.",
+    "emailChangeSteps": {
+      "step1": "Se enviara un email de confirmacion a tu direccion actual",
+      "step2": "Deberas confirmar el cambio desde ese email",
+      "step3": "Tu cuenta estara protegida durante todo el proceso"
+    },
+    "enterCurrentPassword": "Introduce tu contrasena actual para confirmar el cambio.",
+    "cancelButton": "Cancelar",
+    "confirmButton": "Confirmar Cambio",
+    "processing": "Procesando..."
+  },
+  "successToast": "Perfil actualizado correctamente",
+  "errors": {
+    "invalidImage": "Por favor selecciona una imagen valida",
+    "imageTooLarge": "La imagen debe ser menor a 5MB",
+    "uploadError": "Error al subir la imagen. Intentalo de nuevo.",
+    "emailRequired": "Email es requerido",
+    "emailInvalid": "Email invalido",
+    "currentPasswordRequired": "Debes ingresar tu contrasena actual",
+    "newPasswordRequired": "Debes ingresar una nueva contrasena",
+    "passwordMinLength": "La contrasena debe tener al menos 8 caracteres",
+    "passwordMismatch": "Las contrasenas no coinciden",
+    "enterPassword": "Por favor, ingresa tu contrasena",
+    "deletePasswordRequired": "Debes ingresar tu contrasena para eliminar la cuenta",
+    "changePasswordError": "Error al cambiar contrasena",
+    "deleteError": "Error al eliminar cuenta",
+    "connectionError": "Error de conexion",
+    "emailChangeRequestError": "Error al solicitar cambio de email",
+    "emailChangeSent": "Se ha enviado un email de confirmacion a tu direccion actual. Por favor, revisa tu bandeja de entrada para completar el cambio.",
+    "unknownError": "Error desconocido",
+    "saveError": "Error al guardar los datos"
+  }
+}

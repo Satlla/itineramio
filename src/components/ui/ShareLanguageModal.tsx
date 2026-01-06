@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Share2, Globe, Copy, CheckCircle } from 'lucide-react'
 import { Button } from './Button'
+import { useTranslation } from 'react-i18next'
 
 interface ShareLanguageModalProps {
   isOpen: boolean
@@ -28,6 +29,7 @@ export function ShareLanguageModal({
   type = 'manual',
   currentUrl
 }: ShareLanguageModalProps) {
+  const { t } = useTranslation('common')
   const [selectedLanguage, setSelectedLanguage] = useState('es')
   const [copied, setCopied] = useState(false)
 
@@ -115,7 +117,7 @@ export function ShareLanguageModal({
 
             {/* Preview */}
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <p className="text-sm text-gray-600 mb-1">Vista previa del enlace:</p>
+              <p className="text-sm text-gray-600 mb-1">{t('modals.shareLanguage.linkPreview')}</p>
               <p className="text-sm font-mono text-gray-800 break-all">
                 {(() => {
                   if (currentUrl) {
@@ -139,7 +141,7 @@ export function ShareLanguageModal({
                 onClick={onClose}
                 className="flex-1"
               >
-                Cancelar
+                {t('modals.shareLanguage.cancel')}
               </Button>
               <Button
                 onClick={handleShare}
@@ -149,12 +151,12 @@ export function ShareLanguageModal({
                 {copied ? (
                   <>
                     <CheckCircle className="w-4 h-4 mr-2" />
-                    ¡Copiado!
+                    {t('modals.shareLanguage.copied')}
                   </>
                 ) : (
                   <>
                     <Copy className="w-4 h-4 mr-2" />
-                    Copiar enlace
+                    {t('modals.shareLanguage.copyLink')}
                   </>
                 )}
               </Button>

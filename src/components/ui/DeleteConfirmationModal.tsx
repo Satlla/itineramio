@@ -4,6 +4,7 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertTriangle, X, Trash2 } from 'lucide-react'
 import { Button } from './Button'
+import { useTranslation } from 'react-i18next'
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean
@@ -28,6 +29,8 @@ export function DeleteConfirmationModal({
   consequences = [],
   isLoading = false
 }: DeleteConfirmationModalProps) {
+  const { t } = useTranslation('common')
+
   if (!isOpen) return null
 
   const handleConfirm = () => {
@@ -93,7 +96,7 @@ export function DeleteConfirmationModal({
               {consequences.length > 0 && (
                 <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                   <h4 className="text-sm font-medium text-red-800 mb-2">
-                    Esta acción eliminará permanentemente:
+                    {t('modals.delete.permanentlyDeleteWarning')}
                   </h4>
                   <ul className="text-sm text-red-700 space-y-1">
                     {consequences.map((consequence, index) => (
@@ -105,17 +108,17 @@ export function DeleteConfirmationModal({
                   </ul>
                 </div>
               )}
-              
+
               <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <div className="flex items-center space-x-2">
                   <AlertTriangle className="w-4 h-4 text-yellow-600" />
                   <span className="text-sm font-medium text-yellow-800">
-                    ⚠️ Esta acción no se puede deshacer
+                    {t('modals.delete.cannotUndo')}
                   </span>
                 </div>
               </div>
             </div>
-            
+
             {/* Actions */}
             <div className="px-3 sm:px-4 md:px-6 py-4 bg-gray-50 border-t border-gray-200">
               <div className="flex space-x-3 justify-end">
@@ -125,7 +128,7 @@ export function DeleteConfirmationModal({
                   disabled={isLoading}
                   className="px-4 py-2"
                 >
-                  Cancelar
+                  {t('modals.delete.cancel')}
                 </Button>
                 <Button
                   onClick={handleConfirm}
@@ -135,12 +138,12 @@ export function DeleteConfirmationModal({
                   {isLoading ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Eliminando...</span>
+                      <span>{t('modals.delete.deleting')}</span>
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">
                       <Trash2 className="w-4 h-4" />
-                      <span>Eliminar definitivamente</span>
+                      <span>{t('modals.delete.deleteDefinitely')}</span>
                     </div>
                   )}
                 </Button>

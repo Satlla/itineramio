@@ -1,18 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { requireAdminAuth } from '@/lib/admin-auth'
 
 export async function GET(request: NextRequest) {
   try {
     // Check admin auth
-    const session = await getServerSession(authOptions)
-
-    if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      )
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
     }
 
     const { searchParams } = new URL(request.url)
@@ -197,13 +192,9 @@ export async function GET(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // Check admin auth
-    const session = await getServerSession(authOptions)
-
-    if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      )
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
     }
 
     const { searchParams } = new URL(request.url)

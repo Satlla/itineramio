@@ -9,6 +9,7 @@ import { IconSelector } from './IconSelector'
 import { PropertySetUpdateModal } from './PropertySetUpdateModal'
 import { getZoneIcon as getExtendedZoneIcon, getZoneIconByName } from '../../data/zoneIconsExtended'
 import { Home } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface Zone {
   id: string
@@ -26,6 +27,7 @@ interface EditZoneModalProps {
 }
 
 export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: EditZoneModalProps) {
+  const { t } = useTranslation('common')
   const [saving, setSaving] = useState(false)
   const [showIconSelector, setShowIconSelector] = useState(false)
   const [showPropertySetModal, setShowPropertySetModal] = useState(false)
@@ -213,11 +215,11 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
         onClose()
       } else {
         console.error('❌ Error response:', response.status)
-        alert('Error al guardar los cambios')
+        alert(t('modals.editZone.errorSaving'))
       }
     } catch (error) {
       console.error('Error saving zone:', error)
-      alert('Error al guardar los cambios')
+      alert(t('modals.editZone.errorSaving'))
     } finally {
       setSaving(false)
     }
@@ -251,8 +253,8 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
           <div className="bg-gradient-to-r from-violet-50 to-purple-50 p-3 sm:p-4 md:p-6 border-b">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900">Editar Zona</h2>
-                <p className="text-gray-600 mt-1">Modifica el nombre e icono de la zona</p>
+                <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900">{t('modals.editZone.title')}</h2>
+                <p className="text-gray-600 mt-1">{t('modals.editZone.subtitle')}</p>
               </div>
               <button
                 onClick={onClose}
@@ -271,12 +273,12 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
                 {/* Zone Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nombre de la zona *
+                    {t('modals.editZone.zoneName')} *
                   </label>
                   <Input
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Ej. Check In, WiFi, Parking..."
+                    placeholder={t('modals.editZone.zoneNamePlaceholder')}
                     className="w-full"
                     autoFocus
                   />
@@ -285,10 +287,10 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
                 {/* Zone Icon */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Icono de la zona
+                    {t('modals.editZone.zoneIcon')}
                   </label>
                   <div className="flex items-center space-x-4">
-                    <div 
+                    <div
                       className={`w-16 h-16 rounded-xl flex items-center justify-center cursor-pointer border-2 border-dashed border-gray-300 hover:border-violet-400 transition-colors ${zone.color || 'bg-gray-100'}`}
                       onClick={() => setShowIconSelector(true)}
                     >
@@ -311,10 +313,10 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
                         variant="outline"
                         onClick={() => setShowIconSelector(true)}
                       >
-                        Seleccionar Icono
+                        {t('modals.editZone.selectIcon')}
                       </Button>
                       <p className="text-sm text-gray-500 mt-1">
-                        Haz clic para elegir un icono
+                        {t('modals.editZone.clickToSelectIcon')}
                       </p>
                     </div>
                   </div>
@@ -324,7 +326,7 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
               {/* Preview */}
               <div className="lg:col-span-1">
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">Vista Previa</h3>
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">{t('modals.editZone.preview')}</h3>
                   <div className="text-center">
                     <div className={`w-14 h-14 rounded-xl mx-auto mb-3 flex items-center justify-center ${zone.color || 'bg-gray-100'}`}>
                       {formData.icon ? (
@@ -341,7 +343,7 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
                       )}
                     </div>
                     <h4 className="font-medium text-gray-900 text-sm">
-                      {formData.name || 'Nombre de la zona'}
+                      {formData.name || t('modals.editZone.zoneNamePreview')}
                     </h4>
                   </div>
                 </div>
@@ -355,9 +357,9 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
               variant="outline"
               onClick={onClose}
             >
-              Cancelar
+              {t('modals.editZone.cancel')}
             </Button>
-            <Button 
+            <Button
               onClick={handleSave}
               disabled={saving || !formData.name.trim()}
               className="bg-violet-600 hover:bg-violet-700"
@@ -365,12 +367,12 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
               {saving ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  Guardando...
+                  {t('modals.editZone.saving')}
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4 mr-2" />
-                  Guardar Cambios
+                  {t('modals.editZone.saveChanges')}
                 </>
               )}
             </Button>

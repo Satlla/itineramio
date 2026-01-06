@@ -3,6 +3,7 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { XCircle, X, AlertTriangle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface ErrorModalProps {
   isOpen: boolean
@@ -19,6 +20,8 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
   message,
   type = 'error'
 }) => {
+  const { t } = useTranslation('common')
+
   if (!isOpen) return null
 
   const isError = type === 'error'
@@ -75,7 +78,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
               onClick={onClose}
               className={`mt-6 w-full bg-gradient-to-r ${colorClasses.gradient} text-white py-3 px-3 sm:px-4 md:px-6 rounded-lg font-medium ${colorClasses.hoverGradient} transition-all shadow-lg hover:shadow-xl`}
             >
-              Cerrar
+              {t('modals.error.close')}
             </button>
           </div>
         </motion.div>

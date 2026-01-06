@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   LineChart,
   Line,
@@ -16,11 +16,11 @@ import {
   Pie,
   Cell
 } from 'recharts'
-import { 
-  Eye, 
-  Clock, 
-  Users, 
-  Star, 
+import {
+  Eye,
+  Clock,
+  Users,
+  Star,
   TrendingUp,
   Calendar,
   Timer,
@@ -32,6 +32,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../../src/component
 import { Button } from '../../../src/components/ui/Button'
 import { useAuth } from '../../../src/providers/AuthProvider'
 import { AnimatedLoadingSpinner } from '../../../src/components/ui/AnimatedLoadingSpinner'
+import { useTranslation } from 'react-i18next'
 
 interface PropertyAnalytics {
   id: string
@@ -69,6 +70,7 @@ const COLORS = ['#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444']
 
 export default function AnalyticsPage() {
   const { user } = useAuth()
+  const { t } = useTranslation('dashboard')
   const [loading, setLoading] = useState(true)
   const [timeframe, setTimeframe] = useState('30d')
   const [data, setData] = useState<AnalyticsData | null>(null)
@@ -94,7 +96,7 @@ export default function AnalyticsPage() {
   }
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando analíticas..." type="general" />
+    return <AnimatedLoadingSpinner text={t('analytics.loading')} type="general" />
   }
 
   const properties = data?.properties || []
@@ -114,10 +116,10 @@ export default function AnalyticsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  Análisis de Rendimiento
+                  {t('analytics.title')}
                 </h1>
                 <p className="text-gray-600 mt-2">
-                  Métricas detalladas de todas tus propiedades
+                  {t('analytics.subtitle')}
                 </p>
               </div>
               <div className="flex space-x-2">
@@ -128,7 +130,7 @@ export default function AnalyticsPage() {
                     size="sm"
                     onClick={() => setTimeframe(period)}
                   >
-                    {period === '7d' ? '7 días' : period === '30d' ? '30 días' : '90 días'}
+                    {t(`analytics.periods.${period}`)}
                   </Button>
                 ))}
               </div>
@@ -146,7 +148,7 @@ export default function AnalyticsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Visualizaciones Totales</p>
+                    <p className="text-sm font-medium text-gray-600">{t('analytics.totalViews')}</p>
                     <p className="text-2xl font-bold text-gray-900">{totals.totalViews.toLocaleString()}</p>
                   </div>
                   <Eye className="h-8 w-8 text-blue-600" />
@@ -158,7 +160,7 @@ export default function AnalyticsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Tiempo Ahorrado</p>
+                    <p className="text-sm font-medium text-gray-600">{t('analytics.timeSaved')}</p>
                     <p className="text-2xl font-bold text-gray-900">{Math.round(totals.totalTimeSaved / 60)}h</p>
                   </div>
                   <Timer className="h-8 w-8 text-orange-600" />
@@ -170,7 +172,7 @@ export default function AnalyticsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Tasa Completación</p>
+                    <p className="text-sm font-medium text-gray-600">{t('analytics.completionRate')}</p>
                     <p className="text-2xl font-bold text-gray-900">{Number(totals.avgCompletionRate).toFixed(1)}%</p>
                   </div>
                   <TrendingUp className="h-8 w-8 text-green-600" />
@@ -182,7 +184,7 @@ export default function AnalyticsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Valoración Media</p>
+                    <p className="text-sm font-medium text-gray-600">{t('analytics.avgRating')}</p>
                     <p className="text-2xl font-bold text-gray-900">{Number(totals.avgRating).toFixed(1)}</p>
                   </div>
                   <Star className="h-8 w-8 text-yellow-600" />
@@ -201,7 +203,7 @@ export default function AnalyticsPage() {
             >
               <Card>
                 <CardHeader>
-                  <CardTitle>Tendencia de Visualizaciones</CardTitle>
+                  <CardTitle>{t('analytics.viewsTrend')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
@@ -225,7 +227,7 @@ export default function AnalyticsPage() {
             >
               <Card>
                 <CardHeader>
-                  <CardTitle>Distribución de Visualizaciones</CardTitle>
+                  <CardTitle>{t('analytics.viewsDistribution')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
@@ -260,19 +262,19 @@ export default function AnalyticsPage() {
           >
             <Card>
               <CardHeader>
-                <CardTitle>Rendimiento por Propiedad</CardTitle>
+                <CardTitle>{t('analytics.propertyPerformance')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b">
-                        <th className="text-left py-3 px-4 font-medium text-gray-900">Propiedad</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-900">Vistas</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-900">Tiempo Medio</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-900">Completación</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-900">Valoración</th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-900">Tiempo Ahorrado</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-900">{t('analytics.table.property')}</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-900">{t('analytics.table.views')}</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-900">{t('analytics.table.avgTime')}</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-900">{t('analytics.table.completion')}</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-900">{t('analytics.table.rating')}</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-900">{t('analytics.table.timeSaved')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -283,7 +285,7 @@ export default function AnalyticsPage() {
                               <MapPin className="h-4 w-4 text-gray-400 mr-2" />
                               <div>
                                 <p className="font-medium text-gray-900">{property.name}</p>
-                                <p className="text-sm text-gray-500">{property.zonesCount} zonas</p>
+                                <p className="text-sm text-gray-500">{property.zonesCount} {t('analytics.zones')}</p>
                               </div>
                             </div>
                           </td>

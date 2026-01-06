@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
+import { getAdminUser } from '../../../../../src/lib/admin-auth'
 
 // Update a FAQ submission (answer, change status, etc.)
 export async function PUT(
@@ -12,29 +10,17 @@ export async function PUT(
   try {
     const { id } = await params
 
-    // Check admin authentication
-    const token = request.cookies.get('auth-token')?.value
-    if (!token) {
+    // Check admin authentication using admin-token
+    const adminPayload = await getAdminUser(request)
+    if (!adminPayload) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    let userId: string
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
-      userId = decoded.userId
-    } catch {
-      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
-    }
-
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { isAdmin: true, name: true }
+    // Get admin name for answeredBy field
+    const admin = await prisma.admin.findUnique({
+      where: { id: adminPayload.adminId },
+      select: { name: true }
     })
-
-    if (!user?.isAdmin) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
-    }
 
     const { answer, status, category, isPublished, publishedId } = await request.json()
 
@@ -47,7 +33,7 @@ export async function PUT(
         ...(category !== undefined && { category }),
         ...(isPublished !== undefined && { isPublished }),
         ...(publishedId !== undefined && { publishedId }),
-        ...(answer && !status && { status: 'ANSWERED', answeredAt: new Date(), answeredBy: user.name || userId })
+        ...(answer && !status && { status: 'ANSWERED', answeredAt: new Date(), answeredBy: admin?.name || adminPayload.email })
       }
     })
 
@@ -73,28 +59,10 @@ export async function DELETE(
   try {
     const { id } = await params
 
-    // Check admin authentication
-    const token = request.cookies.get('auth-token')?.value
-    if (!token) {
+    // Check admin authentication using admin-token
+    const adminPayload = await getAdminUser(request)
+    if (!adminPayload) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
-    let userId: string
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
-      userId = decoded.userId
-    } catch {
-      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
-    }
-
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { isAdmin: true }
-    })
-
-    if (!user?.isAdmin) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
     }
 
     await prisma.faqSubmission.delete({

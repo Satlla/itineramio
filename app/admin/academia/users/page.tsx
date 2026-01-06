@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Trash2, Users, Mail, Trophy, Flame, AlertCircle, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { DeleteConfirmationModal } from '../../../../src/components/ui/DeleteConfirmationModal'
 
 interface AcademyUser {
   id: string
@@ -24,6 +25,8 @@ export default function AdminAcademyUsersPage() {
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<AcademyUser | null>(null)
 
   useEffect(() => {
     fetchUsers()
@@ -46,24 +49,27 @@ export default function AdminAcademyUsersPage() {
     }
   }
 
-  async function deleteUser(userId: string, userEmail: string) {
-    if (!confirm(`¿Seguro que quieres eliminar a ${userEmail}? Esta acción no se puede deshacer.`)) {
-      return
-    }
+  function handleDeleteClick(user: AcademyUser) {
+    setUserToDelete(user)
+    setShowDeleteModal(true)
+  }
 
-    setDeleting(userId)
+  async function confirmDelete() {
+    if (!userToDelete) return
+
+    setDeleting(userToDelete.id)
     setError('')
+    setShowDeleteModal(false)
 
     try {
-      const res = await fetch(`/api/admin/academia/users?id=${userId}`, {
+      const res = await fetch(`/api/admin/academia/users?id=${userToDelete.id}`, {
         method: 'DELETE'
       })
 
       const data = await res.json()
 
       if (res.ok) {
-        setUsers(users.filter(u => u.id !== userId))
-        alert('Usuario eliminado exitosamente')
+        setUsers(users.filter(u => u.id !== userToDelete.id))
       } else {
         setError(data.error || 'Error al eliminar usuario')
       }
@@ -71,6 +77,7 @@ export default function AdminAcademyUsersPage() {
       setError('Error de conexión')
     } finally {
       setDeleting(null)
+      setUserToDelete(null)
     }
   }
 
@@ -217,7 +224,7 @@ export default function AdminAcademyUsersPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <button
-                          onClick={() => deleteUser(user.id, user.email)}
+                          onClick={() => handleDeleteClick(user)}
                           disabled={deleting === user.id}
                           className="inline-flex items-center px-3 py-1.5 border border-red-200 text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
@@ -242,6 +249,27 @@ export default function AdminAcademyUsersPage() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false)
+          setUserToDelete(null)
+        }}
+        onConfirm={confirmDelete}
+        title="Eliminar usuario de Academia"
+        description={`¿Estás seguro de que quieres eliminar a ${userToDelete?.fullName || userToDelete?.email}? Se eliminará todo su progreso, puntos y rachas.`}
+        itemName={userToDelete?.email || ''}
+        itemType="Usuario"
+        consequences={[
+          'Se eliminará todo el progreso del usuario',
+          'Se perderán todos los puntos acumulados',
+          'Se resetearán las rachas de actividad',
+          'Se eliminarán los intentos de exámenes'
+        ]}
+        isLoading={deleting !== null}
+      />
     </div>
   )
 }

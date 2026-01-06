@@ -4,6 +4,7 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from './Button'
 import { Globe, CheckCircle, X, Sparkles } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface LanguageCompletionModalProps {
   isOpen: boolean
@@ -16,6 +17,8 @@ export function LanguageCompletionModal({
   onClose,
   zoneName
 }: LanguageCompletionModalProps) {
+  const { t } = useTranslation('common')
+
   if (!isOpen) return null
 
   return (
@@ -56,36 +59,36 @@ export function LanguageCompletionModal({
 
           {/* Title */}
           <h2 className="text-2xl font-bold text-gray-900 text-center mb-3">
-            ¡Zona "{zoneName}" guardada! 🎉
+            {t('modals.languageCompletion.zoneSaved', { zoneName })}
           </h2>
 
           {/* Subtitle */}
           <p className="text-gray-600 text-center mb-6">
-            Tu manual tendrá mucho más alcance si lo completas también en otros idiomas
+            {t('modals.languageCompletion.moreReachWithLanguages')}
           </p>
 
           {/* Benefits */}
           <div className="space-y-4 mb-8">
             <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-blue-50 to-blue-50/50 rounded-xl border border-blue-100">
               <div className="flex-shrink-0 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mt-0.5">
-                <span className="text-white text-xs font-bold">🇬🇧</span>
+                <span className="text-white text-xs font-bold">GB</span>
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-1">Inglés</h3>
+                <h3 className="font-semibold text-gray-900 mb-1">{t('modals.languageCompletion.english')}</h3>
                 <p className="text-sm text-gray-600">
-                  Llega a huéspedes de todo el mundo y mejora su experiencia
+                  {t('modals.languageCompletion.englishDescription')}
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-violet-50 to-violet-50/50 rounded-xl border border-violet-100">
               <div className="flex-shrink-0 w-6 h-6 bg-violet-500 rounded-full flex items-center justify-center mt-0.5">
-                <span className="text-white text-xs font-bold">🇫🇷</span>
+                <span className="text-white text-xs font-bold">FR</span>
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-1">Francés</h3>
+                <h3 className="font-semibold text-gray-900 mb-1">{t('modals.languageCompletion.french')}</h3>
                 <p className="text-sm text-gray-600">
-                  Conecta con visitantes francófonos de forma personalizada
+                  {t('modals.languageCompletion.frenchDescription')}
                 </p>
               </div>
             </div>
@@ -96,7 +99,7 @@ export function LanguageCompletionModal({
             <div className="flex items-start gap-2">
               <Sparkles className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-yellow-800">
-                <strong>Consejo:</strong> Puedes editar cada zona en cualquier momento y añadir las traducciones cuando quieras.
+                <strong>{t('modals.languageCompletion.tip')}</strong> {t('modals.languageCompletion.tipDescription')}
               </p>
             </div>
           </div>
@@ -108,7 +111,7 @@ export function LanguageCompletionModal({
               className="flex-1 bg-violet-600 hover:bg-violet-700 text-white"
             >
               <CheckCircle className="w-4 h-4 mr-2" />
-              Entendido
+              {t('modals.languageCompletion.understood')}
             </Button>
           </div>
         </motion.div>

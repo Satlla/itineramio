@@ -1,52 +1,57 @@
+'use client'
+
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 import { POLICY_VERSION, POLICY_LAST_UPDATE, LEGAL_CONTACT } from '@/config/policies'
 
 export default function TermsPage() {
+  const { t } = useTranslation('legal')
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm p-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold text-gray-900">Términos y Condiciones</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{t('terms.title')}</h1>
             <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-              Versión {POLICY_VERSION}
+              {t('common.version')} {POLICY_VERSION}
             </span>
           </div>
           <p className="text-sm text-gray-600">
-            Última actualización: {POLICY_LAST_UPDATE}
+            {t('common.lastUpdate')}: {POLICY_LAST_UPDATE}
           </p>
         </div>
 
         {/* Executive Summary */}
         <div className="mb-8 p-6 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
-          <h2 className="text-lg font-semibold text-blue-900 mb-3">Resumen Ejecutivo</h2>
+          <h2 className="text-lg font-semibold text-blue-900 mb-3">{t('common.executiveSummary')}</h2>
           <ul className="space-y-2 text-blue-800">
-            <li>• Al usar Itineramio aceptas estos términos y nuestra política de privacidad</li>
-            <li>• Ofrecemos período de prueba de 15 días para evaluar la plataforma</li>
-            <li>• Eres responsable del contenido que publicas en tus manuales digitales</li>
-            <li>• Podemos modificar estos términos con notificación previa de 30 días</li>
-            <li>• Puedes cancelar tu suscripción en cualquier momento desde tu cuenta</li>
+            <li>• {t('terms.summary.item1')}</li>
+            <li>• {t('terms.summary.item2')}</li>
+            <li>• {t('terms.summary.item3')}</li>
+            <li>• {t('terms.summary.item4')}</li>
+            <li>• {t('terms.summary.item5')}</li>
           </ul>
         </div>
 
         {/* Table of Contents */}
         <nav className="mb-8 p-6 bg-gray-50 rounded-lg">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Índice de Contenidos</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('common.tableOfContents')}</h2>
           <ul className="space-y-2">
-            <li><a href="#aceptacion" className="text-blue-600 hover:underline">1. Aceptación de los Términos</a></li>
-            <li><a href="#servicios" className="text-blue-600 hover:underline">2. Descripción de los Servicios</a></li>
-            <li><a href="#registro" className="text-blue-600 hover:underline">3. Registro y Cuenta de Usuario</a></li>
-            <li><a href="#suscripciones" className="text-blue-600 hover:underline">4. Suscripciones y Facturación</a></li>
-            <li><a href="#uso-aceptable" className="text-blue-600 hover:underline">5. Uso Aceptable</a></li>
-            <li><a href="#propiedad-intelectual" className="text-blue-600 hover:underline">6. Propiedad Intelectual</a></li>
-            <li><a href="#contenido-usuario" className="text-blue-600 hover:underline">7. Contenido del Usuario</a></li>
-            <li><a href="#privacidad" className="text-blue-600 hover:underline">8. Privacidad y Protección de Datos</a></li>
-            <li><a href="#limitacion-responsabilidad" className="text-blue-600 hover:underline">9. Limitación de Responsabilidad</a></li>
-            <li><a href="#modificaciones" className="text-blue-600 hover:underline">10. Modificaciones del Servicio</a></li>
-            <li><a href="#suspension" className="text-blue-600 hover:underline">11. Suspensión y Terminación</a></li>
-            <li><a href="#ley-aplicable" className="text-blue-600 hover:underline">12. Ley Aplicable y Jurisdicción</a></li>
-            <li><a href="#contacto" className="text-blue-600 hover:underline">13. Contacto</a></li>
+            <li><a href="#aceptacion" className="text-blue-600 hover:underline">{t('terms.toc.acceptance')}</a></li>
+            <li><a href="#servicios" className="text-blue-600 hover:underline">{t('terms.toc.services')}</a></li>
+            <li><a href="#registro" className="text-blue-600 hover:underline">{t('terms.toc.registration')}</a></li>
+            <li><a href="#suscripciones" className="text-blue-600 hover:underline">{t('terms.toc.subscriptions')}</a></li>
+            <li><a href="#uso-aceptable" className="text-blue-600 hover:underline">{t('terms.toc.acceptableUse')}</a></li>
+            <li><a href="#propiedad-intelectual" className="text-blue-600 hover:underline">{t('terms.toc.intellectualProperty')}</a></li>
+            <li><a href="#contenido-usuario" className="text-blue-600 hover:underline">{t('terms.toc.userContent')}</a></li>
+            <li><a href="#privacidad" className="text-blue-600 hover:underline">{t('terms.toc.privacy')}</a></li>
+            <li><a href="#limitacion-responsabilidad" className="text-blue-600 hover:underline">{t('terms.toc.liability')}</a></li>
+            <li><a href="#modificaciones" className="text-blue-600 hover:underline">{t('terms.toc.modifications')}</a></li>
+            <li><a href="#suspension" className="text-blue-600 hover:underline">{t('terms.toc.suspension')}</a></li>
+            <li><a href="#ley-aplicable" className="text-blue-600 hover:underline">{t('terms.toc.applicableLaw')}</a></li>
+            <li><a href="#contacto" className="text-blue-600 hover:underline">{t('terms.toc.contact')}</a></li>
           </ul>
         </nav>
 
@@ -54,240 +59,239 @@ export default function TermsPage() {
         <div className="prose prose-blue max-w-none space-y-8">
 
           <section id="aceptacion">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Aceptación de los Términos</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.section1.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Al acceder y utilizar la plataforma Itineramio ("el Servicio"), usted acepta estar legalmente vinculado por estos Términos y Condiciones, todas las leyes y regulaciones aplicables, y acepta que es responsable del cumplimiento de todas las leyes locales aplicables.
+              {t('terms.section1.p1')}
             </p>
             <p className="text-gray-700 mb-4">
-              Si no está de acuerdo con alguno de estos términos, tiene prohibido usar o acceder a este sitio. Los materiales contenidos en este sitio web están protegidos por las leyes de propiedad intelectual y derechos de autor aplicables.
+              {t('terms.section1.p2')}
             </p>
             <p className="text-gray-700">
-              El uso continuado del Servicio después de cualquier modificación de estos términos constituye la aceptación de dichas modificaciones.
+              {t('terms.section1.p3')}
             </p>
           </section>
 
           <section id="servicios">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Descripción de los Servicios</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.section2.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Itineramio es una plataforma SaaS que permite a propietarios y gestores de alojamientos turísticos crear, gestionar y compartir manuales digitales interactivos para sus huéspedes.
+              {t('terms.section2.description')}
             </p>
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <h3 className="font-semibold text-gray-900 mb-2">El Servicio incluye:</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">{t('terms.section2.includes')}</h3>
               <ul className="list-disc list-inside space-y-2 text-gray-700">
-                <li>Creación de manuales digitales personalizados por propiedad</li>
-                <li>Gestión de zonas y pasos con contenido multimedia</li>
-                <li>Códigos QR únicos para acceso de huéspedes</li>
-                <li>Sistema de evaluaciones y feedback de huéspedes</li>
-                <li>Analytics y métricas de uso</li>
-                <li>Panel de administración con gestión de propiedades</li>
-                <li>Soporte multiidioma (español, inglés, francés)</li>
+                <li>{t('terms.section2.item1')}</li>
+                <li>{t('terms.section2.item2')}</li>
+                <li>{t('terms.section2.item3')}</li>
+                <li>{t('terms.section2.item4')}</li>
+                <li>{t('terms.section2.item5')}</li>
+                <li>{t('terms.section2.item6')}</li>
+                <li>{t('terms.section2.item7')}</li>
               </ul>
             </div>
             <p className="text-gray-700">
-              Nos reservamos el derecho de modificar, suspender o descontinuar cualquier aspecto del Servicio en cualquier momento, con o sin previo aviso.
+              {t('terms.section2.reserve')}
             </p>
           </section>
 
           <section id="registro">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Registro y Cuenta de Usuario</h2>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">3.1 Requisitos de Registro</h3>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.section3.title')}</h2>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section3.requirements.title')}</h3>
             <p className="text-gray-700 mb-4">
-              Para utilizar el Servicio, debe crear una cuenta proporcionando información precisa, actual y completa. Usted es responsable de mantener la confidencialidad de sus credenciales de acceso.
+              {t('terms.section3.requirements.description')}
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">3.2 Responsabilidad de la Cuenta</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section3.responsibility.title')}</h3>
             <p className="text-gray-700 mb-4">
-              Usted es responsable de todas las actividades que ocurran bajo su cuenta. Debe notificarnos inmediatamente de cualquier uso no autorizado de su cuenta o cualquier otra violación de seguridad.
+              {t('terms.section3.responsibility.description')}
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">3.3 Verificación de Email</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section3.verification.title')}</h3>
             <p className="text-gray-700">
-              Requiere verificar su dirección de correo electrónico antes de poder utilizar todas las funcionalidades del Servicio. El email de verificación se enviará automáticamente al registrarse.
+              {t('terms.section3.verification.description')}
             </p>
           </section>
 
           <section id="suscripciones">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Suscripciones y Facturación</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.section4.title')}</h2>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">4.1 Período de Prueba</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section4.trial.title')}</h3>
             <p className="text-gray-700 mb-4">
-              Ofrecemos un período de evaluación de 15 días para que pueda probar la plataforma. Durante este período, tendrá acceso a todas las funcionalidades del plan correspondiente a su número de propiedades.
+              {t('terms.section4.trial.description')}
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">4.2 Planes de Suscripción</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section4.plans.title')}</h3>
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <p className="text-gray-700 mb-3">Ofrecemos los siguientes planes:</p>
+              <p className="text-gray-700 mb-3">{t('terms.section4.plans.description')}</p>
               <ul className="list-disc list-inside space-y-2 text-gray-700">
-                <li><strong>BASIC:</strong> Hasta 2 propiedades - €9/mes</li>
-                <li><strong>HOST:</strong> Hasta 10 propiedades - €29/mes</li>
-                <li><strong>SUPERHOST:</strong> Hasta 25 propiedades - €69/mes</li>
-                <li><strong>BUSINESS:</strong> Hasta 50 propiedades - €99/mes</li>
+                <li><strong>{t('terms.section4.plans.basic')}</strong></li>
+                <li><strong>{t('terms.section4.plans.host')}</strong></li>
+                <li><strong>{t('terms.section4.plans.superhost')}</strong></li>
+                <li><strong>{t('terms.section4.plans.business')}</strong></li>
               </ul>
             </div>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">4.3 Facturación y Renovación</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section4.billing.title')}</h3>
             <p className="text-gray-700 mb-4">
-              Las suscripciones se facturan mensualmente o semestralmente según su elección. La renovación es automática a menos que cancele antes del final del período de facturación.
+              {t('terms.section4.billing.description')}
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">4.4 Política de Reembolsos</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section4.refunds.title')}</h3>
             <p className="text-gray-700 mb-4">
-              Los pagos son no reembolsables excepto en casos establecidos por la legislación aplicable. Puede cancelar su suscripción en cualquier momento, con efecto al final del período de facturación actual.
+              {t('terms.section4.refunds.description')}
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">4.5 Cambios de Plan</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section4.planChanges.title')}</h3>
             <p className="text-gray-700">
-              Puede cambiar su plan en cualquier momento desde su panel de cuenta. Los cambios de plan se aplicarán inmediatamente con ajuste prorrateado según corresponda.
+              {t('terms.section4.planChanges.description')}
             </p>
           </section>
 
           <section id="uso-aceptable">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Uso Aceptable</h2>
-            <p className="text-gray-700 mb-4">Al utilizar el Servicio, usted acepta NO:</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.section5.title')}</h2>
+            <p className="text-gray-700 mb-4">{t('terms.section5.description')}</p>
             <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
               <ul className="list-disc list-inside space-y-2 text-gray-700">
-                <li>Violar cualquier ley o regulación local, nacional o internacional</li>
-                <li>Infringir derechos de propiedad intelectual de terceros</li>
-                <li>Subir contenido ilegal, ofensivo, difamatorio o inapropiado</li>
-                <li>Intentar acceder de forma no autorizada a sistemas o redes</li>
-                <li>Interferir con el funcionamiento del Servicio</li>
-                <li>Transmitir virus, malware o código malicioso</li>
-                <li>Usar el Servicio para spam o comunicaciones comerciales no solicitadas</li>
-                <li>Hacerse pasar por otra persona o entidad</li>
-                <li>Compartir credenciales de acceso con terceros</li>
+                <li>{t('terms.section5.item1')}</li>
+                <li>{t('terms.section5.item2')}</li>
+                <li>{t('terms.section5.item3')}</li>
+                <li>{t('terms.section5.item4')}</li>
+                <li>{t('terms.section5.item5')}</li>
+                <li>{t('terms.section5.item6')}</li>
+                <li>{t('terms.section5.item7')}</li>
+                <li>{t('terms.section5.item8')}</li>
+                <li>{t('terms.section5.item9')}</li>
               </ul>
             </div>
             <p className="text-gray-700">
-              La violación de estas políticas puede resultar en la suspensión o terminación inmediata de su cuenta sin previo aviso y sin reembolso.
+              {t('terms.section5.violation')}
             </p>
           </section>
 
           <section id="propiedad-intelectual">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Propiedad Intelectual</h2>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">6.1 Derechos de Itineramio</h3>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.section6.title')}</h2>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section6.rights.title')}</h3>
             <p className="text-gray-700 mb-4">
-              Todos los derechos de propiedad intelectual del Servicio, incluyendo pero no limitado a: diseño, código fuente, gráficos, logotipos, marcas comerciales, y el nombre "Itineramio" son propiedad exclusiva de {LEGAL_CONTACT.companyName} o sus licenciantes.
+              {t('terms.section6.rights.description', { companyName: LEGAL_CONTACT.companyName })}
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">6.2 Licencia de Uso</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section6.license.title')}</h3>
             <p className="text-gray-700 mb-4">
-              Se le otorga una licencia limitada, no exclusiva, intransferible y revocable para usar el Servicio de acuerdo con estos términos. Esta licencia no le otorga ningún derecho de propiedad sobre el Servicio.
+              {t('terms.section6.license.description')}
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">6.3 Restricciones</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section6.restrictions.title')}</h3>
             <p className="text-gray-700">
-              No puede copiar, modificar, distribuir, vender o alquilar ninguna parte del Servicio, ni realizar ingeniería inversa o intentar extraer el código fuente, a menos que las leyes lo prohíban o tenga nuestro permiso por escrito.
+              {t('terms.section6.restrictions.description')}
             </p>
           </section>
 
           <section id="contenido-usuario">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Contenido del Usuario</h2>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">7.1 Responsabilidad del Contenido</h3>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.section7.title')}</h2>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section7.responsibility.title')}</h3>
             <p className="text-gray-700 mb-4">
-              Usted es el único responsable del contenido que sube, publica o comparte a través del Servicio, incluyendo textos, imágenes, videos y cualquier otro material ("Contenido del Usuario").
+              {t('terms.section7.responsibility.description')}
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">7.2 Derechos sobre el Contenido</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section7.rights.title')}</h3>
             <p className="text-gray-700 mb-4">
-              Usted conserva todos los derechos de propiedad sobre su Contenido del Usuario. Al subir contenido al Servicio, nos otorga una licencia mundial, no exclusiva, libre de regalías para usar, almacenar, reproducir y mostrar dicho contenido únicamente con el propósito de prestar el Servicio.
+              {t('terms.section7.rights.description')}
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">7.3 Garantías del Contenido</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section7.warranties.title')}</h3>
             <p className="text-gray-700 mb-4">
-              Al subir Contenido del Usuario, usted garantiza que:
+              {t('terms.section7.warranties.description')}
             </p>
             <ul className="list-disc list-inside space-y-2 text-gray-700 mb-4">
-              <li>Posee todos los derechos necesarios sobre el contenido</li>
-              <li>El contenido no infringe derechos de terceros</li>
-              <li>El contenido cumple con todas las leyes aplicables</li>
-              <li>El contenido es preciso y no engañoso</li>
+              <li>{t('terms.section7.warranties.item1')}</li>
+              <li>{t('terms.section7.warranties.item2')}</li>
+              <li>{t('terms.section7.warranties.item3')}</li>
+              <li>{t('terms.section7.warranties.item4')}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">7.4 Remoción de Contenido</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section7.removal.title')}</h3>
             <p className="text-gray-700">
-              Nos reservamos el derecho de remover cualquier Contenido del Usuario que viole estos términos o que consideremos inapropiado, sin previo aviso y sin responsabilidad.
+              {t('terms.section7.removal.description')}
             </p>
           </section>
 
           <section id="privacidad">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Privacidad y Protección de Datos</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.section8.title')}</h2>
             <p className="text-gray-700 mb-4">
-              El uso del Servicio también está regido por nuestra{' '}
+              {t('terms.section8.description')}{' '}
               <Link href="/legal/privacy" className="text-blue-600 hover:underline font-semibold">
-                Política de Privacidad
-              </Link>
-              , que describe cómo recopilamos, usamos y protegemos su información personal de acuerdo con el RGPD (Reglamento General de Protección de Datos).
+                {t('links.privacyPolicy')}
+              </Link>.
             </p>
             <p className="text-gray-700">
-              Al usar el Servicio, usted consiente la recopilación y uso de información según lo descrito en nuestra Política de Privacidad.
+              {t('terms.section8.consent')}
             </p>
           </section>
 
           <section id="limitacion-responsabilidad">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Limitación de Responsabilidad</h2>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">9.1 Servicio "TAL CUAL"</h3>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.section9.title')}</h2>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section9.asIs.title')}</h3>
             <p className="text-gray-700 mb-4">
-              El Servicio se proporciona "tal cual" y "según disponibilidad" sin garantías de ningún tipo, ya sean expresas o implícitas. No garantizamos que el Servicio sea ininterrumpido, seguro o libre de errores.
+              {t('terms.section9.asIs.description')}
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">9.2 Limitación de Daños</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section9.damages.title')}</h3>
             <p className="text-gray-700 mb-4">
-              En ningún caso {LEGAL_CONTACT.companyName} será responsable por daños indirectos, incidentales, especiales, consecuentes o punitivos, incluyendo pérdida de beneficios, datos, uso, fondo de comercio u otras pérdidas intangibles.
+              {t('terms.section9.damages.description', { companyName: LEGAL_CONTACT.companyName })}
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">9.3 Máxima Responsabilidad</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section9.maxLiability.title')}</h3>
             <p className="text-gray-700">
-              Nuestra responsabilidad total por cualquier reclamo relacionado con el Servicio está limitada a la cantidad que usted haya pagado en los últimos 12 meses por el uso del Servicio.
+              {t('terms.section9.maxLiability.description')}
             </p>
           </section>
 
           <section id="modificaciones">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Modificaciones del Servicio</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.section10.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Nos reservamos el derecho de modificar o descontinuar, temporal o permanentemente, el Servicio (o cualquier parte del mismo) con o sin previo aviso.
+              {t('terms.section10.p1')}
             </p>
             <p className="text-gray-700 mb-4">
-              Haremos esfuerzos razonables para notificarle con 30 días de anticipación sobre cambios materiales en estos términos. Su uso continuado del Servicio después de dichos cambios constituirá su aceptación de los nuevos términos.
+              {t('terms.section10.p2')}
             </p>
           </section>
 
           <section id="suspension">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Suspensión y Terminación</h2>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">11.1 Suspensión por Violación</h3>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.section11.title')}</h2>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section11.violation.title')}</h3>
             <p className="text-gray-700 mb-4">
-              Podemos suspender o terminar su acceso al Servicio inmediatamente, sin previo aviso, por cualquier motivo, incluyendo pero no limitado a violación de estos términos.
+              {t('terms.section11.violation.description')}
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">11.2 Cancelación por el Usuario</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section11.userCancellation.title')}</h3>
             <p className="text-gray-700 mb-4">
-              Puede cancelar su cuenta en cualquier momento desde la configuración de su cuenta. La cancelación será efectiva al final de su período de facturación actual.
+              {t('terms.section11.userCancellation.description')}
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">11.3 Efectos de la Terminación</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('terms.section11.effects.title')}</h3>
             <p className="text-gray-700">
-              Al terminar su cuenta, perderá acceso a su contenido y datos. Recomendamos exportar cualquier información importante antes de cancelar. No somos responsables por la pérdida de datos tras la terminación.
+              {t('terms.section11.effects.description')}
             </p>
           </section>
 
           <section id="ley-aplicable">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">12. Ley Aplicable y Jurisdicción</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.section12.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Estos términos se regirán e interpretarán de acuerdo con las leyes de España, sin dar efecto a ningún principio de conflictos de leyes.
+              {t('terms.section12.p1')}
             </p>
             <p className="text-gray-700">
-              Cualquier disputa que surja de o relacionada con estos términos estará sujeta a la jurisdicción exclusiva de los tribunales de Madrid, España.
+              {t('terms.section12.p2')}
             </p>
           </section>
 
           <section id="contacto">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">13. Contacto</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.section13.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Si tiene preguntas sobre estos Términos y Condiciones, puede contactarnos en:
+              {t('terms.section13.description')}
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-gray-700"><strong>Email:</strong> {LEGAL_CONTACT.email}</p>
-              <p className="text-gray-700"><strong>Soporte:</strong> {LEGAL_CONTACT.email}</p>
-              <p className="text-gray-700"><strong>Dirección:</strong> {LEGAL_CONTACT.address}</p>
+              <p className="text-gray-700"><strong>{t('terms.section13.email')}:</strong> {LEGAL_CONTACT.email}</p>
+              <p className="text-gray-700"><strong>{t('terms.section13.support')}:</strong> {LEGAL_CONTACT.email}</p>
+              <p className="text-gray-700"><strong>{t('terms.section13.address')}:</strong> {LEGAL_CONTACT.address}</p>
             </div>
           </section>
 
@@ -295,22 +299,22 @@ export default function TermsPage() {
 
         {/* Footer Links */}
         <div className="mt-12 pt-8 border-t border-gray-200">
-          <p className="text-sm text-gray-600 mb-4">Otras políticas legales:</p>
+          <p className="text-sm text-gray-600 mb-4">{t('common.otherPolicies')}:</p>
           <div className="flex flex-wrap gap-4">
             <Link href="/legal/privacy" className="text-blue-600 hover:underline text-sm">
-              Política de Privacidad
+              {t('links.privacyPolicy')}
             </Link>
             <Link href="/legal/cookies" className="text-blue-600 hover:underline text-sm">
-              Política de Cookies
+              {t('links.cookiesPolicy')}
             </Link>
             <Link href="/legal/billing" className="text-blue-600 hover:underline text-sm">
-              Términos de Facturación
+              {t('links.billingTerms')}
             </Link>
             <Link href="/legal/legal-notice" className="text-blue-600 hover:underline text-sm">
-              Aviso Legal
+              {t('links.legalNotice')}
             </Link>
             <Link href="/legal/dpa" className="text-blue-600 hover:underline text-sm">
-              DPA
+              {t('links.dpa')}
             </Link>
           </div>
         </div>
@@ -321,7 +325,7 @@ export default function TermsPage() {
             href="/"
             className="inline-flex items-center text-blue-600 hover:underline"
           >
-            ← Volver al inicio
+            {t('common.backToHome')}
           </Link>
         </div>
       </div>

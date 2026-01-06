@@ -1,0 +1,220 @@
+{
+  "title": "Parametres du Compte",
+  "profile": {
+    "title": "Photo de Profil",
+    "uploadHint": "Telechargez une photo de profil. Maximum 5 Mo.",
+    "altText": "Profil"
+  },
+  "personalInfo": {
+    "title": "Informations Personnelles",
+    "firstName": "Prenom",
+    "firstNamePlaceholder": "Votre prenom",
+    "lastName": "Nom",
+    "lastNamePlaceholder": "Votre nom",
+    "email": "Adresse Email",
+    "emailPlaceholder": "vous@email.com",
+    "phone": "Telephone",
+    "phonePlaceholder": "+33 6 00 00 00 00"
+  },
+  "password": {
+    "title": "Changer le Mot de Passe",
+    "newPassword": "Nouveau Mot de Passe",
+    "newPasswordPlaceholder": "Minimum 8 caracteres",
+    "confirmPassword": "Confirmer le Nouveau Mot de Passe",
+    "confirmPasswordPlaceholder": "Repetez le mot de passe",
+    "changeButton": "Changer le Mot de Passe",
+    "currentPassword": "Mot de Passe Actuel",
+    "currentPasswordPlaceholder": "Votre mot de passe actuel"
+  },
+  "save": {
+    "button": "Enregistrer les Modifications",
+    "saving": "Enregistrement..."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "settingsTitle": "Parametres de Notifications",
+    "settingsDescription": "Gerez comment et quand vous souhaitez recevoir des notifications par email",
+    "configureButton": "Configurer"
+  },
+  "billing": {
+    "title": "Facturation et Abonnement",
+    "cardTitle": "Informations de Facturation",
+    "cardDescription": "Gerez votre plan, vos informations fiscales et le programme d'affiliation",
+    "manageButton": "Gerer",
+    "pageSubtitle": "Gerez vos informations de facturation et votre historique de paiements",
+    "back": "Retour",
+    "currentPlan": "Plan Actuel",
+    "noPlan": "Aucun Plan",
+    "nextRenewal": "Prochain Renouvellement",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "tabs": {
+      "data": "Informations de Facturation",
+      "history": "Historique des Factures"
+    },
+    "checkoutInfo": "Completez vos informations de facturation. Nous avons besoin de ces informations pour emettre des factures legalement valides. Ensuite, vous continuerez avec votre achat.",
+    "entityType": {
+      "title": "Type d'Entite",
+      "company": "Entreprise",
+      "companyDescription": "SARL, SA, etc.",
+      "selfEmployed": "Auto-entrepreneur",
+      "selfEmployedDescription": "Travailleur independant",
+      "individual": "Particulier",
+      "individualDescription": "Personne physique"
+    },
+    "fiscalData": {
+      "title": "Informations Fiscales",
+      "companyName": "Raison Sociale",
+      "companyNamePlaceholder": "ex: Itineramio SARL",
+      "cif": "SIRET",
+      "cifPlaceholder": "ex: 123 456 789 00012",
+      "tradeName": "Nom Commercial",
+      "tradeNamePlaceholder": "ex: Jean Dupont - Gestion Immobiliere",
+      "nif": "Numero SIRET",
+      "nifPlaceholder": "ex: 123 456 789 00012",
+      "businessActivity": "Activite Professionnelle",
+      "businessActivityPlaceholder": "ex: Gestion de locations touristiques",
+      "firstName": "Prenom",
+      "firstNamePlaceholder": "ex: Jean",
+      "lastName": "Nom",
+      "lastNamePlaceholder": "ex: Dupont",
+      "nationalId": "Numero d'Identite",
+      "nationalIdPlaceholder": "ex: 1234567890123"
+    },
+    "contact": {
+      "title": "Informations de Contact",
+      "email": "Email",
+      "emailPlaceholder": "contact@entreprise.com",
+      "phone": "Telephone",
+      "phonePlaceholder": "+33 6 00 00 00 00"
+    },
+    "address": {
+      "title": "Adresse de Facturation",
+      "address": "Adresse",
+      "addressPlaceholder": "Rue, numero, appartement",
+      "city": "Ville",
+      "cityPlaceholder": "ex: Paris",
+      "postalCode": "Code Postal",
+      "postalCodePlaceholder": "ex: 75001",
+      "country": "Pays",
+      "countries": {
+        "spain": "Espagne",
+        "portugal": "Portugal",
+        "france": "France",
+        "italy": "Italie",
+        "germany": "Allemagne",
+        "uk": "Royaume-Uni",
+        "other": "Autre"
+      }
+    },
+    "infoNote": {
+      "title": "A propos de vos informations de facturation",
+      "description": "Ces informations seront utilisees uniquement pour emettre des factures valides conformement a la reglementation fiscale. Les paiements sont effectues par virement bancaire ou carte de credit via Stripe."
+    },
+    "buttons": {
+      "cancel": "Annuler",
+      "save": "Enregistrer les Informations de Facturation",
+      "saving": "Enregistrement..."
+    },
+    "success": "Informations de facturation enregistrees avec succes",
+    "error": "Erreur lors de l'enregistrement. Veuillez reessayer."
+  },
+  "invoices": {
+    "title": "Historique des Factures",
+    "noInvoices": "Vous n'avez pas encore de factures",
+    "noInvoicesDescription": "Vos factures apparaitront ici lorsque vous effectuerez des paiements",
+    "status": {
+      "paid": "Payee",
+      "pending": "En attente",
+      "overdue": "En retard",
+      "cancelled": "Annulee"
+    },
+    "paidOn": "Payee le",
+    "viewInvoice": "Voir la facture",
+    "downloadInvoice": "Telecharger la facture",
+    "modal": {
+      "title": "Facture",
+      "billedTo": "FACTURE A",
+      "invoiceDetails": "DETAILS DE LA FACTURE",
+      "number": "Numero",
+      "date": "Date",
+      "dueDate": "Date d'echeance",
+      "paidDate": "Payee le",
+      "description": "DESCRIPTION",
+      "amount": "MONTANT",
+      "subscription": "Abonnement",
+      "billingPeriod": "Periode de facturation",
+      "discount": "Remise",
+      "total": "Total",
+      "paid": "Payee",
+      "footer": "Merci de faire confiance a Itineramio",
+      "footerContact": "Si vous avez des questions, contactez hola@itineramio.com",
+      "viewButton": "Voir la Facture",
+      "closeButton": "Fermer"
+    }
+  },
+  "referrals": {
+    "title": "Programme de Parrainage",
+    "cardTitle": "Invitez et Gagnez",
+    "cardDescription": "Partagez votre lien et gagnez 20% de chaque abonnement parraine",
+    "viewButton": "Voir le Programme"
+  },
+  "deleteAccount": {
+    "title": "Supprimer le Compte",
+    "description": "Une fois votre compte supprime, il n'y a pas de retour en arriere. Cette action est permanente et irreversible.",
+    "warning": "ATTENTION: En supprimant votre compte:",
+    "warningItems": {
+      "properties": "TOUTES vos proprietes seront supprimees",
+      "manuals": "TOUS les manuels et zones crees seront supprimes",
+      "files": "TOUS les images et fichiers telecharges seront perdus",
+      "noRecovery": "Vous NE pourrez PAS recuperer de donnees",
+      "irreversible": "Cette action est IRREVERSIBLE"
+    },
+    "button": "Supprimer le Compte",
+    "modal": {
+      "title": "Etes-vous absolument sur?",
+      "description": "Cette action supprimera definitivement votre compte et toutes vos donnees. Vous ne pourrez rien recuperer apres cela.",
+      "passwordLabel": "Entrez votre mot de passe pour confirmer",
+      "passwordPlaceholder": "Votre mot de passe",
+      "cancelButton": "Annuler",
+      "confirmButton": "Oui, supprimer mon compte",
+      "deleting": "Suppression..."
+    }
+  },
+  "passwordModal": {
+    "securityVerification": "Verification de Securite",
+    "changePassword": "Changer le Mot de Passe",
+    "emailChangeDetected": "Changement d'email detecte",
+    "emailChangeDescription": "Pour votre securite, nous devons verifier votre identite avant de changer votre email.",
+    "emailChangeSteps": {
+      "step1": "Un email de confirmation sera envoye a votre adresse actuelle",
+      "step2": "Vous devrez confirmer le changement depuis cet email",
+      "step3": "Votre compte sera protege tout au long du processus"
+    },
+    "enterCurrentPassword": "Entrez votre mot de passe actuel pour confirmer le changement.",
+    "cancelButton": "Annuler",
+    "confirmButton": "Confirmer le Changement",
+    "processing": "Traitement..."
+  },
+  "successToast": "Profil mis a jour avec succes",
+  "errors": {
+    "invalidImage": "Veuillez selectionner une image valide",
+    "imageTooLarge": "L'image doit faire moins de 5 Mo",
+    "uploadError": "Erreur lors du telechargement de l'image. Reessayez.",
+    "emailRequired": "L'email est requis",
+    "emailInvalid": "Email invalide",
+    "currentPasswordRequired": "Vous devez entrer votre mot de passe actuel",
+    "newPasswordRequired": "Vous devez entrer un nouveau mot de passe",
+    "passwordMinLength": "Le mot de passe doit contenir au moins 8 caracteres",
+    "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "enterPassword": "Veuillez entrer votre mot de passe",
+    "deletePasswordRequired": "Vous devez entrer votre mot de passe pour supprimer le compte",
+    "changePasswordError": "Erreur lors du changement de mot de passe",
+    "deleteError": "Erreur lors de la suppression du compte",
+    "connectionError": "Erreur de connexion",
+    "emailChangeRequestError": "Erreur lors de la demande de changement d'email",
+    "emailChangeSent": "Un email de confirmation a ete envoye a votre adresse actuelle. Veuillez verifier votre boite de reception pour terminer le changement.",
+    "unknownError": "Erreur inconnue",
+    "saveError": "Erreur lors de l'enregistrement des donnees"
+  }
+}

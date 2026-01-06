@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Star, Settings, Mail, Bell, Eye, EyeOff, Check, MapPin, Home } from 'lucide-react'
 import { Button } from './Button'
+import { useTranslation } from 'react-i18next'
 
 interface Evaluation {
   id: string
@@ -40,6 +41,7 @@ interface EvaluationsModalProps {
 }
 
 export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: EvaluationsModalProps) {
+  const { t } = useTranslation('common')
   const [activeTab, setActiveTab] = useState<'zone' | 'property'>('zone')
   const [evaluations, setEvaluations] = useState<Evaluation[]>([])
   const [loading, setLoading] = useState(true)
@@ -158,7 +160,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
           {/* Header */}
           <div className="flex items-center justify-between p-3 sm:p-4 md:p-6 border-b">
             <div>
-              <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900">Evaluaciones</h2>
+              <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900">{t('modals.evaluations.title')}</h2>
               <p className="text-gray-600">{propertyName}</p>
             </div>
             <div className="flex items-center space-x-3">
@@ -169,7 +171,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
                 className="flex items-center"
               >
                 <Settings className="w-4 h-4 mr-2" />
-                Configuración
+                {t('modals.evaluations.configuration')}
               </Button>
               <button
                 onClick={onClose}
@@ -189,13 +191,13 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
               className="border-b bg-gray-50 overflow-hidden"
             >
               <div className="p-3 sm:p-4 md:p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">Configuración de Notificaciones</h3>
+                <h3 className="font-semibold text-gray-900 mb-4">{t('modals.evaluations.notificationSettings')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:p-4 md:p-6">
                   {/* Email Notifications */}
                   <div>
                     <h4 className="font-medium text-gray-800 mb-3 flex items-center">
                       <Mail className="w-4 h-4 mr-2" />
-                      Correos Electrónicos
+                      {t('modals.evaluations.emails')}
                     </h4>
                     <div className="space-y-3">
                       <label className="flex items-center space-x-3">
@@ -211,7 +213,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
                           })}
                           className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Evaluaciones de zona</span>
+                        <span className="text-sm text-gray-700">{t('modals.evaluations.zoneEvaluations')}</span>
                       </label>
                       <label className="flex items-center space-x-3">
                         <input
@@ -226,7 +228,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
                           })}
                           className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Evaluaciones generales</span>
+                        <span className="text-sm text-gray-700">{t('modals.evaluations.generalEvaluations')}</span>
                       </label>
                     </div>
                   </div>
@@ -235,7 +237,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
                   <div>
                     <h4 className="font-medium text-gray-800 mb-3 flex items-center">
                       <Bell className="w-4 h-4 mr-2" />
-                      Notificaciones Dashboard
+                      {t('modals.evaluations.dashboardNotifications')}
                     </h4>
                     <div className="space-y-3">
                       <label className="flex items-center space-x-3">
@@ -251,7 +253,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
                           })}
                           className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Evaluaciones de zona</span>
+                        <span className="text-sm text-gray-700">{t('modals.evaluations.zoneEvaluations')}</span>
                       </label>
                       <label className="flex items-center space-x-3">
                         <input
@@ -266,7 +268,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
                           })}
                           className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Evaluaciones generales</span>
+                        <span className="text-sm text-gray-700">{t('modals.evaluations.generalEvaluations')}</span>
                       </label>
                     </div>
                   </div>
@@ -286,7 +288,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
               }`}
             >
               <MapPin className="w-4 h-4 mr-2 inline" />
-              Evaluaciones de Zona ({evaluations.filter(e => e.type === 'zone').length})
+              {t('modals.evaluations.zoneEvaluationsTab')} ({evaluations.filter(e => e.type === 'zone').length})
             </button>
             <button
               onClick={() => setActiveTab('property')}
@@ -297,7 +299,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
               }`}
             >
               <Home className="w-4 h-4 mr-2 inline" />
-              Evaluaciones Generales ({evaluations.filter(e => e.type === 'property').length})
+              {t('modals.evaluations.generalEvaluationsTab')} ({evaluations.filter(e => e.type === 'property').length})
             </button>
           </div>
 
@@ -313,12 +315,12 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
                   <Star className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No hay evaluaciones aún
+                  {t('modals.evaluations.noEvaluationsYet')}
                 </h3>
                 <p className="text-gray-500">
-                  {activeTab === 'zone' 
-                    ? 'Las evaluaciones de zona aparecerán aquí cuando los huéspedes evalúen zonas específicas.'
-                    : 'Las evaluaciones generales aparecerán aquí cuando los huéspedes evalúen todo el manual.'
+                  {activeTab === 'zone'
+                    ? t('modals.evaluations.zoneEvaluationsWillAppear')
+                    : t('modals.evaluations.generalEvaluationsWillAppear')
                   }
                 </p>
               </div>
@@ -360,13 +362,13 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
                               ? 'bg-green-100 text-green-600 hover:bg-green-200'
                               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                           }`}
-                          title={evaluation.isPublic ? 'Hacer privada' : 'Hacer pública'}
+                          title={evaluation.isPublic ? t('modals.evaluations.makePrivate') : t('modals.evaluations.makePublic')}
                         >
                           {evaluation.isPublic ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                         </button>
                         {evaluation.isPublic && (
                           <div className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                            Pública
+                            {t('modals.evaluations.public')}
                           </div>
                         )}
                       </div>

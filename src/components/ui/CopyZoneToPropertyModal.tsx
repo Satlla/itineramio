@@ -7,6 +7,7 @@ import { Button } from './Button'
 import { Card, CardContent } from './Card'
 import { Input } from './Input'
 import { cn } from '../../lib/utils'
+import { useTranslation } from 'react-i18next'
 
 interface Property {
   id: string
@@ -33,6 +34,7 @@ export function CopyZoneToPropertyModal({
   currentPropertyId,
   onCopyComplete
 }: CopyZoneToPropertyModalProps) {
+  const { t } = useTranslation('common')
   const [properties, setProperties] = useState<Property[]>([])
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([])
   const [selectedPropertyIds, setSelectedPropertyIds] = useState<Set<string>>(new Set())
@@ -70,17 +72,17 @@ export function CopyZoneToPropertyModal({
       
       if (response.ok && result.success) {
         // Filter out current property and only show active properties
-        const availableProperties = result.data.filter((prop: Property) => 
+        const availableProperties = result.data.filter((prop: Property) =>
           prop.id !== currentPropertyId && prop.status !== 'DELETED'
         )
         setProperties(availableProperties)
         setFilteredProperties(availableProperties)
       } else {
-        setError('Error al cargar las propiedades')
+        setError(t('modals.copyZone.errorLoading'))
       }
     } catch (error) {
       console.error('Error loading properties:', error)
-      setError('Error al cargar las propiedades')
+      setError(t('modals.copyZone.errorLoading'))
     } finally {
       setIsLoading(false)
     }
@@ -137,7 +139,7 @@ export function CopyZoneToPropertyModal({
       onClose()
     } catch (error) {
       console.error('Error in copy process:', error)
-      setError('Error durante el proceso de copia')
+      setError(t('modals.copyZone.errorCopying'))
     } finally {
       setIsCopying(false)
     }
@@ -165,9 +167,9 @@ export function CopyZoneToPropertyModal({
         {/* Header */}
         <div className="flex items-center justify-between p-3 sm:p-4 md:p-6 border-b">
           <div>
-            <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Copiar Zona</h2>
+            <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">{t('modals.copyZone.title')}</h2>
             <p className="text-sm text-gray-600 mt-1">
-              Selecciona las propiedades donde quieres copiar "{zoneName}"
+              {t('modals.copyZone.selectProperties')} "{zoneName}"
             </p>
           </div>
           <Button
@@ -189,7 +191,7 @@ export function CopyZoneToPropertyModal({
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   type="text"
-                  placeholder="Buscar propiedades..."
+                  placeholder={t('modals.copyZone.searchProperties')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -210,7 +212,7 @@ export function CopyZoneToPropertyModal({
           {isLoading ? (
             <div className="flex items-center justify-center py-3 sm:py-4 md:py-3 sm:py-4 md:py-6 lg:py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
-              <span className="ml-3 text-gray-600">Cargando propiedades...</span>
+              <span className="ml-3 text-gray-600">{t('modals.copyZone.loadingProperties')}</span>
             </div>
           ) : (
             <>
@@ -220,7 +222,7 @@ export function CopyZoneToPropertyModal({
                   <div className="text-center py-3 sm:py-4 md:py-3 sm:py-4 md:py-6 lg:py-8">
                     <Home className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500">
-                      {searchTerm ? 'No se encontraron propiedades' : 'No tienes otras propiedades disponibles'}
+                      {searchTerm ? t('modals.copyZone.noPropertiesFound') : t('modals.copyZone.noOtherProperties')}
                     </p>
                   </div>
                 ) : (
@@ -281,13 +283,13 @@ export function CopyZoneToPropertyModal({
           <div className="text-sm text-gray-600">
             {selectedPropertyIds.size > 0 ? (
               <span className="font-medium text-violet-700">
-                {selectedPropertyIds.size} propiedad{selectedPropertyIds.size !== 1 ? 'es' : ''} seleccionada{selectedPropertyIds.size !== 1 ? 's' : ''}
+                {selectedPropertyIds.size} {selectedPropertyIds.size !== 1 ? t('modals.copyZone.propertiesSelectedPlural') : t('modals.copyZone.propertiesSelected')}
               </span>
             ) : (
-              <span>Selecciona al menos una propiedad</span>
+              <span>{t('modals.copyZone.selectAtLeastOne')}</span>
             )}
           </div>
-          
+
           {/* Buttons */}
           <div className="flex items-center space-x-3">
             <Button
@@ -296,7 +298,7 @@ export function CopyZoneToPropertyModal({
               disabled={isCopying}
               className="min-w-[100px]"
             >
-              Cancelar
+              {t('modals.copyZone.cancel')}
             </Button>
             <Button
               onClick={handleCopyZone}
@@ -311,17 +313,17 @@ export function CopyZoneToPropertyModal({
               {isCopying ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Copiando...
+                  {t('modals.copyZone.copying')}
                 </>
               ) : selectedPropertyIds.size === 0 ? (
                 <>
                   <Copy className="h-4 w-4 mr-2" />
-                  Selecciona propiedades
+                  {t('modals.copyZone.selectPropertiesBtn')}
                 </>
               ) : (
                 <>
                   <Copy className="h-4 w-4 mr-2" />
-                  Copiar a {selectedPropertyIds.size} propiedad{selectedPropertyIds.size !== 1 ? 'es' : ''}
+                  {t('modals.copyZone.copyTo')} {selectedPropertyIds.size} {selectedPropertyIds.size !== 1 ? t('modals.copyZone.properties') : t('modals.copyZone.property')}
                 </>
               )}
             </Button>

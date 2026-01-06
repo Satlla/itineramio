@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle2, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface SuccessModalProps {
   isOpen: boolean
@@ -21,6 +22,8 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
   autoClose = true,
   autoCloseDelay = 3000
 }) => {
+  const { t } = useTranslation('common')
+
   useEffect(() => {
     if (isOpen && autoClose) {
       const timer = setTimeout(() => {
@@ -73,7 +76,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
               onClick={onClose}
               className="mt-6 w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-3 sm:px-4 md:px-6 rounded-lg font-medium hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl"
             >
-              Entendido
+              {t('modals.success.understood')}
             </button>
           </div>
 

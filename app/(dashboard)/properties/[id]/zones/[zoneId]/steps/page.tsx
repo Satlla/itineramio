@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence, Reorder } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import {
   Plus,
   Type,
@@ -223,11 +224,12 @@ const saveStepsData = async (propertyId: string, zoneId: string, steps: Step[]) 
   }
 }
 
-export default function ZoneStepsPage({ 
-  params 
-}: { 
-  params: Promise<{ id: string; zoneId: string }> 
+export default function ZoneStepsPage({
+  params
+}: {
+  params: Promise<{ id: string; zoneId: string }>
 }) {
+  const { t } = useTranslation('zones')
   const router = useRouter()
   const [propertyId, setPropertyId] = useState<string>('')
   const [zoneId, setZoneId] = useState<string>('')
@@ -279,11 +281,11 @@ export default function ZoneStepsPage({
         // Show success message or update UI
         console.log('Steps saved successfully')
       } else {
-        alert('Error al guardar los pasos')
+        alert(t('stepsPage.errorSavingSteps'))
       }
     } catch (error) {
       console.error('Error saving:', error)
-      alert('Error al guardar los pasos')
+      alert(t('stepsPage.errorSavingSteps'))
     } finally {
       setSaving(false)
     }
@@ -301,7 +303,7 @@ export default function ZoneStepsPage({
       <div className="min-h-[50vh] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-violet-600" />
-          <p className="text-gray-600">Cargando zona y pasos...</p>
+          <p className="text-gray-600">{t('stepsPage.loadingZoneSteps')}</p>
         </div>
       </div>
     )
@@ -310,22 +312,22 @@ export default function ZoneStepsPage({
   const stepTypes = [
     {
       type: StepType.TEXT,
-      name: 'Texto',
-      description: 'Instrucciones de texto',
+      name: t('stepTypes.text'),
+      description: t('stepsPage.textInstructions'),
       icon: Type,
       color: 'from-blue-500 to-blue-600'
     },
     {
       type: StepType.IMAGE,
-      name: 'Imagen',
-      description: 'Foto explicativa',
+      name: t('stepTypes.image'),
+      description: t('stepsPage.photoExplanatory'),
       icon: Image,
       color: 'from-green-500 to-green-600'
     },
     {
       type: StepType.VIDEO,
-      name: 'Video',
-      description: 'Video instructivo',
+      name: t('stepTypes.video'),
+      description: t('stepsPage.videoInstructional'),
       icon: Video,
       color: 'from-purple-500 to-purple-600'
     }
@@ -405,11 +407,11 @@ export default function ZoneStepsPage({
         console.log('✅ Step updated and saved successfully')
         resetForm()
       } else {
-        alert('Error al guardar el paso. Los cambios se han guardado localmente.')
+        alert(t('stepsPage.errorSavingStep'))
       }
     } catch (error) {
       console.error('Error updating step:', error)
-      alert('Error al guardar el paso. Los cambios se han guardado localmente.')
+      alert(t('stepsPage.errorSavingStep'))
     } finally {
       setSaving(false)
     }
@@ -744,7 +746,7 @@ export default function ZoneStepsPage({
   }
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando pasos de la zona..." type="zones" />
+    return <AnimatedLoadingSpinner text={t('stepsPage.loadingZoneSteps')} type="zones" />
   }
 
   return (
@@ -758,16 +760,16 @@ export default function ZoneStepsPage({
             className="flex items-center"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
+            {t('buttons.back')}
           </Button>
           <div className="h-6 w-px bg-gray-300" />
           <ZoneIconDisplay iconId={zone?.iconId || 'home'} size="sm" />
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              {getMultilingualText(zone?.name, selectedLanguage, 'Zona')}
+              {getMultilingualText(zone?.name, selectedLanguage, t('zone'))}
             </h1>
             <p className="text-gray-600">
-              Editor de steps • {steps.length} pasos configurados
+              {t('stepsPage.title')} • {steps.length} {t('stepsPage.stepsConfigured')}
             </p>
           </div>
         </div>
@@ -812,7 +814,7 @@ export default function ZoneStepsPage({
               ) : (
                 <Save className="w-4 h-4 mr-2" />
               )}
-              {saving ? 'Guardando...' : 'Guardar'}
+              {saving ? t('buttons.saving') : t('buttons.save')}
             </Button>
           </div>
 
@@ -827,15 +829,15 @@ export default function ZoneStepsPage({
               className="flex items-center"
             >
               <Eye className="w-4 h-4 mr-2" />
-              Vista Previa
+              {t('detail.preview')}
             </Button>
-            
+
             <Button
               onClick={() => setShowCreateForm(true)}
               className="bg-violet-600 hover:bg-violet-700"
             >
               <Plus className="w-5 h-5 mr-2" />
-              Nuevo Step
+              {t('stepsPage.newStep')}
             </Button>
           </div>
         </div>
@@ -845,7 +847,7 @@ export default function ZoneStepsPage({
       <div className="hidden lg:block">
         {/* Debug indicator - remove after testing */}
         <div className="mb-4 bg-blue-100 border border-blue-300 text-blue-800 px-4 py-2 rounded text-sm">
-          🖥️ Desktop Timeline View ({steps.length} pasos)
+          {t('stepsPage.desktopTimelineView')} ({steps.length} {t('stepsPage.stepsConfigured')})
         </div>
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
         {/* Left Column - Steps (2/3 width) */}
@@ -931,7 +933,7 @@ export default function ZoneStepsPage({
                                     : "text-green-600 hover:text-green-700"
                                 )}
                               >
-                                {step.isPublished ? 'Ocultar' : 'Publicar'}
+                                {step.isPublished ? t('stepsPage.hide') : t('stepsPage.publish')}
                               </Button>
                               <Button
                                 variant="ghost"
@@ -976,8 +978,8 @@ export default function ZoneStepsPage({
                   >
                     <CardContent className="p-8 text-center">
                       <Plus className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-600 font-medium">Añadir nuevo paso</p>
-                      <p className="text-gray-500 text-sm">Haz clic para crear un nuevo paso</p>
+                      <p className="text-gray-600 font-medium">{t('stepsPage.addNewStep')}</p>
+                      <p className="text-gray-500 text-sm">{t('stepsPage.clickToCreate')}</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -986,16 +988,16 @@ export default function ZoneStepsPage({
           ) : (
             <Card className="text-center py-12 border-2 border-dashed border-gray-300">
               <CardContent>
-                <div className="text-gray-400 text-lg mb-2">No hay steps configurados</div>
+                <div className="text-gray-400 text-lg mb-2">{t('stepsPage.noStepsConfigured')}</div>
                 <div className="text-gray-500 text-sm mb-6">
-                  Crea tu primer step para comenzar a guiar a tus huéspedes
+                  {t('stepsPage.createFirstStepDescription')}
                 </div>
                 <Button
                   onClick={() => setShowCreateForm(true)}
                   className="bg-violet-600 hover:bg-violet-700"
                 >
                   <Plus className="w-5 h-5 mr-2" />
-                  Crear Primer Step
+                  {t('stepsPage.createFirstStep')}
                 </Button>
               </CardContent>
             </Card>
@@ -1012,26 +1014,26 @@ export default function ZoneStepsPage({
                   <div className="w-6 h-6 bg-violet-600 rounded-full flex items-center justify-center mr-2">
                     <span className="text-white text-sm">💡</span>
                   </div>
-                  Mejores Prácticas
+                  {t('stepsPage.bestPractices')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3 text-sm text-violet-800">
                   <div className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-violet-600 rounded-full mt-2 flex-shrink-0"></div>
-                    <p>Añade tantos pasos como necesites para ser claro</p>
+                    <p>{t('stepsPage.bestPractice1')}</p>
                   </div>
                   <div className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-violet-600 rounded-full mt-2 flex-shrink-0"></div>
-                    <p>Los manuales que tienen imágenes son más fáciles de entender</p>
+                    <p>{t('stepsPage.bestPractice2')}</p>
                   </div>
                   <div className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-violet-600 rounded-full mt-2 flex-shrink-0"></div>
-                    <p>Revisa que los pasos estén en los tres idiomas</p>
+                    <p>{t('stepsPage.bestPractice3')}</p>
                   </div>
                   <div className="flex items-start space-x-2">
                     <div className="w-1.5 h-1.5 bg-violet-600 rounded-full mt-2 flex-shrink-0"></div>
-                    <p>Usa videos cortos para procesos complejos</p>
+                    <p>{t('stepsPage.bestPractice4')}</p>
                   </div>
                 </div>
               </CardContent>
@@ -1044,25 +1046,25 @@ export default function ZoneStepsPage({
                   <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center mr-2">
                     <span className="text-white text-sm">📊</span>
                   </div>
-                  Estadísticas
+                  {t('stepsPage.statistics')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">Total pasos</span>
+                    <span className="text-gray-600 text-sm">{t('stepsPage.totalSteps')}</span>
                     <span className="text-gray-900 font-semibold">{steps.length}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">Publicados</span>
+                    <span className="text-gray-600 text-sm">{t('stepsPage.published')}</span>
                     <span className="text-green-600 font-semibold">{steps.filter(s => s.isPublished).length}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">Borradores</span>
+                    <span className="text-gray-600 text-sm">{t('stepsPage.drafts')}</span>
                     <span className="text-yellow-600 font-semibold">{steps.filter(s => !s.isPublished).length}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">Con imágenes</span>
+                    <span className="text-gray-600 text-sm">{t('stepsPage.withImages')}</span>
                     <span className="text-blue-600 font-semibold">{steps.filter(s => s.type === StepType.IMAGE).length}</span>
                   </div>
                 </div>
@@ -1076,40 +1078,40 @@ export default function ZoneStepsPage({
                   <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center mr-2">
                     <span className="text-white text-sm">⚡</span>
                   </div>
-                  Acciones Rápidas
+                  {t('stepsPage.quickActionsTitle')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="w-full justify-start"
                     onClick={() => setShowCreateForm(true)}
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Nuevo paso
+                    {t('stepsPage.newStepAction')}
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="w-full justify-start"
                     onClick={() => {
                       setSteps(steps.map(s => ({ ...s, isPublished: true })))
                     }}
                   >
                     <Eye className="w-4 h-4 mr-2" />
-                    Publicar todos
+                    {t('stepsPage.publishAll')}
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="w-full justify-start"
                     onClick={handleSaveSteps}
                     disabled={saving}
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    Guardar cambios
+                    {t('stepsPage.saveChanges')}
                   </Button>
                 </div>
               </CardContent>
@@ -1194,7 +1196,7 @@ export default function ZoneStepsPage({
                               : "text-green-600 hover:text-green-700"
                           )}
                         >
-                          {step.isPublished ? 'Ocultar' : 'Publicar'}
+                          {step.isPublished ? t('stepsPage.hide') : t('stepsPage.publish')}
                         </Button>
                         <Button
                           variant="ghost"

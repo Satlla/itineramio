@@ -9,6 +9,9 @@ import esAuth from './locales/es/auth.json'
 import esDashboard from './locales/es/dashboard.json'
 import esProperty from './locales/es/property.json'
 import esTools from './locales/es/tools.json'
+import esZones from './locales/es/zones.json'
+import esAccount from './locales/es/account.json'
+import esLegal from './locales/es/legal.json'
 
 // Import English translations
 import enCommon from './locales/en/common.json'
@@ -17,6 +20,9 @@ import enAuth from './locales/en/auth.json'
 import enDashboard from './locales/en/dashboard.json'
 import enProperty from './locales/en/property.json'
 import enTools from './locales/en/tools.json'
+import enZones from './locales/en/zones.json'
+import enAccount from './locales/en/account.json'
+import enLegal from './locales/en/legal.json'
 
 // Import French translations
 import frCommon from './locales/fr/common.json'
@@ -25,6 +31,9 @@ import frAuth from './locales/fr/auth.json'
 import frDashboard from './locales/fr/dashboard.json'
 import frProperty from './locales/fr/property.json'
 import frTools from './locales/fr/tools.json'
+import frZones from './locales/fr/zones.json'
+import frAccount from './locales/fr/account.json'
+import frLegal from './locales/fr/legal.json'
 
 const resources = {
   es: {
@@ -33,7 +42,10 @@ const resources = {
     auth: esAuth,
     dashboard: esDashboard,
     property: esProperty,
-    tools: esTools
+    tools: esTools,
+    zones: esZones,
+    account: esAccount,
+    legal: esLegal
   },
   en: {
     common: enCommon,
@@ -41,7 +53,10 @@ const resources = {
     auth: enAuth,
     dashboard: enDashboard,
     property: enProperty,
-    tools: enTools
+    tools: enTools,
+    zones: enZones,
+    account: enAccount,
+    legal: enLegal
   },
   fr: {
     common: frCommon,
@@ -49,7 +64,10 @@ const resources = {
     auth: frAuth,
     dashboard: frDashboard,
     property: frProperty,
-    tools: frTools
+    tools: frTools,
+    zones: frZones,
+    account: frAccount,
+    legal: frLegal
   }
 }
 
@@ -60,7 +78,7 @@ i18n
     resources,
     fallbackLng: 'es',
     defaultNS: 'common',
-    ns: ['common', 'landing', 'auth', 'dashboard', 'property', 'tools'],
+    ns: ['common', 'landing', 'auth', 'dashboard', 'property', 'tools', 'zones', 'account', 'legal'],
     debug: false,
     interpolation: {
       escapeValue: false

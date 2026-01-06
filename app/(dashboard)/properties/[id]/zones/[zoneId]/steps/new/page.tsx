@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft,
   Save,
@@ -45,61 +46,64 @@ const createStepSchema = z.object({
 
 type CreateStepFormData = z.infer<typeof createStepSchema>
 
-const stepTypes = [
-  {
-    value: 'TEXT' as const,
-    label: 'Texto',
-    icon: FileText,
-    description: 'Instrucciones de texto con formato'
-  },
-  {
-    value: 'IMAGE' as const,
-    label: 'Imagen',
-    icon: ImageIcon,
-    description: 'Foto con explicación'
-  },
-  {
-    value: 'VIDEO' as const,
-    label: 'Video',
-    icon: Video,
-    description: 'Video instructivo'
-  },
-  {
-    value: 'LINK' as const,
-    label: 'Enlace',
-    icon: LinkIcon,
-    description: 'Enlace a recurso externo'
-  }
-]
+// Step types will be defined inside the component to use translations
 
-// Formatting legend component
-const FormattingLegend = () => (
+// Formatting legend component - will be rendered inside component with t function
+const FormattingLegend = ({ t }: { t: (key: string) => string }) => (
   <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
     <div className="flex items-start gap-2">
       <Lightbulb className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
       <div className="text-xs text-amber-800">
-        <p className="font-medium mb-1">Personaliza tu texto con estos estilos:</p>
+        <p className="font-medium mb-1">{t('stepsPage.formatStyles')}</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-          <span><code className="bg-amber-100 px-1 rounded">**texto**</code> → <strong>negrita</strong></span>
-          <span><code className="bg-amber-100 px-1 rounded">*texto*</code> → <em>cursiva</em></span>
-          <span><code className="bg-amber-100 px-1 rounded">__texto__</code> → <span className="underline">subrayado</span></span>
-          <span><code className="bg-amber-100 px-1 rounded">~~texto~~</code> → <span className="line-through">tachado</span></span>
+          <span><code className="bg-amber-100 px-1 rounded">**texto**</code> → <strong>{t('stepsPage.boldFormat')}</strong></span>
+          <span><code className="bg-amber-100 px-1 rounded">*texto*</code> → <em>{t('stepsPage.italicFormat')}</em></span>
+          <span><code className="bg-amber-100 px-1 rounded">__texto__</code> → <span className="underline">{t('stepsPage.underlineFormat')}</span></span>
+          <span><code className="bg-amber-100 px-1 rounded">~~texto~~</code> → <span className="line-through">{t('stepsPage.strikethroughFormat')}</span></span>
         </div>
-        <p className="mt-1 text-amber-700">Las URLs se convierten en enlaces automáticamente.</p>
+        <p className="mt-1 text-amber-700">{t('stepsPage.urlAutoLink')}</p>
       </div>
     </div>
   </div>
 )
 
 export default function NewStepPage() {
+  const { t } = useTranslation('zones')
   const router = useRouter()
   const params = useParams()
   const propertyId = params.id as string
   const zoneId = params.zoneId as string
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [zoneName, setZoneName] = useState('')
   const [propertyName, setPropertyName] = useState('')
+
+  const stepTypes = [
+    {
+      value: 'TEXT' as const,
+      label: t('stepTypes.text'),
+      icon: FileText,
+      description: t('newStepPage.textWithFormat')
+    },
+    {
+      value: 'IMAGE' as const,
+      label: t('stepTypes.image'),
+      icon: ImageIcon,
+      description: t('newStepPage.photoWithExplanation')
+    },
+    {
+      value: 'VIDEO' as const,
+      label: t('stepTypes.video'),
+      icon: Video,
+      description: t('newStepPage.instructionalVideo')
+    },
+    {
+      value: 'LINK' as const,
+      label: t('stepTypes.link'),
+      icon: LinkIcon,
+      description: t('newStepPage.externalLink')
+    }
+  ]
 
   const {
     register,
@@ -166,14 +170,14 @@ export default function NewStepPage() {
       const result = await response.json()
       
       if (!response.ok) {
-        throw new Error(result.error || 'Error al crear el paso')
+        throw new Error(result.error || t('stepsPage.errorSavingStep'))
       }
-      
+
       // Redirect back to zone page
       router.push(`/properties/${propertyId}/zones/${zoneId}`)
     } catch (error) {
       console.error('Error creating step:', error)
-      alert('Error al crear el paso. Por favor, inténtalo de nuevo.')
+      alert(t('stepsPage.errorSavingStep'))
     } finally {
       setIsSubmitting(false)
     }
@@ -196,23 +200,23 @@ export default function NewStepPage() {
             <Link href={`/properties/${propertyId}/zones/${zoneId}`}>
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
+                {t('buttons.back')}
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Nuevo Paso</h1>
+              <h1 className="text-3xl font-bold text-gray-900">{t('newStepPage.title')}</h1>
               <p className="text-gray-600 mt-1">
                 {propertyName && zoneName && `${propertyName} > ${zoneName}`}
               </p>
             </div>
           </div>
-          
-          <Button 
+
+          <Button
             variant="outline"
-            onClick={() => alert('Vista previa próximamente')}
+            onClick={() => alert(t('newStepPage.previewComingSoon'))}
           >
             <Eye className="w-4 h-4 mr-2" />
-            Vista Previa
+            {t('detail.preview')}
           </Button>
         </div>
 
@@ -220,7 +224,7 @@ export default function NewStepPage() {
           {/* Step Type Selection */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Tipo de Paso
+              {t('newStepPage.stepType')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {stepTypes.map((type) => {
@@ -248,18 +252,18 @@ export default function NewStepPage() {
           {/* Basic Information */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Información Básica
+              {t('newStepPage.basicInfo')}
             </h2>
 
             <div className="space-y-4">
               {/* Title */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Título del paso *
+                  {t('newStepPage.stepTitle')}
                 </label>
                 <Input
                   {...register('title')}
-                  placeholder="Ej: Cómo usar la lavadora"
+                  placeholder={t('newStepPage.stepTitlePlaceholder')}
                   error={!!errors.title}
                 />
                 {errors.title && (
@@ -270,12 +274,12 @@ export default function NewStepPage() {
               {/* Description */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Descripción breve
+                  {t('newStepPage.briefDescription')}
                 </label>
                 <textarea
                   {...register('description')}
                   rows={3}
-                  placeholder="Descripción breve de lo que aprenderá el huésped..."
+                  placeholder={t('newStepPage.briefDescriptionPlaceholder')}
                   className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 ${
                     errors.description ? 'border-red-300' : ''
                   }`}
@@ -284,7 +288,7 @@ export default function NewStepPage() {
                   <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
                 )}
                 <p className="mt-1 text-xs text-gray-500">
-                  Opcional - puedes añadir contenido detallado más abajo
+                  {t('newStepPage.optionalNote')}
                 </p>
               </div>
 
@@ -292,7 +296,7 @@ export default function NewStepPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <Clock className="inline w-4 h-4 mr-1" />
-                  Tiempo estimado (minutos)
+                  {t('newStepPage.estimatedTime')}
                 </label>
                 <Input
                   type="number"
@@ -306,7 +310,7 @@ export default function NewStepPage() {
                   <p className="mt-1 text-sm text-red-600">{errors.estimatedTime.message}</p>
                 )}
                 <p className="mt-1 text-xs text-gray-500">
-                  Tiempo que tardará el huésped en completar este paso
+                  {t('newStepPage.timeToComplete')}
                 </p>
               </div>
             </div>
@@ -315,19 +319,19 @@ export default function NewStepPage() {
           {/* Content Based on Type */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Contenido del Paso
+              {t('newStepPage.stepContent')}
             </h2>
 
             {selectedType === 'TEXT' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Contenido del texto *
+                  {t('newStepPage.textContent')}
                 </label>
-                <FormattingLegend />
+                <FormattingLegend t={t} />
                 <textarea
                   {...register('content')}
                   rows={8}
-                  placeholder="Escribe las instrucciones detalladas para este paso..."
+                  placeholder={t('newStepPage.textContentPlaceholder')}
                   className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 ${
                     errors.content ? 'border-red-300' : ''
                   }`}
@@ -342,12 +346,12 @@ export default function NewStepPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Imagen *
+                    {t('newStepPage.imageRequired')}
                   </label>
                   <ImageUpload
                     value={watchedValues.mediaUrl}
                     onChange={(imageUrl) => setValue('mediaUrl', imageUrl || '')}
-                    placeholder="Subir imagen instructiva"
+                    placeholder={t('newStepPage.uploadInstructiveImage')}
                     variant="property"
                     maxSize={10}
                     error={!!errors.mediaUrl}
@@ -356,16 +360,16 @@ export default function NewStepPage() {
                     <p className="mt-1 text-sm text-red-600">{errors.mediaUrl.message}</p>
                   )}
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Explicación de la imagen *
+                    {t('newStepPage.imageExplanation')}
                   </label>
-                  <FormattingLegend />
+                  <FormattingLegend t={t} />
                   <textarea
                     {...register('content')}
                     rows={4}
-                    placeholder="Describe lo que muestra la imagen y las instrucciones..."
+                    placeholder={t('newStepPage.imageExplanationPlaceholder')}
                     className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 ${
                       errors.content ? 'border-red-300' : ''
                     }`}
@@ -381,30 +385,30 @@ export default function NewStepPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    URL del video *
+                    {t('newStepPage.videoUrl')}
                   </label>
                   <Input
                     {...register('mediaUrl')}
-                    placeholder="https://youtube.com/watch?v=..."
+                    placeholder={t('newStepPage.videoUrlPlaceholder')}
                     error={!!errors.mediaUrl}
                   />
                   {errors.mediaUrl && (
                     <p className="mt-1 text-sm text-red-600">{errors.mediaUrl.message}</p>
                   )}
                   <p className="mt-1 text-xs text-gray-500">
-                    Soportamos YouTube, Vimeo y enlaces directos a videos
+                    {t('newStepPage.videoSupported')}
                   </p>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Descripción del video *
+                    {t('newStepPage.videoDescription')}
                   </label>
-                  <FormattingLegend />
+                  <FormattingLegend t={t} />
                   <textarea
                     {...register('content')}
                     rows={4}
-                    placeholder="Describe qué muestra el video y qué aprenderá el huésped..."
+                    placeholder={t('newStepPage.videoDescriptionPlaceholder')}
                     className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 ${
                       errors.content ? 'border-red-300' : ''
                     }`}
@@ -420,27 +424,27 @@ export default function NewStepPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    URL del enlace *
+                    {t('newStepPage.linkUrl')}
                   </label>
                   <Input
                     {...register('linkUrl')}
-                    placeholder="https://ejemplo.com"
+                    placeholder={t('newStepPage.linkUrlPlaceholder')}
                     error={!!errors.linkUrl}
                   />
                   {errors.linkUrl && (
                     <p className="mt-1 text-sm text-red-600">{errors.linkUrl.message}</p>
                   )}
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Descripción del enlace *
+                    {t('newStepPage.linkDescription')}
                   </label>
-                  <FormattingLegend />
+                  <FormattingLegend t={t} />
                   <textarea
                     {...register('content')}
                     rows={4}
-                    placeholder="Explica qué encontrará el huésped en este enlace y por qué es útil..."
+                    placeholder={t('newStepPage.linkDescriptionPlaceholder')}
                     className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 ${
                       errors.content ? 'border-red-300' : ''
                     }`}
@@ -456,12 +460,12 @@ export default function NewStepPage() {
           {/* Order */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Configuración Avanzada
+              {t('newStepPage.advancedConfig')}
             </h2>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Orden de aparición
+                {t('newStepPage.displayOrder')}
               </label>
               <Input
                 type="number"
@@ -474,7 +478,7 @@ export default function NewStepPage() {
                 <p className="mt-1 text-sm text-red-600">{errors.order.message}</p>
               )}
               <p className="mt-1 text-xs text-gray-500">
-                Los pasos se mostrarán ordenados de menor a mayor
+                {t('newStepPage.displayOrderHint')}
               </p>
             </div>
           </Card>
@@ -485,8 +489,7 @@ export default function NewStepPage() {
               <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="ml-3">
                 <p className="text-sm text-blue-800">
-                  <strong>Consejo:</strong> Crea pasos claros y concisos. Los huéspedes agradecen 
-                  instrucciones específicas con imágenes o videos cuando sea necesario.
+                  <strong>{t('newStepPage.tip')}</strong> {t('newStepPage.tipDescription')}
                 </p>
               </div>
             </div>
@@ -496,7 +499,7 @@ export default function NewStepPage() {
           <div className="flex justify-end space-x-3">
             <Link href={`/properties/${propertyId}/zones/${zoneId}`}>
               <Button type="button" variant="outline">
-                Cancelar
+                {t('buttons.cancel')}
               </Button>
             </Link>
             <Button
@@ -506,12 +509,12 @@ export default function NewStepPage() {
               {isSubmitting ? (
                 <>
                   <InlineSpinner className="mr-2" color="white" />
-                  Creando...
+                  {t('newStepPage.creating')}
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4 mr-2" />
-                  Crear Paso
+                  {t('newStepPage.createStep')}
                 </>
               )}
             </Button>

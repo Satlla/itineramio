@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import jwt from 'jsonwebtoken'
+import { getAdminUser } from '../../../../src/lib/admin-auth'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
 
@@ -56,28 +57,11 @@ export async function POST(request: NextRequest) {
 // Get recent FAQ submissions (for admin)
 export async function GET(request: NextRequest) {
   try {
-    // Check admin authentication
-    const token = request.cookies.get('auth-token')?.value
-    if (!token) {
+    // Check admin authentication using admin-token
+    const adminPayload = await getAdminUser(request)
+
+    if (!adminPayload) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
-    let userId: string
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
-      userId = decoded.userId
-    } catch {
-      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
-    }
-
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { isAdmin: true }
-    })
-
-    if (!user?.isAdmin) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
     }
 
     const { searchParams } = new URL(request.url)

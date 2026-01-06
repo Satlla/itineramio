@@ -79,15 +79,15 @@ const createPropertySchema = z.object({
 
 type CreatePropertyFormData = z.infer<typeof createPropertySchema>
 
-const propertyTypes = [
-  { value: 'APARTMENT', label: 'Apartamento', icon: Home },
-  { value: 'HOUSE', label: 'Casa', icon: Home },
-  { value: 'ROOM', label: 'Habitación', icon: Bed },
-  { value: 'VILLA', label: 'Villa', icon: Home }
+const propertyTypesConfig = [
+  { value: 'APARTMENT', labelKey: 'propertyForm.apartment', icon: Home },
+  { value: 'HOUSE', labelKey: 'propertyForm.house', icon: Home },
+  { value: 'ROOM', labelKey: 'propertyForm.room', icon: Bed },
+  { value: 'VILLA', labelKey: 'propertyForm.villa', icon: Home }
 ] as const
 
 function NewPropertyPageContent() {
-  const { t } = useTranslation('common')
+  const { t } = useTranslation('dashboard')
   const router = useRouter()
   const searchParams = useSearchParams()
   const editId = searchParams.get('edit')
@@ -510,7 +510,7 @@ function NewPropertyPageContent() {
             <Link href="/properties">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
+                {t('propertyForm.back')}
               </Button>
             </Link>
           </div>
@@ -518,26 +518,26 @@ function NewPropertyPageContent() {
           {/* Title and subtitle */}
           <div className="mb-4">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-              {isEditing ? 'Editar Propiedad' : 'Nueva Propiedad'}
+              {isEditing ? t('propertyForm.editProperty') : t('propertyForm.newProperty')}
             </h1>
             <p className="text-gray-600 mt-1 text-sm sm:text-base">
-              {isEditing 
-                ? 'Actualiza la información de tu propiedad'
-                : 'Crea una nueva propiedad para gestionar sus manuales digitales'
+              {isEditing
+                ? t('propertyForm.editPropertyDescription')
+                : t('propertyForm.newPropertyDescription')
               }
             </p>
           </div>
           
           {/* Action buttons - responsive layout */}
           <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
-            <Button 
-              type="button" 
+            <Button
+              type="button"
               variant="outline"
               onClick={showPropertyPreview}
               className="flex items-center justify-center"
             >
               <Eye className="w-4 h-4 mr-2" />
-              Vista Previa
+              {t('propertyForm.preview')}
             </Button>
           </div>
         </div>
@@ -546,7 +546,7 @@ function NewPropertyPageContent() {
         {isLoading && (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
-            <span className="ml-3 text-gray-600">Cargando datos de la propiedad...</span>
+            <span className="ml-3 text-gray-600">{t('loading.propertyData')}</span>
           </div>
         )}
 
@@ -600,14 +600,14 @@ function NewPropertyPageContent() {
                     {step}
                   </button>
                   <div className="ml-2 text-xs sm:text-sm font-medium hidden sm:block">
-                    {step === 1 && 'Información Básica'}
-                    {step === 2 && 'Ubicación'}
-                    {step === 3 && 'Contacto'}
+                    {step === 1 && t('propertyForm.step1')}
+                    {step === 2 && t('propertyForm.step2')}
+                    {step === 3 && t('propertyForm.step3')}
                   </div>
                   <div className="ml-2 text-xs font-medium block sm:hidden">
-                    {step === 1 && 'Básica'}
-                    {step === 2 && 'Ubicación'}
-                    {step === 3 && 'Contacto'}
+                    {step === 1 && t('propertyForm.step1Short')}
+                    {step === 2 && t('propertyForm.step2')}
+                    {step === 3 && t('propertyForm.step3')}
                   </div>
                   {step < 3 && (
                     <div className={`
@@ -631,13 +631,13 @@ function NewPropertyPageContent() {
             >
               <Card className="p-4 sm:p-6 lg:p-8">
                 <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-3 sm:mb-4 md:mb-6">
-                  Información Básica
+                  {t('propertyForm.step1')}
                 </h2>
 
                 {/* Language Tabs for Name and Description */}
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-medium text-gray-700">Título y descripción del anuncio</h3>
+                    <h3 className="text-sm font-medium text-gray-700">{t('propertyForm.titleAndDescription')}</h3>
                     <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
                       <button
                         type="button"
@@ -678,7 +678,7 @@ function NewPropertyPageContent() {
                   {activeLanguage !== 'es' && (
                     <div className="bg-blue-50 rounded-lg p-3 mb-4">
                       <p className="text-xs text-blue-700">
-                        💡 Las traducciones son opcionales. Si no las completas, los huéspedes verán el texto en español.
+                        {t('propertyForm.translationsOptional')}
                       </p>
                     </div>
                   )}
@@ -686,9 +686,9 @@ function NewPropertyPageContent() {
                   {/* Name field based on active language */}
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {activeLanguage === 'es' ? 'Nombre de la propiedad *' :
-                       activeLanguage === 'en' ? 'Property name (optional)' :
-                       'Nom de la propriété (optionnel)'}
+                      {activeLanguage === 'es' ? `${t('propertyForm.propertyName')} *` :
+                       activeLanguage === 'en' ? t('propertyForm.propertyNameOptional') :
+                       t('propertyForm.propertyNameOptionalFr')}
                     </label>
                     {activeLanguage === 'es' && (
                       <>
@@ -722,9 +722,9 @@ function NewPropertyPageContent() {
                   {/* Description field based on active language */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {activeLanguage === 'es' ? 'Descripción *' :
-                       activeLanguage === 'en' ? 'Description (optional)' :
-                       'Description (optionnel)'}
+                      {activeLanguage === 'es' ? `${t('propertyForm.description')} *` :
+                       activeLanguage === 'en' ? t('propertyForm.descriptionOptional') :
+                       t('propertyForm.descriptionOptionalFr')}
                     </label>
                     {activeLanguage === 'es' && (
                       <>
@@ -771,7 +771,7 @@ function NewPropertyPageContent() {
 
                   {/* Translation status indicators */}
                   <div className="flex items-center gap-2 mt-3">
-                    <span className="text-xs text-gray-500">Idiomas completados:</span>
+                    <span className="text-xs text-gray-500">{t('propertyForm.languagesCompleted')}:</span>
                     <span className={`text-xs px-2 py-0.5 rounded ${watchedValues.name ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                       🇪🇸 {watchedValues.name ? '✓' : '—'}
                     </span>
@@ -788,10 +788,10 @@ function NewPropertyPageContent() {
                   {/* Tipo de propiedad */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Tipo de propiedad *
+                      {t('propertyForm.propertyType')} *
                     </label>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {propertyTypes.map((type) => {
+                      {propertyTypesConfig.map((type) => {
                         const IconComponent = type.icon
                         return (
                           <button
@@ -805,7 +805,7 @@ function NewPropertyPageContent() {
                             }`}
                           >
                             <IconComponent className="w-6 h-6 mx-auto mb-2" />
-                            <span className="text-sm font-medium">{type.label}</span>
+                            <span className="text-sm font-medium">{t(type.labelKey)}</span>
                           </button>
                         )
                       })}
@@ -815,17 +815,17 @@ function NewPropertyPageContent() {
                   {/* Imagen de la propiedad */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Foto principal de la propiedad
+                      {t('propertyForm.mainPhoto')}
                     </label>
                     <ImageUpload
                       value={watchedValues.profileImage}
                       onChange={(imageUrl) => setValue('profileImage', imageUrl || undefined)}
-                      placeholder="Subir foto de la propiedad"
+                      placeholder={t('propertyForm.uploadPropertyPhoto')}
                       variant="property"
                       maxSize={10}
                     />
                     <p className="mt-1 text-xs text-gray-500">
-                      Esta será la imagen principal de tu propiedad en el dashboard. Se optimizará automáticamente.
+                      {t('propertyForm.mainPhotoDescription')}
                     </p>
                   </div>
 
@@ -834,7 +834,7 @@ function NewPropertyPageContent() {
                     <Bed className="w-5 h-5 text-gray-400" />
                     <div className="flex-1">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Habitaciones *
+                        {t('propertyForm.bedrooms')} *
                       </label>
                       <Input
                         type="number"
@@ -853,7 +853,7 @@ function NewPropertyPageContent() {
                     <Bath className="w-5 h-5 text-gray-400" />
                     <div className="flex-1">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Baños *
+                        {t('propertyForm.bathrooms')} *
                       </label>
                       <Input
                         type="number"
@@ -872,7 +872,7 @@ function NewPropertyPageContent() {
                     <Users className="w-5 h-5 text-gray-400" />
                     <div className="flex-1">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Huéspedes máximo *
+                        {t('propertyForm.maxGuests')} *
                       </label>
                       <Input
                         type="number"
@@ -891,14 +891,14 @@ function NewPropertyPageContent() {
                     <Square className="w-5 h-5 text-gray-400" />
                     <div className="flex-1">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Metros cuadrados
+                        {t('propertyForm.squareMeters')}
                       </label>
                       <Input
                         type="number"
                         {...register('squareMeters', { valueAsNumber: true })}
                         min="10"
                         max="1000"
-                        placeholder="Opcional"
+                        placeholder={t('propertyForm.optional')}
                         error={!!errors.squareMeters}
                       />
                       {errors.squareMeters && (
@@ -910,14 +910,14 @@ function NewPropertyPageContent() {
 
                 <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8">
                   <div className="flex gap-3 order-2 sm:order-1">
-                    <Button 
-                      type="button" 
+                    <Button
+                      type="button"
                       variant="outline"
                       onClick={showPropertyPreview}
                       className="flex-1 sm:flex-initial"
                     >
                       <Eye className="w-4 h-4 mr-2" />
-                      Vista Previa
+                      {t('propertyForm.preview')}
                     </Button>
                   </div>
                   <div className="flex flex-col items-center sm:items-end order-1 sm:order-2">
@@ -928,11 +928,11 @@ function NewPropertyPageContent() {
                       disabled={!validateStep(1)}
                       className="w-full sm:w-auto"
                     >
-                      Siguiente
+                      {t('propertyForm.next')}
                     </Button>
                     {!validateStep(1) && (
                       <p className="text-sm text-red-600 mt-2 text-center sm:text-right">
-                        Completa todos los campos obligatorios para continuar
+                        {t('propertyForm.completeRequired')}
                       </p>
                     )}
                   </div>
@@ -950,12 +950,12 @@ function NewPropertyPageContent() {
             >
               <Card className="p-4 sm:p-6 lg:p-8">
                 <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-3 sm:mb-4 md:mb-6">
-                  Ubicación
+                  {t('propertyForm.step2')}
                 </h2>
 
                 <div className="bg-blue-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-blue-800">
-                    <strong>Autocompletado Google Maps:</strong> Comienza a escribir la dirección y selecciona de las sugerencias. Los campos de ciudad, provincia y código postal se rellenarán automáticamente con información verificada.
+                    {t('propertyForm.addressAutocompleteInfo')}
                   </p>
                 </div>
 
@@ -963,7 +963,7 @@ function NewPropertyPageContent() {
                   {/* Dirección con Google Maps Autocomplete */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Dirección completa *
+                      {t('propertyForm.fullAddress')} *
                     </label>
                     <AddressAutocomplete
                       value={watchedValues.street}
@@ -977,10 +977,10 @@ function NewPropertyPageContent() {
                         if (addressData.postalCode) {
                           setValue('postalCode', addressData.postalCode, { shouldValidate: true })
                         }
-                        console.log('📍 Dirección autocompletada:', addressData)
+                        console.log('Address autocomplete:', addressData)
                       }}
                       error={!!errors.street}
-                      placeholder="Ej: Calle Gran Vía 123, Madrid"
+                      placeholder={t('propertyForm.addressPlaceholder')}
                     />
                     {errors.street && (
                       <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.street)}</p>
@@ -990,11 +990,11 @@ function NewPropertyPageContent() {
                   {/* Ciudad */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Ciudad *
+                      {t('propertyForm.city')} *
                     </label>
                     <Input
                       {...register('city')}
-                      placeholder="Ej: Madrid"
+                      placeholder={t('propertyForm.cityPlaceholder')}
                       error={!!errors.city}
                     />
                     {errors.city && (
@@ -1005,11 +1005,11 @@ function NewPropertyPageContent() {
                   {/* Provincia */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Provincia *
+                      {t('propertyForm.province')} *
                     </label>
                     <Input
                       {...register('state')}
-                      placeholder="Ej: Madrid"
+                      placeholder={t('propertyForm.provincePlaceholder')}
                       error={!!errors.state}
                     />
                     {errors.state && (
@@ -1020,11 +1020,11 @@ function NewPropertyPageContent() {
                   {/* Código postal */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Código postal *
+                      {t('propertyForm.postalCode')} *
                     </label>
                     <Input
                       {...register('postalCode')}
-                      placeholder="Ej: 28013"
+                      placeholder={t('propertyForm.postalCodePlaceholder')}
                       maxLength={5}
                       error={!!errors.postalCode}
                     />
@@ -1036,7 +1036,7 @@ function NewPropertyPageContent() {
                   {/* País */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      País *
+                      {t('propertyForm.country')} *
                     </label>
                     <Input
                       {...register('country')}
@@ -1052,16 +1052,16 @@ function NewPropertyPageContent() {
                 <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8">
                   <div className="flex gap-3 order-2 sm:order-1">
                     <Button onClick={prevStep} type="button" variant="outline" className="flex-1 sm:flex-initial">
-                      Anterior
+                      {t('propertyForm.previous')}
                     </Button>
-                    <Button 
-                      type="button" 
+                    <Button
+                      type="button"
                       variant="outline"
                       onClick={showPropertyPreview}
                       className="flex-1 sm:flex-initial"
                     >
                       <Eye className="w-4 h-4 mr-2" />
-                      Vista Previa
+                      {t('propertyForm.preview')}
                     </Button>
                   </div>
                   <div className="flex flex-col items-center sm:items-end order-1 sm:order-2">
@@ -1072,11 +1072,11 @@ function NewPropertyPageContent() {
                       disabled={!validateStep(2)}
                       className="w-full sm:w-auto"
                     >
-                      Siguiente
+                      {t('propertyForm.next')}
                     </Button>
                     {!validateStep(2) && (
                       <p className="text-sm text-red-600 mt-2 text-center sm:text-right">
-                        Completa todos los campos obligatorios para continuar
+                        {t('propertyForm.completeRequired')}
                       </p>
                     )}
                   </div>
@@ -1094,12 +1094,12 @@ function NewPropertyPageContent() {
             >
               <Card className="p-4 sm:p-6 lg:p-8">
                 <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-3 sm:mb-4 md:mb-6">
-                  Información de Contacto
+                  {t('propertyForm.contactInfo')}
                 </h2>
-                
+
                 <div className="bg-blue-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-blue-800">
-                    <strong>💡 Importante:</strong> Esta información será usada para que los huéspedes puedan contactarte directamente desde el manual cuando necesiten ayuda.
+                    {t('propertyForm.contactInfoDescription')}
                   </p>
                 </div>
 
@@ -1107,20 +1107,20 @@ function NewPropertyPageContent() {
                   {/* Foto de perfil */}
                   <div className="md:col-span-2 flex flex-col items-center">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Foto de perfil de contacto
+                      {t('propertyForm.profilePhoto')}
                     </label>
                     <ImageUpload
                       value={watchedValues.hostContactPhoto}
                       onChange={(imageUrl) => {
-                        console.log('🖼️ Host photo changed to:', imageUrl)
+                        console.log('Host photo changed to:', imageUrl)
                         setValue('hostContactPhoto', imageUrl || undefined)
                       }}
-                      placeholder="Subir foto de perfil"
+                      placeholder={t('propertyForm.uploadProfilePhoto')}
                       variant="profile"
                       maxSize={5}
                     />
                     <p className="mt-2 text-xs text-gray-500 text-center">
-                      Esta foto aparecerá cuando los huéspedes te contacten
+                      {t('propertyForm.profilePhotoDescription')}
                     </p>
                   </div>
 
@@ -1128,11 +1128,11 @@ function NewPropertyPageContent() {
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <User className="inline w-4 h-4 mr-1" />
-                      Nombre completo *
+                      {t('propertyForm.fullName')} *
                     </label>
                     <Input
                       {...register('hostContactName')}
-                      placeholder="Tu nombre completo"
+                      placeholder={t('propertyForm.fullNamePlaceholder')}
                       error={!!errors.hostContactName}
                     />
                     {errors.hostContactName && (
@@ -1144,18 +1144,18 @@ function NewPropertyPageContent() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <Phone className="inline w-4 h-4 mr-1" />
-                      Teléfono WhatsApp *
+                      {t('propertyForm.whatsappPhone')} *
                     </label>
                     <Input
                       {...register('hostContactPhone')}
-                      placeholder="+34 600 000 000"
+                      placeholder={t('propertyForm.phonePlaceholder')}
                       error={!!errors.hostContactPhone}
                     />
                     {errors.hostContactPhone && (
                       <p className="mt-1 text-xs sm:text-sm text-red-600">{getErrorMessage(errors.hostContactPhone)}</p>
                     )}
                     <p className="mt-1 text-xs text-gray-500">
-                      Los huéspedes podrán contactarte via WhatsApp
+                      {t('propertyForm.whatsappDescription')}
                     </p>
                   </div>
 
@@ -1163,12 +1163,12 @@ function NewPropertyPageContent() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <Mail className="inline w-4 h-4 mr-1" />
-                      Email de contacto *
+                      {t('propertyForm.contactEmail')} *
                     </label>
                     <Input
                       {...register('hostContactEmail')}
                       type="email"
-                      placeholder="tu@email.com"
+                      placeholder={t('propertyForm.emailPlaceholder')}
                       error={!!errors.hostContactEmail}
                     />
                     {errors.hostContactEmail && (
@@ -1179,15 +1179,15 @@ function NewPropertyPageContent() {
                   {/* Idioma preferido */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Idioma preferido para comunicación
+                      {t('propertyForm.preferredLanguage')}
                     </label>
                     <select
                       {...register('hostContactLanguage')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm sm:text-base"
                     >
-                      <option value="es">Español</option>
-                      <option value="en">English</option>
-                      <option value="fr">Français</option>
+                      <option value="es">{t('propertyForm.spanish')}</option>
+                      <option value="en">{t('propertyForm.english')}</option>
+                      <option value="fr">{t('propertyForm.french')}</option>
                     </select>
                   </div>
                 </div>
@@ -1195,17 +1195,17 @@ function NewPropertyPageContent() {
                 <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8">
                   <div className="flex gap-3 order-2 sm:order-1">
                     <Button onClick={prevStep} type="button" variant="outline" className="flex-1 sm:flex-initial">
-                      Anterior
+                      {t('propertyForm.previous')}
                     </Button>
-                    <Button 
-                      type="button" 
+                    <Button
+                      type="button"
                       variant="outline"
                       disabled={!validateStep(3)}
                       onClick={showPropertyPreview}
                       className="flex-1 sm:flex-initial"
                     >
                       <Eye className="w-4 h-4 mr-2" />
-                      Vista Previa
+                      {t('propertyForm.preview')}
                     </Button>
                   </div>
                   <div className="flex flex-col items-center sm:items-end order-1 sm:order-2">
@@ -1217,24 +1217,24 @@ function NewPropertyPageContent() {
                       {isSubmitting ? (
                         <>
                           <InlineSpinner className="mr-2" color="white" />
-                          {isEditing ? 'Actualizando...' : 'Creando...'}
+                          {isEditing ? t('propertyForm.updating') : t('propertyForm.creating')}
                         </>
                       ) : (
                         <>
                           <Save className="w-4 h-4 mr-2" />
-                          {isEditing ? 'Actualizar Propiedad' : 'Crear Propiedad'}
+                          {isEditing ? t('propertyForm.updateProperty') : t('propertyForm.createProperty')}
                         </>
                       )}
                     </Button>
                     {!validateStep(3) && (
                       <div className="mt-2 text-center sm:text-right">
                         <p className="text-xs sm:text-sm text-red-600 font-medium mb-1">
-                          Completa todos los campos obligatorios:
+                          {t('propertyForm.completeRequiredFields')}:
                         </p>
                         <div className="text-xs text-red-500 space-y-0.5">
-                          {!watchedValues.hostContactName && <p>• Nombre de contacto</p>}
-                          {!watchedValues.hostContactPhone && <p>• Teléfono</p>}
-                          {!watchedValues.hostContactEmail && <p>• Email</p>}
+                          {!watchedValues.hostContactName && <p>• {t('propertyForm.contactName')}</p>}
+                          {!watchedValues.hostContactPhone && <p>• {t('propertyForm.phone')}</p>}
+                          {!watchedValues.hostContactEmail && <p>• {t('propertyForm.email')}</p>}
                         </div>
                       </div>
                     )}

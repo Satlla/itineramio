@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  Star, 
-  MessageCircle, 
-  Eye, 
-  EyeOff, 
-  TrendingUp, 
-  Users, 
+import {
+  Star,
+  MessageCircle,
+  Eye,
+  EyeOff,
+  TrendingUp,
+  Users,
   BarChart3,
   Calendar,
   Filter,
@@ -22,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../../../../src/com
 import { ZoneIconDisplay } from '../../../../../src/components/ui/IconSelector'
 import { useRouter } from 'next/navigation'
 import { useParams } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 interface Evaluation {
   id: string
@@ -73,7 +74,8 @@ export default function PropertyEvaluationsPage() {
   const router = useRouter()
   const params = useParams()
   const propertyId = params.id as string
-  
+  const { t, i18n } = useTranslation('dashboard')
+
   const [evaluations, setEvaluations] = useState<Evaluation[]>([])
   const [stats, setStats] = useState<EvaluationStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -228,7 +230,8 @@ export default function PropertyEvaluationsPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    const localeMap: Record<string, string> = { es: 'es-ES', en: 'en-US', fr: 'fr-FR' }
+    return new Date(dateString).toLocaleDateString(localeMap[i18n.language] || 'es-ES', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -275,24 +278,24 @@ export default function PropertyEvaluationsPage() {
             className="flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Volver
+            {t('evaluations.back')}
           </Button>
-          
+
           <Button
             variant="outline"
             onClick={() => router.push(`/guide/${propertyId}`)}
             className="flex items-center gap-2"
           >
             <ExternalLink className="w-4 h-4" />
-            Ver Manual Público
+            {t('evaluations.viewPublicManual')}
           </Button>
         </div>
-        
+
         <h1 className="text-3xl font-bold text-gray-900">
-          Evaluaciones de {propertyName}
+          {t('evaluations.title', { name: propertyName })}
         </h1>
         <p className="text-gray-600 mt-2">
-          Gestiona las evaluaciones y valoraciones de tu propiedad
+          {t('evaluations.subtitle')}
         </p>
       </div>
 
@@ -304,7 +307,7 @@ export default function PropertyEvaluationsPage() {
               <div className="flex items-center">
                 <Star className="h-8 w-8 text-yellow-500" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Valoración Media</p>
+                  <p className="text-sm font-medium text-gray-600">{t('evaluations.stats.avgRating')}</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {Number(stats.averageRating).toFixed(1)}
                   </p>
@@ -321,7 +324,7 @@ export default function PropertyEvaluationsPage() {
               <div className="flex items-center">
                 <MessageCircle className="h-8 w-8 text-blue-500" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Evaluaciones</p>
+                  <p className="text-sm font-medium text-gray-600">{t('evaluations.stats.totalEvaluations')}</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.totalEvaluations}</p>
                 </div>
               </div>
@@ -333,7 +336,7 @@ export default function PropertyEvaluationsPage() {
               <div className="flex items-center">
                 <Eye className="h-8 w-8 text-green-500" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Públicas</p>
+                  <p className="text-sm font-medium text-gray-600">{t('evaluations.stats.public')}</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.publicEvaluations}</p>
                 </div>
               </div>
@@ -345,7 +348,7 @@ export default function PropertyEvaluationsPage() {
               <div className="flex items-center">
                 <EyeOff className="h-8 w-8 text-gray-500" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Privadas</p>
+                  <p className="text-sm font-medium text-gray-600">{t('evaluations.stats.private')}</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.privateEvaluations}</p>
                 </div>
               </div>
@@ -360,7 +363,7 @@ export default function PropertyEvaluationsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
-              Distribución de Valoraciones
+              {t('evaluations.ratingDistribution')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -403,7 +406,7 @@ export default function PropertyEvaluationsPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Evaluaciones por Zona
+              {t('evaluations.tabs.byZone')}
             </button>
             <button
               onClick={() => setActiveTab('public')}
@@ -413,7 +416,7 @@ export default function PropertyEvaluationsPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Evaluaciones Públicas
+              {t('evaluations.tabs.public')}
             </button>
           </nav>
         </div>
@@ -423,23 +426,23 @@ export default function PropertyEvaluationsPage() {
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-600">Filtrar:</span>
+          <span className="text-sm font-medium text-gray-600">{t('evaluations.filter')}:</span>
         </div>
-        
+
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value as any)}
           className="px-3 py-1 border border-gray-300 rounded-md text-sm"
         >
-          <option value="all">Todas</option>
+          <option value="all">{t('evaluations.filters.all')}</option>
           {activeTab === 'public' && (
             <>
-              <option value="approved">Aprobadas</option>
-              <option value="pending">Pendientes</option>
+              <option value="approved">{t('evaluations.filters.approved')}</option>
+              <option value="pending">{t('evaluations.filters.pending')}</option>
             </>
           )}
-          <option value="public">Públicas</option>
-          <option value="private">Privadas</option>
+          <option value="public">{t('evaluations.filters.public')}</option>
+          <option value="private">{t('evaluations.filters.private')}</option>
         </select>
 
         <select
@@ -447,10 +450,10 @@ export default function PropertyEvaluationsPage() {
           onChange={(e) => setSortBy(e.target.value as any)}
           className="px-3 py-1 border border-gray-300 rounded-md text-sm"
         >
-          <option value="newest">Más Recientes</option>
-          <option value="oldest">Más Antiguas</option>
-          <option value="rating-high">Mayor Valoración</option>
-          <option value="rating-low">Menor Valoración</option>
+          <option value="newest">{t('evaluations.sort.newest')}</option>
+          <option value="oldest">{t('evaluations.sort.oldest')}</option>
+          <option value="rating-high">{t('evaluations.sort.ratingHigh')}</option>
+          <option value="rating-low">{t('evaluations.sort.ratingLow')}</option>
         </select>
       </div>
 
@@ -460,12 +463,12 @@ export default function PropertyEvaluationsPage() {
           <Card className="p-8 text-center">
             <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No hay evaluaciones {filterType !== 'all' && `${filterType}s`}
+              {t('evaluations.noEvaluations')}
             </h3>
             <p className="text-gray-600">
-              {filterType === 'all' 
-                ? 'Aún no has recibido ninguna evaluación para esta propiedad.'
-                : `No tienes evaluaciones ${filterType}s para esta propiedad.`
+              {filterType === 'all'
+                ? t('evaluations.noEvaluationsAll')
+                : t('evaluations.noEvaluationsFiltered')
               }
             </p>
           </Card>
@@ -497,7 +500,7 @@ export default function PropertyEvaluationsPage() {
                               <Star className="w-3 h-3 text-purple-600" />
                             </div>
                             <span className="text-sm font-medium text-gray-600">
-                              Evaluación General
+                              {t('evaluations.generalEvaluation')}
                             </span>
                           </div>
                         )}
@@ -510,12 +513,12 @@ export default function PropertyEvaluationsPage() {
                           {evaluation.isPublic ? (
                             <div className="flex items-center gap-1 text-green-600">
                               <Eye className="w-4 h-4" />
-                              <span className="text-xs font-medium">Pública</span>
+                              <span className="text-xs font-medium">{t('evaluations.visibility.public')}</span>
                             </div>
                           ) : (
                             <div className="flex items-center gap-1 text-gray-500">
                               <EyeOff className="w-4 h-4" />
-                              <span className="text-xs font-medium">Privada</span>
+                              <span className="text-xs font-medium">{t('evaluations.visibility.private')}</span>
                             </div>
                           )}
                         </div>
@@ -523,7 +526,7 @@ export default function PropertyEvaluationsPage() {
 
                       <div className="mb-3">
                         <p className="text-sm text-gray-600 mb-1">
-                          Por <span className="font-medium">{evaluation.userName}</span>
+                          {t('evaluations.by')} <span className="font-medium">{evaluation.userName}</span>
                         </p>
                         <p className="text-xs text-gray-500">
                           {formatDate(evaluation.createdAt)}
@@ -539,39 +542,39 @@ export default function PropertyEvaluationsPage() {
                       {/* Additional details for zone evaluations */}
                       {evaluation.reviewType === 'zone' && (evaluation.clarity || evaluation.completeness || evaluation.helpfulness || evaluation.upToDate) && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
-                          <p className="text-xs font-medium text-gray-600 mb-2">Valoración detallada:</p>
+                          <p className="text-xs font-medium text-gray-600 mb-2">{t('evaluations.detailedRating')}:</p>
                           <div className="grid grid-cols-2 gap-2">
                             {evaluation.clarity && (
                               <div className="flex items-center gap-1 text-xs">
-                                <span className="text-gray-500">Claridad:</span>
+                                <span className="text-gray-500">{t('evaluations.criteria.clarity')}:</span>
                                 <div className="flex">{renderStars(evaluation.clarity, 'sm')}</div>
                               </div>
                             )}
                             {evaluation.completeness && (
                               <div className="flex items-center gap-1 text-xs">
-                                <span className="text-gray-500">Completitud:</span>
+                                <span className="text-gray-500">{t('evaluations.criteria.completeness')}:</span>
                                 <div className="flex">{renderStars(evaluation.completeness, 'sm')}</div>
                               </div>
                             )}
                             {evaluation.helpfulness && (
                               <div className="flex items-center gap-1 text-xs">
-                                <span className="text-gray-500">Utilidad:</span>
+                                <span className="text-gray-500">{t('evaluations.criteria.helpfulness')}:</span>
                                 <div className="flex">{renderStars(evaluation.helpfulness, 'sm')}</div>
                               </div>
                             )}
                             {evaluation.upToDate && (
                               <div className="flex items-center gap-1 text-xs">
-                                <span className="text-gray-500">Actualización:</span>
+                                <span className="text-gray-500">{t('evaluations.criteria.upToDate')}:</span>
                                 <div className="flex">{renderStars(evaluation.upToDate, 'sm')}</div>
                               </div>
                             )}
                           </div>
-                          
+
                           {evaluation.guestInfo && (evaluation.guestInfo.country || evaluation.guestInfo.ageRange || evaluation.guestInfo.travelType) && (
                             <div className="mt-2 text-xs text-gray-500">
-                              {evaluation.guestInfo.country && <span>País: {evaluation.guestInfo.country} • </span>}
-                              {evaluation.guestInfo.ageRange && <span>Edad: {evaluation.guestInfo.ageRange} • </span>}
-                              {evaluation.guestInfo.travelType && <span>Tipo: {evaluation.guestInfo.travelType}</span>}
+                              {evaluation.guestInfo.country && <span>{t('evaluations.guestInfo.country')}: {evaluation.guestInfo.country} • </span>}
+                              {evaluation.guestInfo.ageRange && <span>{t('evaluations.guestInfo.age')}: {evaluation.guestInfo.ageRange} • </span>}
+                              {evaluation.guestInfo.travelType && <span>{t('evaluations.guestInfo.type')}: {evaluation.guestInfo.travelType}</span>}
                             </div>
                           )}
                         </div>
@@ -585,44 +588,44 @@ export default function PropertyEvaluationsPage() {
                           size="sm"
                           onClick={() => handleApproveEvaluation(evaluation.id)}
                           className={`flex items-center gap-2 ${
-                            evaluation.isApproved 
-                              ? 'border-green-500 text-green-600 hover:bg-green-50' 
+                            evaluation.isApproved
+                              ? 'border-green-500 text-green-600 hover:bg-green-50'
                               : 'border-orange-500 text-orange-600 hover:bg-orange-50'
                           }`}
                         >
                           {evaluation.isApproved ? (
                             <>
                               <CheckCircle className="w-4 h-4" />
-                              Aprobada
+                              {t('evaluations.actions.approved')}
                             </>
                           ) : (
                             <>
                               <AlertCircle className="w-4 h-4" />
-                              Aprobar
+                              {t('evaluations.actions.approve')}
                             </>
                           )}
                         </Button>
                       )}
-                      
+
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleTogglePublic(evaluation.id)}
                         className={`flex items-center gap-2 ${
-                          evaluation.isPublic 
-                            ? 'border-green-500 text-green-600 hover:bg-green-50' 
+                          evaluation.isPublic
+                            ? 'border-green-500 text-green-600 hover:bg-green-50'
                             : 'border-gray-300 text-gray-600 hover:bg-gray-50'
                         }`}
                       >
                         {evaluation.isPublic ? (
                           <>
                             <Eye className="w-4 h-4" />
-                            Ocultar
+                            {t('evaluations.actions.hide')}
                           </>
                         ) : (
                           <>
                             <EyeOff className="w-4 h-4" />
-                            Publicar
+                            {t('evaluations.actions.publish')}
                           </>
                         )}
                       </Button>

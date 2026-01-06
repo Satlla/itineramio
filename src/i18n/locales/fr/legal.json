@@ -1,0 +1,1385 @@
+{
+  "common": {
+    "version": "Version",
+    "lastUpdate": "Derniere mise a jour",
+    "backToHome": "Retour a l'accueil",
+    "otherPolicies": "Autres politiques legales",
+    "tableOfContents": "Table des matieres",
+    "executiveSummary": "Resume executif",
+    "contact": "Contact"
+  },
+  "links": {
+    "termsAndConditions": "Conditions generales",
+    "privacyPolicy": "Politique de confidentialite",
+    "cookiesPolicy": "Politique de cookies",
+    "billingTerms": "Conditions de facturation",
+    "legalNotice": "Mentions legales",
+    "dpa": "DPA"
+  },
+  "privacy": {
+    "title": "Politique de confidentialite",
+    "summary": {
+      "item1": "Nous sommes conformes au RGPD et proteges vos donnees personnelles",
+      "item2": "Nous ne collectons que les informations necessaires pour fournir le service",
+      "item3": "Nous ne vendons jamais vos donnees a des tiers",
+      "item4": "Vous pouvez acceder, rectifier ou supprimer vos donnees a tout moment",
+      "item5": "Nous utilisons le chiffrement SSL/TLS et des mesures de securite robustes"
+    },
+    "toc": {
+      "responsable": "1. Responsable du traitement",
+      "datosRecopilados": "2. Donnees que nous collectons",
+      "finalidad": "3. Finalite du traitement",
+      "baseLegal": "4. Base juridique",
+      "destinatarios": "5. Destinataires des donnees",
+      "conservacion": "6. Conservation des donnees",
+      "derechos": "7. Vos droits",
+      "seguridad": "8. Mesures de securite",
+      "cookies": "9. Cookies et technologies similaires",
+      "transferencias": "10. Transferts internationaux",
+      "menores": "11. Mineurs",
+      "cambios": "12. Modifications de cette politique",
+      "contacto": "13. Contact"
+    },
+    "section1": {
+      "title": "1. Responsable du traitement",
+      "identity": "Identite",
+      "address": "Adresse",
+      "contactEmail": "Email de contact",
+      "dpo": "Delegue a la protection des donnees",
+      "description": "est le responsable du traitement de vos donnees personnelles conformement au Reglement general sur la protection des donnees (RGPD - UE 2016/679) et a la loi organique 3/2018 sur la protection des donnees personnelles et la garantie des droits numeriques (LOPDGDD)."
+    },
+    "section2": {
+      "title": "2. Donnees que nous collectons",
+      "registrationData": {
+        "title": "2.1 Donnees d'inscription",
+        "description": "Lors de la creation d'un compte, nous collectons :",
+        "fullName": "Nom complet",
+        "email": "Adresse email",
+        "password": "Mot de passe (chiffre)",
+        "phone": "Numero de telephone (optionnel)",
+        "company": "Informations sur l'entreprise (optionnel)"
+      },
+      "usageData": {
+        "title": "2.2 Donnees d'utilisation",
+        "description": "Pendant l'utilisation du service, nous collectons :",
+        "properties": "Informations sur les proprietes creees",
+        "manualContent": "Contenu des manuels numeriques (textes, images, videos)",
+        "platformInteraction": "Donnees d'interaction avec la plateforme",
+        "analytics": "Metriques et analyses d'utilisation",
+        "reviews": "Evaluations et commentaires des clients"
+      },
+      "technicalData": {
+        "title": "2.3 Donnees techniques",
+        "description": "Nous collectons automatiquement :",
+        "ip": "Adresse IP",
+        "browser": "Type et version du navigateur",
+        "os": "Systeme d'exploitation",
+        "device": "Informations sur l'appareil",
+        "pagesVisited": "Pages visitees et temps passe",
+        "referrer": "URL de reference",
+        "cookies": "Cookies et technologies similaires (voir notre"
+      },
+      "billingData": {
+        "title": "2.4 Donnees de facturation",
+        "description": "Pour traiter les paiements, nous collectons :",
+        "card": "Informations de carte de credit/debit (traitees par Stripe)",
+        "billingAddress": "Adresse de facturation",
+        "taxId": "Numero d'identification fiscale",
+        "transactions": "Historique des transactions",
+        "note": "Note : Les donnees de paiement sont traitees directement par Stripe et nous ne les stockons pas sur nos serveurs."
+      }
+    },
+    "section3": {
+      "title": "3. Finalite du traitement",
+      "description": "Nous utilisons vos donnees personnelles aux fins suivantes :",
+      "serviceProvision": {
+        "title": "Fourniture du service",
+        "item1": "Gerer votre compte et l'authentification",
+        "item2": "Creer et gerer des manuels numeriques",
+        "item3": "Generer des codes QR uniques",
+        "item4": "Traiter les evaluations des clients",
+        "item5": "Fournir des analyses et metriques"
+      },
+      "billing": {
+        "title": "Facturation et paiements",
+        "item1": "Traiter les abonnements et paiements",
+        "item2": "Emettre des factures",
+        "item3": "Gerer les remboursements",
+        "item4": "Prevenir la fraude"
+      },
+      "communications": {
+        "title": "Communications",
+        "item1": "Envoyer des notifications de service",
+        "item2": "Repondre aux demandes de support",
+        "item3": "Envoyer des mises a jour importantes du service",
+        "item4": "Communications marketing (uniquement avec votre consentement)"
+      },
+      "improvement": {
+        "title": "Amelioration et developpement",
+        "item1": "Analyser les modeles d'utilisation",
+        "item2": "Ameliorer les fonctionnalites",
+        "item3": "Detecter et corriger les erreurs",
+        "item4": "Developper de nouvelles fonctionnalites"
+      },
+      "legal": {
+        "title": "Conformite legale",
+        "item1": "Respecter les obligations legales",
+        "item2": "Repondre aux demandes legales",
+        "item3": "Proteger nos droits et propriete"
+      }
+    },
+    "section4": {
+      "title": "4. Base juridique",
+      "description": "Le traitement de vos donnees personnelles est base sur les bases juridiques suivantes en vertu du RGPD :",
+      "table": {
+        "purpose": "Finalite",
+        "legalBasis": "Base juridique (RGPD)",
+        "serviceProvision": "Fourniture du service",
+        "contractExecution": "Execution du contrat (Art. 6.1.b)",
+        "billing": "Facturation et paiements",
+        "marketing": "Communications marketing",
+        "consent": "Consentement (Art. 6.1.a)",
+        "serviceImprovement": "Amelioration du service",
+        "legitimateInterest": "Interet legitime (Art. 6.1.f)",
+        "legalCompliance": "Conformite legale",
+        "legalObligation": "Obligation legale (Art. 6.1.c)"
+      }
+    },
+    "section5": {
+      "title": "5. Destinataires des donnees",
+      "description": "Nous partageons vos donnees personnelles uniquement avec des tiers de confiance qui nous aident a fournir le service :",
+      "stripe": {
+        "name": "Stripe",
+        "description": "Traitement des paiements et abonnements",
+        "policy": "Politique : stripe.com/privacy"
+      },
+      "supabase": {
+        "name": "Supabase",
+        "description": "Stockage et base de donnees (serveurs UE)",
+        "policy": "Politique : supabase.com/privacy"
+      },
+      "resend": {
+        "name": "Resend",
+        "description": "Envoi d'emails transactionnels",
+        "policy": "Politique : resend.com/legal/privacy-policy"
+      },
+      "vercel": {
+        "name": "Vercel",
+        "description": "Hebergement et deploiement de l'application",
+        "policy": "Politique : vercel.com/legal/privacy-policy"
+      },
+      "important": "Important : Tous nos fournisseurs de services sont soumis a des accords de traitement des donnees (DPA) qui garantissent la conformite au RGPD et la protection de vos donnees personnelles."
+    },
+    "section6": {
+      "title": "6. Conservation des donnees",
+      "description": "Nous conservons vos donnees personnelles pendant le temps necessaire pour remplir les finalites decrites :",
+      "accountData": "Donnees de compte : Pendant la validite de votre abonnement + 6 ans (obligation legale fiscale)",
+      "billingData": "Donnees de facturation : 6 ans (Art. 30 Code de commerce)",
+      "technicalCookies": "Cookies techniques : Maximum 12 mois",
+      "analyticsCookies": "Cookies analytiques/marketing : Maximum 24 mois (avec votre consentement)",
+      "securityLogs": "Journaux de securite : Maximum 90 jours",
+      "afterRetention": "Apres la periode de conservation, vos donnees seront supprimees de maniere securisee ou anonymisees pour l'analyse statistique."
+    },
+    "section7": {
+      "title": "7. Vos droits",
+      "description": "Conformement au RGPD, vous disposez des droits suivants sur vos donnees personnelles :",
+      "access": {
+        "title": "Droit d'acces",
+        "description": "Savoir quelles donnees personnelles nous detenons sur vous"
+      },
+      "rectification": {
+        "title": "Droit de rectification",
+        "description": "Corriger les donnees inexactes ou incompletes"
+      },
+      "erasure": {
+        "title": "Droit a l'effacement",
+        "description": "Demander la suppression de vos donnees (\"droit a l'oubli\")"
+      },
+      "objection": {
+        "title": "Droit d'opposition",
+        "description": "S'opposer au traitement de vos donnees dans certaines circonstances"
+      },
+      "restriction": {
+        "title": "Droit a la limitation",
+        "description": "Demander la limitation du traitement de vos donnees"
+      },
+      "portability": {
+        "title": "Droit a la portabilite",
+        "description": "Recevoir vos donnees dans un format structure et les transferer a un autre responsable"
+      },
+      "howToExercise": {
+        "title": "Comment exercer vos droits ?",
+        "description": "Vous pouvez exercer l'un de ces droits en envoyant un email a :",
+        "instructions": "Incluez : nom complet, email enregistre, copie de la piece d'identite et description de la demande. Nous repondrons dans un delai maximum de 30 jours."
+      },
+      "aepd": "Si vous estimez que nous n'avons pas correctement traite vos droits, vous pouvez deposer une plainte aupres de l'Agence espagnole de protection des donnees (AEPD)."
+    },
+    "section8": {
+      "title": "8. Mesures de securite",
+      "description": "Nous mettons en oeuvre des mesures techniques et organisationnelles appropriees pour proteger vos donnees personnelles :",
+      "encryption": {
+        "title": "Chiffrement",
+        "item1": "SSL/TLS dans toutes les communications",
+        "item2": "Chiffrement des mots de passe avec bcrypt",
+        "item3": "Chiffrement des donnees au repos"
+      },
+      "authentication": {
+        "title": "Authentification",
+        "item1": "Jetons JWT avec expiration",
+        "item2": "Verification obligatoire de l'email",
+        "item3": "Sessions securisees avec cookies HttpOnly"
+      },
+      "accessControl": {
+        "title": "Acces restreint",
+        "item1": "Principe du moindre privilege",
+        "item2": "Authentification a deux facteurs (admin)",
+        "item3": "Audits d'acces reguliers"
+      },
+      "monitoring": {
+        "title": "Surveillance",
+        "item1": "Journaux de securite et d'audit",
+        "item2": "Detection des activites suspectes",
+        "item3": "Sauvegardes automatiques quotidiennes"
+      },
+      "important": "Important : Malgre nos mesures de securite, aucune methode de transmission sur Internet n'est 100% securisee. Nous recommandons d'utiliser des mots de passe forts et uniques, et de ne jamais partager vos identifiants d'acces."
+    },
+    "section9": {
+      "title": "9. Cookies et technologies similaires",
+      "description": "Nous utilisons des cookies et technologies similaires pour ameliorer votre experience. Pour plus d'informations, consultez notre",
+      "manage": "Vous pouvez gerer vos preferences de cookies a tout moment depuis les parametres de votre navigateur."
+    },
+    "section10": {
+      "title": "10. Transferts internationaux",
+      "description": "Nous stockons vos donnees principalement sur des serveurs situes dans l'Union europeenne (region eu-north-1 de Supabase).",
+      "someProviders": "Certains de nos fournisseurs de services (comme Vercel ou Stripe) peuvent traiter des donnees en dehors de l'EEE. Dans ces cas, nous garantissons que :",
+      "adequacy": "Le pays de destination dispose d'un niveau de protection adequat reconnu par la Commission europeenne",
+      "scc": "Les clauses contractuelles types (CCT) approuvees par l'UE sont appliquees",
+      "dpf": "Le fournisseur respecte le cadre de protection des donnees UE-USA"
+    },
+    "section11": {
+      "title": "11. Mineurs",
+      "description": "Notre service est destine aux personnes de plus de 18 ans. Nous ne collectons pas intentionnellement d'informations personnelles aupres de mineurs.",
+      "contact": "Si vous apprenez qu'un mineur a fourni des donnees personnelles sans consentement parental, contactez-nous immediatement a"
+    },
+    "section12": {
+      "title": "12. Modifications de cette politique",
+      "description": "Nous nous reservons le droit de mettre a jour cette politique de confidentialite pour refleter les changements dans nos pratiques ou en raison d'exigences legales.",
+      "notification": "Nous vous informerons des modifications importantes par email ou par un avis visible sur la plateforme au moins 30 jours avant leur entree en vigueur. Nous recommandons de consulter periodiquement cette politique."
+    },
+    "section13": {
+      "title": "13. Contact",
+      "description": "Pour toute question concernant cette politique de confidentialite ou le traitement de vos donnees personnelles, vous pouvez nous contacter a :",
+      "responsible": "Responsable",
+      "privacyEmail": "Email de confidentialite",
+      "supportEmail": "Email de support",
+      "address": "Adresse"
+    }
+  },
+  "terms": {
+    "title": "Conditions generales",
+    "summary": {
+      "item1": "En utilisant Itineramio, vous acceptez ces conditions et notre politique de confidentialite",
+      "item2": "Nous offrons une periode d'essai de 15 jours pour evaluer la plateforme",
+      "item3": "Vous etes responsable du contenu que vous publiez dans vos manuels numeriques",
+      "item4": "Nous pouvons modifier ces conditions avec un preavis de 30 jours",
+      "item5": "Vous pouvez annuler votre abonnement a tout moment depuis votre compte"
+    },
+    "toc": {
+      "acceptance": "1. Acceptation des conditions",
+      "services": "2. Description des services",
+      "registration": "3. Inscription et compte utilisateur",
+      "subscriptions": "4. Abonnements et facturation",
+      "acceptableUse": "5. Utilisation acceptable",
+      "intellectualProperty": "6. Propriete intellectuelle",
+      "userContent": "7. Contenu utilisateur",
+      "privacy": "8. Confidentialite et protection des donnees",
+      "liability": "9. Limitation de responsabilite",
+      "modifications": "10. Modifications du service",
+      "suspension": "11. Suspension et resiliation",
+      "applicableLaw": "12. Loi applicable et juridiction",
+      "contact": "13. Contact"
+    },
+    "section1": {
+      "title": "1. Acceptation des conditions",
+      "p1": "En accedant et en utilisant la plateforme Itineramio (\"le Service\"), vous acceptez d'etre legalement lie par ces Conditions generales, toutes les lois et reglementations applicables, et acceptez que vous etes responsable du respect de toutes les lois locales applicables.",
+      "p2": "Si vous n'etes pas d'accord avec l'une de ces conditions, il vous est interdit d'utiliser ou d'acceder a ce site. Les materiaux contenus dans ce site Web sont proteges par les lois applicables sur la propriete intellectuelle et le droit d'auteur.",
+      "p3": "L'utilisation continue du Service apres toute modification de ces conditions constitue l'acceptation de ces modifications."
+    },
+    "section2": {
+      "title": "2. Description des services",
+      "description": "Itineramio est une plateforme SaaS qui permet aux proprietaires et gestionnaires d'hebergements touristiques de creer, gerer et partager des manuels numeriques interactifs pour leurs clients.",
+      "includes": "Le Service comprend :",
+      "item1": "Creation de manuels numeriques personnalises par propriete",
+      "item2": "Gestion des zones et etapes avec contenu multimedia",
+      "item3": "Codes QR uniques pour l'acces des clients",
+      "item4": "Systeme d'evaluations et de retours des clients",
+      "item5": "Analyses et metriques d'utilisation",
+      "item6": "Panneau d'administration avec gestion des proprietes",
+      "item7": "Support multilingue (espagnol, anglais, francais)",
+      "reserve": "Nous nous reservons le droit de modifier, suspendre ou interrompre tout aspect du Service a tout moment, avec ou sans preavis."
+    },
+    "section3": {
+      "title": "3. Inscription et compte utilisateur",
+      "requirements": {
+        "title": "3.1 Exigences d'inscription",
+        "description": "Pour utiliser le Service, vous devez creer un compte en fournissant des informations exactes, actuelles et completes. Vous etes responsable du maintien de la confidentialite de vos identifiants d'acces."
+      },
+      "responsibility": {
+        "title": "3.2 Responsabilite du compte",
+        "description": "Vous etes responsable de toutes les activites qui se produisent sous votre compte. Vous devez nous informer immediatement de toute utilisation non autorisee de votre compte ou de toute autre violation de securite."
+      },
+      "verification": {
+        "title": "3.3 Verification de l'email",
+        "description": "Vous devez verifier votre adresse email avant de pouvoir utiliser toutes les fonctionnalites du Service. L'email de verification sera envoye automatiquement lors de votre inscription."
+      }
+    },
+    "section4": {
+      "title": "4. Abonnements et facturation",
+      "trial": {
+        "title": "4.1 Periode d'essai",
+        "description": "Nous offrons une periode d'evaluation de 15 jours pour que vous puissiez essayer la plateforme. Pendant cette periode, vous aurez acces a toutes les fonctionnalites du plan correspondant a votre nombre de proprietes."
+      },
+      "plans": {
+        "title": "4.2 Plans d'abonnement",
+        "description": "Nous proposons les plans suivants :",
+        "basic": "BASIC : Jusqu'a 2 proprietes - 9EUR/mois",
+        "host": "HOST : Jusqu'a 10 proprietes - 29EUR/mois",
+        "superhost": "SUPERHOST : Jusqu'a 25 proprietes - 69EUR/mois",
+        "business": "BUSINESS : Jusqu'a 50 proprietes - 99EUR/mois"
+      },
+      "billing": {
+        "title": "4.3 Facturation et renouvellement",
+        "description": "Les abonnements sont factures mensuellement ou semestriellement selon votre choix. Le renouvellement est automatique sauf si vous annulez avant la fin de la periode de facturation."
+      },
+      "refunds": {
+        "title": "4.4 Politique de remboursement",
+        "description": "Les paiements ne sont pas remboursables sauf dans les cas prevus par la loi applicable. Vous pouvez annuler votre abonnement a tout moment, avec effet a la fin de la periode de facturation en cours."
+      },
+      "planChanges": {
+        "title": "4.5 Changements de plan",
+        "description": "Vous pouvez changer de plan a tout moment depuis votre panneau de compte. Les changements de plan seront appliques immediatement avec ajustement au prorata si applicable."
+      }
+    },
+    "section5": {
+      "title": "5. Utilisation acceptable",
+      "description": "En utilisant le Service, vous acceptez de NE PAS :",
+      "item1": "Violer toute loi ou reglementation locale, nationale ou internationale",
+      "item2": "Enfreindre les droits de propriete intellectuelle de tiers",
+      "item3": "Telecharger du contenu illegal, offensant, diffamatoire ou inapproprie",
+      "item4": "Tenter un acces non autorise aux systemes ou reseaux",
+      "item5": "Interferer avec le fonctionnement du Service",
+      "item6": "Transmettre des virus, logiciels malveillants ou code malicieux",
+      "item7": "Utiliser le Service pour du spam ou des communications commerciales non sollicitees",
+      "item8": "Usurper l'identite d'une autre personne ou entite",
+      "item9": "Partager les identifiants d'acces avec des tiers",
+      "violation": "La violation de ces politiques peut entrainer la suspension ou la resiliation immediate de votre compte sans preavis et sans remboursement."
+    },
+    "section6": {
+      "title": "6. Propriete intellectuelle",
+      "rights": {
+        "title": "6.1 Droits d'Itineramio",
+        "description": "Tous les droits de propriete intellectuelle du Service, y compris mais sans s'y limiter : design, code source, graphiques, logos, marques commerciales et le nom \"Itineramio\" sont la propriete exclusive de {{companyName}} ou de ses concedants de licence."
+      },
+      "license": {
+        "title": "6.2 Licence d'utilisation",
+        "description": "Une licence limitee, non exclusive, non transferable et revocable vous est accordee pour utiliser le Service conformement a ces conditions. Cette licence ne vous accorde aucun droit de propriete sur le Service."
+      },
+      "restrictions": {
+        "title": "6.3 Restrictions",
+        "description": "Vous ne pouvez pas copier, modifier, distribuer, vendre ou louer toute partie du Service, ni faire de l'ingenierie inverse ou tenter d'extraire le code source, sauf si les lois l'interdisent ou si vous avez notre permission ecrite."
+      }
+    },
+    "section7": {
+      "title": "7. Contenu utilisateur",
+      "responsibility": {
+        "title": "7.1 Responsabilite du contenu",
+        "description": "Vous etes seul responsable du contenu que vous telechargez, publiez ou partagez via le Service, y compris textes, images, videos et tout autre materiel (\"Contenu utilisateur\")."
+      },
+      "rights": {
+        "title": "7.2 Droits sur le contenu",
+        "description": "Vous conservez tous les droits de propriete sur votre Contenu utilisateur. En telechargeant du contenu sur le Service, vous nous accordez une licence mondiale, non exclusive, libre de redevances pour utiliser, stocker, reproduire et afficher ce contenu uniquement dans le but de fournir le Service."
+      },
+      "warranties": {
+        "title": "7.3 Garanties du contenu",
+        "description": "En telechargeant du Contenu utilisateur, vous garantissez que :",
+        "item1": "Vous avez tous les droits necessaires sur le contenu",
+        "item2": "Le contenu ne porte pas atteinte aux droits de tiers",
+        "item3": "Le contenu respecte toutes les lois applicables",
+        "item4": "Le contenu est exact et non trompeur"
+      },
+      "removal": {
+        "title": "7.4 Suppression du contenu",
+        "description": "Nous nous reservons le droit de supprimer tout Contenu utilisateur qui viole ces conditions ou que nous considerons inapproprie, sans preavis et sans responsabilite."
+      }
+    },
+    "section8": {
+      "title": "8. Confidentialite et protection des donnees",
+      "description": "L'utilisation du Service est egalement regie par notre Politique de confidentialite, qui decrit comment nous collectons, utilisons et proteges vos informations personnelles conformement au RGPD (Reglement general sur la protection des donnees).",
+      "consent": "En utilisant le Service, vous consentez a la collecte et a l'utilisation des informations comme decrit dans notre Politique de confidentialite."
+    },
+    "section9": {
+      "title": "9. Limitation de responsabilite",
+      "asIs": {
+        "title": "9.1 Service \"EN L'ETAT\"",
+        "description": "Le Service est fourni \"en l'etat\" et \"selon disponibilite\" sans garanties d'aucune sorte, expresses ou implicites. Nous ne garantissons pas que le Service sera ininterrompu, securise ou sans erreur."
+      },
+      "damages": {
+        "title": "9.2 Limitation des dommages",
+        "description": "En aucun cas {{companyName}} ne sera responsable des dommages indirects, accessoires, speciaux, consecutifs ou punitifs, y compris la perte de profits, de donnees, d'utilisation, de clientele ou d'autres pertes intangibles."
+      },
+      "maxLiability": {
+        "title": "9.3 Responsabilite maximale",
+        "description": "Notre responsabilite totale pour toute reclamation liee au Service est limitee au montant que vous avez paye au cours des 12 derniers mois pour l'utilisation du Service."
+      }
+    },
+    "section10": {
+      "title": "10. Modifications du service",
+      "p1": "Nous nous reservons le droit de modifier ou d'interrompre, temporairement ou definitivement, le Service (ou toute partie de celui-ci) avec ou sans preavis.",
+      "p2": "Nous ferons des efforts raisonnables pour vous informer 30 jours a l'avance des modifications importantes de ces conditions. Votre utilisation continue du Service apres ces modifications constituera votre acceptation des nouvelles conditions."
+    },
+    "section11": {
+      "title": "11. Suspension et resiliation",
+      "violation": {
+        "title": "11.1 Suspension pour violation",
+        "description": "Nous pouvons suspendre ou resilier votre acces au Service immediatement, sans preavis, pour quelque raison que ce soit, y compris mais sans s'y limiter, la violation de ces conditions."
+      },
+      "userCancellation": {
+        "title": "11.2 Annulation par l'utilisateur",
+        "description": "Vous pouvez annuler votre compte a tout moment depuis les parametres de votre compte. L'annulation prendra effet a la fin de votre periode de facturation en cours."
+      },
+      "effects": {
+        "title": "11.3 Effets de la resiliation",
+        "description": "A la resiliation de votre compte, vous perdrez l'acces a votre contenu et donnees. Nous recommandons d'exporter toute information importante avant d'annuler. Nous ne sommes pas responsables de la perte de donnees apres la resiliation."
+      }
+    },
+    "section12": {
+      "title": "12. Loi applicable et juridiction",
+      "p1": "Ces conditions seront regies et interpretees conformement aux lois de l'Espagne, sans donner effet a aucun principe de conflit de lois.",
+      "p2": "Tout litige decoulant de ou lie a ces conditions sera soumis a la juridiction exclusive des tribunaux de Madrid, Espagne."
+    },
+    "section13": {
+      "title": "13. Contact",
+      "description": "Si vous avez des questions sur ces Conditions generales, vous pouvez nous contacter a :",
+      "email": "Email",
+      "support": "Support",
+      "address": "Adresse"
+    }
+  },
+  "cookies": {
+    "title": "Politique de cookies",
+    "summary": {
+      "item1": "Nous utilisons des cookies pour ameliorer votre experience et le fonctionnement du site",
+      "item2": "Les cookies techniques sont essentiels et ne necessitent pas de consentement",
+      "item3": "Les cookies analytiques et marketing necessitent votre consentement explicite",
+      "item4": "Vous pouvez gerer vos preferences de cookies a tout moment",
+      "item5": "Nous n'utilisons pas de cookies publicitaires tiers sans votre consentement"
+    },
+    "toc": {
+      "whatAre": "1. Que sont les cookies ?",
+      "types": "2. Types de cookies que nous utilisons",
+      "technical": "3. Cookies techniques (essentiels)",
+      "analytics": "4. Cookies analytiques",
+      "marketing": "5. Cookies marketing",
+      "management": "6. Gestion des cookies",
+      "duration": "7. Duree des cookies",
+      "thirdParty": "8. Cookies tiers",
+      "updates": "9. Mises a jour de cette politique",
+      "contact": "10. Contact"
+    },
+    "section1": {
+      "title": "1. Que sont les cookies ?",
+      "description": "Les cookies sont de petits fichiers texte qui sont stockes sur votre appareil (ordinateur, tablette, smartphone) lorsque vous visitez un site Web. Les cookies permettent au site Web de se souvenir de vos actions et preferences pendant une periode de temps.",
+      "purpose": "A quoi servent les cookies ?",
+      "item1": "Maintenir votre session active pendant la navigation",
+      "item2": "Se souvenir de vos preferences (langue, region, etc.)",
+      "item3": "Ameliorer l'experience utilisateur",
+      "item4": "Analyser comment le site Web est utilise",
+      "item5": "Offrir du contenu personnalise"
+    },
+    "section2": {
+      "title": "2. Types de cookies que nous utilisons",
+      "description": "Chez Itineramio, nous utilisons differents types de cookies selon leur finalite et origine :",
+      "technical": {
+        "title": "Cookies techniques (essentiels)",
+        "purpose": "Finalite : Necessaires au fonctionnement de base du site Web.",
+        "consent": "Consentement : Ne necessitent pas de consentement (Art. 22.2 LSSI-CE).",
+        "examples": "Exemples : Authentification, panier d'achat, securite."
+      },
+      "analytics": {
+        "title": "Cookies analytiques",
+        "purpose": "Finalite : Analyser le comportement des utilisateurs et ameliorer le service.",
+        "consent": "Consentement : Necessitent un consentement explicite.",
+        "examples": "Exemples : Statistiques de visites, pages populaires, temps de navigation."
+      },
+      "marketing": {
+        "title": "Cookies marketing/publicite",
+        "purpose": "Finalite : Offrir de la publicite personnalisee et mesurer les campagnes.",
+        "consent": "Consentement : Necessitent un consentement explicite.",
+        "examples": "Exemples : Retargeting, publicite personnalisee, suivi des conversions."
+      }
+    },
+    "section3": {
+      "title": "3. Cookies techniques (essentiels)",
+      "description": "Ces cookies sont strictement necessaires pour que vous puissiez naviguer sur le site Web et utiliser ses fonctionnalites. Sans ces cookies, nous ne pouvons pas fournir correctement le service.",
+      "table": {
+        "name": "Nom",
+        "purpose": "Finalite",
+        "duration": "Duree"
+      },
+      "authToken": {
+        "purpose": "Jeton d'authentification pour maintenir votre session active",
+        "duration": "7 jours"
+      },
+      "sessionToken": {
+        "purpose": "Session securisee Next.js",
+        "duration": "30 jours"
+      },
+      "cookieConsent": {
+        "purpose": "Stocke vos preferences de cookies",
+        "duration": "12 mois"
+      },
+      "xsrfToken": {
+        "purpose": "Protection contre les attaques CSRF",
+        "duration": "Session"
+      },
+      "legalNote": "Note juridique : Selon l'Art. 22.2 de la LSSI-CE, ces cookies sont exemptes de l'obligation d'obtenir un consentement eclaire, car ils sont strictement necessaires pour la fourniture du service expressement demande par l'utilisateur."
+    },
+    "section4": {
+      "title": "4. Cookies analytiques",
+      "description": "Nous utilisons des cookies analytiques pour comprendre comment vous interagissez avec notre site Web et ameliorer votre experience. Nous n'activons ces cookies que si vous nous avez donne votre consentement explicite.",
+      "table": {
+        "provider": "Fournisseur",
+        "cookie": "Cookie",
+        "purpose": "Finalite",
+        "duration": "Duree"
+      },
+      "infoCollected": {
+        "title": "Informations que nous collectons :",
+        "item1": "Pages visitees et temps passe",
+        "item2": "Source du trafic (comment vous etes arrive sur notre site)",
+        "item3": "Appareil et navigateur utilises",
+        "item4": "Resolution d'ecran",
+        "item5": "Evenements et interactions (clics, defilement, etc.)"
+      },
+      "note": "Toutes les donnees collectees sont anonymes et agregees. Nous n'identifions pas les utilisateurs individuels."
+    },
+    "section5": {
+      "title": "5. Cookies marketing",
+      "description": "Les cookies marketing nous permettent de vous montrer du contenu pertinent et de mesurer l'efficacite de nos campagnes. Nous ne les utilisons que si vous avez donne votre consentement explicite.",
+      "currentStatus": "Statut actuel : Nous n'utilisons actuellement pas de cookies marketing tiers. Si a l'avenir nous decidons de les implementer, nous demanderons votre consentement explicite via la banniere de cookies.",
+      "futureUse": "Lorsque nous implementerons des cookies marketing, ce sera pour :",
+      "item1": "Personnaliser le contenu que vous voyez sur notre site Web",
+      "item2": "Afficher des publicites pertinentes sur d'autres plateformes",
+      "item3": "Mesurer l'efficacite des campagnes publicitaires",
+      "item4": "Eviter de vous montrer la meme publicite a plusieurs reprises"
+    },
+    "section6": {
+      "title": "6. Gestion des cookies",
+      "description": "Vous avez un controle total sur les cookies que vous acceptez. Vous pouvez gerer vos preferences des manieres suivantes :",
+      "panel": {
+        "title": "Panneau de preferences Itineramio",
+        "description": "Cliquez sur le bouton \"Configurer les cookies\" qui apparait dans le pied de page ou dans la banniere de cookies pour modifier vos preferences a tout moment."
+      },
+      "browser": {
+        "title": "Parametres du navigateur",
+        "description": "Vous pouvez bloquer ou supprimer les cookies depuis les parametres de votre navigateur :",
+        "chrome": "Chrome : Parametres - Confidentialite et securite - Cookies",
+        "firefox": "Firefox : Preferences - Vie privee et securite - Cookies et donnees du site",
+        "safari": "Safari : Preferences - Confidentialite - Gerer les donnees du site Web",
+        "edge": "Edge : Parametres - Cookies et autorisations de site - Cookies"
+      },
+      "important": "Important : Si vous bloquez les cookies techniques, certaines fonctionnalites du site Web peuvent ne pas fonctionner correctement. Par exemple, vous ne pourrez pas vous connecter ou maintenir votre session."
+    },
+    "section7": {
+      "title": "7. Duree des cookies",
+      "description": "Les cookies peuvent etre de session ou persistants selon leur duree :",
+      "session": {
+        "title": "Cookies de session",
+        "description": "Ils sont automatiquement supprimes lorsque vous fermez le navigateur.",
+        "example": "Exemple : Jeton CSRF pour la protection des formulaires."
+      },
+      "persistent": {
+        "title": "Cookies persistants",
+        "description": "Ils restent sur votre appareil pendant une periode specifique ou jusqu'a ce que vous les supprimiez manuellement.",
+        "example": "Exemple : Preferences de langue (12 mois), authentification (7 jours)."
+      },
+      "maxRetention": {
+        "title": "Periodes de conservation maximales :",
+        "technical": "Cookies techniques : Maximum 12 mois",
+        "analytics": "Cookies analytiques : Maximum 24 mois",
+        "marketing": "Cookies marketing : Maximum 24 mois"
+      },
+      "compliance": "Nous respectons les directives du Groupe de travail Article 29 sur les cookies."
+    },
+    "section8": {
+      "title": "8. Cookies tiers",
+      "description": "Certains services externes que nous utilisons peuvent installer leurs propres cookies sur votre appareil :",
+      "stripe": {
+        "title": "Stripe (traitement des paiements)",
+        "description": "Cookies utilises pour traiter les paiements de maniere securisee et prevenir la fraude.",
+        "policy": "Politique de confidentialite :"
+      },
+      "vercel": {
+        "title": "Vercel (hebergement)",
+        "description": "Cookies techniques pour le fonctionnement et la securite de l'infrastructure.",
+        "policy": "Politique de confidentialite :"
+      },
+      "noControl": "Nous n'avons aucun controle sur les cookies tiers. Nous recommandons de consulter les politiques de confidentialite de ces services pour comprendre comment ils utilisent les cookies."
+    },
+    "section9": {
+      "title": "9. Mises a jour de cette politique",
+      "description": "Nous pouvons mettre a jour cette Politique de cookies periodiquement pour refleter les changements dans nos pratiques ou les exigences legales.",
+      "notification": "La date de la derniere mise a jour est indiquee au debut de cette page. Nous recommandons de consulter regulierement cette politique. Si nous apportons des modifications importantes, nous vous en informerons par un avis visible sur le site Web."
+    },
+    "section10": {
+      "title": "10. Contact",
+      "description": "Si vous avez des questions sur notre Politique de cookies, vous pouvez nous contacter a :",
+      "email": "Email",
+      "support": "Support",
+      "address": "Adresse"
+    }
+  },
+  "dpa": {
+    "title": "Accord de traitement des donnees (DPA)",
+    "subtitle": "Accord de traitement des donnees selon l'Art. 28 RGPD",
+    "summary": {
+      "item1": "Ce DPA complete nos Conditions generales pour les clients professionnels",
+      "item2": "Nous respectons l'Art. 28 du RGPD dans le traitement des donnees personnelles",
+      "item3": "Vous etes le Responsable du traitement ; nous sommes le Sous-traitant",
+      "item4": "Nous mettons en oeuvre des mesures techniques et organisationnelles pour proteger les donnees",
+      "item5": "Nous ne transferons pas de donnees en dehors de l'EEE sans garanties adequates"
+    },
+    "toc": {
+      "definitions": "1. Definitions",
+      "object": "2. Objet de l'accord",
+      "scope": "3. Portee et nature du traitement",
+      "processorObligations": "4. Obligations du sous-traitant",
+      "subprocessors": "5. Sous-traitants ulterieurs",
+      "security": "6. Mesures de securite",
+      "transfers": "7. Transferts internationaux",
+      "dataSubjectRights": "8. Droits des personnes concernees",
+      "breachNotification": "9. Notification des violations de securite",
+      "audits": "10. Audits et inspections",
+      "duration": "11. Duree et resiliation",
+      "contact": "12. Contact"
+    },
+    "section1": {
+      "title": "1. Definitions",
+      "description": "Aux fins du present Accord de traitement des donnees (ci-apres, \"l'Accord\"), on entend par :",
+      "controller": {
+        "term": "Responsable du traitement (Client) :",
+        "definition": "La personne physique ou morale qui contracte les services d'Itineramio et qui determine les finalites et les moyens du traitement des donnees personnelles."
+      },
+      "processor": {
+        "term": "Sous-traitant (Itineramio) :",
+        "definition": "qui traite des donnees personnelles pour le compte du Responsable dans le cadre de la fourniture du service."
+      },
+      "personalData": {
+        "term": "Donnees personnelles :",
+        "definition": "Toute information concernant une personne physique identifiee ou identifiable que le Responsable saisit dans la plateforme Itineramio."
+      },
+      "processing": {
+        "term": "Traitement :",
+        "definition": "Toute operation effectuee sur des donnees personnelles : collecte, enregistrement, organisation, structuration, conservation, adaptation, modification, extraction, consultation, utilisation, communication, diffusion ou toute autre forme de mise a disposition, rapprochement, interconnexion, limitation, effacement ou destruction."
+      },
+      "gdpr": {
+        "term": "RGPD :",
+        "definition": "Reglement (UE) 2016/679 du Parlement europeen et du Conseil du 27 avril 2016 relatif a la protection des personnes physiques a l'egard du traitement des donnees a caractere personnel."
+      },
+      "dataSubject": {
+        "term": "Personne concernee :",
+        "definition": "Personne physique dont les donnees personnelles font l'objet d'un traitement (ex : clients, utilisateurs finaux)."
+      }
+    },
+    "section2": {
+      "title": "2. Objet de l'accord",
+      "description": "Le present Accord etablit les conditions dans lesquelles {{companyName}} (Sous-traitant) traitera des donnees personnelles pour le compte du Client (Responsable du traitement) dans le cadre de la fourniture du service de manuels numeriques pour hebergements touristiques.",
+      "relationship": {
+        "title": "Relation avec d'autres documents :",
+        "description": "Ce DPA complete et fait partie integrante de :",
+        "item1": "Les Conditions generales d'utilisation du service",
+        "item2": "La Politique de confidentialite",
+        "item3": "Tout contrat d'abonnement en vigueur entre les parties"
+      },
+      "conflict": "En cas de conflit entre ce DPA et d'autres documents, les dispositions de ce DPA prevaudront en ce qui concerne le traitement des donnees personnelles."
+    },
+    "section3": {
+      "title": "3. Portee et nature du traitement",
+      "purpose": {
+        "title": "3.1 Finalite du traitement",
+        "description": "Le Sous-traitant traitera les donnees personnelles exclusivement aux fins suivantes :",
+        "item1": "Stocker et traiter les informations des proprietes du Client",
+        "item2": "Traiter le contenu des manuels numeriques crees par le Client",
+        "item3": "Generer des codes QR et des URL d'acces pour les clients",
+        "item4": "Collecter et traiter les evaluations des clients",
+        "item5": "Fournir des analyses et metriques d'utilisation",
+        "item6": "Envoyer des notifications liees au service",
+        "item7": "Fournir un support technique au Client"
+      },
+      "nature": {
+        "title": "3.2 Nature du traitement",
+        "operations": "Operations de traitement :",
+        "description": "Collecte, enregistrement, organisation, structuration, conservation, adaptation, modification, extraction, consultation, utilisation, communication par transmission, diffusion (aux clients avec acces autorise), limitation, effacement et destruction des donnees."
+      },
+      "categories": {
+        "title": "3.3 Categories de donnees personnelles",
+        "clientData": {
+          "title": "Donnees du Client",
+          "item1": "Nom et prenom",
+          "item2": "Email et telephone",
+          "item3": "Adresse postale",
+          "item4": "Donnees de facturation et de paiement"
+        },
+        "guestData": {
+          "title": "Donnees des clients",
+          "item1": "Nom (optionnel)",
+          "item2": "Email (optionnel)",
+          "item3": "Adresse IP",
+          "item4": "Evaluations et commentaires"
+        }
+      },
+      "subjects": {
+        "title": "3.4 Categories de personnes concernees",
+        "item1": "Proprietaires et gestionnaires d'hebergements touristiques (Clients)",
+        "item2": "Clients accedant aux manuels numeriques",
+        "item3": "Personnel du Client ayant acces a la plateforme"
+      }
+    },
+    "section4": {
+      "title": "4. Obligations du sous-traitant",
+      "description": "Le Sous-traitant s'engage a :",
+      "instructions": {
+        "title": "Traitement selon les instructions",
+        "description": "Traiter les donnees personnelles uniquement sur instruction documentee du Responsable, y compris en ce qui concerne les transferts de donnees vers des pays tiers ou des organisations internationales, sauf s'il est tenu de le faire en vertu du droit de l'Union ou des Etats membres."
+      },
+      "confidentiality": {
+        "title": "Confidentialite",
+        "description": "Veiller a ce que les personnes autorisees a traiter les donnees personnelles s'engagent a respecter la confidentialite ou soient soumises a une obligation legale appropriee de confidentialite."
+      },
+      "security": {
+        "title": "Mesures de securite",
+        "description": "Mettre en oeuvre toutes les mesures techniques et organisationnelles appropriees pour garantir un niveau de securite adapte au risque, y compris le chiffrement, la pseudonymisation le cas echeant, la confidentialite, l'integrite, la disponibilite et la resilience permanente des systemes de traitement."
+      },
+      "assistance": {
+        "title": "Assistance au Responsable",
+        "description": "Aider le Responsable dans la mesure du possible afin qu'il puisse respecter ses obligations de repondre aux demandes d'exercice des droits des personnes concernees : acces, rectification, effacement, opposition, limitation, portabilite."
+      },
+      "dpia": {
+        "title": "Analyses d'impact",
+        "description": "Aider le Responsable a garantir le respect des obligations relatives aux analyses d'impact sur la protection des donnees et aux consultations prealables de l'autorite de controle, compte tenu de la nature du traitement et des informations disponibles."
+      },
+      "deletion": {
+        "title": "Suppression des donnees",
+        "description": "Supprimer ou renvoyer toutes les donnees personnelles au Responsable apres la fin de la fourniture des services de traitement, et supprimer les copies existantes, sauf si la conservation des donnees est requise en vertu du droit de l'Union ou des Etats membres."
+      },
+      "audit": {
+        "title": "Informations pour les audits",
+        "description": "Mettre a la disposition du Responsable toutes les informations necessaires pour demontrer le respect des obligations de l'article 28 du RGPD, ainsi que permettre et contribuer aux audits, y compris les inspections, effectues par le Responsable ou un autre auditeur mandate par le Responsable."
+      }
+    },
+    "section5": {
+      "title": "5. Sous-traitants ulterieurs",
+      "description": "Le Sous-traitant peut faire appel a d'autres sous-traitants (sous-traitants ulterieurs) pour effectuer des activites de traitement specifiques. Le Responsable autorise le Sous-traitant a faire appel aux sous-traitants ulterieurs suivants :",
+      "table": {
+        "subprocessor": "Sous-traitant ulterieur",
+        "service": "Service",
+        "location": "Localisation"
+      },
+      "supabase": {
+        "service": "Stockage de base de donnees",
+        "location": "UE (Stockholm)"
+      },
+      "stripe": {
+        "service": "Traitement des paiements",
+        "location": "EEE / USA (DPF)"
+      },
+      "resend": {
+        "service": "Envoi d'emails transactionnels",
+        "location": "USA (DPF)"
+      },
+      "vercel": {
+        "service": "Hebergement et infrastructure",
+        "location": "Global (UE prioritaire)"
+      },
+      "guarantees": {
+        "title": "Garanties des sous-traitants ulterieurs :",
+        "item1": "Tous les sous-traitants ulterieurs ont signe des accords de traitement des donnees conformes au RGPD",
+        "item2": "Les memes obligations de protection des donnees que celles etablies dans ce DPA s'appliquent",
+        "item3": "Le Sous-traitant reste pleinement responsable devant le Responsable du respect par les sous-traitants ulterieurs"
+      },
+      "changes": {
+        "title": "Modifications des sous-traitants ulterieurs :",
+        "description": "Le Sous-traitant informera le Responsable de tout changement prevu concernant l'ajout ou le remplacement de sous-traitants ulterieurs avec un preavis d'au moins 30 jours, donnant au Responsable la possibilite de s'opposer a ces changements pour des raisons legitimes de protection des donnees."
+      }
+    },
+    "section6": {
+      "title": "6. Mesures de securite",
+      "description": "Le Sous-traitant met en oeuvre les mesures techniques et organisationnelles suivantes pour garantir la securite des donnees personnelles :",
+      "encryption": {
+        "title": "Chiffrement et pseudonymisation",
+        "item1": "Chiffrement SSL/TLS (HTTPS) en transit",
+        "item2": "Chiffrement AES-256 des donnees au repos",
+        "item3": "Hachage bcrypt pour les mots de passe (facteur 12)",
+        "item4": "Jetons JWT signes pour l'authentification"
+      },
+      "accessControl": {
+        "title": "Controle d'acces",
+        "item1": "Authentification multifacteur pour les administrateurs",
+        "item2": "Principe du moindre privilege",
+        "item3": "Gestion granulaire des roles et permissions",
+        "item4": "Revue periodique des acces"
+      },
+      "monitoring": {
+        "title": "Surveillance et audit",
+        "item1": "Journaux d'acces et d'activite",
+        "item2": "Detection des anomalies",
+        "item3": "Alertes de securite en temps reel",
+        "item4": "Audits de securite trimestriels"
+      },
+      "backup": {
+        "title": "Sauvegarde et recuperation",
+        "item1": "Sauvegardes automatiques quotidiennes",
+        "item2": "Retention des sauvegardes pendant 30 jours",
+        "item3": "Plan de reprise apres sinistre",
+        "item4": "RTO < 4 heures, RPO < 1 heure"
+      },
+      "training": {
+        "title": "Formation et sensibilisation",
+        "item1": "Formation annuelle sur la protection des donnees",
+        "item2": "Politiques de securite documentees",
+        "item3": "Accords de confidentialite signes",
+        "item4": "Procedures de reponse aux incidents"
+      },
+      "infrastructure": {
+        "title": "Infrastructure securisee",
+        "item1": "Pare-feu et segmentation reseau",
+        "item2": "Protection DDoS (Cloudflare/Vercel)",
+        "item3": "Mises a jour de securite automatiques",
+        "item4": "Scan de vulnerabilites mensuel"
+      },
+      "certifications": "Certifications : Nos fournisseurs d'infrastructure (Supabase, Vercel, Stripe) disposent des certifications SOC 2 Type II, ISO 27001 et PCI DSS (Stripe). Nous verifions annuellement ces certifications pour garantir la conformite continue."
+    },
+    "section7": {
+      "title": "7. Transferts internationaux",
+      "description": "Les donnees personnelles sont stockees principalement dans l'Union europeenne (region eu-north-1 de Supabase a Stockholm).",
+      "outsideEEA": {
+        "title": "7.1 Transferts en dehors de l'EEE",
+        "description": "Pour certains services complementaires, il peut etre necessaire de transferer des donnees vers des pays tiers :"
+      },
+      "stripe": {
+        "title": "Stripe Inc. (USA)",
+        "legalBasis": "Base juridique : Decision d'adequation - Cadre de protection des donnees UE-USA",
+        "description": "Stripe est certifie dans le cadre du EU-US Data Privacy Framework, reconnu par la Commission europeenne comme fournissant une protection des donnees adequate."
+      },
+      "resend": {
+        "title": "Resend Inc. (USA)",
+        "legalBasis": "Base juridique : Clauses contractuelles types (CCT) de la Commission europeenne",
+        "description": "Nous avons signe les CCT standard approuvees par la Commission europeenne avec Resend pour garantir un niveau adequat de protection des donnees."
+      },
+      "requestCopy": "Le Client peut demander une copie des garanties mises en place pour les transferts internationaux en contactant"
+    },
+    "section8": {
+      "title": "8. Droits des personnes concernees",
+      "description": "Le Sous-traitant aidera le Responsable dans l'exercice des droits des personnes concernees :",
+      "procedure": {
+        "title": "Procedure d'assistance :",
+        "step1": "1. Si le Sous-traitant recoit une demande directe d'une personne concernee, il la transmettra au Responsable dans les 48 heures",
+        "step2": "2. Le Sous-traitant fournira au Responsable les informations et l'assistance technique necessaires pour repondre a la demande",
+        "step3": "3. Le Responsable est seul responsable de repondre a la personne concernee dans les delais legaux (1 mois, prolongeable de 2 mois)"
+      },
+      "selfService": {
+        "title": "Outils en libre-service :",
+        "description": "Pour faciliter la conformite, le Sous-traitant fournit au Responsable des outils en libre-service pour :",
+        "access": "Acces : Exporter les donnees au format JSON/CSV depuis le panneau de controle",
+        "rectification": "Rectification : Modifier les donnees directement sur la plateforme",
+        "erasure": "Effacement : Supprimer les donnees depuis les parametres du compte",
+        "restriction": "Limitation : Desactiver les proprietes sans les supprimer"
+      }
+    },
+    "section9": {
+      "title": "9. Notification des violations de securite",
+      "description": "En cas de violation de la securite des donnees personnelles, le Sous-traitant suivra ce protocole :",
+      "notification": {
+        "title": "Notification immediate",
+        "time": "24h",
+        "description": "Le Sous-traitant notifiera le Responsable sans delai indu et, au plus tard, dans les 24 heures suivant la prise de connaissance de la violation de securite."
+      },
+      "content": {
+        "title": "Informations de notification :",
+        "description": "La notification comprendra, au minimum :",
+        "item1": "Description de la nature de la violation de securite",
+        "item2": "Categories et nombre approximatif de personnes concernees affectees",
+        "item3": "Categories et nombre approximatif d'enregistrements de donnees affectes",
+        "item4": "Consequences probables de la violation",
+        "item5": "Mesures prises ou proposees pour remedier a la violation",
+        "item6": "Mesures proposees pour attenuer les effets negatifs possibles",
+        "item7": "Point de contact pour plus d'informations"
+      },
+      "cooperation": {
+        "title": "Cooperation :",
+        "description": "Le Sous-traitant cooperera pleinement avec le Responsable et fournira toute l'assistance necessaire pour qu'il puisse respecter son obligation de notifier la violation a l'autorite de controle (AEPD) dans les 72 heures, et aux personnes concernees le cas echeant."
+      }
+    },
+    "section10": {
+      "title": "10. Audits et inspections",
+      "description": "Le Responsable a le droit d'auditer la conformite du Sous-traitant avec ce DPA.",
+      "documentary": {
+        "title": "Audits documentaires :",
+        "description": "Le Sous-traitant fournira au Responsable, sur demande et annuellement :",
+        "item1": "Certifications SOC 2 Type II des fournisseurs d'infrastructure",
+        "item2": "Rapports d'audit de securite (rediges)",
+        "item3": "Preuves de conformite aux mesures de securite",
+        "item4": "Documentation de la formation du personnel sur la protection des donnees"
+      },
+      "onSite": {
+        "title": "Audits sur site :",
+        "description": "Le Responsable peut demander un audit sur site aux conditions suivantes :",
+        "item1": "Preavis d'au moins 30 jours",
+        "item2": "Frequence maximale d'un audit par an (sauf en cas de violation de securite)",
+        "item3": "Heures normales de travail et sans interferer avec les operations du Sous-traitant",
+        "item4": "Peut etre effectue par le Responsable ou un auditeur externe qualifie",
+        "item5": "Couts de l'audit a la charge du Responsable",
+        "item6": "Accord de confidentialite signe par les auditeurs"
+      },
+      "facilities": {
+        "title": "Acces aux installations :",
+        "description": "Etant donne que le Sous-traitant utilise des services cloud, l'acces physique aux serveurs n'est pas applicable. Les audits se concentreront sur les controles logiques, les politiques et les procedures."
+      }
+    },
+    "section11": {
+      "title": "11. Duree et resiliation",
+      "duration": {
+        "title": "11.1 Duree",
+        "description": "Ce DPA entrera en vigueur a la date d'acceptation des Conditions generales par le Client et restera en vigueur tant que le Sous-traitant fournira des services impliquant le traitement de donnees personnelles."
+      },
+      "termination": {
+        "title": "11.2 Fin du traitement",
+        "description": "Une fois la fourniture des services de traitement terminee, le Sous-traitant :"
+      },
+      "return": {
+        "title": "Option 1 : Restitution des donnees",
+        "description": "A la demande du Responsable, le Sous-traitant restituera toutes les donnees personnelles dans un format structure (JSON/CSV) dans les 30 jours suivant la fin du contrat."
+      },
+      "deletion": {
+        "title": "Option 2 : Suppression des donnees",
+        "description": "Si le Responsable ne demande pas la restitution :",
+        "item1": "Les donnees personnelles seront conservees pendant 90 jours apres la fin",
+        "item2": "Passe ce delai, une suppression securisee et irreversible sera effectuee",
+        "item3": "Un certificat de destruction des donnees sera emis a la demande du Responsable"
+      },
+      "legalRetention": {
+        "title": "11.3 Conservation legale",
+        "description": "Nonobstant ce qui precede, le Sous-traitant peut conserver les donnees personnelles dans la mesure et pour la duree necessaires pour respecter les obligations legales (ex : conservation des factures pendant 6 ans selon le Code de commerce), en limitant toujours l'acces a celles-ci."
+      }
+    },
+    "section12": {
+      "title": "12. Contact",
+      "description": "Pour toute question relative a cet Accord de traitement des donnees, vous pouvez nous contacter a :",
+      "processor": "Sous-traitant",
+      "dpo": "Delegue a la protection des donnees",
+      "email": "Email de contact",
+      "address": "Adresse"
+    }
+  },
+  "billing": {
+    "title": "Conditions de facturation et de paiement",
+    "summary": {
+      "item1": "Nous offrons une periode d'evaluation de 15 jours pour essayer le service",
+      "item2": "Les abonnements sont factures mensuellement ou semestriellement a l'avance",
+      "item3": "Vous pouvez annuler a tout moment, sans penalites",
+      "item4": "Les changements de plan sont appliques avec prorata automatique",
+      "item5": "Paiements traites de maniere securisee via Stripe"
+    },
+    "toc": {
+      "trialPeriod": "1. Periode d'evaluation",
+      "plans": "2. Plans et tarifs",
+      "billing": "3. Cycle de facturation",
+      "paymentMethods": "4. Methodes de paiement",
+      "renewal": "5. Renouvellement automatique",
+      "planChanges": "6. Changements de plan",
+      "cancellation": "7. Annulation",
+      "refunds": "8. Politique de remboursement",
+      "taxes": "9. Taxes et facturation",
+      "paymentFailures": "10. Echecs de paiement",
+      "priceChanges": "11. Modifications des prix",
+      "contact": "12. Contact"
+    },
+    "section1": {
+      "title": "1. Periode d'evaluation",
+      "description": "Nous offrons une periode d'evaluation de 15 jours pour que vous puissiez essayer Itineramio sans engagement et decider si le service repond a vos besoins.",
+      "features": {
+        "title": "Caracteristiques de la periode d'evaluation :",
+        "item1": "Acces complet a toutes les fonctionnalites de votre plan",
+        "item2": "Pas de carte de credit requise pour commencer",
+        "item3": "Pas de frais pendant les 15 premiers jours",
+        "item4": "Vous pouvez annuler a tout moment sans frais",
+        "item5": "A la fin, vous pouvez souscrire au plan qui convient le mieux a vos besoins"
+      },
+      "important": "Important : Une fois la periode d'evaluation terminee, vous devez souscrire un abonnement pour continuer a utiliser le service. Vos donnees et proprietes resteront sauvegardees pendant 30 jours apres la fin de la periode d'evaluation."
+    },
+    "section2": {
+      "title": "2. Plans et tarifs",
+      "description": "Nous proposons differents plans adaptes au nombre de proprietes que vous gerez :",
+      "basic": {
+        "name": "BASIC",
+        "price": "9EUR",
+        "properties": "Jusqu'a 2 proprietes",
+        "feature1": "Manuels numeriques illimites",
+        "feature2": "Codes QR uniques",
+        "feature3": "Support multilingue",
+        "feature4": "Analyses de base"
+      },
+      "host": {
+        "name": "HOST",
+        "price": "29EUR",
+        "properties": "Jusqu'a 10 proprietes",
+        "feature1": "Tout du plan BASIC",
+        "feature2": "Analyses avancees",
+        "feature3": "Evaluations des clients",
+        "feature4": "Ensembles de proprietes"
+      },
+      "superhost": {
+        "name": "SUPERHOST",
+        "price": "69EUR",
+        "properties": "Jusqu'a 25 proprietes",
+        "feature1": "Tout du plan HOST",
+        "feature2": "Duplication de proprietes",
+        "feature3": "Gestion d'equipe",
+        "feature4": "Support prioritaire"
+      },
+      "business": {
+        "name": "BUSINESS",
+        "price": "99EUR",
+        "properties": "Jusqu'a 50 proprietes",
+        "feature1": "Tout du plan SUPERHOST",
+        "feature2": "Proprietes illimitees",
+        "feature3": "API d'integration",
+        "feature4": "Support dedie"
+      },
+      "note": "Tous les prix sont en euros et incluent la TVA. Les prix peuvent varier selon votre emplacement geographique en raison des taxes locales applicables."
+    },
+    "section3": {
+      "title": "3. Cycle de facturation",
+      "description": "Nous proposons deux options de facturation pour votre commodite :",
+      "monthly": {
+        "title": "Facturation mensuelle",
+        "description": "Vous serez facture du montant total de votre plan chaque mois. Le prelevement est effectue le meme jour du mois ou vous avez souscrit l'abonnement (ex : si vous souscrivez le 15, vous etes facture tous les 15)."
+      },
+      "semiannual": {
+        "title": "Facturation semestrielle (6 mois)",
+        "description": "Economisez jusqu'a 15% en payant a l'avance tous les 6 mois. Le prelevement est effectue tous les six mois a partir de la date de souscription.",
+        "example": "Exemple : Plan HOST mensuel 29EUR/mois = 174EUR semestriel. Avec remise semestrielle (10%) : 156.60EUR (economie de 17.40EUR)."
+      },
+      "advance": "La facturation est toujours effectuee a l'avance au debut de chaque periode. Vous recevrez un email avec la facture apres chaque prelevement reussi."
+    },
+    "section4": {
+      "title": "4. Methodes de paiement",
+      "description": "Nous acceptons les methodes de paiement suivantes via notre plateforme securisee Stripe :",
+      "cards": {
+        "title": "Cartes de credit/debit",
+        "visa": "Visa",
+        "mastercard": "Mastercard",
+        "amex": "American Express",
+        "discover": "Discover"
+      },
+      "other": {
+        "title": "Autres methodes",
+        "sepa": "Prelevement SEPA",
+        "bizum": "Bizum (bientot disponible)",
+        "transfer": "Virement bancaire (plans annuels)"
+      },
+      "security": "Securite : Tous les paiements sont traites de maniere securisee par Stripe, certifie PCI DSS Niveau 1. Nous ne stockons pas d'informations de carte de credit sur nos serveurs. Stripe utilise le chiffrement SSL/TLS et la tokenisation pour proteger vos donnees de paiement."
+    },
+    "section5": {
+      "title": "5. Renouvellement automatique",
+      "description": "Votre abonnement se renouvelle automatiquement a la fin de chaque periode de facturation pour garantir un service ininterrompu.",
+      "howItWorks": {
+        "title": "Comment fonctionne le renouvellement automatique :",
+        "step1": "7 jours avant la fin de votre periode, nous vous envoyons un email de rappel",
+        "step2": "Le jour du renouvellement, le montant de la periode suivante est preleve automatiquement",
+        "step3": "Apres le paiement reussi, vous recevez la facture et la confirmation par email",
+        "step4": "Votre abonnement continue sans interruption"
+      },
+      "disable": "Vous pouvez desactiver le renouvellement automatique a tout moment depuis les parametres de votre compte. Une fois desactive, votre abonnement prendra fin a la fin de la periode en cours et aucun autre prelevement ne sera effectue."
+    },
+    "section6": {
+      "title": "6. Changements de plan",
+      "description": "Vous pouvez changer de plan a tout moment selon vos besoins. Les changements sont appliques avec prorata automatique pour que vous ne payiez que ce que vous utilisez.",
+      "upgrade": {
+        "title": "Upgrade (ameliorer le plan)",
+        "description": "Lors du passage a un plan superieur :",
+        "item1": "Le changement est immediat",
+        "item2": "Un credit est calcule pour le temps non utilise de votre plan actuel",
+        "item3": "Ce credit est applique au cout du nouveau plan",
+        "item4": "Vous ne payez que la difference au prorata jusqu'a la fin de votre periode de facturation",
+        "example": "Exemple : Si vous etes sur BASIC (9EUR/mois) et passez a HOST (29EUR/mois) en milieu de mois, vous serez facture environ 10EUR (difference de 20EUR au prorata sur 15 jours)."
+      },
+      "downgrade": {
+        "title": "Downgrade (reduire le plan)",
+        "description": "Lors du passage a un plan inferieur :",
+        "item1": "Le changement prend effet a la fin de votre periode actuelle",
+        "item2": "Vous conservez l'acces aux fonctionnalites du plan superieur jusqu'a la fin de la periode",
+        "item3": "A partir de la periode suivante, le nouveau plan moins cher est facture",
+        "item4": "Il n'y a pas de frais supplementaires ni de penalites",
+        "note": "Note : Si vous avez plus de proprietes que la limite du plan inferieur, vous devrez reduire le nombre de proprietes actives avant que le changement ne prenne effet."
+      }
+    },
+    "section7": {
+      "title": "7. Annulation",
+      "description": "Vous pouvez annuler votre abonnement a tout moment sans penalites ni frais supplementaires.",
+      "process": {
+        "title": "Processus d'annulation :",
+        "step1": "1. Allez dans Parametres du compte - Abonnement",
+        "step2": "2. Cliquez sur \"Annuler l'abonnement\"",
+        "step3": "3. Confirmez l'annulation",
+        "step4": "4. Vous recevrez un email de confirmation"
+      },
+      "effects": {
+        "title": "Effets de l'annulation :",
+        "item1": "Votre abonnement reste actif jusqu'a la fin de la periode de facturation en cours",
+        "item2": "Aucun autre prelevement n'est effectue apres l'annulation",
+        "item3": "Vous conservez l'acces a toutes les fonctionnalites jusqu'a la fin de la periode payee",
+        "item4": "Vos donnees et proprietes sont conservees pendant 90 jours apres l'annulation",
+        "item5": "Vous pouvez reactiver votre abonnement a tout moment pendant ces 90 jours"
+      },
+      "afterPeriod": "Apres 90 jours d'annulation sans reactivation, vos proprietes deviendront inactives. Les donnees seront conservees conformement a notre"
+    },
+    "section8": {
+      "title": "8. Politique de remboursement",
+      "description": "Les paiements d'abonnement ne sont pas remboursables sauf dans les circonstances suivantes :",
+      "duplicateCharges": {
+        "title": "Prelevements en double",
+        "description": "Si vous etes preleve deux fois par erreur, nous remboursons immediatement le prelevement en double."
+      },
+      "technicalError": {
+        "title": "Erreur technique de facturation",
+        "description": "Si une erreur technique cause un prelevement incorrect, le montant errone est rembourse dans un delai de 5 a 7 jours ouvrables."
+      },
+      "serviceUnavailable": {
+        "title": "Service indisponible",
+        "description": "Si le service est inaccessible pendant plus de 72 heures en raison de problemes techniques de notre part, vous pouvez demander un remboursement au prorata du temps d'indisponibilite."
+      },
+      "noRefund": {
+        "title": "Pas de remboursement dans ces cas :",
+        "item1": "Annulation volontaire avant la fin de la periode",
+        "item2": "Changement d'avis ou insatisfaction avec le service",
+        "item3": "Non-utilisation du service pendant la periode de facturation",
+        "item4": "Suspension pour violation des conditions d'utilisation"
+      },
+      "request": "Pour demander un remboursement justifie, contactez {{email}} en indiquant votre ID de transaction et le motif. Nous traitons les demandes dans un delai maximum de 10 jours ouvrables."
+    },
+    "section9": {
+      "title": "9. Taxes et facturation",
+      "description": "Nous respectons toutes les obligations fiscales et de facturation applicables en Espagne et dans l'Union europeenne.",
+      "vat": {
+        "title": "TVA (Taxe sur la Valeur Ajoutee) :",
+        "spain": "Clients en Espagne : La TVA en vigueur s'applique (actuellement 21%)",
+        "euB2B": "Clients B2B dans l'UE : TVA applicable selon le mecanisme d'autoliquidation (fournissez un numero de TVA valide)",
+        "euB2C": "Clients B2C dans l'UE : TVA du pays de destination selon la reglementation de l'UE",
+        "nonEU": "Clients hors UE : Pas de TVA (0%)"
+      },
+      "invoices": {
+        "title": "Factures electroniques :",
+        "description": "Nous emettons des factures electroniques conformes a la reglementation espagnole (Loi 25/2013). Toutes les factures comprennent :",
+        "item1": "Numero de facture unique et sequentiel",
+        "item2": "Date d'emission et periode facturee",
+        "item3": "Donnees fiscales completes (emetteur et client)",
+        "item4": "Detail des services fournis",
+        "item5": "Base imposable, TVA appliquee et total"
+      },
+      "download": "Vous pouvez telecharger toutes vos factures a tout moment depuis Compte - Facturation - Historique. Les factures sont conservees pendant 10 ans conformement aux exigences legales."
+    },
+    "section10": {
+      "title": "10. Echecs de paiement",
+      "description": "Si un paiement echoue en raison de fonds insuffisants, carte expiree ou autre raison, nous suivons ce processus :",
+      "step1": {
+        "title": "Notification immediate",
+        "description": "Nous vous envoyons un email vous informant de l'echec de paiement et vous demandant de mettre a jour votre methode de paiement."
+      },
+      "step2": {
+        "title": "Periode de grace (3 jours)",
+        "description": "Votre service reste actif pendant 3 jours pour vous donner le temps de resoudre le probleme."
+      },
+      "step3": {
+        "title": "Nouvelle tentative automatique",
+        "description": "Nous essayons de prelever a nouveau apres 3 jours. Si ca echoue a nouveau, nous envoyons un autre rappel."
+      },
+      "step4": {
+        "title": "Deuxieme tentative (7 jours)",
+        "description": "Derniere tentative de prelevement a 7 jours. Si ca echoue, votre compte passe en statut \"Suspendu\"."
+      },
+      "step5": {
+        "title": "Suspension (apres 7 jours)",
+        "description": "Si nous ne recevons pas le paiement, votre compte est temporairement suspendu. Vous pouvez le reactiver en mettant a jour votre methode de paiement et en reglant la dette en suspens."
+      },
+      "important": "Important : Pendant la suspension, vos proprietes ne seront pas accessibles aux clients. Reactiver votre abonnement restaure l'acces immediatement."
+    },
+    "section11": {
+      "title": "11. Modifications des prix",
+      "description": "Nous nous reservons le droit de modifier nos prix, mais toujours avec transparence et respect pour nos clients :",
+      "guarantees": {
+        "title": "Garanties en cas de changement de prix :",
+        "item1": "Preavis de 30 jours : Nous vous informerons par email au moins un mois a l'avance",
+        "item2": "Grandfathering : Les clients existants conservent leur prix pendant au moins 6 mois",
+        "item3": "Droit d'annulation : Vous pouvez annuler sans penalite si vous n'etes pas d'accord",
+        "item4": "Clarte : Nous expliquerons clairement les raisons du changement de prix"
+      },
+      "acceptance": "Votre acceptation continue du service apres notification constituera votre acceptation du nouveau prix."
+    },
+    "section12": {
+      "title": "12. Contact",
+      "description": "Pour des questions sur la facturation, les paiements ou les abonnements, vous pouvez nous contacter a :",
+      "billingEmail": "Email de facturation",
+      "generalEmail": "Email general",
+      "hours": "Heures d'ouverture : Lundi a vendredi, 9h00 - 18h00 (CET)"
+    }
+  },
+  "legalNotice": {
+    "title": "Mentions legales",
+    "summary": {
+      "item1": "Ces mentions legales sont conformes a la loi 34/2002 (LSSI-CE)",
+      "item2": "{{companyName}} est le proprietaire et responsable du site Web itineramio.com",
+      "item3": "L'utilisation du site implique l'acceptation de ces conditions legales",
+      "item4": "Nous proteges vos donnees conformement au RGPD et a la LOPDGDD",
+      "item5": "Vous pouvez nous contacter a {{email}}"
+    },
+    "toc": {
+      "identification": "1. Donnees d'identification",
+      "object": "2. Objet",
+      "accessConditions": "3. Conditions d'acces et d'utilisation",
+      "intellectualProperty": "4. Propriete intellectuelle et industrielle",
+      "dataProtection": "5. Protection des donnees personnelles",
+      "disclaimer": "6. Exclusion de garanties",
+      "links": "7. Liens vers des tiers",
+      "modifications": "8. Modifications",
+      "legislation": "9. Legislation applicable",
+      "contact": "10. Contact"
+    },
+    "section1": {
+      "title": "1. Donnees d'identification",
+      "description": "Conformement a la loi 34/2002, du 11 juillet, sur les services de la societe de l'information et le commerce electronique (LSSI-CE), les donnees d'identification du proprietaire du site Web sont fournies :",
+      "companyName": "Raison sociale",
+      "taxId": "NIF",
+      "address": "Siege social",
+      "email": "Email",
+      "website": "Site Web"
+    },
+    "section2": {
+      "title": "2. Objet",
+      "description": "Les presentes Mentions legales regissent l'utilisation du site Web itineramio.com (ci-apres, \"le Site Web\"), dont {{companyName}} est proprietaire.",
+      "purpose": {
+        "title": "Finalite du Site Web :",
+        "description": "Le Site Web a pour objectif de fournir des informations sur nos services de creation et de gestion de manuels numeriques pour hebergements touristiques, ainsi que de permettre aux utilisateurs enregistres de :",
+        "item1": "Creer et gerer des proprietes d'hebergement",
+        "item2": "Concevoir des manuels numeriques personnalises",
+        "item3": "Generer des codes QR pour l'acces des clients",
+        "item4": "Analyser les metriques d'utilisation et les evaluations",
+        "item5": "Souscrire a des plans d'abonnement"
+      },
+      "acceptance": "La navigation sur le Site Web confere la qualite d'utilisateur de celui-ci et implique l'acceptation pleine et entiere de toutes les dispositions incluses dans les presentes Mentions legales."
+    },
+    "section3": {
+      "title": "3. Conditions d'acces et d'utilisation",
+      "access": {
+        "title": "3.1 Acces au Site Web",
+        "p1": "L'acces au Site Web est gratuit, sauf en ce qui concerne le cout de la connexion via le reseau de telecommunications fourni par le fournisseur d'acces contracte par l'utilisateur.",
+        "p2": "Certaines fonctionnalites du Site Web necessitent l'enregistrement de l'utilisateur et la souscription d'un plan d'abonnement payant."
+      },
+      "correctUse": {
+        "title": "3.2 Utilisation correcte du Site Web",
+        "description": "L'utilisateur s'engage a utiliser le Site Web conformement a la loi et aux presentes Mentions legales, ainsi qu'a la morale et aux bonnes moeurs generalement acceptees et a l'ordre public.",
+        "obligations": "L'utilisateur s'engage a NE PAS :",
+        "item1": "Effectuer des actions susceptibles d'endommager, de desactiver ou de surcharger le Site Web",
+        "item2": "Introduire des virus, des codes malveillants ou tout autre systeme pouvant causer des dommages",
+        "item3": "Tenter d'acceder a des zones restreintes du Site Web sans autorisation",
+        "item4": "Utiliser le Site Web a des fins illicites, illegales, contraires a ce qui est etabli dans les presentes Mentions legales",
+        "item5": "Reproduire, copier, distribuer ou modifier tout contenu sans autorisation expresse",
+        "item6": "Faire de l'ingenierie inverse, decompiler ou desassembler tout logiciel du Site Web"
+      },
+      "responsibility": {
+        "title": "3.3 Responsabilite de l'utilisateur",
+        "description": "L'utilisateur est seul responsable des infractions qu'il pourrait commettre ou des dommages qu'il pourrait causer par l'utilisation du Site Web, exonerant {{companyName}} et ses collaborateurs de toute responsabilite."
+      }
+    },
+    "section4": {
+      "title": "4. Propriete intellectuelle et industrielle",
+      "description": "Tous les contenus du Site Web, y compris mais sans s'y limiter les textes, photographies, graphiques, images, icones, technologie, logiciels, liens et autres contenus audiovisuels ou sonores, ainsi que leur conception graphique et codes sources, sont la propriete intellectuelle de {{companyName}} ou de tiers, sans que l'un quelconque des droits d'exploitation reconnus par la legislation en vigueur en matiere de propriete intellectuelle puisse etre considere comme cede a l'utilisateur.",
+      "trademarks": {
+        "title": "Marques et logos :",
+        "description": "Les marques, noms commerciaux ou signes distinctifs apparaissant sur le Site Web sont la propriete de {{companyName}} ou de tiers, sans que l'acces au Site Web puisse etre considere comme conferant a l'utilisateur un quelconque droit sur les marques, noms commerciaux et/ou signes distinctifs."
+      },
+      "userContent": {
+        "title": "Contenu de l'utilisateur :",
+        "description": "Le contenu telecharge par les utilisateurs sur le Site Web (textes, images, videos, etc.) est leur propriete exclusive. En telechargeant du contenu, l'utilisateur accorde a {{companyName}} une licence mondiale, non exclusive, libre de redevances pour utiliser, reproduire et afficher ce contenu uniquement dans le but de fournir le service. Cette licence prend fin lorsque l'utilisateur supprime le contenu ou ferme son compte."
+      },
+      "prohibition": "Toute reproduction, distribution, communication publique, transformation ou toute autre forme d'exploitation des contenus du Site Web sans l'autorisation expresse et ecrite prealable de {{companyName}} est interdite."
+    },
+    "section5": {
+      "title": "5. Protection des donnees personnelles",
+      "description": "{{companyName}} respecte le Reglement (UE) 2016/679 du Parlement europeen et du Conseil, du 27 avril 2016, relatif a la protection des personnes physiques a l'egard du traitement des donnees a caractere personnel (RGPD) et la Loi organique 3/2018, du 5 decembre, sur la protection des donnees personnelles et la garantie des droits numeriques (LOPDGDD).",
+      "moreInfo": {
+        "title": "Informations sur la protection des donnees :",
+        "description": "Pour plus d'informations sur la facon dont nous traitons vos donnees personnelles, consultez notre",
+        "contact": "Si vous avez des questions sur le traitement de vos donnees personnelles ou souhaitez exercer vos droits, vous pouvez nous contacter a :"
+      }
+    },
+    "section6": {
+      "title": "6. Exclusion de garanties et de responsabilite",
+      "availability": {
+        "title": "6.1 Disponibilite du service",
+        "description": "{{companyName}} ne garantit pas la disponibilite continue et ininterrompue du Site Web. Nous nous efforcons de maintenir le service disponible, mais des interruptions peuvent survenir en raison de maintenances, mises a jour ou problemes techniques independants de notre volonte."
+      },
+      "accuracy": {
+        "title": "6.2 Exactitude des informations",
+        "description": "{{companyName}} exclut toute responsabilite pour les dommages de toute nature pouvant etre dus au manque d'exactitude, d'exhaustivite, d'actualite, ainsi qu'aux erreurs ou omissions dont pourraient souffrir les informations et services contenus dans le Site Web."
+      },
+      "malware": {
+        "title": "6.3 Virus et malwares",
+        "description": "{{companyName}} n'est pas responsable des dommages pouvant resulter de la presence de virus ou d'autres elements nuisibles dans les contenus pouvant provoquer des alterations dans les systemes informatiques, documents electroniques ou fichiers des utilisateurs."
+      },
+      "usage": {
+        "title": "6.4 Utilisation du Site Web",
+        "description": "L'utilisateur est seul responsable de l'utilisation qu'il fait du Site Web et des contenus qu'il publie. {{companyName}} n'est pas responsable des dommages pouvant resulter d'une utilisation inappropriee du Site Web par les utilisateurs."
+      }
+    },
+    "section7": {
+      "title": "7. Liens vers des tiers",
+      "description": "Le Site Web peut contenir des liens vers d'autres sites Web de tiers. {{companyName}} ne controle pas et n'est pas responsable du contenu de ces sites Web ni des politiques de confidentialite ou pratiques de securite des tiers.",
+      "important": "Important : L'inclusion de liens vers des sites Web de tiers n'implique pas l'approbation, le soutien ou la recommandation de ceux-ci par {{companyName}}. Nous recommandons de lire les conditions generales et les politiques de confidentialite de tout site Web de tiers que vous visitez.",
+      "linksToUs": {
+        "title": "Liens de tiers vers notre site",
+        "description": "Si vous souhaitez etablir un lien depuis votre site Web vers itineramio.com, vous pouvez le faire librement a condition que :",
+        "item1": "Des frames qui alterent notre contenu ne soient pas utilises",
+        "item2": "Des declarations fausses sur notre entreprise ou nos services ne soient pas faites",
+        "item3": "Le lien soit fait vers la page d'accueil principale (pas vers des pages internes sans autorisation)",
+        "item4": "Il ne soit pas faussement implique que {{companyName}} parraine ou soutient le site faisant le lien"
+      }
+    },
+    "section8": {
+      "title": "8. Modifications",
+      "p1": "{{companyName}} se reserve le droit d'effectuer, sans preavis, les modifications qu'il juge appropriees sur le Site Web, pouvant changer, supprimer ou ajouter tant les contenus et services fournis a travers celui-ci que la facon dont ils sont presentes ou localises.",
+      "p2": "De meme, {{companyName}} se reserve le droit de modifier les presentes Mentions legales a tout moment. Nous recommandons de consulter periodiquement ce document."
+    },
+    "section9": {
+      "title": "9. Legislation applicable et juridiction",
+      "p1": "Les presentes Mentions legales sont regies dans tous leurs aspects par le droit espagnol.",
+      "p2": "Pour la resolution de tout litige ou conflit pouvant survenir en relation avec l'utilisation du Site Web ou l'interpretation et l'execution des presentes Mentions legales, {{companyName}} et l'utilisateur se soumettent, avec renonciation expresse a tout autre for qui pourrait leur correspondre, aux tribunaux de Madrid (Espagne).",
+      "legalFramework": {
+        "title": "Cadre juridique applicable :",
+        "item1": "Loi 34/2002 sur les services de la societe de l'information et le commerce electronique (LSSI-CE)",
+        "item2": "Reglement (UE) 2016/679 sur la protection des donnees (RGPD)",
+        "item3": "Loi organique 3/2018 sur la protection des donnees personnelles et la garantie des droits numeriques (LOPDGDD)",
+        "item4": "Code civil espagnol",
+        "item5": "Code de commerce espagnol"
+      }
+    },
+    "section10": {
+      "title": "10. Contact",
+      "description": "Pour toute question relative aux presentes Mentions legales, vous pouvez nous contacter a :",
+      "company": "Entreprise",
+      "legalEmail": "Email juridique",
+      "generalEmail": "Email general",
+      "address": "Adresse"
+    }
+  }
+}

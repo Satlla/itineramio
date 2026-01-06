@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  ArrowLeft, 
-  Plus, 
-  Edit2, 
-  Trash2, 
+import { useTranslation } from 'react-i18next'
+import {
+  ArrowLeft,
+  Plus,
+  Edit2,
+  Trash2,
   GripVertical,
   Eye,
   Settings,
@@ -81,11 +82,12 @@ interface Zone {
 }
 
 export default function ZoneDetailPage() {
+  const { t } = useTranslation('zones')
   const router = useRouter()
   const params = useParams()
   const propertyId = params.id as string
   const zoneId = params.zoneId as string
-  
+
   const [zone, setZone] = useState<Zone | null>(null)
   const [loading, setLoading] = useState(true)
   const [draggedStep, setDraggedStep] = useState<string | null>(null)
@@ -196,21 +198,21 @@ export default function ZoneDetailPage() {
   }
 
   const handleDeleteStep = async (stepId: string) => {
-    if (confirm('¿Estás seguro de que quieres eliminar este paso?')) {
+    if (confirm(t('detail.confirmDeleteStep'))) {
       try {
         const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps/${stepId}`, {
           method: 'DELETE'
         })
-        
+
         if (response.ok) {
           // Refresh zone data to get updated steps
           fetchZoneData()
         } else {
-          alert('Error al eliminar el paso')
+          alert(t('detail.errorDeletingStep'))
         }
       } catch (error) {
         console.error('Error deleting step:', error)
-        alert('Error al eliminar el paso')
+        alert(t('detail.errorDeletingStep'))
       }
     }
   }
@@ -269,8 +271,8 @@ export default function ZoneDetailPage() {
       await fetchZoneData()
       
     } catch (error) {
-      console.error('❌ Error saving steps:', error)
-      alert('Error al guardar los pasos')
+      console.error('Error saving steps:', error)
+      alert(t('detail.errorSavingSteps'))
     }
   }
 
@@ -428,29 +430,29 @@ export default function ZoneDetailPage() {
   const getStepTypeLabel = (type: Step['type']) => {
     switch (type) {
       case 'TEXT':
-        return 'Texto'
+        return t('stepTypes.text')
       case 'IMAGE':
-        return 'Imagen'
+        return t('stepTypes.image')
       case 'VIDEO':
-        return 'Video'
+        return t('stepTypes.video')
       case 'LINK':
-        return 'Enlace'
+        return t('stepTypes.link')
       default:
-        return 'Texto'
+        return t('stepTypes.text')
     }
   }
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando zona..." type="zones" />
+    return <AnimatedLoadingSpinner text={t('loadingZone')} type="zones" />
   }
 
   if (!zone) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Zona no encontrada</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('zoneNotFound')}</h2>
           <Link href={`/properties/${propertyId}/zones`}>
-            <Button variant="outline">Volver a zonas</Button>
+            <Button variant="outline">{t('backToZones')}</Button>
           </Link>
         </div>
       </div>
@@ -496,7 +498,7 @@ export default function ZoneDetailPage() {
             <Link href={`/properties/${propertyId}/zones`}>
               <Button variant="ghost" size="sm" className="hover:bg-gray-100">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver a zonas
+                {t('backToZones')}
               </Button>
             </Link>
           </div>
@@ -526,12 +528,12 @@ export default function ZoneDetailPage() {
                     {zone.isPublished ? (
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                         <ToggleRight className="w-4 h-4 mr-1" />
-                        Activa
+                        {t('status.active')}
                       </span>
                     ) : (
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
                         <ToggleLeft className="w-4 h-4 mr-1" />
-                        Inactiva
+                        {t('status.inactive')}
                       </span>
                     )}
                   </div>
@@ -546,23 +548,23 @@ export default function ZoneDetailPage() {
                   <div className="flex items-center text-gray-600">
                     <FileText className="w-4 h-4 mr-1.5" />
                     <span className="font-medium">{zone.steps?.length || 0}</span>
-                    <span className="ml-1">pasos</span>
+                    <span className="ml-1">{t('detail.stepsCount')}</span>
                   </div>
-                  
+
                   <div className="flex items-center text-gray-600">
                     <Calendar className="w-4 h-4 mr-1.5" />
-                    <span>Actualizado {new Date(zone.updatedAt).toLocaleDateString('es-ES', { 
+                    <span>{t('detail.updated')} {new Date(zone.updatedAt).toLocaleDateString('es-ES', {
                       day: 'numeric',
                       month: 'short',
                       year: 'numeric'
                     })}</span>
                   </div>
-                  
+
                   {zone.errorReportsCount !== undefined && (
                     <div className="flex items-center text-gray-600">
                       <AlertTriangle className="w-4 h-4 mr-1.5" />
                       <span className="font-medium">{zone.errorReportsCount}</span>
-                      <span className="ml-1">errores reportados</span>
+                      <span className="ml-1">{t('detail.errorsReported')}</span>
                     </div>
                   )}
                 </div>
@@ -571,20 +573,20 @@ export default function ZoneDetailPage() {
             
             {/* Action Buttons */}
             <div className="flex items-center space-x-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleEditZone}
                 className="border-gray-300 hover:bg-gray-50"
               >
                 <Edit2 className="w-4 h-4 mr-2" />
-                Editar Zona
+                {t('editZone')}
               </Button>
-              <Button 
+              <Button
                 onClick={handleAddStep}
                 className="bg-gray-900 hover:bg-gray-800 text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Nuevo Paso
+                {t('detail.newStep')}
               </Button>
             </div>
           </div>
@@ -610,17 +612,17 @@ export default function ZoneDetailPage() {
               {getZoneText(zone.name, 'Zona')}
             </h2>
             <p className="text-gray-600 text-sm mb-3">
-              {getZoneText(zone.description, 'Gestiona los pasos de esta zona')}
+              {getZoneText(zone.description, t('detail.manageSteps'))}
             </p>
             <div className="flex justify-center items-center space-x-4 text-sm text-gray-600">
-              <span className="font-medium">{zone.steps?.length || 0} pasos</span>
+              <span className="font-medium">{zone.steps?.length || 0} {t('detail.stepsCount')}</span>
               <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
               <span className={`px-2 py-1 rounded-full text-xs ${
-                zone.status === 'ACTIVE' 
-                  ? 'bg-green-100 text-green-700' 
+                zone.status === 'ACTIVE'
+                  ? 'bg-green-100 text-green-700'
                   : 'bg-yellow-100 text-yellow-700'
               }`}>
-                {zone.status === 'ACTIVE' ? 'Activo' : 'Borrador'}
+                {zone.status === 'ACTIVE' ? t('status.active') : t('status.draft')}
               </span>
             </div>
           </div>
@@ -636,15 +638,15 @@ export default function ZoneDetailPage() {
                 <Play className="w-8 h-8 text-gray-400" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No hay pasos aún
+                {t('detail.noStepsYet')}
               </h3>
               <p className="text-gray-600 text-sm mb-6">
-                Crea el primer paso para guiar a tus huéspedes
+                {t('detail.noStepsDescription')}
               </p>
               <div className="flex items-center justify-center gap-3">
                 <Button onClick={handleAddStep} className="bg-violet-600 hover:bg-violet-700">
                   <Plus className="w-4 h-4 mr-2" />
-                  Crear Primer Paso
+                  {t('detail.createFirstStep')}
                 </Button>
                 <Button
                   onClick={() => setShowSuggestionsModal(true)}
@@ -694,7 +696,7 @@ export default function ZoneDetailPage() {
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-2">
                                 <span className="text-sm font-bold text-gray-900">
-                                  Paso {index + 1}
+                                  {t('stepLabels.step')} {index + 1}
                                 </span>
                                 <div className="flex items-center space-x-1">
                                   <StepIcon className="w-4 h-4 text-gray-500" />
@@ -707,11 +709,11 @@ export default function ZoneDetailPage() {
                               {/* Status & Actions */}
                               <div className="flex items-center space-x-2">
                                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                                  (step as any).isPublished 
-                                    ? 'bg-green-100 text-green-700' 
+                                  (step as any).isPublished
+                                    ? 'bg-green-100 text-green-700'
                                     : 'bg-yellow-100 text-yellow-700'
                                 }`}>
-                                  {(step as any).isPublished ? 'Activo' : 'Borrador'}
+                                  {(step as any).isPublished ? t('status.active') : t('status.draft')}
                                 </span>
                                 
                                 <div className="flex space-x-1">
@@ -737,7 +739,7 @@ export default function ZoneDetailPage() {
                             
                             {/* Step Title */}
                             <h3 className="text-sm font-semibold text-gray-900 mt-2">
-                              {getStepText(step, 'title') || `Instrucción ${index + 1}`}
+                              {getStepText(step, 'title') || `${t('stepLabels.instruction')} ${index + 1}`}
                             </h3>
                           </div>
                           
@@ -764,11 +766,11 @@ export default function ZoneDetailPage() {
                 </div>
                 
                 <div className="flex-1">
-                  <Button 
+                  <Button
                     onClick={handleAddStep}
                     className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-xl py-3 font-medium shadow-sm"
                   >
-                    Añadir Paso
+                    {t('detail.addStep')}
                   </Button>
                 </div>
               </div>
@@ -778,41 +780,41 @@ export default function ZoneDetailPage() {
           {/* Mobile Quick Actions */}
           <div className="px-4 pb-6">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Acciones Rápidas</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('quickActions.title')}</h3>
               <div className="space-y-3">
-                <Button 
+                <Button
                   onClick={handleAddStep}
-                  variant="outline" 
+                  variant="outline"
                   className="w-full justify-start h-12 text-left"
                 >
                   <Plus className="w-5 h-5 mr-3 flex-shrink-0" />
                   <div>
-                    <div className="font-medium">Nuevo Paso</div>
-                    <div className="text-xs text-gray-500">Añadir instrucción</div>
+                    <div className="font-medium">{t('quickActions.newStep')}</div>
+                    <div className="text-xs text-gray-500">{t('quickActions.addInstruction')}</div>
                   </div>
                 </Button>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   className="w-full justify-start h-12 text-left"
-                  onClick={() => alert('Funcionalidad próximamente')}
+                  onClick={() => alert(t('quickActions.featureComingSoon'))}
                 >
                   <Eye className="w-5 h-5 mr-3 flex-shrink-0" />
                   <div>
-                    <div className="font-medium">Vista Previa</div>
-                    <div className="text-xs text-gray-500">Ver como huésped</div>
+                    <div className="font-medium">{t('quickActions.preview')}</div>
+                    <div className="text-xs text-gray-500">{t('quickActions.viewAsGuest')}</div>
                   </div>
                 </Button>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   className="w-full justify-start h-12 text-left"
                   onClick={handleEditZone}
                 >
                   <Settings className="w-5 h-5 mr-3 flex-shrink-0" />
                   <div>
-                    <div className="font-medium">Configurar Zona</div>
-                    <div className="text-xs text-gray-500">Editar información</div>
+                    <div className="font-medium">{t('quickActions.configureZone')}</div>
+                    <div className="text-xs text-gray-500">{t('quickActions.editInfo')}</div>
                   </div>
                 </Button>
               </div>
@@ -828,11 +830,11 @@ export default function ZoneDetailPage() {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900">
-              Pasos ({zone.steps?.length || 0})
+              {t('detail.steps')} ({zone.steps?.length || 0})
             </h2>
             <Button variant="outline" size="sm">
               <Eye className="w-4 h-4 mr-2" />
-              Vista Previa
+              {t('detail.preview')}
             </Button>
           </div>
           
@@ -840,15 +842,15 @@ export default function ZoneDetailPage() {
             <Card className="p-12 text-center">
               <Play className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No hay pasos aún
+                {t('detail.noStepsYet')}
               </h3>
               <p className="text-gray-600 mb-6">
-                Crea pasos con instrucciones para guiar a tus huéspedes
+                {t('detail.noStepsDesktopDescription')}
               </p>
               <div className="flex items-center justify-center gap-3">
                 <Button onClick={handleAddStep}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Crear Primer Paso
+                  {t('detail.createFirstStep')}
                 </Button>
                 <Button
                   onClick={() => setShowSuggestionsModal(true)}
@@ -902,11 +904,11 @@ export default function ZoneDetailPage() {
                                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                     (step as any).isPublished ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                                   }`}>
-                                    {(step as any).isPublished ? 'Publicado' : 'Borrador'}
+                                    {(step as any).isPublished ? t('status.published') : t('status.draft')}
                                   </span>
                                 </div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                  {getStepText(step, 'title') || `Paso ${index + 1}`}
+                                  {getStepText(step, 'title') || `${t('stepLabels.step')} ${index + 1}`}
                                 </h3>
                                 {getStepText(step, 'content') && (
                                   <div className="text-gray-600 text-sm leading-relaxed mb-3 whitespace-pre-wrap break-words">
@@ -922,7 +924,7 @@ export default function ZoneDetailPage() {
                                   )}
                                   <div className="flex items-center">
                                     <Calendar className="w-3.5 h-3.5 mr-1" />
-                                    <span>Actualizado {new Date(step.updatedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
+                                    <span>{t('detail.updated')} {new Date(step.updatedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
                                   </div>
                                 </div>
                               </div>
@@ -936,7 +938,7 @@ export default function ZoneDetailPage() {
                                   className="text-gray-600 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
                                 >
                                   <Edit2 className="w-4 h-4 mr-1.5" />
-                                  Editar
+                                  {t('stepLabels.edit')}
                                 </Button>
                                 <Button
                                   onClick={() => handleDeleteStep(step.id)}
@@ -961,7 +963,7 @@ export default function ZoneDetailPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: (zone.steps?.length || 0) * 0.05 }}
               >
-                <Card 
+                <Card
                   className="p-8 border-2 border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 cursor-pointer group"
                   onClick={handleAddStep}
                 >
@@ -970,8 +972,8 @@ export default function ZoneDetailPage() {
                       <Plus className="w-6 h-6" />
                     </div>
                     <div className="text-center">
-                      <div className="font-semibold text-lg mb-1">Añadir nuevo paso</div>
-                      <div className="text-sm text-gray-400">Crear instrucciones adicionales</div>
+                      <div className="font-semibold text-lg mb-1">{t('detail.addNewStep')}</div>
+                      <div className="text-sm text-gray-400">{t('detail.createAdditionalInstructions')}</div>
                     </div>
                   </div>
                 </Card>
@@ -982,41 +984,41 @@ export default function ZoneDetailPage() {
 
         {/* Quick Actions */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Acciones Rápidas</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">{t('quickActions.title')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button 
+            <Button
               onClick={handleAddStep}
-              variant="outline" 
+              variant="outline"
               className="justify-start h-12"
             >
               <Plus className="w-5 h-5 mr-3" />
               <div className="text-left">
-                <div className="font-medium">Nuevo Paso</div>
-                <div className="text-xs text-gray-500">Añadir instrucción</div>
+                <div className="font-medium">{t('quickActions.newStep')}</div>
+                <div className="text-xs text-gray-500">{t('quickActions.addInstruction')}</div>
               </div>
             </Button>
-            
-            <Button 
-              variant="outline" 
+
+            <Button
+              variant="outline"
               className="justify-start h-12"
-              onClick={() => alert('Funcionalidad próximamente')}
+              onClick={() => alert(t('quickActions.featureComingSoon'))}
             >
               <Eye className="w-5 h-5 mr-3" />
               <div className="text-left">
-                <div className="font-medium">Vista Previa</div>
-                <div className="text-xs text-gray-500">Ver como huésped</div>
+                <div className="font-medium">{t('quickActions.preview')}</div>
+                <div className="text-xs text-gray-500">{t('quickActions.viewAsGuest')}</div>
               </div>
             </Button>
-            
-            <Button 
-              variant="outline" 
+
+            <Button
+              variant="outline"
               className="justify-start h-12"
               onClick={handleEditZone}
             >
               <Settings className="w-5 h-5 mr-3" />
               <div className="text-left">
-                <div className="font-medium">Configurar Zona</div>
-                <div className="text-xs text-gray-500">Editar información</div>
+                <div className="font-medium">{t('quickActions.configureZone')}</div>
+                <div className="text-xs text-gray-500">{t('quickActions.editInfo')}</div>
               </div>
             </Button>
           </div>

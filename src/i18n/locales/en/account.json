@@ -1,0 +1,220 @@
+{
+  "title": "Account Settings",
+  "profile": {
+    "title": "Profile Picture",
+    "uploadHint": "Upload a profile picture. Maximum 5MB.",
+    "altText": "Profile"
+  },
+  "personalInfo": {
+    "title": "Personal Information",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Your first name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Your last name",
+    "email": "Email Address",
+    "emailPlaceholder": "you@email.com",
+    "phone": "Phone",
+    "phonePlaceholder": "+1 555 000 0000"
+  },
+  "password": {
+    "title": "Change Password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Minimum 8 characters",
+    "confirmPassword": "Confirm New Password",
+    "confirmPasswordPlaceholder": "Repeat password",
+    "changeButton": "Change Password",
+    "currentPassword": "Current Password",
+    "currentPasswordPlaceholder": "Your current password"
+  },
+  "save": {
+    "button": "Save Changes",
+    "saving": "Saving..."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "settingsTitle": "Notification Settings",
+    "settingsDescription": "Manage how and when you want to receive email notifications",
+    "configureButton": "Configure"
+  },
+  "billing": {
+    "title": "Billing & Subscription",
+    "cardTitle": "Billing Information",
+    "cardDescription": "Manage your plan, tax information and affiliate program",
+    "manageButton": "Manage",
+    "pageSubtitle": "Manage your billing information and payment history",
+    "back": "Back",
+    "currentPlan": "Current Plan",
+    "noPlan": "No Plan",
+    "nextRenewal": "Next Renewal",
+    "active": "Active",
+    "inactive": "Inactive",
+    "tabs": {
+      "data": "Billing Information",
+      "history": "Invoice History"
+    },
+    "checkoutInfo": "Complete your billing information. We need this information to issue legally valid invoices. Then you will continue with your purchase.",
+    "entityType": {
+      "title": "Entity Type",
+      "company": "Company",
+      "companyDescription": "Limited company, Corp., etc.",
+      "selfEmployed": "Self-Employed",
+      "selfEmployedDescription": "Freelancer or sole proprietor",
+      "individual": "Individual",
+      "individualDescription": "Natural person"
+    },
+    "fiscalData": {
+      "title": "Tax Information",
+      "companyName": "Company Name",
+      "companyNamePlaceholder": "e.g.: Itineramio LLC",
+      "cif": "Tax ID",
+      "cifPlaceholder": "e.g.: 12-3456789",
+      "tradeName": "Trade Name",
+      "tradeNamePlaceholder": "e.g.: John Smith - Property Management",
+      "nif": "Tax ID",
+      "nifPlaceholder": "e.g.: 123-45-6789",
+      "businessActivity": "Business Activity",
+      "businessActivityPlaceholder": "e.g.: Tourist accommodation management",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "e.g.: John",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "e.g.: Smith",
+      "nationalId": "ID Number",
+      "nationalIdPlaceholder": "e.g.: 123-45-6789"
+    },
+    "contact": {
+      "title": "Contact Information",
+      "email": "Email",
+      "emailPlaceholder": "contact@company.com",
+      "phone": "Phone",
+      "phonePlaceholder": "+1 555 000 0000"
+    },
+    "address": {
+      "title": "Billing Address",
+      "address": "Address",
+      "addressPlaceholder": "Street, number, apartment",
+      "city": "City",
+      "cityPlaceholder": "e.g.: New York",
+      "postalCode": "Postal Code",
+      "postalCodePlaceholder": "e.g.: 10001",
+      "country": "Country",
+      "countries": {
+        "spain": "Spain",
+        "portugal": "Portugal",
+        "france": "France",
+        "italy": "Italy",
+        "germany": "Germany",
+        "uk": "United Kingdom",
+        "other": "Other"
+      }
+    },
+    "infoNote": {
+      "title": "About your billing information",
+      "description": "This information will only be used to issue valid invoices according to tax regulations. Payments are made via bank transfer or credit card through Stripe."
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "save": "Save Billing Information",
+      "saving": "Saving..."
+    },
+    "success": "Billing information saved successfully",
+    "error": "Error saving information. Please try again."
+  },
+  "invoices": {
+    "title": "Invoice History",
+    "noInvoices": "You don't have any invoices yet",
+    "noInvoicesDescription": "Your invoices will appear here when you make payments",
+    "status": {
+      "paid": "Paid",
+      "pending": "Pending",
+      "overdue": "Overdue",
+      "cancelled": "Cancelled"
+    },
+    "paidOn": "Paid",
+    "viewInvoice": "View invoice",
+    "downloadInvoice": "Download invoice",
+    "modal": {
+      "title": "Invoice",
+      "billedTo": "BILLED TO",
+      "invoiceDetails": "INVOICE DETAILS",
+      "number": "Number",
+      "date": "Date",
+      "dueDate": "Due Date",
+      "paidDate": "Paid",
+      "description": "DESCRIPTION",
+      "amount": "AMOUNT",
+      "subscription": "Subscription",
+      "billingPeriod": "Billing period",
+      "discount": "Discount",
+      "total": "Total",
+      "paid": "Paid",
+      "footer": "Thank you for trusting Itineramio",
+      "footerContact": "If you have any questions, contact hola@itineramio.com",
+      "viewButton": "View Invoice",
+      "closeButton": "Close"
+    }
+  },
+  "referrals": {
+    "title": "Referral Program",
+    "cardTitle": "Invite & Earn",
+    "cardDescription": "Share your link and earn 20% of each referred subscription",
+    "viewButton": "View Program"
+  },
+  "deleteAccount": {
+    "title": "Delete Account",
+    "description": "Once you delete your account, there is no going back. This action is permanent and irreversible.",
+    "warning": "WARNING: By deleting your account:",
+    "warningItems": {
+      "properties": "ALL your properties will be deleted",
+      "manuals": "ALL manuals and zones created will be deleted",
+      "files": "ALL uploaded images and files will be lost",
+      "noRecovery": "You will NOT be able to recover any data",
+      "irreversible": "This action is IRREVERSIBLE"
+    },
+    "button": "Delete Account",
+    "modal": {
+      "title": "Are you absolutely sure?",
+      "description": "This action will permanently delete your account and all your data. You will not be able to recover anything after this.",
+      "passwordLabel": "Enter your password to confirm",
+      "passwordPlaceholder": "Your password",
+      "cancelButton": "Cancel",
+      "confirmButton": "Yes, delete my account",
+      "deleting": "Deleting..."
+    }
+  },
+  "passwordModal": {
+    "securityVerification": "Security Verification",
+    "changePassword": "Change Password",
+    "emailChangeDetected": "Email change detected",
+    "emailChangeDescription": "For your security, we need to verify your identity before changing your email.",
+    "emailChangeSteps": {
+      "step1": "A confirmation email will be sent to your current address",
+      "step2": "You will need to confirm the change from that email",
+      "step3": "Your account will be protected throughout the process"
+    },
+    "enterCurrentPassword": "Enter your current password to confirm the change.",
+    "cancelButton": "Cancel",
+    "confirmButton": "Confirm Change",
+    "processing": "Processing..."
+  },
+  "successToast": "Profile updated successfully",
+  "errors": {
+    "invalidImage": "Please select a valid image",
+    "imageTooLarge": "Image must be less than 5MB",
+    "uploadError": "Error uploading image. Try again.",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email",
+    "currentPasswordRequired": "You must enter your current password",
+    "newPasswordRequired": "You must enter a new password",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "passwordMismatch": "Passwords do not match",
+    "enterPassword": "Please enter your password",
+    "deletePasswordRequired": "You must enter your password to delete the account",
+    "changePasswordError": "Error changing password",
+    "deleteError": "Error deleting account",
+    "connectionError": "Connection error",
+    "emailChangeRequestError": "Error requesting email change",
+    "emailChangeSent": "A confirmation email has been sent to your current address. Please check your inbox to complete the change.",
+    "unknownError": "Unknown error",
+    "saveError": "Error saving data"
+  }
+}

@@ -25,6 +25,7 @@ import {
   X
 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 type EntityType = 'company' | 'self-employed' | 'individual'
 type TabType = 'data' | 'history'
@@ -73,6 +74,7 @@ interface SubscriptionInfo {
 export default function BillingPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t } = useTranslation('account')
   const fromCheckout = searchParams.get('from') === 'checkout'
   const initialTab = (searchParams.get('tab') as TabType) || 'data'
 
@@ -224,10 +226,10 @@ export default function BillingPage() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Error al guardar los datos')
+        throw new Error(errorData.error || t('errors.saveError'))
       }
 
-      setSuccessMessage('✅ Información de facturación guardada correctamente')
+      setSuccessMessage(t('billing.success'))
 
       if (fromCheckout) {
         setTimeout(() => {
@@ -246,7 +248,7 @@ export default function BillingPage() {
       }
     } catch (error) {
       console.error('Error:', error)
-      setErrorMessage(error instanceof Error ? error.message : '❌ Error al guardar la información. Por favor, inténtalo de nuevo.')
+      setErrorMessage(error instanceof Error ? error.message : t('billing.error'))
     } finally {
       setIsSubmitting(false)
     }
@@ -266,10 +268,10 @@ export default function BillingPage() {
     }
 
     const labels = {
-      PAID: 'Pagada',
-      PENDING: 'Pendiente',
-      OVERDUE: 'Vencida',
-      CANCELLED: 'Cancelada'
+      PAID: t('invoices.status.paid'),
+      PENDING: t('invoices.status.pending'),
+      OVERDUE: t('invoices.status.overdue'),
+      CANCELLED: t('invoices.status.cancelled')
     }
 
     return (
@@ -304,14 +306,14 @@ export default function BillingPage() {
             className="flex items-center text-sm sm:text-base text-gray-600 hover:text-gray-900 transition-colors mb-3 sm:mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-1.5 sm:mr-2" />
-            Volver
+            {t('billing.back')}
           </button>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1.5 sm:mb-2">
-            Facturación y Suscripción
+            {t('billing.title')}
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
-            Gestiona tus datos de facturación e historial de pagos
+            {t('billing.pageSubtitle')}
           </p>
         </div>
 
@@ -324,8 +326,8 @@ export default function BillingPage() {
                   <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div>
-                  <p className="text-xs sm:text-sm opacity-90">Plan Actual</p>
-                  <p className="text-xl sm:text-2xl font-bold">{subscription.plan || 'Sin Plan'}</p>
+                  <p className="text-xs sm:text-sm opacity-90">{t('billing.currentPlan')}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{subscription.plan || t('billing.noPlan')}</p>
                 </div>
               </div>
               {subscription.expiresAt && (
@@ -334,7 +336,7 @@ export default function BillingPage() {
                     <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div>
-                    <p className="text-xs sm:text-sm opacity-90">Próxima Renovación</p>
+                    <p className="text-xs sm:text-sm opacity-90">{t('billing.nextRenewal')}</p>
                     <p className="text-lg sm:text-xl font-semibold">
                       {new Date(subscription.expiresAt).toLocaleDateString('es-ES')}
                     </p>
@@ -347,7 +349,7 @@ export default function BillingPage() {
                     ? 'bg-green-100 text-green-800'
                     : 'bg-yellow-100 text-yellow-800'
                 }`}>
-                  {subscription.status === 'ACTIVE' ? 'Activa' : 'Inactiva'}
+                  {subscription.status === 'ACTIVE' ? t('billing.active') : t('billing.inactive')}
                 </span>
               </div>
             </div>
@@ -391,7 +393,7 @@ export default function BillingPage() {
               >
                 <div className="flex items-center justify-center gap-2">
                   <FileText className="w-4 h-4" />
-                  Datos de Facturación
+                  {t('billing.tabs.data')}
                 </div>
               </button>
               <button
@@ -404,7 +406,7 @@ export default function BillingPage() {
               >
                 <div className="flex items-center justify-center gap-2">
                   <Receipt className="w-4 h-4" />
-                  Historial de Facturas ({invoices.length})
+                  {t('billing.tabs.history')} ({invoices.length})
                 </div>
               </button>
             </div>
@@ -413,13 +415,12 @@ export default function BillingPage() {
           {/* Tab Content */}
           <div className="p-8">
             {activeTab === 'data' ? (
-              /* DATOS DE FACTURACIÓN TAB */
+              /* DATOS DE FACTURACION TAB */
               <form onSubmit={handleSubmit} className="space-y-8">
                 {fromCheckout && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <p className="text-sm text-blue-800">
-                      <strong>📋 Completa tus datos de facturación</strong><br />
-                      Necesitamos esta información para emitir facturas legalmente válidas. Después continuarás con tu compra.
+                      <strong>{t('billing.checkoutInfo')}</strong>
                     </p>
                   </div>
                 )}
@@ -427,7 +428,7 @@ export default function BillingPage() {
                 {/* Entity Type Selection */}
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                    Tipo de Entidad
+                    {t('billing.entityType.title')}
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <button
@@ -442,8 +443,8 @@ export default function BillingPage() {
                       <Building2 className={`w-8 h-8 mx-auto mb-3 ${
                         entityType === 'company' ? 'text-violet-600' : 'text-gray-400'
                       }`} />
-                      <h3 className="font-semibold text-gray-900 mb-1">Empresa</h3>
-                      <p className="text-sm text-gray-600">Sociedad limitada, S.A., etc.</p>
+                      <h3 className="font-semibold text-gray-900 mb-1">{t('billing.entityType.company')}</h3>
+                      <p className="text-sm text-gray-600">{t('billing.entityType.companyDescription')}</p>
                     </button>
 
                     <button
@@ -458,8 +459,8 @@ export default function BillingPage() {
                       <Briefcase className={`w-8 h-8 mx-auto mb-3 ${
                         entityType === 'self-employed' ? 'text-violet-600' : 'text-gray-400'
                       }`} />
-                      <h3 className="font-semibold text-gray-900 mb-1">Autónomo</h3>
-                      <p className="text-sm text-gray-600">Trabajador por cuenta propia</p>
+                      <h3 className="font-semibold text-gray-900 mb-1">{t('billing.entityType.selfEmployed')}</h3>
+                      <p className="text-sm text-gray-600">{t('billing.entityType.selfEmployedDescription')}</p>
                     </button>
 
                     <button
@@ -474,8 +475,8 @@ export default function BillingPage() {
                       <User className={`w-8 h-8 mx-auto mb-3 ${
                         entityType === 'individual' ? 'text-violet-600' : 'text-gray-400'
                       }`} />
-                      <h3 className="font-semibold text-gray-900 mb-1">Particular</h3>
-                      <p className="text-sm text-gray-600">Persona física</p>
+                      <h3 className="font-semibold text-gray-900 mb-1">{t('billing.entityType.individual')}</h3>
+                      <p className="text-sm text-gray-600">{t('billing.entityType.individualDescription')}</p>
                     </button>
                   </div>
                 </div>
@@ -483,14 +484,14 @@ export default function BillingPage() {
                 {/* Entity-specific fields */}
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                    Datos Fiscales
+                    {t('billing.fiscalData.title')}
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {entityType === 'company' && (
                       <>
                         <div className="md:col-span-2">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Razón Social <span className="text-red-500">*</span>
+                            {t('billing.fiscalData.companyName')} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
@@ -499,13 +500,13 @@ export default function BillingPage() {
                             value={formData.companyName || ''}
                             onChange={handleInputChange}
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                            placeholder="Ej: Itineramio S.L."
+                            placeholder={t('billing.fiscalData.companyNamePlaceholder')}
                           />
                         </div>
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            CIF <span className="text-red-500">*</span>
+                            {t('billing.fiscalData.cif')} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
@@ -514,7 +515,7 @@ export default function BillingPage() {
                             value={formData.companyTaxId || ''}
                             onChange={handleInputChange}
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                            placeholder="Ej: B12345678"
+                            placeholder={t('billing.fiscalData.cifPlaceholder')}
                           />
                         </div>
                       </>
@@ -524,7 +525,7 @@ export default function BillingPage() {
                       <>
                         <div className="md:col-span-2">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Nombre Comercial <span className="text-red-500">*</span>
+                            {t('billing.fiscalData.tradeName')} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
@@ -533,13 +534,13 @@ export default function BillingPage() {
                             value={formData.tradeName || ''}
                             onChange={handleInputChange}
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                            placeholder="Ej: Juan Pérez - Gestión de Propiedades"
+                            placeholder={t('billing.fiscalData.tradeNamePlaceholder')}
                           />
                         </div>
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            NIF <span className="text-red-500">*</span>
+                            {t('billing.fiscalData.nif')} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
@@ -548,13 +549,13 @@ export default function BillingPage() {
                             value={formData.taxId || ''}
                             onChange={handleInputChange}
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                            placeholder="Ej: 12345678A"
+                            placeholder={t('billing.fiscalData.nifPlaceholder')}
                           />
                         </div>
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Actividad Empresarial <span className="text-red-500">*</span>
+                            {t('billing.fiscalData.businessActivity')} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
@@ -563,7 +564,7 @@ export default function BillingPage() {
                             value={formData.businessActivity || ''}
                             onChange={handleInputChange}
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                            placeholder="Ej: Gestión de alojamientos turísticos"
+                            placeholder={t('billing.fiscalData.businessActivityPlaceholder')}
                           />
                         </div>
                       </>
@@ -573,7 +574,7 @@ export default function BillingPage() {
                       <>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Nombre <span className="text-red-500">*</span>
+                            {t('billing.fiscalData.firstName')} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
@@ -582,13 +583,13 @@ export default function BillingPage() {
                             value={formData.firstName || ''}
                             onChange={handleInputChange}
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                            placeholder="Ej: Juan"
+                            placeholder={t('billing.fiscalData.firstNamePlaceholder')}
                           />
                         </div>
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Apellidos <span className="text-red-500">*</span>
+                            {t('billing.fiscalData.lastName')} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
@@ -597,13 +598,13 @@ export default function BillingPage() {
                             value={formData.lastName || ''}
                             onChange={handleInputChange}
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                            placeholder="Ej: Pérez García"
+                            placeholder={t('billing.fiscalData.lastNamePlaceholder')}
                           />
                         </div>
 
                         <div className="md:col-span-2">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            DNI/NIE <span className="text-red-500">*</span>
+                            {t('billing.fiscalData.nationalId')} <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
@@ -612,7 +613,7 @@ export default function BillingPage() {
                             value={formData.nationalId || ''}
                             onChange={handleInputChange}
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                            placeholder="Ej: 12345678A"
+                            placeholder={t('billing.fiscalData.nationalIdPlaceholder')}
                           />
                         </div>
                       </>
@@ -624,12 +625,12 @@ export default function BillingPage() {
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <Mail className="w-5 h-5 text-violet-600" />
-                    Información de Contacto
+                    {t('billing.contact.title')}
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email <span className="text-red-500">*</span>
+                        {t('billing.contact.email')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="email"
@@ -638,13 +639,13 @@ export default function BillingPage() {
                         value={formData.email}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                        placeholder="contacto@empresa.com"
+                        placeholder={t('billing.contact.emailPlaceholder')}
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Teléfono <span className="text-red-500">*</span>
+                        {t('billing.contact.phone')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="tel"
@@ -653,7 +654,7 @@ export default function BillingPage() {
                         value={formData.phone}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                        placeholder="+34 600 000 000"
+                        placeholder={t('billing.contact.phonePlaceholder')}
                       />
                     </div>
                   </div>
@@ -663,12 +664,12 @@ export default function BillingPage() {
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-violet-600" />
-                    Dirección Fiscal
+                    {t('billing.address.title')}
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Dirección <span className="text-red-500">*</span>
+                        {t('billing.address.address')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -677,13 +678,13 @@ export default function BillingPage() {
                         value={formData.address}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                        placeholder="Calle, número, piso, puerta"
+                        placeholder={t('billing.address.addressPlaceholder')}
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Ciudad <span className="text-red-500">*</span>
+                        {t('billing.address.city')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -692,13 +693,13 @@ export default function BillingPage() {
                         value={formData.city}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                        placeholder="Ej: Madrid"
+                        placeholder={t('billing.address.cityPlaceholder')}
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Código Postal <span className="text-red-500">*</span>
+                        {t('billing.address.postalCode')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -707,13 +708,13 @@ export default function BillingPage() {
                         value={formData.postalCode}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                        placeholder="Ej: 28001"
+                        placeholder={t('billing.address.postalCodePlaceholder')}
                       />
                     </div>
 
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        País <span className="text-red-500">*</span>
+                        {t('billing.address.country')} <span className="text-red-500">*</span>
                       </label>
                       <select
                         name="country"
@@ -722,13 +723,13 @@ export default function BillingPage() {
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                       >
-                        <option value="España">España</option>
-                        <option value="Portugal">Portugal</option>
-                        <option value="Francia">Francia</option>
-                        <option value="Italia">Italia</option>
-                        <option value="Alemania">Alemania</option>
-                        <option value="Reino Unido">Reino Unido</option>
-                        <option value="Otro">Otro</option>
+                        <option value="España">{t('billing.address.countries.spain')}</option>
+                        <option value="Portugal">{t('billing.address.countries.portugal')}</option>
+                        <option value="Francia">{t('billing.address.countries.france')}</option>
+                        <option value="Italia">{t('billing.address.countries.italy')}</option>
+                        <option value="Alemania">{t('billing.address.countries.germany')}</option>
+                        <option value="Reino Unido">{t('billing.address.countries.uk')}</option>
+                        <option value="Otro">{t('billing.address.countries.other')}</option>
                       </select>
                     </div>
                   </div>
@@ -739,10 +740,9 @@ export default function BillingPage() {
                   <div className="flex gap-3">
                     <FileText className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <div className="text-sm text-blue-800">
-                      <p className="font-medium mb-1">Sobre tus datos de facturación</p>
+                      <p className="font-medium mb-1">{t('billing.infoNote.title')}</p>
                       <p>
-                        Esta información se utilizará únicamente para emitir facturas válidas según la normativa fiscal española.
-                        Los pagos se realizan mediante transferencia bancaria o tarjeta de crédito a través de Stripe.
+                        {t('billing.infoNote.description')}
                       </p>
                     </div>
                   </div>
@@ -755,7 +755,7 @@ export default function BillingPage() {
                     onClick={() => router.back()}
                     className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                   >
-                    Cancelar
+                    {t('billing.buttons.cancel')}
                   </button>
                   <button
                     type="submit"
@@ -765,12 +765,12 @@ export default function BillingPage() {
                     {isSubmitting ? (
                       <>
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Guardando...
+                        {t('billing.buttons.saving')}
                       </>
                     ) : (
                       <>
                         <Save className="w-5 h-5" />
-                        Guardar Datos de Facturación
+                        {t('billing.buttons.save')}
                       </>
                     )}
                   </button>
@@ -783,10 +783,10 @@ export default function BillingPage() {
                   <div className="text-center py-12">
                     <Receipt className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      No tienes facturas aún
+                      {t('invoices.noInvoices')}
                     </h3>
                     <p className="text-gray-600">
-                      Tus facturas aparecerán aquí cuando realices pagos
+                      {t('invoices.noInvoicesDescription')}
                     </p>
                   </div>
                 ) : (
@@ -812,7 +812,7 @@ export default function BillingPage() {
                                 {getStatusBadge(invoice.status)}
                                 {invoice.paidDate && (
                                   <span className="text-sm text-gray-500">
-                                    Pagado: {new Date(invoice.paidDate).toLocaleDateString('es-ES')}
+                                    {t('invoices.paidOn')}: {new Date(invoice.paidDate).toLocaleDateString('es-ES')}
                                   </span>
                                 )}
                               </div>
@@ -823,11 +823,11 @@ export default function BillingPage() {
                             <div className="text-right">
                               {invoice.discountAmount > 0 && (
                                 <p className="text-sm text-gray-500 line-through">
-                                  €{invoice.amount.toFixed(2)}
+                                  {invoice.amount.toFixed(2)}
                                 </p>
                               )}
                               <p className="text-2xl font-bold text-gray-900">
-                                €{invoice.finalAmount.toFixed(2)}
+                                {invoice.finalAmount.toFixed(2)}
                               </p>
                             </div>
 
@@ -835,14 +835,14 @@ export default function BillingPage() {
                               <button
                                 onClick={() => setSelectedInvoice(invoice)}
                                 className="p-2 text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
-                                title="Ver factura"
+                                title={t('invoices.viewInvoice')}
                               >
                                 <Eye className="w-5 h-5" />
                               </button>
                               <button
                                 onClick={() => handleDownloadInvoice(invoice.id)}
                                 className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                                title="Ver factura"
+                                title={t('invoices.downloadInvoice')}
                               >
                                 <Download className="w-5 h-5" />
                               </button>
@@ -869,7 +869,7 @@ export default function BillingPage() {
           >
             {/* Modal Header */}
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">Factura {selectedInvoice.invoiceNumber}</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t('invoices.modal.title')} {selectedInvoice.invoiceNumber}</h2>
               <button
                 onClick={() => setSelectedInvoice(null)}
                 className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
@@ -888,7 +888,7 @@ export default function BillingPage() {
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900">Itineramio</h3>
-                    <p className="text-sm text-gray-600">Gestión de Alojamientos Turísticos</p>
+                    <p className="text-sm text-gray-600">Gestion de Alojamientos Turisticos</p>
                   </div>
                 </div>
               </div>
@@ -896,7 +896,7 @@ export default function BillingPage() {
               {/* Invoice Details Grid */}
               <div className="grid grid-cols-2 gap-8 mb-8 pb-8 border-b border-gray-200">
                 <div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">FACTURADO A</p>
+                  <p className="text-sm font-medium text-gray-500 mb-1">{t('invoices.modal.billedTo')}</p>
                   <p className="font-semibold text-gray-900">{formData.companyName || formData.tradeName || `${formData.firstName} ${formData.lastName}`}</p>
                   <p className="text-sm text-gray-600">{formData.email}</p>
                   <p className="text-sm text-gray-600">{formData.address}</p>
@@ -904,12 +904,12 @@ export default function BillingPage() {
                   <p className="text-sm text-gray-600">{formData.country}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-gray-500 mb-1">DETALLES DE FACTURA</p>
-                  <p className="text-sm text-gray-600">Número: <span className="font-semibold text-gray-900">{selectedInvoice.invoiceNumber}</span></p>
-                  <p className="text-sm text-gray-600">Fecha: <span className="font-semibold text-gray-900">{new Date(selectedInvoice.createdAt).toLocaleDateString('es-ES')}</span></p>
-                  <p className="text-sm text-gray-600">Vencimiento: <span className="font-semibold text-gray-900">{new Date(selectedInvoice.dueDate).toLocaleDateString('es-ES')}</span></p>
+                  <p className="text-sm font-medium text-gray-500 mb-1">{t('invoices.modal.invoiceDetails')}</p>
+                  <p className="text-sm text-gray-600">{t('invoices.modal.number')}: <span className="font-semibold text-gray-900">{selectedInvoice.invoiceNumber}</span></p>
+                  <p className="text-sm text-gray-600">{t('invoices.modal.date')}: <span className="font-semibold text-gray-900">{new Date(selectedInvoice.createdAt).toLocaleDateString('es-ES')}</span></p>
+                  <p className="text-sm text-gray-600">{t('invoices.modal.dueDate')}: <span className="font-semibold text-gray-900">{new Date(selectedInvoice.dueDate).toLocaleDateString('es-ES')}</span></p>
                   {selectedInvoice.paidDate && (
-                    <p className="text-sm text-gray-600">Pagado: <span className="font-semibold text-green-600">{new Date(selectedInvoice.paidDate).toLocaleDateString('es-ES')}</span></p>
+                    <p className="text-sm text-gray-600">{t('invoices.modal.paidDate')}: <span className="font-semibold text-green-600">{new Date(selectedInvoice.paidDate).toLocaleDateString('es-ES')}</span></p>
                   )}
                 </div>
               </div>
@@ -919,27 +919,27 @@ export default function BillingPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 text-sm font-medium text-gray-500">DESCRIPCIÓN</th>
-                      <th className="text-right py-3 text-sm font-medium text-gray-500">IMPORTE</th>
+                      <th className="text-left py-3 text-sm font-medium text-gray-500">{t('invoices.modal.description')}</th>
+                      <th className="text-right py-3 text-sm font-medium text-gray-500">{t('invoices.modal.amount')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr className="border-b border-gray-100">
                       <td className="py-4">
-                        <p className="font-medium text-gray-900">{selectedInvoice.subscription?.plan?.name || 'Suscripción'}</p>
-                        <p className="text-sm text-gray-600">Período de facturación</p>
+                        <p className="font-medium text-gray-900">{selectedInvoice.subscription?.plan?.name || t('invoices.modal.subscription')}</p>
+                        <p className="text-sm text-gray-600">{t('invoices.modal.billingPeriod')}</p>
                       </td>
                       <td className="text-right py-4 font-semibold text-gray-900">
-                        €{selectedInvoice.amount.toFixed(2)}
+                        {selectedInvoice.amount.toFixed(2)}
                       </td>
                     </tr>
                     {selectedInvoice.discountAmount > 0 && (
                       <tr className="border-b border-gray-100">
                         <td className="py-4">
-                          <p className="font-medium text-green-600">Descuento</p>
+                          <p className="font-medium text-green-600">{t('invoices.modal.discount')}</p>
                         </td>
                         <td className="text-right py-4 font-semibold text-green-600">
-                          -€{selectedInvoice.discountAmount.toFixed(2)}
+                          -{selectedInvoice.discountAmount.toFixed(2)}
                         </td>
                       </tr>
                     )}
@@ -950,14 +950,14 @@ export default function BillingPage() {
               {/* Total */}
               <div className="bg-gray-50 rounded-lg p-6 mb-8">
                 <div className="flex items-center justify-between">
-                  <p className="text-lg font-medium text-gray-900">Total</p>
-                  <p className="text-3xl font-bold text-gray-900">€{selectedInvoice.finalAmount.toFixed(2)}</p>
+                  <p className="text-lg font-medium text-gray-900">{t('invoices.modal.total')}</p>
+                  <p className="text-3xl font-bold text-gray-900">{selectedInvoice.finalAmount.toFixed(2)}</p>
                 </div>
                 {selectedInvoice.status === 'PAID' && (
                   <div className="mt-4 pt-4 border-t border-gray-200">
                     <div className="flex items-center gap-2 text-green-600">
                       <CheckCircle className="w-5 h-5" />
-                      <span className="font-medium">Pagado</span>
+                      <span className="font-medium">{t('invoices.modal.paid')}</span>
                     </div>
                   </div>
                 )}
@@ -965,8 +965,8 @@ export default function BillingPage() {
 
               {/* Footer */}
               <div className="text-center text-sm text-gray-500 border-t border-gray-200 pt-6">
-                <p>Gracias por confiar en Itineramio</p>
-                <p className="mt-2">Si tienes alguna pregunta, contacta con hola@itineramio.com</p>
+                <p>{t('invoices.modal.footer')}</p>
+                <p className="mt-2">{t('invoices.modal.footerContact')}</p>
               </div>
 
               {/* Actions */}
@@ -976,13 +976,13 @@ export default function BillingPage() {
                   className="flex-1 bg-violet-600 text-white px-6 py-3 rounded-lg hover:bg-violet-700 transition-colors font-medium flex items-center justify-center gap-2"
                 >
                   <Download className="w-5 h-5" />
-                  Ver Factura
+                  {t('invoices.modal.viewButton')}
                 </button>
                 <button
                   onClick={() => setSelectedInvoice(null)}
                   className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                 >
-                  Cerrar
+                  {t('invoices.modal.closeButton')}
                 </button>
               </div>
             </div>

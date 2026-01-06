@@ -82,7 +82,7 @@ interface PropertySet {
 }
 
 export default function DashboardPage(): JSX.Element {
-  const { t } = useTranslation('common')
+  const { t } = useTranslation('dashboard')
   const [selectedTimeframe, setSelectedTimeframe] = useState('30d')
   const [properties, setProperties] = useState<Property[]>([])
   const [propertySets, setPropertySets] = useState<PropertySet[]>([])
@@ -509,7 +509,7 @@ export default function DashboardPage(): JSX.Element {
 
   if (loading) {
     return React.createElement(AnimatedLoadingSpinner, {
-      text: "Cargando tu panel...",
+      text: t('loading.dashboard'),
       type: "general"
     })
   }
@@ -528,10 +528,10 @@ export default function DashboardPage(): JSX.Element {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
-                  Hola, {user?.name?.split(' ')[0] || 'Usuario'} 👋
+                  {t('welcome.greeting', { name: user?.name?.split(' ')[0] || 'Usuario' })}
                 </h1>
                 <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                  Aquí tienes un resumen de tus propiedades y manuales
+                  {t('welcome.subtitle')}
                 </p>
               </div>
             </div>
@@ -552,7 +552,7 @@ export default function DashboardPage(): JSX.Element {
                 >
                   <Home className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 lg:h-8 lg:w-8 text-violet-600 flex-shrink-0" />
                   <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
-                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 leading-tight">Propiedades</p>
+                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 leading-tight">{t('stats.properties')}</p>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {stats.totalProperties}
                     </p>
@@ -569,7 +569,7 @@ export default function DashboardPage(): JSX.Element {
                 >
                   <Eye className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 lg:h-8 lg:w-8 text-blue-600 flex-shrink-0" />
                   <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
-                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 leading-tight">Vistas</p>
+                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 leading-tight">{t('stats.views')}</p>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {stats.totalViews}
                     </p>
@@ -584,7 +584,7 @@ export default function DashboardPage(): JSX.Element {
                 <div className="flex items-center">
                   <Timer className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 lg:h-8 lg:w-8 text-orange-600 flex-shrink-0" />
                   <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
-                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 leading-tight">Min. ahorrados</p>
+                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 leading-tight">{t('stats.minutesSaved')}</p>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {stats.timeSavedMinutes || 0}
                     </p>
@@ -599,7 +599,7 @@ export default function DashboardPage(): JSX.Element {
                 <div className="flex items-center">
                   <Eye className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 lg:h-8 lg:w-8 text-green-600 flex-shrink-0" />
                   <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
-                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 leading-tight">Zonas vistas</p>
+                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-gray-600 leading-tight">{t('stats.zonesViewed')}</p>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {stats.zonesViewed || 0}
                     </p>
@@ -634,7 +634,7 @@ export default function DashboardPage(): JSX.Element {
                     </svg>
                   </div>
                   <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
-                    Mis Propiedades ({loading ? '...' : properties.length})
+                    {t('properties.title')} ({loading ? '...' : properties.length})
                   </h2>
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -667,7 +667,7 @@ export default function DashboardPage(): JSX.Element {
                   >
                     <Link href="/properties/new" className="flex items-center justify-center">
                       <Plus className="w-4 h-4 mr-2" />
-                      Añadir propiedad
+                      {t('properties.addProperty')}
                     </Link>
                   </Button>
                 </div>
@@ -699,10 +699,10 @@ export default function DashboardPage(): JSX.Element {
                   <CardContent>
                     <Home className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      No tienes propiedades aún
+                      {t('properties.noProperties')}
                     </h3>
                     <p className="text-gray-600 mb-4">
-                      Crea tu primera propiedad
+                      {t('properties.createFirst')}
                     </p>
                     <div className="flex items-center justify-center gap-3">
                       {/* Floating Lightbulb - OUTSIDE button, on the left - CLICKEABLE */}
@@ -730,7 +730,7 @@ export default function DashboardPage(): JSX.Element {
                       >
                         <Link href="/properties/new" className="inline-flex items-center">
                           <Plus className="w-4 h-4 mr-2" />
-                          Crea tu primera propiedad
+                          {t('properties.createFirst')}
                         </Link>
                       </Button>
                     </div>
@@ -763,7 +763,7 @@ export default function DashboardPage(): JSX.Element {
                                   handleEditProperty(property.id)
                                 }}
                               >
-                                Editar
+                                {t('properties.edit')}
                               </div>
                             </div>
                           </div>
@@ -785,7 +785,7 @@ export default function DashboardPage(): JSX.Element {
                                   {property.propertySetId && (
                                     <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-indigo-100 text-indigo-800">
                                       <Building2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-                                      En conjunto
+                                      {t('properties.inGroup')}
                                     </span>
                                   )}
                                 </div>
@@ -793,16 +793,16 @@ export default function DashboardPage(): JSX.Element {
                                   {property.city}, {property.state}
                                 </p>
                                 <div className="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">
-                                  <span>{property.bedrooms} hab</span>
-                                  <span>{property.bathrooms} baños</span>
-                                  <span className="hidden xs:inline">{property.maxGuests} huéspedes</span>
+                                  <span>{property.bedrooms} {t('properties.rooms')}</span>
+                                  <span>{property.bathrooms} {t('properties.bathrooms')}</span>
+                                  <span className="hidden xs:inline">{property.maxGuests} {t('properties.guests')}</span>
                                 </div>
 
                                 <div className="flex items-center justify-between gap-2">
                                   <div className="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm">
                                     <div className="flex items-center text-gray-600">
                                       <MapPin className="h-3 h-3 sm:h-4 sm:w-4 mr-1" />
-                                      <span>{property.zonesCount} zonas</span>
+                                      <span>{property.zonesCount} {t('properties.zones')}</span>
                                     </div>
                                     {property.totalViews && (
                                       <div className="flex items-center text-gray-600">
@@ -815,7 +815,7 @@ export default function DashboardPage(): JSX.Element {
                                   {/* Switch para activar/desactivar */}
                                   <div className="flex items-center space-x-1.5 sm:space-x-2">
                                     <span className="text-xs sm:text-sm text-gray-600 hidden xs:inline">
-                                      {property.status === 'ACTIVE' ? 'Activa' : 'Inactiva'}
+                                      {property.status === 'ACTIVE' ? t('properties.active') : t('properties.inactive')}
                                     </span>
                                     <label className="relative inline-flex items-center cursor-pointer flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                                       <input
@@ -838,7 +838,7 @@ export default function DashboardPage(): JSX.Element {
                                 </DropdownMenu.Trigger>
                                 <DropdownMenu.Portal>
                                   <DropdownMenu.Content className="w-56 bg-white rounded-md shadow-lg border border-gray-200 p-1">
-                                    <DropdownMenu.Item 
+                                    <DropdownMenu.Item
                                       className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                       onClick={(e) => {
                                         e.stopPropagation()
@@ -846,9 +846,9 @@ export default function DashboardPage(): JSX.Element {
                                       }}
                                     >
                                       <Edit className="mr-2 h-4 w-4" />
-                                      Editar
+                                      {t('properties.edit')}
                                     </DropdownMenu.Item>
-                                    <DropdownMenu.Item 
+                                    <DropdownMenu.Item
                                       className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                       onClick={(e) => {
                                         e.stopPropagation()
@@ -856,9 +856,9 @@ export default function DashboardPage(): JSX.Element {
                                       }}
                                     >
                                       <Building2 className="mr-2 h-4 w-4" />
-                                      Gestionar propiedad
+                                      {t('properties.manage')}
                                     </DropdownMenu.Item>
-                                    <DropdownMenu.Item 
+                                    <DropdownMenu.Item
                                       className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                       onClick={(e) => {
                                         e.stopPropagation()
@@ -866,10 +866,10 @@ export default function DashboardPage(): JSX.Element {
                                       }}
                                     >
                                       <Copy className="mr-2 h-4 w-4" />
-                                      Duplicar
+                                      {t('properties.duplicate')}
                                     </DropdownMenu.Item>
                                     {property.status === 'ACTIVE' && (
-                                      <DropdownMenu.Item 
+                                      <DropdownMenu.Item
                                         className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                         onClick={(e) => {
                                           e.stopPropagation()
@@ -877,11 +877,11 @@ export default function DashboardPage(): JSX.Element {
                                         }}
                                       >
                                         <ExternalLink className="mr-2 h-4 w-4" />
-                                        Vista pública
+                                        {t('properties.publicView')}
                                       </DropdownMenu.Item>
                                     )}
                                     <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
-                                    <DropdownMenu.Item 
+                                    <DropdownMenu.Item
                                       className="flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded cursor-pointer"
                                       onClick={(e) => {
                                         e.stopPropagation()
@@ -889,7 +889,7 @@ export default function DashboardPage(): JSX.Element {
                                       }}
                                     >
                                       <Trash2 className="mr-2 h-4 w-4" />
-                                      Eliminar
+                                      {t('properties.delete')}
                                     </DropdownMenu.Item>
                                   </DropdownMenu.Content>
                                 </DropdownMenu.Portal>
@@ -908,7 +908,7 @@ export default function DashboardPage(): JSX.Element {
                 <div className="mt-6 text-center">
                   <Button asChild variant="outline" className="w-full sm:w-auto">
                     <Link href="/properties">
-                      Ver todas las propiedades
+                      {t('properties.viewAll')}
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>
                   </Button>
@@ -939,7 +939,7 @@ export default function DashboardPage(): JSX.Element {
                       </svg>
                     </div>
                     <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
-                      Conjuntos de Propiedades ({loading ? '...' : propertySets.length})
+                      {t('propertySets.title')} ({loading ? '...' : propertySets.length})
                     </h2>
                   </div>
                 </div>
@@ -954,10 +954,10 @@ export default function DashboardPage(): JSX.Element {
                     </div>
                     <div className="min-w-0">
                       <h3 className="text-xs sm:text-sm font-medium text-blue-800 mb-1">
-                        ¿Qué son los Conjuntos de Propiedades?
+                        {t('propertySets.infoTitle')}
                       </h3>
                       <p className="text-xs sm:text-sm text-blue-700 leading-relaxed">
-                        Los conjuntos agrupan propiedades que pertenecen a un mismo edificio, hotel, complejo o resort. Ideal para gestionar múltiples apartamentos en un mismo lugar con información compartida.
+                        {t('propertySets.infoDescription')}
                       </p>
                     </div>
                   </div>
@@ -1000,26 +1000,26 @@ export default function DashboardPage(): JSX.Element {
                               </DropdownMenu.Trigger>
                               <DropdownMenu.Portal>
                                 <DropdownMenu.Content className="w-56 bg-white rounded-md shadow-lg border border-gray-200 p-1">
-                                  <DropdownMenu.Item 
+                                  <DropdownMenu.Item
                                     className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                     onClick={() => handlePropertySetAction('edit', propertySet.id)}
                                   >
                                     <Edit className="mr-2 h-4 w-4" />
-                                    Editar
+                                    {t('propertySets.edit')}
                                   </DropdownMenu.Item>
-                                  <DropdownMenu.Item 
+                                  <DropdownMenu.Item
                                     className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                     onClick={() => handlePropertySetAction('manage', propertySet.id)}
                                   >
                                     <Building2 className="mr-2 h-4 w-4" />
-                                    Gestionar
+                                    {t('propertySets.manage')}
                                   </DropdownMenu.Item>
-                                  <DropdownMenu.Item 
+                                  <DropdownMenu.Item
                                     className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer"
                                     onClick={() => handlePropertySetAction('share', propertySet.id)}
                                   >
                                     <Share2 className="mr-2 h-4 w-4" />
-                                    Compartir
+                                    {t('propertySets.share')}
                                   </DropdownMenu.Item>
                                 </DropdownMenu.Content>
                               </DropdownMenu.Portal>
@@ -1030,27 +1030,27 @@ export default function DashboardPage(): JSX.Element {
                           <div className="grid grid-cols-3 gap-3 mb-4 flex-grow">
                             <div className="text-center">
                               <div className="text-2xl font-bold text-gray-900">{propertySet.propertiesCount || 0}</div>
-                              <div className="text-xs text-gray-600">Propiedades</div>
+                              <div className="text-xs text-gray-600">{t('propertySets.properties')}</div>
                             </div>
                             <div className="text-center">
                               <div className="text-2xl font-bold text-gray-900">{propertySet.totalZones || 0}</div>
-                              <div className="text-xs text-gray-600">Zonas</div>
+                              <div className="text-xs text-gray-600">{t('propertySets.zones')}</div>
                             </div>
                             <div className="text-center">
                               <div className="text-2xl font-bold text-gray-900">{propertySet.totalViews || 0}</div>
-                              <div className="text-xs text-gray-600">Vistas</div>
+                              <div className="text-xs text-gray-600">{t('propertySets.views')}</div>
                             </div>
                           </div>
 
                           {/* Type Badge */}
                           <div className="flex items-center justify-between mb-4">
                             <Badge variant="secondary" className="text-xs">
-                              {propertySet.type === 'HOTEL' && 'Hotel'}
-                              {propertySet.type === 'BUILDING' && 'Edificio'}
-                              {propertySet.type === 'COMPLEX' && 'Complejo'}
-                              {propertySet.type === 'RESORT' && 'Resort'}
-                              {propertySet.type === 'HOSTEL' && 'Hostel'}
-                              {propertySet.type === 'APARTHOTEL' && 'Aparthotel'}
+                              {propertySet.type === 'HOTEL' && t('propertySets.types.hotel')}
+                              {propertySet.type === 'BUILDING' && t('propertySets.types.building')}
+                              {propertySet.type === 'COMPLEX' && t('propertySets.types.complex')}
+                              {propertySet.type === 'RESORT' && t('propertySets.types.resort')}
+                              {propertySet.type === 'HOSTEL' && t('propertySets.types.hostel')}
+                              {propertySet.type === 'APARTHOTEL' && t('propertySets.types.aparthotel')}
                             </Badge>
                             {propertySet.avgRating > 0 && (
                               <div className="flex items-center text-sm text-gray-600">
@@ -1066,7 +1066,7 @@ export default function DashboardPage(): JSX.Element {
                             className="w-full"
                             onClick={() => router.push(`/properties/groups/${propertySet.id}`)}
                           >
-                            Gestionar
+                            {t('propertySets.manage')}
                             <ArrowRight className="w-4 h-4 ml-2" />
                           </Button>
                         </div>
@@ -1083,7 +1083,7 @@ export default function DashboardPage(): JSX.Element {
                       className="w-full sm:w-auto"
                       onClick={() => router.push('/properties/groups')}
                     >
-                      Ver todos los conjuntos ({propertySets.length})
+                      {t('propertySets.viewAll')} ({propertySets.length})
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </div>
@@ -1101,14 +1101,14 @@ export default function DashboardPage(): JSX.Element {
             >
               <div className="flex items-center space-x-2 mb-3 sm:mb-4">
                 <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
-                <h2 className="text-base sm:text-lg font-bold text-gray-900">Actividad Reciente</h2>
+                <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('activity.title')}</h2>
               </div>
 
               <div className="space-y-2 sm:space-y-3">
                 {recentActivity.length === 0 ? (
                   <div className="text-center py-8 bg-white rounded-lg border border-gray-200">
                     <TrendingUp className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">No hay actividad reciente</p>
+                    <p className="text-sm text-gray-500">{t('activity.noActivity')}</p>
                   </div>
                 ) : (
                   recentActivity.map((activity) => (
