@@ -58,10 +58,12 @@ import { CSS } from '@dnd-kit/utilities'
 function SortablePropertyCard({
   property,
   handlePropertyAction,
+  handleToggleProperty,
   isProcessing
 }: {
   property: Property
   handlePropertyAction: (action: string, propertyId: string) => void
+  handleToggleProperty: (propertyId: string) => void
   isProcessing?: boolean
 }) {
   const {
@@ -220,13 +222,21 @@ function SortablePropertyCard({
         </div>
 
         <div className="flex items-center justify-between mb-4">
-          <Badge 
-            variant={property.status === 'ACTIVE' ? 'default' : 'secondary'}
-            className={property.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : ''}
-          >
-            {property.status === 'ACTIVE' ? 'Activa' : 'Inactiva'}
-          </Badge>
-          
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">
+              {property.status === 'ACTIVE' ? 'Activa' : 'Inactiva'}
+            </span>
+            <label className="relative inline-flex items-center cursor-pointer" onClick={(e) => e.stopPropagation()}>
+              <input
+                type="checkbox"
+                checked={property.status === 'ACTIVE'}
+                onChange={() => handleToggleProperty(property.id)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+            </label>
+          </div>
+
           {property.avgRating !== undefined && property.avgRating > 0 && (
             <div className="flex items-center text-sm text-gray-600">
               <Star className="w-4 h-4 text-yellow-500 mr-1" />
@@ -680,6 +690,77 @@ export default function PropertySetDetailPage() {
     }
   }
 
+  const handleToggleProperty = async (propertyId: string) => {
+    if (!propertySet) return
+
+    // Guardar estado original para poder revertir
+    const originalProperty = propertySet.properties.find(p => p.id === propertyId)
+    if (!originalProperty) return
+
+    const originalStatus = originalProperty.status
+
+    try {
+      // Actualizar localmente primero para feedback inmediato (optimistic update)
+      const newStatus = originalStatus === 'ACTIVE' ? 'DRAFT' : 'ACTIVE'
+      setPropertySet(prev => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          properties: prev.properties.map(p => {
+            if (p.id === propertyId) {
+              return { ...p, status: newStatus }
+            }
+            return p
+          })
+        }
+      })
+
+      // Llamada a la API para actualizar en el servidor
+      const response = await fetch(`/api/properties/${propertyId}/toggle`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (!response.ok) {
+        throw new Error('Error al actualizar el estado de la propiedad')
+      }
+
+      const result = await response.json()
+
+      // Actualizar con los datos confirmados del servidor
+      if (result.success && result.data) {
+        setPropertySet(prev => {
+          if (!prev) return prev
+          return {
+            ...prev,
+            properties: prev.properties.map(p => {
+              if (p.id === propertyId) {
+                return { ...p, status: result.data.status }
+              }
+              return p
+            })
+          }
+        })
+      }
+
+    } catch (error) {
+      console.error('Error toggling property:', error)
+      // Revertir al estado original en caso de error
+      setPropertySet(prev => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          properties: prev.properties.map(p => {
+            if (p.id === propertyId) {
+              return { ...p, status: originalStatus }
+            }
+            return p
+          })
+        }
+      })
+    }
+  }
+
   const handlePropertyAction = async (action: string, propertyId: string) => {
     // Prevent multiple actions on same property
     if (processingPropertyId === propertyId) return
@@ -1062,6 +1143,7 @@ export default function PropertySetDetailPage() {
                           key={property.id}
                           property={property}
                           handlePropertyAction={handlePropertyAction}
+                          handleToggleProperty={handleToggleProperty}
                           isProcessing={processingPropertyId === property.id}
                         />
                       ))}
