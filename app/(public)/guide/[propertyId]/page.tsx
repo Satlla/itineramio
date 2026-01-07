@@ -935,23 +935,21 @@ export default function PropertyGuidePage() {
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2">
-            {/* Host Row - Airbnb style */}
+            {/* Property Info Row - Airbnb style */}
             <div className={`flex items-center justify-between py-6 border-b transition-colors ${
               darkMode ? 'border-gray-700' : 'border-gray-200'
             }`}>
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200">
-                  {property.hostContactPhoto ? (
+                <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-200">
+                  {property.profileImage ? (
                     <img
-                      src={property.hostContactPhoto}
-                      alt={property.hostContactName}
+                      src={property.profileImage}
+                      alt={getPropertyText(property.name, property.nameTranslations, language, 'Propiedad')}
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-[#222222] flex items-center justify-center">
-                      <span className="text-white font-medium text-lg">
-                        {property.hostContactName.charAt(0)}
-                      </span>
+                    <div className="w-full h-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                      <Home className="w-6 h-6 text-white" />
                     </div>
                   )}
                 </div>
