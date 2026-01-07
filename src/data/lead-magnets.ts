@@ -82,9 +82,9 @@ export const LEAD_MAGNETS: Record<LeadMagnetArchetype, LeadMagnet> = {
   },
 
   SISTEMATICO: {
-    slug: 'sistematico-47-tareas',
+    slug: 'organizador-47-tareas',
     archetype: 'SISTEMATICO',
-    title: 'El Sistema del Sistemático',
+    title: 'El Manual del Organizador',
     subtitle: '47 Tareas Automatizables',
     description:
       'De caos a máquina en 30 días. Descubre qué tareas automatizar primero y ahorra 25-30 horas al mes.',
@@ -118,7 +118,7 @@ export const LEAD_MAGNETS: Record<LeadMagnetArchetype, LeadMagnet> = {
       'ROI: Ahorra 6-8h/semana desde día 1',
       'Stack tech: Solo €65-95/mes',
     ],
-    downloadUrl: '/downloads/sistematico-47-tareas.pdf',
+    downloadUrl: '/downloads/organizador-47-tareas.pdf',
   },
 
   DIFERENCIADOR: {

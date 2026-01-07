@@ -6,7 +6,6 @@ import {
   type EmailArchetype,
 } from '@/lib/resend'
 import { getLeadMagnetBySlug } from '@/data/lead-magnets'
-import { generateDownloadToken } from '@/lib/tokens'
 import { notifyEmailSubscriber } from '@/lib/notifications/admin-notifications'
 import { enrollSubscriberInSequences } from '@/lib/email-sequences'
 
@@ -75,24 +74,19 @@ export async function POST(request: NextRequest) {
         })
       }
 
-      // Generar token para redirección directa si es lead magnet
-      let downloadToken = null
-
       // Si ya existe y está activo, enviar el lead magnet si aplica
       if (source === 'lead_magnet' && metadata.leadMagnetSlug) {
         const leadMagnet = getLeadMagnetBySlug(metadata.leadMagnetSlug)
         if (leadMagnet) {
-          // Generar token para descarga directa
-          const token = generateDownloadToken(existing.id, metadata.leadMagnetSlug)
-          downloadToken = token
+          // Enlace directo al PDF (sin tokens intermedios)
           const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
-          const downloadUrl = `${baseUrl}/recursos/${metadata.leadMagnetSlug}/download?token=${token}`
+          const downloadUrl = `${baseUrl}${leadMagnet.downloadUrl}`
 
           await sendLeadMagnetEmail({
             email,
             leadMagnetTitle: leadMagnet.title,
             leadMagnetSubtitle: leadMagnet.subtitle,
-            archetype: leadMagnet.archetype,
+            archetype: leadMagnet.archetype || 'Anfitrión',
             downloadUrl,
             pages: leadMagnet.pages,
             downloadables: leadMagnet.downloadables,
@@ -116,7 +110,6 @@ export async function POST(request: NextRequest) {
         success: true,
         message: 'Ya estás suscrito',
         subscriber: { email, alreadySubscribed: true },
-        downloadToken, // Devolver token para redirección inmediata
         leadMagnetSlug: metadata.leadMagnetSlug
       })
     }
@@ -151,19 +144,17 @@ export async function POST(request: NextRequest) {
 
     // Enviar email correspondiente según el source
     if (source === 'lead_magnet' && metadata.leadMagnetSlug) {
-      // Lead magnet: enviar email con PDF
+      // Lead magnet: enviar email con enlace directo al PDF
       const leadMagnet = getLeadMagnetBySlug(metadata.leadMagnetSlug)
       if (leadMagnet) {
-        // Generar token para descarga directa
-        const token = generateDownloadToken(subscriber.id, metadata.leadMagnetSlug)
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
-        const downloadUrl = `${baseUrl}/recursos/${metadata.leadMagnetSlug}/download?token=${token}`
+        const downloadUrl = `${baseUrl}${leadMagnet.downloadUrl}`
 
         await sendLeadMagnetEmail({
           email,
           leadMagnetTitle: leadMagnet.title,
           leadMagnetSubtitle: leadMagnet.subtitle,
-          archetype: leadMagnet.archetype,
+          archetype: leadMagnet.archetype || 'Anfitrión',
           downloadUrl,
           pages: leadMagnet.pages,
           downloadables: leadMagnet.downloadables,
@@ -181,12 +172,6 @@ export async function POST(request: NextRequest) {
       // No bloqueamos la respuesta si falla el enrollment
     })
 
-    // Generar token si es lead magnet para redirigir directamente
-    let downloadToken = null
-    if (source === 'lead_magnet' && metadata.leadMagnetSlug) {
-      downloadToken = generateDownloadToken(subscriber.id, metadata.leadMagnetSlug)
-    }
-
     return NextResponse.json({
       success: true,
       message: 'Suscripción exitosa',
@@ -195,7 +180,6 @@ export async function POST(request: NextRequest) {
         email: subscriber.email,
         archetype: subscriber.archetype
       },
-      downloadToken, // Devolver token para redirección inmediata
       leadMagnetSlug: metadata.leadMagnetSlug
     })
 

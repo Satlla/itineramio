@@ -62,13 +62,8 @@ export default function LeadMagnetForm({
         currency: 'EUR'
       })
 
-      // Si recibimos un downloadToken, redirigir directamente a la descarga
-      if (data.downloadToken && data.leadMagnetSlug) {
-        router.push(`/recursos/${data.leadMagnetSlug}/download?token=${data.downloadToken}`)
-      } else {
-        // Fallback a página de gracias si no hay token
-        router.push(`/recursos/${leadMagnet.slug}/gracias`)
-      }
+      // Redirigir a página de gracias con enlace directo al PDF
+      router.push(`/recursos/${leadMagnet.slug}/gracias`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error inesperado')
       setIsLoading(false)

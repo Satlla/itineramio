@@ -16,7 +16,7 @@ const SOURCE_TO_LEAD_MAGNET: Record<string, {
 }> = {
   // Arquetipo lead magnets - these get the download email
   'estratega-5-kpis': { ...LEAD_MAGNETS.ESTRATEGA, archetype: 'Estratega' },
-  'sistematico-47-tareas': { ...LEAD_MAGNETS.SISTEMATICO, archetype: 'Sistemático' },
+  'organizador-47-tareas': { ...LEAD_MAGNETS.SISTEMATICO, archetype: 'Organizador' },
   'diferenciador-storytelling': { ...LEAD_MAGNETS.DIFERENCIADOR, archetype: 'Diferenciador' },
   'ejecutor-modo-ceo': { ...LEAD_MAGNETS.EJECUTOR, archetype: 'Ejecutor' },
   'resolutor-27-crisis': { ...LEAD_MAGNETS.RESOLUTOR, archetype: 'Resolutor' },
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
     // Determine archetype from source or use default
     const sourceToArchetype: Record<string, string> = {
       'estratega-5-kpis': 'ESTRATEGA',
-      'sistematico-47-tareas': 'SISTEMATICO',
+      'organizador-47-tareas': 'SISTEMATICO',
       'diferenciador-storytelling': 'DIFERENCIADOR',
       'ejecutor-modo-ceo': 'EJECUTOR',
       'resolutor-27-crisis': 'RESOLUTOR',
