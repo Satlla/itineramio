@@ -137,6 +137,19 @@ async function getEmailTemplate(templateName: string): Promise<React.FC<any> | n
         return (await import('../emails/templates/tools/tool-house-rules-day6-violations')).default
       case 'tool-house-rules-day8-offer':
         return (await import('../emails/templates/tools/tool-house-rules-day8-offer')).default
+      // Academia templates
+      case 'academia-quiz-day0-results':
+        return (await import('../emails/templates/academia/academia-quiz-day0-results')).default
+      case 'academia-quiz-day2-tip':
+        return (await import('../emails/templates/academia/academia-quiz-day2-tip')).default
+      case 'academia-quiz-day4-resource':
+        return (await import('../emails/templates/academia/academia-quiz-day4-resource')).default
+      case 'academia-quiz-day7-case':
+        return (await import('../emails/templates/academia/academia-quiz-day7-case')).default
+      case 'academia-quiz-day10-invite':
+        return (await import('../emails/templates/academia/academia-quiz-day10-invite')).default
+      case 'academia-quiz-day14-offer':
+        return (await import('../emails/templates/academia/academia-quiz-day14-offer')).default
       default:
         console.error(`[EMAIL TEMPLATES] Unknown template: ${templateName}`)
         return null

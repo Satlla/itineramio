@@ -105,16 +105,18 @@ async function runTests() {
   const path = require('path');
   const templatesDir = path.join(__dirname, '..', 'src', 'emails', 'templates');
   const toolsDir = path.join(templatesDir, 'tools');
+  const academiaDir = path.join(templatesDir, 'academia');
 
   let missingTemplates = [];
-  
+
   for (const t of templateNames) {
     const baseName = t.name.replace('.tsx', '');
     const possiblePaths = [
       path.join(templatesDir, baseName + '.tsx'),
-      path.join(toolsDir, baseName + '.tsx')
+      path.join(toolsDir, baseName + '.tsx'),
+      path.join(academiaDir, baseName + '.tsx')
     ];
-    
+
     const exists = possiblePaths.some(p => fs.existsSync(p));
     
     if (exists) {
