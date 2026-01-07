@@ -59,7 +59,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
     {
       icon: <Layers className="w-5 h-5" />,
       label: "Conjuntos",
-      href: "/property-sets",
+      href: "/properties?tab=sets",
       description: "Agrupar propiedades similares",
       mobileOnly: true
     },
