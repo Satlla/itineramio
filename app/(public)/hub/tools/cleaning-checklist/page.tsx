@@ -517,9 +517,13 @@ export default function CleaningChecklist() {
               className="order-1 lg:order-2 lg:sticky lg:top-24 self-start"
             >
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   {t('common.preview')}
                 </h2>
+                <p className="text-gray-600 text-sm mb-6">
+                  ✏️ Personaliza el checklist añadiendo o quitando tareas según las necesidades de tu alojamiento.
+                  Después, introduce el nombre de tu propiedad, dirección y email para recibirlo en tu correo listo para imprimir.
+                </p>
 
                 {/* Checklist Preview */}
                 <div
