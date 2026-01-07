@@ -247,6 +247,13 @@ export interface CleaningChecklistData {
   userName: string
 }
 
+// Helper function to remove emojis from text (jsPDF doesn't support emojis)
+function removeEmojis(text: string): string {
+  return text
+    .replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]/gu, '')
+    .trim()
+}
+
 export function generateCleaningChecklistPDF(data: CleaningChecklistData): Buffer {
   const doc = new jsPDF({
     orientation: 'portrait',
@@ -256,144 +263,142 @@ export function generateCleaningChecklistPDF(data: CleaningChecklistData): Buffe
 
   const pageWidth = doc.internal.pageSize.getWidth()
   const pageHeight = doc.internal.pageSize.getHeight()
-  const margin = 15
+  const margin = 20
   const contentWidth = pageWidth - margin * 2
-  let y = 20
+  let y = 25
 
-  // Colors
-  const primaryColor: [number, number, number] = [124, 58, 237] // Violet-600
-  const darkGray: [number, number, number] = [31, 41, 55]
-  const mediumGray: [number, number, number] = [107, 114, 128]
-  const lightGray: [number, number, number] = [243, 244, 246]
+  // Colors - matching the email design
+  const darkGray: [number, number, number] = [17, 24, 39] // #111827
+  const mediumGray: [number, number, number] = [107, 114, 128] // #6b7280
+  const lightGray: [number, number, number] = [243, 244, 246] // #f3f4f6
+  const borderGray: [number, number, number] = [209, 213, 219] // #d1d5db
 
   // Count total tasks
   const totalTasks = data.sections.reduce((acc, s) => acc + s.items.length, 0)
 
-  // Header
-  doc.setFillColor(...primaryColor)
-  doc.rect(0, 0, pageWidth, 35, 'F')
-
-  doc.setTextColor(255, 255, 255)
-  doc.setFontSize(20)
-  doc.setFont('helvetica', 'bold')
-  doc.text('CHECKLIST DE LIMPIEZA', margin, y)
-
-  y += 8
-  doc.setFontSize(11)
-  doc.setFont('helvetica', 'normal')
-  doc.text(data.propertyName || 'Mi Propiedad', margin, y)
-
-  // Property info box
-  y = 42
-  doc.setFillColor(...lightGray)
-  doc.roundedRect(margin, y, contentWidth, data.propertyAddress ? 22 : 16, 2, 2, 'F')
+  // Header - simple like the email
+  doc.setTextColor(...mediumGray)
+  doc.setFontSize(9)
+  doc.text('ALOJAMIENTO', margin, y)
 
   y += 6
   doc.setTextColor(...darkGray)
-  doc.setFontSize(10)
+  doc.setFontSize(16)
   doc.setFont('helvetica', 'bold')
-  doc.text(`${totalTasks} tareas`, margin + 5, y)
-  doc.setFont('helvetica', 'normal')
-  doc.setTextColor(...mediumGray)
-  doc.text(`Preparado para: ${data.userName}`, margin + 35, y)
-  doc.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, contentWidth - 15, y)
+  doc.text(data.propertyName || 'Mi Propiedad', margin, y)
 
   if (data.propertyAddress) {
-    y += 6
-    doc.setFontSize(9)
-    doc.text(`Direccion: ${data.propertyAddress}`, margin + 5, y)
+    y += 5
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(...mediumGray)
+    doc.text(data.propertyAddress, margin, y)
   }
 
-  y += 12
+  y += 10
+  doc.setTextColor(...darkGray)
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Checklist de Limpieza', margin, y)
+
+  y += 5
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(...mediumGray)
+  doc.text(`${totalTasks} tareas - Marcar cada tarea completada`, margin, y)
+
+  y += 8
 
   // Sections
-  data.sections.forEach((section, sectionIndex) => {
+  data.sections.forEach((section) => {
     // Check if we need a new page
-    const sectionHeight = 10 + section.items.length * 6
-    if (y + sectionHeight > pageHeight - 25) {
+    const sectionHeight = 12 + section.items.length * 7
+    if (y + sectionHeight > pageHeight - 30) {
       doc.addPage()
       y = 20
     }
 
-    // Section header
-    doc.setFillColor(...primaryColor)
-    doc.roundedRect(margin, y, contentWidth, 8, 1, 1, 'F')
-    doc.setTextColor(255, 255, 255)
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'bold')
-    doc.text(section.title.toUpperCase(), margin + 3, y + 5.5)
+    // Section title - remove emojis
+    const cleanTitle = removeEmojis(section.title)
 
-    y += 12
+    y += 5
+    doc.setTextColor(...darkGray)
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'bold')
+    doc.text(cleanTitle.toUpperCase(), margin, y)
+
+    y += 5
 
     // Items
     doc.setTextColor(...darkGray)
-    doc.setFontSize(9)
+    doc.setFontSize(10)
     doc.setFont('helvetica', 'normal')
 
-    section.items.forEach((item, itemIndex) => {
+    section.items.forEach((item) => {
       // Check for page break
-      if (y > pageHeight - 20) {
+      if (y > pageHeight - 25) {
         doc.addPage()
         y = 20
       }
 
       // Checkbox
-      doc.setDrawColor(...mediumGray)
+      doc.setDrawColor(...borderGray)
       doc.setLineWidth(0.3)
-      doc.rect(margin + 2, y - 3, 4, 4)
+      doc.rect(margin, y - 3, 4, 4)
 
-      // Item text (truncate if too long)
-      const maxTextWidth = contentWidth - 15
+      // Item text
+      const maxTextWidth = contentWidth - 10
       let itemText = item
       while (doc.getTextWidth(itemText) > maxTextWidth && itemText.length > 10) {
         itemText = itemText.slice(0, -1)
       }
       if (itemText !== item) itemText += '...'
 
-      doc.text(itemText, margin + 9, y)
+      doc.text(itemText, margin + 7, y)
 
-      y += 6
+      y += 7
     })
 
-    y += 4
+    y += 3
   })
 
   // Notes section
-  if (y + 30 < pageHeight - 15) {
-    y += 5
+  if (y + 35 < pageHeight - 20) {
+    y += 8
     doc.setTextColor(...darkGray)
-    doc.setFontSize(10)
+    doc.setFontSize(9)
     doc.setFont('helvetica', 'bold')
-    doc.text('NOTAS:', margin, y)
+    doc.text('NOTAS', margin, y)
 
-    y += 3
-    doc.setDrawColor(...lightGray)
+    y += 4
+    doc.setDrawColor(...borderGray)
     doc.setLineWidth(0.3)
-    for (let i = 0; i < 3; i++) {
-      y += 6
-      doc.line(margin, y, margin + contentWidth, y)
-    }
+    doc.setLineDashPattern([2, 2], 0)
+    doc.roundedRect(margin, y, contentWidth, 25, 2, 2, 'S')
+    doc.setLineDashPattern([], 0)
   }
 
-  // Signature section
-  y = pageHeight - 22
+  // Footer area
+  y = pageHeight - 20
+
+  // Date and signature
   doc.setDrawColor(...mediumGray)
   doc.setLineWidth(0.3)
-
   doc.setTextColor(...mediumGray)
   doc.setFontSize(9)
   doc.setFont('helvetica', 'normal')
 
-  doc.text('Fecha:', margin, y)
-  doc.line(margin + 15, y, margin + 55, y)
+  doc.text('Fecha: ________________', margin, y)
+  doc.text('Firma: ________________', margin + 80, y)
 
-  doc.text('Firma:', margin + 70, y)
-  doc.line(margin + 85, y, margin + contentWidth, y)
-
-  // Footer
-  y = pageHeight - 10
-  doc.setTextColor(...mediumGray)
+  // Footer note
+  y += 8
   doc.setFontSize(8)
+  doc.setTextColor(...mediumGray)
+  doc.text('Verificar todas las tareas antes de la llegada del huesped.', margin, y)
+
+  // Branding
+  y = pageHeight - 8
   doc.text('Creado con Itineramio - itineramio.com', margin, y)
 
   // Return as Buffer
