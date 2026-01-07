@@ -27,14 +27,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // URL de descarga con parámetros
-    const downloadParams = new URLSearchParams({
-      nombre: propertyName || 'Mi Propiedad',
-      direccion: propertyAddress || '',
-      secciones: JSON.stringify(sections)
-    })
-    const downloadUrl = `https://www.itineramio.com/recursos/checklist-limpieza/descargar?${downloadParams.toString()}`
-
     // Save lead to database
     try {
       await prisma.lead.create({
@@ -217,34 +209,23 @@ export async function POST(request: NextRequest) {
           </tr>
           <!-- ========== FIN CHECKLIST ========== -->
 
-          <!-- Botón de descarga -->
-          <tr>
-            <td align="center" style="padding: 24px 0 0 0;">
-              <a href="${downloadUrl}" style="display: inline-block; background: #111827; color: #ffffff; padding: 12px 28px; text-decoration: none; font-weight: 500; font-size: 13px; border-radius: 6px;">
-                Descargar PDF
-              </a>
-              <p style="margin: 10px 0 0 0; font-size: 11px; color: #9ca3af;">Haz clic para abrir y guardar como PDF</p>
-            </td>
-          </tr>
-
           <!-- Instrucciones de impresión -->
           <tr>
             <td style="padding: 24px 0 20px 0;">
-              <p style="margin: 0 0 12px 0; font-size: 13px; font-weight: 600; color: #111827;">Cómo imprimir tu checklist</p>
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="padding: 4px 0; font-size: 12px; color: #6b7280;">1. Abre el enlace de descarga</td>
-                </tr>
-                <tr>
-                  <td style="padding: 4px 0; font-size: 12px; color: #6b7280;">2. Guarda como PDF (Cmd/Ctrl + P → Guardar como PDF)</td>
-                </tr>
-                <tr>
-                  <td style="padding: 4px 0; font-size: 12px; color: #6b7280;">3. Imprime en A4 y plastifica para mayor durabilidad</td>
-                </tr>
-                <tr>
-                  <td style="padding: 4px 0; font-size: 12px; color: #6b7280;">4. Deja una copia visible para tu equipo de limpieza</td>
-                </tr>
-              </table>
+              <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px;">
+                <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: #166534;">📄 Para imprimir tu checklist:</p>
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="padding: 4px 0; font-size: 13px; color: #15803d;">1. Pulsa <strong>Cmd + P</strong> (Mac) o <strong>Ctrl + P</strong> (Windows)</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 0; font-size: 13px; color: #15803d;">2. Selecciona "Guardar como PDF" o imprime directamente</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 0; font-size: 13px; color: #15803d;">3. Plastifica para mayor durabilidad</td>
+                  </tr>
+                </table>
+              </div>
             </td>
           </tr>
 
