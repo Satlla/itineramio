@@ -181,7 +181,10 @@ export default function CleaningChecklist() {
   const [pendingAction, setPendingAction] = useState<'download' | 'print' | null>(null)
   const [addingItemToSection, setAddingItemToSection] = useState<string | null>(null)
   const [newItemText, setNewItemText] = useState('')
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
+  // Start with all sections expanded so users can see the checklist content
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    new Set(['kitchen', 'bathroom', 'bedroom', 'livingRoom', 'general'])
+  )
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const checklistRef = useRef<HTMLDivElement>(null)
 
@@ -398,11 +401,12 @@ export default function CleaningChecklist() {
           </motion.div>
 
           <div className="grid lg:grid-cols-2 gap-12">
-            {/* Left: Editor */}
+            {/* Left: Editor - Shows second on mobile (order-2), first on desktop (lg:order-1) */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
+              className="order-2 lg:order-1"
             >
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -531,12 +535,12 @@ export default function CleaningChecklist() {
               </div>
             </motion.div>
 
-            {/* Right: Preview */}
+            {/* Right: Preview - Shows first on mobile (order-1), second on desktop (lg:order-2) */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="lg:sticky lg:top-24 self-start"
+              className="order-1 lg:order-2 lg:sticky lg:top-24 self-start"
             >
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
