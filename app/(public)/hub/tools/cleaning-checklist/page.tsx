@@ -205,20 +205,6 @@ export default function CleaningChecklist() {
     })
   }
 
-  const toggleItem = (sectionId: string, itemId: string) => {
-    setSections(sections.map(section => {
-      if (section.id === sectionId) {
-        return {
-          ...section,
-          items: section.items.map(item =>
-            item.id === itemId ? { ...item, checked: !item.checked } : item
-          )
-        }
-      }
-      return section
-    }))
-  }
-
   const addCustomItem = (sectionId: string) => {
     if (!newItemText?.trim()) return
 
@@ -349,10 +335,6 @@ export default function CleaningChecklist() {
   }
 
   const totalTasks = sections.reduce((acc, section) => acc + section.items.length, 0)
-  const completedTasks = sections.reduce((acc, section) =>
-    acc + section.items.filter(item => item.checked).length, 0
-  )
-  const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -469,22 +451,14 @@ export default function CleaningChecklist() {
                   </div>
                 </div>
 
-                {/* Progress */}
-                <div className="mb-6 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-green-900">{t('cleaningChecklist.progress')}</span>
-                    <span className="text-2xl font-bold text-green-600">{progressPercent}%</span>
+                {/* Summary */}
+                <div className="mb-6 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-blue-900">Tu checklist incluye</span>
+                    <span className="text-2xl font-bold text-blue-600">{totalTasks} tareas</span>
                   </div>
-                  <div className="w-full h-3 bg-green-100 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progressPercent}%` }}
-                      transition={{ duration: 0.5 }}
-                      className="h-full bg-gradient-to-r from-green-500 to-emerald-600"
-                    />
-                  </div>
-                  <p className="text-xs text-green-700 mt-2">
-                    {completedTasks} {t('cleaningChecklist.tasksCompleted', { total: totalTasks })}
+                  <p className="text-xs text-blue-700 mt-2">
+                    Puedes eliminar o añadir tareas en cada sección
                   </p>
                 </div>
 
@@ -575,7 +549,6 @@ export default function CleaningChecklist() {
                   <div className="space-y-4">
                     {sections.map((section) => {
                       const isExpanded = expandedSections.has(section.id)
-                      const completedCount = section.items.filter(i => i.checked).length
 
                       return (
                         <div key={section.id} className="border border-gray-200 rounded-xl overflow-hidden">
@@ -597,7 +570,7 @@ export default function CleaningChecklist() {
                               </h4>
                             </div>
                             <span className="text-sm text-gray-500">
-                              {completedCount}/{section.items.length}
+                              {section.items.length} tareas
                             </span>
                           </button>
 
@@ -607,33 +580,20 @@ export default function CleaningChecklist() {
                               {section.items.map((item) => (
                                 <div
                                   key={item.id}
-                                  className="flex items-center space-x-3 group ml-8"
+                                  className="flex items-center space-x-3 ml-8"
                                 >
-                                  <button
-                                    onClick={() => toggleItem(section.id, item.id)}
-                                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                                      item.checked
-                                        ? `${selectedStyle.accentColor} border-transparent`
-                                        : 'border-gray-300 hover:border-gray-400'
-                                    }`}
-                                  >
-                                    {item.checked && <Check className="w-3 h-3 text-white" />}
-                                  </button>
-                                  <span
-                                    className={`flex-1 text-sm ${
-                                      item.checked
-                                        ? 'line-through text-gray-400'
-                                        : selectedStyle.textColor
-                                    }`}
-                                  >
+                                  {/* Empty checkbox - visual only (will be checked on paper) */}
+                                  <div className="w-4 h-4 rounded border-2 border-gray-300 flex-shrink-0" />
+                                  <span className={`flex-1 text-sm ${selectedStyle.textColor}`}>
                                     {item.text}
                                   </span>
+                                  {/* Delete button - always visible */}
                                   <button
                                     onClick={() => removeItem(section.id, item.id)}
-                                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded transition-all"
-                                    title="Eliminar"
+                                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                                    title="Eliminar tarea"
                                   >
-                                    <X className="w-3 h-3 text-red-500" />
+                                    <X className="w-4 h-4" />
                                   </button>
                                 </div>
                               ))}
