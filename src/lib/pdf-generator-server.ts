@@ -232,3 +232,171 @@ export function generatePricingAnalysisPDF(data: PricingAnalysisData): Buffer {
   const arrayBuffer = doc.output('arraybuffer')
   return Buffer.from(arrayBuffer)
 }
+
+// ========== CLEANING CHECKLIST PDF ==========
+
+export interface ChecklistSection {
+  title: string
+  items: string[]
+}
+
+export interface CleaningChecklistData {
+  propertyName: string
+  propertyAddress?: string
+  sections: ChecklistSection[]
+  userName: string
+}
+
+export function generateCleaningChecklistPDF(data: CleaningChecklistData): Buffer {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  })
+
+  const pageWidth = doc.internal.pageSize.getWidth()
+  const pageHeight = doc.internal.pageSize.getHeight()
+  const margin = 15
+  const contentWidth = pageWidth - margin * 2
+  let y = 20
+
+  // Colors
+  const primaryColor: [number, number, number] = [124, 58, 237] // Violet-600
+  const darkGray: [number, number, number] = [31, 41, 55]
+  const mediumGray: [number, number, number] = [107, 114, 128]
+  const lightGray: [number, number, number] = [243, 244, 246]
+
+  // Count total tasks
+  const totalTasks = data.sections.reduce((acc, s) => acc + s.items.length, 0)
+
+  // Header
+  doc.setFillColor(...primaryColor)
+  doc.rect(0, 0, pageWidth, 35, 'F')
+
+  doc.setTextColor(255, 255, 255)
+  doc.setFontSize(20)
+  doc.setFont('helvetica', 'bold')
+  doc.text('CHECKLIST DE LIMPIEZA', margin, y)
+
+  y += 8
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'normal')
+  doc.text(data.propertyName || 'Mi Propiedad', margin, y)
+
+  // Property info box
+  y = 42
+  doc.setFillColor(...lightGray)
+  doc.roundedRect(margin, y, contentWidth, data.propertyAddress ? 22 : 16, 2, 2, 'F')
+
+  y += 6
+  doc.setTextColor(...darkGray)
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'bold')
+  doc.text(`${totalTasks} tareas`, margin + 5, y)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(...mediumGray)
+  doc.text(`Preparado para: ${data.userName}`, margin + 35, y)
+  doc.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, contentWidth - 15, y)
+
+  if (data.propertyAddress) {
+    y += 6
+    doc.setFontSize(9)
+    doc.text(`Direccion: ${data.propertyAddress}`, margin + 5, y)
+  }
+
+  y += 12
+
+  // Sections
+  data.sections.forEach((section, sectionIndex) => {
+    // Check if we need a new page
+    const sectionHeight = 10 + section.items.length * 6
+    if (y + sectionHeight > pageHeight - 25) {
+      doc.addPage()
+      y = 20
+    }
+
+    // Section header
+    doc.setFillColor(...primaryColor)
+    doc.roundedRect(margin, y, contentWidth, 8, 1, 1, 'F')
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'bold')
+    doc.text(section.title.toUpperCase(), margin + 3, y + 5.5)
+
+    y += 12
+
+    // Items
+    doc.setTextColor(...darkGray)
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+
+    section.items.forEach((item, itemIndex) => {
+      // Check for page break
+      if (y > pageHeight - 20) {
+        doc.addPage()
+        y = 20
+      }
+
+      // Checkbox
+      doc.setDrawColor(...mediumGray)
+      doc.setLineWidth(0.3)
+      doc.rect(margin + 2, y - 3, 4, 4)
+
+      // Item text (truncate if too long)
+      const maxTextWidth = contentWidth - 15
+      let itemText = item
+      while (doc.getTextWidth(itemText) > maxTextWidth && itemText.length > 10) {
+        itemText = itemText.slice(0, -1)
+      }
+      if (itemText !== item) itemText += '...'
+
+      doc.text(itemText, margin + 9, y)
+
+      y += 6
+    })
+
+    y += 4
+  })
+
+  // Notes section
+  if (y + 30 < pageHeight - 15) {
+    y += 5
+    doc.setTextColor(...darkGray)
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'bold')
+    doc.text('NOTAS:', margin, y)
+
+    y += 3
+    doc.setDrawColor(...lightGray)
+    doc.setLineWidth(0.3)
+    for (let i = 0; i < 3; i++) {
+      y += 6
+      doc.line(margin, y, margin + contentWidth, y)
+    }
+  }
+
+  // Signature section
+  y = pageHeight - 22
+  doc.setDrawColor(...mediumGray)
+  doc.setLineWidth(0.3)
+
+  doc.setTextColor(...mediumGray)
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+
+  doc.text('Fecha:', margin, y)
+  doc.line(margin + 15, y, margin + 55, y)
+
+  doc.text('Firma:', margin + 70, y)
+  doc.line(margin + 85, y, margin + contentWidth, y)
+
+  // Footer
+  y = pageHeight - 10
+  doc.setTextColor(...mediumGray)
+  doc.setFontSize(8)
+  doc.text('Creado con Itineramio - itineramio.com', margin, y)
+
+  // Return as Buffer
+  const arrayBuffer = doc.output('arraybuffer')
+  return Buffer.from(arrayBuffer)
+}

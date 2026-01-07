@@ -2,17 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { prisma } from '@/lib/prisma'
 import { enrollSubscriberInSequences } from '@/lib/email-sequences'
+import { generateCleaningChecklistPDF, ChecklistSection } from '@/lib/pdf-generator-server'
 
 // Lazy initialization to avoid build errors
 let _resend: Resend | null = null
 function getResend(): Resend {
   if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY || 'placeholder')
   return _resend
-}
-
-interface ChecklistSection {
-  title: string
-  items: string[]
 }
 
 export async function POST(request: NextRequest) {
@@ -112,11 +108,32 @@ export async function POST(request: NextRequest) {
     // Count total tasks
     const totalTasks = (sections as ChecklistSection[]).reduce((acc, s) => acc + s.items.length, 0)
 
-    // Send email
+    // Generate PDF for attachment
+    let pdfBuffer: Buffer | null = null
+    try {
+      pdfBuffer = generateCleaningChecklistPDF({
+        propertyName: propertyName || 'Mi Propiedad',
+        propertyAddress: propertyAddress || undefined,
+        sections: sections as ChecklistSection[],
+        userName: name
+      })
+      console.log(`[PDF] Generated cleaning checklist PDF (${pdfBuffer.length} bytes)`)
+    } catch (pdfError) {
+      console.error('Error generating PDF:', pdfError)
+      // Continue without PDF if generation fails
+    }
+
+    // Send email with PDF attachment
     const emailResult = await getResend().emails.send({
       from: 'Itineramio <hola@itineramio.com>',
       to: email,
       subject: `Tu Checklist de Limpieza - ${propertyName || 'Profesional'}`,
+      attachments: pdfBuffer ? [
+        {
+          filename: `checklist-limpieza-${(propertyName || 'propiedad').toLowerCase().replace(/\s+/g, '-')}.pdf`,
+          content: pdfBuffer
+        }
+      ] : undefined,
       html: `
 <!DOCTYPE html>
 <html>
@@ -135,7 +152,8 @@ export async function POST(request: NextRequest) {
             <td style="padding: 0 0 24px 0; text-align: center;">
               <p style="margin: 0 0 6px 0; color: #9ca3af; font-size: 11px; text-transform: uppercase; letter-spacing: 2px;">Itineramio</p>
               <h1 style="margin: 0 0 8px 0; color: #111827; font-size: 22px; font-weight: 600;">Tu Checklist de Limpieza</h1>
-              <p style="margin: 0; color: #6b7280; font-size: 13px; line-height: 1.5;">Hola ${name}, aquí tienes tu checklist personalizado listo para imprimir.</p>
+              <p style="margin: 0; color: #6b7280; font-size: 13px; line-height: 1.5;">Hola ${name}, aquí tienes tu checklist personalizado.</p>
+              <p style="margin: 8px 0 0 0; color: #166534; font-size: 13px; font-weight: 600;">📎 PDF adjunto listo para descargar e imprimir</p>
             </td>
           </tr>
 
@@ -216,10 +234,10 @@ export async function POST(request: NextRequest) {
                 <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: #166534;">📄 Para imprimir tu checklist:</p>
                 <table width="100%" cellpadding="0" cellspacing="0">
                   <tr>
-                    <td style="padding: 4px 0; font-size: 13px; color: #15803d;">1. Pulsa <strong>Cmd + P</strong> (Mac) o <strong>Ctrl + P</strong> (Windows)</td>
+                    <td style="padding: 4px 0; font-size: 13px; color: #15803d;">1. <strong>Descarga el PDF adjunto</strong> a este email</td>
                   </tr>
                   <tr>
-                    <td style="padding: 4px 0; font-size: 13px; color: #15803d;">2. Selecciona "Guardar como PDF" o imprime directamente</td>
+                    <td style="padding: 4px 0; font-size: 13px; color: #15803d;">2. Abre el PDF e imprime directamente</td>
                   </tr>
                   <tr>
                     <td style="padding: 4px 0; font-size: 13px; color: #15803d;">3. Plastifica para mayor durabilidad</td>
