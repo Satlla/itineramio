@@ -87,53 +87,80 @@ export async function POST(request: NextRequest) {
 
     const createdProperties = []
 
-    // Helper function to find the highest number for a base name
-    const findHighestNumber = async (baseName: string): Promise<number> => {
+    // Helper function to find all used numbers for a base name
+    const findUsedNumbers = async (baseName: string): Promise<Set<number>> => {
       const allProperties = await prisma.property.findMany({
         where: { hostId: userId },
         select: { name: true }
       })
 
-      let highest = 0
+      const usedNumbers = new Set<number>()
       const regex = new RegExp(`^${baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*(\\d+)$`)
 
       for (const prop of allProperties) {
         const propName = typeof prop.name === 'string' ? prop.name : (prop.name as any)?.es || ''
         const match = propName.match(regex)
         if (match) {
-          const num = parseInt(match[1])
-          if (num > highest) highest = num
+          usedNumbers.add(parseInt(match[1]))
         }
       }
 
-      return highest
+      return usedNumbers
     }
 
-    // Helper function to increment number in name
-    const incrementPropertyName = async (name: string, startFrom: number): Promise<string> => {
-      // Extract base name (remove existing number if present)
+    // Helper function to find the next available sequential numbers
+    const getNextAvailableNumbers = async (baseName: string, count: number): Promise<number[]> => {
+      const usedNumbers = await findUsedNumbers(baseName)
+      const nextNumbers: number[] = []
+
+      // Start from 1 if no numbers exist, otherwise from max + 1
+      let startNum = usedNumbers.size > 0 ? Math.max(...usedNumbers) + 1 : 1
+
+      // Find 'count' consecutive available numbers
+      let current = startNum
+      while (nextNumbers.length < count) {
+        if (!usedNumbers.has(current)) {
+          nextNumbers.push(current)
+        }
+        current++
+      }
+
+      return nextNumbers
+    }
+
+    // Extract base name once (remove existing number if present)
+    const extractBaseName = (name: string): string => {
       const match = name.match(/^(.+?)(\d+)$/)
-      const baseName = match ? match[1].trim() : name
+      return match ? match[1].trim() : name
+    }
 
-      // Find highest existing number for this base name
-      const highestExisting = await findHighestNumber(baseName)
+    // Pre-calculate all available numbers BEFORE creating any properties
+    // This ensures sequential numbering even when creating multiple duplicates at once
+    let availableNumbers: number[] = []
+    let baseName = ''
 
-      // Start from the highest + startFrom
-      return `${baseName} ${highestExisting + startFrom}`
+    if (typeof originalProperty.name === 'string') {
+      baseName = extractBaseName(originalProperty.name)
+      availableNumbers = await getNextAvailableNumbers(baseName, count)
+    } else if (originalProperty.name && typeof originalProperty.name === 'object') {
+      const nameObj = originalProperty.name as any
+      baseName = extractBaseName(nameObj.es || '')
+      availableNumbers = await getNextAvailableNumbers(baseName, count)
     }
 
     // Create multiple duplicates
-    for (let i = 1; i <= count; i++) {
-      // Determine new property name with smart numbering
+    for (let i = 0; i < count; i++) {
+      // Determine new property name with pre-calculated sequential numbering
       let newName
       if (typeof originalProperty.name === 'string') {
-        newName = await incrementPropertyName(originalProperty.name, i)
+        newName = `${baseName} ${availableNumbers[i]}`
       } else if (originalProperty.name && typeof originalProperty.name === 'object') {
         const nameObj = originalProperty.name as any
+        const num = availableNumbers[i]
         newName = {
-          es: await incrementPropertyName(nameObj.es || '', i),
-          en: await incrementPropertyName(nameObj.en || '', i),
-          fr: await incrementPropertyName(nameObj.fr || '', i)
+          es: `${extractBaseName(nameObj.es || '')} ${num}`,
+          en: `${extractBaseName(nameObj.en || '')} ${num}`,
+          fr: `${extractBaseName(nameObj.fr || '')} ${num}`
         }
       } else {
         newName = `Propiedad Duplicada ${i + 1}`
