@@ -337,23 +337,23 @@ export default function CleaningChecklist() {
   const totalTasks = sections.reduce((acc, section) => acc + section.items.length, 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-white">
       <Navbar />
 
-      <div className="pt-32 pb-16 px-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
+      <div className="pt-28 pb-16 px-6">
+        <div className="max-w-6xl mx-auto">
+          {/* Header - Airbnb style */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-12"
+            className="mb-10"
           >
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-8">
               <Link
                 href="/hub"
-                className="inline-flex items-center text-violet-600 hover:text-violet-700 font-medium group"
+                className="inline-flex items-center text-[#222222] hover:underline font-medium"
               >
-                <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+                <ArrowLeft className="w-4 h-4 mr-2" />
                 {t('common.backToHub')}
               </Link>
               <SocialShare
@@ -362,23 +362,20 @@ export default function CleaningChecklist() {
               />
             </div>
 
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-5xl font-bold text-gray-900">
-                  {t('cleaningChecklist.title')}
-                </h1>
-                <p className="text-xl text-gray-600 mt-2">
-                  {t('cleaningChecklist.subtitle')}
-                </p>
-              </div>
-            </div>
-
-            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-full border border-blue-200">
-              <Sparkles className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-900">{totalTasks} {t('cleaningChecklist.badge')}</span>
+            <h1 className="text-[32px] font-semibold text-[#222222] mb-2">
+              {t('cleaningChecklist.title')}
+            </h1>
+            <p className="text-[#717171] text-base mb-4">
+              {t('cleaningChecklist.subtitle')}
+            </p>
+            <div className="flex items-center gap-2 text-sm text-[#717171]">
+              <span className="inline-flex items-center px-3 py-1 bg-[#F7F7F7] rounded-full">
+                {totalTasks} {t('cleaningChecklist.badge')}
+              </span>
+              <span>·</span>
+              <span>100% personalizable</span>
+              <span>·</span>
+              <span>Gratis</span>
             </div>
           </motion.div>
 
@@ -390,14 +387,14 @@ export default function CleaningChecklist() {
               transition={{ delay: 0.1 }}
               className="order-2 lg:order-1"
             >
-              <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              <div className="border border-[#DDDDDD] rounded-xl p-6 bg-white">
+                <h2 className="text-[22px] font-semibold text-[#222222] mb-6">
                   {t('cleaningChecklist.customize')}
                 </h2>
 
                 {/* Property Name */}
                 <div className="mb-4">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-[#222222] mb-2">
                     {t('cleaningChecklist.propertyName')}
                   </label>
                   <input
@@ -405,13 +402,13 @@ export default function CleaningChecklist() {
                     value={propertyName}
                     onChange={(e) => setPropertyName(e.target.value)}
                     placeholder={t('cleaningChecklist.propertyNamePlaceholder')}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none text-gray-900 placeholder-gray-400"
+                    className="w-full px-4 py-3 border border-[#DDDDDD] rounded-lg focus:border-[#222222] focus:outline-none focus:ring-1 focus:ring-[#222222] text-[#222222] placeholder-[#717171]"
                   />
                 </div>
 
                 {/* Property Address */}
                 <div className="mb-6">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-[#222222] mb-2">
                     {t('cleaningChecklist.propertyAddress')}
                   </label>
                   <input
@@ -419,62 +416,54 @@ export default function CleaningChecklist() {
                     value={propertyAddress}
                     onChange={(e) => setPropertyAddress(e.target.value)}
                     placeholder={t('cleaningChecklist.propertyAddressPlaceholder')}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none text-gray-900 placeholder-gray-400"
+                    className="w-full px-4 py-3 border border-[#DDDDDD] rounded-lg focus:border-[#222222] focus:outline-none focus:ring-1 focus:ring-[#222222] text-[#222222] placeholder-[#717171]"
                   />
                 </div>
 
-                {/* Style Selector */}
-                <div className="mb-8">
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                {/* Style Selector - Simplified Airbnb style */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-[#222222] mb-3">
                     {t('cleaningChecklist.designStyle')}
                   </label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-2">
                     {checklistStylesConfig.map((style) => (
                       <button
                         key={style.id}
                         onClick={() => setSelectedStyle(style)}
-                        className={`relative aspect-square rounded-xl transition-all ${
+                        className={`p-3 rounded-lg border transition-all text-center ${
                           selectedStyle.id === style.id
-                            ? 'ring-4 ring-blue-500 ring-offset-2 scale-110'
-                            : 'hover:scale-105'
+                            ? 'border-[#222222] bg-[#F7F7F7]'
+                            : 'border-[#DDDDDD] hover:border-[#222222]'
                         }`}
                       >
-                        <div className={`w-full h-full rounded-xl bg-gradient-to-br ${style.colors} flex items-center justify-center`}>
-                          <span className="text-3xl">{style.emoji}</span>
-                          {selectedStyle.id === style.id && (
-                            <Check className="w-6 h-6 text-white absolute inset-0 m-auto z-10 drop-shadow-lg" />
-                          )}
-                        </div>
-                        <span className="text-xs text-gray-600 mt-1 block">{t(`cleaningChecklist.styles.${style.nameKey}`)}</span>
+                        <span className="text-xl block mb-1">{style.emoji}</span>
+                        <span className="text-xs text-[#222222]">{t(`cleaningChecklist.styles.${style.nameKey}`)}</span>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Summary */}
-                <div className="mb-6 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                {/* Summary - Airbnb card style */}
+                <div className="mb-6 p-4 bg-[#F7F7F7] rounded-xl">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-blue-900">Tu checklist incluye</span>
-                    <span className="text-2xl font-bold text-blue-600">{totalTasks} tareas</span>
+                    <span className="text-sm text-[#222222]">Tu checklist incluye</span>
+                    <span className="text-lg font-semibold text-[#222222]">{totalTasks} tareas</span>
                   </div>
-                  <p className="text-xs text-blue-700 mt-2">
-                    Puedes eliminar o añadir tareas en cada sección
-                  </p>
                 </div>
 
-                {/* Action Buttons */}
+                {/* Action Buttons - Airbnb style */}
                 <div className="space-y-3">
                   <button
                     onClick={handleDownloadClick}
-                    className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all group"
+                    className="w-full py-3.5 bg-[#222222] text-white rounded-lg font-medium flex items-center justify-center hover:bg-[#000000] transition-colors"
                   >
-                    <Download className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+                    <Download className="w-5 h-5 mr-2" />
                     {t('common.downloadChecklist')}
                   </button>
 
                   <button
                     onClick={handlePrintClick}
-                    className="w-full py-4 bg-white border-2 border-gray-200 text-gray-900 rounded-xl font-bold flex items-center justify-center hover:border-gray-300 hover:shadow-lg transition-all"
+                    className="w-full py-3.5 bg-white border border-[#222222] text-[#222222] rounded-lg font-medium flex items-center justify-center hover:bg-[#F7F7F7] transition-colors"
                   >
                     <Printer className="w-5 h-5 mr-2" />
                     {t('common.printChecklist')}
@@ -482,27 +471,26 @@ export default function CleaningChecklist() {
                 </div>
               </div>
 
-              {/* Tips */}
-              <div className="mt-8 p-6 bg-blue-50 border-2 border-blue-200 rounded-2xl">
-                <h3 className="font-bold text-blue-900 mb-3 flex items-center">
-                  <Sparkles className="w-5 h-5 mr-2" />
+              {/* Tips - Airbnb style */}
+              <div className="mt-6 p-5 border border-[#DDDDDD] rounded-xl">
+                <h3 className="font-medium text-[#222222] mb-3">
                   {t('cleaningChecklist.tips.title')}
                 </h3>
-                <ul className="space-y-2 text-sm text-blue-800">
+                <ul className="space-y-2 text-sm text-[#717171]">
                   <li className="flex items-start">
-                    <span className="mr-2">•</span>
+                    <span className="mr-2 text-[#222222]">•</span>
                     <span>{t('cleaningChecklist.tips.tip1')}</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="mr-2">•</span>
+                    <span className="mr-2 text-[#222222]">•</span>
                     <span>{t('cleaningChecklist.tips.tip2')}</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="mr-2">•</span>
+                    <span className="mr-2 text-[#222222]">•</span>
                     <span>{t('cleaningChecklist.tips.tip3')}</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="mr-2">•</span>
+                    <span className="mr-2 text-[#222222]">•</span>
                     <span>{t('cleaningChecklist.tips.tip4')}</span>
                   </li>
                 </ul>
@@ -516,31 +504,31 @@ export default function CleaningChecklist() {
               transition={{ delay: 0.2 }}
               className="order-1 lg:order-2 lg:sticky lg:top-24 self-start"
             >
-              <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <div className="border border-[#DDDDDD] rounded-xl p-6 bg-white">
+                <h2 className="text-[22px] font-semibold text-[#222222] mb-2">
                   {t('common.preview')}
                 </h2>
-                <p className="text-gray-600 text-sm mb-6">
-                  ✏️ Personaliza el checklist añadiendo o quitando tareas según las necesidades de tu alojamiento.
-                  Después, introduce el nombre de tu propiedad, dirección y email para recibirlo en tu correo listo para imprimir.
+                <p className="text-[#717171] text-sm mb-6">
+                  Personaliza el checklist añadiendo o quitando tareas según las necesidades de tu alojamiento.
+                  Después, introduce el nombre de tu propiedad, dirección y email para recibirlo en tu correo.
                 </p>
 
-                {/* Checklist Preview */}
+                {/* Checklist Preview - Airbnb style */}
                 <div
                   ref={checklistRef}
-                  className={`${selectedStyle.bgColor} ${selectedStyle.border || ''} rounded-2xl p-8 max-h-[600px] overflow-y-auto`}
+                  className="bg-white border border-[#DDDDDD] rounded-xl p-6 max-h-[600px] overflow-y-auto"
                 >
                   {/* Header */}
-                  <div className={`bg-gradient-to-r ${selectedStyle.colors} rounded-xl p-6 text-white mb-6`}>
-                    <h3 className="text-3xl font-bold mb-1">
+                  <div className="border-b border-[#DDDDDD] pb-4 mb-4">
+                    <h3 className="text-xl font-semibold text-[#222222] mb-1">
                       {propertyName || 'Checklist de Limpieza'}
                     </h3>
                     {propertyAddress && (
-                      <p className="text-white/80 text-sm mb-2">
-                        📍 {propertyAddress}
+                      <p className="text-[#717171] text-sm mb-1">
+                        {propertyAddress}
                       </p>
                     )}
-                    <p className="text-white/70 text-xs">
+                    <p className="text-[#717171] text-xs">
                       {new Date().toLocaleDateString('es-ES', {
                         year: 'numeric',
                         month: 'long',
@@ -550,51 +538,51 @@ export default function CleaningChecklist() {
                   </div>
 
                   {/* Sections */}
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {sections.map((section) => {
                       const isExpanded = expandedSections.has(section.id)
 
                       return (
-                        <div key={section.id} className="border border-gray-200 rounded-xl overflow-hidden">
+                        <div key={section.id} className="border border-[#DDDDDD] rounded-lg overflow-hidden">
                           {/* Section Header - Clickable to expand/collapse */}
                           <button
                             onClick={() => toggleSection(section.id)}
-                            className={`w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors ${
-                              isExpanded ? 'bg-gray-50' : 'bg-white'
+                            className={`w-full flex items-center justify-between p-3 hover:bg-[#F7F7F7] transition-colors ${
+                              isExpanded ? 'bg-[#F7F7F7]' : 'bg-white'
                             }`}
                           >
-                            <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-2">
                               {isExpanded ? (
-                                <ChevronDown className="w-5 h-5 text-gray-400" />
+                                <ChevronDown className="w-4 h-4 text-[#717171]" />
                               ) : (
-                                <ChevronRight className="w-5 h-5 text-gray-400" />
+                                <ChevronRight className="w-4 h-4 text-[#717171]" />
                               )}
-                              <h4 className={`text-lg font-bold ${selectedStyle.textColor}`}>
+                              <h4 className="text-sm font-medium text-[#222222]">
                                 {section.title}
                               </h4>
                             </div>
-                            <span className="text-sm text-gray-500">
+                            <span className="text-xs text-[#717171]">
                               {section.items.length} tareas
                             </span>
                           </button>
 
                           {/* Section Content - Only visible when expanded */}
                           {isExpanded && (
-                            <div className="px-4 pb-4 space-y-2">
+                            <div className="px-3 pb-3 space-y-1.5">
                               {section.items.map((item) => (
                                 <div
                                   key={item.id}
-                                  className="flex items-center space-x-3 ml-8"
+                                  className="flex items-center space-x-2 ml-6"
                                 >
-                                  {/* Empty checkbox - visual only (will be checked on paper) */}
-                                  <div className="w-4 h-4 rounded border-2 border-gray-300 flex-shrink-0" />
-                                  <span className={`flex-1 text-sm ${selectedStyle.textColor}`}>
+                                  {/* Empty checkbox - visual only */}
+                                  <div className="w-4 h-4 rounded border border-[#DDDDDD] flex-shrink-0" />
+                                  <span className="flex-1 text-sm text-[#222222]">
                                     {item.text}
                                   </span>
-                                  {/* Delete button - always visible */}
+                                  {/* Delete button */}
                                   <button
                                     onClick={() => removeItem(section.id, item.id)}
-                                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                                    className="p-1 text-[#717171] hover:text-red-500 hover:bg-red-50 rounded transition-colors"
                                     title="Eliminar tarea"
                                   >
                                     <X className="w-4 h-4" />
@@ -604,7 +592,7 @@ export default function CleaningChecklist() {
 
                               {/* Inline Add Item */}
                               {addingItemToSection === section.id ? (
-                                <div className="flex items-center space-x-2 ml-8 mt-2">
+                                <div className="flex items-center space-x-2 ml-6 mt-2">
                                   <input
                                     type="text"
                                     value={newItemText}
@@ -614,19 +602,19 @@ export default function CleaningChecklist() {
                                       if (e.key === 'Escape') cancelAddItem()
                                     }}
                                     placeholder="Nueva tarea..."
-                                    className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                    className="flex-1 px-3 py-2 text-sm border border-[#DDDDDD] rounded-lg focus:border-[#222222] focus:outline-none focus:ring-1 focus:ring-[#222222]"
                                     autoFocus
                                   />
                                   <button
                                     onClick={() => addCustomItem(section.id)}
-                                    className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                                    className="p-2 bg-[#222222] text-white rounded-lg hover:bg-black transition-colors"
                                     title="Añadir"
                                   >
                                     <Check className="w-4 h-4" />
                                   </button>
                                   <button
                                     onClick={cancelAddItem}
-                                    className="p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition-colors"
+                                    className="p-2 bg-[#F7F7F7] text-[#222222] rounded-lg hover:bg-[#EBEBEB] transition-colors"
                                     title="Cancelar"
                                   >
                                     <X className="w-4 h-4" />
@@ -636,7 +624,7 @@ export default function CleaningChecklist() {
                                 /* Add Item Button */
                                 <button
                                   onClick={() => setAddingItemToSection(section.id)}
-                                  className="flex items-center space-x-2 ml-8 mt-2 text-sm text-gray-500 hover:text-blue-600 transition-colors"
+                                  className="flex items-center space-x-2 ml-6 mt-2 text-sm text-[#717171] hover:text-[#222222] transition-colors"
                                 >
                                   <Plus className="w-4 h-4" />
                                   <span>{t('cleaningChecklist.addCustomTask')}</span>
@@ -650,8 +638,8 @@ export default function CleaningChecklist() {
                   </div>
 
                   {/* Footer */}
-                  <div className="mt-8 pt-6 border-t border-gray-200 text-center">
-                    <p className="text-xs text-gray-500">
+                  <div className="mt-6 pt-4 border-t border-[#DDDDDD] text-center">
+                    <p className="text-xs text-[#717171]">
                       {t('cleaningChecklist.footer')}
                     </p>
                   </div>
