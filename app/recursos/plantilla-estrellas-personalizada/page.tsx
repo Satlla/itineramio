@@ -2,46 +2,58 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import dynamic from 'next/dynamic'
 import {
   Star,
   ArrowLeft,
   User,
-  Phone,
   Download,
   MessageCircle,
   Sparkles,
   Loader2,
-  Check
+  Check,
+  Mail
 } from 'lucide-react'
 import { Navbar } from '@/components/layout/Navbar'
 
+// Dynamic import of motion to avoid hydration issues
+const MotionDiv = dynamic(
+  () => import('framer-motion').then((mod) => mod.motion.div),
+  { ssr: false }
+)
+
 export default function PlantillaEstrellasPage() {
+  const [mounted, setMounted] = useState(false)
   const [hostName, setHostName] = useState('')
   const [whatsappNumber, setWhatsappNumber] = useState('')
+  const [userEmail, setUserEmail] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [isDownloaded, setIsDownloaded] = useState(false)
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
+  const [error, setError] = useState('')
 
   // QR Code state
   const [QRCodeStyling, setQRCodeStyling] = useState<any>(null)
   const qrRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
 
+  // Set mounted on client
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   // Dynamically import qr-code-styling on client side only
   useEffect(() => {
+    if (!mounted) return
     import('qr-code-styling').then((module) => {
       setQRCodeStyling(() => module.default)
     })
-  }, [])
+  }, [mounted])
 
   // Generate WhatsApp QR code when number changes
   useEffect(() => {
-    if (!QRCodeStyling || !whatsappNumber) {
-      if (qrRef.current) {
-        qrRef.current.innerHTML = ''
-      }
-      return
-    }
+    if (!mounted || !QRCodeStyling || !whatsappNumber || !qrRef.current) return
 
     const cleanNumber = whatsappNumber.replace(/[\s\-\(\)]/g, '')
     const phoneForUrl = cleanNumber.startsWith('+') ? cleanNumber.slice(1) : cleanNumber
@@ -74,23 +86,20 @@ export default function PlantillaEstrellasPage() {
       }
     })
 
-    if (qrRef.current) {
-      qrRef.current.innerHTML = ''
-      qr.append(qrRef.current)
-    }
-  }, [QRCodeStyling, whatsappNumber, hostName])
+    qrRef.current.innerHTML = ''
+    qr.append(qrRef.current)
+  }, [mounted, QRCodeStyling, whatsappNumber, hostName])
 
   const handleDownload = useCallback(async () => {
     if (!cardRef.current || !hostName || !whatsappNumber) return
 
     setIsGenerating(true)
+    setError('')
 
     try {
-      // Dynamic imports for PDF generation
       const html2canvas = (await import('html2canvas')).default
       const { jsPDF } = await import('jspdf')
 
-      // Capture the card as canvas
       const canvas = await html2canvas(cardRef.current, {
         scale: 3,
         backgroundColor: '#ffffff',
@@ -98,7 +107,6 @@ export default function PlantillaEstrellasPage() {
         logging: false
       })
 
-      // Create PDF (A5 size for printing)
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
@@ -109,7 +117,6 @@ export default function PlantillaEstrellasPage() {
       const pdfWidth = pdf.internal.pageSize.getWidth()
       const pdfHeight = pdf.internal.pageSize.getHeight()
 
-      // Calculate dimensions to fit
       const imgWidth = canvas.width
       const imgHeight = canvas.height
       const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.9
@@ -118,33 +125,70 @@ export default function PlantillaEstrellasPage() {
       const imgY = (pdfHeight - imgHeight * ratio) / 2
 
       pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio)
-
-      // Download
       pdf.save(`plantilla-estrellas-${hostName.toLowerCase().replace(/\s+/g, '-')}.pdf`)
 
       setIsDownloaded(true)
       setTimeout(() => setIsDownloaded(false), 3000)
 
-      // Track lead (optional, non-blocking)
-      fetch('/api/leads/capture', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: hostName,
-          email: `${hostName.toLowerCase().replace(/\s+/g, '.')}@placeholder.local`,
-          source: 'plantilla-estrellas',
-          metadata: { whatsappNumber, downloadedDirectly: true }
-        })
-      }).catch(() => {})
+      // Track lead
+      if (userEmail) {
+        fetch('/api/leads/capture', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: hostName,
+            email: userEmail,
+            source: 'plantilla-estrellas',
+            metadata: { whatsappNumber, action: 'download' }
+          })
+        }).catch(() => {})
+      }
 
-    } catch (error) {
-      console.error('Error generating PDF:', error)
+    } catch (err) {
+      console.error('Error generating PDF:', err)
+      setError('Error al generar el PDF. Inténtalo de nuevo.')
     } finally {
       setIsGenerating(false)
     }
-  }, [hostName, whatsappNumber])
+  }, [hostName, whatsappNumber, userEmail])
+
+  const handleSendEmail = useCallback(async () => {
+    if (!hostName || !whatsappNumber || !userEmail) return
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(userEmail)) {
+      setError('Email no válido')
+      return
+    }
+
+    setIsSendingEmail(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/recursos/plantilla-estrellas-personalizada', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          hostName,
+          whatsappNumber,
+          email: userEmail
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Error al enviar')
+      }
+
+      setEmailSent(true)
+    } catch (err) {
+      setError('Error al enviar el email. Inténtalo de nuevo.')
+    } finally {
+      setIsSendingEmail(false)
+    }
+  }, [hostName, whatsappNumber, userEmail])
 
   const isFormValid = hostName.trim() && whatsappNumber.trim()
+  const canSendEmail = isFormValid && userEmail.trim()
 
   const starMeanings = [
     { stars: 5, emoji: '★★★★★', title: 'Excelente', color: '#22C55E', description: 'Todo fue perfecto' },
@@ -161,11 +205,7 @@ export default function PlantillaEstrellasPage() {
       <div className="pt-32 pb-16 px-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-12"
-          >
+          <div className="mb-12">
             <Link
               href="/hub"
               className="inline-flex items-center text-gray-600 hover:text-gray-900 font-medium group mb-6"
@@ -192,78 +232,143 @@ export default function PlantillaEstrellasPage() {
               <Sparkles className="w-4 h-4 text-[#FF385C]" />
               <span className="text-sm font-medium text-[#FF385C]">Descarga PDF gratuita</span>
             </div>
-          </motion.div>
+          </div>
 
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Left: Form */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-            >
+            <div>
               <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-xl">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
                   Personaliza tu plantilla
                 </h2>
 
-                <div className="space-y-5">
-                  {/* Host Name */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <User className="w-4 h-4 inline mr-2" />
-                      Tu nombre (como anfitrión)
-                    </label>
-                    <input
-                      type="text"
-                      value={hostName}
-                      onChange={(e) => setHostName(e.target.value)}
-                      placeholder="Ej: María, Carlos..."
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#FF385C] focus:outline-none text-gray-900 placeholder-gray-400"
-                    />
-                  </div>
-
-                  {/* WhatsApp */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <MessageCircle className="w-4 h-4 inline mr-2" />
-                      Tu número de WhatsApp
-                    </label>
-                    <input
-                      type="tel"
-                      value={whatsappNumber}
-                      onChange={(e) => setWhatsappNumber(e.target.value)}
-                      placeholder="Ej: +34 612 345 678"
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#FF385C] focus:outline-none text-gray-900 placeholder-gray-400"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Se genera un QR para que el huésped te contacte antes de puntuar
+                {emailSent ? (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Check className="w-8 h-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">¡Enviado!</h3>
+                    <p className="text-gray-600 mb-4">
+                      Revisa tu correo <strong>{userEmail}</strong>
                     </p>
+                    <button
+                      onClick={() => {
+                        setEmailSent(false)
+                        setHostName('')
+                        setWhatsappNumber('')
+                        setUserEmail('')
+                      }}
+                      className="text-[#FF385C] font-semibold hover:underline"
+                    >
+                      Crear otra plantilla
+                    </button>
                   </div>
+                ) : (
+                  <div className="space-y-5">
+                    {/* Host Name */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <User className="w-4 h-4 inline mr-2" />
+                        Tu nombre (como anfitrión) *
+                      </label>
+                      <input
+                        type="text"
+                        value={hostName}
+                        onChange={(e) => setHostName(e.target.value)}
+                        placeholder="Ej: María, Carlos..."
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#FF385C] focus:outline-none text-gray-900 placeholder-gray-400"
+                      />
+                    </div>
 
-                  {/* Download Button */}
-                  <button
-                    onClick={handleDownload}
-                    disabled={!isFormValid || isGenerating}
-                    className="w-full py-4 bg-gradient-to-r from-[#FF385C] to-[#E31C5F] text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Generando PDF...
-                      </>
-                    ) : isDownloaded ? (
-                      <>
-                        <Check className="w-5 h-5 mr-2" />
-                        ¡Descargado!
-                      </>
-                    ) : (
-                      <>
-                        <Download className="w-5 h-5 mr-2" />
-                        Descargar PDF gratis
-                      </>
+                    {/* WhatsApp */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <MessageCircle className="w-4 h-4 inline mr-2" />
+                        Tu número de WhatsApp *
+                      </label>
+                      <input
+                        type="tel"
+                        value={whatsappNumber}
+                        onChange={(e) => setWhatsappNumber(e.target.value)}
+                        placeholder="Ej: +34 612 345 678"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#FF385C] focus:outline-none text-gray-900 placeholder-gray-400"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Se genera un QR para que el huésped te contacte
+                      </p>
+                    </div>
+
+                    {/* Email (optional for sending) */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <Mail className="w-4 h-4 inline mr-2" />
+                        Tu email (opcional, para recibirla por correo)
+                      </label>
+                      <input
+                        type="email"
+                        value={userEmail}
+                        onChange={(e) => setUserEmail(e.target.value)}
+                        placeholder="tu@email.com"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#FF385C] focus:outline-none text-gray-900 placeholder-gray-400"
+                      />
+                    </div>
+
+                    {/* Error */}
+                    {error && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+                        {error}
+                      </div>
                     )}
-                  </button>
-                </div>
+
+                    {/* Buttons */}
+                    <div className="space-y-3">
+                      {/* Download Button */}
+                      <button
+                        onClick={handleDownload}
+                        disabled={!isFormValid || isGenerating}
+                        className="w-full py-4 bg-gradient-to-r from-[#FF385C] to-[#E31C5F] text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isGenerating ? (
+                          <>
+                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                            Generando PDF...
+                          </>
+                        ) : isDownloaded ? (
+                          <>
+                            <Check className="w-5 h-5 mr-2" />
+                            ¡Descargado!
+                          </>
+                        ) : (
+                          <>
+                            <Download className="w-5 h-5 mr-2" />
+                            Descargar PDF gratis
+                          </>
+                        )}
+                      </button>
+
+                      {/* Send Email Button (only if email provided) */}
+                      {userEmail && (
+                        <button
+                          onClick={handleSendEmail}
+                          disabled={!canSendEmail || isSendingEmail}
+                          className="w-full py-3 bg-white border-2 border-[#FF385C] text-[#FF385C] rounded-xl font-semibold flex items-center justify-center hover:bg-[#FF385C]/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isSendingEmail ? (
+                            <>
+                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                              Enviando...
+                            </>
+                          ) : (
+                            <>
+                              <Mail className="w-5 h-5 mr-2" />
+                              Enviar a mi email
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Why this matters */}
@@ -291,14 +396,10 @@ export default function PlantillaEstrellasPage() {
                   </li>
                 </ul>
               </div>
-            </motion.div>
+            </div>
 
             {/* Right: Preview / Card to Download */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
+            <div>
               <div className="sticky top-24">
                 <h2 className="text-lg font-semibold text-gray-500 mb-4">Vista previa</h2>
 
@@ -359,13 +460,13 @@ export default function PlantillaEstrellasPage() {
                           <p className="text-[#128C7E] text-sm mb-2">
                             Escríbeme antes de puntuar y lo solucionamos.
                           </p>
-                          <p className="text-[#075E54] font-bold">
+                          <p className="text-[#075E54] font-bold" suppressHydrationWarning>
                             {hostName || 'Tu nombre'}, anfitrión
                           </p>
                         </div>
                         {/* QR Code */}
                         <div className="flex-shrink-0">
-                          {whatsappNumber ? (
+                          {mounted && whatsappNumber ? (
                             <div className="bg-white rounded-lg p-2 shadow-sm">
                               <div ref={qrRef} className="w-[80px] h-[80px]" />
                               <p className="text-[10px] text-[#128C7E] text-center mt-1 font-medium">
@@ -400,7 +501,7 @@ export default function PlantillaEstrellasPage() {
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
