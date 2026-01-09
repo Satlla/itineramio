@@ -21,9 +21,31 @@ const MotionDiv = dynamic(
   { ssr: false }
 )
 
+const countryCodes = [
+  { code: '+34', country: 'España', flag: '🇪🇸' },
+  { code: '+52', country: 'México', flag: '🇲🇽' },
+  { code: '+54', country: 'Argentina', flag: '🇦🇷' },
+  { code: '+57', country: 'Colombia', flag: '🇨🇴' },
+  { code: '+56', country: 'Chile', flag: '🇨🇱' },
+  { code: '+51', country: 'Perú', flag: '🇵🇪' },
+  { code: '+58', country: 'Venezuela', flag: '🇻🇪' },
+  { code: '+593', country: 'Ecuador', flag: '🇪🇨' },
+  { code: '+502', country: 'Guatemala', flag: '🇬🇹' },
+  { code: '+503', country: 'El Salvador', flag: '🇸🇻' },
+  { code: '+505', country: 'Nicaragua', flag: '🇳🇮' },
+  { code: '+506', country: 'Costa Rica', flag: '🇨🇷' },
+  { code: '+507', country: 'Panamá', flag: '🇵🇦' },
+  { code: '+591', country: 'Bolivia', flag: '🇧🇴' },
+  { code: '+595', country: 'Paraguay', flag: '🇵🇾' },
+  { code: '+598', country: 'Uruguay', flag: '🇺🇾' },
+  { code: '+1', country: 'USA/Canadá', flag: '🇺🇸' },
+  { code: '+351', country: 'Portugal', flag: '🇵🇹' },
+]
+
 export default function PlantillaEstrellasPage() {
   const [mounted, setMounted] = useState(false)
   const [hostName, setHostName] = useState('')
+  const [countryCode, setCountryCode] = useState('+34')
   const [whatsappNumber, setWhatsappNumber] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [isSendingEmail, setIsSendingEmail] = useState(false)
@@ -47,12 +69,14 @@ export default function PlantillaEstrellasPage() {
     })
   }, [mounted])
 
+  // Full WhatsApp number with country code
+  const fullWhatsappNumber = `${countryCode}${whatsappNumber.replace(/[\s\-\(\)]/g, '')}`
+
   // Generate WhatsApp QR code when number changes
   useEffect(() => {
     if (!mounted || !QRCodeStyling || !whatsappNumber || !qrRef.current) return
 
-    const cleanNumber = whatsappNumber.replace(/[\s\-\(\)]/g, '')
-    const phoneForUrl = cleanNumber.startsWith('+') ? cleanNumber.slice(1) : cleanNumber
+    const phoneForUrl = fullWhatsappNumber.startsWith('+') ? fullWhatsappNumber.slice(1) : fullWhatsappNumber
     const whatsappUrl = `https://wa.me/${phoneForUrl}?text=Hola%20${encodeURIComponent(hostName || 'anfitrión')}%2C%20soy%20tu%20huésped`
 
     const qr = new QRCodeStyling({
@@ -84,7 +108,7 @@ export default function PlantillaEstrellasPage() {
 
     qrRef.current.innerHTML = ''
     qr.append(qrRef.current)
-  }, [mounted, QRCodeStyling, whatsappNumber, hostName])
+  }, [mounted, QRCodeStyling, whatsappNumber, hostName, countryCode, fullWhatsappNumber])
 
   const handleSendEmail = useCallback(async () => {
     if (!hostName || !whatsappNumber || !userEmail) return
@@ -104,7 +128,7 @@ export default function PlantillaEstrellasPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           hostName,
-          whatsappNumber,
+          whatsappNumber: fullWhatsappNumber,
           email: userEmail
         })
       })
@@ -119,7 +143,7 @@ export default function PlantillaEstrellasPage() {
     } finally {
       setIsSendingEmail(false)
     }
-  }, [hostName, whatsappNumber, userEmail])
+  }, [hostName, fullWhatsappNumber, userEmail])
 
   const isFormValid = hostName.trim() && whatsappNumber.trim() && userEmail.trim()
 
@@ -162,8 +186,8 @@ export default function PlantillaEstrellasPage() {
             </div>
 
             <div className="inline-flex items-center space-x-2 px-4 py-2 bg-[#FF385C]/10 rounded-full border border-[#FF385C]/20">
-              <Sparkles className="w-4 h-4 text-[#FF385C]" />
-              <span className="text-sm font-medium text-[#FF385C]">Descarga PDF gratuita</span>
+              <Mail className="w-4 h-4 text-[#FF385C]" />
+              <span className="text-sm font-medium text-[#FF385C]">Recibe el PDF en tu email</span>
             </div>
           </div>
 
@@ -188,6 +212,7 @@ export default function PlantillaEstrellasPage() {
                       onClick={() => {
                         setEmailSent(false)
                         setHostName('')
+                        setCountryCode('+34')
                         setWhatsappNumber('')
                         setUserEmail('')
                       }}
@@ -219,13 +244,26 @@ export default function PlantillaEstrellasPage() {
                         <MessageCircle className="w-4 h-4 inline mr-2" />
                         Tu número de WhatsApp *
                       </label>
-                      <input
-                        type="tel"
-                        value={whatsappNumber}
-                        onChange={(e) => setWhatsappNumber(e.target.value)}
-                        placeholder="Ej: +34 612 345 678"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#FF385C] focus:outline-none text-gray-900 placeholder-gray-400"
-                      />
+                      <div className="flex gap-2">
+                        <select
+                          value={countryCode}
+                          onChange={(e) => setCountryCode(e.target.value)}
+                          className="px-3 py-3 border-2 border-gray-200 rounded-xl focus:border-[#FF385C] focus:outline-none text-gray-900 bg-white"
+                        >
+                          {countryCodes.map((c) => (
+                            <option key={c.code} value={c.code}>
+                              {c.flag} {c.code}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          type="tel"
+                          value={whatsappNumber}
+                          onChange={(e) => setWhatsappNumber(e.target.value)}
+                          placeholder="612 345 678"
+                          className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#FF385C] focus:outline-none text-gray-900 placeholder-gray-400"
+                        />
+                      </div>
                       <p className="text-xs text-gray-500 mt-1">
                         Se genera un QR para que el huésped te contacte
                       </p>
