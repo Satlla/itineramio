@@ -7,7 +7,6 @@ import {
   Star,
   ArrowLeft,
   User,
-  Download,
   MessageCircle,
   Sparkles,
   Loader2,
@@ -27,8 +26,6 @@ export default function PlantillaEstrellasPage() {
   const [hostName, setHostName] = useState('')
   const [whatsappNumber, setWhatsappNumber] = useState('')
   const [userEmail, setUserEmail] = useState('')
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [isDownloaded, setIsDownloaded] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
   const [error, setError] = useState('')
@@ -36,7 +33,6 @@ export default function PlantillaEstrellasPage() {
   // QR Code state
   const [QRCodeStyling, setQRCodeStyling] = useState<any>(null)
   const qrRef = useRef<HTMLDivElement>(null)
-  const cardRef = useRef<HTMLDivElement>(null)
 
   // Set mounted on client
   useEffect(() => {
@@ -90,68 +86,6 @@ export default function PlantillaEstrellasPage() {
     qr.append(qrRef.current)
   }, [mounted, QRCodeStyling, whatsappNumber, hostName])
 
-  const handleDownload = useCallback(async () => {
-    if (!cardRef.current || !hostName || !whatsappNumber) return
-
-    setIsGenerating(true)
-    setError('')
-
-    try {
-      const html2canvas = (await import('html2canvas')).default
-      const { jsPDF } = await import('jspdf')
-
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 3,
-        backgroundColor: '#ffffff',
-        useCORS: true,
-        logging: false
-      })
-
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a5'
-      })
-
-      const imgData = canvas.toDataURL('image/png')
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = pdf.internal.pageSize.getHeight()
-
-      const imgWidth = canvas.width
-      const imgHeight = canvas.height
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.9
-
-      const imgX = (pdfWidth - imgWidth * ratio) / 2
-      const imgY = (pdfHeight - imgHeight * ratio) / 2
-
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio)
-      pdf.save(`plantilla-estrellas-${hostName.toLowerCase().replace(/\s+/g, '-')}.pdf`)
-
-      setIsDownloaded(true)
-      setTimeout(() => setIsDownloaded(false), 3000)
-
-      // Track lead
-      if (userEmail) {
-        fetch('/api/leads/capture', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: hostName,
-            email: userEmail,
-            source: 'plantilla-estrellas',
-            metadata: { whatsappNumber, action: 'download' }
-          })
-        }).catch(() => {})
-      }
-
-    } catch (err) {
-      console.error('Error generating PDF:', err)
-      setError('Error al generar el PDF. Inténtalo de nuevo.')
-    } finally {
-      setIsGenerating(false)
-    }
-  }, [hostName, whatsappNumber, userEmail])
-
   const handleSendEmail = useCallback(async () => {
     if (!hostName || !whatsappNumber || !userEmail) return
 
@@ -187,8 +121,7 @@ export default function PlantillaEstrellasPage() {
     }
   }, [hostName, whatsappNumber, userEmail])
 
-  const isFormValid = hostName.trim() && whatsappNumber.trim()
-  const canSendEmail = isFormValid && userEmail.trim()
+  const isFormValid = hostName.trim() && whatsappNumber.trim() && userEmail.trim()
 
   const starMeanings = [
     { stars: 5, emoji: '★★★★★', title: 'Excelente', color: '#22C55E', description: 'Todo fue perfecto' },
@@ -298,11 +231,11 @@ export default function PlantillaEstrellasPage() {
                       </p>
                     </div>
 
-                    {/* Email (optional for sending) */}
+                    {/* Email (required) */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
                         <Mail className="w-4 h-4 inline mr-2" />
-                        Tu email (opcional, para recibirla por correo)
+                        Tu email *
                       </label>
                       <input
                         type="email"
@@ -311,6 +244,9 @@ export default function PlantillaEstrellasPage() {
                         placeholder="tu@email.com"
                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#FF385C] focus:outline-none text-gray-900 placeholder-gray-400"
                       />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Te enviaremos la plantilla lista para imprimir
+                      </p>
                     </div>
 
                     {/* Error */}
@@ -320,53 +256,28 @@ export default function PlantillaEstrellasPage() {
                       </div>
                     )}
 
-                    {/* Buttons */}
-                    <div className="space-y-3">
-                      {/* Download Button */}
-                      <button
-                        onClick={handleDownload}
-                        disabled={!isFormValid || isGenerating}
-                        className="w-full py-4 bg-gradient-to-r from-[#FF385C] to-[#E31C5F] text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isGenerating ? (
-                          <>
-                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                            Generando PDF...
-                          </>
-                        ) : isDownloaded ? (
-                          <>
-                            <Check className="w-5 h-5 mr-2" />
-                            ¡Descargado!
-                          </>
-                        ) : (
-                          <>
-                            <Download className="w-5 h-5 mr-2" />
-                            Descargar PDF gratis
-                          </>
-                        )}
-                      </button>
-
-                      {/* Send Email Button (only if email provided) */}
-                      {userEmail && (
-                        <button
-                          onClick={handleSendEmail}
-                          disabled={!canSendEmail || isSendingEmail}
-                          className="w-full py-3 bg-white border-2 border-[#FF385C] text-[#FF385C] rounded-xl font-semibold flex items-center justify-center hover:bg-[#FF385C]/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {isSendingEmail ? (
-                            <>
-                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                              Enviando...
-                            </>
-                          ) : (
-                            <>
-                              <Mail className="w-5 h-5 mr-2" />
-                              Enviar a mi email
-                            </>
-                          )}
-                        </button>
+                    {/* Send Email Button */}
+                    <button
+                      onClick={handleSendEmail}
+                      disabled={!isFormValid || isSendingEmail}
+                      className="w-full py-4 bg-gradient-to-r from-[#FF385C] to-[#E31C5F] text-white rounded-xl font-bold flex items-center justify-center hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSendingEmail ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="w-5 h-5 mr-2" />
+                          Recibir plantilla por email
+                        </>
                       )}
-                    </div>
+                    </button>
+
+                    <p className="text-xs text-center text-gray-500">
+                      Al enviar, aceptas recibir contenido útil para anfitriones.
+                    </p>
                   </div>
                 )}
               </div>
