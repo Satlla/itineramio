@@ -124,11 +124,11 @@ export default function PlantillaEstrellasPage() {
   const isFormValid = hostName.trim() && whatsappNumber.trim() && userEmail.trim()
 
   const starMeanings = [
-    { stars: 5, emoji: '★★★★★', title: 'Excelente', color: '#22C55E', description: 'Todo fue perfecto' },
-    { stars: 4, emoji: '★★★★☆', title: 'Bien, pero...', color: '#EAB308', description: 'Algo podría mejorar' },
-    { stars: 3, emoji: '★★★☆☆', title: 'Regular', color: '#F97316', description: 'Hubo problemas' },
-    { stars: 2, emoji: '★★☆☆☆', title: 'Malo', color: '#EF4444', description: 'Mala experiencia' },
-    { stars: 1, emoji: '★☆☆☆☆', title: 'Muy malo', color: '#B91C1C', description: 'Inaceptable' }
+    { stars: '★★★★★', title: 'Excelente', description: 'Todo fue perfecto' },
+    { stars: '★★★★☆', title: 'Bien, pero...', description: 'Algo podría mejorar' },
+    { stars: '★★★☆☆', title: 'Regular', description: 'Hubo problemas' },
+    { stars: '★★☆☆☆', title: 'Malo', description: 'Mala experiencia' },
+    { stars: '★☆☆☆☆', title: 'Muy malo', description: 'Inaceptable' }
   ]
 
   return (
@@ -314,9 +314,8 @@ export default function PlantillaEstrellasPage() {
               <div className="sticky top-24">
                 <h2 className="text-lg font-semibold text-gray-500 mb-4">Vista previa</h2>
 
-                {/* The actual card that gets converted to PDF */}
+                {/* Preview of the PDF */}
                 <div
-                  ref={cardRef}
                   className="bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-200"
                   style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
                 >
@@ -346,16 +345,12 @@ export default function PlantillaEstrellasPage() {
                           key={item.stars}
                           className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3"
                         >
-                          <div
-                            className="w-3 h-3 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: item.color }}
-                          />
-                          <div className="text-lg font-medium text-amber-500 w-24 flex-shrink-0">
-                            {item.emoji}
+                          <div className="text-base text-amber-500 flex-shrink-0 tracking-tight">
+                            {item.stars}
                           </div>
-                          <div className="flex-1">
+                          <div className="flex-1 flex items-center gap-2">
                             <span className="font-semibold text-gray-900">{item.title}</span>
-                            <span className="text-gray-500 text-sm ml-2">– {item.description}</span>
+                            <span className="text-gray-500 text-sm">– {item.description}</span>
                           </div>
                         </div>
                       ))}
