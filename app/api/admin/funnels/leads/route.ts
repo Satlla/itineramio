@@ -3,13 +3,12 @@ import { prisma } from '@/lib/prisma'
 import { verifyAdminAuth } from '@/lib/admin-auth'
 
 export async function GET(request: NextRequest) {
-  // Verify admin authentication
-  const authResult = await verifyAdminAuth(request)
-  if (!authResult.isAuthenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   try {
+    // Verify admin authentication
+    const authResult = await verifyAdminAuth(request)
+    if (!authResult.isAuthenticated) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
     const theme = searchParams.get('theme') || ''

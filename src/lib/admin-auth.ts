@@ -82,3 +82,16 @@ export async function validateAdminPassword(password: string, hashedPassword: st
 export async function hashAdminPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 10)
 }
+
+export interface VerifyAdminAuthResult {
+  isAuthenticated: boolean
+  admin?: AdminJWTPayload
+}
+
+export async function verifyAdminAuth(request: NextRequest): Promise<VerifyAdminAuthResult> {
+  const admin = await getAdminUser(request)
+  if (!admin) {
+    return { isAuthenticated: false }
+  }
+  return { isAuthenticated: true, admin }
+}

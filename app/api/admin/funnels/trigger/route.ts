@@ -157,13 +157,12 @@ function generateEmailHtml(
 }
 
 export async function POST(request: NextRequest) {
-  // Verify admin authentication
-  const authResult = await verifyAdminAuth(request)
-  if (!authResult.isAuthenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   try {
+    // Verify admin authentication
+    const authResult = await verifyAdminAuth(request)
+    if (!authResult.isAuthenticated) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const body = await request.json()
     const { leadId, theme } = body
 
