@@ -93,6 +93,10 @@
       "checkinBuilder": {
         "title": "Check-in Template Builder",
         "description": "Crea checklists personalizados para cada etapa del check-in"
+      },
+      "starRating": {
+        "title": "Plantilla Significado Estrellas",
+        "description": "Explica a tus huéspedes cómo valorar en Airbnb con tu QR de WhatsApp"
       }
     }
   },

@@ -119,6 +119,18 @@ const activeToolsConfig = [
     badgeKey: 'new',
     popular: true,
     active: true
+  },
+  {
+    id: 'star-rating',
+    titleKey: 'starRating',
+    icon: Star,
+    color: 'from-[#FF385C] to-[#E31C5F]',
+    bgColor: 'from-red-50 to-pink-50',
+    borderColor: 'border-red-200',
+    href: '/recursos/plantilla-estrellas-personalizada',
+    badgeKey: 'new',
+    popular: true,
+    active: true
   }
 ]
 
@@ -377,7 +389,7 @@ export default function KnowledgeHub() {
               className="grid grid-cols-3 gap-8 mt-12 max-w-3xl mx-auto"
             >
               <motion.div variants={scaleIn} className="text-center">
-                <div className="text-4xl font-bold text-white mb-2">6</div>
+                <div className="text-4xl font-bold text-white mb-2">7</div>
                 <div className="text-white/80 text-sm">{t('hub.stats.tools')}</div>
               </motion.div>
               <motion.div variants={scaleIn} className="text-center">
