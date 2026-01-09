@@ -212,15 +212,30 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update lead with funnel start info
-    await prisma.lead.update({
-      where: { id: leadId },
-      data: {
-        funnelTheme: theme,
-        funnelStartedAt: new Date(),
-        funnelCurrentDay: 0
-      }
-    })
+    // Update lead with funnel start info - try with funnel fields, fallback to metadata
+    try {
+      await prisma.lead.update({
+        where: { id: leadId },
+        data: {
+          funnelTheme: theme,
+          funnelStartedAt: new Date(),
+          funnelCurrentDay: 0
+        }
+      })
+    } catch {
+      // Fallback if funnel fields don't exist yet - store in metadata
+      await prisma.lead.update({
+        where: { id: leadId },
+        data: {
+          metadata: {
+            ...(lead.metadata as object || {}),
+            funnelTheme: theme,
+            funnelStartedAt: new Date().toISOString(),
+            funnelCurrentDay: 0
+          }
+        }
+      })
+    }
 
     // Log the email event
     await prisma.emailEvent.create({
