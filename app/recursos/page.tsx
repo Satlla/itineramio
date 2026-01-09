@@ -15,6 +15,8 @@ import {
   Calculator,
   Star,
   QrCode,
+  Lock,
+  Clock,
 } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -107,16 +109,22 @@ export default function RecursosPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          <Link
-            href="/hub/calculadora-rentabilidad"
-            className="group bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-8 text-white hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+          {/* LOCKED - Calculadora de Rentabilidad */}
+          <div
+            className="relative bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl p-8 text-white opacity-75 cursor-not-allowed"
           >
+            <div className="absolute inset-0 bg-black/20 rounded-2xl flex items-center justify-center">
+              <div className="bg-white/90 rounded-xl px-4 py-2 flex items-center gap-2 shadow-lg">
+                <Lock className="w-5 h-5 text-gray-700" />
+                <span className="text-gray-700 font-semibold">Próximamente</span>
+              </div>
+            </div>
             <div className="flex items-start justify-between mb-4">
               <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
                 <Calculator className="w-7 h-7" />
               </div>
-              <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
-                Nuevo
+              <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1">
+                <Clock className="w-3 h-3" /> Próximamente
               </span>
             </div>
             <h3 className="font-bold text-2xl mb-2">
@@ -126,22 +134,27 @@ export default function RecursosPage() {
               Descubre si estás ganando dinero o solo "cambiando dinero de mano".
               Calcula tu precio mínimo viable y tu ganancia real por hora.
             </p>
-            <div className="flex items-center text-white font-semibold group-hover:translate-x-1 transition-transform">
-              <span>Usar calculadora</span>
-              <ArrowRight className="w-5 h-5 ml-2" />
+            <div className="flex items-center text-white/60 font-semibold">
+              <span>Disponible pronto</span>
             </div>
-          </Link>
+          </div>
 
-          <Link
-            href="/hub/tools/pricing-calculator"
-            className="group bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-8 text-white hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+          {/* LOCKED - Calculadora de Precios */}
+          <div
+            className="relative bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl p-8 text-white opacity-75 cursor-not-allowed"
           >
+            <div className="absolute inset-0 bg-black/20 rounded-2xl flex items-center justify-center">
+              <div className="bg-white/90 rounded-xl px-4 py-2 flex items-center gap-2 shadow-lg">
+                <Lock className="w-5 h-5 text-gray-700" />
+                <span className="text-gray-700 font-semibold">Próximamente</span>
+              </div>
+            </div>
             <div className="flex items-start justify-between mb-4">
               <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
                 <TrendingUp className="w-7 h-7" />
               </div>
-              <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
-                Popular
+              <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1">
+                <Clock className="w-3 h-3" /> Próximamente
               </span>
             </div>
             <h3 className="font-bold text-2xl mb-2">
@@ -151,12 +164,12 @@ export default function RecursosPage() {
               Calcula el precio óptimo para tu alojamiento según ubicación,
               temporada y servicios que ofreces.
             </p>
-            <div className="flex items-center text-white font-semibold group-hover:translate-x-1 transition-transform">
-              <span>Usar calculadora</span>
-              <ArrowRight className="w-5 h-5 ml-2" />
+            <div className="flex items-center text-white/60 font-semibold">
+              <span>Disponible pronto</span>
             </div>
-          </Link>
+          </div>
 
+          {/* ACTIVE - Guía Rápida de Reseñas */}
           <Link
             href="/recursos/plantilla-reviews"
             className="group bg-gradient-to-br from-rose-500 to-orange-500 rounded-2xl p-8 text-white hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
@@ -182,16 +195,22 @@ export default function RecursosPage() {
             </div>
           </Link>
 
-          <Link
-            href="/hub/tools/qr-generator"
-            className="group bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-8 text-white hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+          {/* LOCKED - Generador de QR */}
+          <div
+            className="relative bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl p-8 text-white opacity-75 cursor-not-allowed"
           >
+            <div className="absolute inset-0 bg-black/20 rounded-2xl flex items-center justify-center">
+              <div className="bg-white/90 rounded-xl px-4 py-2 flex items-center gap-2 shadow-lg">
+                <Lock className="w-5 h-5 text-gray-700" />
+                <span className="text-gray-700 font-semibold">Próximamente</span>
+              </div>
+            </div>
             <div className="flex items-start justify-between mb-4">
               <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
                 <QrCode className="w-7 h-7" />
               </div>
-              <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
-                Gratis
+              <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1">
+                <Clock className="w-3 h-3" /> Próximamente
               </span>
             </div>
             <h3 className="font-bold text-2xl mb-2">
@@ -201,11 +220,10 @@ export default function RecursosPage() {
               Crea códigos QR personalizados para WiFi, contacto o
               tu manual digital. Descarga en PNG o SVG.
             </p>
-            <div className="flex items-center text-white font-semibold group-hover:translate-x-1 transition-transform">
-              <span>Crear QR</span>
-              <ArrowRight className="w-5 h-5 ml-2" />
+            <div className="flex items-center text-white/60 font-semibold">
+              <span>Disponible pronto</span>
             </div>
-          </Link>
+          </div>
         </div>
 
         <div className="text-center mb-10">

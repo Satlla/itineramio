@@ -2,9 +2,10 @@ import * as React from 'react'
 
 interface ToolChecklistDay2Props {
   name: string
+  email?: string
 }
 
-export default function ToolChecklistDay2Mistakes({ name }: ToolChecklistDay2Props) {
+export default function ToolChecklistDay2Mistakes({ name, email }: ToolChecklistDay2Props) {
   const firstName = name?.split(' ')[0] || 'Anfitrión'
 
   return (
@@ -68,9 +69,23 @@ export default function ToolChecklistDay2Mistakes({ name }: ToolChecklistDay2Pro
               </p>
             </div>
 
-            <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
+            <p style={{ margin: '0 0 24px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
               ¿Cuál de estos errores has cometido alguna vez? (Yo confieso que el #2 me costó una reseña de 4 estrellas 😅)
             </p>
+
+            {/* CTA - Blog article */}
+            <div style={{ backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
+              <p style={{ margin: '0 0 8px 0', color: '#0369a1', fontSize: '14px', fontWeight: 600 }}>
+                📚 Lectura recomendada
+              </p>
+              <p style={{ margin: '0 0 12px 0', color: '#0c4a6e', fontSize: '14px', lineHeight: 1.5 }}>
+                <strong>Checklist de limpieza profesional que elimina el 90% de quejas</strong><br />
+                Cómo crear un sistema de limpieza infalible para tu alojamiento turístico.
+              </p>
+              <a href="https://www.itineramio.com/blog/checklist-limpieza-profesional-elimina-90-quejas?utm_source=email&utm_medium=sequence&utm_campaign=tool-checklist" style={{ color: '#0369a1', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>
+                Leer artículo →
+              </a>
+            </div>
 
             <p style={{ margin: '0', color: '#374151', fontSize: '16px' }}>
               — El equipo de Itineramio

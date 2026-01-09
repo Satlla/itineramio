@@ -233,7 +233,7 @@ export function generatePricingAnalysisPDF(data: PricingAnalysisData): Buffer {
   return Buffer.from(arrayBuffer)
 }
 
-// ========== CLEANING CHECKLIST PDF ==========
+// ========== CLEANING CHECKLIST PDF (Airbnb Professional Style) ==========
 
 export interface ChecklistSection {
   title: string
@@ -247,11 +247,70 @@ export interface CleaningChecklistData {
   userName: string
 }
 
-// Helper function to remove emojis from text (jsPDF doesn't support emojis)
+// Helper function to remove emojis and special unicode from text (jsPDF doesn't support them)
 function removeEmojis(text: string): string {
   return text
-    .replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]/gu, '')
+    // Remove all emoji ranges
+    .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+    .replace(/[\u{2600}-\u{26FF}]/gu, '')
+    .replace(/[\u{2700}-\u{27BF}]/gu, '')
+    .replace(/[\u{1F600}-\u{1F64F}]/gu, '')
+    .replace(/[\u{1F680}-\u{1F6FF}]/gu, '')
+    .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '')
+    .replace(/[\u{1F900}-\u{1F9FF}]/gu, '')
+    .replace(/[\u{1FA00}-\u{1FA6F}]/gu, '')
+    .replace(/[\u{1FA70}-\u{1FAFF}]/gu, '')
+    .replace(/[\u{231A}-\u{231B}]/gu, '')
+    .replace(/[\u{23E9}-\u{23F3}]/gu, '')
+    .replace(/[\u{23F8}-\u{23FA}]/gu, '')
+    .replace(/[\u{25AA}-\u{25AB}]/gu, '')
+    .replace(/[\u{25B6}]/gu, '')
+    .replace(/[\u{25C0}]/gu, '')
+    .replace(/[\u{25FB}-\u{25FE}]/gu, '')
+    .replace(/[\u{2614}-\u{2615}]/gu, '')
+    .replace(/[\u{2648}-\u{2653}]/gu, '')
+    .replace(/[\u{267F}]/gu, '')
+    .replace(/[\u{2693}]/gu, '')
+    .replace(/[\u{26A1}]/gu, '')
+    .replace(/[\u{26AA}-\u{26AB}]/gu, '')
+    .replace(/[\u{26BD}-\u{26BE}]/gu, '')
+    .replace(/[\u{26C4}-\u{26C5}]/gu, '')
+    .replace(/[\u{26CE}]/gu, '')
+    .replace(/[\u{26D4}]/gu, '')
+    .replace(/[\u{26EA}]/gu, '')
+    .replace(/[\u{26F2}-\u{26F3}]/gu, '')
+    .replace(/[\u{26F5}]/gu, '')
+    .replace(/[\u{26FA}]/gu, '')
+    .replace(/[\u{26FD}]/gu, '')
+    // Remove variation selectors
+    .replace(/[\uFE00-\uFE0F]/gu, '')
+    // Remove zero-width characters
+    .replace(/[\u200B-\u200D\uFEFF]/gu, '')
+    // Clean up multiple spaces
+    .replace(/\s+/g, ' ')
     .trim()
+}
+
+// Section icons/numbers mapping
+const sectionIcons: Record<string, string> = {
+  'cocina': '1',
+  'kitchen': '1',
+  'bano': '2',
+  'bathroom': '2',
+  'dormitorio': '3',
+  'bedroom': '3',
+  'salon': '4',
+  'living': '4',
+  'livingroom': '4',
+  'general': '5'
+}
+
+function getSectionNumber(title: string, index: number): string {
+  const normalized = removeEmojis(title).toLowerCase().replace(/\s+/g, '')
+  for (const [key, num] of Object.entries(sectionIcons)) {
+    if (normalized.includes(key)) return num
+  }
+  return String(index + 1)
 }
 
 export function generateCleaningChecklistPDF(data: CleaningChecklistData): Buffer {
@@ -265,141 +324,503 @@ export function generateCleaningChecklistPDF(data: CleaningChecklistData): Buffe
   const pageHeight = doc.internal.pageSize.getHeight()
   const margin = 20
   const contentWidth = pageWidth - margin * 2
-  let y = 25
+  let y = 0
 
-  // Colors - matching the email design
-  const darkGray: [number, number, number] = [17, 24, 39] // #111827
-  const mediumGray: [number, number, number] = [107, 114, 128] // #6b7280
-  const lightGray: [number, number, number] = [243, 244, 246] // #f3f4f6
-  const borderGray: [number, number, number] = [209, 213, 219] // #d1d5db
+  // Airbnb Color Palette
+  const rausch: [number, number, number] = [255, 56, 92]      // Coral primary
+  const hof: [number, number, number] = [34, 34, 34]          // Dark text #222
+  const foggy: [number, number, number] = [113, 113, 113]     // Secondary #717171
+  const hackberry: [number, number, number] = [235, 235, 235] // Border #EBEBEB
+  const white: [number, number, number] = [255, 255, 255]
+  const kazan: [number, number, number] = [247, 247, 247]     // Light bg #F7F7F7
+
+  // Spacing
+  const LINE_HEIGHT = 6
+  const SECTION_GAP = 6
+  const ITEM_GAP = 5.5
 
   // Count total tasks
   const totalTasks = data.sections.reduce((acc, s) => acc + s.items.length, 0)
 
-  // Header - simple like the email
-  doc.setTextColor(...mediumGray)
-  doc.setFontSize(9)
-  doc.text('ALOJAMIENTO', margin, y)
+  // ========== CORAL HEADER BANNER ==========
+  doc.setFillColor(...rausch)
+  doc.rect(0, 0, pageWidth, 38, 'F')
 
-  y += 6
-  doc.setTextColor(...darkGray)
-  doc.setFontSize(16)
+  // Brand name
+  y = 14
+  doc.setTextColor(...white)
+  doc.setFontSize(10)
   doc.setFont('helvetica', 'bold')
-  doc.text(data.propertyName || 'Mi Propiedad', margin, y)
+  doc.text('ITINERAMIO', margin, y)
 
-  if (data.propertyAddress) {
-    y += 5
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(...mediumGray)
-    doc.text(data.propertyAddress, margin, y)
-  }
-
-  y += 10
-  doc.setTextColor(...darkGray)
-  doc.setFontSize(14)
+  // Main title
+  y = 28
+  doc.setFontSize(20)
   doc.setFont('helvetica', 'bold')
   doc.text('Checklist de Limpieza', margin, y)
 
-  y += 5
-  doc.setFontSize(9)
+  // Subtitle with task count
+  doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
-  doc.setTextColor(...mediumGray)
-  doc.text(`${totalTasks} tareas - Marcar cada tarea completada`, margin, y)
+  const subtitleText = `${totalTasks} tareas`
+  const subtitleWidth = doc.getTextWidth(subtitleText)
+  doc.text(subtitleText, pageWidth - margin - subtitleWidth, y)
 
-  y += 8
+  // ========== PROPERTY INFO BAR ==========
+  y = 48
+  doc.setFillColor(...kazan)
+  doc.roundedRect(margin, y, contentWidth, 18, 3, 3, 'F')
 
-  // Sections
-  data.sections.forEach((section) => {
-    // Check if we need a new page
-    const sectionHeight = 12 + section.items.length * 7
-    if (y + sectionHeight > pageHeight - 30) {
+  y += 7
+  doc.setTextColor(...hof)
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Propiedad', margin + 6, y)
+
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(...foggy)
+  const propertyText = data.propertyName || '________________________'
+  doc.text(propertyText, margin + 28, y)
+
+  // Date field on right
+  doc.setTextColor(...hof)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Fecha', pageWidth - margin - 45, y)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(...foggy)
+  doc.text('___/___/___', pageWidth - margin - 30, y)
+
+  if (data.propertyAddress) {
+    y += 5
+    doc.setTextColor(...foggy)
+    doc.setFontSize(8)
+    doc.text(data.propertyAddress, margin + 28, y)
+  }
+
+  y = 75
+
+  // ========== SECTIONS ==========
+  const checkboxSize = 4
+
+  data.sections.forEach((section, sectionIndex) => {
+    const cleanTitle = removeEmojis(section.title)
+    const sectionNum = getSectionNumber(section.title, sectionIndex)
+
+    // Check for page break
+    const sectionHeight = 12 + (section.items.length * ITEM_GAP) + SECTION_GAP
+    if (y + sectionHeight > pageHeight - 35) {
       doc.addPage()
       y = 20
     }
 
-    // Section title - remove emojis
-    const cleanTitle = removeEmojis(section.title)
+    // Section header with coral accent
+    doc.setFillColor(...rausch)
+    doc.roundedRect(margin, y, 6, 6, 1.5, 1.5, 'F')
 
-    y += 5
-    doc.setTextColor(...darkGray)
-    doc.setFontSize(9)
+    // Number in circle
+    doc.setTextColor(...white)
+    doc.setFontSize(8)
     doc.setFont('helvetica', 'bold')
-    doc.text(cleanTitle.toUpperCase(), margin, y)
+    const numWidth = doc.getTextWidth(sectionNum)
+    doc.text(sectionNum, margin + 3 - (numWidth / 2), y + 4.2)
 
-    y += 5
+    // Section title
+    doc.setTextColor(...hof)
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'bold')
+    doc.text(cleanTitle, margin + 10, y + 4.5)
+
+    // Item count badge
+    doc.setFillColor(...kazan)
+    const countText = `${section.items.length}`
+    const countBadgeWidth = 8
+    doc.roundedRect(pageWidth - margin - countBadgeWidth, y, countBadgeWidth, 6, 1.5, 1.5, 'F')
+    doc.setTextColor(...foggy)
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'normal')
+    const countW = doc.getTextWidth(countText)
+    doc.text(countText, pageWidth - margin - countBadgeWidth / 2 - countW / 2, y + 4)
+
+    y += 14
 
     // Items
-    doc.setTextColor(...darkGray)
-    doc.setFontSize(10)
+    doc.setFontSize(9)
     doc.setFont('helvetica', 'normal')
 
     section.items.forEach((item) => {
-      // Check for page break
-      if (y > pageHeight - 25) {
+      // Page break check
+      if (y + ITEM_GAP > pageHeight - 30) {
         doc.addPage()
         y = 20
       }
 
-      // Checkbox
-      doc.setDrawColor(...borderGray)
-      doc.setLineWidth(0.3)
-      doc.rect(margin, y - 3, 4, 4)
+      // Rounded checkbox
+      doc.setDrawColor(...hackberry)
+      doc.setLineWidth(0.4)
+      doc.roundedRect(margin + 2, y - 2.8, checkboxSize, checkboxSize, 1, 1)
 
       // Item text
-      const maxTextWidth = contentWidth - 10
-      let itemText = item
-      while (doc.getTextWidth(itemText) > maxTextWidth && itemText.length > 10) {
-        itemText = itemText.slice(0, -1)
-      }
-      if (itemText !== item) itemText += '...'
+      const cleanItem = removeEmojis(item)
+      doc.setTextColor(...hof)
+      const maxWidth = contentWidth - 15
+      const lines = doc.splitTextToSize(cleanItem, maxWidth)
+      doc.text(lines[0], margin + 9, y)
 
-      doc.text(itemText, margin + 7, y)
+      y += ITEM_GAP
+    })
+
+    // Subtle divider after section
+    y += 2
+    doc.setDrawColor(...hackberry)
+    doc.setLineWidth(0.2)
+    doc.line(margin, y, pageWidth - margin, y)
+
+    y += SECTION_GAP
+  })
+
+  // ========== NOTES SECTION ==========
+  if (y + 30 < pageHeight - 35) {
+    y += 2
+
+    // Notes header
+    doc.setFillColor(...rausch)
+    doc.roundedRect(margin, y, 6, 6, 1.5, 1.5, 'F')
+    doc.setTextColor(...white)
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'bold')
+    doc.text('+', margin + 2, y + 4.2)
+
+    doc.setTextColor(...hof)
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Notas', margin + 10, y + 4.5)
+
+    y += 12
+
+    // Notes box
+    doc.setDrawColor(...hackberry)
+    doc.setLineWidth(0.3)
+    doc.roundedRect(margin, y, contentWidth, 20, 2, 2)
+
+    // Lines inside
+    doc.setDrawColor(...kazan)
+    doc.setLineWidth(0.2)
+    for (let i = 1; i <= 3; i++) {
+      doc.line(margin + 4, y + (i * 5), pageWidth - margin - 4, y + (i * 5))
+    }
+  }
+
+  // ========== FOOTER ==========
+  const footerY = pageHeight - 15
+
+  doc.setDrawColor(...hackberry)
+  doc.setLineWidth(0.3)
+  doc.line(margin, footerY - 6, pageWidth - margin, footerY - 6)
+
+  // Signature section
+  doc.setTextColor(...foggy)
+  doc.setFontSize(8)
+  doc.setFont('helvetica', 'normal')
+  doc.text('Firma', margin, footerY)
+  doc.setDrawColor(...hackberry)
+  doc.line(margin + 10, footerY, margin + 55, footerY)
+
+  doc.text('Hora', margin + 65, footerY)
+  doc.line(margin + 77, footerY, margin + 100, footerY)
+
+  // Brand
+  doc.setTextColor(...rausch)
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'bold')
+  const brand = 'itineramio.com'
+  const brandW = doc.getTextWidth(brand)
+  doc.text(brand, pageWidth - margin - brandW, footerY)
+
+  // Return as Buffer
+  const arrayBuffer = doc.output('arraybuffer')
+  return Buffer.from(arrayBuffer)
+}
+
+// ========== INSPECTION PROTOCOL PDF (Airbnb-style) ==========
+
+export interface InspectionProtocolData {
+  propertyName?: string
+  userName?: string
+}
+
+export function generateInspectionProtocolPDF(data?: InspectionProtocolData): Buffer {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  })
+
+  const pageWidth = doc.internal.pageSize.getWidth()
+  const pageHeight = doc.internal.pageSize.getHeight()
+  const margin = 16
+  const contentWidth = pageWidth - margin * 2
+  let y = 0
+
+  // Airbnb-style colors
+  const rausch: [number, number, number] = [255, 56, 92] // Airbnb coral/red
+  const hof: [number, number, number] = [72, 72, 72] // Dark gray
+  const foggy: [number, number, number] = [118, 118, 118] // Medium gray
+  const hackberry: [number, number, number] = [176, 176, 176] // Light gray
+  const white: [number, number, number] = [255, 255, 255]
+  const babu: [number, number, number] = [0, 166, 153] // Teal for success
+
+  // ========== HEADER BANNER ==========
+  doc.setFillColor(...rausch)
+  doc.rect(0, 0, pageWidth, 42, 'F')
+
+  // Header content
+  y = 16
+  doc.setTextColor(...white)
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  doc.text('ITINERAMIO', margin, y)
+
+  y = 28
+  doc.setFontSize(22)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Protocolo de Inspeccion Pre-huesped', margin, y)
+
+  y = 36
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  doc.text('Verificacion en 5 minutos antes de cada check-in', margin, y)
+
+  // ========== PROPERTY INFO BAR ==========
+  y = 52
+  doc.setFillColor(247, 247, 247)
+  doc.rect(0, y - 6, pageWidth, 18, 'F')
+
+  doc.setTextColor(...hof)
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Propiedad:', margin, y)
+  doc.setFont('helvetica', 'normal')
+  doc.text(data?.propertyName || '________________________________', margin + 22, y)
+
+  doc.setFont('helvetica', 'bold')
+  doc.text('Fecha:', margin + 100, y)
+  doc.setFont('helvetica', 'normal')
+  doc.text('____/____/________', margin + 113, y)
+
+  y = 72
+
+  // ========== SECTIONS DATA ==========
+  const sections = [
+    {
+      icon: '1',
+      title: 'ENTRADA Y PRIMERA IMPRESION',
+      time: '1 min',
+      items: [
+        'Puerta y cerradura funcionan correctamente',
+        'Entrada limpia (sin suciedad, hojas o colillas)',
+        'Olor neutro al entrar (sin humedad ni exceso de ambientador)',
+        'Luces de entrada funcionan'
+      ]
+    },
+    {
+      icon: '2',
+      title: 'SALON / ZONA COMUN',
+      time: '1 min',
+      items: [
+        'Sofa sin manchas, cojines colocados',
+        'Mesa limpia, sin marcas de vasos',
+        'TV funciona + mando con pilas',
+        'WiFi funcionando (conectar y probar)',
+        'Aire acondicionado / calefaccion operativo',
+        'Persianas y cortinas funcionan'
+      ]
+    },
+    {
+      icon: '3',
+      title: 'COCINA',
+      time: '1 min',
+      items: [
+        'Encimera y vitro sin manchas de grasa',
+        'Fregadero limpio, sin restos en desague',
+        'Nevera vacia, limpia y sin olores',
+        'Microondas limpio por dentro',
+        'Cafetera limpia y lista para usar',
+        'Cuberteria y vajilla completa',
+        'Cubo de basura vacio con bolsa nueva'
+      ]
+    },
+    {
+      icon: '4',
+      title: 'DORMITORIO(S)',
+      time: '1 min',
+      items: [
+        'Sabanas tensas, sin arrugas',
+        'Almohadas mullidas y bien colocadas',
+        'Sin pelos en sabanas ni almohadas',
+        'Mesitas de noche limpias y vacias',
+        'Armario vacio, perchas disponibles',
+        'Enchufes junto a cama funcionan'
+      ]
+    },
+    {
+      icon: '5',
+      title: 'BANO(S)',
+      time: '1 min',
+      items: [
+        'Inodoro impecable (incluido debajo de la tapa)',
+        'Ducha/banera sin restos de jabon ni pelos',
+        'Juntas de azulejos sin moho',
+        'Espejo sin manchas',
+        'Toallas dobladas correctamente',
+        'Amenities completos (jabon, champu, papel)',
+        'Desagues sin olores'
+      ]
+    }
+  ]
+
+  const checkboxSize = 4.5
+  const itemStartX = margin + 8
+
+  // ========== RENDER SECTIONS ==========
+  sections.forEach((section, sectionIndex) => {
+    // Check for page break
+    const estimatedHeight = 12 + section.items.length * 7
+    if (y + estimatedHeight > pageHeight - 45) {
+      doc.addPage()
+      y = 20
+    }
+
+    // Section header with number badge
+    doc.setFillColor(...rausch)
+    doc.circle(margin + 4, y, 4, 'F')
+    doc.setTextColor(...white)
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'bold')
+    doc.text(section.icon, margin + 2.5, y + 1.5)
+
+    // Section title
+    doc.setTextColor(...hof)
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'bold')
+    doc.text(section.title, margin + 12, y + 1)
+
+    // Time badge
+    doc.setFillColor(247, 247, 247)
+    const timeWidth = doc.getTextWidth(section.time) + 6
+    doc.roundedRect(pageWidth - margin - timeWidth, y - 3, timeWidth, 7, 1, 1, 'F')
+    doc.setTextColor(...foggy)
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'normal')
+    doc.text(section.time, pageWidth - margin - timeWidth + 3, y + 1)
+
+    y += 10
+
+    // Items
+    doc.setFontSize(10)
+    section.items.forEach((item, itemIndex) => {
+      // Checkbox
+      doc.setDrawColor(...hackberry)
+      doc.setLineWidth(0.4)
+      doc.roundedRect(itemStartX, y - 3.2, checkboxSize, checkboxSize, 0.8, 0.8)
+
+      // Item text
+      doc.setTextColor(...hof)
+      doc.setFont('helvetica', 'normal')
+      doc.text(item, itemStartX + checkboxSize + 4, y)
 
       y += 7
     })
 
-    y += 3
+    y += 6
   })
 
-  // Notes section
-  if (y + 35 < pageHeight - 20) {
-    y += 8
-    doc.setTextColor(...darkGray)
-    doc.setFontSize(9)
-    doc.setFont('helvetica', 'bold')
-    doc.text('NOTAS', margin, y)
-
-    y += 4
-    doc.setDrawColor(...borderGray)
-    doc.setLineWidth(0.3)
-    doc.setLineDashPattern([2, 2], 0)
-    doc.roundedRect(margin, y, contentWidth, 25, 2, 2, 'S')
-    doc.setLineDashPattern([], 0)
+  // ========== EXTRAS & SECURITY SECTION ==========
+  if (y + 50 > pageHeight - 45) {
+    doc.addPage()
+    y = 20
   }
 
-  // Footer area
-  y = pageHeight - 20
-
-  // Date and signature
-  doc.setDrawColor(...mediumGray)
-  doc.setLineWidth(0.3)
-  doc.setTextColor(...mediumGray)
-  doc.setFontSize(9)
-  doc.setFont('helvetica', 'normal')
-
-  doc.text('Fecha: ________________', margin, y)
-  doc.text('Firma: ________________', margin + 80, y)
-
-  // Footer note
-  y += 8
+  doc.setFillColor(...rausch)
+  doc.circle(margin + 4, y, 4, 'F')
+  doc.setTextColor(...white)
   doc.setFontSize(8)
-  doc.setTextColor(...mediumGray)
-  doc.text('Verificar todas las tareas antes de la llegada del huesped.', margin, y)
+  doc.setFont('helvetica', 'bold')
+  doc.text('+', margin + 2.3, y + 1.5)
 
-  // Branding
-  y = pageHeight - 8
-  doc.text('Creado con Itineramio - itineramio.com', margin, y)
+  doc.setTextColor(...hof)
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'bold')
+  doc.text('EXTRAS Y SEGURIDAD', margin + 12, y + 1)
+
+  y += 10
+
+  const extraItems = [
+    'Manual del huesped visible y accesible',
+    'Llaves / codigos preparados',
+    'Sin objetos olvidados del huesped anterior',
+    'Detector de humo con bateria',
+    'Extintor accesible (si aplica)'
+  ]
+
+  doc.setFontSize(10)
+  extraItems.forEach(item => {
+    doc.setDrawColor(...hackberry)
+    doc.roundedRect(itemStartX, y - 3.2, checkboxSize, checkboxSize, 0.8, 0.8)
+    doc.setTextColor(...hof)
+    doc.setFont('helvetica', 'normal')
+    doc.text(item, itemStartX + checkboxSize + 4, y)
+    y += 7
+  })
+
+  // ========== RESULT BOX ==========
+  y += 8
+  doc.setFillColor(240, 253, 244) // Green-50
+  doc.setDrawColor(...babu)
+  doc.setLineWidth(0.5)
+  doc.roundedRect(margin, y, contentWidth, 28, 2, 2, 'FD')
+
+  y += 8
+  doc.setTextColor(...babu)
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'bold')
+  doc.text('RESULTADO', margin + 6, y)
+
+  y += 7
+  doc.setTextColor(...hof)
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  doc.text('Total puntos: 35     Puntos OK: _____     Incidencias: _____', margin + 6, y)
+
+  y += 7
+  doc.setFontSize(9)
+  doc.setTextColor(...foggy)
+  doc.text('Si detectas mas de 3 incidencias, NO confirmes la llegada hasta resolver.', margin + 6, y)
+
+  // ========== SIGNATURE SECTION ==========
+  y += 18
+
+  doc.setTextColor(...foggy)
+  doc.setFontSize(9)
+  doc.text('Inspector:', margin, y)
+  doc.setDrawColor(...hackberry)
+  doc.line(margin + 18, y, margin + 70, y)
+
+  doc.text('Firma:', margin + 80, y)
+  doc.line(margin + 93, y, margin + 145, y)
+
+  // ========== FOOTER ==========
+  const footerY = pageHeight - 12
+  doc.setDrawColor(230, 230, 230)
+  doc.setLineWidth(0.3)
+  doc.line(margin, footerY - 5, pageWidth - margin, footerY - 5)
+
+  doc.setTextColor(...foggy)
+  doc.setFontSize(8)
+  doc.text('Protocolo de Inspeccion Pre-huesped', margin, footerY)
+
+  const brandText = 'itineramio.com'
+  const brandWidth = doc.getTextWidth(brandText)
+  doc.text(brandText, pageWidth - margin - brandWidth, footerY)
 
   // Return as Buffer
   const arrayBuffer = doc.output('arraybuffer')

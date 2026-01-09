@@ -62,20 +62,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // Hub tools routes
+  // Hub tools routes - only active tools (rest are "coming soon")
   const hubToolsRoutes: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}/hub/tools/qr-generator`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/hub/tools/pricing-calculator`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
     {
       url: `${baseUrl}/hub/tools/cleaning-checklist`,
       lastModified: new Date(),
@@ -83,19 +71,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/hub/tools/house-rules`,
+      url: `${baseUrl}/recursos/plantilla-reviews`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/hub/tools/roi-calculator`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/hub/tools/wifi-card`,
+      url: `${baseUrl}/recursos/plantilla-estrellas-personalizada`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,

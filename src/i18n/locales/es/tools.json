@@ -97,6 +97,10 @@
       "starRating": {
         "title": "Plantilla Significado Estrellas",
         "description": "Explica a tus huéspedes cómo valorar en Airbnb con tu QR de WhatsApp"
+      },
+      "reviewsTemplate": {
+        "title": "Guía Rápida de Reseñas",
+        "description": "Plantilla PRO para educar a huéspedes sobre las valoraciones de Airbnb"
       }
     }
   },

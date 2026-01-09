@@ -20,7 +20,9 @@ import {
   Search,
   Filter,
   Trophy,
-  BarChart3
+  BarChart3,
+  Lock,
+  Clock
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Navbar } from '../../../src/components/layout/Navbar'
@@ -47,31 +49,8 @@ const scaleIn = {
 }
 
 // Tool configs - titles/descriptions come from translations
+// ACTIVE: Only cleaning-checklist, star-rating, and plantilla-reviews
 const activeToolsConfig = [
-  {
-    id: 'qr-generator',
-    titleKey: 'qrGenerator',
-    icon: QrCode,
-    color: 'from-violet-500 to-purple-600',
-    bgColor: 'from-violet-50 to-purple-50',
-    borderColor: 'border-violet-200',
-    href: '/hub/tools/qr-generator',
-    badgeKey: 'free',
-    popular: true,
-    active: true
-  },
-  {
-    id: 'pricing-calculator',
-    titleKey: 'pricingCalculator',
-    icon: Calculator,
-    color: 'from-blue-500 to-cyan-600',
-    bgColor: 'from-blue-50 to-cyan-50',
-    borderColor: 'border-blue-200',
-    href: '/hub/tools/pricing-calculator',
-    badgeKey: 'popular',
-    popular: true,
-    active: true
-  },
   {
     id: 'cleaning-checklist',
     titleKey: 'cleaningChecklist',
@@ -80,43 +59,19 @@ const activeToolsConfig = [
     bgColor: 'from-emerald-50 to-green-50',
     borderColor: 'border-emerald-200',
     href: '/hub/tools/cleaning-checklist',
-    badgeKey: 'new',
+    badgeKey: 'popular',
     popular: true,
     active: true
   },
   {
-    id: 'house-rules',
-    titleKey: 'houseRules',
-    icon: FileText,
-    color: 'from-amber-500 to-orange-600',
-    bgColor: 'from-amber-50 to-orange-50',
-    borderColor: 'border-amber-200',
-    href: '/hub/tools/house-rules',
-    badgeKey: 'new',
-    popular: true,
-    active: true
-  },
-  {
-    id: 'roi-calculator',
-    titleKey: 'roiCalculator',
-    icon: TrendingUp,
-    color: 'from-rose-500 to-pink-600',
-    bgColor: 'from-rose-50 to-pink-50',
+    id: 'plantilla-reviews',
+    titleKey: 'reviewsTemplate',
+    icon: Star,
+    color: 'from-rose-500 to-orange-500',
+    bgColor: 'from-rose-50 to-orange-50',
     borderColor: 'border-rose-200',
-    href: '/hub/tools/roi-calculator',
-    badgeKey: 'new',
-    popular: true,
-    active: true
-  },
-  {
-    id: 'wifi-card',
-    titleKey: 'wifiCard',
-    icon: Wifi,
-    color: 'from-sky-500 to-blue-600',
-    bgColor: 'from-sky-50 to-blue-50',
-    borderColor: 'border-sky-200',
-    href: '/hub/tools/wifi-card',
-    badgeKey: 'new',
+    href: '/recursos/plantilla-reviews',
+    badgeKey: 'popular',
     popular: true,
     active: true
   },
@@ -134,8 +89,68 @@ const activeToolsConfig = [
   }
 ]
 
-// Coming soon tools config
+// Coming soon tools config - tools that will be unlocked later
 const comingSoonToolsConfig = [
+  {
+    id: 'qr-generator',
+    titleKey: 'qrGenerator',
+    icon: QrCode,
+    color: 'from-gray-400 to-gray-500',
+    bgColor: 'from-gray-50 to-gray-100',
+    borderColor: 'border-gray-200',
+    href: '#',
+    badgeKey: 'comingSoon',
+    popular: false,
+    active: false
+  },
+  {
+    id: 'pricing-calculator',
+    titleKey: 'pricingCalculator',
+    icon: Calculator,
+    color: 'from-gray-400 to-gray-500',
+    bgColor: 'from-gray-50 to-gray-100',
+    borderColor: 'border-gray-200',
+    href: '#',
+    badgeKey: 'comingSoon',
+    popular: false,
+    active: false
+  },
+  {
+    id: 'house-rules',
+    titleKey: 'houseRules',
+    icon: FileText,
+    color: 'from-gray-400 to-gray-500',
+    bgColor: 'from-gray-50 to-gray-100',
+    borderColor: 'border-gray-200',
+    href: '#',
+    badgeKey: 'comingSoon',
+    popular: false,
+    active: false
+  },
+  {
+    id: 'roi-calculator',
+    titleKey: 'roiCalculator',
+    icon: TrendingUp,
+    color: 'from-gray-400 to-gray-500',
+    bgColor: 'from-gray-50 to-gray-100',
+    borderColor: 'border-gray-200',
+    href: '#',
+    badgeKey: 'comingSoon',
+    popular: false,
+    active: false
+  },
+  {
+    id: 'wifi-card',
+    titleKey: 'wifiCard',
+    icon: Wifi,
+    color: 'from-gray-400 to-gray-500',
+    bgColor: 'from-gray-50 to-gray-100',
+    borderColor: 'border-gray-200',
+    href: '#',
+    badgeKey: 'comingSoon',
+    popular: false,
+    active: false
+  },
   {
     id: 'description-generator',
     titleKey: 'descriptionGenerator',
@@ -389,7 +404,7 @@ export default function KnowledgeHub() {
               className="grid grid-cols-3 gap-8 mt-12 max-w-3xl mx-auto"
             >
               <motion.div variants={scaleIn} className="text-center">
-                <div className="text-4xl font-bold text-white mb-2">7</div>
+                <div className="text-4xl font-bold text-white mb-2">3</div>
                 <div className="text-white/80 text-sm">{t('hub.stats.tools')}</div>
               </motion.div>
               <motion.div variants={scaleIn} className="text-center">
@@ -397,7 +412,7 @@ export default function KnowledgeHub() {
                 <div className="text-white/80 text-sm">{t('hub.stats.articles')}</div>
               </motion.div>
               <motion.div variants={scaleIn} className="text-center">
-                <div className="text-4xl font-bold text-white mb-2">3</div>
+                <div className="text-4xl font-bold text-white mb-2">8</div>
                 <div className="text-white/80 text-sm">{t('hub.stats.coming')}</div>
               </motion.div>
             </motion.div>

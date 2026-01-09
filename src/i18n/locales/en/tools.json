@@ -93,6 +93,14 @@
       "checkinBuilder": {
         "title": "Check-in Template Builder",
         "description": "Create custom checklists for each check-in stage"
+      },
+      "starRating": {
+        "title": "Star Rating Guide",
+        "description": "Explain to guests how to rate on Airbnb with your WhatsApp QR"
+      },
+      "reviewsTemplate": {
+        "title": "Reviews Quick Guide",
+        "description": "PRO template to educate guests about Airbnb ratings"
       }
     }
   },

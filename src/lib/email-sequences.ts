@@ -11,6 +11,7 @@
 import { prisma } from './prisma'
 import { Resend } from 'resend'
 import * as React from 'react'
+import { getBienvenido20Remaining } from './coupon-helper'
 
 // Lazy template loader - imports templates on demand
 // This avoids build issues while still working in production
@@ -60,9 +61,18 @@ async function getEmailTemplate(templateName: string): Promise<React.FC<any> | n
       case 'welcome-qr':
       case 'welcome-qr.tsx':
         return (await import('../emails/templates/welcome-qr')).default
-      // Tool: Checklist de Limpieza templates
+      // Tool: Checklist de Limpieza templates (5-day optimized funnel)
       case 'tool-checklist-day0-delivery':
         return (await import('../emails/templates/tools/tool-checklist-day0-delivery')).default
+      case 'tool-checklist-day1-quickwin':
+        return (await import('../emails/templates/tools/tool-checklist-day1-quickwin')).default
+      case 'tool-checklist-day3-problem':
+        return (await import('../emails/templates/tools/tool-checklist-day3-problem')).default
+      case 'tool-checklist-day4-solution':
+        return (await import('../emails/templates/tools/tool-checklist-day4-solution')).default
+      case 'tool-checklist-day5-offer':
+        return (await import('../emails/templates/tools/tool-checklist-day5-offer')).default
+      // Legacy templates (kept for backwards compatibility)
       case 'tool-checklist-day2-mistakes':
         return (await import('../emails/templates/tools/tool-checklist-day2-mistakes')).default
       case 'tool-checklist-day4-resource':
@@ -137,6 +147,13 @@ async function getEmailTemplate(templateName: string): Promise<React.FC<any> | n
         return (await import('../emails/templates/tools/tool-house-rules-day6-violations')).default
       case 'tool-house-rules-day8-offer':
         return (await import('../emails/templates/tools/tool-house-rules-day8-offer')).default
+      // Tool: Calculadora de Tiempo templates
+      case 'tool-time-day0-result':
+        return (await import('../emails/templates/tools/tool-time-day0-result')).default
+      case 'tool-time-day2-solution':
+        return (await import('../emails/templates/tools/tool-time-day2-solution')).default
+      case 'tool-time-day4-offer':
+        return (await import('../emails/templates/tools/tool-time-day4-offer')).default
       // Academia templates
       case 'academia-quiz-day0-results':
         return (await import('../emails/templates/academia/academia-quiz-day0-results')).default
@@ -150,6 +167,17 @@ async function getEmailTemplate(templateName: string): Promise<React.FC<any> | n
         return (await import('../emails/templates/academia/academia-quiz-day10-invite')).default
       case 'academia-quiz-day14-offer':
         return (await import('../emails/templates/academia/academia-quiz-day14-offer')).default
+      // Universal Funnel templates
+      case 'funnel-day0-welcome':
+        return (await import('../emails/templates/funnel/day0-welcome')).default
+      case 'funnel-day2-pain-point':
+        return (await import('../emails/templates/funnel/day2-pain-point')).default
+      case 'funnel-day3-test-cta':
+        return (await import('../emails/templates/funnel/day3-test-cta')).default
+      case 'funnel-day5-case-study':
+        return (await import('../emails/templates/funnel/day5-case-study')).default
+      case 'funnel-day7-conversion':
+        return (await import('../emails/templates/funnel/day7-conversion')).default
       default:
         console.error(`[EMAIL TEMPLATES] Unknown template: ${templateName}`)
         return null
@@ -417,6 +445,9 @@ async function scheduleSequenceEmails(
     if (step.templateName.startsWith('tool-house-rules') && subscriber.sourceMetadata) {
       templateData = { ...templateData, rulesData: subscriber.sourceMetadata }
     }
+    if (step.templateName.startsWith('tool-time') && subscriber.sourceMetadata) {
+      templateData = { ...templateData, timeData: subscriber.sourceMetadata }
+    }
 
     // Crear scheduled email
     await prisma.scheduledEmail.create({
@@ -629,18 +660,43 @@ async function sendScheduledEmail(scheduledEmail: any) {
       throw new Error(`Template not found or failed to load: ${scheduledEmail.templateName}`)
     }
 
-    // Renderizar el template con los datos
-    const emailHtml = EmailComponent({
+    // Prepare template data
+    let templateData = {
       name: scheduledEmail.recipientName || 'Anfitrión',
       email: scheduledEmail.recipientEmail,
       ...scheduledEmail.templateData
-    })
+    }
+
+    // For offer templates (day5-offer or day8-offer), get remaining coupons from Stripe
+    let emailSubject = scheduledEmail.subject
+    if (scheduledEmail.templateName.endsWith('day5-offer') || scheduledEmail.templateName.endsWith('day8-offer')) {
+      try {
+        const couponsRemaining = await getBienvenido20Remaining()
+        templateData = { ...templateData, couponsRemaining }
+
+        // Update subject dynamically based on remaining coupons
+        if (scheduledEmail.templateName.endsWith('day5-offer')) {
+          const { getSubject } = await import('../emails/templates/tools/tool-checklist-day5-offer')
+          emailSubject = getSubject(couponsRemaining)
+        } else {
+          const { getSubject } = await import('../emails/templates/tools/tool-checklist-day8-offer')
+          emailSubject = getSubject(couponsRemaining)
+        }
+        console.log(`[EMAIL SEQUENCES] Offer email: ${couponsRemaining} coupons remaining`)
+      } catch (err) {
+        console.error('[EMAIL SEQUENCES] Error getting coupon status:', err)
+        // Continue with default values
+      }
+    }
+
+    // Renderizar el template con los datos
+    const emailHtml = EmailComponent(templateData)
 
     // Enviar con Resend
     const { data, error } = await getResend().emails.send({
       from: 'Itineramio <hola@itineramio.com>',
       to: scheduledEmail.recipientEmail,
-      subject: scheduledEmail.subject,
+      subject: emailSubject,
       react: emailHtml,
       tags: [
         {

@@ -1026,20 +1026,25 @@ enum CommentStatus {
 }
 
 model Lead {
-  id            String                 @id @default(cuid())
-  name          String
-  email         String
-  source        String
-  userAgent     String?
-  ipAddress     String?
-  metadata      Json?
-  createdAt     DateTime               @default(now())
-  journeyStages CustomerJourneyStage[]
-  emailEvents   EmailEvent[]
+  id               String                 @id @default(cuid())
+  name             String
+  email            String
+  source           String
+  userAgent        String?
+  ipAddress        String?
+  metadata         Json?
+  createdAt        DateTime               @default(now())
+  journeyStages    CustomerJourneyStage[]
+  emailEvents      EmailEvent[]
+  // Funnel tracking
+  funnelTheme      String?                @map("funnel_theme")
+  funnelStartedAt  DateTime?              @map("funnel_started_at")
+  funnelCurrentDay Int?                   @default(0) @map("funnel_current_day")
 
   @@index([email])
   @@index([source])
   @@index([createdAt])
+  @@index([funnelTheme])
   @@map("leads")
 }
 

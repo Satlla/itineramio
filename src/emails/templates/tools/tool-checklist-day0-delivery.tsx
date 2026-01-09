@@ -50,14 +50,8 @@ export default function ToolChecklistDay0Delivery({ name, propertyName, property
             </div>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              En los próximos días te enviaré algunos recursos más para optimizar tus operaciones:
+              Mañana te envío un email corto con los <strong>3 puntos que más se olvidan</strong> en la limpieza (y que generan reseñas negativas).
             </p>
-
-            <ul style={{ margin: '0 0 24px 0', paddingLeft: '20px', color: '#6b7280', fontSize: '14px', lineHeight: 1.8 }}>
-              <li>Errores comunes de limpieza que cuestan reseñas</li>
-              <li>Protocolo de inspección pre-huésped</li>
-              <li>Herramientas para automatizar la gestión</li>
-            </ul>
 
             <p style={{ margin: '0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
               ¡Que tengas un excelente día!

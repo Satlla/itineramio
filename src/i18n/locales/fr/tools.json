@@ -93,6 +93,14 @@
       "checkinBuilder": {
         "title": "Constructeur de Check-in",
         "description": "Créez des checklists personnalisées pour chaque étape du check-in"
+      },
+      "starRating": {
+        "title": "Guide des Étoiles",
+        "description": "Expliquez à vos hôtes comment noter sur Airbnb avec votre QR WhatsApp"
+      },
+      "reviewsTemplate": {
+        "title": "Guide Rapide des Avis",
+        "description": "Template PRO pour éduquer les hôtes sur les évaluations Airbnb"
       }
     }
   },

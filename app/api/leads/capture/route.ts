@@ -41,7 +41,22 @@ const SOURCE_TO_LEAD_MAGNET: Record<string, {
 // Online tools that don't need download email - sequences handle everything
 // Slugs must match what the frontend sends as 'source'
 // wifi-card: downloads directly on page, no need to email a link
-const ONLINE_TOOLS = ['qr-generator', 'pricing-calculator', 'roi-calculator', 'house-rules-generator', 'wifi-card']
+const ONLINE_TOOLS = ['qr-generator', 'pricing-calculator', 'roi-calculator', 'house-rules-generator', 'wifi-card', 'time-calculator', 'cleaning-checklist', 'checklist-limpieza']
+
+// Map source slugs to clean display names for the dashboard
+const SOURCE_DISPLAY_NAMES: Record<string, string> = {
+  'time-calculator': 'Calculadora de Tiempo',
+  'qr-generator': 'Generador de QR',
+  'pricing-calculator': 'Calculadora de Precios',
+  'roi-calculator': 'Calculadora de ROI',
+  'house-rules-generator': 'Generador de Normas',
+  'wifi-card': 'Tarjeta WiFi',
+  'cleaning-checklist': 'Checklist de Limpieza',
+  'checklist-limpieza': 'Checklist de Limpieza',
+  'plantilla-reviews': 'Plantilla de Reseñas',
+  'academia-quiz': 'Quiz Academia',
+  'host_profile_test': 'Test de Arquetipo',
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -128,13 +143,11 @@ export async function POST(request: NextRequest) {
     }
     const archetype = sourceToArchetype[source] || 'EQUILIBRADO' // Default archetype for tool-based leads
 
-    // Use different source/tag format for online tools vs lead magnets
-    // Online tools: tool_qr-generator (matches sequence targetSource)
-    // Lead magnets: lead_magnet_estratega-5-kpis
+    // Use clean display names for sources
     const isOnlineTool = ONLINE_TOOLS.includes(source)
-    const subscriberSource = isOnlineTool ? `tool_${source}` : `lead_magnet_${source}`
+    const subscriberSource = SOURCE_DISPLAY_NAMES[source] || source
     const tags = isOnlineTool
-      ? [`tool_${source}`, source]
+      ? [source]
       : ['lead_magnet', source]
 
     let subscriber
