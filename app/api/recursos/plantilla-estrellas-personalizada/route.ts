@@ -5,10 +5,127 @@ import { jsPDF } from 'jspdf'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+// Translations for PDF content
+const pdfTranslations: Record<string, {
+  guideTitle: string
+  mainTitle: string
+  subtitle: string
+  stars: { label: string; desc: string }[]
+  contactTitle: string
+  contactText: string
+  hostLabel: string
+}> = {
+  es: {
+    guideTitle: 'Guía para huéspedes',
+    mainTitle: '¿Cómo valorar tu estancia?',
+    subtitle: 'En Airbnb, menos de 5 estrellas afecta negativamente al anfitrión',
+    stars: [
+      { label: 'Excelente', desc: 'Todo fue perfecto' },
+      { label: 'Bien, pero...', desc: 'Algo podría mejorar' },
+      { label: 'Regular', desc: 'Hubo problemas' },
+      { label: 'Malo', desc: 'Mala experiencia' },
+      { label: 'Muy malo', desc: 'Inaceptable' },
+    ],
+    contactTitle: '¿Algo no fue perfecto?',
+    contactText: 'Escríbeme antes de puntuar y lo solucionamos.',
+    hostLabel: 'host',
+  },
+  en: {
+    guideTitle: 'Guest Guide',
+    mainTitle: 'How to rate your stay?',
+    subtitle: 'On Airbnb, less than 5 stars negatively affects the host',
+    stars: [
+      { label: 'Excellent', desc: 'Everything was perfect' },
+      { label: 'Good, but...', desc: 'Something could improve' },
+      { label: 'Average', desc: 'There were problems' },
+      { label: 'Bad', desc: 'Bad experience' },
+      { label: 'Very bad', desc: 'Unacceptable' },
+    ],
+    contactTitle: 'Something wasn\'t perfect?',
+    contactText: 'Message me before rating and we\'ll fix it.',
+    hostLabel: 'host',
+  },
+  fr: {
+    guideTitle: 'Guide pour les voyageurs',
+    mainTitle: 'Comment évaluer votre séjour ?',
+    subtitle: 'Sur Airbnb, moins de 5 étoiles affecte négativement l\'hôte',
+    stars: [
+      { label: 'Excellent', desc: 'Tout était parfait' },
+      { label: 'Bien, mais...', desc: 'Quelque chose pourrait s\'améliorer' },
+      { label: 'Moyen', desc: 'Il y a eu des problèmes' },
+      { label: 'Mauvais', desc: 'Mauvaise expérience' },
+      { label: 'Très mauvais', desc: 'Inacceptable' },
+    ],
+    contactTitle: 'Quelque chose n\'était pas parfait ?',
+    contactText: 'Écrivez-moi avant de noter et nous le résoudrons.',
+    hostLabel: 'hôte',
+  },
+  de: {
+    guideTitle: 'Gästeanleitung',
+    mainTitle: 'Wie bewerten Sie Ihren Aufenthalt?',
+    subtitle: 'Bei Airbnb wirken sich weniger als 5 Sterne negativ auf den Gastgeber aus',
+    stars: [
+      { label: 'Ausgezeichnet', desc: 'Alles war perfekt' },
+      { label: 'Gut, aber...', desc: 'Etwas könnte besser sein' },
+      { label: 'Durchschnitt', desc: 'Es gab Probleme' },
+      { label: 'Schlecht', desc: 'Schlechte Erfahrung' },
+      { label: 'Sehr schlecht', desc: 'Inakzeptabel' },
+    ],
+    contactTitle: 'War etwas nicht perfekt?',
+    contactText: 'Schreiben Sie mir vor der Bewertung und wir lösen es.',
+    hostLabel: 'Gastgeber',
+  },
+  it: {
+    guideTitle: 'Guida per gli ospiti',
+    mainTitle: 'Come valutare il tuo soggiorno?',
+    subtitle: 'Su Airbnb, meno di 5 stelle influisce negativamente sull\'host',
+    stars: [
+      { label: 'Eccellente', desc: 'Tutto era perfetto' },
+      { label: 'Bene, ma...', desc: 'Qualcosa potrebbe migliorare' },
+      { label: 'Nella media', desc: 'Ci sono stati problemi' },
+      { label: 'Male', desc: 'Brutta esperienza' },
+      { label: 'Molto male', desc: 'Inaccettabile' },
+    ],
+    contactTitle: 'Qualcosa non era perfetto?',
+    contactText: 'Scrivimi prima di valutare e lo risolviamo.',
+    hostLabel: 'host',
+  },
+  pt: {
+    guideTitle: 'Guia para hóspedes',
+    mainTitle: 'Como avaliar sua estadia?',
+    subtitle: 'No Airbnb, menos de 5 estrelas afeta negativamente o anfitrião',
+    stars: [
+      { label: 'Excelente', desc: 'Tudo foi perfeito' },
+      { label: 'Bom, mas...', desc: 'Algo poderia melhorar' },
+      { label: 'Regular', desc: 'Houve problemas' },
+      { label: 'Ruim', desc: 'Má experiência' },
+      { label: 'Muito ruim', desc: 'Inaceitável' },
+    ],
+    contactTitle: 'Algo não foi perfeito?',
+    contactText: 'Escreva-me antes de avaliar e resolveremos.',
+    hostLabel: 'anfitrião',
+  },
+  nl: {
+    guideTitle: 'Gastengids',
+    mainTitle: 'Hoe beoordeel je je verblijf?',
+    subtitle: 'Op Airbnb heeft minder dan 5 sterren een negatief effect op de host',
+    stars: [
+      { label: 'Uitstekend', desc: 'Alles was perfect' },
+      { label: 'Goed, maar...', desc: 'Iets kon beter' },
+      { label: 'Gemiddeld', desc: 'Er waren problemen' },
+      { label: 'Slecht', desc: 'Slechte ervaring' },
+      { label: 'Zeer slecht', desc: 'Onacceptabel' },
+    ],
+    contactTitle: 'Was iets niet perfect?',
+    contactText: 'Stuur me een bericht voor je beoordeelt en we lossen het op.',
+    hostLabel: 'host',
+  },
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { hostName, whatsappNumber, email } = body
+    const { hostName, whatsappNumber, email, language = 'es' } = body
 
     // Validation
     if (!hostName || !whatsappNumber || !email) {
@@ -101,7 +218,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate PDF
-    const pdfBuffer = generateStarRatingPDF(hostName, qrImageData)
+    const pdfBuffer = generateStarRatingPDF(hostName, qrImageData, language)
 
     // Send email with PDF attachment
     await resend.emails.send({
@@ -131,7 +248,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function generateStarRatingPDF(hostName: string, qrImageData: string | null): Buffer {
+function generateStarRatingPDF(hostName: string, qrImageData: string | null, language: string): Buffer {
+  // Get translations
+  const t = pdfTranslations[language] || pdfTranslations.es
+
   // Create PDF in A5 landscape (perfect for printing)
   const pdf = new jsPDF({
     orientation: 'landscape',
@@ -141,12 +261,6 @@ function generateStarRatingPDF(hostName: string, qrImageData: string | null): Bu
 
   const pageWidth = pdf.internal.pageSize.getWidth()
   const pageHeight = pdf.internal.pageSize.getHeight()
-
-  // Airbnb colors
-  const airbnbRed = '#FF385C'
-  const darkGray = '#222222'
-  const mediumGray = '#717171'
-  const lightGray = '#F7F7F7'
 
   // Background
   pdf.setFillColor(255, 255, 255)
@@ -160,28 +274,27 @@ function generateStarRatingPDF(hostName: string, qrImageData: string | null): Bu
   pdf.setTextColor(255, 255, 255)
   pdf.setFontSize(16)
   pdf.setFont('helvetica', 'bold')
-  pdf.text('Guía para huéspedes', 15, 14)
+  pdf.text(t.guideTitle, 15, 14)
 
   // Main title
   pdf.setTextColor(34, 34, 34)
   pdf.setFontSize(22)
   pdf.setFont('helvetica', 'bold')
-  pdf.text('¿Cómo valorar tu estancia?', pageWidth / 2, 38, { align: 'center' })
+  pdf.text(t.mainTitle, pageWidth / 2, 38, { align: 'center' })
 
   // Subtitle
   pdf.setTextColor(113, 113, 113)
   pdf.setFontSize(11)
   pdf.setFont('helvetica', 'normal')
-  pdf.text('En Airbnb, menos de 5 estrellas afecta negativamente al anfitrión', pageWidth / 2, 46, { align: 'center' })
+  pdf.text(t.subtitle, pageWidth / 2, 46, { align: 'center' })
 
   // Star ratings section
-  const starData = [
-    { stars: '★★★★★', label: 'Excelente', desc: 'Todo fue perfecto', color: [34, 197, 94] },
-    { stars: '★★★★☆', label: 'Bien, pero...', desc: 'Algo podría mejorar', color: [234, 179, 8] },
-    { stars: '★★★☆☆', label: 'Regular', desc: 'Hubo problemas', color: [249, 115, 22] },
-    { stars: '★★☆☆☆', label: 'Malo', desc: 'Mala experiencia', color: [239, 68, 68] },
-    { stars: '★☆☆☆☆', label: 'Muy malo', desc: 'Inaceptable', color: [185, 28, 28] }
-  ]
+  const starSymbols = ['★★★★★', '★★★★☆', '★★★☆☆', '★★☆☆☆', '★☆☆☆☆']
+  const starData = starSymbols.map((stars, i) => ({
+    stars,
+    label: t.stars[i].label,
+    desc: t.stars[i].desc
+  }))
 
   let yPos = 56
   const rowHeight = 12
@@ -226,17 +339,17 @@ function generateStarRatingPDF(hostName: string, qrImageData: string | null): Bu
   pdf.setTextColor(7, 94, 84) // WhatsApp dark green
   pdf.setFontSize(12)
   pdf.setFont('helvetica', 'bold')
-  pdf.text('¿Algo no fue perfecto?', leftMargin + 8, yPos + 10)
+  pdf.text(t.contactTitle, leftMargin + 8, yPos + 10)
 
   pdf.setTextColor(18, 140, 126)
   pdf.setFontSize(10)
   pdf.setFont('helvetica', 'normal')
-  pdf.text('Escríbeme antes de puntuar y lo solucionamos.', leftMargin + 8, yPos + 18)
+  pdf.text(t.contactText, leftMargin + 8, yPos + 18)
 
   pdf.setTextColor(7, 94, 84)
   pdf.setFontSize(11)
   pdf.setFont('helvetica', 'bold')
-  pdf.text(`${hostName}, host`, leftMargin + 8, yPos + 25)
+  pdf.text(`${hostName}, ${t.hostLabel}`, leftMargin + 8, yPos + 25)
 
   // QR Code
   if (qrImageData) {

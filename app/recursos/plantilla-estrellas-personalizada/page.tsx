@@ -21,6 +21,132 @@ const MotionDiv = dynamic(
   { ssr: false }
 )
 
+const languages = [
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+  { code: 'pt', name: 'Português', flag: '🇵🇹' },
+  { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
+]
+
+const translations: Record<string, {
+  guideTitle: string
+  mainTitle: string
+  subtitle: string
+  stars: { label: string; desc: string }[]
+  contactTitle: string
+  contactText: string
+  hostLabel: string
+}> = {
+  es: {
+    guideTitle: 'Guía para huéspedes',
+    mainTitle: '¿Cómo valorar tu estancia?',
+    subtitle: 'En Airbnb, menos de 5 estrellas afecta negativamente al anfitrión',
+    stars: [
+      { label: 'Excelente', desc: 'Todo fue perfecto' },
+      { label: 'Bien, pero...', desc: 'Algo podría mejorar' },
+      { label: 'Regular', desc: 'Hubo problemas' },
+      { label: 'Malo', desc: 'Mala experiencia' },
+      { label: 'Muy malo', desc: 'Inaceptable' },
+    ],
+    contactTitle: '¿Algo no fue perfecto?',
+    contactText: 'Escríbeme antes de puntuar y lo solucionamos.',
+    hostLabel: 'host',
+  },
+  en: {
+    guideTitle: 'Guest Guide',
+    mainTitle: 'How to rate your stay?',
+    subtitle: 'On Airbnb, less than 5 stars negatively affects the host',
+    stars: [
+      { label: 'Excellent', desc: 'Everything was perfect' },
+      { label: 'Good, but...', desc: 'Something could improve' },
+      { label: 'Average', desc: 'There were problems' },
+      { label: 'Bad', desc: 'Bad experience' },
+      { label: 'Very bad', desc: 'Unacceptable' },
+    ],
+    contactTitle: 'Something wasn\'t perfect?',
+    contactText: 'Message me before rating and we\'ll fix it.',
+    hostLabel: 'host',
+  },
+  fr: {
+    guideTitle: 'Guide pour les voyageurs',
+    mainTitle: 'Comment évaluer votre séjour ?',
+    subtitle: 'Sur Airbnb, moins de 5 étoiles affecte négativement l\'hôte',
+    stars: [
+      { label: 'Excellent', desc: 'Tout était parfait' },
+      { label: 'Bien, mais...', desc: 'Quelque chose pourrait s\'améliorer' },
+      { label: 'Moyen', desc: 'Il y a eu des problèmes' },
+      { label: 'Mauvais', desc: 'Mauvaise expérience' },
+      { label: 'Très mauvais', desc: 'Inacceptable' },
+    ],
+    contactTitle: 'Quelque chose n\'était pas parfait ?',
+    contactText: 'Écrivez-moi avant de noter et nous le résoudrons.',
+    hostLabel: 'hôte',
+  },
+  de: {
+    guideTitle: 'Gästeanleitung',
+    mainTitle: 'Wie bewerten Sie Ihren Aufenthalt?',
+    subtitle: 'Bei Airbnb wirken sich weniger als 5 Sterne negativ auf den Gastgeber aus',
+    stars: [
+      { label: 'Ausgezeichnet', desc: 'Alles war perfekt' },
+      { label: 'Gut, aber...', desc: 'Etwas könnte besser sein' },
+      { label: 'Durchschnitt', desc: 'Es gab Probleme' },
+      { label: 'Schlecht', desc: 'Schlechte Erfahrung' },
+      { label: 'Sehr schlecht', desc: 'Inakzeptabel' },
+    ],
+    contactTitle: 'War etwas nicht perfekt?',
+    contactText: 'Schreiben Sie mir vor der Bewertung und wir lösen es.',
+    hostLabel: 'Gastgeber',
+  },
+  it: {
+    guideTitle: 'Guida per gli ospiti',
+    mainTitle: 'Come valutare il tuo soggiorno?',
+    subtitle: 'Su Airbnb, meno di 5 stelle influisce negativamente sull\'host',
+    stars: [
+      { label: 'Eccellente', desc: 'Tutto era perfetto' },
+      { label: 'Bene, ma...', desc: 'Qualcosa potrebbe migliorare' },
+      { label: 'Nella media', desc: 'Ci sono stati problemi' },
+      { label: 'Male', desc: 'Brutta esperienza' },
+      { label: 'Molto male', desc: 'Inaccettabile' },
+    ],
+    contactTitle: 'Qualcosa non era perfetto?',
+    contactText: 'Scrivimi prima di valutare e lo risolviamo.',
+    hostLabel: 'host',
+  },
+  pt: {
+    guideTitle: 'Guia para hóspedes',
+    mainTitle: 'Como avaliar sua estadia?',
+    subtitle: 'No Airbnb, menos de 5 estrelas afeta negativamente o anfitrião',
+    stars: [
+      { label: 'Excelente', desc: 'Tudo foi perfeito' },
+      { label: 'Bom, mas...', desc: 'Algo poderia melhorar' },
+      { label: 'Regular', desc: 'Houve problemas' },
+      { label: 'Ruim', desc: 'Má experiência' },
+      { label: 'Muito ruim', desc: 'Inaceitável' },
+    ],
+    contactTitle: 'Algo não foi perfeito?',
+    contactText: 'Escreva-me antes de avaliar e resolveremos.',
+    hostLabel: 'anfitrião',
+  },
+  nl: {
+    guideTitle: 'Gastengids',
+    mainTitle: 'Hoe beoordeel je je verblijf?',
+    subtitle: 'Op Airbnb heeft minder dan 5 sterren een negatief effect op de host',
+    stars: [
+      { label: 'Uitstekend', desc: 'Alles was perfect' },
+      { label: 'Goed, maar...', desc: 'Iets kon beter' },
+      { label: 'Gemiddeld', desc: 'Er waren problemen' },
+      { label: 'Slecht', desc: 'Slechte ervaring' },
+      { label: 'Zeer slecht', desc: 'Onacceptabel' },
+    ],
+    contactTitle: 'Was iets niet perfect?',
+    contactText: 'Stuur me een bericht voor je beoordeelt en we lossen het op.',
+    hostLabel: 'host',
+  },
+}
+
 const countryCodes = [
   { code: '+34', country: 'España', flag: '🇪🇸' },
   { code: '+52', country: 'México', flag: '🇲🇽' },
@@ -48,9 +174,13 @@ export default function PlantillaEstrellasPage() {
   const [countryCode, setCountryCode] = useState('+34')
   const [whatsappNumber, setWhatsappNumber] = useState('')
   const [userEmail, setUserEmail] = useState('')
+  const [language, setLanguage] = useState('es')
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
   const [error, setError] = useState('')
+
+  // Get current translation
+  const t = translations[language] || translations.es
 
   // QR Code state
   const [QRCodeStyling, setQRCodeStyling] = useState<any>(null)
@@ -129,7 +259,8 @@ export default function PlantillaEstrellasPage() {
         body: JSON.stringify({
           hostName,
           whatsappNumber: fullWhatsappNumber,
-          email: userEmail
+          email: userEmail,
+          language
         })
       })
 
@@ -147,13 +278,12 @@ export default function PlantillaEstrellasPage() {
 
   const isFormValid = hostName.trim() && whatsappNumber.trim() && userEmail.trim()
 
-  const starMeanings = [
-    { stars: '★★★★★', title: 'Excelente', description: 'Todo fue perfecto' },
-    { stars: '★★★★☆', title: 'Bien, pero...', description: 'Algo podría mejorar' },
-    { stars: '★★★☆☆', title: 'Regular', description: 'Hubo problemas' },
-    { stars: '★★☆☆☆', title: 'Malo', description: 'Mala experiencia' },
-    { stars: '★☆☆☆☆', title: 'Muy malo', description: 'Inaceptable' }
-  ]
+  const starSymbols = ['★★★★★', '★★★★☆', '★★★☆☆', '★★☆☆☆', '★☆☆☆☆']
+  const starMeanings = starSymbols.map((stars, i) => ({
+    stars,
+    title: t.stars[i].label,
+    description: t.stars[i].desc
+  }))
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -215,6 +345,7 @@ export default function PlantillaEstrellasPage() {
                         setCountryCode('+34')
                         setWhatsappNumber('')
                         setUserEmail('')
+                        setLanguage('es')
                       }}
                       className="text-[#FF385C] font-semibold hover:underline"
                     >
@@ -284,6 +415,27 @@ export default function PlantillaEstrellasPage() {
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         Te enviaremos la plantilla lista para imprimir
+                      </p>
+                    </div>
+
+                    {/* Language selector */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Idioma de la plantilla
+                      </label>
+                      <select
+                        value={language}
+                        onChange={(e) => setLanguage(e.target.value)}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#FF385C] focus:outline-none text-gray-900 bg-white"
+                      >
+                        {languages.map((lang) => (
+                          <option key={lang.code} value={lang.code}>
+                            {lang.flag} {lang.name}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-gray-500 mt-1">
+                        El PDF se generará en el idioma de tus huéspedes
                       </p>
                     </div>
 
@@ -364,8 +516,8 @@ export default function PlantillaEstrellasPage() {
                         <Star className="w-5 h-5 text-white fill-white" />
                       </div>
                       <div className="text-white">
-                        <p className="text-xs opacity-80">Guía para huéspedes</p>
-                        <p className="font-bold text-lg">¿Cómo valorar tu estancia?</p>
+                        <p className="text-xs opacity-80">{t.guideTitle}</p>
+                        <p className="font-bold text-lg">{t.mainTitle}</p>
                       </div>
                     </div>
                   </div>
@@ -373,7 +525,7 @@ export default function PlantillaEstrellasPage() {
                   {/* Content */}
                   <div className="p-6">
                     <p className="text-gray-600 text-sm mb-5 text-center">
-                      En Airbnb, menos de 5 estrellas afecta negativamente al anfitrión
+                      {t.subtitle}
                     </p>
 
                     {/* Star meanings */}
@@ -399,13 +551,13 @@ export default function PlantillaEstrellasPage() {
                       <div className="flex items-start gap-4">
                         <div className="flex-1">
                           <p className="font-semibold text-[#075E54] text-sm mb-1">
-                            ¿Algo no fue perfecto?
+                            {t.contactTitle}
                           </p>
                           <p className="text-[#128C7E] text-sm mb-2">
-                            Escríbeme antes de puntuar y lo solucionamos.
+                            {t.contactText}
                           </p>
                           <p className="text-[#075E54] font-bold" suppressHydrationWarning>
-                            {hostName || 'Tu nombre'}, host
+                            {hostName || 'Tu nombre'}, {t.hostLabel}
                           </p>
                         </div>
                         {/* QR Code */}
