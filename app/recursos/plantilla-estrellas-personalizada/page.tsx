@@ -405,7 +405,7 @@ export default function PlantillaEstrellasPage() {
                             Escríbeme antes de puntuar y lo solucionamos.
                           </p>
                           <p className="text-[#075E54] font-bold" suppressHydrationWarning>
-                            {hostName || 'Tu nombre'}, anfitrión
+                            {hostName || 'Tu nombre'}, host
                           </p>
                         </div>
                         {/* QR Code */}

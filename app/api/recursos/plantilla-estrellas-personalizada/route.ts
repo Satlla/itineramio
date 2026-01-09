@@ -236,7 +236,7 @@ function generateStarRatingPDF(hostName: string, qrImageData: string | null): Bu
   pdf.setTextColor(7, 94, 84)
   pdf.setFontSize(11)
   pdf.setFont('helvetica', 'bold')
-  pdf.text(`${hostName}, anfitrión`, leftMargin + 8, yPos + 25)
+  pdf.text(`${hostName}, host`, leftMargin + 8, yPos + 25)
 
   // QR Code
   if (qrImageData) {
