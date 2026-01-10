@@ -1538,17 +1538,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       return
     }
 
-    // If property is in a set with multiple properties, show PropertySetUpdateModal
-    if (propertySetId && propertySetProperties.length > 1) {
-      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for UPDATE')
-      setPendingOperation('update')
-      setPendingStepsToSave(steps)
-      setPendingZoneForSave(editingZoneForSteps)
-      setShowPropertySetModal(true)
-      return
-    }
-
-    // Otherwise, save directly for single property
+    // Guardar directamente - modal deshabilitado temporalmente
+    console.log('💾 Saving steps directly...')
     await performSaveSteps(steps, editingZoneForSteps, 'single')
   }
 
