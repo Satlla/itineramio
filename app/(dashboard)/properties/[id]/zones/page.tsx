@@ -2594,20 +2594,29 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     selectedPropertyIds?: string[]
   ) => {
     console.log('🔗 PropertySetUpdateModal confirmed with:', { scope, operation: pendingOperation })
+
+    // DEBUG
+    alert('DEBUG MODAL: Confirmado - scope: ' + scope + ', operation: ' + pendingOperation + ', pendingSteps: ' + (pendingStepsToSave?.length || 0) + ', pendingZone: ' + (pendingZoneForSave?.name ? 'SÍ' : 'NO'))
+
     setShowPropertySetModal(false)
 
     try {
       if (pendingOperation === 'update' && pendingStepsToSave && pendingZoneForSave) {
+        alert('DEBUG MODAL: Llamando performSaveSteps...')
         await performSaveSteps(pendingStepsToSave, pendingZoneForSave, scope, selectedPropertyIds)
+        alert('DEBUG MODAL: performSaveSteps completado')
       } else if (pendingOperation === 'create' && pendingZoneData) {
         setIsCreatingZone(true)
         await performCreateZone(pendingZoneData, scope, selectedPropertyIds)
       } else if (pendingOperation === 'delete' && zoneToDelete) {
         setIsDeletingZone(true)
         await performDeleteZone(zoneToDelete, scope, selectedPropertyIds)
+      } else {
+        alert('DEBUG MODAL: Ninguna condición cumplida - operation: ' + pendingOperation + ', steps: ' + (pendingStepsToSave?.length || 0) + ', zone: ' + (pendingZoneForSave ? 'sí' : 'no'))
       }
     } catch (error) {
       console.error('Error in handlePropertySetConfirm:', error)
+      alert('DEBUG MODAL ERROR: ' + (error instanceof Error ? error.message : String(error)))
     } finally {
       // Clear all pending states
       setPendingStepsToSave([])

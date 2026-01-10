@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Gift, ArrowRight, Sparkles } from 'lucide-react'
+import { X, Clock, ArrowRight, AlertTriangle } from 'lucide-react'
+import Link from 'next/link'
 
 interface ExitIntentPopupProps {
   // Delay before popup can show (ms)
@@ -20,10 +21,6 @@ export function ExitIntentPopup({
 }: ExitIntentPopupProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [isReady, setIsReady] = useState(false)
-  const [email, setEmail] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [error, setError] = useState('')
 
   // Check if we should show the popup
   useEffect(() => {
@@ -40,9 +37,9 @@ export function ExitIntentPopup({
       return daysSince >= cooldownDays
     }
 
-    // Don't show if already subscribed or recently shown
-    const hasSubscribed = localStorage.getItem('hasSubscribedNewsletter')
-    if (hasSubscribed || !checkCooldown()) return
+    // Don't show if already used calculator or recently shown
+    const hasUsedCalculator = localStorage.getItem('hasUsedTimeCalculator')
+    if (hasUsedCalculator || !checkCooldown()) return
 
     // Wait for delay before enabling
     const timer = setTimeout(() => {
@@ -65,6 +62,7 @@ export function ExitIntentPopup({
       if (typeof window !== 'undefined' && (window as any).gtag) {
         (window as any).gtag('event', 'exit_intent_shown', {
           event_category: 'engagement',
+          event_label: 'time_calculator_popup'
         })
       }
     }
@@ -79,48 +77,16 @@ export function ExitIntentPopup({
     setIsVisible(false)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email.trim()) return
-
-    setIsSubmitting(true)
-    setError('')
-
-    try {
-      const response = await fetch('/api/newsletter/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email.trim(),
-          source: 'exit_intent',
-          tags: ['exit-intent-subscriber']
-        })
+  const handleCalculatorClick = () => {
+    // Track conversion
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'exit_intent_click', {
+        event_category: 'conversion',
+        event_label: 'time_calculator'
       })
-
-      if (!response.ok) {
-        throw new Error('Error al suscribirse')
-      }
-
-      setIsSuccess(true)
-      localStorage.setItem('hasSubscribedNewsletter', 'true')
-
-      // Track conversion
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'exit_intent_converted', {
-          event_category: 'conversion',
-        })
-      }
-
-      // Close after success
-      setTimeout(() => {
-        setIsVisible(false)
-      }, 3000)
-
-    } catch (err) {
-      setError('Error al suscribirse. Inténtalo de nuevo.')
-    } finally {
-      setIsSubmitting(false)
     }
+    localStorage.setItem('hasUsedTimeCalculator', 'true')
+    setIsVisible(false)
   }
 
   return (
@@ -142,7 +108,7 @@ export function ExitIntentPopup({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 p-6 text-white">
+            <div className="relative bg-[#FF385C] p-6 text-white">
               <button
                 onClick={handleClose}
                 className="absolute top-4 right-4 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
@@ -151,95 +117,70 @@ export function ExitIntentPopup({
                 <X className="w-4 h-4" />
               </button>
 
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-3 mb-2">
                 <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                  <Gift className="w-6 h-6" />
+                  <Clock className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">¡Espera!</h2>
-                  <p className="text-violet-100 text-sm">Tenemos algo para ti</p>
+                  <h2 className="text-2xl font-bold">Antes de irte...</h2>
+                  <p className="text-white/80 text-sm">Descubre algo importante</p>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-2 text-sm text-violet-100">
-                <Sparkles className="w-4 h-4" />
-                <span>Oferta exclusiva para nuevos suscriptores</span>
               </div>
             </div>
 
             {/* Content */}
             <div className="p-6">
-              {isSuccess ? (
-                <div className="text-center py-4">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {/* Alert */}
+              <div className="bg-[#FEF3C7] border border-[#F59E0B] rounded-xl p-4 mb-5">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-[#D97706] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-[#92400E] text-sm">
+                      El anfitrion medio pierde 150+ horas al ano
+                    </p>
+                    <p className="text-[#A16207] text-xs mt-1">
+                      En tareas repetitivas que podrian automatizarse
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <h3 className="text-xl font-bold text-[#222222] mb-2">
+                Cuanto tiempo pierdes tu?
+              </h3>
+              <p className="text-[#717171] mb-5">
+                Calcula en 30 segundos las horas que dedicas a responder las mismas preguntas: WiFi, normas, parking, electrodomesticos...
+              </p>
+
+              {/* Benefits */}
+              <ul className="space-y-2 mb-6">
+                {[
+                  'Resultado personalizado al instante',
+                  'Informe detallado por email',
+                  'Consejos para automatizar'
+                ].map((benefit, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm text-[#222222]">
+                    <svg className="w-4 h-4 text-[#16A34A] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">¡Perfecto!</h3>
-                  <p className="text-gray-600">Revisa tu email para recibir tu guía gratuita.</p>
-                </div>
-              ) : (
-                <>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    Descarga nuestra Guía Gratuita
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    <strong>50 puntos esenciales</strong> para crear manuales digitales que impresionan a tus huéspedes y reducen tus llamadas un 80%.
-                  </p>
+                    {benefit}
+                  </li>
+                ))}
+              </ul>
 
-                  {/* Benefits */}
-                  <ul className="space-y-2 mb-6">
-                    {[
-                      'Checklist completo de zonas',
-                      'Plantillas de instrucciones',
-                      'Tips para reducir consultas'
-                    ].map((benefit, i) => (
-                      <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        {benefit}
-                      </li>
-                    ))}
-                  </ul>
+              {/* CTA */}
+              <Link
+                href="/hub/tools/time-calculator"
+                onClick={handleCalculatorClick}
+                className="w-full py-3.5 bg-[#222222] hover:bg-[#000000] text-white font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors"
+              >
+                Calcular mi tiempo perdido
+                <ArrowRight className="w-4 h-4" />
+              </Link>
 
-                  {/* Form */}
-                  <form onSubmit={handleSubmit} className="space-y-3">
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Tu email"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none transition-all"
-                      required
-                    />
-
-                    {error && (
-                      <p className="text-red-600 text-sm">{error}</p>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold rounded-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-                    >
-                      {isSubmitting ? (
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      ) : (
-                        <>
-                          Descargar Guía Gratis
-                          <ArrowRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-                  </form>
-
-                  <p className="text-xs text-gray-500 text-center mt-4">
-                    Sin spam. Puedes darte de baja cuando quieras.
-                  </p>
-                </>
-              )}
+              <p className="text-xs text-[#717171] text-center mt-4">
+                Solo tarda 30 segundos. Sin registro.
+              </p>
             </div>
           </motion.div>
         </motion.div>

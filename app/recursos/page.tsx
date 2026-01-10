@@ -63,6 +63,15 @@ const iconMap = {
 // Active tools
 const activeTools = [
   {
+    id: 'time-calculator',
+    title: 'Calculadora de Tiempo',
+    description: 'Descubre cuantas horas pierdes al ano en tareas repetitivas y como automatizarlas.',
+    icon: Clock,
+    color: 'from-[#FF385C] to-[#E31C5F]',
+    href: '/hub/tools/time-calculator',
+    badge: 'Nuevo',
+  },
+  {
     id: 'cleaning-checklist',
     title: 'Checklist de Limpieza Profesional',
     description: 'Lista interactiva con 50+ items para que tu equipo no se deje nada. Personalizable y descargable.',
@@ -182,7 +191,7 @@ export default function RecursosPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {activeTools.map((tool) => {
             const Icon = tool.icon
             return (
