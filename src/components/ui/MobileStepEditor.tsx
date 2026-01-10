@@ -454,18 +454,23 @@ export function MobileStepEditor({
 
                 if (validSteps.length > 0 && typeof onSave === 'function') {
                   console.log('🎯 Calling onSave with valid steps...');
+                  // DEBUG: Alert visible para el usuario
+                  alert('DEBUG 1: Llamando onSave con ' + validSteps.length + ' pasos');
                   setIsSaving(true);
                   onSave(validSteps);
                   console.log('🎯 onSave called successfully');
+                  alert('DEBUG 2: onSave ejecutado');
                 } else if (validSteps.length === 0) {
                   console.log('⚠️ No valid steps to save');
-                  alert('Por favor, completa al menos un paso con contenido válido antes de guardar');
+                  alert('ERROR: No hay pasos válidos para guardar');
                 } else {
                   console.log('⚠️ onSave is not a function');
+                  alert('ERROR: onSave no es una función');
                 }
               } catch (error) {
                 console.error('❌ Error in Finalizar click:', error);
                 console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack');
+                alert('ERROR en Finalizar: ' + (error instanceof Error ? error.message : String(error)));
                 setIsSaving(false);
               }
             }}

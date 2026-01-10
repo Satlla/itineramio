@@ -1539,14 +1539,19 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     console.log('🚨 propertySetId:', propertySetId)
     console.log('🚨 propertySetProperties:', propertySetProperties)
 
+    // DEBUG: Alert visible
+    alert('DEBUG 3: handleSaveSteps - ' + steps?.length + ' pasos. Zone: ' + (editingZoneForSteps?.name ? JSON.stringify(editingZoneForSteps.name) : 'NULL'))
+
     if (!editingZoneForSteps) {
       console.log('❌ No editingZoneForSteps, returning early')
+      alert('ERROR: editingZoneForSteps es NULL - no se puede guardar')
       return
     }
 
     // Check if property is in a set with multiple properties
     if (propertySetId && propertySetProperties.length > 1) {
       console.log('🔗 Property is in a set, showing PropertySetUpdateModal')
+      alert('DEBUG 4: Mostrando modal de conjunto de propiedades')
       // Save steps to pending state
       setPendingStepsToSave(steps)
       setPendingZoneForSave(editingZoneForSteps)
@@ -1557,6 +1562,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
 
     console.log('⚡ Calling performSaveSteps directly (not in a set)')
+    alert('DEBUG 5: Llamando performSaveSteps directamente')
     // If not in a set or only one property, save directly
     await performSaveSteps(steps, editingZoneForSteps, 'single')
   }
@@ -1564,6 +1570,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const performSaveSteps = async (steps: Step[], zone: Zone, scope: 'single' | 'all' | 'selected', selectedPropertyIds?: string[]) => {
     console.log('💾 performSaveSteps called with:', steps.length, 'steps')
     console.log('🔍 Raw steps data:', steps)
+    alert('DEBUG 5.5: performSaveSteps iniciado - ' + steps.length + ' pasos, scope: ' + scope)
     console.log('🎯 Scope:', scope)
     console.log('🎯 Selected properties:', selectedPropertyIds)
 
@@ -1732,8 +1739,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       let successCount = 0
       const updatedPropertyIds = new Set<string>()
 
+      alert('DEBUG 6: Guardando en ' + allZonesToUpdate.length + ' zonas')
+
       for (const zoneInfo of allZonesToUpdate) {
         try {
+          alert('DEBUG 7: Llamando API para zona ' + zoneInfo.zoneId)
           const response = await fetch(`/api/properties/${zoneInfo.propertyId}/zones/${zoneInfo.zoneId}/steps/safe`, {
             method: 'PUT',
             headers: {
@@ -1743,6 +1753,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           })
 
           const result = await response.json()
+          alert('DEBUG 8: Respuesta API - OK: ' + response.ok + ', Success: ' + result.success + ', Error: ' + (result.error || 'ninguno'))
 
           if (response.ok && result.success) {
             successCount++
@@ -1750,9 +1761,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             console.log(`✅ Updated zone ${zoneInfo.zoneId} in property ${zoneInfo.propertyId}`)
           } else {
             console.error(`❌ Error updating zone ${zoneInfo.zoneId}:`, result.error)
+            alert('ERROR API: ' + result.error)
           }
         } catch (error) {
           console.error(`❌ Error updating zone ${zoneInfo.zoneId}:`, error)
+          alert('ERROR CATCH: ' + (error instanceof Error ? error.message : String(error)))
         }
       }
 
