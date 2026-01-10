@@ -2592,13 +2592,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     } catch (error) {
       console.error('Error in handlePropertySetConfirm:', error)
     } finally {
-      // Clear all pending states
+      // Clear all pending states and ensure we return to zones list
       setPendingStepsToSave([])
       setPendingZoneForSave(null)
       setPendingOperation(null)
       setPendingZoneData(null)
       setIsCreatingZone(false)
       setIsDeletingZone(false)
+      setShowStepEditor(false)
+      setEditingZoneForSteps(null)
+      setCurrentSteps([])
     }
   }
 
