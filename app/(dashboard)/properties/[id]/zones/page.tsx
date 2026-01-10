@@ -160,7 +160,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [evaluationsModalOpen, setEvaluationsModalOpen] = useState(false)
   const [propertyEvaluations, setPropertyEvaluations] = useState<any[]>([])
   const [loadingEvaluations, setLoadingEvaluations] = useState(false)
-  const [debugModalShow, setDebugModalShow] = useState(false) // For testing modal visibility
 
   // Ref for zones section scroll
   const zonesContainerRef = useRef<HTMLDivElement>(null)
@@ -1532,36 +1531,24 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   const handleSaveSteps = async (steps: Step[]) => {
-    // DEBUG TEMPORAL
-    alert('handleSaveSteps: ' + (steps?.length || 0) + ' pasos, zone: ' + (editingZoneForSteps?.name ? 'OK' : 'NULL'))
-
-    console.log('🚨 ===== HANDLESAVESTEPS CALLED =====')
-    console.log('🚨 editingZoneForSteps:', editingZoneForSteps)
-    console.log('🚨 steps received:', steps)
-    console.log('🚨 steps length:', steps?.length)
-    console.log('🚨 propertySetId:', propertySetId)
-    console.log('🚨 propertySetProperties:', propertySetProperties)
+    console.log('💾 handleSaveSteps called with', steps?.length, 'steps')
 
     if (!editingZoneForSteps) {
-      console.log('❌ No editingZoneForSteps, returning early')
-      alert('ERROR: editingZoneForSteps es NULL')
+      console.log('❌ No editingZoneForSteps')
       return
     }
 
-    // Check if property is in a set with multiple properties
-    if (propertySetId && propertySetProperties && propertySetProperties.length > 1) {
-      console.log('🔗 Property is in a set, showing PropertySetUpdateModal')
-      // Save steps to pending state BEFORE showing modal
+    // If property is in a set with multiple properties, show PropertySetUpdateModal
+    if (propertySetId && propertySetProperties.length > 1) {
+      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for UPDATE')
+      setPendingOperation('update')
       setPendingStepsToSave(steps)
       setPendingZoneForSave(editingZoneForSteps)
-      setPendingOperation('update')
-      // Show modal
       setShowPropertySetModal(true)
       return
     }
 
-    console.log('⚡ Calling performSaveSteps directly (not in a set)')
-    // If not in a set or only one property, save directly
+    // Otherwise, save directly for single property
     await performSaveSteps(steps, editingZoneForSteps, 'single')
   }
 
@@ -3640,32 +3627,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       )}
 
       <ZonasEsencialesModal
-        isOpen={showZonasEsencialesModal || debugModalShow}
-        onClose={() => {
-          setShowZonasEsencialesModal(false)
-          setDebugModalShow(false)
-        }}
+        isOpen={showZonasEsencialesModal}
+        onClose={() => setShowZonasEsencialesModal(false)}
         onKeepZones={handleKeepEssentialZones}
         userName={user?.name || user?.email || 'Usuario'}
         isLoading={isCreatingZone}
         currentZoneIndex={zoneCreationProgress}
         totalZones={totalZonesToCreate}
       />
-
-      {/* Debug button to test modal in mobile - remove in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-4 left-4 z-50">
-          <button
-            onClick={() => {
-              console.log('🧪 Debug: Forcing modal show')
-              setDebugModalShow(true)
-            }}
-            className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm"
-          >
-            🧪 Test Modal
-          </button>
-        </div>
-      )}
 
 
       <DeleteConfirmationModal

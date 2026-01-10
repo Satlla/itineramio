@@ -75,16 +75,6 @@ export function MobileStepEditor({
   propertyId,
   zoneId
 }: MobileStepEditorProps) {
-  console.log('📱 MobileStepEditor mounted with:', { zoneTitle, initialSteps });
-  
-  // Debug mount/unmount
-  useEffect(() => {
-    console.log('📱 MobileStepEditor mounted');
-    return () => {
-      console.log('📱 MobileStepEditor unmounting');
-    };
-  }, []);
-  
   const [steps, setSteps] = useState<Step[]>(
     initialSteps.length > 0 ? initialSteps : [createNewStep(0)]
   )
@@ -98,16 +88,10 @@ export function MobileStepEditor({
   // Find the index of the step being edited, or default to null
   const getInitialSelectedStep = () => {
     if (editingStepId && initialSteps.length > 0) {
-      // Special case: if adding new step, focus on the last step (the new one)
       if (editingStepId === 'NEW_STEP_FOCUS') {
-        console.log('📱 MobileStepEditor: Focusing on new step at index:', initialSteps.length - 1)
         return initialSteps.length - 1
       }
-
       const stepIndex = initialSteps.findIndex(step => step.id === editingStepId)
-      console.log('📱 MobileStepEditor: Looking for step with ID:', editingStepId)
-      console.log('📱 MobileStepEditor: Steps IDs:', initialSteps.map(s => s.id))
-      console.log('📱 MobileStepEditor: Found at index:', stepIndex)
       return stepIndex >= 0 ? stepIndex : null
     }
     return null
@@ -235,14 +219,11 @@ export function MobileStepEditor({
 
   // Filtrar pasos válidos antes de guardar
   const getValidSteps = (): Step[] => {
-    const validSteps = steps.filter(isStepValid)
-    console.log(`📊 Total steps: ${steps.length}, Valid steps: ${validSteps.length}`)
-    return validSteps
+    return steps.filter(isStepValid)
   }
 
   const handleMediaSelect = (type: 'image' | 'video' | 'text' | 'youtube' | 'link') => {
     if (selectedStep !== null) {
-      console.log('📱 Media type selected:', type)
       updateStep(selectedStep, { type })
       setShowMediaModal(false)
       
@@ -386,38 +367,17 @@ export function MobileStepEditor({
     </AnimatePresence>
   )
 
-  // Add a test to ensure component is interactive
-  useEffect(() => {
-    // Test that JavaScript is running
-    console.log('📱 MobileStepEditor is interactive');
-    console.log('📱 Initial steps state:', steps);
-    console.log('📱 onSave type:', typeof onSave);
-    console.log('📱 onCancel type:', typeof onCancel);
-    
-    // Test click handler attachment
-    const testButton = document.querySelector('[data-test-id="finalizar-top"]');
-    if (testButton) {
-      console.log('📱 Found test button:', testButton);
-    }
-  }, [steps, onSave, onCancel]);
-  
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col">
-      {/* DEBUG BANNER - Remove after testing */}
-      <div className="bg-gradient-to-r from-violet-600 to-purple-600 text-white text-center py-2 px-4 text-xs font-bold">
-        🎠 MODO CAROUSEL ACTIVO - Editor Mobile Nuevo
-      </div>
-
       {/* Header - Fixed */}
       <div className="bg-white border-b border-gray-200 px-4 py-3">
         <div className="flex items-center justify-between">
-          <button 
+          <button
             type="button"
             onClick={(e) => {
               e.preventDefault()
-              console.log('❌ Cancel button clicked')
               onCancel()
-            }} 
+            }}
             className="p-2 -ml-2"
           >
             <X className="w-5 h-5" />
@@ -432,45 +392,17 @@ export function MobileStepEditor({
           
           <button
             type="button"
-            data-test-id="finalizar-top"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              // DEBUG TEMPORAL
-              alert('CLICK Finalizar TOP - steps: ' + steps.length + ', isSaving: ' + isSaving);
-              try {
-                console.log('🎯 MobileStepEditor: Finalizar clicked (TOP)');
-                console.log('🎯 Event:', e);
-                console.log('🎯 Event type:', e.type);
-                console.log('🎯 Current target:', e.currentTarget);
-                console.log('🎯 Steps to save:', steps);
-                console.log('🎯 Steps count:', steps.length);
-                console.log('🎯 Steps content:', steps.map(s => ({ type: s.type, content: s.content })));
 
-                // Send only valid steps to the parent component
-                const validSteps = getValidSteps()
-                console.log('🎯 Total steps:', steps.length);
-                console.log('🎯 Valid steps:', validSteps.length);
-                console.log('🎯 onSave function exists:', typeof onSave === 'function');
-                console.log('🎯 Steps to save:', JSON.stringify(validSteps, null, 2));
-
-                if (validSteps.length > 0 && typeof onSave === 'function') {
-                  console.log('🎯 Calling onSave with valid steps...');
-                  setIsSaving(true);
-                  onSave(validSteps);
-                  console.log('🎯 onSave called successfully');
-                  // Reset isSaving after timeout in case parent doesn't close editor
-                  setTimeout(() => setIsSaving(false), 3000);
-                } else if (validSteps.length === 0) {
-                  console.log('⚠️ No valid steps to save');
-                  alert('Por favor, completa al menos un paso con contenido válido antes de guardar');
-                } else {
-                  console.log('⚠️ onSave is not a function');
-                }
-              } catch (error) {
-                console.error('❌ Error in Finalizar click:', error);
-                console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack');
-                setIsSaving(false);
+              const validSteps = getValidSteps()
+              if (validSteps.length > 0 && typeof onSave === 'function') {
+                setIsSaving(true);
+                onSave(validSteps);
+                setTimeout(() => setIsSaving(false), 3000);
+              } else if (validSteps.length === 0) {
+                alert('Por favor, completa al menos un paso con contenido válido antes de guardar');
               }
             }}
             style={{ backgroundColor: '#484848' }}
@@ -647,21 +579,9 @@ export function MobileStepEditor({
                       <ImageUpload
                         value={step.media?.url}
                         onChange={(url) => {
-                          console.log('🖼️ MobileStepEditor ImageUpload onChange:', { url })
-                          
                           if (url) {
-                            console.log('📸 Setting image data in step:', {
-                              url,
-                              title: 'Uploaded image'
-                            })
-                            updateStep(index, {
-                              media: {
-                                url: url,
-                                title: 'Uploaded image'
-                              }
-                            })
+                            updateStep(index, { media: { url, title: 'Uploaded image' } })
                           } else {
-                            console.log('🗑️ Clearing image from step')
                             updateStep(index, { media: undefined })
                           }
                         }}
@@ -686,23 +606,15 @@ export function MobileStepEditor({
                       <VideoUploadSimple
                         value={step.media?.url}
                         onChange={(url, metadata) => {
-                          console.log('🎬 MobileStepEditor VideoUploadSimple onChange:', { url, metadata })
-                          
                           if (url) {
-                            console.log('📹 Setting video data in step:', {
-                              url,
-                              thumbnail: metadata?.thumbnail,
-                              title: 'Uploaded video'
-                            })
                             updateStep(index, {
                               media: {
-                                url: url,
+                                url,
                                 thumbnail: metadata?.thumbnail || '',
                                 title: 'Uploaded video'
                               }
                             })
                           } else {
-                            console.log('🗑️ Clearing video from step')
                             updateStep(index, { media: undefined })
                           }
                         }}
@@ -758,10 +670,7 @@ export function MobileStepEditor({
         <div className="max-w-md mx-auto flex gap-2">
           {/* Atrás Button - Icon only */}
           <button
-            onClick={() => {
-              console.log('🔙 Cancel button clicked');
-              onCancel();
-            }}
+            onClick={() => onCancel()}
             className="w-12 h-12 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 flex items-center justify-center flex-shrink-0"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -782,29 +691,14 @@ export function MobileStepEditor({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              try {
-                console.log('🎯 MobileStepEditor BOTTOM: Finalizar clicked');
-                console.log('🎯 Steps to save:', steps);
 
-                const validSteps = getValidSteps()
-                console.log('🎯 Valid steps:', validSteps.length);
-
-                if (validSteps.length > 0 && typeof onSave === 'function') {
-                  console.log('🎯 Calling onSave with valid steps...');
-                  setIsSaving(true);
-                  onSave(validSteps);
-                  console.log('🎯 onSave called successfully');
-                  // Reset isSaving after timeout in case parent doesn't close editor
-                  setTimeout(() => setIsSaving(false), 3000);
-                } else if (validSteps.length === 0) {
-                  console.log('⚠️ No valid steps to save');
-                  alert('Por favor, completa al menos un paso con contenido válido antes de guardar');
-                } else {
-                  console.log('⚠️ onSave is not a function');
-                }
-              } catch (error) {
-                console.error('❌ Error in Finalizar BOTTOM click:', error);
-                setIsSaving(false);
+              const validSteps = getValidSteps()
+              if (validSteps.length > 0 && typeof onSave === 'function') {
+                setIsSaving(true);
+                onSave(validSteps);
+                setTimeout(() => setIsSaving(false), 3000);
+              } else if (validSteps.length === 0) {
+                alert('Por favor, completa al menos un paso con contenido válido antes de guardar');
               }
             }}
             style={{ backgroundColor: '#484848' }}
