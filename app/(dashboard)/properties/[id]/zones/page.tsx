@@ -1531,8 +1531,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  const [isSavingSteps, setIsSavingSteps] = useState(false)
-
   const handleSaveSteps = async (steps: Step[]) => {
     console.log('🚨 ===== HANDLESAVESTEPS CALLED =====')
     console.log('🚨 editingZoneForSteps:', editingZoneForSteps)
@@ -1540,20 +1538,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     console.log('🚨 steps length:', steps?.length)
     console.log('🚨 propertySetId:', propertySetId)
     console.log('🚨 propertySetProperties:', propertySetProperties)
-    console.log('🚨 isSavingSteps:', isSavingSteps)
-
-    // Prevent double-calls
-    if (isSavingSteps) {
-      console.log('⚠️ Already saving steps, ignoring duplicate call')
-      return
-    }
 
     if (!editingZoneForSteps) {
       console.log('❌ No editingZoneForSteps, returning early')
       return
     }
-
-    setIsSavingSteps(true)
 
     // Check if property is in a set with multiple properties
     if (propertySetId && propertySetProperties.length > 1) {
@@ -1564,7 +1553,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       setPendingOperation('update')
       // Show modal
       setShowPropertySetModal(true)
-      setIsSavingSteps(false)
       return
     }
 
@@ -1891,9 +1879,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         message: 'Error de conexión. Inténtalo de nuevo.',
         read: false
       })
-    } finally {
-      // Always reset the saving state to allow future saves
-      setIsSavingSteps(false)
     }
   }
 
@@ -2630,8 +2615,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setPendingZoneForSave(null)
     setPendingOperation(null)
     setPendingZoneData(null)
-    // Reset saving state to allow future saves
-    setIsSavingSteps(false)
   }
 
   // Show loading spinner when loading zones

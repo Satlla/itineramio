@@ -457,9 +457,6 @@ export function MobileStepEditor({
                   setIsSaving(true);
                   onSave(validSteps);
                   console.log('🎯 onSave called successfully');
-                  // Reset isSaving after a timeout - parent will close editor on success
-                  // This ensures button is re-enabled if parent doesn't close editor
-                  setTimeout(() => setIsSaving(false), 3000);
                 } else if (validSteps.length === 0) {
                   console.log('⚠️ No valid steps to save');
                   alert('Por favor, completa al menos un paso con contenido válido antes de guardar');
@@ -793,9 +790,6 @@ export function MobileStepEditor({
                   setIsSaving(true);
                   onSave(validSteps);
                   console.log('🎯 onSave called successfully');
-                  // Reset isSaving after a timeout - parent will close editor on success
-                  // This ensures button is re-enabled if parent doesn't close editor
-                  setTimeout(() => setIsSaving(false), 3000);
                 } else if (validSteps.length === 0) {
                   console.log('⚠️ No valid steps to save');
                   alert('Por favor, completa al menos un paso con contenido válido antes de guardar');
