@@ -1538,8 +1538,19 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       return
     }
 
-    // Guardar directamente - modal deshabilitado temporalmente
-    console.log('💾 Saving steps directly...')
+    // Si la propiedad está en un conjunto con múltiples propiedades, mostrar modal
+    if (propertySetId && propertySetProperties.length > 1) {
+      console.log('🔗 Showing PropertySetUpdateModal')
+      setPendingOperation('update')
+      setPendingStepsToSave(steps)
+      setPendingZoneForSave(editingZoneForSteps)
+      // Cerrar el StepEditor antes de mostrar el modal
+      setShowStepEditor(false)
+      setShowPropertySetModal(true)
+      return
+    }
+
+    // Para propiedades individuales, guardar directamente
     await performSaveSteps(steps, editingZoneForSteps, 'single')
   }
 
