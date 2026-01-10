@@ -17,16 +17,20 @@ import {
   QrCode,
   Lock,
   Clock,
+  FileText,
+  Wifi,
+  BarChart3,
+  CheckSquare,
 } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Recursos Gratuitos para Anfitriones | Itineramio',
   description:
-    'Guías prácticas y recursos gratuitos para hacer crecer tu negocio de alquiler vacacional. Descarga las guías según tu perfil de anfitrión.',
+    'Herramientas, plantillas y guías gratuitas para hacer crecer tu negocio de alquiler vacacional. Calculadoras, checklists y recursos descargables.',
   openGraph: {
     title: 'Recursos Gratuitos para Anfitriones | Itineramio',
     description:
-      'Guías prácticas y recursos gratuitos para hacer crecer tu negocio de alquiler vacacional.',
+      'Herramientas, plantillas y guías gratuitas para hacer crecer tu negocio de alquiler vacacional.',
     type: 'website',
     images: [
       {
@@ -40,7 +44,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Recursos Gratuitos para Anfitriones | Itineramio',
-    description: 'Guías prácticas y recursos gratuitos para hacer crecer tu negocio de alquiler vacacional.',
+    description: 'Herramientas, plantillas y guías gratuitas para hacer crecer tu negocio de alquiler vacacional.',
     images: ['https://www.itineramio.com/og-image.jpg'],
   },
 }
@@ -55,6 +59,77 @@ const iconMap = {
   Scale,
   Zap,
 }
+
+// Active tools
+const activeTools = [
+  {
+    id: 'cleaning-checklist',
+    title: 'Checklist de Limpieza Profesional',
+    description: 'Lista interactiva con 50+ items para que tu equipo no se deje nada. Personalizable y descargable.',
+    icon: Sparkles,
+    color: 'from-emerald-500 to-green-600',
+    href: '/hub/tools/cleaning-checklist',
+    badge: 'Popular',
+  },
+  {
+    id: 'plantilla-reviews',
+    title: 'Plantilla de Reviews',
+    description: 'PDF personalizado que explica el significado de las estrellas + QR de WhatsApp para contacto directo.',
+    icon: Star,
+    color: 'from-rose-500 to-orange-500',
+    href: '/recursos/plantilla-reviews',
+    badge: 'Popular',
+  },
+  {
+    id: 'star-rating',
+    title: 'Plantilla Significado Estrellas',
+    description: 'Educa a tus huespedes sobre las valoraciones de Airbnb. Personalizada con tu alojamiento.',
+    icon: Star,
+    color: 'from-[#FF385C] to-[#E31C5F]',
+    href: '/recursos/plantilla-estrellas-personalizada',
+    badge: 'Nuevo',
+  },
+]
+
+// Coming soon tools
+const comingSoonTools = [
+  {
+    id: 'qr-generator',
+    title: 'Generador de QR',
+    description: 'Crea codigos QR personalizados para WiFi, contacto o tu manual digital.',
+    icon: QrCode,
+  },
+  {
+    id: 'pricing-calculator',
+    title: 'Calculadora de Precios',
+    description: 'Calcula el precio optimo para tu alojamiento segun ubicacion y temporada.',
+    icon: Calculator,
+  },
+  {
+    id: 'roi-calculator',
+    title: 'Calculadora de Rentabilidad',
+    description: 'Descubre si estas ganando dinero o solo cambiando dinero de mano.',
+    icon: TrendingUp,
+  },
+  {
+    id: 'wifi-card',
+    title: 'Tarjeta WiFi',
+    description: 'Genera tarjetas WiFi profesionales para imprimir o enviar digitalmente.',
+    icon: Wifi,
+  },
+  {
+    id: 'house-rules',
+    title: 'Generador de Normas',
+    description: 'Crea normas de casa claras y profesionales en minutos.',
+    icon: FileText,
+  },
+  {
+    id: 'occupancy-calculator',
+    title: 'Calculadora de Ocupacion',
+    description: 'Analiza tu ocupacion y compara con el mercado.',
+    icon: BarChart3,
+  },
+]
 
 export default function RecursosPage() {
   const leadMagnets = Object.values(LEAD_MAGNETS)
@@ -71,12 +146,11 @@ export default function RecursosPage() {
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              Recursos Gratuitos para Anfitriones
+              Recursos para Anfitriones
             </h1>
 
             <p className="text-xl md:text-2xl max-w-3xl mx-auto mb-8 text-white/90">
-              Guías prácticas según tu perfil. Elige la que más se adapta a tu
-              forma de gestionar tu alquiler vacacional.
+              Herramientas, plantillas y guias practicas para gestionar tu alquiler vacacional de forma profesional.
             </p>
 
             <div className="flex flex-wrap justify-center gap-6 text-sm">
@@ -97,148 +171,89 @@ export default function RecursosPage() {
         </div>
       </div>
 
-      {/* Herramientas Interactivas */}
+      {/* Herramientas Activas */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-gray-900 mb-3">
             Herramientas Interactivas
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Calculadoras y herramientas online para analizar tu negocio
+            Crea recursos personalizados para tu alojamiento en minutos
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {/* LOCKED - Calculadora de Rentabilidad */}
-          <div
-            className="relative bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl p-8 text-white opacity-75 cursor-not-allowed"
-          >
-            <div className="absolute inset-0 bg-black/20 rounded-2xl flex items-center justify-center">
-              <div className="bg-white/90 rounded-xl px-4 py-2 flex items-center gap-2 shadow-lg">
-                <Lock className="w-5 h-5 text-gray-700" />
-                <span className="text-gray-700 font-semibold">Próximamente</span>
-              </div>
-            </div>
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <Calculator className="w-7 h-7" />
-              </div>
-              <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1">
-                <Clock className="w-3 h-3" /> Próximamente
-              </span>
-            </div>
-            <h3 className="font-bold text-2xl mb-2">
-              Calculadora de Rentabilidad
-            </h3>
-            <p className="text-white/90 mb-4">
-              Descubre si estás ganando dinero o solo "cambiando dinero de mano".
-              Calcula tu precio mínimo viable y tu ganancia real por hora.
-            </p>
-            <div className="flex items-center text-white/60 font-semibold">
-              <span>Disponible pronto</span>
-            </div>
-          </div>
-
-          {/* LOCKED - Calculadora de Precios */}
-          <div
-            className="relative bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl p-8 text-white opacity-75 cursor-not-allowed"
-          >
-            <div className="absolute inset-0 bg-black/20 rounded-2xl flex items-center justify-center">
-              <div className="bg-white/90 rounded-xl px-4 py-2 flex items-center gap-2 shadow-lg">
-                <Lock className="w-5 h-5 text-gray-700" />
-                <span className="text-gray-700 font-semibold">Próximamente</span>
-              </div>
-            </div>
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-7 h-7" />
-              </div>
-              <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1">
-                <Clock className="w-3 h-3" /> Próximamente
-              </span>
-            </div>
-            <h3 className="font-bold text-2xl mb-2">
-              Calculadora de Precios Airbnb
-            </h3>
-            <p className="text-white/90 mb-4">
-              Calcula el precio óptimo para tu alojamiento según ubicación,
-              temporada y servicios que ofreces.
-            </p>
-            <div className="flex items-center text-white/60 font-semibold">
-              <span>Disponible pronto</span>
-            </div>
-          </div>
-
-          {/* ACTIVE - Guía Rápida de Reseñas */}
-          <Link
-            href="/recursos/plantilla-reviews"
-            className="group bg-gradient-to-br from-rose-500 to-orange-500 rounded-2xl p-8 text-white hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <Star className="w-7 h-7" />
-              </div>
-              <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
-                Popular
-              </span>
-            </div>
-            <h3 className="font-bold text-2xl mb-2">
-              Guía Rápida de Reseñas
-            </h3>
-            <p className="text-white/90 mb-4">
-              Plantilla PRO para educar a huéspedes sobre las valoraciones.
-              Personalizada con tu alojamiento y QR de WhatsApp.
-            </p>
-            <div className="flex items-center text-white font-semibold group-hover:translate-x-1 transition-transform">
-              <span>Personalizar plantilla</span>
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </div>
-          </Link>
-
-          {/* LOCKED - Generador de QR */}
-          <div
-            className="relative bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl p-8 text-white opacity-75 cursor-not-allowed"
-          >
-            <div className="absolute inset-0 bg-black/20 rounded-2xl flex items-center justify-center">
-              <div className="bg-white/90 rounded-xl px-4 py-2 flex items-center gap-2 shadow-lg">
-                <Lock className="w-5 h-5 text-gray-700" />
-                <span className="text-gray-700 font-semibold">Próximamente</span>
-              </div>
-            </div>
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <QrCode className="w-7 h-7" />
-              </div>
-              <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1">
-                <Clock className="w-3 h-3" /> Próximamente
-              </span>
-            </div>
-            <h3 className="font-bold text-2xl mb-2">
-              Generador de QR
-            </h3>
-            <p className="text-white/90 mb-4">
-              Crea códigos QR personalizados para WiFi, contacto o
-              tu manual digital. Descarga en PNG o SVG.
-            </p>
-            <div className="flex items-center text-white/60 font-semibold">
-              <span>Disponible pronto</span>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {activeTools.map((tool) => {
+            const Icon = tool.icon
+            return (
+              <Link
+                key={tool.id}
+                href={tool.href}
+                className={`group bg-gradient-to-br ${tool.color} rounded-2xl p-8 text-white hover:shadow-xl hover:scale-[1.02] transition-all duration-300`}
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                    <Icon className="w-7 h-7" />
+                  </div>
+                  <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
+                    {tool.badge}
+                  </span>
+                </div>
+                <h3 className="font-bold text-2xl mb-2">
+                  {tool.title}
+                </h3>
+                <p className="text-white/90 mb-4">
+                  {tool.description}
+                </p>
+                <div className="flex items-center text-white font-semibold group-hover:translate-x-1 transition-transform">
+                  <span>Usar herramienta</span>
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </div>
+              </Link>
+            )
+          })}
         </div>
 
+        {/* Coming Soon Tools */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-16">
+          {comingSoonTools.map((tool) => {
+            const Icon = tool.icon
+            return (
+              <div
+                key={tool.id}
+                className="relative bg-gray-100 rounded-xl p-4 opacity-60 cursor-not-allowed"
+              >
+                <div className="absolute top-2 right-2">
+                  <span className="text-[10px] font-medium bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    Pronto
+                  </span>
+                </div>
+                <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mb-3">
+                  <Icon className="w-5 h-5 text-gray-500" />
+                </div>
+                <h3 className="font-semibold text-sm text-gray-700 mb-1">
+                  {tool.title}
+                </h3>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Guías Descargables */}
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-gray-900 mb-3">
-            Guías Descargables
+            Guias Descargables
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            PDFs y recursos según tu perfil de anfitrión
+            PDFs y recursos segun tu perfil de anfitrion
           </p>
         </div>
       </div>
 
       {/* Resources Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {leadMagnets.map((leadMagnet) => {
             const Icon =
               iconMap[leadMagnet.icon as keyof typeof iconMap] || TrendingUp
@@ -263,39 +278,32 @@ export default function RecursosPage() {
               >
                 {/* Color Header */}
                 <div
-                  className={`bg-gradient-to-r ${gradientClass} p-6 text-white`}
+                  className={`bg-gradient-to-r ${gradientClass} p-5 text-white`}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                      <Icon className="w-6 h-6" />
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                      <Icon className="w-5 h-5" />
                     </div>
-                    <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
-                      {leadMagnet.pages} páginas
+                    <span className="text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full px-2 py-0.5">
+                      {leadMagnet.pages} pag
                     </span>
                   </div>
 
-                  <h3 className="font-bold text-xl mb-2">
+                  <h3 className="font-bold text-lg leading-tight">
                     {leadMagnet.title}
                   </h3>
-                  <p className="text-sm text-white/90">{leadMagnet.subtitle}</p>
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                <div className="p-4">
+                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">
                     {leadMagnet.description}
                   </p>
 
-                  {/* Stats */}
-                  <div className="flex items-center justify-between text-xs text-gray-500 mb-4 pb-4 border-b border-gray-100">
-                    <span>{leadMagnet.downloadables.length} recursos</span>
-                    <span>100% gratis</span>
-                  </div>
-
                   {/* CTA */}
-                  <div className="flex items-center justify-between text-blue-600 font-semibold group-hover:text-blue-700">
-                    <span>Descargar ahora</span>
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <div className="flex items-center justify-between text-blue-600 font-semibold text-sm group-hover:text-blue-700">
+                    <span>Descargar</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
               </Link>
@@ -309,14 +317,14 @@ export default function RecursosPage() {
             ¿Quieres automatizar tu negocio?
           </h2>
           <p className="text-lg text-white/90 mb-6 max-w-2xl mx-auto">
-            Prueba Itineramio gratis durante 15 días y descubre cómo puedes
+            Prueba Itineramio gratis durante 15 dias y descubre como puedes
             ahorrar hasta 30 horas al mes.
           </p>
           <Link
-            href="/"
+            href="/register"
             className="inline-flex items-center gap-2 bg-white text-blue-600 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            Explorar Itineramio
+            Empezar prueba gratis
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
