@@ -6,7 +6,7 @@ interface Props {
 }
 
 export default function ReservasDay0ErrorInvisible({ name, email }: Props) {
-  const firstName = name?.split(' ')[0] || 'Anfitrion'
+  const firstName = name?.split(' ')[0] || 'Anfitrión'
 
   return (
     <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', backgroundColor: '#f8f8f8', padding: '40px 16px' }}>
@@ -29,11 +29,11 @@ export default function ReservasDay0ErrorInvisible({ name, email }: Props) {
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Antes de hablar de automatizacion, hay algo mas urgente que necesitas saber.
+              Antes de hablar de automatización, hay algo más urgente que necesitas saber.
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Llevo anos trabajando con anfitriones y he identificado un patron:
+              Llevo años trabajando con anfitriones y he identificado un patrón:
             </p>
 
             <div style={{ backgroundColor: '#fef3c7', border: '1px solid #fcd34d', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}>
@@ -46,11 +46,11 @@ export default function ReservasDay0ErrorInvisible({ name, email }: Props) {
             </div>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              El resultado? Huespedes que llegan con expectativas altas, se encuentran con pequenos problemas (WiFi confuso, check-in caotico, informacion dispersa), y dejan resenas de 4 estrellas "porque todo estuvo bien, pero..."
+              ¿El resultado? Huéspedes que llegan con expectativas altas, se encuentran con pequeños problemas (WiFi confuso, check-in caótico, información dispersa), y dejan reseñas de 4 estrellas "porque todo estuvo bien, pero..."
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Y aqui esta el problema:
+              Y aquí está el problema:
             </p>
 
             <div style={{ backgroundColor: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', padding: '16px', marginBottom: '24px', textAlign: 'center' }}>
@@ -60,28 +60,28 @@ export default function ReservasDay0ErrorInvisible({ name, email }: Props) {
             </div>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Cada punto menos que 4.8 te hunde en el algoritmo. Menos visibilidad = menos reservas. Es un circulo vicioso.
+              Cada punto menos que 4.8 te hunde en el algoritmo. Menos visibilidad = menos reservas. Es un círculo vicioso.
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              <strong>La solucion no es mas marketing. Es mejor experiencia.</strong>
+              <strong>La solución no es más marketing. Es mejor experiencia.</strong>
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Un estudio de Cornell demostro que subir 0.1 puntos en rating aumenta las reservas un 11%.
+              Un estudio de Cornell demostró que subir 0.1 puntos en rating aumenta las reservas un 11%.
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Como se logra esto? <strong>Anticipandote a las preguntas antes de que las hagan.</strong>
+              ¿Cómo se logra esto? <strong>Anticipándote a las preguntas antes de que las hagan.</strong>
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Te dejo un articulo donde explico exactamente como crear un sistema que elimina el 86% de las consultas repetitivas:
+              Te dejo un artículo donde explico exactamente cómo crear un sistema que elimina el 86% de las consultas repetitivas:
             </p>
 
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <a href="https://www.itineramio.com/blog/manual-digital-apartamento-turistico-guia-completa" style={{ display: 'inline-block', backgroundColor: '#7c3aed', color: '#ffffff', padding: '14px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 600, fontSize: '16px' }}>
-                Leer: Como crear un manual digital efectivo
+                Leer: Cómo crear un manual digital efectivo
               </a>
             </div>
 
@@ -94,7 +94,7 @@ export default function ReservasDay0ErrorInvisible({ name, email }: Props) {
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              En 2 dias te cuento como descubrir tu estilo unico como anfitrion (y por que eso importa para tus reservas).
+              En 2 días te cuento cómo descubrir tu estilo único como anfitrión (y por qué eso importa para tus reservas).
             </p>
 
             <p style={{ margin: '0', color: '#374151', fontSize: '16px' }}>
@@ -103,7 +103,7 @@ export default function ReservasDay0ErrorInvisible({ name, email }: Props) {
             </p>
 
             <p style={{ margin: '20px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
-              P.D. Si tienes 5 minutos, lee el articulo. Hay un dato sobre el WiFi que te va a sorprender.
+              P.D. Si tienes 5 minutos, lee el artículo. Hay un dato sobre el WiFi que te va a sorprender.
             </p>
           </td>
         </tr>
@@ -111,7 +111,7 @@ export default function ReservasDay0ErrorInvisible({ name, email }: Props) {
         <tr>
           <td style={{ textAlign: 'center', paddingTop: '24px' }}>
             <p style={{ margin: 0, color: '#9ca3af', fontSize: '12px' }}>
-              <a href={`https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email || "")}`} style={{ color: '#9ca3af', textDecoration: 'none' }}>Cancelar suscripcion</a>
+              <a href={`https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email || "")}`} style={{ color: '#9ca3af', textDecoration: 'none' }}>Cancelar suscripción</a>
             </p>
           </td>
         </tr>
