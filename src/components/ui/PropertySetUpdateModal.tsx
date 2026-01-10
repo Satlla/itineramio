@@ -41,14 +41,12 @@ export function PropertySetUpdateModal({
   }
 
   const handleConfirm = () => {
-    alert('DEBUG MODAL INTERNO: handleConfirm llamado, scope=' + selectedScope)
     console.log('PropertySetUpdateModal handleConfirm called', { selectedScope, selectedProperties: Array.from(selectedProperties) })
     if (selectedScope === 'selected') {
       onConfirm(selectedScope, Array.from(selectedProperties))
     } else {
       onConfirm(selectedScope)
     }
-    alert('DEBUG MODAL INTERNO: onConfirm ejecutado')
   }
 
   const isConfirmDisabled = selectedScope === 'selected' && selectedProperties.size === 0
