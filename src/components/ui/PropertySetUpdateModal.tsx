@@ -51,24 +51,25 @@ export function PropertySetUpdateModal({
 
   const isConfirmDisabled = selectedScope === 'selected' && selectedProperties.size === 0
 
-  if (!isOpen) return null
-
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[70]"
-        onClick={onClose}
-      >
+      {isOpen && (
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
-          onClick={(e) => e.stopPropagation()}
+          key="property-set-modal-backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[100]"
+          onClick={onClose}
         >
+          <motion.div
+            key="property-set-modal-content"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
           {/* Header */}
           <div className="bg-gradient-to-r from-violet-50 to-purple-50 p-6 border-b">
             <div className="flex items-start justify-between">
@@ -231,8 +232,9 @@ export function PropertySetUpdateModal({
               Confirmar y Guardar
             </Button>
           </div>
+          </motion.div>
         </motion.div>
-      </motion.div>
+      )}
     </AnimatePresence>
   )
 }
