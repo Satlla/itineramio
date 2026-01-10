@@ -1,11 +1,11 @@
-import { 
-  Wifi, 
-  Key, 
-  Car, 
-  Utensils, 
-  Bath, 
-  Bed, 
-  Home, 
+import {
+  Wifi,
+  Key,
+  Car,
+  Utensils,
+  Bath,
+  Bed,
+  Home,
   MapPin,
   Phone,
   Info,
@@ -184,6 +184,75 @@ export const extendedZoneIconMap: { [key: string]: LucideIcon } = {
 // Function to get icon or fallback
 export function getZoneIcon(emoji: string): LucideIcon {
   return extendedZoneIconMap[emoji] || Home
+}
+
+// Icon ID mappings (used in database - MUST match what ElementSelector/ZoneIconDisplay use)
+export const iconIdMapping: { [key: string]: LucideIcon } = {
+  // Essential icons stored in DB
+  'wifi': Wifi,
+  'key': Key,
+  'exit': DoorClosed,
+  'door': DoorOpen,
+  'door-exit': DoorClosed,
+  'car': Car,
+  'kitchen': ChefHat,
+  'kitchen-main': ChefHat,
+  'thermometer': Thermometer,
+  'phone': Phone,
+  'map-pin': MapPin,
+  'navigation': Navigation,
+  'info': Info,
+  'home': Home,
+  'bath': Bath,
+  'bed': Bed,
+  'tv': Tv,
+  'washing': Package,
+  'washing-machine': Package,
+  'dishwasher': ChefHat,
+  'coffee': Coffee,
+  'oven': Microwave,
+  'microwave': Microwave,
+  'cooktop': ChefHat,
+  'cooking': ChefHat,
+  'wind': Wind,
+  'rules': FileText,
+  'volume-off': Volume2,
+  'smoking': Cigarette,
+  'pet': Dog,
+  'recycle': Recycle,
+  'train': Train,
+  'shopping-cart': ShoppingBag,
+  'beach': Waves,
+  'pool': Waves,
+  'waves': Waves,
+  'gym': Dumbbell,
+  'alarm': Phone,
+  'emergency': Phone,
+  'entrance': DoorOpen,
+  'parking': ParkingCircle,
+  'heating': Thermometer,
+  'ac': Snowflake,
+  'refrigerator': Package,
+  'laundry': Package,
+  'living': Sofa,
+  'sofa': Sofa,
+  'bedroom': Bed,
+  'bathroom': ShowerHead,
+  'shower': ShowerHead,
+  'security': Shield,
+  'keys': Key,
+  'transport': Bus,
+  'flower': Flower2,
+  'trees': TreePine,
+  'mountain': Mountain,
+  'utensils': Utensils,
+  'list': FileText,
+  'trash': Trash2,
+  'package': Package,
+  'entertainment': Tv,
+  // Airbnb style icon IDs
+  'door-open': DoorOpen,
+  'door-closed': DoorClosed
 }
 
 // Common zone types with their default icons - IMPROVED MAPPING
@@ -410,11 +479,16 @@ export const commonZoneIcons: { [key: string]: LucideIcon } = {
   'telefonos': Phone
 }
 
-// Function to get icon by zone name - IMPROVED VERSION
+// Function to get icon by zone name or icon ID - IMPROVED VERSION
 export function getZoneIconByName(name: string): LucideIcon {
   const normalizedName = name.toLowerCase().trim()
-  
-  // First try exact match (preserving spaces and special characters)
+
+  // FIRST: Try direct iconId mapping (for icons stored in database)
+  if (iconIdMapping[normalizedName]) {
+    return iconIdMapping[normalizedName]
+  }
+
+  // Then try exact match in common zone names
   if (commonZoneIcons[normalizedName]) {
     return commonZoneIcons[normalizedName]
   }
