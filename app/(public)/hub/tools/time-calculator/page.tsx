@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Clock, ArrowRight, Mail, CheckCircle, AlertTriangle, TrendingDown, Calculator, Home, Users, MessageSquare } from 'lucide-react'
+import { Clock, ArrowRight, Mail, CheckCircle, AlertTriangle, Calculator, Home, Users, MessageSquare, Key, Bot, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 import { Navbar } from '../../../../../src/components/layout/Navbar'
 
@@ -10,6 +10,7 @@ interface CalculationResult {
   hoursPerYear: number
   moneyLostPerYear: number
   tasksAutomatable: number
+  currentAutomation: number
 }
 
 export default function TimeCalculatorPage() {
@@ -17,6 +18,12 @@ export default function TimeCalculatorPage() {
   const [properties, setProperties] = useState(1)
   const [checkinsPerMonth, setCheckinsPerMonth] = useState(4)
   const [minutesPerCheckin, setMinutesPerCheckin] = useState(30)
+
+  // Nuevas preguntas de automatización
+  const [hasAutonomousCheckin, setHasAutonomousCheckin] = useState(false)
+  const [hasAutomatedMessages, setHasAutomatedMessages] = useState(false)
+  const [hasDigitalGuide, setHasDigitalGuide] = useState(false)
+
   const [result, setResult] = useState<CalculationResult | null>(null)
 
   // Email form
@@ -26,18 +33,34 @@ export default function TimeCalculatorPage() {
   const [error, setError] = useState('')
 
   const calculateTime = () => {
+    // Cálculo base
     const totalCheckinsPerMonth = properties * checkinsPerMonth
-    const hoursPerMonth = (totalCheckinsPerMonth * minutesPerCheckin) / 60
+    let baseMinutesPerCheckin = minutesPerCheckin
+
+    // Calcular reducción por automatizaciones actuales
+    let automationReduction = 0
+    if (hasAutonomousCheckin) automationReduction += 0.20 // -20% si tiene check-in autónomo
+    if (hasAutomatedMessages) automationReduction += 0.15 // -15% si tiene mensajes automatizados
+    if (hasDigitalGuide) automationReduction += 0.25 // -25% si tiene guía digital
+
+    // Ajustar minutos según automatización actual
+    const adjustedMinutes = baseMinutesPerCheckin * (1 - automationReduction)
+
+    const hoursPerMonth = (totalCheckinsPerMonth * adjustedMinutes) / 60
     const hoursPerYear = hoursPerMonth * 12
     const hourlyRate = 25 // Valor hora promedio
     const moneyLostPerYear = Math.round(hoursPerYear * hourlyRate)
-    const tasksAutomatable = Math.round(hoursPerYear * 0.8) // 80% automatizable
+
+    // Potencial de automatización restante (lo que NO tiene automatizado)
+    const remainingAutomation = 1 - automationReduction
+    const tasksAutomatable = Math.round(hoursPerYear * remainingAutomation * 0.8) // 80% del tiempo restante es automatizable
 
     setResult({
       hoursPerMonth: Math.round(hoursPerMonth * 10) / 10,
       hoursPerYear: Math.round(hoursPerYear),
       moneyLostPerYear,
-      tasksAutomatable
+      tasksAutomatable,
+      currentAutomation: Math.round(automationReduction * 100)
     })
     setStep('result')
   }
@@ -59,6 +82,9 @@ export default function TimeCalculatorPage() {
           properties,
           checkinsPerMonth,
           minutesPerCheckin,
+          hasAutonomousCheckin,
+          hasAutomatedMessages,
+          hasDigitalGuide,
           result
         })
       })
@@ -67,7 +93,7 @@ export default function TimeCalculatorPage() {
 
       setStep('success')
     } catch (err) {
-      setError('Error al enviar. Intentalo de nuevo.')
+      setError('Error al enviar. Inténtalo de nuevo.')
     } finally {
       setIsSubmitting(false)
     }
@@ -89,7 +115,7 @@ export default function TimeCalculatorPage() {
               Calculadora de Tiempo
             </h1>
             <p className="text-[#717171] text-lg">
-              Descubre cuantas horas pierdes en tareas repetitivas
+              Descubre cuántas horas pierdes en tareas repetitivas
             </p>
           </div>
 
@@ -102,7 +128,7 @@ export default function TimeCalculatorPage() {
                 <div>
                   <label className="flex items-center gap-2 text-[#222222] font-medium mb-3">
                     <Home className="w-5 h-5 text-[#717171]" />
-                    Numero de propiedades
+                    Número de propiedades
                   </label>
                   <div className="flex items-center gap-4">
                     <input
@@ -147,7 +173,7 @@ export default function TimeCalculatorPage() {
                     Minutos en mensajes/llamadas por reserva
                   </label>
                   <p className="text-sm text-[#717171] mb-3">
-                    Incluye: explicar WiFi, electrodomesticos, parking, normas, resolver dudas...
+                    Incluye: explicar WiFi, electrodomésticos, parking, normas, resolver dudas...
                   </p>
                   <div className="flex items-center gap-4">
                     <input
@@ -162,6 +188,61 @@ export default function TimeCalculatorPage() {
                     <span className="w-16 text-center text-xl font-semibold text-[#222222]">
                       {minutesPerCheckin} min
                     </span>
+                  </div>
+                </div>
+
+                {/* Separator */}
+                <div className="border-t border-[#DDDDDD] pt-6">
+                  <p className="text-[#222222] font-medium mb-4">
+                    ¿Qué tienes automatizado actualmente?
+                  </p>
+                  <p className="text-sm text-[#717171] mb-4">
+                    Esto nos ayuda a calcular tu tiempo real
+                  </p>
+
+                  {/* Automation checkboxes */}
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-3 p-3 border border-[#DDDDDD] rounded-lg cursor-pointer hover:border-[#FF385C] transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={hasAutonomousCheckin}
+                        onChange={(e) => setHasAutonomousCheckin(e.target.checked)}
+                        className="w-5 h-5 accent-[#FF385C]"
+                      />
+                      <Key className="w-5 h-5 text-[#717171]" />
+                      <div>
+                        <span className="text-[#222222] font-medium">Check-in autónomo</span>
+                        <p className="text-sm text-[#717171]">Caja de llaves, cerraduras inteligentes, etc.</p>
+                      </div>
+                    </label>
+
+                    <label className="flex items-center gap-3 p-3 border border-[#DDDDDD] rounded-lg cursor-pointer hover:border-[#FF385C] transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={hasAutomatedMessages}
+                        onChange={(e) => setHasAutomatedMessages(e.target.checked)}
+                        className="w-5 h-5 accent-[#FF385C]"
+                      />
+                      <Bot className="w-5 h-5 text-[#717171]" />
+                      <div>
+                        <span className="text-[#222222] font-medium">Mensajes automatizados</span>
+                        <p className="text-sm text-[#717171]">Respuestas guardadas, plantillas, chatbots</p>
+                      </div>
+                    </label>
+
+                    <label className="flex items-center gap-3 p-3 border border-[#DDDDDD] rounded-lg cursor-pointer hover:border-[#FF385C] transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={hasDigitalGuide}
+                        onChange={(e) => setHasDigitalGuide(e.target.checked)}
+                        className="w-5 h-5 accent-[#FF385C]"
+                      />
+                      <BookOpen className="w-5 h-5 text-[#717171]" />
+                      <div>
+                        <span className="text-[#222222] font-medium">Guía del apartamento</span>
+                        <p className="text-sm text-[#717171]">PDF, documento, o manual digital</p>
+                      </div>
+                    </label>
                   </div>
                 </div>
 
@@ -187,14 +268,24 @@ export default function TimeCalculatorPage() {
                   <AlertTriangle className="w-6 h-6 text-[#D97706] flex-shrink-0 mt-0.5" />
                   <div>
                     <h3 className="font-semibold text-[#92400E] mb-1">
-                      Estas perdiendo {result.hoursPerYear} horas al ano
+                      Estás perdiendo {result.hoursPerYear} horas al año
                     </h3>
                     <p className="text-[#A16207] text-sm">
-                      En tareas repetitivas que podrian automatizarse
+                      En tareas repetitivas que podrían automatizarse
                     </p>
                   </div>
                 </div>
               </div>
+
+              {/* Current automation */}
+              {result.currentAutomation > 0 && (
+                <div className="bg-[#F0FDF4] border border-[#86EFAC] rounded-xl p-4">
+                  <p className="text-[#166534] text-sm">
+                    <CheckCircle className="w-4 h-4 inline mr-2" />
+                    Ya tienes un <strong>{result.currentAutomation}%</strong> automatizado. ¡Buen trabajo!
+                  </p>
+                </div>
+              )}
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-4">
@@ -204,11 +295,11 @@ export default function TimeCalculatorPage() {
                 </div>
                 <div className="bg-[#F7F7F7] rounded-xl p-6 text-center">
                   <p className="text-3xl font-bold text-[#222222]">{result.hoursPerYear}h</p>
-                  <p className="text-[#717171] text-sm mt-1">horas al ano</p>
+                  <p className="text-[#717171] text-sm mt-1">horas al año</p>
                 </div>
                 <div className="bg-[#FEE2E2] rounded-xl p-6 text-center">
                   <p className="text-3xl font-bold text-[#DC2626]">{result.moneyLostPerYear}€</p>
-                  <p className="text-[#991B1B] text-sm mt-1">valor perdido/ano</p>
+                  <p className="text-[#991B1B] text-sm mt-1">valor perdido/año</p>
                 </div>
                 <div className="bg-[#DCFCE7] rounded-xl p-6 text-center">
                   <p className="text-3xl font-bold text-[#16A34A]">{result.tasksAutomatable}h</p>
@@ -219,7 +310,7 @@ export default function TimeCalculatorPage() {
               {/* What you could do */}
               <div className="bg-white border border-[#DDDDDD] rounded-xl p-6">
                 <h3 className="font-semibold text-[#222222] mb-4">
-                  Con {result.hoursPerYear} horas podrias:
+                  Con {result.hoursPerYear} horas podrías:
                 </h3>
                 <ul className="space-y-3 text-[#717171]">
                   <li className="flex items-center gap-3">
@@ -232,7 +323,7 @@ export default function TimeCalculatorPage() {
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-[#16A34A]" />
-                    Disfrutar de {Math.round(result.hoursPerYear / 8)} dias libres mas
+                    Disfrutar de {Math.round(result.hoursPerYear / 8)} días libres más
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-[#16A34A]" />
@@ -251,7 +342,7 @@ export default function TimeCalculatorPage() {
               </button>
 
               <p className="text-center text-[#717171] text-sm">
-                Incluye: desglose detallado + guia para automatizar
+                Incluye: desglose detallado + guía para automatizar
               </p>
             </div>
           )}
@@ -278,7 +369,7 @@ export default function TimeCalculatorPage() {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Ej: Maria"
+                    placeholder="Ej: María"
                     className="w-full px-4 py-3 border border-[#DDDDDD] rounded-lg focus:border-[#222222] focus:outline-none focus:ring-1 focus:ring-[#222222]"
                     required
                   />
@@ -319,7 +410,7 @@ export default function TimeCalculatorPage() {
               </form>
 
               <p className="text-center text-[#717171] text-xs mt-4">
-                Sin spam. Solo contenido util para anfitriones.
+                Sin spam. Solo contenido útil para anfitriones.
               </p>
             </div>
           )}
@@ -331,10 +422,10 @@ export default function TimeCalculatorPage() {
                 <CheckCircle className="w-8 h-8 text-[#16A34A]" />
               </div>
               <h2 className="text-xl font-semibold text-[#222222] mb-2">
-                Informe enviado
+                ¡Informe enviado!
               </h2>
               <p className="text-[#717171] mb-6">
-                Revisa tu bandeja de entrada. Hemos incluido tu analisis completo y consejos para automatizar.
+                Revisa tu bandeja de entrada. Hemos incluido tu análisis completo y consejos para automatizar.
               </p>
 
               <div className="space-y-3">
@@ -348,7 +439,7 @@ export default function TimeCalculatorPage() {
                   href="/hub/tools"
                   className="block w-full py-3 border border-[#DDDDDD] text-[#222222] font-medium rounded-lg text-center hover:bg-[#F7F7F7] transition-colors"
                 >
-                  Ver mas herramientas
+                  Ver más herramientas
                 </Link>
               </div>
             </div>
