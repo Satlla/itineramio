@@ -187,24 +187,24 @@ export function StepEditor({
   }
 
   // Mobile detection with SSR safety
-  const [isMobile, setIsMobile] = useState(false)
+  const [shouldUseMobileEditor, setShouldUseMobileEditor] = useState(false)
   const [isClient, setIsClient] = useState(false)
-  
+
   useEffect(() => {
     setIsClient(true)
     const checkMobile = () => {
-      // More precise mobile detection - only actual mobile devices
-      const mobile = window.innerWidth <= 768 || 
-                   /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-      console.log('🖥️ Window width:', window.innerWidth, 'User agent:', navigator.userAgent, 'Is mobile:', mobile)
-      setIsMobile(mobile)
+      const width = window.innerWidth
+      const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      const hasTouch = 'ontouchstart' in window
+      const useMobile = width <= 768 && (isMobileUA || hasTouch)
+      setShouldUseMobileEditor(useMobile)
     }
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Use new mobile editor for mobile devices (only after client-side mount)
+  // Show loading while detecting device type
   if (!isClient) {
     return (
       <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
@@ -212,44 +212,14 @@ export function StepEditor({
       </div>
     )
   }
-  
-  // Only use mobile editor for actual mobile devices (not tablets or desktop)
-  const windowWidth = window.innerWidth
-  const userAgent = navigator.userAgent
-  const hasTouch = 'ontouchstart' in window
-  const isMobileUserAgent = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)
 
-  console.log('🔍 Mobile Detection Debug:', {
-    windowWidth,
-    widthCheck: windowWidth <= 768,
-    userAgent,
-    isMobileUserAgent,
-    hasTouch,
-    touchOrMobile: isMobileUserAgent || hasTouch
-  })
-
-  const shouldUseMobileEditor = windowWidth <= 768 && (isMobileUserAgent || hasTouch)
-
-  console.log('📱 shouldUseMobileEditor:', shouldUseMobileEditor)
-
+  // Use mobile editor for mobile devices
   if (shouldUseMobileEditor) {
-    console.log('✅ Rendering MobileStepEditor (CAROUSEL MODE)')
-    
     return (
       <MobileStepEditorNew
         zoneTitle={zoneTitle}
         initialSteps={initialSteps}
-        onSave={(steps) => {
-          console.log('🔵 StepEditor: onSave called with', steps.length, 'steps')
-          console.log('🔵 StepEditor: onSave prop type:', typeof onSave)
-          if (typeof onSave === 'function') {
-            console.log('🔵 StepEditor: Calling parent onSave')
-            onSave(steps)
-            console.log('🔵 StepEditor: Parent onSave called')
-          } else {
-            console.error('🔵 StepEditor: onSave is not a function!')
-          }
-        }}
+        onSave={onSave}
         onCancel={onCancel}
         maxVideos={maxVideos}
         currentVideoCount={currentVideoCount}
@@ -632,8 +602,8 @@ export function StepEditor({
         </div>
       </div>
 
-      {/* Mobile Layout: Vertical Timeline with LED Animation */}
-      {isMobile ? (
+      {/* Desktop Layout - Mobile users are redirected to MobileStepEditorNew */}
+      {false ? (
         <div className="max-w-2xl mx-auto p-4 pb-32 space-y-6">
           {/* Steps Timeline with LED effect */}
           <div className="relative">
