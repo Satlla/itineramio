@@ -1725,6 +1725,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         try {
           const response = await fetch(`/api/properties/${zoneInfo.propertyId}/zones/${zoneInfo.zoneId}/steps/safe`, {
             method: 'PUT',
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json'
             },
