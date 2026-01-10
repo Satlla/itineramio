@@ -240,8 +240,10 @@ export async function POST(request: NextRequest) {
     await prisma.emailEvent.create({
       data: {
         leadId: lead.id,
+        email: lead.email,
         eventType: 'SENT',
-        emailType: `funnel-${theme}-day0`,
+        templateName: `funnel-${theme}-day0`,
+        subject: emailContent.subject,
         metadata: {
           resendId: result.data?.id,
           theme,
