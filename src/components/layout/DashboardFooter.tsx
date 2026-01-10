@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Zap, Globe, Heart } from 'lucide-react'
 import Link from 'next/link'
@@ -9,7 +9,11 @@ import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher'
 
 export function DashboardFooter() {
   const { t } = useTranslation('common')
-  const currentYear = new Date().getFullYear()
+  const [currentYear, setCurrentYear] = useState(2025)
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear())
+  }, [])
 
   const footerLinks = [
     { label: t('footer.faq', 'FAQ'), href: '/faq' },

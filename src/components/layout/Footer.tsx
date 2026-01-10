@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Globe, Shield, FileText } from 'lucide-react'
 import Link from 'next/link'
@@ -10,7 +10,11 @@ import { ItineramioLogo } from '../../components/ui/ItineramioLogo'
 
 export function Footer() {
   const { t } = useTranslation('common')
-  const currentYear = new Date().getFullYear()
+  const [currentYear, setCurrentYear] = useState(2025)
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear())
+  }, [])
 
   return (
     <footer className="bg-white text-gray-900 border-t border-gray-200">
