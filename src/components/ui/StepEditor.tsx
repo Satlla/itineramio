@@ -234,7 +234,8 @@ export function StepEditor({
 
   if (shouldUseMobileEditor) {
     console.log('✅ Rendering MobileStepEditor (CAROUSEL MODE)')
-    
+    alert('DEBUG: Usando MobileStepEditor')
+
     return (
       <MobileStepEditorNew
         zoneTitle={zoneTitle}
@@ -260,10 +261,13 @@ export function StepEditor({
     )
   }
 
+  // DEBUG: If we get here, we're using the desktop editor
+  alert('DEBUG: Usando DesktopStepEditor')
+
   const addStep = async () => {
     setIsAddingStep(true)
     const newStepIndex = steps.length
-    
+
     // Animate line progress
     setLineProgress(0)
     const duration = 1500 // 1.5 seconds
@@ -617,6 +621,7 @@ export function StepEditor({
               type="button"
               onClick={(e) => {
                 e.preventDefault()
+                alert('DEBUG: Desktop Guardar clicked - ' + steps.length + ' steps')
                 console.log('💾 Desktop Save button clicked')
                 console.log('💾 Steps to save:', steps)
                 console.log('💾 Steps with media:', steps.filter(s => s.media?.url))
@@ -827,7 +832,10 @@ export function StepEditor({
 
               {activeStep === steps.length - 1 ? (
                 <Button
-                  onClick={() => onSave(steps)}
+                  onClick={() => {
+                    alert('DEBUG: Desktop Finalizar clicked - ' + steps.length + ' steps')
+                    onSave(steps)
+                  }}
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
@@ -1142,7 +1150,10 @@ export function StepEditor({
                           
                           {activeStep === steps.length - 1 ? (
                             <Button
-                              onClick={() => onSave(steps)}
+                              onClick={() => {
+                                alert('DEBUG: Desktop Finalizar 2 clicked - ' + steps.length + ' steps')
+                                onSave(steps)
+                              }}
                               className="bg-green-600 hover:bg-green-700 text-white"
                             >
                               <CheckCircle className="w-4 h-4 mr-2" />
