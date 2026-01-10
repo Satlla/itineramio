@@ -436,6 +436,8 @@ export function MobileStepEditor({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              // DEBUG TEMPORAL
+              alert('CLICK Finalizar TOP - steps: ' + steps.length + ', isSaving: ' + isSaving);
               try {
                 console.log('🎯 MobileStepEditor: Finalizar clicked (TOP)');
                 console.log('🎯 Event:', e);
