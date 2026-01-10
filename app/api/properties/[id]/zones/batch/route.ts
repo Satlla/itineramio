@@ -19,10 +19,25 @@ const stepSchema = z.object({
   })
 })
 
+// Multilingual text schema
+const multilingualTextSchema = z.object({
+  es: z.string(),
+  en: z.string().optional(),
+  fr: z.string().optional()
+})
+
 const batchZoneSchema = z.object({
   zones: z.array(z.object({
-    name: z.string().min(1).max(100),
-    description: z.string().optional(),
+    // Accept both string or multilingual object for name
+    name: z.union([
+      z.string().min(1).max(100),
+      multilingualTextSchema
+    ]),
+    // Accept both string or multilingual object for description
+    description: z.union([
+      z.string(),
+      multilingualTextSchema
+    ]).optional(),
     icon: z.string().min(1),
     color: z.string().default('bg-gray-100'),
     status: z.enum(['ACTIVE', 'DRAFT', 'ARCHIVED']).default('ACTIVE'),
@@ -111,7 +126,11 @@ export async function POST(
       const random1 = Math.random().toString(36).substr(2, 12)
       const random2 = Math.random().toString(36).substr(2, 12)
 
-      const baseSlug = generateSlug(zoneData.name)
+      // Get the name string for slug generation
+      const nameForSlug = typeof zoneData.name === 'string'
+        ? zoneData.name
+        : (zoneData.name as any).es || (zoneData.name as any).en || ''
+      const baseSlug = generateSlug(nameForSlug)
       const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
       existingSlugs.push(uniqueSlug) // Add to list to ensure next zones are also unique
 

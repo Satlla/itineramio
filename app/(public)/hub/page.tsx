@@ -20,7 +20,8 @@ import {
   Search,
   Filter,
   Trophy,
-  BarChart3
+  BarChart3,
+  Clock
 } from 'lucide-react'
 import { Navbar } from '../../../src/components/layout/Navbar'
 
@@ -47,6 +48,18 @@ const scaleIn = {
 
 // Herramientas interactivas
 const tools = [
+  {
+    id: 'time-calculator',
+    title: 'Calculadora de Tiempo',
+    description: 'Descubre cuantas horas pierdes al año en tareas repetitivas',
+    icon: Clock,
+    color: 'from-rose-500 to-pink-600',
+    bgColor: 'from-rose-50 to-pink-50',
+    borderColor: 'border-rose-200',
+    href: '/hub/tools/time-calculator',
+    badge: 'Nuevo',
+    popular: true
+  },
   {
     id: 'qr-generator',
     title: 'Generador de Códigos QR',
@@ -150,6 +163,18 @@ const tools = [
     borderColor: 'border-blue-200',
     href: '/hub/tools/cleaning-checklist',
     badge: 'Nuevo',
+    popular: true
+  },
+  {
+    id: 'plantilla-reviews',
+    title: 'Plantilla de Reviews',
+    description: 'Guia del significado de las estrellas + QR de WhatsApp personalizado',
+    icon: Star,
+    color: 'from-rose-500 to-orange-500',
+    bgColor: 'from-rose-50 to-orange-50',
+    borderColor: 'border-rose-200',
+    href: '/recursos/plantilla-reviews',
+    badge: 'Popular',
     popular: true
   },
   {

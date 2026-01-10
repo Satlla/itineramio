@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Clock, ArrowRight, AlertTriangle } from 'lucide-react'
+import { X, Clock, ArrowRight, Gift } from 'lucide-react'
 import Link from 'next/link'
 
 interface ExitIntentPopupProps {
@@ -14,6 +15,21 @@ interface ExitIntentPopupProps {
   storageKey?: string
 }
 
+// Pages where popup should NOT show
+const EXCLUDED_PATHS = [
+  '/hub/tools/time-calculator', // The calculator itself
+  '/guide/', // Guest guides
+  '/p/', // Property pages for guests
+  '/login',
+  '/register',
+  '/admin',
+  '/dashboard',
+  '/account',
+  '/onboarding',
+  '/verify',
+  '/unsubscribe',
+]
+
 export function ExitIntentPopup({
   delay = 5000,
   cooldownDays = 7,
@@ -21,9 +37,15 @@ export function ExitIntentPopup({
 }: ExitIntentPopupProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [isReady, setIsReady] = useState(false)
+  const pathname = usePathname()
+
+  // Check if current path is excluded
+  const isExcludedPath = EXCLUDED_PATHS.some(path => pathname?.startsWith(path))
 
   // Check if we should show the popup
   useEffect(() => {
+    if (isExcludedPath) return
+
     const checkCooldown = () => {
       if (typeof window === 'undefined') return false
 
@@ -47,11 +69,11 @@ export function ExitIntentPopup({
     }, delay)
 
     return () => clearTimeout(timer)
-  }, [delay, cooldownDays, storageKey])
+  }, [delay, cooldownDays, storageKey, isExcludedPath])
 
   // Detect exit intent (mouse leaving viewport at top)
   const handleMouseLeave = useCallback((e: MouseEvent) => {
-    if (!isReady || isVisible) return
+    if (!isReady || isVisible || isExcludedPath) return
 
     // Only trigger if mouse leaves at the top
     if (e.clientY <= 5) {
@@ -66,7 +88,7 @@ export function ExitIntentPopup({
         })
       }
     }
-  }, [isReady, isVisible, storageKey])
+  }, [isReady, isVisible, storageKey, isExcludedPath])
 
   useEffect(() => {
     document.addEventListener('mouseleave', handleMouseLeave)
@@ -88,6 +110,9 @@ export function ExitIntentPopup({
     localStorage.setItem('hasUsedTimeCalculator', 'true')
     setIsVisible(false)
   }
+
+  // Don't render anything on excluded paths
+  if (isExcludedPath) return null
 
   return (
     <AnimatePresence>
@@ -122,42 +147,42 @@ export function ExitIntentPopup({
                   <Clock className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">Antes de irte...</h2>
-                  <p className="text-white/80 text-sm">Descubre algo importante</p>
+                  <h2 className="text-2xl font-bold">Espera, no te vayas!</h2>
                 </div>
               </div>
             </div>
 
             {/* Content */}
             <div className="p-6">
-              {/* Alert */}
-              <div className="bg-[#FEF3C7] border border-[#F59E0B] rounded-xl p-4 mb-5">
+              <h3 className="text-xl font-bold text-[#222222] mb-3">
+                Calcula en menos de 1 minuto cuanto tiempo gastas al ano en tareas repetitivas
+              </h3>
+
+              <p className="text-[#717171] mb-5">
+                Responder siempre lo mismo: WiFi, parking, como funciona la vitro, normas de la comunidad...
+              </p>
+
+              {/* Discount offer */}
+              <div className="bg-[#F0FDF4] border border-[#22C55E] rounded-xl p-4 mb-5">
                 <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-[#D97706] flex-shrink-0 mt-0.5" />
+                  <Gift className="w-5 h-5 text-[#16A34A] flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-[#92400E] text-sm">
-                      El anfitrion medio pierde 150+ horas al ano
+                    <p className="font-semibold text-[#166534] text-sm">
+                      20% de descuento si superas las 40h/ano
                     </p>
-                    <p className="text-[#A16207] text-xs mt-1">
-                      En tareas repetitivas que podrian automatizarse
+                    <p className="text-[#15803D] text-xs mt-1">
+                      Te enviamos el codigo por email si el tiempo que pierdes es una locura
                     </p>
                   </div>
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold text-[#222222] mb-2">
-                Cuanto tiempo pierdes tu?
-              </h3>
-              <p className="text-[#717171] mb-5">
-                Calcula en 30 segundos las horas que dedicas a responder las mismas preguntas: WiFi, normas, parking, electrodomesticos...
-              </p>
-
               {/* Benefits */}
               <ul className="space-y-2 mb-6">
                 {[
-                  'Resultado personalizado al instante',
+                  'Resultado en 30 segundos',
                   'Informe detallado por email',
-                  'Consejos para automatizar'
+                  'Si superas 40h: codigo WELCOME20'
                 ].map((benefit, i) => (
                   <li key={i} className="flex items-center gap-2 text-sm text-[#222222]">
                     <svg className="w-4 h-4 text-[#16A34A] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -172,14 +197,14 @@ export function ExitIntentPopup({
               <Link
                 href="/hub/tools/time-calculator"
                 onClick={handleCalculatorClick}
-                className="w-full py-3.5 bg-[#222222] hover:bg-[#000000] text-white font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-3.5 bg-[#FF385C] hover:bg-[#E31C5F] text-white font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors"
               >
                 Calcular mi tiempo perdido
                 <ArrowRight className="w-4 h-4" />
               </Link>
 
               <p className="text-xs text-[#717171] text-center mt-4">
-                Solo tarda 30 segundos. Sin registro.
+                Sin registro. Solo tu email para enviarte el informe.
               </p>
             </div>
           </motion.div>

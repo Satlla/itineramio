@@ -23,7 +23,7 @@ function PlantillaContent() {
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <h1 className="font-semibold text-gray-900">Guía Rápida de Reseñas</h1>
-            <p className="text-sm text-gray-500">Guarda como PDF o imprime directamente</p>
+            <p className="text-sm text-gray-500">Formato A5 - Guarda como PDF o imprime</p>
           </div>
           <button
             onClick={handlePrint}
@@ -37,8 +37,8 @@ function PlantillaContent() {
         </div>
       </div>
 
-      {/* Plantilla - optimizada para impresión A4 en UNA página */}
-      <div className="max-w-[210mm] mx-auto p-6 print:p-0">
+      {/* Plantilla - optimizada para impresión A5 */}
+      <div className="max-w-[148mm] mx-auto p-6 print:p-0">
         <div className="bg-white border border-gray-200 print:border-gray-300 shadow-sm print:shadow-none">
 
           {/* Header con nombre + título en una fila */}
@@ -129,8 +129,8 @@ function PlantillaContent() {
       <style jsx global>{`
         @media print {
           @page {
-            size: A4;
-            margin: 12mm;
+            size: A5;
+            margin: 8mm;
           }
           body {
             -webkit-print-color-adjust: exact;

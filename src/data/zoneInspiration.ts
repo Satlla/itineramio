@@ -1,10 +1,16 @@
+export interface MultilingualText {
+  es: string
+  en?: string
+  fr?: string
+}
+
 export interface InspirationZone {
   id: string
-  name: string
+  name: MultilingualText
   category: 'transport' | 'local' | 'services' | 'experience' | 'convenience' | 'safety'
   icon: string
-  title: string
-  description: string
+  title: MultilingualText
+  description: MultilingualText
   benefits: string[]
   examples: string[]
   tips: string[]
@@ -17,11 +23,11 @@ export interface InspirationZone {
 export const inspirationZones: InspirationZone[] = [
   {
     id: 'transporte',
-    name: 'Transporte',
+    name: { es: 'Transporte', en: 'Transport', fr: 'Transport' },
     category: 'transport',
     icon: 'car',
-    title: 'Ayuda a tus huéspedes a moverse por la ciudad',
-    description: 'Informa sobre todas las opciones de transporte disponibles y facilita su movilidad',
+    title: { es: 'Ayuda a tus huéspedes a moverse por la ciudad', en: 'Help your guests get around the city', fr: 'Aidez vos invités à se déplacer en ville' },
+    description: { es: 'Informa sobre todas las opciones de transporte disponibles y facilita su movilidad', en: 'Provide information about all available transport options and facilitate mobility', fr: 'Informez sur toutes les options de transport disponibles et facilitez leur mobilité' },
     benefits: [
       'Huéspedes más independientes y satisfechos',
       'Reduce consultas sobre cómo moverse',
@@ -46,11 +52,11 @@ export const inspirationZones: InspirationZone[] = [
   },
   {
     id: 'basuras',
-    name: 'Basuras y Reciclaje',
+    name: { es: 'Basuras y Reciclaje', en: 'Trash & Recycling', fr: 'Déchets et Recyclage' },
     category: 'local',
     icon: 'package',
-    title: 'Ayuda a tus huéspedes a reciclar correctamente',
-    description: 'Explica el sistema de reciclaje local y ubicaciones de contenedores',
+    title: { es: 'Ayuda a tus huéspedes a reciclar correctamente', en: 'Help your guests recycle correctly', fr: 'Aidez vos invités à recycler correctement' },
+    description: { es: 'Explica el sistema de reciclaje local y ubicaciones de contenedores', en: 'Explain the local recycling system and container locations', fr: 'Expliquez le système de recyclage local et les emplacements des conteneurs' },
     benefits: [
       'Huéspedes contribuyen al cuidado del medio ambiente',
       'Evitas problemas con la comunidad de vecinos',
@@ -75,11 +81,11 @@ export const inspirationZones: InspirationZone[] = [
   },
   {
     id: 'restaurantes',
-    name: 'Restaurantes y Comida',
+    name: { es: 'Restaurantes y Comida', en: 'Restaurants & Food', fr: 'Restaurants et Nourriture' },
     category: 'experience',
     icon: 'utensils',
-    title: 'Recomienda los mejores lugares para comer',
-    description: 'Comparte tus restaurantes favoritos y opciones de delivery',
+    title: { es: 'Recomienda los mejores lugares para comer', en: 'Recommend the best places to eat', fr: 'Recommandez les meilleurs endroits pour manger' },
+    description: { es: 'Comparte tus restaurantes favoritos y opciones de delivery', en: 'Share your favorite restaurants and delivery options', fr: 'Partagez vos restaurants préférés et options de livraison' },
     benefits: [
       'Huéspedes viven experiencias auténticas',
       'Apoyas negocios locales',
@@ -104,11 +110,11 @@ export const inspirationZones: InspirationZone[] = [
   },
   {
     id: 'supermercados',
-    name: 'Supermercados y Compras',
+    name: { es: 'Supermercados y Compras', en: 'Supermarkets & Shopping', fr: 'Supermarchés et Courses' },
     category: 'convenience',
     icon: 'package',
-    title: 'Facilita las compras básicas de tus huéspedes',
-    description: 'Ubica supermercados, horarios y productos locales',
+    title: { es: 'Facilita las compras básicas de tus huéspedes', en: 'Make basic shopping easy for your guests', fr: 'Facilitez les courses de base de vos invités' },
+    description: { es: 'Ubica supermercados, horarios y productos locales', en: 'Locate supermarkets, hours and local products', fr: 'Localisez les supermarchés, horaires et produits locaux' },
     benefits: [
       'Huéspedes pueden cocinar y ahorrar dinero',
       'Menos preguntas sobre dónde comprar',
@@ -133,11 +139,11 @@ export const inspirationZones: InspirationZone[] = [
   },
   {
     id: 'emergencias',
-    name: 'Emergencias y Seguridad',
+    name: { es: 'Emergencias y Seguridad', en: 'Emergency & Safety', fr: 'Urgences et Sécurité' },
     category: 'safety',
     icon: 'phone',
-    title: 'Información crucial para situaciones de emergencia',
-    description: 'Números importantes y protocolos de seguridad',
+    title: { es: 'Información crucial para situaciones de emergencia', en: 'Crucial information for emergency situations', fr: 'Informations cruciales pour les situations d\'urgence' },
+    description: { es: 'Números importantes y protocolos de seguridad', en: 'Important numbers and safety protocols', fr: 'Numéros importants et protocoles de sécurité' },
     benefits: [
       'Huéspedes se sienten más seguros',
       'Reduce tu responsabilidad legal',
@@ -162,11 +168,11 @@ export const inspirationZones: InspirationZone[] = [
   },
   {
     id: 'ocio',
-    name: 'Ocio y Entretenimiento',
+    name: { es: 'Ocio y Entretenimiento', en: 'Leisure & Entertainment', fr: 'Loisirs et Divertissement' },
     category: 'experience',
     icon: 'tv',
-    title: 'Experiencias únicas en tu ciudad',
-    description: 'Actividades, museos y entretenimiento local',
+    title: { es: 'Experiencias únicas en tu ciudad', en: 'Unique experiences in your city', fr: 'Expériences uniques dans votre ville' },
+    description: { es: 'Actividades, museos y entretenimiento local', en: 'Activities, museums and local entertainment', fr: 'Activités, musées et divertissements locaux' },
     benefits: [
       'Huéspedes tienen experiencias memorables',
       'Estancias más largas y mejores reviews',
@@ -191,11 +197,11 @@ export const inspirationZones: InspirationZone[] = [
   },
   {
     id: 'wifi-vecinos',
-    name: 'WiFi de Vecinos',
+    name: { es: 'WiFi de Vecinos', en: 'Neighbor WiFi', fr: 'WiFi des voisins' },
     category: 'convenience',
     icon: 'wifi',
-    title: 'Backup de internet por si falla tu WiFi',
-    description: 'Acuerdos con vecinos para WiFi de emergencia',
+    title: { es: 'Backup de internet por si falla tu WiFi', en: 'Internet backup in case your WiFi fails', fr: 'Sauvegarde internet en cas de panne WiFi' },
+    description: { es: 'Acuerdos con vecinos para WiFi de emergencia', en: 'Agreements with neighbors for emergency WiFi', fr: 'Accords avec les voisins pour le WiFi d\'urgence' },
     benefits: [
       'Backup en caso de problemas técnicos',
       'Huéspedes siempre conectados',
@@ -220,11 +226,11 @@ export const inspirationZones: InspirationZone[] = [
   },
   {
     id: 'lavanderia',
-    name: 'Lavandería y Tintorería',
+    name: { es: 'Lavandería y Tintorería', en: 'Laundry & Dry Cleaning', fr: 'Laverie et Pressing' },
     category: 'services',
     icon: 'washing',
-    title: 'Servicios de lavado para estancias largas',
-    description: 'Ubicación y precios de lavanderías automáticas',
+    title: { es: 'Servicios de lavado para estancias largas', en: 'Laundry services for long stays', fr: 'Services de blanchisserie pour longs séjours' },
+    description: { es: 'Ubicación y precios de lavanderías automáticas', en: 'Location and prices of laundromats', fr: 'Emplacement et prix des laveries automatiques' },
     benefits: [
       'Atrae huéspedes de estancias largas',
       'Servicio completo de alojamiento',
@@ -249,6 +255,13 @@ export const inspirationZones: InspirationZone[] = [
   }
 ]
 
+// Helper function to get text from multilingual object
+export function getInspirationText(value: MultilingualText | string | undefined, language: string = 'es', fallback: string = ''): string {
+  if (!value) return fallback
+  if (typeof value === 'string') return value
+  return value[language as keyof MultilingualText] || value.es || fallback
+}
+
 // Sistema para gestionar qué inspiraciones mostrar
 export interface UserInspirationState {
   userId: string
@@ -266,13 +279,14 @@ export function getNextInspiration(
   if (!userState.showInspirations) return null
 
   // Filtrar zonas ya creadas y ya descartadas
-  const availableZones = inspirationZones.filter(zone => 
-    !userState.dismissedZones.includes(zone.id) &&
-    !existingZoneNames.some(existing => 
-      existing.toLowerCase().includes(zone.name.toLowerCase()) ||
-      zone.name.toLowerCase().includes(existing.toLowerCase())
-    )
-  )
+  const availableZones = inspirationZones.filter(zone => {
+    const zoneName = typeof zone.name === 'object' ? zone.name.es : zone.name
+    return !userState.dismissedZones.includes(zone.id) &&
+      !existingZoneNames.some(existing =>
+        existing.toLowerCase().includes(zoneName.toLowerCase()) ||
+        zoneName.toLowerCase().includes(existing.toLowerCase())
+      )
+  })
 
   if (availableZones.length === 0) return null
 
@@ -298,12 +312,12 @@ export function getNextInspiration(
 // Verificar si el usuario tiene todas las zonas esenciales
 export function hasAllEssentialZones(existingZoneNames: string[]): boolean {
   const essentialZones = [
-    'wifi', 'check-in', 'check-out', 'información básica', 
+    'wifi', 'check-in', 'check-out', 'información básica',
     'climatización', 'aparcamiento', 'normas', 'teléfonos de interés'
   ]
-  
+
   return essentialZones.every(essential =>
-    existingZoneNames.some(existing => 
+    existingZoneNames.some(existing =>
       existing.toLowerCase().includes(essential) ||
       essential.includes(existing.toLowerCase())
     )

@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Check, Search, Plus } from 'lucide-react'
-import { apartmentElements, categoryLabels, ApartmentElement } from '../../data/apartmentElements'
+import { apartmentElements, categoryLabels, ApartmentElement, getElementText, getCategoryLabel } from '../../data/apartmentElements'
 import { ZoneIconDisplay } from './IconSelector'
 import { Button } from './Button'
 import { Input } from './Input'
@@ -28,10 +28,12 @@ export function ElementSelector({
   // Filter elements by category and search
   const filteredElements = apartmentElements.filter(element => {
     const matchesCategory = activeCategory === 'all' || element.category === activeCategory
-    const matchesSearch = element.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         element.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const notExists = !existingElementNames.some(existing => 
-      existing.toLowerCase() === element.name.toLowerCase()
+    const elementName = getElementText(element.name)
+    const elementDescription = getElementText(element.description)
+    const matchesSearch = elementName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         elementDescription.toLowerCase().includes(searchTerm.toLowerCase())
+    const notExists = !existingElementNames.some(existing =>
+      existing.toLowerCase() === elementName.toLowerCase()
     )
     return matchesCategory && matchesSearch && notExists
   })
@@ -162,7 +164,7 @@ export function ElementSelector({
                   <div key={category}>
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                       <div className="w-2 h-2 bg-violet-500 rounded-full mr-2" />
-                      {categoryLabels[category as keyof typeof categoryLabels]}
+                      {getCategoryLabel(category)}
                       <span className="ml-2 text-sm text-gray-500">({elements.length})</span>
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -190,10 +192,10 @@ export function ElementSelector({
                                 />
                                 <div className="flex-1">
                                   <h4 className="font-semibold text-gray-900 text-sm mb-1">
-                                    {element.name}
+                                    {getElementText(element.name)}
                                   </h4>
                                   <p className="text-xs text-gray-600 line-clamp-2">
-                                    {element.description}
+                                    {getElementText(element.description)}
                                   </p>
                                   <div className="mt-2 flex items-center">
                                     <div className="text-xs text-violet-600 bg-violet-100 px-2 py-1 rounded-full">
@@ -249,10 +251,10 @@ export function ElementSelector({
                         />
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-900 text-sm mb-1">
-                            {element.name}
+                            {getElementText(element.name)}
                           </h4>
                           <p className="text-xs text-gray-600 line-clamp-3">
-                            {element.description}
+                            {getElementText(element.description)}
                           </p>
                           <div className="mt-2 flex items-center">
                             <div className="text-xs text-violet-600 bg-violet-100 px-2 py-1 rounded-full">

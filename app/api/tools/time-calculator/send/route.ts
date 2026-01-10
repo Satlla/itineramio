@@ -19,15 +19,20 @@ interface CalculationResult {
   tasksAutomatable: number
 }
 
+// Threshold for "insane" time loss - triggers WELCOME20 discount
+const INSANE_HOURS_THRESHOLD = 40
+
 function generateResultsHTML(data: {
   name: string
+  email: string
   properties: number
   checkinsPerMonth: number
   minutesPerCheckin: number
   result: CalculationResult
 }): string {
-  const { name, properties, checkinsPerMonth, minutesPerCheckin, result } = data
+  const { name, email, properties, checkinsPerMonth, minutesPerCheckin, result } = data
   const firstName = name.split(' ')[0]
+  const qualifiesForDiscount = result.hoursPerYear >= INSANE_HOURS_THRESHOLD
 
   return `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8f8f8; padding: 40px 16px;">
@@ -140,7 +145,110 @@ function generateResultsHTML(data: {
         <tr>
           <td style="text-align: center; padding-top: 24px;">
             <p style="margin: 0; color: #717171; font-size: 12px;">
-              <a href="https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(data.name)}" style="color: #717171; text-decoration: none;">Cancelar suscripcion</a>
+              <a href="https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email)}" style="color: #717171; text-decoration: none;">Cancelar suscripcion</a>
+              · <a href="https://www.itineramio.com" style="color: #717171; text-decoration: none;">itineramio.com</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </div>
+  `
+}
+
+// Email sent 5 minutes later if they qualify for WELCOME20
+function generateDiscountEmailHTML(data: {
+  name: string
+  email: string
+  hoursPerYear: number
+}): string {
+  const { name, email, hoursPerYear } = data
+  const firstName = name.split(' ')[0]
+
+  return `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8f8f8; padding: 40px 16px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 580px; margin: 0 auto;">
+        <!-- Header -->
+        <tr>
+          <td style="text-align: center; padding-bottom: 24px;">
+            <p style="margin: 0; color: #717171; font-size: 13px; letter-spacing: 0.5px;">ITINERAMIO</p>
+          </td>
+        </tr>
+
+        <!-- Content -->
+        <tr>
+          <td style="background-color: #ffffff; border-radius: 12px; padding: 40px 32px; border: 1px solid #DDDDDD;">
+            <h1 style="margin: 0 0 20px 0; color: #222222; font-size: 24px; font-weight: 600; line-height: 1.3;">
+              ${firstName}, ${hoursPerYear} horas al ano es una locura
+            </h1>
+
+            <p style="margin: 0 0 20px 0; color: #222222; font-size: 16px; line-height: 1.6;">
+              Piensalo un momento: cada vez que un huesped te pregunta por el WiFi, como funciona la vitro, o donde esta el parking...
+            </p>
+
+            <p style="margin: 0 0 20px 0; color: #222222; font-size: 16px; line-height: 1.6;">
+              <strong>Tienes que parar lo que estas haciendo.</strong>
+            </p>
+
+            <p style="margin: 0 0 24px 0; color: #717171; font-size: 15px; line-height: 1.6;">
+              Parar el coche. Dejar una conversacion interesante. Atender a los tuyos a medias. Despertarte a las 4 AM.
+            </p>
+
+            <div style="background-color: #FEF3C7; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+              <p style="margin: 0; color: #92400E; font-size: 15px; line-height: 1.6;">
+                Y todo para responder <strong>siempre lo mismo</strong>. Las mismas preguntas. Una y otra vez.
+              </p>
+            </div>
+
+            <p style="margin: 0 0 20px 0; color: #222222; font-size: 16px; line-height: 1.6;">
+              Con un manual digital, cuando te pregunten por la vitro... solo tienes que enviar un enlace con el video.
+            </p>
+
+            <p style="margin: 0 0 24px 0; color: #222222; font-size: 16px; line-height: 1.6;">
+              Ya esta. Sin explicaciones. Sin repetir lo mismo. Sin interrupciones.
+            </p>
+
+            <!-- Discount Box -->
+            <div style="background-color: #FF385C; border-radius: 12px; padding: 24px; margin-bottom: 24px; text-align: center;">
+              <p style="margin: 0 0 8px 0; color: #ffffff; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                Tu codigo de descuento
+              </p>
+              <p style="margin: 0 0 12px 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: 2px;">
+                WELCOME20
+              </p>
+              <p style="margin: 0; color: rgba(255,255,255,0.9); font-size: 14px;">
+                20% de descuento en tu primera suscripcion
+              </p>
+            </div>
+
+            <!-- CTA -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
+              <tr>
+                <td align="center">
+                  <a href="https://www.itineramio.com/register?utm_source=email&utm_medium=tool&utm_campaign=time-calculator-discount&coupon=WELCOME20"
+                     style="display: inline-block; background-color: #222222; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
+                    Crear mi manual con 20% dto
+                  </a>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin: 0 0 24px 0; color: #717171; font-size: 13px; text-align: center;">
+              Aplica en cualquier plan. 15 dias de prueba gratis.
+            </p>
+
+            <p style="margin: 0; color: #222222; font-size: 16px; line-height: 1.6;">
+              Un saludo,<br />
+              <strong>Alejandro</strong><br />
+              <span style="color: #717171; font-size: 14px;">Fundador de Itineramio</span>
+            </p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="text-align: center; padding-top: 24px;">
+            <p style="margin: 0; color: #717171; font-size: 12px;">
+              <a href="https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email)}" style="color: #717171; text-decoration: none;">Cancelar suscripcion</a>
               · <a href="https://www.itineramio.com" style="color: #717171; text-decoration: none;">itineramio.com</a>
             </p>
           </td>
@@ -247,6 +355,7 @@ export async function POST(request: NextRequest) {
     // Generate and send email with results
     const htmlContent = generateResultsHTML({
       name,
+      email: normalizedEmail,
       properties,
       checkinsPerMonth,
       minutesPerCheckin,
@@ -261,6 +370,34 @@ export async function POST(request: NextRequest) {
     })
 
     console.log(`[Time Calculator] Sent results to ${normalizedEmail}: ${result.hoursPerYear}h/year lost`)
+
+    // If they qualify for WELCOME20 (>= 40h/year), send discount email in 5 minutes
+    if (result.hoursPerYear >= INSANE_HOURS_THRESHOLD) {
+      const discountHtml = generateDiscountEmailHTML({
+        name,
+        email: normalizedEmail,
+        hoursPerYear: result.hoursPerYear
+      })
+
+      // Schedule email for 5 minutes from now
+      const sendAt = new Date(Date.now() + 5 * 60 * 1000) // 5 minutes
+
+      await getResend().emails.send({
+        from: 'Alejandro de Itineramio <hola@itineramio.com>',
+        to: normalizedEmail,
+        subject: `${result.hoursPerYear} horas respondiendo lo mismo... usa WELCOME20 🎁`,
+        html: discountHtml,
+        scheduledAt: sendAt.toISOString()
+      })
+
+      console.log(`[Time Calculator] Scheduled WELCOME20 email for ${normalizedEmail} at ${sendAt.toISOString()}`)
+
+      // Add tag to subscriber
+      await prisma.emailSubscriber.update({
+        where: { email: normalizedEmail },
+        data: { tags: { push: 'welcome20-eligible' } }
+      }).catch(() => {})
+    }
 
     return NextResponse.json({
       success: true,

@@ -15,6 +15,7 @@ import { FacebookPixel } from '../src/components/analytics/FacebookPixel'
 import { ConditionalTracking } from '../src/components/analytics/ConditionalTracking'
 import { CookieBanner } from '../src/components/ui/CookieBanner'
 import { LoadingProvider } from '../src/components/providers/LoadingProvider'
+import { ExitIntentPopup } from '../src/components/marketing/ExitIntentPopup'
 import NextTopLoader from 'nextjs-toploader'
 
 // Validate environment variables on startup
@@ -232,6 +233,9 @@ export default function RootLayout({
 
         {/* Cookie Consent Banner - Shows on all pages until user makes a choice */}
         <CookieBanner />
+
+        {/* Exit Intent Popup - Time Calculator Lead Magnet */}
+        <ExitIntentPopup delay={10000} cooldownDays={7} />
 
         <ChunkErrorHandler />
         <ErrorBoundary>

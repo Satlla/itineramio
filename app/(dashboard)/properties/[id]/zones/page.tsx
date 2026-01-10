@@ -36,7 +36,7 @@ import { StepEditor, Step } from '../../../../../src/components/ui/StepEditor'
 import { MobileZoneToast } from '../../../../../src/components/ui/MobileZoneToast'
 import { cn } from '../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
-import { zoneTemplates, zoneCategories, ZoneTemplate } from '../../../../../src/data/zoneTemplates'
+import { zoneTemplates, zoneCategories, ZoneTemplate, getZoneTemplateText, MultilingualText } from '../../../../../src/data/zoneTemplates'
 import { getZoneContentTemplate } from '../../../../../src/data/zone-content-templates'
 import { InspirationZone } from '../../../../../src/data/zoneInspiration'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
@@ -1103,14 +1103,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     try {
       const { apartmentElements } = await import('../../../../../src/data/apartmentElements')
       
-      // Prepare zones data for batch creation
+      // Prepare zones data for batch creation - pass full multilingual objects
       const zonesToCreate = selectedElementIds.map(elementId => {
         const element = apartmentElements.find(e => e.id === elementId)
         if (!element) return null
-        
+
         return {
-          name: getZoneText(element.name),
-          description: getZoneText(element.description),
+          // Pass full multilingual object for name and description
+          name: element.name,
+          description: element.description,
           icon: element.icon,
           status: 'ACTIVE'
         }
@@ -1182,20 +1183,56 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handlePredefinedZonesChoice = async () => {
     setShowPredefineModal(false)
     setIsCreatingZone(true)
-    
-    // Get essential zones that don't exist yet
+
+    // Get essential zones that don't exist yet - now with multilingual support
     const existingZoneNames = zones.map(z => getZoneText(z.name).toLowerCase())
     const commonZones = [
-      { name: 'WiFi', iconId: 'wifi', description: 'Contraseña y conexión a internet' },
-      { name: 'Check-in', iconId: 'door', description: 'Proceso de entrada y llaves' },
-      { name: 'Check-out', iconId: 'exit', description: 'Proceso de salida' },
-      { name: 'Cómo llegar', iconId: 'map-pin', description: 'Indicaciones para llegar al alojamiento' },
-      { name: 'Información Básica', iconId: 'info', description: 'Información esencial del alojamiento' },
-      { name: 'Climatización', iconId: 'thermometer', description: 'Aire acondicionado y calefacción' },
-      { name: 'Aparcamiento', iconId: 'car', description: 'Dónde aparcar y cómo acceder' },
-      { name: 'Normas', iconId: 'list', description: 'Normas de la casa y convivencia' },
-      { name: 'Teléfonos de interés', iconId: 'phone', description: 'Emergencias y contactos útiles' }
-    ].filter(zone => !existingZoneNames.includes(zone.name.toLowerCase()))
+      {
+        name: { es: 'WiFi', en: 'WiFi', fr: 'WiFi' },
+        iconId: 'wifi',
+        description: { es: 'Contraseña y conexión a internet', en: 'Password and internet connection', fr: 'Mot de passe et connexion internet' }
+      },
+      {
+        name: { es: 'Check-in', en: 'Check-in', fr: 'Arrivée' },
+        iconId: 'door',
+        description: { es: 'Proceso de entrada y llaves', en: 'Entry process and keys', fr: 'Processus d\'entrée et clés' }
+      },
+      {
+        name: { es: 'Check-out', en: 'Check-out', fr: 'Départ' },
+        iconId: 'exit',
+        description: { es: 'Proceso de salida', en: 'Departure process', fr: 'Processus de départ' }
+      },
+      {
+        name: { es: 'Cómo llegar', en: 'How to get there', fr: 'Comment venir' },
+        iconId: 'map-pin',
+        description: { es: 'Indicaciones para llegar al alojamiento', en: 'Directions to the accommodation', fr: 'Indications pour arriver à l\'hébergement' }
+      },
+      {
+        name: { es: 'Información Básica', en: 'Basic Information', fr: 'Informations de base' },
+        iconId: 'info',
+        description: { es: 'Información esencial del alojamiento', en: 'Essential accommodation information', fr: 'Informations essentielles sur l\'hébergement' }
+      },
+      {
+        name: { es: 'Climatización', en: 'Climate Control', fr: 'Climatisation' },
+        iconId: 'thermometer',
+        description: { es: 'Aire acondicionado y calefacción', en: 'Air conditioning and heating', fr: 'Climatisation et chauffage' }
+      },
+      {
+        name: { es: 'Aparcamiento', en: 'Parking', fr: 'Parking' },
+        iconId: 'car',
+        description: { es: 'Dónde aparcar y cómo acceder', en: 'Where to park and how to access', fr: 'Où se garer et comment accéder' }
+      },
+      {
+        name: { es: 'Normas', en: 'House Rules', fr: 'Règlement' },
+        iconId: 'list',
+        description: { es: 'Normas de la casa y convivencia', en: 'House rules and living together', fr: 'Règles de la maison et cohabitation' }
+      },
+      {
+        name: { es: 'Teléfonos de interés', en: 'Important Contacts', fr: 'Contacts importants' },
+        iconId: 'phone',
+        description: { es: 'Emergencias y contactos útiles', en: 'Emergency and useful contacts', fr: 'Urgences et contacts utiles' }
+      }
+    ].filter(zone => !existingZoneNames.includes(zone.name.es.toLowerCase()))
 
     try {
       if (commonZones.length === 0) {
@@ -1283,14 +1320,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleSelectMultipleZones = async (zoneIds: string[]) => {
     setIsCreatingZone(true)
     try {
-      // Create zones from templates via batch API
+      // Create zones from templates via batch API - pass full multilingual objects
       const zonesToCreate = zoneIds.map(templateId => {
         const template = zoneTemplates.find(t => t.id === templateId)
         if (!template) return null
-        
+
         return {
-          name: getZoneText(template.name),
-          description: getZoneText(template.description),
+          // Pass full multilingual object for name and description
+          name: template.name,
+          description: template.description,
           icon: template.icon,
           color: 'bg-gray-100',
           status: 'ACTIVE'
@@ -1334,7 +1372,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     const inspirationName = getZoneText(inspiration.name);
     const nameNormalized = inspirationName.toLowerCase().trim();
     const nameClean = nameNormalized.replace(/[\s-_]/g, '');
-    
+
     const isDuplicate = zones.some(zone => {
       const existingNormalized = zone.name.toLowerCase().trim();
       const existingClean = existingNormalized.replace(/[\s-_]/g, '');
@@ -1353,9 +1391,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
     setIsCreatingZone(true)
     try {
+      // Pass full multilingual object if available, otherwise wrap string in object
       const zoneData = {
-        name: inspirationName,
-        description: getZoneText(inspiration.description),
+        name: typeof inspiration.name === 'object' ? inspiration.name : { es: inspiration.name },
+        description: typeof inspiration.description === 'object' ? inspiration.description : { es: inspiration.description || '' },
         icon: inspiration.icon,
         color: 'bg-gray-100',
         status: 'ACTIVE'
