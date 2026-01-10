@@ -16,8 +16,9 @@ async function borrarZonasEjemplo(propertyId: string): Promise<void> {
     const nombresEjemplo = manualEjemploSimple.map(z => z.name.toLowerCase())
     
     for (const zone of zones) {
-      if (nombresEjemplo.includes(zone.name.toLowerCase())) {
-        console.log(`🗑️ Borrando zona existente: ${zone.name}`)
+      const zoneName = typeof zone.name === 'string' ? zone.name : zone.name?.es || ''
+      if (nombresEjemplo.includes(zoneName.toLowerCase())) {
+        console.log(`🗑️ Borrando zona existente: ${zoneName}`)
         await fetch(`/api/properties/${propertyId}/zones/${zone.id}`, {
           method: 'DELETE'
         })

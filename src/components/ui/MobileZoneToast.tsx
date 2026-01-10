@@ -36,9 +36,9 @@ export function MobileZoneToast({
 
   // Filter available zones
   const availableZones = zoneTemplates
-    .filter(template => 
-      !existingZoneNames.some(existing => 
-        existing.toLowerCase() === template.name.toLowerCase()
+    .filter(template =>
+      !existingZoneNames.some(existing =>
+        existing.toLowerCase() === getText(template.name, '').toLowerCase()
       )
     )
     .sort((a, b) => b.popularity - a.popularity)

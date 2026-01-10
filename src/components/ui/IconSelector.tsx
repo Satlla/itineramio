@@ -22,8 +22,9 @@ export function IconSelector({ selectedIconId, onSelect, onClose, className }: I
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
   const filteredIcons = ZONE_ICONS.filter((icon) => {
+    if (!icon || typeof icon.name !== 'string') return false
     const matchesSearch = icon.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || icon.category.id === selectedCategory
+    const matchesCategory = selectedCategory === 'all' || icon.category?.id === selectedCategory
     return matchesSearch && matchesCategory
   })
 

@@ -108,9 +108,10 @@ export async function tieneManualEjemplo(propertyId: string): Promise<boolean> {
     // Verificar si hay zonas que parecen del ejemplo
     const zones = result.data
     const titulosEjemplo = manualEjemploZones.map(z => z.name.toLowerCase())
-    const zonasEjemplo = zones.filter((zone: any) => 
-      titulosEjemplo.includes(zone.name.toLowerCase())
-    )
+    const zonasEjemplo = zones.filter((zone: any) => {
+      const zoneName = typeof zone.name === 'string' ? zone.name : zone.name?.es || ''
+      return titulosEjemplo.includes(zoneName.toLowerCase())
+    })
     
     return zonasEjemplo.length >= 2 // Si tiene al menos 2 zonas del ejemplo
     

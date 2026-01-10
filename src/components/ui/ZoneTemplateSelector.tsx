@@ -56,6 +56,13 @@ interface ZoneTemplateSelectorProps {
   onCreateFromScratch: () => void
 }
 
+// Helper to get text from string or multilingual object
+function getTextValue(value: string | { es: string; en?: string; fr?: string } | undefined, fallback: string = ''): string {
+  if (!value) return fallback
+  if (typeof value === 'string') return value
+  return value.es || fallback
+}
+
 const categories = [
   { id: 'all', name: 'Todas', icon: '🏠' },
   { id: 'kitchen', name: 'Cocina', icon: '🍳' },
@@ -113,10 +120,14 @@ export function ZoneTemplateSelector({ propertyId, onSelect, onClose, onCreateFr
     }
   }
 
-  const filteredTemplates = templates.filter(template =>
-    template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    template.description.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredTemplates = templates.filter(template => {
+    if (!template) return false
+    const name = getTextValue(template.name, '')
+    const description = getTextValue(template.description, '')
+    const nameMatch = name.toLowerCase().includes(searchTerm.toLowerCase())
+    const descMatch = description.toLowerCase().includes(searchTerm.toLowerCase())
+    return nameMatch || descMatch
+  })
 
   const getTotalSteps = (template: ZoneTemplate) => {
     return template.templateElements.reduce((total, element) => 

@@ -28,7 +28,7 @@ export function ZoneStaticSuggestions({
   const availableZones = zoneTemplates
     .filter(template => {
       // Check if the zone already exists with normalized comparison
-      const templateNameNormalized = template.name.toLowerCase().trim();
+      const templateNameNormalized = getText(template.name, '').toLowerCase().trim();
       return !existingZoneNames.some(existing => {
         const existingNormalized = existing.toLowerCase().trim();
         // Check exact match
@@ -44,7 +44,7 @@ export function ZoneStaticSuggestions({
   // Check if all essential zones are completed
   const essentialZones = zoneTemplates.filter(z => z.category === 'essential')
   const hasAllEssentialZones = essentialZones.every(essential => {
-    const essentialNameNormalized = essential.name.toLowerCase().trim();
+    const essentialNameNormalized = getText(essential.name, '').toLowerCase().trim();
     return existingZoneNames.some(existing => {
       const existingNormalized = existing.toLowerCase().trim();
       // Check exact match

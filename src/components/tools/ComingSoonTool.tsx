@@ -206,17 +206,6 @@ export function ComingSoonTool({
                   Educa a tus huéspedes sobre valoraciones
                 </div>
               </Link>
-              <Link
-                href="/recursos/plantilla-estrellas-personalizada"
-                className="p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-pink-500 hover:shadow-md transition-all group"
-              >
-                <div className="font-semibold text-gray-900 group-hover:text-pink-600 transition-colors">
-                  Plantilla Estrellas
-                </div>
-                <div className="text-sm text-gray-500">
-                  Explica el significado de las estrellas
-                </div>
-              </Link>
             </div>
           </motion.div>
         </div>

@@ -23,6 +23,7 @@ import { Card } from './Card'
 import { Badge } from './Badge'
 import { ZoneIconDisplay } from './IconSelector'
 import { ZoneTemplate } from '../../data/zoneTemplates'
+import { getText } from '../../lib/utils'
 
 interface ZoneInspirationModalProps {
   isOpen: boolean
@@ -176,9 +177,9 @@ export function ZoneInspirationModal({
     }
     
     return templates[template.id as keyof typeof templates] || {
-      title: template.name,
+      title: getText(template.name, 'Zona'),
       steps: [
-        { type: 'text', content: { es: `Información sobre ${template.name.toLowerCase()}` }},
+        { type: 'text', content: { es: `Información sobre ${getText(template.name, 'zona').toLowerCase()}` }},
         { type: 'text', content: { es: 'Añade aquí las instrucciones paso a paso.' }},
         { type: 'text', content: { es: 'Puedes incluir imágenes, videos o enlaces.' }}
       ]
@@ -222,8 +223,8 @@ export function ZoneInspirationModal({
                       Inspiración de zona
                     </span>
                   </div>
-                  <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold mb-2">{template.name}</h2>
-                  <p className="text-white/90 mb-4">{template.description}</p>
+                  <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold mb-2">{getText(template.name, 'Zona')}</h2>
+                  <p className="text-white/90 mb-4">{getText(template.description, '')}</p>
                   
                   <div className="flex items-center gap-4 text-sm">
                     <div className="flex items-center gap-1">

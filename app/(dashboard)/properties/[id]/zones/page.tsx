@@ -270,10 +270,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     // Get top zones by popularity from essential category, excluding zones that already exist
     return zoneTemplates
       .filter(template => template.category === 'essential' || template.category === 'amenities')
-      .filter(template => !existingZoneNames.includes(template.name.toLowerCase()))
+      .filter(template => !existingZoneNames.includes(getZoneTemplateText(template.name).toLowerCase()))
       .filter(template => {
         // Filter out common essential zones that are likely already created
-        const templateName = template.name.toLowerCase()
+        const templateName = getZoneTemplateText(template.name).toLowerCase()
         return !existingZoneNames.some(existingName => 
           existingName.includes('check') || 
           existingName.includes('wifi') || 
@@ -1374,7 +1374,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     const nameClean = nameNormalized.replace(/[\s-_]/g, '');
 
     const isDuplicate = zones.some(zone => {
-      const existingNormalized = zone.name.toLowerCase().trim();
+      const existingNormalized = getZoneText(zone.name).toLowerCase().trim();
       const existingClean = existingNormalized.replace(/[\s-_]/g, '');
       return existingClean === nameClean;
     });
@@ -1430,9 +1430,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   const handleCreateZoneFromTemplate = async (template: ZoneTemplate) => {
     // Check for duplicate zones
-    const nameNormalized = template.name.toLowerCase().trim();
+    const templateName = getZoneTemplateText(template.name);
+    const nameNormalized = templateName.toLowerCase().trim();
     const nameClean = nameNormalized.replace(/[\s-_]/g, '');
-    
+
     const isDuplicate = zones.some(zone => {
       const existingName = getZoneText(zone.name).toLowerCase().trim();
       const existingClean = existingName.replace(/[\s-_]/g, '');
@@ -1443,7 +1444,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       addNotification({
         type: 'error',
         title: 'Zona duplicada',
-        message: `Ya existe una zona "${template.name}" en esta propiedad.`,
+        message: `Ya existe una zona "${templateName}" en esta propiedad.`,
         read: false
       });
       return;

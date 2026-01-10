@@ -100,7 +100,7 @@ export const LEAD_MAGNETS_BY_THEME: Record<FunnelTheme, LeadMagnetConfig> = {
     description: 'PDF personalizado que explica el significado de las estrellas + QR de WhatsApp para contacto directo.',
     icon: '⭐',
     color: 'rose',
-    resourceUrl: '/recursos/plantilla-estrellas-personalizada',
+    resourceUrl: '/recursos/plantilla-reviews',
     funnelId: 'funnel-resenas'
   }
 }
