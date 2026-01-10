@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { X, Check, Info as InfoIcon, Image, Link as LinkIcon, Video, FileText, Plus, Sparkles, FileEdit } from 'lucide-react'
-import { zoneTemplates, zoneCategories } from '../../data/zoneTemplates'
+import { zoneTemplates, zoneCategories, getZoneTemplateText } from '../../data/zoneTemplates'
 import { getZoneContentTemplate, hasContentTemplate, ZoneContentStep } from '../../data/zone-content-templates'
 import { ZoneIconDisplay } from './IconSelector'
 import { Button } from './Button'
@@ -112,7 +112,7 @@ export function ZoneTemplateSelector({
                   }
                 `}
               >
-                {category.name}
+                {getZoneTemplateText(category.name)}
                 <span className="ml-2 text-xs opacity-70">
                   ({zonesByCategory[key]?.length || 0})
                 </span>
@@ -156,10 +156,10 @@ export function ZoneTemplateSelector({
           {/* Category description */}
           <div className="mb-4">
             <h3 className="font-medium text-gray-900">
-              {zoneCategories[activeCategory as keyof typeof zoneCategories].name}
+              {getZoneTemplateText(zoneCategories[activeCategory as keyof typeof zoneCategories].name)}
             </h3>
             <p className="text-sm text-gray-600">
-              {zoneCategories[activeCategory as keyof typeof zoneCategories].description}
+              {getZoneTemplateText(zoneCategories[activeCategory as keyof typeof zoneCategories].description)}
             </p>
           </div>
 
@@ -198,10 +198,10 @@ export function ZoneTemplateSelector({
                     
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900">
-                        {zone.name}
+                        {getZoneTemplateText(zone.name)}
                       </h4>
                       <p className="text-sm text-gray-600 mt-0.5">
-                        {zone.description}
+                        {getZoneTemplateText(zone.description)}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         <div className="flex items-center gap-1">
