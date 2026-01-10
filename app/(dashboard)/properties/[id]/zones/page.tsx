@@ -1544,9 +1544,20 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       return
     }
 
-    // TEMPORAL: Guardar directamente sin modal de conjunto (estaba dando problemas)
-    // TODO: Restaurar modal de conjunto cuando se arregle el bug
-    console.log('⚡ Guardando directamente (modal de conjunto desactivado temporalmente)')
+    // Check if property is in a set with multiple properties
+    if (propertySetId && propertySetProperties && propertySetProperties.length > 1) {
+      console.log('🔗 Property is in a set, showing PropertySetUpdateModal')
+      // Save steps to pending state BEFORE showing modal
+      setPendingStepsToSave(steps)
+      setPendingZoneForSave(editingZoneForSteps)
+      setPendingOperation('update')
+      // Show modal
+      setShowPropertySetModal(true)
+      return
+    }
+
+    console.log('⚡ Calling performSaveSteps directly (not in a set)')
+    // If not in a set or only one property, save directly
     await performSaveSteps(steps, editingZoneForSteps, 'single')
   }
 
@@ -1622,7 +1633,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         for (const prop of propertySetProperties) {
           // Find zone with same name in this property
           try {
-            const zonesResponse = await fetch(`/api/properties/${prop.id}/zones`)
+            const zonesResponse = await fetch(`/api/properties/${prop.id}/zones`, { credentials: 'include' })
             if (zonesResponse.ok) {
               const zonesData = await zonesResponse.json()
               if (zonesData.success && zonesData.data) {
@@ -1648,7 +1659,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
         for (const propId of selectedPropertyIds) {
           try {
-            const zonesResponse = await fetch(`/api/properties/${propId}/zones`)
+            const zonesResponse = await fetch(`/api/properties/${propId}/zones`, { credentials: 'include' })
             if (zonesResponse.ok) {
               const zonesData = await zonesResponse.json()
               if (zonesData.success && zonesData.data) {
@@ -1688,6 +1699,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             console.log(`🆕 Creating zone "${getZoneText(zone.name)}" in property ${prop.id}`)
             const createResponse = await fetch(`/api/properties/${prop.id}/zones`, {
               method: 'POST',
+              credentials: 'include',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 name: zone.name,
