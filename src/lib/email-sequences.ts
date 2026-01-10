@@ -167,6 +167,13 @@ async function getEmailTemplate(templateName: string): Promise<React.FC<any> | n
         return (await import('../emails/templates/academia/academia-quiz-day10-invite')).default
       case 'academia-quiz-day14-offer':
         return (await import('../emails/templates/academia/academia-quiz-day14-offer')).default
+      // Reservas funnel templates (Más Reservas)
+      case 'reservas-day0-error-invisible':
+        return (await import('../emails/templates/reservas/reservas-day0-error-invisible')).default
+      case 'reservas-day2-arquetipo-checklist':
+        return (await import('../emails/templates/reservas/reservas-day2-arquetipo-checklist')).default
+      case 'reservas-day4-caso-maria':
+        return (await import('../emails/templates/reservas/reservas-day4-caso-maria')).default
       // Universal Funnel templates
       case 'funnel-day0-welcome':
         return (await import('../emails/templates/funnel/day0-welcome')).default
