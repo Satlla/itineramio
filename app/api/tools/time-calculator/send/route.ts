@@ -56,10 +56,10 @@ function generateResultsHTML(data: {
                   </td>
                   <td>
                     <p style="margin: 0; color: #92400E; font-size: 16px; font-weight: 600;">
-                      ${firstName}, estas perdiendo ${result.hoursPerYear} horas al ano
+                      ${firstName}, estás perdiendo ${result.hoursPerYear} horas al año
                     </p>
                     <p style="margin: 4px 0 0 0; color: #A16207; font-size: 14px;">
-                      En tareas repetitivas que podrian automatizarse
+                      En tareas repetitivas que podrían automatizarse
                     </p>
                   </td>
                 </tr>
@@ -79,7 +79,7 @@ function generateResultsHTML(data: {
                 </td>
                 <td width="50%" style="background-color: #F7F7F7; border-radius: 12px; padding: 20px; text-align: center;">
                   <p style="margin: 0; font-size: 28px; font-weight: 700; color: #222222;">${result.hoursPerYear}h</p>
-                  <p style="margin: 4px 0 0 0; font-size: 13px; color: #717171;">horas al ano</p>
+                  <p style="margin: 4px 0 0 0; font-size: 13px; color: #717171;">horas al año</p>
                 </td>
               </tr>
               <tr>
@@ -104,22 +104,22 @@ function generateResultsHTML(data: {
 
             <!-- What you could do -->
             <p style="margin: 0 0 16px 0; color: #222222; font-size: 16px; font-weight: 600;">
-              Con ${result.hoursPerYear} horas podrias:
+              Con ${result.hoursPerYear} horas podrías:
             </p>
             <ul style="margin: 0 0 24px 0; padding-left: 20px; color: #222222; font-size: 15px; line-height: 2;">
               <li>✅ Conseguir ${Math.round(result.hoursPerYear / 5)} nuevas propiedades</li>
               <li>✅ Mejorar tus anuncios y fotos</li>
-              <li>✅ Disfrutar de ${Math.round(result.hoursPerYear / 8)} dias libres mas</li>
+              <li>✅ Disfrutar de ${Math.round(result.hoursPerYear / 8)} días libres más</li>
               <li>✅ Responder solo lo importante</li>
             </ul>
 
             <!-- Solution -->
             <div style="background-color: #F0FDF4; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
               <p style="margin: 0 0 12px 0; color: #166534; font-size: 15px; font-weight: 600;">
-                💡 Como automatizar estas tareas:
+                💡 Cómo automatizar estas tareas:
               </p>
               <p style="margin: 0; color: #15803D; font-size: 14px; line-height: 1.6;">
-                Un <strong>manual digital</strong> responde las preguntas repetitivas por ti: WiFi, normas, parking, electrodomesticos, recomendaciones... El huesped lo consulta cuando quiere, tu no tienes que repetir lo mismo.
+                Un <strong>manual digital</strong> responde las preguntas repetitivas por ti: WiFi, normas, parking, electrodomésticos, recomendaciones... El huésped lo consulta cuando quiere, tu no tienes que repetir lo mismo.
               </p>
             </div>
 
@@ -136,7 +136,7 @@ function generateResultsHTML(data: {
             </table>
 
             <p style="margin: 0; color: #717171; font-size: 13px; text-align: center;">
-              15 dias de prueba. Sin tarjeta de credito.
+              15 días de prueba. Sin tarjeta de crédito.
             </p>
           </td>
         </tr>
@@ -145,7 +145,7 @@ function generateResultsHTML(data: {
         <tr>
           <td style="text-align: center; padding-top: 24px;">
             <p style="margin: 0; color: #717171; font-size: 12px;">
-              <a href="https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email)}" style="color: #717171; text-decoration: none;">Cancelar suscripcion</a>
+              <a href="https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email)}" style="color: #717171; text-decoration: none;">Cancelar suscripción</a>
               · <a href="https://www.itineramio.com" style="color: #717171; text-decoration: none;">itineramio.com</a>
             </p>
           </td>
@@ -178,19 +178,19 @@ function generateDiscountEmailHTML(data: {
         <tr>
           <td style="background-color: #ffffff; border-radius: 12px; padding: 40px 32px; border: 1px solid #DDDDDD;">
             <h1 style="margin: 0 0 20px 0; color: #222222; font-size: 24px; font-weight: 600; line-height: 1.3;">
-              ${firstName}, ${hoursPerYear} horas al ano es una locura
+              ${firstName}, ${hoursPerYear} horas al año es una locura
             </h1>
 
             <p style="margin: 0 0 20px 0; color: #222222; font-size: 16px; line-height: 1.6;">
-              Piensalo un momento: cada vez que un huesped te pregunta por el WiFi, como funciona la vitro, o donde esta el parking...
+              Piénsalo un momento: cada vez que un huésped te pregunta por el WiFi, cómo funciona la vitro, o dónde está el parking...
             </p>
 
             <p style="margin: 0 0 20px 0; color: #222222; font-size: 16px; line-height: 1.6;">
-              <strong>Tienes que parar lo que estas haciendo.</strong>
+              <strong>Tienes que parar lo que estás haciendo.</strong>
             </p>
 
             <p style="margin: 0 0 24px 0; color: #717171; font-size: 15px; line-height: 1.6;">
-              Parar el coche. Dejar una conversacion interesante. Atender a los tuyos a medias. Despertarte a las 4 AM.
+              Parar el coche. Dejar una conversación interesante. Atender a los tuyos a medias. Despertarte a las 4 AM.
             </p>
 
             <div style="background-color: #FEF3C7; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
@@ -210,13 +210,13 @@ function generateDiscountEmailHTML(data: {
             <!-- Discount Box -->
             <div style="background-color: #FF385C; border-radius: 12px; padding: 24px; margin-bottom: 24px; text-align: center;">
               <p style="margin: 0 0 8px 0; color: #ffffff; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
-                Tu codigo de descuento
+                Tu código de descuento
               </p>
               <p style="margin: 0 0 12px 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: 2px;">
                 WELCOME20
               </p>
               <p style="margin: 0; color: rgba(255,255,255,0.9); font-size: 14px;">
-                20% de descuento en tu primera suscripcion
+                20% de descuento en tu primera suscripción
               </p>
             </div>
 
@@ -233,7 +233,7 @@ function generateDiscountEmailHTML(data: {
             </table>
 
             <p style="margin: 0 0 24px 0; color: #717171; font-size: 13px; text-align: center;">
-              Aplica en cualquier plan. 15 dias de prueba gratis.
+              Aplica en cualquier plan. 15 días de prueba gratis.
             </p>
 
             <p style="margin: 0; color: #222222; font-size: 16px; line-height: 1.6;">
@@ -248,7 +248,7 @@ function generateDiscountEmailHTML(data: {
         <tr>
           <td style="text-align: center; padding-top: 24px;">
             <p style="margin: 0; color: #717171; font-size: 12px;">
-              <a href="https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email)}" style="color: #717171; text-decoration: none;">Cancelar suscripcion</a>
+              <a href="https://www.itineramio.com/api/email/unsubscribe?email=${encodeURIComponent(email)}" style="color: #717171; text-decoration: none;">Cancelar suscripción</a>
               · <a href="https://www.itineramio.com" style="color: #717171; text-decoration: none;">itineramio.com</a>
             </p>
           </td>
@@ -372,7 +372,7 @@ export async function POST(request: NextRequest) {
     await getResend().emails.send({
       from: 'Itineramio <hola@itineramio.com>',
       to: normalizedEmail,
-      subject: `${name.split(' ')[0]}, estas perdiendo ${result.hoursPerYear} horas al ano ⏰`,
+      subject: `${name.split(' ')[0]}, estás perdiendo ${result.hoursPerYear} horas al año ⏰`,
       html: htmlContent
     })
 
@@ -414,7 +414,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error sending time calculator results:', error)
     return NextResponse.json(
-      { error: 'Error al enviar el informe. Intentalo de nuevo.' },
+      { error: 'Error al enviar el informe. Inténtalo de nuevo.' },
       { status: 500 }
     )
   }

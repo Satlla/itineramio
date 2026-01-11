@@ -155,11 +155,11 @@ export function ExitIntentPopup({
             {/* Content */}
             <div className="p-6">
               <h3 className="text-xl font-bold text-[#222222] mb-3">
-                Calcula en menos de 1 minuto cuanto tiempo gastas al ano en tareas repetitivas
+                Calcula en menos de 1 minuto cuánto tiempo gastas al año en tareas repetitivas
               </h3>
 
               <p className="text-[#717171] mb-5">
-                Responder siempre lo mismo: WiFi, parking, como funciona la vitro, normas de la comunidad...
+                Responder siempre lo mismo: WiFi, parking, cómo funciona la vitro, normas de la comunidad...
               </p>
 
               {/* Discount offer */}
@@ -171,7 +171,7 @@ export function ExitIntentPopup({
                       20% de descuento si superas las 40h/ano
                     </p>
                     <p className="text-[#15803D] text-xs mt-1">
-                      Te enviamos el codigo por email si el tiempo que pierdes es una locura
+                      Te enviamos el código por email si el tiempo que pierdes es una locura
                     </p>
                   </div>
                 </div>
@@ -182,7 +182,7 @@ export function ExitIntentPopup({
                 {[
                   'Resultado en 30 segundos',
                   'Informe detallado por email',
-                  'Si superas 40h: codigo WELCOME20'
+                  'Si superas 40h: código WELCOME20'
                 ].map((benefit, i) => (
                   <li key={i} className="flex items-center gap-2 text-sm text-[#222222]">
                     <svg className="w-4 h-4 text-[#16A34A] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
