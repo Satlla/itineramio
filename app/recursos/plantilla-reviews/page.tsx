@@ -65,11 +65,11 @@ export default function PlantillaReviewsPage() {
       <div className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <Link
-            href="/recursos"
+            href="/hub"
             className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
-            Volver a recursos
+            Volver a herramientas
           </Link>
         </div>
       </div>

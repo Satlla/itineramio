@@ -188,10 +188,10 @@ export default async function ThankYouPage({
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/recursos"
+              href="/hub"
               className="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm text-white font-semibold py-3 px-6 rounded-lg hover:bg-white/20 transition-all duration-200 border border-white/20"
             >
-              Ver más recursos
+              Ver más herramientas
             </Link>
           </div>
         </div>
