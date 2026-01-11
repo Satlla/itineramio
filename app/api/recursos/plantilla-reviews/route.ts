@@ -24,7 +24,7 @@ function formatPhoneForWhatsApp(phone: string): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { nombre, telefono, email } = body
+    const { nombre, telefono, email, prioridades = [] } = body
 
     if (!nombre || !telefono || !email) {
       return NextResponse.json(
@@ -32,6 +32,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Convert priorities to tags (prefix with 'interes-' for clarity)
+    const priorityTags = (prioridades as string[]).map((p: string) => `interes-${p}`)
 
     const whatsappPhone = formatPhoneForWhatsApp(telefono)
     const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent('Hola, tengo una pregunta sobre mi estancia')}`
@@ -47,10 +50,14 @@ export async function POST(request: NextRequest) {
           name: nombre,
           email,
           source: 'plantilla-reviews',
-          metadata: { telefono, whatsappPhone }
+          metadata: {
+            telefono,
+            whatsappPhone,
+            prioridades: prioridades as string[]
+          }
         }
       })
-      console.log(`[Lead] Created for ${email} from plantilla-reviews`)
+      console.log(`[Lead] Created for ${email} from plantilla-reviews with priorities: ${(prioridades as string[]).join(', ') || 'none'}`)
     } catch (dbError) {
       console.error('Error saving lead:', dbError)
     }
@@ -59,6 +66,7 @@ export async function POST(request: NextRequest) {
     let subscriber = null
     try {
       const normalizedEmail = email.toLowerCase().trim()
+      const baseTags = ['plantilla-reviews', 'recurso-gratuito', ...priorityTags]
 
       subscriber = await prisma.emailSubscriber.upsert({
         where: { email: normalizedEmail },
@@ -67,19 +75,19 @@ export async function POST(request: NextRequest) {
           name: nombre,
           source: 'plantilla-reviews',
           status: 'active',
-          tags: ['plantilla-reviews', 'recurso-gratuito'],
+          tags: baseTags,
           archetype: 'SISTEMATICO' // Default archetype for reviews template users
         },
         update: {
-          // Add tag if not already present
+          // Add new tags
           tags: {
-            push: 'plantilla-reviews'
+            push: baseTags
           },
           updatedAt: new Date()
         }
       })
 
-      console.log(`[EmailSubscriber] Created/updated for ${normalizedEmail} from plantilla-reviews`)
+      console.log(`[EmailSubscriber] Created/updated for ${normalizedEmail} from plantilla-reviews with tags: ${baseTags.join(', ')}`)
 
       // Enroll in nurturing sequences
       await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {

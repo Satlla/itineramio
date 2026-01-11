@@ -261,7 +261,7 @@ function generateDiscountEmailHTML(data: {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, email, properties, checkinsPerMonth, minutesPerCheckin, result } = body
+    const { name, email, properties, checkinsPerMonth, minutesPerCheckin, result, prioridades = [] } = body
 
     // Validate required fields
     if (!name || !email || !result) {
@@ -270,6 +270,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Convert priorities to tags
+    const priorityTags = (prioridades as string[]).map((p: string) => `interes-${p}`)
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -302,7 +305,8 @@ export async function POST(request: NextRequest) {
             checkinsPerMonth,
             minutesPerCheckin,
             hoursPerYear: result.hoursPerYear,
-            moneyLostPerYear: result.moneyLostPerYear
+            moneyLostPerYear: result.moneyLostPerYear,
+            prioridades: prioridades as string[]
           }
         }
       })
@@ -314,6 +318,8 @@ export async function POST(request: NextRequest) {
     })
 
     let subscriber
+    const baseTags = ['tool_time-calculator', 'time-calculator', ...priorityTags]
+
     if (!existingSubscriber) {
       subscriber = await prisma.emailSubscriber.create({
         data: {
@@ -328,7 +334,7 @@ export async function POST(request: NextRequest) {
           status: 'active',
           sequenceStatus: 'active',
           sequenceStartedAt: new Date(),
-          tags: ['tool_time-calculator', 'time-calculator'],
+          tags: baseTags,
           currentJourneyStage: 'lead',
           engagementScore: 'warm'
         }
@@ -343,11 +349,12 @@ export async function POST(request: NextRequest) {
       })
     } else {
       subscriber = existingSubscriber
-      // Update tags if needed
-      if (!existingSubscriber.tags?.includes('time-calculator')) {
+      // Update tags if needed - add time-calculator and priority tags
+      const newTags = baseTags.filter(tag => !existingSubscriber.tags?.includes(tag))
+      if (newTags.length > 0) {
         await prisma.emailSubscriber.update({
           where: { email: normalizedEmail },
-          data: { tags: { push: 'time-calculator' } }
+          data: { tags: { push: newTags } }
         })
       }
     }

@@ -4,12 +4,14 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Star, Download, Mail, Phone, User, ArrowLeft, Check, Loader2, QrCode } from 'lucide-react'
 import { fbEvents } from '@/components/analytics/FacebookPixel'
+import { PrioritySelector } from '@/components/forms/PrioritySelector'
 
 export default function PlantillaReviewsPage() {
   const [formData, setFormData] = useState({
     nombre: '',
     telefono: '',
-    email: ''
+    email: '',
+    prioridades: [] as string[]
   })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -161,6 +163,12 @@ export default function PlantillaReviewsPage() {
                     required
                   />
                 </div>
+
+                {/* Selector de prioridades */}
+                <PrioritySelector
+                  selected={formData.prioridades}
+                  onChange={(prioridades) => setFormData({ ...formData, prioridades })}
+                />
 
                 {error && (
                   <div className="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">

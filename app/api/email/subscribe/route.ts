@@ -30,7 +30,11 @@ const prisma = new PrismaClient()
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, name, archetype, source, tags = [], metadata = {} } = body
+    const { email, name, archetype, source, tags = [], metadata = {}, prioridades = [] } = body
+
+    // Convert priorities to tags
+    const priorityTags = (prioridades as string[]).map((p: string) => `interes-${p}`)
+    const allTags = [...tags, ...priorityTags]
 
     // Validación
     if (!email || !email.includes('@')) {
@@ -95,12 +99,15 @@ export async function POST(request: NextRequest) {
       }
 
       // Actualizar datos si vienen nuevos
-      if (archetype || name) {
+      if (archetype || name || priorityTags.length > 0) {
+        // Filter out tags that already exist
+        const newPriorityTags = priorityTags.filter(tag => !existing.tags?.includes(tag))
         await prisma.emailSubscriber.update({
           where: { id: existing.id },
           data: {
             ...(name && { name }),
             ...(archetype && { archetype }),
+            ...(newPriorityTags.length > 0 && { tags: { push: newPriorityTags } }),
             updatedAt: new Date()
           }
         })
@@ -121,14 +128,14 @@ export async function POST(request: NextRequest) {
         name,
         archetype,
         source,
-        sourceMetadata: metadata,
-        tags,
+        sourceMetadata: { ...metadata, prioridades: prioridades as string[] },
+        tags: allTags,
         status: 'active',
         currentJourneyStage: 'subscribed',
         engagementScore: 'warm',
         sequenceStartedAt: new Date(), // Para secuencias de email automatizadas
         sequenceStatus: 'active',
-        nivelSequenceStatus: tags.some(t => t.startsWith('nivel_')) ? 'pending' : 'none'
+        nivelSequenceStatus: allTags.some(t => t.startsWith('nivel_')) ? 'pending' : 'none'
       }
     })
 
@@ -166,7 +173,7 @@ export async function POST(request: NextRequest) {
     await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
       archetype,
       source,
-      tags
+      tags: allTags
     }).catch(error => {
       console.error('Failed to enroll subscriber in sequences:', error)
       // No bloqueamos la respuesta si falla el enrollment

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Clock, ArrowRight, Mail, CheckCircle, AlertTriangle, Calculator, Home, Users, MessageSquare, Key, Bot, BookOpen, Sparkles, ClipboardList, Wrench, Star, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import { Navbar } from '../../../../../src/components/layout/Navbar'
+import { PrioritySelector } from '../../../../../src/components/forms/PrioritySelector'
 
 interface CalculationResult {
   hoursPerMonth: number
@@ -36,6 +37,7 @@ export default function TimeCalculatorPage() {
   // Email form
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [prioridades, setPrioridades] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -153,7 +155,8 @@ export default function TimeCalculatorPage() {
           hasAutonomousCheckin,
           hasAutomatedMessages,
           hasDigitalGuide,
-          result
+          result,
+          prioridades
         })
       })
 
@@ -511,6 +514,13 @@ export default function TimeCalculatorPage() {
                     required
                   />
                 </div>
+
+                {/* Priority selector */}
+                <PrioritySelector
+                  selected={prioridades}
+                  onChange={setPrioridades}
+                  variant="compact"
+                />
 
                 {error && (
                   <p className="text-red-600 text-sm">{error}</p>

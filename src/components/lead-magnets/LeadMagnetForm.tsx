@@ -6,6 +6,7 @@ import { LeadMagnet } from '@/data/lead-magnets'
 import { CheckCircle2, Download, Loader2, Mail } from 'lucide-react'
 import { trackGenerateLead, trackLeadMagnetDownloaded } from '@/lib/analytics'
 import { fbEvents } from '@/components/analytics/FacebookPixel'
+import { PrioritySelector } from '@/components/forms/PrioritySelector'
 
 export default function LeadMagnetForm({
   leadMagnet,
@@ -14,6 +15,7 @@ export default function LeadMagnetForm({
 }) {
   const router = useRouter()
   const [email, setEmail] = useState('')
+  const [prioridades, setPrioridades] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -34,6 +36,7 @@ export default function LeadMagnetForm({
             leadMagnetTitle: leadMagnet.title,
             archetype: leadMagnet.archetype,
           },
+          prioridades,
         }),
       })
 
@@ -111,6 +114,13 @@ export default function LeadMagnetForm({
             />
           </div>
         </div>
+
+        {/* Priority Selector */}
+        <PrioritySelector
+          selected={prioridades}
+          onChange={setPrioridades}
+          variant="compact"
+        />
 
         {/* Error Message */}
         {error && (
