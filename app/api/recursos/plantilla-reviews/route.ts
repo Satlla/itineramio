@@ -24,9 +24,13 @@ function formatPhoneForWhatsApp(phone: string): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    console.log('[plantilla-reviews] Received body:', JSON.stringify(body))
+
     const { nombre, teléfono, email, prioridades = [] } = body
+    console.log('[plantilla-reviews] Destructured:', { nombre, teléfono, email, hasTelefono: !!teléfono })
 
     if (!nombre || !teléfono || !email) {
+      console.log('[plantilla-reviews] Validation failed - missing fields')
       return NextResponse.json(
         { error: 'Todos los campos son obligatorios' },
         { status: 400 }
@@ -337,9 +341,10 @@ export async function POST(request: NextRequest) {
 `
     })
 
-    console.log('Resend result:', JSON.stringify(emailResult, null, 2))
+    console.log('[plantilla-reviews] Resend result:', JSON.stringify(emailResult, null, 2))
 
     if (emailResult.error) {
+      console.log('[plantilla-reviews] Resend error:', emailResult.error)
       console.error('Resend error:', emailResult.error)
       return NextResponse.json({
         success: false,
