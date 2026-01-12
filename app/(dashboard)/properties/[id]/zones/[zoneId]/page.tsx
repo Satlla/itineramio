@@ -35,7 +35,10 @@ import {
   Users,
   Info,
   ChevronRight,
-  Lightbulb
+  Lightbulb,
+  Globe,
+  Save,
+  Check
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
@@ -96,6 +99,11 @@ export default function ZoneDetailPage() {
   const [editingStepId, setEditingStepId] = useState<string | null>(null)
   const [showSuggestionsModal, setShowSuggestionsModal] = useState(false)
   const [showEditZoneModal, setShowEditZoneModal] = useState(false)
+
+  // Translation state
+  const [translations, setTranslations] = useState({ es: '', en: '', fr: '' })
+  const [savingTranslations, setSavingTranslations] = useState(false)
+  const [translationsSaved, setTranslationsSaved] = useState(false)
 
   useEffect(() => {
     console.log('🎯 ZoneDetailPage mounted with:', { propertyId, zoneId })
@@ -176,6 +184,18 @@ export default function ZoneDetailPage() {
       }
       
       setZone(zoneData)
+
+      // Initialize translations from zone data
+      const zoneName = zoneData.name
+      if (typeof zoneName === 'string') {
+        setTranslations({ es: zoneName, en: '', fr: '' })
+      } else if (zoneName && typeof zoneName === 'object') {
+        setTranslations({
+          es: zoneName.es || '',
+          en: zoneName.en || '',
+          fr: zoneName.fr || ''
+        })
+      }
     } catch (error) {
       console.error('❌ Error fetching zone:', error)
       // Don't navigate away, let user see the error
@@ -219,6 +239,42 @@ export default function ZoneDetailPage() {
 
   const handleEditZone = () => {
     setShowEditZoneModal(true)
+  }
+
+  // Save zone translations
+  const handleSaveTranslations = async () => {
+    if (!zone || !translations.es.trim()) return
+
+    try {
+      setSavingTranslations(true)
+      setTranslationsSaved(false)
+
+      const response = await fetch(`/api/properties/${propertyId}/zones/${zone.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: {
+            es: translations.es.trim(),
+            en: translations.en.trim() || translations.es.trim(),
+            fr: translations.fr.trim() || translations.es.trim()
+          }
+        })
+      })
+
+      if (response.ok) {
+        setTranslationsSaved(true)
+        setTimeout(() => setTranslationsSaved(false), 2000)
+        // Refresh zone data
+        fetchZoneData()
+      } else {
+        alert('Error al guardar las traducciones')
+      }
+    } catch (error) {
+      console.error('Error saving translations:', error)
+      alert('Error al guardar las traducciones')
+    } finally {
+      setSavingTranslations(false)
+    }
   }
 
   const handleSaveSteps = async (steps: any[]) => {
@@ -629,6 +685,64 @@ export default function ZoneDetailPage() {
           
         </div>
 
+        {/* Zone Name Translations - Mobile */}
+        <div className="px-4 py-4">
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Globe className="w-4 h-4 text-violet-600" />
+              <h3 className="text-sm font-semibold text-gray-900">Traducciones</h3>
+            </div>
+            <div className="space-y-3">
+              {/* Spanish */}
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-700 mb-1">
+                  <span>🇪🇸</span> Español <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={translations.es}
+                  onChange={(e) => setTranslations(prev => ({ ...prev, es: e.target.value }))}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500"
+                  placeholder="Nombre en español"
+                />
+              </div>
+              {/* English */}
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-700 mb-1">
+                  <span>🇬🇧</span> English
+                </label>
+                <input
+                  type="text"
+                  value={translations.en}
+                  onChange={(e) => setTranslations(prev => ({ ...prev, en: e.target.value }))}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500"
+                  placeholder="Name in English"
+                />
+              </div>
+              {/* French */}
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-700 mb-1">
+                  <span>🇫🇷</span> Français
+                </label>
+                <input
+                  type="text"
+                  value={translations.fr}
+                  onChange={(e) => setTranslations(prev => ({ ...prev, fr: e.target.value }))}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500"
+                  placeholder="Nom en français"
+                />
+              </div>
+            </div>
+            <Button
+              onClick={handleSaveTranslations}
+              disabled={savingTranslations || !translations.es.trim()}
+              className="w-full mt-3 bg-violet-600 hover:bg-violet-700 text-white text-sm"
+            >
+              {savingTranslations ? 'Guardando...' : translationsSaved ? '✓ Guardado' : 'Guardar traducciones'}
+            </Button>
+          </div>
+        </div>
+
         {/* Steps Timeline - Mobile Itinerary Design */}
         <div className="px-4 pb-6">
           
@@ -825,6 +939,81 @@ export default function ZoneDetailPage() {
 
       {/* Desktop Content */}
       <div className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        {/* Zone Name Translations Section */}
+        <div className="mb-8 bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Globe className="w-5 h-5 text-violet-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Nombre de la zona en otros idiomas</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Spanish */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <span className="text-lg">🇪🇸</span> Español
+                <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={translations.es}
+                onChange={(e) => setTranslations(prev => ({ ...prev, es: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                placeholder="Nombre en español"
+              />
+            </div>
+            {/* English */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <span className="text-lg">🇬🇧</span> English
+              </label>
+              <input
+                type="text"
+                value={translations.en}
+                onChange={(e) => setTranslations(prev => ({ ...prev, en: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                placeholder="Name in English"
+              />
+            </div>
+            {/* French */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <span className="text-lg">🇫🇷</span> Français
+              </label>
+              <input
+                type="text"
+                value={translations.fr}
+                onChange={(e) => setTranslations(prev => ({ ...prev, fr: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                placeholder="Nom en français"
+              />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center justify-end gap-3">
+            {translationsSaved && (
+              <span className="flex items-center text-green-600 text-sm">
+                <Check className="w-4 h-4 mr-1" />
+                Guardado
+              </span>
+            )}
+            <Button
+              onClick={handleSaveTranslations}
+              disabled={savingTranslations || !translations.es.trim()}
+              className="bg-violet-600 hover:bg-violet-700 text-white"
+            >
+              {savingTranslations ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Guardar traducciones
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
 
         {/* Steps Section */}
         <div className="mb-6">
