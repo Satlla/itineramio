@@ -2,8 +2,9 @@
 
 import { useState, useRef } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Download, Share2, Copy, Check, Sparkles, Award } from 'lucide-react'
+import { ArrowLeft, Download, Share2, Copy, Check, Sparkles, Award, FileText } from 'lucide-react'
 import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 
 export default function SuperGuestGeneratorPage() {
   const [guestName, setGuestName] = useState('')
@@ -21,7 +22,7 @@ export default function SuperGuestGeneratorPage() {
 
   const currentYear = new Date().getFullYear()
 
-  const handleDownload = async () => {
+  const handleDownload = async (format: 'png' | 'pdf' = 'png') => {
     if (!cardRef.current || !guestName) return
 
     setDownloading(true)
@@ -34,10 +35,26 @@ export default function SuperGuestGeneratorPage() {
         allowTaint: true
       })
 
-      const link = document.createElement('a')
-      link.download = `superguest-${guestName.toLowerCase().replace(/\s+/g, '-')}.png`
-      link.href = canvas.toDataURL('image/png', 1.0)
-      link.click()
+      if (format === 'pdf') {
+        // Crear PDF con dimensiones de la tarjeta
+        const imgWidth = 100 // mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+        const pdf = new jsPDF({
+          orientation: imgHeight > imgWidth ? 'portrait' : 'landscape',
+          unit: 'mm',
+          format: [imgWidth + 20, imgHeight + 20] // Añadir margen
+        })
+
+        const imgData = canvas.toDataURL('image/png', 1.0)
+        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight)
+        pdf.save(`superguest-${guestName.toLowerCase().replace(/\s+/g, '-')}.pdf`)
+      } else {
+        const link = document.createElement('a')
+        link.download = `superguest-${guestName.toLowerCase().replace(/\s+/g, '-')}.png`
+        link.href = canvas.toDataURL('image/png', 1.0)
+        link.click()
+      }
     } catch (error) {
       console.error('Error generating image:', error)
     } finally {
@@ -202,14 +219,24 @@ export default function SuperGuestGeneratorPage() {
 
             {/* Actions */}
             <div className="mt-8 space-y-3">
-              <button
-                onClick={handleDownload}
-                disabled={!guestName || downloading}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 disabled:from-gray-300 disabled:to-gray-300 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none"
-              >
-                <Download className="w-5 h-5" />
-                {downloading ? 'Generando imagen...' : 'Descargar insignia (PNG)'}
-              </button>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => handleDownload('png')}
+                  disabled={!guestName || downloading}
+                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 disabled:from-gray-300 disabled:to-gray-300 text-white font-semibold py-4 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none"
+                >
+                  <Download className="w-5 h-5" />
+                  {downloading ? 'Generando...' : 'PNG'}
+                </button>
+                <button
+                  onClick={() => handleDownload('pdf')}
+                  disabled={!guestName || downloading}
+                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-300 text-white font-semibold py-4 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none"
+                >
+                  <FileText className="w-5 h-5" />
+                  {downloading ? 'Generando...' : 'PDF'}
+                </button>
+              </div>
               <button
                 onClick={handleShare}
                 disabled={!guestName}
