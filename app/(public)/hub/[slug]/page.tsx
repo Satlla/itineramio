@@ -275,8 +275,8 @@ export default function ArticlePage() {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Artículo no encontrado</h1>
-          <Link href="/knowledge" className="text-violet-600 hover:text-violet-700">
-            Volver al Centro de Conocimiento
+          <Link href="/hub" className="text-violet-600 hover:text-violet-700">
+            Volver al Hub de Recursos
           </Link>
         </div>
       </div>
@@ -289,9 +289,9 @@ export default function ArticlePage() {
       <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/knowledge" className="flex items-center text-gray-600 hover:text-gray-900">
+            <Link href="/hub" className="flex items-center text-gray-600 hover:text-gray-900">
               <ArrowLeft className="w-5 h-5 mr-2" />
-              Centro de Conocimiento
+              Hub de Recursos
             </Link>
             <Link href="/" className="text-2xl font-bold text-violet-600">
               Itineramio
@@ -316,7 +316,7 @@ export default function ArticlePage() {
         {/* Metadatos superiores */}
         <div className="flex items-center space-x-4 mb-8">
           <Link
-            href={`/knowledge/category/${article.category.toLowerCase()}`}
+            href={`/hub?category=${article.category.toLowerCase()}`}
             className="px-4 py-1.5 bg-violet-100 text-violet-700 rounded-full text-sm font-medium hover:bg-violet-200"
           >
             {getCategoryName(article.category)}
@@ -389,7 +389,7 @@ export default function ArticlePage() {
           {article.tags.map((tag) => (
             <Link
               key={tag}
-              href={`/knowledge?tag=${encodeURIComponent(tag)}`}
+              href={`/hub?tag=${encodeURIComponent(tag)}`}
               className="inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200"
             >
               <Tag className="w-3 h-3 mr-1" />
@@ -446,7 +446,7 @@ export default function ArticlePage() {
             {[1, 2].map((i) => (
               <Link
                 key={i}
-                href={`/knowledge/article-${i}`}
+                href={`/hub`}
                 className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-violet-300 transition-all"
               >
                 <span className="px-3 py-1 bg-violet-100 text-violet-700 text-xs font-medium rounded-full">
@@ -477,8 +477,8 @@ export default function ArticlePage() {
           <div className="text-2xl font-bold text-white mb-4">Itineramio</div>
           <p className="mb-6">Centro de Conocimiento para gestores de apartamentos turísticos</p>
           <div className="flex items-center justify-center space-x-6 text-sm">
-            <Link href="/knowledge" className="hover:text-white transition-colors">
-              Todos los artículos
+            <Link href="/hub" className="hover:text-white transition-colors">
+              Hub de Recursos
             </Link>
             <Link href="/login" className="hover:text-white transition-colors">
               Iniciar sesión

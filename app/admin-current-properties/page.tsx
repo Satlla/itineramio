@@ -79,11 +79,11 @@ export default function AdminCurrentPropertiesPage() {
           </a>
           
           <div>
-            <a 
-              href="/test-property-activation" 
+            <a
+              href="/bienvenido"
               className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 inline-block"
             >
-              📋 Ver todas las instrucciones
+              📋 Ver guía de inicio
             </a>
           </div>
         </div>

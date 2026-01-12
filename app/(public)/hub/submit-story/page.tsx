@@ -134,10 +134,10 @@ export default function SubmitStoryPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/knowledge"
+              href="/casos-de-exito"
               className="px-6 py-3 bg-violet-600 text-white rounded-lg font-medium hover:bg-violet-700 transition-colors"
             >
-              Volver al Centro de Conocimiento
+              Ver casos de éxito
             </Link>
             <button
               onClick={() => {
@@ -176,9 +176,9 @@ export default function SubmitStoryPage() {
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/knowledge" className="flex items-center text-gray-600 hover:text-gray-900">
+            <Link href="/hub" className="flex items-center text-gray-600 hover:text-gray-900">
               <ArrowLeft className="w-5 h-5 mr-2" />
-              Volver
+              Volver al Hub
             </Link>
             <Link href="/" className="text-2xl font-bold text-violet-600">
               Itineramio

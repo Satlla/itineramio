@@ -213,11 +213,11 @@ export default async function DownloadPage({
               </a>
 
               <a
-                href="/demo"
+                href="/bienvenido"
                 className="inline-flex items-center gap-2 bg-gray-100 text-gray-700 font-semibold px-6 py-3 rounded-xl hover:bg-gray-200 transition-all"
               >
                 <BookOpen className="w-5 h-5" />
-                Ver demo
+                Ver cómo funciona
               </a>
             </div>
 
