@@ -156,10 +156,10 @@ export default function AdminFunnelsPage() {
   const themes = getAllThemes()
   const themeColors: Record<FunnelTheme, string> = {
     'reservas': 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    'gestion-huespedes': 'bg-blue-100 text-blue-800 border-blue-200',
+    'gestión-huéspedes': 'bg-blue-100 text-blue-800 border-blue-200',
     'limpieza': 'bg-green-100 text-green-800 border-green-200',
     'precios': 'bg-amber-100 text-amber-800 border-amber-200',
-    'resenas': 'bg-rose-100 text-rose-800 border-rose-200'
+    'reseñas': 'bg-rose-100 text-rose-800 border-rose-200'
   }
 
   return (

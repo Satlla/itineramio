@@ -3,10 +3,10 @@ import { NextRequest } from 'next/server'
 import { prisma } from './prisma'
 import { getAdminUser } from './admin-auth'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
+const JWT_SECRET = process.env.JWT_SECRET
 
-if (!process.env.JWT_SECRET) {
-  console.warn('⚠️ JWT_SECRET not set in environment variables. Using fallback.')
+if (!JWT_SECRET) {
+  throw new Error('CRITICAL: JWT_SECRET environment variable is not set. Application cannot start securely.')
 }
 
 export interface JWTPayload {

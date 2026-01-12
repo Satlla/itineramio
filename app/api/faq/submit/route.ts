@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
-import jwt from 'jsonwebtoken'
+import { verifyToken } from '../../../../src/lib/auth'
 import { getAdminUser } from '../../../../src/lib/admin-auth'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,7 +19,7 @@ export async function POST(request: NextRequest) {
     const token = request.cookies.get('auth-token')?.value
     if (token) {
       try {
-        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+        const decoded = verifyToken(token)
         userId = decoded.userId
       } catch {
         // Invalid token, continue without user

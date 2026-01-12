@@ -37,7 +37,7 @@ export default function ToolTimeDay2Solution({ name, email, timeData }: Props) {
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#484848', fontSize: '16px', lineHeight: 1.7 }}>
-              El otro dia calculamos que pierdes <strong>{hoursLost} horas al ano</strong> respondiendo mensajes repetitivos.
+              El otro día calculamos que pierdes <strong>{hoursLost} horas al año</strong> respondiendo mensajes repetitivos.
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#484848', fontSize: '16px', lineHeight: 1.7 }}>
@@ -45,7 +45,7 @@ export default function ToolTimeDay2Solution({ name, email, timeData }: Props) {
             </p>
 
             <p style={{ margin: '0 0 24px 0', color: '#222222', fontSize: '18px', fontWeight: 600, lineHeight: 1.5 }}>
-              La solucion: darle la informacion al huesped antes de que pregunte.
+              La solución: darle la información al huésped antes de que pregunte.
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#484848', fontSize: '16px', lineHeight: 1.7 }}>
@@ -55,16 +55,16 @@ export default function ToolTimeDay2Solution({ name, email, timeData }: Props) {
             </p>
 
             <p style={{ margin: '0 0 24px 0', color: '#484848', fontSize: '16px', lineHeight: 1.7 }}>
-              En un <strong>enlace</strong> que abren desde el movil en 2 segundos.
+              En un <strong>enlace</strong> que abren desde el móvil en 2 segundos.
             </p>
 
             {/* How it works */}
             <div style={{ backgroundColor: '#F7F7F7', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}>
               <p style={{ margin: '0 0 16px 0', color: '#222222', fontSize: '15px', fontWeight: 600 }}>
-                Asi funciona:
+                Así funciona:
               </p>
               <p style={{ margin: '0 0 12px 0', color: '#484848', fontSize: '15px', lineHeight: 1.6 }}>
-                1. El huesped escanea un QR o abre un link
+                1. El huésped escanea un QR o abre un link
               </p>
               <p style={{ margin: '0 0 12px 0', color: '#484848', fontSize: '15px', lineHeight: 1.6 }}>
                 2. Ve TODO sobre tu alojamiento: WiFi, electrodomesticos, normas, recomendaciones
@@ -77,7 +77,7 @@ export default function ToolTimeDay2Solution({ name, email, timeData }: Props) {
             {/* Result */}
             <div style={{ backgroundColor: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
               <p style={{ margin: 0, color: '#166534', fontSize: '15px', lineHeight: 1.6 }}>
-                <strong>{hoursLost}h → {Math.round(hoursLost * 0.3)}h</strong> = {hoursRecovered} horas recuperadas al ano
+                <strong>{hoursLost}h → {Math.round(hoursLost * 0.3)}h</strong> = {hoursRecovered} horas recuperadas al año
               </p>
             </div>
 
@@ -109,7 +109,7 @@ export default function ToolTimeDay2Solution({ name, email, timeData }: Props) {
             </table>
 
             <p style={{ margin: '0 0 20px 0', color: '#484848', fontSize: '16px', lineHeight: 1.7 }}>
-              En 2 dias te cuento como puedes probarlo en tu propiedad.
+              En 2 días te cuento como puedes probarlo en tu propiedad.
             </p>
 
             <p style={{ margin: '32px 0 0 0', color: '#222222', fontSize: '16px' }}>

@@ -24,9 +24,9 @@ function formatPhoneForWhatsApp(phone: string): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { nombre, telefono, email, prioridades = [] } = body
+    const { nombre, teléfono, email, prioridades = [] } = body
 
-    if (!nombre || !telefono || !email) {
+    if (!nombre || !teléfono || !email) {
       return NextResponse.json(
         { error: 'Todos los campos son obligatorios' },
         { status: 400 }
@@ -36,12 +36,12 @@ export async function POST(request: NextRequest) {
     // Convert priorities to tags (prefix with 'interes-' for clarity)
     const priorityTags = (prioridades as string[]).map((p: string) => `interes-${p}`)
 
-    const whatsappPhone = formatPhoneForWhatsApp(telefono)
+    const whatsappPhone = formatPhoneForWhatsApp(teléfono)
     const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent('Hola, tengo una pregunta sobre mi estancia')}`
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(whatsappUrl)}&bgcolor=ffffff&color=222222`
 
     // URL de descarga con parámetros
-    const downloadUrl = `https://www.itineramio.com/recursos/plantilla-reviews/descargar?nombre=${encodeURIComponent(nombre)}&telefono=${encodeURIComponent(telefono)}`
+    const downloadUrl = `https://www.itineramio.com/recursos/plantilla-reviews/descargar?nombre=${encodeURIComponent(nombre)}&teléfono=${encodeURIComponent(teléfono)}`
 
     // Save lead to database
     try {
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
           email,
           source: 'plantilla-reviews',
           metadata: {
-            telefono,
+            teléfono,
             whatsappPhone,
             prioridades: prioridades as string[]
           }
@@ -264,7 +264,7 @@ export async function POST(request: NextRequest) {
                         <td style="vertical-align: top;">
                           <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.5px;">Soporte</p>
                           <p style="margin: 0 0 12px 0; font-size: 12px; color: #666; line-height: 1.4;">Si necesitas algo durante tu estancia, escríbenos y lo resolvemos lo antes posible.</p>
-                          <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 500;">${telefono}</p>
+                          <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 500;">${teléfono}</p>
                         </td>
                         <td style="width: 90px; text-align: right; vertical-align: top;">
                           <img src="${qrCodeUrl}" alt="QR WhatsApp" width="80" height="80" style="display: block;" />
@@ -313,7 +313,7 @@ export async function POST(request: NextRequest) {
           <!-- CTA -->
           <tr>
             <td align="center" style="padding: 0 0 32px 0;">
-              <a href="https://www.itineramio.com/blog/plantilla-significado-estrellas-airbnb-huespedes" style="display: inline-block; background: #1a1a1a; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: 500; font-size: 13px;">
+              <a href="https://www.itineramio.com/blog/plantilla-significado-estrellas-airbnb-huéspedes" style="display: inline-block; background: #1a1a1a; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: 500; font-size: 13px;">
                 Leer artículo completo
               </a>
             </td>

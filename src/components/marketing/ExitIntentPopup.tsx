@@ -13,11 +13,15 @@ interface ExitIntentPopupProps {
   cooldownDays?: number
   // Storage key for tracking
   storageKey?: string
+  // Auto-show after delay (not just on exit intent)
+  autoShowDelay?: number
 }
 
 // Pages where popup should NOT show
 const EXCLUDED_PATHS = [
   '/hub/tools/time-calculator', // The calculator itself
+  '/hub/tools/', // All tools
+  '/recursos', // Resource pages (lead magnets)
   '/guide/', // Guest guides
   '/p/', // Property pages for guests
   '/login',
@@ -28,56 +32,103 @@ const EXCLUDED_PATHS = [
   '/onboarding',
   '/verify',
   '/unsubscribe',
+  '/blog', // Blog pages
+  '/legal', // Legal pages
+  '/consulta', // Booking page
+  '/host-profile', // Archetype test
+]
+
+// Pages where autoShowDelay is allowed (landings only)
+const LANDING_PAGES = [
+  '/',
+  '/main',
+  '/comparar',
+  '/funcionalidades',
 ]
 
 export function ExitIntentPopup({
   delay = 5000,
   cooldownDays = 7,
-  storageKey = 'exitIntentShown'
+  storageKey = 'exitIntentShown',
+  autoShowDelay
 }: ExitIntentPopupProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [isReady, setIsReady] = useState(false)
+  const [hasShownThisSession, setHasShownThisSession] = useState(false) // Only show once per session
   const pathname = usePathname()
 
   // Check if current path is excluded
   const isExcludedPath = EXCLUDED_PATHS.some(path => pathname?.startsWith(path))
 
+  // Check cooldown function
+  const checkCooldown = useCallback(() => {
+    if (typeof window === 'undefined') return false
+
+    const lastShown = localStorage.getItem(storageKey)
+    if (!lastShown) return true
+
+    const lastShownDate = new Date(parseInt(lastShown))
+    const now = new Date()
+    const daysSince = (now.getTime() - lastShownDate.getTime()) / (1000 * 60 * 60 * 24)
+
+    return daysSince >= cooldownDays
+  }, [storageKey, cooldownDays])
+
   // Check if we should show the popup
   useEffect(() => {
     if (isExcludedPath) return
-
-    const checkCooldown = () => {
-      if (typeof window === 'undefined') return false
-
-      const lastShown = localStorage.getItem(storageKey)
-      if (!lastShown) return true
-
-      const lastShownDate = new Date(parseInt(lastShown))
-      const now = new Date()
-      const daysSince = (now.getTime() - lastShownDate.getTime()) / (1000 * 60 * 60 * 24)
-
-      return daysSince >= cooldownDays
-    }
 
     // Don't show if already used calculator or recently shown
     const hasUsedCalculator = localStorage.getItem('hasUsedTimeCalculator')
     if (hasUsedCalculator || !checkCooldown()) return
 
-    // Wait for delay before enabling
+    // Wait for delay before enabling exit intent
     const timer = setTimeout(() => {
       setIsReady(true)
     }, delay)
 
     return () => clearTimeout(timer)
-  }, [delay, cooldownDays, storageKey, isExcludedPath])
+  }, [delay, checkCooldown, isExcludedPath])
+
+  // Check if current path is a landing page (where autoShowDelay is allowed)
+  const isLandingPage = LANDING_PAGES.some(path => pathname === path || pathname?.startsWith(path + '/'))
+
+  // Auto-show after specified delay (ONLY for landing pages)
+  useEffect(() => {
+    // Only auto-show on landing pages, not on resources or other pages
+    if (isExcludedPath || !isLandingPage || !autoShowDelay || isVisible) return
+
+    // Don't show if already used calculator or recently shown
+    const hasUsedCalculator = localStorage.getItem('hasUsedTimeCalculator')
+    if (hasUsedCalculator || !checkCooldown()) return
+
+    const autoTimer = setTimeout(() => {
+      setIsVisible(true)
+      setHasShownThisSession(true) // Prevent showing again this session
+      localStorage.setItem(storageKey, Date.now().toString())
+
+      // Track event
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'time_popup_auto_shown', {
+          event_category: 'engagement',
+          event_label: 'time_calculator_popup',
+          page_path: pathname
+        })
+      }
+    }, autoShowDelay)
+
+    return () => clearTimeout(autoTimer)
+  }, [autoShowDelay, isExcludedPath, isLandingPage, isVisible, checkCooldown, storageKey, pathname])
 
   // Detect exit intent (mouse leaving viewport at top)
   const handleMouseLeave = useCallback((e: MouseEvent) => {
-    if (!isReady || isVisible || isExcludedPath) return
+    // Don't show if: not ready, already visible, excluded path, or already shown this session
+    if (!isReady || isVisible || isExcludedPath || hasShownThisSession) return
 
     // Only trigger if mouse leaves at the top
     if (e.clientY <= 5) {
       setIsVisible(true)
+      setHasShownThisSession(true) // Prevent showing again this session
       localStorage.setItem(storageKey, Date.now().toString())
 
       // Track event
@@ -88,7 +139,7 @@ export function ExitIntentPopup({
         })
       }
     }
-  }, [isReady, isVisible, storageKey, isExcludedPath])
+  }, [isReady, isVisible, storageKey, isExcludedPath, hasShownThisSession])
 
   useEffect(() => {
     document.addEventListener('mouseleave', handleMouseLeave)
@@ -147,7 +198,7 @@ export function ExitIntentPopup({
                   <Clock className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">Espera, no te vayas!</h2>
+                  <h2 className="text-2xl font-bold">¡Espera, no te vayas!</h2>
                 </div>
               </div>
             </div>
@@ -168,7 +219,7 @@ export function ExitIntentPopup({
                   <Gift className="w-5 h-5 text-[#16A34A] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-[#166534] text-sm">
-                      20% de descuento si superas las 40h/ano
+                      20% de descuento si superas las 40h/año
                     </p>
                     <p className="text-[#15803D] text-xs mt-1">
                       Te enviamos el código por email si el tiempo que pierdes es una locura

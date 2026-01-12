@@ -3,7 +3,11 @@ import { NextRequest } from 'next/server'
 import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
 
-const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'itineramio-admin-secret-2024'
+const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET
+
+if (!ADMIN_JWT_SECRET) {
+  throw new Error('CRITICAL: ADMIN_JWT_SECRET environment variable is not set. Application cannot start securely.')
+}
 
 export interface AdminJWTPayload {
   adminId: string

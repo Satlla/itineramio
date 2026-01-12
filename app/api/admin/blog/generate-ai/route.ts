@@ -58,11 +58,11 @@ async function generateBlogContent(topic: string, category: string) {
 function getCategoryContext(category: string): string {
   const contexts: Record<string, string> = {
     'GUIAS': 'Esta es una guía práctica paso a paso',
-    'MEJORES_PRACTICAS': 'Estas son las mejores prácticas recomendadas por expertos',
+    'MEJORES_PRACTICAS': 'Estás son las mejores prácticas recomendadas por expertos',
     'NORMATIVA': 'Esta es la información legal y normativa actualizada',
-    'AUTOMATIZACION': 'Estas son las estrategias de automatización más efectivas',
-    'MARKETING': 'Estas son las técnicas de marketing probadas',
-    'OPERACIONES': 'Estas son las mejores prácticas operativas',
+    'AUTOMATIZACIÓN': 'Estás son las estrategias de automatización más efectivas',
+    'MARKETING': 'Estás son las técnicas de marketing probadas',
+    'OPERACIONES': 'Estás son las mejores prácticas operativas',
     'CASOS_ESTUDIO': 'Este es un análisis detallado de casos reales',
     'NOTICIAS': 'Esta es la información más reciente del sector'
   }
@@ -138,7 +138,7 @@ function generateHTMLContent(topic: string, context: string): string {
 <h2>Caso de Éxito Real</h2>
 
 <div style="background-color: #dbeafe; border-left: 4px solid #3b82f6; padding: 1rem; margin: 1.5rem 0;">
-  <p><strong>📊 Ejemplo:</strong> María, anfitriona en Madrid con 3 apartamentos, implementó estas estrategias:</p>
+  <p><strong>📊 Ejemplo:</strong> María, anfitriona en Madrid con 3 apartamentos, implementó estás estrategias:</p>
   <ul style="margin-bottom: 0;">
     <li>Ingresos: De €3,200/mes a €5,100/mes (+59%)</li>
     <li>Ocupación: Del 62% al 84%</li>
@@ -172,7 +172,7 @@ function generateHTMLContent(topic: string, context: string): string {
 
 <h2>Conclusión</h2>
 
-<p>${topic} no es solo una táctica más, sino una estrategia fundamental que puede transformar completamente los resultados de tu alquiler vacacional. Los datos demuestran que los anfitriones que implementan estas prácticas de forma consistente logran:</p>
+<p>${topic} no es solo una táctica más, sino una estrategia fundamental que puede transformar completamente los resultados de tu alquiler vacacional. Los datos demuestran que los anfitriones que implementan estás prácticas de forma consistente logran:</p>
 
 <ul>
   <li>✅ Mayor rentabilidad sostenida en el tiempo</li>
@@ -203,7 +203,7 @@ function generateKeywords(topic: string, category: string): string[] {
     'GUIAS': ['guía', 'cómo hacer', 'paso a paso', 'tutorial'],
     'MEJORES_PRACTICAS': ['mejores prácticas', 'consejos', 'tips', 'recomendaciones'],
     'NORMATIVA': ['normativa', 'legal', 'VUT', 'licencia', 'regulación'],
-    'AUTOMATIZACION': ['automatización', 'software', 'herramientas', 'tecnología'],
+    'AUTOMATIZACIÓN': ['automatización', 'software', 'herramientas', 'tecnología'],
     'MARKETING': ['marketing', 'promoción', 'visibilidad', 'optimización'],
     'OPERACIONES': ['operaciones', 'gestión', 'administración', 'procesos'],
     'CASOS_ESTUDIO': ['caso de éxito', 'ejemplo real', 'resultados'],
@@ -224,7 +224,7 @@ function generateTags(topic: string, category: string): string[] {
     'GUIAS': ['Tutorial', 'Paso a Paso'],
     'MEJORES_PRACTICAS': ['Tips', 'Consejos'],
     'NORMATIVA': ['Legal', 'VUT'],
-    'AUTOMATIZACION': ['Automatización', 'Tecnología'],
+    'AUTOMATIZACIÓN': ['Automatización', 'Tecnología'],
     'MARKETING': ['Marketing', 'SEO'],
     'OPERACIONES': ['Operaciones', 'Procesos'],
     'CASOS_ESTUDIO': ['Caso de Éxito'],

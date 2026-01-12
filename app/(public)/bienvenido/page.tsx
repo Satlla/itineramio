@@ -197,7 +197,7 @@ const translations: Record<Language, Translation> = {
     },
     zones: {
       title: 'Zonas recomendadas',
-      subtitle: 'Itineramio te sugiere estas zonas basadas en miles de alojamientos',
+      subtitle: 'Itineramio te sugiere estás zonas basadas en miles de alojamientos',
       essential: '13 Zonas esenciales',
       additional: 'Zonas adicionales',
       items: {
@@ -229,7 +229,7 @@ const translations: Record<Language, Translation> = {
     step3: {
       title: 'Paso 3',
       subtitle: 'Añade contenido a tus zonas',
-      description: 'Cada zona puede tener texto, fotos y videos. Cuanto más visual, mejor entenderán tus huéspedes.',
+      description: 'Cada zona puede tener texto, fotos y videos. Cuánto más visual, mejor entenderán tus huéspedes.',
       contentTypes: {
         text: {
           title: 'Texto',

@@ -33,10 +33,10 @@ export default function AcademiaQuizDay7Case({ name, email }: Props) {
                 <strong>El problema:</strong> Maria recibia 5-10 mensajes diarios preguntando lo mismo: wifi, parking, check-in...
               </p>
               <p style={{ margin: '0 0 12px 0', color: '#374151', fontSize: '14px' }}>
-                <strong>La solucion:</strong> Creo un manual digital con toda la informacion y lo compartio antes de cada llegada.
+                <strong>La solución:</strong> Creo un manual digital con toda la información y lo compartio antes de cada llegada.
               </p>
               <p style={{ margin: 0, color: '#374151', fontSize: '14px' }}>
-                <strong>El resultado:</strong> Mensajes reducidos un 80%, resenas mejoradas, y el estatus de Superhost en el siguiente trimestre.
+                <strong>El resultado:</strong> Mensajes reducidos un 80%, reseñas mejoradas, y el estatus de Superhost en el siguiente trimestre.
               </p>
             </div>
 
@@ -45,7 +45,7 @@ export default function AcademiaQuizDay7Case({ name, email }: Props) {
             </p>
 
             <p style={{ margin: '0', color: '#374151', fontSize: '16px' }}>
-              En el proximo email te hablare de como puedes empezar tu propio camino hacia el Superhost.
+              En el próximo email te hablaré de como puedes empezar tu propio camino hacía el Superhost.
             </p>
 
             <p style={{ margin: '20px 0 0 0', color: '#374151', fontSize: '16px' }}>

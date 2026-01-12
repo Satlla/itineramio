@@ -49,8 +49,8 @@ export const metadata: Metadata = {
     // Problem-based keywords
     'como hacer manual apartamento turistico',
     'instrucciones apartamento turistico',
-    'manual huespedes apartamento',
-    'automatizar gestion apartamento turistico',
+    'manual huéspedes apartamento',
+    'automatizar gestión apartamento turistico',
 
     // Location-specific
     'manual apartamento turistico madrid',
@@ -58,9 +58,9 @@ export const metadata: Metadata = {
     'vut madrid manual digital',
 
     // Feature keywords
-    'codigo qr apartamento turistico',
+    'código qr apartamento turistico',
     'manual interactivo airbnb',
-    'software gestion apartamentos turisticos',
+    'software gestión apartamentos turisticos',
   ],
   authors: [{ name: 'Itineramio' }],
   creator: 'Itineramio',
@@ -235,7 +235,8 @@ export default function RootLayout({
         <CookieBanner />
 
         {/* Exit Intent Popup - Time Calculator Lead Magnet */}
-        <ExitIntentPopup delay={10000} cooldownDays={7} />
+        {/* Shows after 5 seconds OR on exit intent, with 3-day cooldown */}
+        <ExitIntentPopup delay={3000} cooldownDays={3} autoShowDelay={5000} />
 
         <ChunkErrorHandler />
         <ErrorBoundary>

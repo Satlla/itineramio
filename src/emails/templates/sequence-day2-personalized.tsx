@@ -40,7 +40,7 @@ const ARCHETYPE_CONTENT: Record<EmailArchetype, {
     problem: 'Tienes SOPs perfectos en tu cabeza, pero tu equipo no los sigue. Pasas horas coordinando limpieza, check-ins y mantenimiento. Cada día repites las mismas 47 tareas.',
     solution: 'Los Sistemáticos de élite automatizan la mayoría de operaciones rutinarias, manteniendo control total. Liberan tiempo valioso cada semana sin sacrificar calidad.',
     articleTitle: 'Automatización Airbnb: El Stack Completo de Herramientas',
-    articleUrl: 'https://www.itineramio.com/blog/automatizacion-airbnb-stack-completo',
+    articleUrl: 'https://www.itineramio.com/blog/automatización-airbnb-stack-completo',
     articleTeaser: 'El blueprint exacto de automatización que usan anfitriones con 10+ propiedades: PMS, pricing dinámico, comunicación automática, y coordinación de equipo. Todo integrado.',
     leadMagnetTitle: 'Checklist de 47 Tareas Automatizables',
     leadMagnetUrl: '/api/lead-magnet/download?archetype=sistematico',

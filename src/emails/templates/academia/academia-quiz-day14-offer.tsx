@@ -14,7 +14,7 @@ export default function AcademiaQuizDay14Offer({ name, email }: Props) {
         <tr>
           <td style={{ textAlign: 'center', paddingBottom: '32px' }}>
             <p style={{ margin: '0 0 6px 0', color: '#999', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px' }}>Academia Itineramio</p>
-            <h1 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '24px', fontWeight: 600 }}>Ultima oportunidad</h1>
+            <h1 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '24px', fontWeight: 600 }}>Última oportunidad</h1>
           </td>
         </tr>
 
@@ -25,25 +25,25 @@ export default function AcademiaQuizDay14Offer({ name, email }: Props) {
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Este es el ultimo email de la secuencia de bienvenida de la Academia.
+              Este es el último email de la secuencia de bienvenida de la Academia.
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Si todavia no has probado Itineramio, aqui tienes un resumen de lo que puedes conseguir:
+              Si todavia no has probado Itineramio, aquí tienes un resumen de lo que puedes conseguir:
             </p>
 
             <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}>
               <ul style={{ margin: 0, paddingLeft: '20px', color: '#166534', fontSize: '15px', lineHeight: 1.8 }}>
                 <li>Manual digital profesional en minutos</li>
-                <li>QR para compartir con huespedes</li>
+                <li>QR para compartir con huéspedes</li>
                 <li>Reduccion del 80% en mensajes repetitivos</li>
-                <li>Mejor experiencia = mejores resenas</li>
+                <li>Mejor experiencia = mejores reseñas</li>
               </ul>
             </div>
 
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <a href="https://www.itineramio.com/auth/register" style={{ display: 'inline-block', backgroundColor: '#7c3aed', color: '#ffffff', padding: '14px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 600, fontSize: '16px' }}>
-                Probar 15 dias gratis
+                Probar 15 días gratis
               </a>
             </div>
 

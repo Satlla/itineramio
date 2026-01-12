@@ -193,7 +193,7 @@ export async function POST(request: NextRequest) {
                 </tr>
                 <tr>
                   <td style="padding: 8px 0;">
-                    <a href="https://www.itineramio.com/blog/como-conseguir-resenas-5-estrellas-airbnb" style="color: #7c3aed; text-decoration: none; font-size: 14px;">⭐ Cómo conseguir reseñas de 5 estrellas →</a>
+                    <a href="https://www.itineramio.com/blog/como-conseguir-reseñas-5-estrellas-airbnb" style="color: #7c3aed; text-decoration: none; font-size: 14px;">⭐ Cómo conseguir reseñas de 5 estrellas →</a>
                   </td>
                 </tr>
               </table>

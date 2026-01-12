@@ -85,7 +85,7 @@ function generateResultsHTML(data: {
               <tr>
                 <td width="50%" style="background-color: #FEE2E2; border-radius: 12px; padding: 20px; text-align: center;">
                   <p style="margin: 0; font-size: 28px; font-weight: 700; color: #DC2626;">${result.moneyLostPerYear}€</p>
-                  <p style="margin: 4px 0 0 0; font-size: 13px; color: #991B1B;">valor perdido/ano</p>
+                  <p style="margin: 4px 0 0 0; font-size: 13px; color: #991B1B;">valor perdido/año</p>
                 </td>
                 <td width="50%" style="background-color: #DCFCE7; border-radius: 12px; padding: 20px; text-align: center;">
                   <p style="margin: 0; font-size: 28px; font-weight: 700; color: #16A34A;">${result.tasksAutomatable}h</p>
@@ -116,7 +116,7 @@ function generateResultsHTML(data: {
             <!-- Solution -->
             <div style="background-color: #F0FDF4; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
               <p style="margin: 0 0 12px 0; color: #166534; font-size: 15px; font-weight: 600;">
-                💡 Cómo automatizar estas tareas:
+                💡 Cómo automatizar estás tareas:
               </p>
               <p style="margin: 0; color: #15803D; font-size: 14px; line-height: 1.6;">
                 Un <strong>manual digital</strong> responde las preguntas repetitivas por ti: WiFi, normas, parking, electrodomésticos, recomendaciones... El huésped lo consulta cuando quiere, tu no tienes que repetir lo mismo.

@@ -24,7 +24,7 @@ export default function Day5CaseStudy({ name, email }: Day5CaseStudyProps) {
         <tr>
           <td style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '40px 32px', border: '1px solid #DDDDDD' }}>
             <h1 style={{ margin: '0 0 24px 0', color: '#222222', fontSize: '24px', fontWeight: 600, lineHeight: 1.3 }}>
-              Asi funciona un manual digital
+              Así funciona un manual digital
             </h1>
 
             <p style={{ margin: '0 0 20px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
@@ -36,9 +36,9 @@ export default function Day5CaseStudy({ name, email }: Day5CaseStudyProps) {
             </p>
 
             <ol style={{ margin: '0 0 24px 0', paddingLeft: '20px', color: '#222222', fontSize: '15px', lineHeight: 2 }}>
-              <li>Un huesped reserva tu alojamiento</li>
-              <li>Le envias un mensaje automatico con el enlace a tu manual</li>
-              <li>El huesped lo abre desde su movil y ve todo: WiFi, normas, parking, como llegar, recomendaciones locales...</li>
+              <li>Un huésped reserva tu alojamiento</li>
+              <li>Le envias un mensaje automático con el enlace a tu manual</li>
+              <li>El huésped lo abre desde su móvil y ve todo: WiFi, normas, parking, como llegar, recomendaciones locales...</li>
               <li>Cuando tiene una duda, mira el manual en vez de escribirte</li>
             </ol>
 
@@ -70,12 +70,12 @@ export default function Day5CaseStudy({ name, email }: Day5CaseStudyProps) {
             </table>
 
             <p style={{ margin: '0 0 20px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              Fijate en como esta organizado: zonas claras, fotos, instrucciones paso a paso. El huesped encuentra lo que busca sin tener que preguntarte.
+              Fijate en como esta organizado: zonas claras, fotos, instrucciones paso a paso. El huésped encuentra lo que busca sin tener que preguntarte.
             </p>
 
             <div style={{ backgroundColor: '#F0FDF4', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}>
               <p style={{ margin: '0 0 12px 0', color: '#166534', fontSize: '15px', fontWeight: 600 }}>
-                Crear el tuyo es rapido:
+                Crear el tuyo es rápido:
               </p>
               <ul style={{ margin: '0', paddingLeft: '20px', color: '#15803D', fontSize: '14px', lineHeight: 1.8 }}>
                 <li>Itineramio te da una estructura base ya hecha</li>
@@ -86,11 +86,11 @@ export default function Day5CaseStudy({ name, email }: Day5CaseStudyProps) {
             </div>
 
             <p style={{ margin: '0 0 20px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              Los huespedes seguiran escribiendote de vez en cuando (es inevitable), pero las preguntas repetitivas del tipo "cual es la clave del WiFi" o "como funciona el aire acondicionado" desaparecen.
+              Los huéspedes seguiran escribiendote de vez en cuando (es inevitable), pero las preguntas repetitivas del tipo "cual es la clave del WiFi" o "como funciona el aire acondicionado" desaparecen.
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              Manana te cuento como probarlo gratis.
+              Mañana te cuento como probarlo gratis.
             </p>
 
             <p style={{ margin: '24px 0 0 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
@@ -115,5 +115,5 @@ export default function Day5CaseStudy({ name, email }: Day5CaseStudyProps) {
 }
 
 export function getSubject(): string {
-  return 'Asi funciona un manual digital (ejemplo real)'
+  return 'Así funciona un manual digital (ejemplo real)'
 }

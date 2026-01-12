@@ -143,7 +143,7 @@ const AVISO_TEMPLATES = [
     message: {
       es: 'El servicio de [especificar] no está disponible temporalmente. Se restablecerá el [fecha].',
       en: 'The [specify] service is temporarily unavailable. It will be restored on [date].',
-      fr: 'Le service de [spécifier] n\'est pas disponible temporairement. Il sera rétabli le [date].'
+      fr: 'Le service de [spécifier] n\'est pas disponible temporairement. Il será rétabli le [date].'
     },
     category: 'amenities',
     priority: 'NORMAL'

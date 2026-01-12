@@ -12,9 +12,11 @@ import {
   CheckCircle,
   XCircle,
   Calendar,
-  Tag
+  Tag,
+  Eye
 } from 'lucide-react'
 import Link from 'next/link'
+import { LeadDetailModal } from '@/components/admin/LeadDetailModal'
 
 interface AcademiaLead {
   id: string
@@ -41,6 +43,18 @@ export default function AcademiaLeadsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [deleting, setDeleting] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const [selectedLead, setSelectedLead] = useState<AcademiaLead | null>(null)
+
+  const handleDeleteLead = (id: string) => {
+    const lead = leads.find(l => l.id === id)
+    setLeads(leads.filter(l => l.id !== id))
+    setStats(prev => ({
+      ...prev,
+      total: prev.total - 1,
+      active: prev.active - (lead?.status === 'active' ? 1 : 0)
+    }))
+    setSelectedLead(null)
+  }
 
   useEffect(() => {
     fetchLeads()
@@ -332,23 +346,27 @@ export default function AcademiaLeadsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <button
-                          onClick={() => deleteLead(lead.id, lead.email)}
-                          disabled={deleting === lead.id}
-                          className="inline-flex items-center px-3 py-1.5 border border-red-200 text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                          {deleting === lead.id ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin mr-2"></div>
-                              Eliminando...
-                            </>
-                          ) : (
-                            <>
-                              <Trash2 className="w-4 h-4 mr-1" />
-                              Eliminar
-                            </>
-                          )}
-                        </button>
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => setSelectedLead(lead)}
+                            className="p-2 text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
+                            title="Ver detalles"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteLead(lead.id, lead.email)}
+                            disabled={deleting === lead.id}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                            title="Eliminar"
+                          >
+                            {deleting === lead.id ? (
+                              <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -363,6 +381,22 @@ export default function AcademiaLeadsPage() {
           Mostrando {filteredLeads.length} de {leads.length} leads
         </div>
       </div>
+
+      {/* Lead Detail Modal */}
+      {selectedLead && (
+        <LeadDetailModal
+          lead={{
+            id: selectedLead.id,
+            email: selectedLead.email,
+            status: selectedLead.status,
+            createdAt: selectedLead.createdAt,
+            unsubscribedAt: selectedLead.unsubscribedAt || undefined
+          }}
+          type="academia"
+          onClose={() => setSelectedLead(null)}
+          onDelete={handleDeleteLead}
+        />
+      )}
     </div>
   )
 }

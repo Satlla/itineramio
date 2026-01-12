@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Mail, TrendingUp, Users, UserCheck, Download, Search, Filter, ChevronDown, ChevronRight, CheckCircle2, XCircle, ArrowLeft, Trash2, Pencil, X, Loader2 } from 'lucide-react'
+import { Mail, TrendingUp, Users, UserCheck, Download, Search, Filter, ChevronDown, ChevronRight, CheckCircle2, XCircle, ArrowLeft, Trash2, Pencil, X, Loader2, Eye } from 'lucide-react'
 import Link from 'next/link'
+import { LeadDetailModal } from '@/components/admin/LeadDetailModal'
 
 interface QuizAnswer {
   questionId: number
@@ -39,11 +40,17 @@ export default function QuizLeadsPage() {
   const [filterVerified, setFilterVerified] = useState<string>('ALL')
   const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null)
 
-  // Edit/Delete state
+  // Edit/Delete/View state
   const [editingLead, setEditingLead] = useState<QuizLead | null>(null)
+  const [viewingLead, setViewingLead] = useState<QuizLead | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+
+  const handleDeleteFromModal = (id: string) => {
+    setLeads(leads.filter(l => l.id !== id))
+    setViewingLead(null)
+  }
 
   useEffect(() => {
     fetchLeads()
@@ -490,6 +497,13 @@ export default function QuizLeadsPage() {
                           <td className="px-6 py-4 whitespace-nowrap text-center">
                             <div className="flex items-center justify-center gap-2">
                               <button
+                                onClick={() => setViewingLead(lead)}
+                                className="p-1.5 text-violet-600 hover:bg-violet-50 rounded transition-colors"
+                                title="Ver detalles"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button
                                 onClick={() => setEditingLead(lead)}
                                 className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
                                 title="Editar"
@@ -713,6 +727,25 @@ export default function QuizLeadsPage() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* View Lead Modal */}
+        {viewingLead && (
+          <LeadDetailModal
+            lead={{
+              id: viewingLead.id,
+              email: viewingLead.email,
+              fullName: viewingLead.fullName,
+              score: viewingLead.score,
+              level: viewingLead.level,
+              source: viewingLead.source,
+              completedAt: viewingLead.completedAt,
+              converted: viewingLead.converted
+            }}
+            type="quiz"
+            onClose={() => setViewingLead(null)}
+            onDelete={handleDeleteFromModal}
+          />
         )}
       </div>
     </div>

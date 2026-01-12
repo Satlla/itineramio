@@ -96,7 +96,7 @@ export default function ContactPage() {
           <div>
             <Card>
               <CardHeader>
-                <CardTitle>Envíanos un mensaje</CardTitle>
+                <CardTitle>Envíaños un mensaje</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>

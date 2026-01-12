@@ -9,7 +9,7 @@ import { PrioritySelector } from '@/components/forms/PrioritySelector'
 export default function PlantillaReviewsPage() {
   const [formData, setFormData] = useState({
     nombre: '',
-    telefono: '',
+    teléfono: '',
     email: '',
     prioridades: [] as string[]
   })
@@ -55,8 +55,8 @@ export default function PlantillaReviewsPage() {
     return phone.replace(/[^\d+]/g, '')
   }
 
-  const whatsappUrl = formData.telefono
-    ? `https://wa.me/${formatPhoneForWhatsApp(formData.telefono)}?text=Hola%2C%20tengo%20una%20pregunta%20sobre%20mi%20estancia`
+  const whatsappUrl = formData.teléfono
+    ? `https://wa.me/${formatPhoneForWhatsApp(formData.teléfono)}?text=Hola%2C%20tengo%20una%20pregunta%20sobre%20mi%20estancia`
     : ''
 
   return (
@@ -138,8 +138,8 @@ export default function PlantillaReviewsPage() {
                   </label>
                   <input
                     type="tel"
-                    value={formData.telefono}
-                    onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+                    value={formData.teléfono}
+                    onChange={(e) => setFormData({ ...formData, teléfono: e.target.value })}
                     placeholder="Ej: +34 612 345 678"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
                     required
@@ -274,11 +274,11 @@ export default function PlantillaReviewsPage() {
                   <div className="flex-1">
                     <p className="text-[9px] font-semibold uppercase tracking-wide text-gray-900 mb-0.5">¿Necesitas ayuda?</p>
                     <p className="text-[11px] text-gray-600 mb-0.5">Escríbenos y lo resolvemos.</p>
-                    <p className="text-sm font-medium text-gray-900">{formData.telefono || '+34 600 000 000'}</p>
+                    <p className="text-sm font-medium text-gray-900">{formData.teléfono || '+34 600 000 000'}</p>
                   </div>
                   <div className="flex-shrink-0">
                     <div className="w-14 h-14 bg-gray-100 rounded flex items-center justify-center">
-                      {formData.telefono ? (
+                      {formData.teléfono ? (
                         <QrCode className="w-10 h-10 text-gray-400" />
                       ) : (
                         <span className="text-[8px] text-gray-400 text-center">QR</span>
@@ -309,7 +309,7 @@ export default function PlantillaReviewsPage() {
             ¿Quieres saber más sobre el sistema de estrellas de Airbnb?
           </p>
           <Link
-            href="/blog/plantilla-significado-estrellas-airbnb-huespedes"
+            href="/blog/plantilla-significado-estrellas-airbnb-huéspedes"
             className="text-rose-600 hover:text-rose-700 font-medium"
           >
             Lee el artículo completo →

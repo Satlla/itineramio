@@ -165,7 +165,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     'GUIAS': 'Guías',
     'MEJORES_PRACTICAS': 'Mejores Prácticas',
     'NORMATIVA': 'Normativa',
-    'AUTOMATIZACION': 'Automatización',
+    'AUTOMATIZACIÓN': 'Automatización',
     'MARKETING': 'Marketing',
     'OPERACIONES': 'Operaciones',
     'CASOS_ESTUDIO': 'Casos de Estudio',

@@ -10,7 +10,7 @@ interface NivelDay3EmailProps {
 const NIVEL_HOOKS: Record<string, {
   problema: string
   ejemplos: string[]
-  solucion: string
+  solución: string
 }> = {
   principiante: {
     problema: '¿Por qué hay principiantes que triunfan en 3 meses y otros abandonan al año?',
@@ -19,7 +19,7 @@ const NIVEL_HOOKS: Record<string, {
       'Carlos también empezó de cero pero abandonó después de 8 meses de pérdidas',
       'Ambos tenían apartamentos similares en la misma ciudad'
     ],
-    solucion: 'La diferencia no es el apartamento, la ubicación o la suerte. Es conocer tu perfil operativo y trabajar desde tus fortalezas.'
+    solución: 'La diferencia no es el apartamento, la ubicación o la suerte. Es conocer tu perfil operativo y trabajar desde tus fortalezas.'
   },
   intermedio: {
     problema: '¿Por qué algunos anfitriones estancan en 70% de ocupación y otros llegan al 95%?',
@@ -28,7 +28,7 @@ const NIVEL_HOOKS: Record<string, {
       'Pero tus vecinos con peor puntuación tienen más reservas',
       'O ganan más dinero con menos ocupación que tú'
     ],
-    solucion: 'El problema no es hacer más cosas. Es hacer LAS COSAS CORRECTAS para tu tipo de anfitrión.'
+    solución: 'El problema no es hacer más cosas. Es hacer LAS COSAS CORRECTAS para tu tipo de anfitrión.'
   },
   avanzado: {
     problema: '¿Por qué algunos escalan a 15 propiedades sin equipo y otros se queman con 3?',
@@ -37,7 +37,7 @@ const NIVEL_HOOKS: Record<string, {
       'Tú tienes 3-5 propiedades y trabajas 50h/semana apagando fuegos',
       'Ambos generan ingresos similares pero uno tiene vida y el otro no'
     ],
-    solucion: 'La diferencia está en diseñar sistemas que se alinean con tu perfil operativo, no copiar lo que funciona para otros.'
+    solución: 'La diferencia está en diseñar sistemas que se alinean con tu perfil operativo, no copiar lo que funciona para otros.'
   },
   profesional: {
     problema: '¿Por qué el top 5% sigue creciendo mientras el resto se estanca?',
@@ -46,7 +46,7 @@ const NIVEL_HOOKS: Record<string, {
       'Pero sientes que has llegado a un techo',
       'Mientras ves a otros profesionales duplicar su portfolio cada año'
     ],
-    solucion: 'El siguiente nivel no viene de hacer más, sino de alinear tu estrategia con tu perfil operativo único.'
+    solución: 'El siguiente nivel no viene de hacer más, sino de alinear tu estrategia con tu perfil operativo único.'
   }
 }
 
@@ -91,7 +91,7 @@ export default function NivelDay3Email({ name, nivel }: NivelDay3EmailProps) {
 
       {/* Solution */}
       <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#333', marginTop: '25px' }}>
-        <strong>{content.solucion}</strong>
+        <strong>{content.solución}</strong>
       </p>
 
       {/* Explanation */}

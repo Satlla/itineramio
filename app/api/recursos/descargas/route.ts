@@ -275,7 +275,7 @@ export async function POST(request: NextRequest) {
     const {
       email,
       propiedades,
-      automatizacion,
+      automatización,
       intereses = [],
       comentario,
       resourceSlug,
@@ -285,7 +285,7 @@ export async function POST(request: NextRequest) {
     } = body
 
     // Validate required fields
-    if (!email || !propiedades || !automatizacion || !resourceSlug) {
+    if (!email || !propiedades || !automatización || !resourceSlug) {
       return NextResponse.json(
         { error: 'Faltan campos obligatorios' },
         { status: 400 }
@@ -308,7 +308,7 @@ export async function POST(request: NextRequest) {
     try {
       leadResult = await updateLeadWithPlantillasForm(normalizedEmail, {
         propiedades,
-        automatizacion,
+        automatización,
         intereses,
         comentario,
         resourceSlug,
@@ -369,7 +369,7 @@ export async function POST(request: NextRequest) {
                   </tr>
                   <tr>
                     <td style="padding: 8px 0; color: #666;">Automatización:</td>
-                    <td style="padding: 8px 0; font-weight: 600;">${automatizacion === 'nada' ? '❌ Nada' : automatizacion === 'basico' ? '⚠️ Básico' : '✅ Usa herramientas'}</td>
+                    <td style="padding: 8px 0; font-weight: 600;">${automatización === 'nada' ? '❌ Nada' : automatización === 'básico' ? '⚠️ Básico' : '✅ Usa herramientas'}</td>
                   </tr>
                   <tr>
                     <td style="padding: 8px 0; color: #666;">Intereses:</td>

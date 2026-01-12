@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     'itineramio vs hospitable',
     'hospitable manuales digitales',
     'hospitable vs touch stay',
-    'software gestion airbnb',
+    'software gestión airbnb',
     'hospitable precios'
   ],
   openGraph: {

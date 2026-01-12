@@ -215,7 +215,7 @@ export async function sendDay3MistakesEmail({
         { title: 'No automatizar comunicaciones básicas', desc: 'Mensaje de bienvenida, instrucciones de check-in, solicitud de review... todo automatizable en 30 minutos.' },
         { title: 'Buscar el sistema perfecto antes de empezar', desc: 'Lanza al 70%. Mejora basándote en uso real. "Perfecto" es enemigo de "hecho".' }
       ],
-      blogSlug: 'automatizacion-airbnb'
+      blogSlug: 'automatización-airbnb'
     },
     DIFERENCIADOR: {
       subject: 'Por qué copiar a tu competencia es un ERROR',
@@ -223,7 +223,7 @@ export async function sendDay3MistakesEmail({
       mistakes: [
         { title: 'Añadir "detalles únicos" que nadie valora', desc: 'Ese jarrón artesanal de 80€ no suma reservas. WiFi rápido y café de calidad sí.' },
         { title: 'No comunicar tu diferenciación en el listing', desc: 'Tienes algo especial pero está enterrado en el párrafo 4. Los primeros 3 renglones son oro.' },
-        { title: 'Diferenciarte en precio... hacia arriba sin justificar', desc: 'Cobrar 20% más está bien. Pero tienes que MOSTRAR por qué vales ese 20%.' }
+        { title: 'Diferenciarte en precio... hacía arriba sin justificar', desc: 'Cobrar 20% más está bien. Pero tienes que MOSTRAR por qué vales ese 20%.' }
       ],
       blogSlug: 'diferenciacion-airbnb'
     },
@@ -255,7 +255,7 @@ export async function sendDay3MistakesEmail({
         { title: 'Intentar ser amigo de cada huésped', desc: 'El 70% solo quiere: limpio, funcional, comunicación clara. No una relación personal.' },
         { title: 'No medir qué detalles importan', desc: 'Pregunta en el mensaje de checkout: "¿Qué fue lo mejor de tu estancia?" Las respuestas te sorprenderán.' }
       ],
-      blogSlug: 'experiencia-huesped'
+      blogSlug: 'experiencia-huésped'
     },
     EQUILIBRADO: {
       subject: 'Por qué "equilibrado" puede ser tu mayor ventaja',
@@ -265,7 +265,7 @@ export async function sendDay3MistakesEmail({
         { title: 'No especializarte para un nicho', desc: 'Tu flexibilidad es perfecta para nómadas digitales (necesitan un poco de todo). Market para ellos.' },
         { title: 'No automatizar porque "depende del caso"', desc: '80% de casos son iguales. Automatiza esos. El otro 20% lo personalizas.' }
       ],
-      blogSlug: 'gestion-eficiente'
+      blogSlug: 'gestión-eficiente'
     },
     IMPROVISADOR: {
       subject: 'Tu flexibilidad vale ORO (si haces esto)',
@@ -607,7 +607,7 @@ export async function sendDay10TrialEmail({
             ¿Por qué ahora?
           </h3>
           <p style="font-size: 15px; line-height: 1.6;">
-            Porque cuanto antes empieces, antes verás resultados. Si los casos que te compartí
+            Porque cuánto antes empieces, antes verás resultados. Si los casos que te compartí
             (Laura, los 3 errores, etc.) te resonaron, la prueba no tiene riesgo.
           </p>
           <p style="font-size: 15px; line-height: 1.6;">
@@ -758,7 +758,7 @@ export async function sendDay14UrgencyEmail({
 
         <div style="margin: 30px 0; padding-top: 20px; border-top: 1px solid #e5e7eb;">
           <p style="font-size: 15px; line-height: 1.6;">
-            Gracias por tu tiempo estas últimas semanas, ${name}.
+            Gracias por tu tiempo estás últimas semanas, ${name}.
           </p>
           <p style="font-size: 15px; line-height: 1.6;">
             Sea cual sea tu decisión, te deseo mucho éxito con tus propiedades.
@@ -1252,7 +1252,7 @@ export async function sendNivelDay7Email({
 }
 
 // ========================================
-// SOAP OPERA SEQUENCE (15 dias, 8 emails)
+// SOAP OPERA SEQUENCE (15 días, 8 emails)
 // Secuencia principal de conversion basada en storytelling
 // ========================================
 
@@ -1265,7 +1265,7 @@ interface SoapOperaEmailParams {
 }
 
 /**
- * EMAIL 1 - DIA 1: "Tu Historia Comienza Aqui"
+ * EMAIL 1 - DÍA 1: "Tu Historia Comienza Aquí"
  * Bienvenida + Conexion emocional + Cliffhanger
  */
 export async function sendSoapOperaEmail1({
@@ -1278,27 +1278,27 @@ export async function sendSoapOperaEmail1({
   const nivelContent: Record<SoapOperaNivel, { subject: string; intro: string; story: string; cliffhanger: string }> = {
     principiante: {
       subject: `${name}, tu resultado revela algo importante...`,
-      intro: 'Acabas de dar el primer paso que el 90% de anfitriones nunca da: evaluar donde estas realmente.',
-      story: 'Cuando empece como anfitrion, cometia exactamente los mismos errores que veo en principiantes hoy. Pensaba que saberlo todo era cuestion de tiempo. Spoiler: no lo era. Habia algo fundamental que me faltaba entender...',
-      cliffhanger: 'Manana te cuento el error #1 que me costo 3 meses de frustracion (y como evitarlo).'
+      intro: 'Acabas de dar el primer paso que el 90% de anfitriones nunca da: evaluar donde estás realmente.',
+      story: 'Cuando empece como anfitrion, cometia exactamente los mismos errores que veo en principiantes hoy. Pensaba que saberlo todo era cuestion de tiempo. Spoiler: no lo era. Había algo fundamental que me faltaba entender...',
+      cliffhanger: 'Mañana te cuento el error #1 que me costo 3 meses de frustracion (y como evitarlo).'
     },
     intermedio: {
-      subject: `${name}, estas mas cerca de lo que crees...`,
+      subject: `${name}, estás más cerca de lo que crees...`,
       intro: 'Tu nivel intermedio significa que ya superaste la curva inicial. Pero hay un punto de inflexion que separa a quienes se estancan de quienes escalan.',
-      story: 'Conoci a Laura hace 2 anos. Tenia 2 propiedades, 4.6 estrellas, ocupacion del 75%. "Voy bien", decia. Un ano despues: mismos numeros. Habia algo que no veia...',
-      cliffhanger: 'Manana te cuento que descubrio Laura (y como paso de 1.800€ a 3.200€/mes).'
+      story: 'Conoci a Laura hace 2 años. Tenía 2 propiedades, 4.6 estrellas, ocupacion del 75%. "Voy bien", decía. Un año después: mismos números. Había algo que no veia...',
+      cliffhanger: 'Mañana te cuento que descubrio Laura (y como paso de 1.800€ a 3.200€/mes).'
     },
     avanzado: {
-      subject: `${name}, el proximo nivel requiere algo diferente...`,
-      intro: 'Con tu nivel avanzado, ya dominas las bases. El problema? Las tacticas que te trajeron aqui no te llevaran al siguiente nivel.',
+      subject: `${name}, el próximo nivel requiere algo diferente...`,
+      intro: 'Con tu nivel avanzado, ya dominas las bases. El problema? Las tacticas que te trajeron aquí no te llevaran al siguiente nivel.',
       story: 'Los mejores anfitriones que conozco tienen algo en comun: en algun momento dejaron de optimizar tareas y empezaron a optimizar sistemas. La diferencia parece sutil, pero cambia todo...',
-      cliffhanger: 'Manana te revelo el framework que usan los top 1% de anfitriones.'
+      cliffhanger: 'Mañana te revelo el framework que usan los top 1% de anfitriones.'
     },
     profesional: {
       subject: `${name}, hablemos de escalar sin morir en el intento...`,
-      intro: 'Tu nivel profesional te pone en el top 5% de anfitriones. El siguiente paso no es hacer mas, es hacer diferente.',
+      intro: 'Tu nivel profesional te pone en el top 5% de anfitriones. El siguiente paso no es hacer más, es hacer diferente.',
       story: 'Gestionar 1 propiedad requiere esfuerzo. Gestionar 5 requiere sistemas. Gestionar 10+ requiere algo que la mayoria nunca desarrolla: la capacidad de NO hacer...',
-      cliffhanger: 'Manana te cuento como un gestor paso de 15 a 40 propiedades trabajando MENOS horas.'
+      cliffhanger: 'Mañana te cuento como un gestor paso de 15 a 40 propiedades trabajando MENOS horas.'
     }
   }
 
@@ -1364,7 +1364,7 @@ export async function sendSoapOperaEmail1({
 }
 
 /**
- * EMAIL 2 - DIA 3: "El Error que Todos Cometemos"
+ * EMAIL 2 - DÍA 3: "El Error que Todos Cometemos"
  * Identificar dolor + Datos + Cliffhanger
  */
 export async function sendSoapOperaEmail2({
@@ -1377,31 +1377,31 @@ export async function sendSoapOperaEmail2({
   const nivelContent: Record<SoapOperaNivel, { subject: string; error: string; data: string; cliffhanger: string; articleSlug: string; articleTitle: string }> = {
     principiante: {
       subject: 'El error #1 que te esta costando horas cada semana',
-      error: 'No tener un sistema desde el dia 1. Piensas: "Cuando tenga mas reservas, me organizo". Pero ese momento nunca llega. Terminas apagando fuegos constantemente.',
-      data: 'El 78% de anfitriones que abandonan en el primer ano lo hacen por agotamiento, no por falta de reservas. Trabajaban MAS, no mejor.',
-      cliffhanger: 'Pero hay una forma de empezar con el pie derecho desde hoy. Te la cuento en mi proximo email.',
+      error: 'No tener un sistema desde el día 1. Piensas: "Cuando tenga más reservas, me organizo". Pero ese momento nunca llega. Terminas apagando fuegos constantemente.',
+      data: 'El 78% de anfitriones que abandonan en el primer año lo hacen por agotamiento, no por falta de reservas. Trabajaban MAS, no mejor.',
+      cliffhanger: 'Pero hay una forma de empezar con el pie derecho desde hoy. Te la cuento en mi próximo email.',
       articleSlug: 'errores-principiantes-airbnb',
       articleTitle: 'Los 10 Errores Fatales del Principiante'
     },
     intermedio: {
       subject: 'Por que el 75% de ocupacion puede ser una trampa',
-      error: 'Medir exito por ocupacion en vez de por ingresos netos. 85% ocupacion a 50€/noche = 1.275€. 65% ocupacion a 75€/noche = 1.462€. Menos trabajo, mas dinero.',
-      data: 'Los anfitriones que optimizan por RevPAR (ingreso por noche disponible) ganan un 23% mas que los que optimizan por ocupacion.',
-      cliffhanger: 'En mi proximo email te cuento exactamente como Laura hizo el cambio (con numeros reales).',
+      error: 'Medir exito por ocupacion en vez de por ingresos netos. 85% ocupacion a 50€/noche = 1.275€. 65% ocupacion a 75€/noche = 1.462€. Menos trabajo, más dinero.',
+      data: 'Los anfitriones que optimizan por RevPAR (ingreso por noche disponible) ganan un 23% más que los que optimizan por ocupacion.',
+      cliffhanger: 'En mi próximo email te cuento exactamente como Laura hizo el cambio (con números reales).',
       articleSlug: 'revpar-vs-ocupacion-metrica-que-cambia-todo',
       articleTitle: 'RevPAR vs Ocupacion: La Metrica que Cambia Todo'
     },
     avanzado: {
       subject: 'El error invisible que limita tu crecimiento',
-      error: 'Hacer TODO personalmente porque "lo hago mas rapido yo". Verdad hoy, trampa manana. Cada tarea que no delegas es una cadena que te ata.',
-      data: 'Los anfitriones que delegan 3+ tareas clave crecen 2.4x mas rapido que los que hacen todo solos.',
-      cliffhanger: 'Hay un metodo para identificar QUE delegar primero. Te lo revelo en el proximo email.',
+      error: 'Hacer TODO personalmente porque "lo hago más rápido yo". Verdad hoy, trampa mañana. Cada tarea que no delegas es una cadena que te ata.',
+      data: 'Los anfitriones que delegan 3+ tareas clave crecen 2.4x más rápido que los que hacen todo solos.',
+      cliffhanger: 'Hay un método para identificar QUE delegar primero. Te lo revelo en el próximo email.',
       articleSlug: 'del-modo-bombero-al-modo-ceo-framework',
       articleTitle: 'Del Modo Bombero al Modo CEO'
     },
     profesional: {
       subject: 'El techo de cristal que nadie menciona',
-      error: 'Intentar escalar con los mismos procesos que funcionaban con 5 propiedades. Lo que te trajo aqui te impedira llegar alli.',
+      error: 'Intentar escalar con los mismos procesos que funcionaban con 5 propiedades. Lo que te trajo aquí te impedira llegar allí.',
       data: 'Solo el 3% de gestores supera las 20 propiedades. No por falta de demanda, sino por cuellos de botella operativos no resueltos.',
       cliffhanger: 'Conozco un gestor que paso de 15 a 40 propiedades en 18 meses. Te cuento su secreto.',
       articleSlug: 'caso-david-15-propiedades',
@@ -1422,7 +1422,7 @@ export async function sendSoapOperaEmail2({
         </p>
 
         <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          Te prometi contarte el error que mas veo en anfitriones de tu nivel. Aqui va:
+          Te prometi contarte el error que más veo en anfitriones de tu nivel. Aquí va:
         </p>
 
         <div style="margin: 25px 0; padding: 25px; background: #fef2f2; border-left: 4px solid #dc2626; border-radius: 4px;">
@@ -1441,12 +1441,12 @@ export async function sendSoapOperaEmail2({
         </div>
 
         <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          ¿Te suena familiar? No estas sol@. Es el patron mas comun que veo.
+          ¿Te suena familiar? No estás sol@. Es el patron más comun que veo.
         </p>
 
         <div style="margin: 25px 0; padding: 20px; background: #f0fdf4; border-radius: 8px;">
           <p style="font-size: 15px; line-height: 1.6; margin: 0 0 15px 0; color: #065f46;">
-            📚 <strong>Lectura recomendada:</strong> Profundizo mas sobre este tema en el blog.
+            📚 <strong>Lectura recomendada:</strong> Profundizo más sobre este tema en el blog.
           </p>
           <a href="${appUrl}/blog/${content.articleSlug}"
              style="display: inline-block; background: #10b981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 14px;">
@@ -1489,8 +1489,8 @@ export async function sendSoapOperaEmail2({
 }
 
 /**
- * EMAIL 3 - DIA 5: "La Revelacion"
- * Momento aha + Solucion + Primer CTA sutil
+ * EMAIL 3 - DÍA 5: "La Revelacion"
+ * Momento aha + Solución + Primer CTA sutil
  */
 export async function sendSoapOperaEmail3({
   email,
@@ -1502,33 +1502,33 @@ export async function sendSoapOperaEmail3({
   const nivelContent: Record<SoapOperaNivel, { subject: string; revelation: string; solution: string; tip: string; articleSlug: string; articleTitle: string }> = {
     principiante: {
       subject: 'Esto es lo que separa a los que triunfan de los que abandonan',
-      revelation: 'Los anfitriones exitosos no tienen mas tiempo ni mas suerte. Tienen SISTEMAS desde el dia 1. Un sistema simple que trabaja por ellos 24/7.',
-      solution: 'Un manual digital para huespedes que responde el 80% de preguntas antes de que las hagan. WiFi, check-in, normas, recomendaciones... todo en un QR.',
-      tip: 'Tip accionable HOY: Escribe las 5 preguntas que mas te hacen los huespedes. Esas son el 80% de tu trabajo repetitivo.',
-      articleSlug: 'automatizacion-airbnb-recupera-8-horas-semanales',
-      articleTitle: 'Automatizacion: Recupera 8 Horas Semanales'
+      revelation: 'Los anfitriones exitosos no tienen más tiempo ni más suerte. Tienen SISTEMAS desde el día 1. Un sistema simple que trabaja por ellos 24/7.',
+      solution: 'Un manual digital para huéspedes que responde el 80% de preguntas antes de que las hagan. WiFi, check-in, normas, recomendaciones... todo en un QR.',
+      tip: 'Tip accionable HOY: Escribe las 5 preguntas que más te hacen los huéspedes. Esas son el 80% de tu trabajo repetitivo.',
+      articleSlug: 'automatización-airbnb-recupera-8-horas-semanales',
+      articleTitle: 'Automatización: Recupera 8 Horas Semanales'
     },
     intermedio: {
-      subject: 'El cambio que hizo Laura para ganar 1.400€/mes mas',
-      revelation: 'Laura dejo de competir por ocupacion y empezo a competir por VALOR. Mejores fotos, mejor precio, mejor experiencia. Menos reservas, mas ingresos.',
+      subject: 'El cambio que hizo Laura para ganar 1.400€/mes más',
+      revelation: 'Laura dejo de competir por ocupacion y empezo a competir por VALOR. Mejores fotos, mejor precio, mejor experiencia. Menos reservas, más ingresos.',
       solution: 'Lo que marco la diferencia: dejar de responder las mismas preguntas 50 veces al mes. Automatizo con un manual digital y recupero 8 horas/semana.',
-      tip: 'Tip accionable HOY: Calcula tu precio por m2 y comparalo con 5 competidores. Si estas mas de 15% por debajo, tienes margen.',
+      tip: 'Tip accionable HOY: Calcula tu precio por m2 y comparalo con 5 competidores. Si estás más de 15% por debajo, tienes margen.',
       articleSlug: 'caso-laura-de-1800-a-3200-euros-mes-historia-completa',
       articleTitle: 'Caso Laura: De 2,540€ a 3,600€/mes'
     },
     avanzado: {
       subject: 'El framework de los anfitriones top 1%',
       revelation: 'No optimizan tareas, optimizan SISTEMAS. La diferencia: una tarea la haces tu, un sistema trabaja sin ti.',
-      solution: 'El primer sistema que debes crear: comunicacion automatizada. Mensajes de bienvenida, instrucciones, seguimiento... todo en piloto automatico.',
-      tip: 'Tip accionable HOY: Cronometra cuanto tiempo pasas respondiendo mensajes esta semana. Ese numero x52 = horas/ano que puedes recuperar.',
-      articleSlug: 'automatizacion-airbnb-stack-completo',
-      articleTitle: 'Stack de Automatizacion Completo'
+      solution: 'El primer sistema que debes crear: comunicación automatizada. Mensajes de bienvenida, instrucciones, seguimiento... todo en piloto automático.',
+      tip: 'Tip accionable HOY: Cronometra cuánto tiempo pasas respondiendo mensajes esta semana. Ese número x52 = horas/año que puedes recuperar.',
+      articleSlug: 'automatización-airbnb-stack-completo',
+      articleTitle: 'Stack de Automatización Completo'
     },
     profesional: {
       subject: 'Como pasar de 15 a 40 propiedades trabajando MENOS',
-      revelation: 'El secreto no es trabajar mas horas. Es construir una operacion que escala sin ti. Estandarizar, delegar, automatizar. En ese orden.',
+      revelation: 'El secreto no es trabajar más horas. Es construir una operación que escala sin ti. Estandarizar, delegar, automatizar. En ese orden.',
       solution: 'El primer paso: documentar TODO. Si esta en tu cabeza, no escala. Si esta documentado + automatizado, multiplica.',
-      tip: 'Tip accionable HOY: Identifica la tarea que mas tiempo te consume. Esa es tu primer candidata a sistematizar.',
+      tip: 'Tip accionable HOY: Identifica la tarea que más tiempo te consume. Esa es tu primer candidata a sistematizar.',
       articleSlug: 'modo-bombero-a-ceo-escalar-airbnb',
       articleTitle: 'Del Modo Bombero al Modo CEO: Como Escalar'
     }
@@ -1561,7 +1561,7 @@ export async function sendSoapOperaEmail3({
 
         <div style="margin: 25px 0; padding: 20px; background: #f9fafb; border-radius: 8px;">
           <h3 style="color: #1f2937; margin: 0 0 10px 0; font-size: 17px;">
-            ¿Como se traduce en la practica?
+            ¿Como se traduce en la práctica?
           </h3>
           <p style="font-size: 15px; line-height: 1.6; margin: 0;">
             ${content.solution}
@@ -1585,7 +1585,7 @@ export async function sendSoapOperaEmail3({
         </div>
 
         <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          Si quieres ver como funciona en la practica, hemos creado una herramienta que automatiza exactamente esto.
+          Si quieres ver como funciona en la práctica, hemos creado una herramienta que automatiza exactamente esto.
         </p>
 
         <div style="text-align: center; margin: 25px 0;">
@@ -1625,8 +1625,8 @@ export async function sendSoapOperaEmail3({
 }
 
 /**
- * EMAIL 4 - DIA 7: "Caso de Exito"
- * Prueba social + Numeros reales + CTA
+ * EMAIL 4 - DÍA 7: "Caso de Exito"
+ * Prueba social + Números reales + CTA
  */
 export async function sendSoapOperaEmail4({
   email,
@@ -1639,17 +1639,17 @@ export async function sendSoapOperaEmail4({
     principiante: {
       subject: 'Como Maria paso de estresada a 4.9 estrellas en 2 meses',
       caseName: 'Maria',
-      before: 'Empezaba con su primer apartamento. Recibia 15+ mensajes diarios con preguntas basicas. Dormia con el movil en la mano.',
-      after: 'Creo un manual digital simple. Las preguntas bajaron un 80%. Ahora dedica 30 min/dia maximo.',
-      change: 'Un solo cambio: dar la informacion ANTES de que la pidan.',
-      result: 'De 4.2 a 4.9 estrellas. Y lo mas importante: duerme tranquila.',
+      before: 'Empezaba con su primer apartamento. Recibia 15+ mensajes diarios con preguntas básicas. Dormia con el móvil en la mano.',
+      after: 'Creo un manual digital simple. Las preguntas bajaron un 80%. Ahora dedica 30 min/día maximo.',
+      change: 'Un solo cambio: dar la información ANTES de que la pidan.',
+      result: 'De 4.2 a 4.9 estrellas. Y lo más importante: duerme tranquila.',
       articleSlug: 'primer-mes-anfitrion-airbnb',
       articleTitle: 'Tu Primer Mes como Anfitrion: Guia Completa'
     },
     intermedio: {
       subject: 'De 1.800€ a 3.200€/mes (misma propiedad)',
       caseName: 'Laura',
-      before: 'Valencia, 2 anos como anfitriona. 82% ocupacion, 4.7 estrellas, 1.800€/mes. "Voy bien", pensaba.',
+      before: 'Valencia, 2 años como anfitriona. 82% ocupacion, 4.7 estrellas, 1.800€/mes. "Voy bien", pensaba.',
       after: 'Optimizo precio (+25%), mejoro fotos, automatizo comunicaciones. 65% ocupacion, 3.200€/mes.',
       change: 'Dejo de competir por ocupacion. Empezo a competir por valor.',
       result: '+1.400€/mes. -6 horas/semana de trabajo. Mejor rating.',
@@ -1659,7 +1659,7 @@ export async function sendSoapOperaEmail4({
     avanzado: {
       subject: 'El anfitrion que se fue 3 meses de viaje sin tocar nada',
       caseName: 'Carlos',
-      before: '4 propiedades en Barcelona. 12+ horas/semana gestionando. No podia desconectar ni en vacaciones.',
+      before: '4 propiedades en Barcelona. 12+ horas/semana gestionando. No podía desconectar ni en vacaciones.',
       after: 'Sistematizo todo: comunicaciones, limpieza, incidencias. Contrato una persona a tiempo parcial.',
       change: 'Paso de hacer tareas a disenar sistemas.',
       result: 'Se fue 3 meses a Asia. Ingresos subieron un 8%. Trabaja 3 horas/semana.',
@@ -1669,8 +1669,8 @@ export async function sendSoapOperaEmail4({
     profesional: {
       subject: 'De 15 a 40 propiedades en 18 meses',
       caseName: 'Roberto',
-      before: 'Gestionaba 15 propiedades. Trabajaba 60+ horas/semana. No podia crecer mas sin "morir".',
-      after: 'Estandarizo TODA la operacion. Contrato equipo. Automatizo el 70% de procesos.',
+      before: 'Gestionaba 15 propiedades. Trabajaba 60+ horas/semana. No podía crecer más sin "morir".',
+      after: 'Estandarizo TODA la operación. Contrato equipo. Automatizo el 70% de procesos.',
       change: 'Dejo de ser "el que hace" para ser "el que diseña".',
       result: '40 propiedades. 35 horas/semana. Margenes 15% mejores que antes.',
       articleSlug: 'caso-david-15-propiedades',
@@ -1705,7 +1705,7 @@ export async function sendSoapOperaEmail4({
 
         <div style="margin: 25px 0; padding: 25px; background: #ecfdf5; border-radius: 8px;">
           <h3 style="color: #065f46; margin: 0 0 10px 0; font-size: 17px;">
-            📍 DESPUES:
+            📍 DESPUÉS:
           </h3>
           <p style="font-size: 15px; line-height: 1.6; margin: 0;">
             ${content.after}
@@ -1742,13 +1742,13 @@ export async function sendSoapOperaEmail4({
         </div>
 
         <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          Si quieres empezar a aplicar esto hoy, puedes probar Itineramio gratis durante 15 dias.
+          Si quieres empezar a aplicar esto hoy, puedes probar Itineramio gratis durante 15 días.
         </p>
 
         <div style="text-align: center; margin: 25px 0;">
           <a href="${appUrl}/register"
              style="display: inline-block; background: #7c3aed; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 500;">
-            Probar 15 dias gratis →
+            Probar 15 días gratis →
           </a>
         </div>
 
@@ -1782,7 +1782,7 @@ export async function sendSoapOperaEmail4({
 }
 
 /**
- * EMAIL 5 - DIA 9: "El Metodo Paso a Paso"
+ * EMAIL 5 - DÍA 9: "El Método Paso a Paso"
  * Framework accionable + Valor educativo
  */
 export async function sendSoapOperaEmail5({
@@ -1795,22 +1795,22 @@ export async function sendSoapOperaEmail5({
   const nivelContent: Record<SoapOperaNivel, { subject: string; intro: string; steps: Array<{title: string; desc: string}>; articleSlug: string; articleTitle: string }> = {
     principiante: {
       subject: 'Los 3 pasos para empezar con buen pie',
-      intro: 'Aqui tienes el framework que habria pagado por conocer cuando empece:',
+      intro: 'Aquí tienes el framework que habria pagado por conocer cuando empece:',
       steps: [
-        { title: 'Paso 1: Documenta TODO', desc: 'WiFi, check-in, normas, electrodomesticos. Si un huesped puede preguntarlo, documentalo. Hazlo una vez, usalo 100.' },
-        { title: 'Paso 2: Centraliza la info', desc: 'Un solo lugar donde el huesped encuentre todo. Nada de PDFs, mensajes largos o "esta en el email". Un QR → todo.' },
-        { title: 'Paso 3: Anticipa problemas', desc: 'Lista los 5 problemas mas comunes. Crea instrucciones claras para cada uno. El 80% de "emergencias" son preguntas sin respuesta.' }
+        { title: 'Paso 1: Documenta TODO', desc: 'WiFi, check-in, normas, electrodomesticos. Si un huésped puede preguntarlo, documentalo. Hazlo una vez, usalo 100.' },
+        { title: 'Paso 2: Centraliza la info', desc: 'Un solo lugar donde el huésped encuentre todo. Nada de PDFs, mensajes largos o "esta en el email". Un QR → todo.' },
+        { title: 'Paso 3: Anticipa problemas', desc: 'Lista los 5 problemas más comunes. Crea instrucciones claras para cada uno. El 80% de "emergencias" son preguntas sin respuesta.' }
       ],
       articleSlug: 'kit-anti-caos-anfitriones-airbnb',
       articleTitle: 'Kit Anti-Caos para Anfitriones'
     },
     intermedio: {
-      subject: 'El metodo para pasar de ocupacion a rentabilidad',
+      subject: 'El método para pasar de ocupacion a rentabilidad',
       intro: 'Esto es lo que separa a los anfitriones intermedios de los avanzados:',
       steps: [
         { title: 'Paso 1: Analiza (no adivines)', desc: 'Calcula tu RevPAR real. Compara con 5 competidores directos. Identifica tu posicion en el mercado con datos, no sensaciones.' },
         { title: 'Paso 2: Optimiza valor', desc: 'Fotos profesionales (ROI de 10x), descripcion que vende beneficios, precio basado en valor no en miedo.' },
-        { title: 'Paso 3: Automatiza lo repetitivo', desc: 'Comunicaciones, instrucciones, solicitud de reviews. Si lo haces mas de 3 veces, automatizalo.' }
+        { title: 'Paso 3: Automatiza lo repetitivo', desc: 'Comunicaciones, instrucciones, solicitud de reviews. Si lo haces más de 3 veces, automatizalo.' }
       ],
       articleSlug: 'revenue-management-avanzado',
       articleTitle: 'Revenue Management Avanzado'
@@ -1820,7 +1820,7 @@ export async function sendSoapOperaEmail5({
       intro: 'El salto de hacer a delegar requiere estos 3 pasos:',
       steps: [
         { title: 'Paso 1: Documenta procesos', desc: 'Si esta en tu cabeza, no escala. Crea SOPs (procedimientos) para todo. Limpieza, check-in, incidencias, mantenimiento.' },
-        { title: 'Paso 2: Construye equipo', desc: 'Empieza pequeno: limpieza + una persona de soporte. Delega UNA cosa, perfeccionala, repite.' },
+        { title: 'Paso 2: Construye equipo', desc: 'Empieza pequeño: limpieza + una persona de soporte. Delega UNA cosa, perfeccionala, repite.' },
         { title: 'Paso 3: Mide y mejora', desc: 'KPIs claros: tiempo de respuesta, reviews, incidencias. Lo que no mides, no mejoras. Revisa semanal.' }
       ],
       articleSlug: 'del-modo-bombero-al-modo-ceo-framework',
@@ -1830,12 +1830,12 @@ export async function sendSoapOperaEmail5({
       subject: 'El playbook para escalar sin morir',
       intro: 'Esto es lo que hacen los que gestionan 20+ propiedades sin quemarse:',
       steps: [
-        { title: 'Paso 1: Estandariza la operacion', desc: 'Plantillas, checklists, procesos documentados. Cada propiedad nueva debe poder incorporarse en 48h, no en 2 semanas.' },
-        { title: 'Paso 2: Invierte en tecnologia', desc: 'PMS, channel manager, automatizacion de comunicaciones. El coste es irrisorio comparado con tu tiempo.' },
+        { title: 'Paso 1: Estandariza la operación', desc: 'Plantillas, checklists, procesos documentados. Cada propiedad nueva debe poder incorporarse en 48h, no en 2 semanas.' },
+        { title: 'Paso 2: Invierte en tecnologia', desc: 'PMS, channel manager, automatización de comunicaciones. El coste es irrisorio comparado con tu tiempo.' },
         { title: 'Paso 3: Foco en lo que escala', desc: 'Tu trabajo es adquirir propiedades y optimizar sistemas. Todo lo demas: delega o automatiza.' }
       ],
-      articleSlug: 'automatizacion-airbnb-stack-completo',
-      articleTitle: 'Stack de Automatizacion Completo'
+      articleSlug: 'automatización-airbnb-stack-completo',
+      articleTitle: 'Stack de Automatización Completo'
     }
   }
 
@@ -1877,7 +1877,7 @@ export async function sendSoapOperaEmail5({
 
         <div style="margin: 25px 0; padding: 20px; background: #f0fdf4; border-radius: 8px;">
           <p style="font-size: 15px; line-height: 1.6; margin: 0 0 15px 0; color: #065f46;">
-            📚 <strong>Lectura recomendada:</strong> Guia completa de este metodo.
+            📚 <strong>Lectura recomendada:</strong> Guia completa de este método.
           </p>
           <a href="${appUrl}/blog/${content.articleSlug}"
              style="display: inline-block; background: #10b981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 14px;">
@@ -1926,7 +1926,7 @@ export async function sendSoapOperaEmail5({
 }
 
 /**
- * EMAIL 6 - DIA 11: "Pero... ¿Y si...?"
+ * EMAIL 6 - DÍA 11: "Pero... ¿Y si...?"
  * Resolver objeciones + Testimonios
  */
 export async function sendSoapOperaEmail6({
@@ -1940,17 +1940,17 @@ export async function sendSoapOperaEmail6({
     principiante: {
       subject: 'Las 3 dudas que todos tienen (y sus respuestas)',
       objections: [
-        { q: '"No tengo tiempo para configurar nada"', a: 'Crear un manual basico lleva 30 minutos. Ahorra 3+ horas/semana. El ROI es brutal.' },
-        { q: '"Ya lo hago bien con WhatsApp"', a: 'Funciona... hasta que tienes 3+ reservas al mes. Entonces te conviertes en esclavo del movil.' },
-        { q: '"Mis huespedes nunca preguntan mucho"', a: 'Probablemente porque no reservan repetidamente. Los mejores anfitriones anticipan necesidades, no las reaccionan.' }
+        { q: '"No tengo tiempo para configurar nada"', a: 'Crear un manual básico lleva 30 minutos. Ahorra 3+ horas/semana. El ROI es brutal.' },
+        { q: '"Ya lo hago bien con WhatsApp"', a: 'Funciona... hasta que tienes 3+ reservas al mes. Entonces te conviertes en esclavo del móvil.' },
+        { q: '"Mis huéspedes nunca preguntan mucho"', a: 'Probablemente porque no reservan repetidamente. Los mejores anfitriones anticipan necesidades, no las reaccionan.' }
       ]
     },
     intermedio: {
       subject: 'Las excusas que te mantienen estancado',
       objections: [
-        { q: '"Ya uso la app de Airbnb, ¿para que mas?"', a: 'La app es para reservas. No para operaciones. Es como usar Excel para todo: funciona, pero no escala.' },
+        { q: '"Ya uso la app de Airbnb, ¿para que más?"', a: 'La app es para reservas. No para operaciones. Es como usar Excel para todo: funciona, pero no escala.' },
         { q: '"Subir precios me hara perder reservas"', a: 'Dato: el 70% de anfitriones cobran menos de lo que deberian. Los que suben precios inteligentemente ganan MAS.' },
-        { q: '"No tengo perfil tecnico"', a: 'No necesitas serlo. Las herramientas modernas estan hechas para no-tecnicos. Si usas WhatsApp, puedes usar Itineramio.' }
+        { q: '"No tengo perfil técnico"', a: 'No necesitas serlo. Las herramientas modernas están hechas para no-técnicos. Si usas WhatsApp, puedes usar Itineramio.' }
       ]
     },
     avanzado: {
@@ -1965,7 +1965,7 @@ export async function sendSoapOperaEmail6({
       subject: 'Las barreras mentales que frenan el crecimiento',
       objections: [
         { q: '"El mercado esta saturado"', a: 'Para los genericos, si. Para los sistematizados que ofrecen valor diferencial, hay demanda infinita.' },
-        { q: '"Necesito mas capital para crecer"', a: 'Necesitas mejores sistemas, no mas dinero. He visto gestores crecer 3x con margenes negativos porque no escalan eficientemente.' },
+        { q: '"Necesito más capital para crecer"', a: 'Necesitas mejores sistemas, no más dinero. He visto gestores crecer 3x con margenes negativos porque no escalan eficientemente.' },
         { q: '"Las regulaciones me frenan"', a: 'Frenan a los improvisados. Los profesionales se adaptan y encuentran oportunidades donde otros ven problemas.' }
       ]
     }
@@ -1984,7 +1984,7 @@ export async function sendSoapOperaEmail6({
         </p>
 
         <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          Despues de hablar con cientos de anfitriones, estas son las dudas que siempre surgen:
+          Después de hablar con cientos de anfitriones, estás son las dudas que siempre surgen:
         </p>
 
         ${content.objections.map((obj, i) => `
@@ -2048,7 +2048,7 @@ export async function sendSoapOperaEmail6({
 }
 
 /**
- * EMAIL 7 - DIA 13: "Solo Quedan 48 Horas"
+ * EMAIL 7 - DÍA 13: "Solo Quedan 48 Horas"
  * Urgencia + Oferta especial
  */
 export async function sendSoapOperaEmail7({
@@ -2061,22 +2061,22 @@ export async function sendSoapOperaEmail7({
   const nivelContent: Record<SoapOperaNivel, { subject: string; offer: string; bonus: string }> = {
     principiante: {
       subject: `${name}, esto expira en 48 horas`,
-      offer: 'Trial extendido de 21 dias (en vez de 15) + Plantillas de manual pre-configuradas',
-      bonus: 'Si te registras en las proximas 48h, te envio mi checklist personal de "primeros 30 dias como anfitrion".'
+      offer: 'Trial extendido de 21 días (en vez de 15) + Plantillas de manual pre-configuradas',
+      bonus: 'Si te registras en las próximas 48h, te envio mi checklist personal de "primeros 30 días como anfitrion".'
     },
     intermedio: {
-      subject: 'Ultima oportunidad: oferta para anfitriones intermedios',
-      offer: 'Trial de 21 dias + Guia de optimizacion de precios + Sesion de Q&A grupal',
+      subject: 'Última oportunidad: oferta para anfitriones intermedios',
+      offer: 'Trial de 21 días + Guia de optimización de precios + Sesion de Q&A grupal',
       bonus: 'Bonus: acceso anticipado a las nuevas funciones de analytics cuando las lancemos.'
     },
     avanzado: {
       subject: 'Oferta exclusiva para anfitriones avanzados (48h)',
-      offer: 'Trial de 21 dias + Revision 1:1 de tu operacion actual (30 min) + Templates de SOPs',
+      offer: 'Trial de 21 días + Revision 1:1 de tu operación actual (30 min) + Templates de SOPs',
       bonus: 'Bonus: te incluyo en nuestro grupo privado de anfitriones avanzados.'
     },
     profesional: {
       subject: 'Propuesta especial para gestores profesionales',
-      offer: 'Trial extendido + Onboarding personalizado + Soporte prioritario 30 dias',
+      offer: 'Trial extendido + Onboarding personalizado + Soporte prioritario 30 días',
       bonus: 'Bonus: llamada de estrategia 1:1 para discutir tu caso especifico.'
     }
   }
@@ -2100,7 +2100,7 @@ export async function sendSoapOperaEmail7({
         </p>
 
         <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          Durante las ultimas 2 semanas te he compartido estrategias, casos de exito, y metodos para mejorar tu gestion.
+          Durante las últimas 2 semanas te he compartido estrategias, casos de exito, y métodos para mejorar tu gestión.
         </p>
 
         <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
@@ -2165,8 +2165,8 @@ export async function sendSoapOperaEmail7({
 }
 
 /**
- * EMAIL 8 - DIA 15: "Tu Decision"
- * Ultimo email + Cierre elegante
+ * EMAIL 8 - DÍA 15: "Tu Decision"
+ * Último email + Cierre elegante
  */
 export async function sendSoapOperaEmail8({
   email,
@@ -2186,11 +2186,11 @@ export async function sendSoapOperaEmail8({
         </p>
 
         <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          Este es mi ultimo email de esta serie. Promesa.
+          Este es mi último email de esta serie. Promesa.
         </p>
 
         <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          Durante 2 semanas te he compartido todo lo que se sobre gestion de alojamientos: errores comunes, metodos probados, casos reales.
+          Durante 2 semanas te he compartido todo lo que se sobre gestión de alojamientos: errores comunes, métodos probados, casos reales.
         </p>
 
         <div style="margin: 25px 0; padding: 25px; background: #f9fafb; border-radius: 8px;">
@@ -2200,7 +2200,7 @@ export async function sendSoapOperaEmail8({
 
           <div style="margin-bottom: 20px; padding: 15px; background: white; border-left: 4px solid #10b981; border-radius: 4px;">
             <p style="margin: 0; font-size: 15px; line-height: 1.6;">
-              <strong style="color: #10b981;">Opcion A:</strong> Probar Itineramio gratis y ver si te ayuda a mejorar tu gestion. Sin riesgo, sin compromiso.
+              <strong style="color: #10b981;">Opcion A:</strong> Probar Itineramio gratis y ver si te ayuda a mejorar tu gestión. Sin riesgo, sin compromiso.
             </p>
           </div>
 
@@ -2212,7 +2212,7 @@ export async function sendSoapOperaEmail8({
         </div>
 
         <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          Sea cual sea tu decision, gracias por leerme estas semanas. Espero haberte aportado algo de valor.
+          Sea cual sea tu decision, gracias por leerme estás semanas. Espero haberte aportado algo de valor.
         </p>
 
         <div style="text-align: center; margin: 30px 0;">
@@ -2224,7 +2224,7 @@ export async function sendSoapOperaEmail8({
 
         <div style="margin: 25px 0; padding: 20px; background: #fef3c7; border-radius: 8px;">
           <p style="font-size: 14px; line-height: 1.6; margin: 0; color: #92400e;">
-            <strong>PD:</strong> Si no es el momento, no pasa nada. Si en algun momento tienes dudas sobre gestion de alojamientos, puedes escribirme directamente respondiendo a cualquier email. Te respondo siempre.
+            <strong>PD:</strong> Si no es el momento, no pasa nada. Si en algun momento tienes dudas sobre gestión de alojamientos, puedes escribirme directamente respondiendo a cualquier email. Te respondo siempre.
           </p>
         </div>
 

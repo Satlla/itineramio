@@ -168,7 +168,7 @@ export default function OnboardingPage() {
   // Get popular/featured articles (first 6 for now)
   const popularArticles = useMemo(() => {
     return onboardingArticles
-      .filter(a => ['crear-propiedad', 'codigo-qr', 'crear-zona', 'compartir-link', 'ver-estadisticas', 'que-es-conjunto'].includes(a.id))
+      .filter(a => ['crear-propiedad', 'código-qr', 'crear-zona', 'compartir-link', 'ver-estadísticas', 'que-es-conjunto'].includes(a.id))
       .slice(0, 6)
   }, [])
 

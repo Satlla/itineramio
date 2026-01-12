@@ -51,7 +51,7 @@ const tools = [
   {
     id: 'time-calculator',
     title: 'Calculadora de Tiempo',
-    description: 'Descubre cuantas horas pierdes al año en tareas repetitivas',
+    description: 'Descubre cuántas horas pierdes al año en tareas repetitivas',
     icon: Clock,
     color: 'from-rose-500 to-pink-600',
     bgColor: 'from-rose-50 to-pink-50',
@@ -209,7 +209,7 @@ const templates = [
     icon: Wifi,
     downloads: '892',
     format: 'PDF',
-    href: '/blog/instrucciones-wifi-huespedes-apartamento-turistico'
+    href: '/blog/instrucciones-wifi-huéspedes-apartamento-turistico'
   },
   {
     id: 'vut-checklist',
@@ -535,7 +535,7 @@ export default function KnowledgeHub() {
                     Herramientas Interactivas
                   </h2>
                   <p className="text-xl text-gray-600">
-                    Usa estas herramientas gratis para mejorar tu gestión
+                    Usa estás herramientas gratis para mejorar tu gestión
                   </p>
                 </div>
                 <Zap className="w-12 h-12 text-violet-600" />

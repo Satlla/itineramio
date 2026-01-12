@@ -1150,7 +1150,7 @@ export default function CalculadoraRentabilidad() {
                   </h3>
 
                   <p className="text-gray-600 mb-6">
-                    Ya puedes ver todos los datos completos. Desplázate hacia abajo para explorarlos.
+                    Ya puedes ver todos los datos completos. Desplázate hacía abajo para explorarlos.
                   </p>
 
                   <p className="text-sm text-gray-500">

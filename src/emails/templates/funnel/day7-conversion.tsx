@@ -30,7 +30,7 @@ export default function Day7Conversion({ name }: Day7ConversionProps) {
             </p>
 
             <ul style={{ margin: '0 0 24px 0', paddingLeft: '20px', color: '#222222', fontSize: '15px', lineHeight: 1.8 }}>
-              <li>Por que el 80% de malas resenas son evitables</li>
+              <li>Por que el 80% de malas reseñas son evitables</li>
               <li>Como identificar tu perfil de anfitrion</li>
               <li>El caso de Maria: de 4.1 a 4.9 estrellas</li>
             </ul>
@@ -41,7 +41,7 @@ export default function Day7Conversion({ name }: Day7ConversionProps) {
 
             <div style={{ backgroundColor: '#222222', borderRadius: '12px', padding: '32px', marginBottom: '24px', textAlign: 'center' as const }}>
               <p style={{ margin: '0 0 8px 0', color: '#ffffff', fontSize: '20px', fontWeight: 600 }}>
-                15 dias gratis
+                15 días gratis
               </p>
               <p style={{ margin: '0 0 20px 0', color: '#DDDDDD', fontSize: '14px' }}>
                 Sin tarjeta · Cancela cuando quieras
@@ -75,13 +75,13 @@ export default function Day7Conversion({ name }: Day7ConversionProps) {
             <ul style={{ margin: '0 0 24px 0', paddingLeft: '20px', color: '#717171', fontSize: '14px', lineHeight: 1.8 }}>
               <li>1 propiedad con todas las funciones</li>
               <li>Manual digital personalizable</li>
-              <li>Codigos QR ilimitados</li>
+              <li>Códigos QR ilimitados</li>
               <li>Soporte por email</li>
             </ul>
 
             <div style={{ backgroundColor: '#F7F7F7', borderRadius: '8px', padding: '16px 20px', marginBottom: '24px' }}>
               <p style={{ margin: 0, color: '#717171', fontSize: '14px', lineHeight: 1.5 }}>
-                <strong>Garantia:</strong> Si no te convence, no pagas nada. Sin compromisos, sin letra pequena.
+                <strong>Garantia:</strong> Si no te convence, no pagas nada. Sin compromisos, sin letra pequeña.
               </p>
             </div>
 
@@ -91,7 +91,7 @@ export default function Day7Conversion({ name }: Day7ConversionProps) {
             </p>
 
             <p style={{ margin: '24px 0 0 0', color: '#717171', fontSize: '13px', fontStyle: 'italic' }}>
-              PD: Si tienes dudas antes de empezar, responde a este email. Estoy aqui para ayudarte.
+              PD: Si tienes dudas antes de empezar, responde a este email. Estoy aquí para ayudarte.
             </p>
           </td>
         </tr>
@@ -112,5 +112,5 @@ export default function Day7Conversion({ name }: Day7ConversionProps) {
 }
 
 export function getSubject(): string {
-  return 'Tu prueba gratuita de 15 dias te espera'
+  return 'Tu prueba gratuita de 15 días te espera'
 }

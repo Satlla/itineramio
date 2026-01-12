@@ -37,12 +37,12 @@ export default function AcademiaQuizDay0Results({ name, email, nivel }: Props) {
             </div>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              En los proximos dias te enviare contenido personalizado para tu nivel:
+              En los próximos días te enviaré contenido personalizado para tu nivel:
             </p>
 
             <ul style={{ margin: '0 0 24px 0', paddingLeft: '20px', color: '#374151', fontSize: '15px', lineHeight: 1.8 }}>
               <li>El error mas comun de los anfitriones de tu nivel</li>
-              <li>Mini-guia para mejorar tu gestion en 7 dias</li>
+              <li>Mini-guia para mejorar tu gestión en 7 días</li>
               <li>Caso de exito: de principiante a Superhost</li>
             </ul>
 

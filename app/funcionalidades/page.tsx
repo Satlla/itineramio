@@ -44,7 +44,7 @@ import { Navbar } from '@/components/layout/Navbar'
 
 const features = [
   {
-    id: 'mensajes-automaticos',
+    id: 'mensajes-automáticos',
     icon: MessageSquare,
     title: 'Mensajes Automatizados',
     subtitle: 'Comunicación perfecta desde el primer momento',
@@ -136,7 +136,7 @@ const features = [
     icon: Copy,
     title: 'Duplica Apartamentos',
     subtitle: 'Más rápido que nunca',
-    description: '¿Tienes apartamentos iguales? Duplica uno cuantas veces quieras. Si hay alguna diferencia específica, edita solo esa parte. Ahorra espacio compartiendo videos entre apartamentos.',
+    description: '¿Tienes apartamentos iguales? Duplica uno cuántas veces quieras. Si hay alguna diferencia específica, edita solo esa parte. Ahorra espacio compartiendo videos entre apartamentos.',
     gradient: 'from-teal-500 to-cyan-500',
     features: [
       'Duplicación con un click',

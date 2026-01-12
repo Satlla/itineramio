@@ -15,9 +15,11 @@ import {
   Eye,
   Clock,
   Target,
-  Flame
+  Flame,
+  Trash2
 } from 'lucide-react'
 import Link from 'next/link'
+import { LeadDetailModal, MarketingLead as ModalMarketingLead } from '@/components/admin/LeadDetailModal'
 
 interface Lead {
   id: string
@@ -59,6 +61,12 @@ export default function AdminLeadsPage() {
   const [total, setTotal] = useState(0)
   const [exporting, setExporting] = useState(false)
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
+
+  const handleDeleteLead = (id: string) => {
+    setLeads(leads.filter(l => l.id !== id))
+    setTotal(total - 1)
+    setSelectedLead(null)
+  }
 
   useEffect(() => {
     fetchLeads()
@@ -470,132 +478,14 @@ export default function AdminLeadsPage() {
         )}
       </div>
 
-      {/* Modal de detalles del lead */}
+      {/* Lead Detail Modal */}
       {selectedLead && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-white">Detalles del Lead</h3>
-                <button
-                  onClick={() => setSelectedLead(null)}
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              {/* Info básica */}
-              <div className="mb-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center">
-                    <Mail className="w-6 h-6 text-violet-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">
-                      {selectedLead.name || 'Sin nombre'}
-                    </h4>
-                    <p className="text-sm text-gray-500">{selectedLead.email}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
-                      <Target className="w-3 h-3" />
-                      Fuente
-                    </div>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
-                      {selectedLead.source || 'unknown'}
-                    </span>
-                  </div>
-
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
-                      <Flame className="w-3 h-3" />
-                      Engagement
-                    </div>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      selectedLead.engagementScore === 'hot' ? 'bg-red-100 text-red-800' :
-                      selectedLead.engagementScore === 'warm' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {selectedLead.engagementScore || 'warm'}
-                    </span>
-                  </div>
-
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
-                      <Clock className="w-3 h-3" />
-                      Journey Stage
-                    </div>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {selectedLead.currentJourneyStage || 'subscribed'}
-                    </span>
-                  </div>
-
-                  {selectedLead.archetype && (
-                    <div className="bg-gray-50 rounded-lg p-3">
-                      <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
-                        <Users className="w-3 h-3" />
-                        Arquetipo
-                      </div>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                        {selectedLead.archetype}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
-                      <Calendar className="w-3 h-3" />
-                      Fecha de registro
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">
-                      {formatDate(selectedLead.createdAt)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tags */}
-              <div>
-                <h5 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                  <Tag className="w-4 h-4" />
-                  Tags ({selectedLead.tags?.length || 0})
-                </h5>
-                {selectedLead.tags && selectedLead.tags.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {selectedLead.tags.map((tag, idx) => (
-                      <span
-                        key={idx}
-                        className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 border border-gray-200"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-400 text-sm">No tiene tags</p>
-                )}
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
-              <button
-                onClick={() => setSelectedLead(null)}
-                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
+        <LeadDetailModal
+          lead={selectedLead as ModalMarketingLead}
+          type="marketing"
+          onClose={() => setSelectedLead(null)}
+          onDelete={handleDeleteLead}
+        />
       )}
     </div>
   )

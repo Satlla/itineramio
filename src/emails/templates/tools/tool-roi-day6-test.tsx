@@ -71,7 +71,7 @@ export default function ToolRoiDay6Test({ name, email }: Props) {
             </div>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Mañana te cuento cómo automatizar estas mejoras.
+              Mañana te cuento cómo automatizar estás mejoras.
             </p>
 
             <p style={{ margin: '0', color: '#374151', fontSize: '16px' }}>

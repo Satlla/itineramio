@@ -6,9 +6,9 @@ import { Suspense } from 'react'
 function PlantillaContent() {
   const searchParams = useSearchParams()
   const nombre = searchParams.get('nombre') || 'Tu Alojamiento'
-  const telefono = searchParams.get('telefono') || '+34 600 000 000'
+  const teléfono = searchParams.get('teléfono') || '+34 600 000 000'
 
-  const whatsappPhone = telefono.replace(/[^\d+]/g, '').replace('+', '')
+  const whatsappPhone = teléfono.replace(/[^\d+]/g, '').replace('+', '')
   const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent('Hola, tengo una pregunta sobre mi estancia')}`
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(whatsappUrl)}&bgcolor=ffffff&color=222222`
 
@@ -107,7 +107,7 @@ function PlantillaContent() {
               <div className="flex-1">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-900 mb-1">¿Necesitas ayuda?</p>
                 <p className="text-xs text-gray-600 mb-1">Escríbenos y lo resolvemos.</p>
-                <p className="text-sm font-medium text-gray-900">{telefono}</p>
+                <p className="text-sm font-medium text-gray-900">{teléfono}</p>
               </div>
               <div className="flex-shrink-0">
                 <img src={qrCodeUrl} alt="QR WhatsApp" className="w-16 h-16" />

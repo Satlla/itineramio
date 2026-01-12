@@ -23,7 +23,7 @@ const NIVEL_PRACTICES: Record<string, {
 }> = {
   principiante: {
     titulo: 'Las 3 Mejores Prácticas que Marcan la Diferencia',
-    intro: 'He visto a cientos de principiantes. Los que triunfan hacen estas 3 cosas desde el día 1:',
+    intro: 'He visto a cientos de principiantes. Los que triunfan hacen estás 3 cosas desde el día 1:',
     practices: [
       {
         emoji: '⚡',

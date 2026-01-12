@@ -25,7 +25,7 @@ export default function Day0Welcome({ name, source, email }: Day0WelcomeProps) {
       return 'Gracias por usar nuestra calculadora de precios.'
     }
     if (source?.includes('qr')) {
-      return 'Gracias por generar tu codigo QR.'
+      return 'Gracias por generar tu código QR.'
     }
     if (source?.includes('rules') || source?.includes('normas')) {
       return 'Gracias por crear tus normas del alojamiento.'
@@ -65,11 +65,11 @@ export default function Day0Welcome({ name, source, email }: Day0WelcomeProps) {
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              <strong>La idea es simple:</strong> en vez de responder las mismas preguntas una y otra vez (WiFi, electrodomesticos, parking...), le das a tus huespedes un enlace donde encuentran todo.
+              <strong>La idea es simple:</strong> en vez de responder las mismas preguntas una y otra vez (WiFi, electrodomesticos, parking...), le das a tus huéspedes un enlace donde encuentran todo.
             </p>
 
             <p style={{ margin: '0 0 24px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              Resultado: menos mensajes repetitivos, mejor experiencia para el huesped, y tu con mas tiempo libre.
+              Resultado: menos mensajes repetitivos, mejor experiencia para el huésped, y tu con mas tiempo libre.
             </p>
 
             <div style={{ backgroundColor: '#F7F7F7', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}>
@@ -84,7 +84,7 @@ export default function Day0Welcome({ name, source, email }: Day0WelcomeProps) {
             </div>
 
             <p style={{ margin: '0 0 24px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              En los proximos dias te enviare algunos emails con contenido practico. Sin spam.
+              En los próximos días te enviaré algunos emails con contenido práctico. Sin spam.
             </p>
 
             <p style={{ margin: '0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>

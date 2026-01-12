@@ -37,7 +37,7 @@ export default function BillingPage() {
             <li><a href="#periodo-prueba" className="text-blue-600 hover:underline">1. Período de Evaluación</a></li>
             <li><a href="#planes" className="text-blue-600 hover:underline">2. Planes y Precios</a></li>
             <li><a href="#facturacion" className="text-blue-600 hover:underline">3. Ciclo de Facturación</a></li>
-            <li><a href="#metodos-pago" className="text-blue-600 hover:underline">4. Métodos de Pago</a></li>
+            <li><a href="#métodos-pago" className="text-blue-600 hover:underline">4. Métodos de Pago</a></li>
             <li><a href="#renovacion" className="text-blue-600 hover:underline">5. Renovación Automática</a></li>
             <li><a href="#cambios-plan" className="text-blue-600 hover:underline">6. Cambios de Plan</a></li>
             <li><a href="#cancelacion" className="text-blue-600 hover:underline">7. Cancelación</a></li>
@@ -180,7 +180,7 @@ export default function BillingPage() {
             </p>
           </section>
 
-          <section id="metodos-pago">
+          <section id="métodos-pago">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Métodos de Pago</h2>
             <p className="text-gray-700 mb-4">
               Aceptamos los siguientes métodos de pago a través de nuestra plataforma segura Stripe:

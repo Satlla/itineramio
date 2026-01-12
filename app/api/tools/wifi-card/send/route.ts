@@ -52,7 +52,7 @@ function generateWifiCardHTML(data: {
   const styleColors: Record<string, { bg: string; text: string }> = {
     'Moderno': { bg: 'linear-gradient(135deg, #8b5cf6, #9333ea)', text: '#ffffff' },
     'Minimalista': { bg: '#ffffff', text: '#111827' },
-    'Océano': { bg: 'linear-gradient(135deg, #60a5fa, #06b6d4)', text: '#ffffff' },
+    'Océaño': { bg: 'linear-gradient(135deg, #60a5fa, #06b6d4)', text: '#ffffff' },
     'Atardecer': { bg: 'linear-gradient(135deg, #fb923c, #ec4899, #f43f5e)', text: '#ffffff' },
     'Bosque': { bg: 'linear-gradient(135deg, #059669, #15803d)', text: '#ffffff' },
     'Vintage': { bg: 'linear-gradient(135deg, #fef3c7, #fed7aa)', text: '#92400e' },

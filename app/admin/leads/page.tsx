@@ -19,8 +19,10 @@ import {
   Video,
   CheckCircle2,
   Circle,
-  TrendingUp
+  TrendingUp,
+  Eye
 } from 'lucide-react'
+import { LeadDetailModal, UnifiedLead as ModalUnifiedLead } from '@/components/admin/LeadDetailModal'
 
 interface UnifiedLeadMetadata {
   completed: {
@@ -36,7 +38,7 @@ interface UnifiedLeadMetadata {
   }
   plantillasForm?: {
     propiedades: string
-    automatizacion: string
+    automatización: string
     intereses: string[]
     comentario?: string
     resourceSlug: string
@@ -86,7 +88,7 @@ const PROPERTY_LABELS: Record<string, string> = {
 
 const AUTOMATION_LABELS: Record<string, { label: string; color: string }> = {
   'nada': { label: 'Nada automatizado', color: 'bg-red-100 text-red-700' },
-  'basico': { label: 'Algo básico', color: 'bg-yellow-100 text-yellow-700' },
+  'básico': { label: 'Algo básico', color: 'bg-yellow-100 text-yellow-700' },
   'herramientas': { label: 'Usa herramientas', color: 'bg-green-100 text-green-700' }
 }
 
@@ -95,7 +97,7 @@ const INTEREST_LABELS: Record<string, string> = {
   'checkin': '🔑 Check-in',
   'limpieza': '🧹 Limpieza',
   'precios': '💰 Precios',
-  'resenas': '⭐ Reseñas'
+  'reseñas': '⭐ Reseñas'
 }
 
 const ARCHETYPE_EMOJIS: Record<string, string> = {
@@ -151,6 +153,14 @@ export default function AdminLeadsPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'hot' | 'warm' | 'cold' | 'quiz'>('all')
   const [expandedLead, setExpandedLead] = useState<string | null>(null)
+  const [selectedLead, setSelectedLead] = useState<UnifiedLead | null>(null)
+
+  const handleDeleteLead = (id: string) => {
+    setLeads(leads.filter(l => l.id !== id))
+    if (stats) {
+      setStats({ ...stats, total: stats.total - 1 })
+    }
+  }
 
   useEffect(() => {
     fetchLeads()
@@ -380,6 +390,16 @@ export default function AdminLeadsPage() {
 
                       {/* Actions */}
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedLead(lead)
+                          }}
+                          className="p-2 hover:bg-violet-100 rounded-lg transition-colors"
+                          title="Ver detalles"
+                        >
+                          <Eye className="w-4 h-4 text-violet-600" />
+                        </button>
                         <a
                           href={`mailto:${lead.email}`}
                           onClick={(e) => e.stopPropagation()}
@@ -446,11 +466,11 @@ export default function AdminLeadsPage() {
                                   <Building2 className="w-3.5 h-3.5 text-gray-400" />
                                   {PROPERTY_LABELS[meta.plantillasForm.propiedades] || meta.plantillasForm.propiedades}
                                 </span>
-                                {meta.plantillasForm.automatizacion && (
+                                {meta.plantillasForm.automatización && (
                                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                    AUTOMATION_LABELS[meta.plantillasForm.automatizacion]?.color || 'bg-gray-100'
+                                    AUTOMATION_LABELS[meta.plantillasForm.automatización]?.color || 'bg-gray-100'
                                   }`}>
-                                    {AUTOMATION_LABELS[meta.plantillasForm.automatizacion]?.label || meta.plantillasForm.automatizacion}
+                                    {AUTOMATION_LABELS[meta.plantillasForm.automatización]?.label || meta.plantillasForm.automatización}
                                   </span>
                                 )}
                               </div>
@@ -537,6 +557,16 @@ export default function AdminLeadsPage() {
           </div>
         )}
       </div>
+
+      {/* Lead Detail Modal */}
+      {selectedLead && (
+        <LeadDetailModal
+          lead={selectedLead as ModalUnifiedLead}
+          type="unified"
+          onClose={() => setSelectedLead(null)}
+          onDelete={handleDeleteLead}
+        />
+      )}
     </div>
   )
 }

@@ -50,15 +50,15 @@ export default function ToolTimeDay0Result({ name, email, timeData }: Props) {
                 {hoursLost} horas
               </p>
               <p style={{ margin: 0, color: '#222222', fontSize: '16px' }}>
-                al ano respondiendo lo mismo
+                al año respondiendo lo mismo
               </p>
               <p style={{ margin: '12px 0 0 0', color: '#717171', fontSize: '14px' }}>
-                ({daysLost} dias laborales)
+                ({daysLost} días laborales)
               </p>
             </div>
 
             <p style={{ margin: '0 0 20px 0', color: '#484848', fontSize: '16px', lineHeight: 1.7 }}>
-              Estas horas se van en mensajes de WhatsApp sobre:
+              Estás horas se van en mensajes de WhatsApp sobre:
             </p>
 
             <ul style={{ margin: '0 0 24px 0', padding: '0 0 0 20px', color: '#484848', fontSize: '15px', lineHeight: 2 }}>
@@ -70,11 +70,11 @@ export default function ToolTimeDay0Result({ name, email, timeData }: Props) {
             </ul>
 
             <p style={{ margin: '0 0 20px 0', color: '#484848', fontSize: '16px', lineHeight: 1.7 }}>
-              Cada mensaje son 3 minutos: leer, pensar, escribir. Multiplicalo por cientos de reservas al ano.
+              Cada mensaje son 3 minutos: leer, pensar, escribir. Multiplicalo por cientos de reservas al año.
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#484848', fontSize: '16px', lineHeight: 1.7 }}>
-              En 2 dias te cuento como puedes recuperar el 70% de ese tiempo.
+              En 2 días te cuento como puedes recuperar el 70% de ese tiempo.
             </p>
 
             <p style={{ margin: '32px 0 0 0', color: '#222222', fontSize: '16px' }}>
@@ -100,5 +100,5 @@ export default function ToolTimeDay0Result({ name, email, timeData }: Props) {
 }
 
 export function getSubject(hoursLost?: number): string {
-  return `Tu resultado: ${hoursLost || 72} horas perdidas al ano`
+  return `Tu resultado: ${hoursLost || 72} horas perdidas al año`
 }

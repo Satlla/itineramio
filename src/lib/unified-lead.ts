@@ -25,7 +25,7 @@ export interface CalculatorData {
 
 export interface PlantillasFormData {
   propiedades: string
-  automatizacion: string
+  automatización: string
   intereses: string[]
   comentario?: string
   resourceSlug: string
@@ -76,15 +76,15 @@ function calculateLeadScore(metadata: Partial<UnifiedLeadMetadata>): number {
 
   // Bonus points from plantillas form data
   if (metadata.plantillasForm) {
-    const { propiedades, automatizacion, intereses } = metadata.plantillasForm
+    const { propiedades, automatización, intereses } = metadata.plantillasForm
 
     // Properties score
     const propScore: Record<string, number> = { '1': 2, '2-3': 5, '4-5': 10, '6-10': 15, '10+': 15 }
     score += propScore[propiedades] || 0
 
     // Automation level (less automation = more potential)
-    const autoScore: Record<string, number> = { 'nada': 10, 'basico': 5, 'herramientas': 2 }
-    score += autoScore[automatizacion] || 0
+    const autoScore: Record<string, number> = { 'nada': 10, 'básico': 5, 'herramientas': 2 }
+    score += autoScore[automatización] || 0
 
     // Interests
     score += Math.min((intereses?.length || 0) * 2, 10)
@@ -219,7 +219,7 @@ export async function updateLeadWithPlantillasForm(
   email: string,
   data: {
     propiedades: string
-    automatizacion: string
+    automatización: string
     intereses: string[]
     comentario?: string
     resourceSlug: string
@@ -242,7 +242,7 @@ export async function updateLeadWithPlantillasForm(
     },
     plantillasForm: {
       propiedades: data.propiedades,
-      automatizacion: data.automatizacion,
+      automatización: data.automatización,
       intereses: data.intereses,
       comentario: data.comentario,
       resourceSlug: data.resourceSlug,

@@ -15,22 +15,22 @@ import {
 /**
  * Cron job para enviar emails de la secuencia Soap Opera
  *
- * Secuencia de 15 dias con 8 emails en dias alternos:
- * - Email 1: Dia 1 (inmediato tras quiz)
- * - Email 2: Dia 3
- * - Email 3: Dia 5
- * - Email 4: Dia 7
- * - Email 5: Dia 9
- * - Email 6: Dia 11
- * - Email 7: Dia 13
- * - Email 8: Dia 15
+ * Secuencia de 15 días con 8 emails en días alternos:
+ * - Email 1: Día 1 (inmediato tras quiz)
+ * - Email 2: Día 3
+ * - Email 3: Día 5
+ * - Email 4: Día 7
+ * - Email 5: Día 9
+ * - Email 6: Día 11
+ * - Email 7: Día 13
+ * - Email 8: Día 15
  *
  * Ejecutar cada hora con Vercel Cron
  */
 
 const CRON_SECRET = process.env.CRON_SECRET || 'dev-secret-change-in-production'
 
-// Helper para calcular hace cuantos dias
+// Helper para calcular hace cuántos días
 const daysAgo = (days: number) => new Date(Date.now() - days * 24 * 60 * 60 * 1000)
 
 export async function GET(request: NextRequest) {
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     const now = new Date()
 
     // ========================================
-    // EMAIL 1 - DIA 1: Inmediato tras completar quiz
+    // EMAIL 1 - DÍA 1: Inmediato tras completar quiz
     // Se envia en el siguiente cron run (cada hora o diario)
     // ========================================
     const email1Subscribers = await prisma.emailSubscriber.findMany({
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     }
 
     // ========================================
-    // EMAIL 2 - DIA 3: 2 dias despues del email 1
+    // EMAIL 2 - DÍA 3: 2 días después del email 1
     // ========================================
     const email2Subscribers = await prisma.emailSubscriber.findMany({
       where: {
@@ -137,7 +137,7 @@ export async function GET(request: NextRequest) {
     }
 
     // ========================================
-    // EMAIL 3 - DIA 5: 2 dias despues del email 2
+    // EMAIL 3 - DÍA 5: 2 días después del email 2
     // ========================================
     const email3Subscribers = await prisma.emailSubscriber.findMany({
       where: {
@@ -175,7 +175,7 @@ export async function GET(request: NextRequest) {
     }
 
     // ========================================
-    // EMAIL 4 - DIA 7: 2 dias despues del email 3
+    // EMAIL 4 - DÍA 7: 2 días después del email 3
     // ========================================
     const email4Subscribers = await prisma.emailSubscriber.findMany({
       where: {
@@ -213,7 +213,7 @@ export async function GET(request: NextRequest) {
     }
 
     // ========================================
-    // EMAIL 5 - DIA 9: 2 dias despues del email 4
+    // EMAIL 5 - DÍA 9: 2 días después del email 4
     // ========================================
     const email5Subscribers = await prisma.emailSubscriber.findMany({
       where: {
@@ -251,7 +251,7 @@ export async function GET(request: NextRequest) {
     }
 
     // ========================================
-    // EMAIL 6 - DIA 11: 2 dias despues del email 5
+    // EMAIL 6 - DÍA 11: 2 días después del email 5
     // ========================================
     const email6Subscribers = await prisma.emailSubscriber.findMany({
       where: {
@@ -289,7 +289,7 @@ export async function GET(request: NextRequest) {
     }
 
     // ========================================
-    // EMAIL 7 - DIA 13: 2 dias despues del email 6
+    // EMAIL 7 - DÍA 13: 2 días después del email 6
     // ========================================
     const email7Subscribers = await prisma.emailSubscriber.findMany({
       where: {
@@ -327,7 +327,7 @@ export async function GET(request: NextRequest) {
     }
 
     // ========================================
-    // EMAIL 8 - DIA 15: 2 dias despues del email 7 (FIN DE SECUENCIA)
+    // EMAIL 8 - DÍA 15: 2 días después del email 7 (FIN DE SECUENCIA)
     // ========================================
     const email8Subscribers = await prisma.emailSubscriber.findMany({
       where: {
@@ -398,7 +398,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Tambien permitir POST para testing manual
+// También permitir POST para testing manual
 export async function POST(request: NextRequest) {
   return GET(request)
 }

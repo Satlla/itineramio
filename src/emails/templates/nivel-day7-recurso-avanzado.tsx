@@ -78,7 +78,7 @@ const NIVEL_ADVANCED: Record<string, {
         emoji: '🤖',
         title: 'Guía: Stack de Automatización Completo',
         desc: 'Las 7 herramientas que reducen significativamente tu tiempo operativo.',
-        url: 'https://www.itineramio.com/blog/automatizacion-airbnb-stack-completo',
+        url: 'https://www.itineramio.com/blog/automatización-airbnb-stack-completo',
         tipo: 'Guía'
       },
       {

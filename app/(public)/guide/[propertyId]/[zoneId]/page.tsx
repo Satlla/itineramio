@@ -64,7 +64,7 @@ const getZoneIcon = (iconName: string, className: string = "w-6 h-6") => {
     'tv': <Tv className={className} />,
     'coffee': <Coffee className={className} />,
     'location': <MapPin className={className} />,
-    'ubicacion': <MapPin className={className} />
+    'ubicación': <MapPin className={className} />
   }
   
   return iconMap[iconName.toLowerCase()] || <MapPin className={className} />
@@ -1401,7 +1401,7 @@ export default function ZoneGuidePage({
                       ? 'Hacer mi reseña pública (será visible para otros huéspedes)' 
                       : language === 'en'
                       ? 'Make my review public (will be visible to other guests)'
-                      : 'Rendre mon avis public (sera visible pour les autres invités)'
+                      : 'Rendre mon avis public (será visible pour les autres invités)'
                     }
                   </span>
                 </label>

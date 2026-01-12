@@ -11,16 +11,16 @@ const NIVEL_CASOS: Record<string, {
   titulo: string
   persona: {
     nombre: string
-    ubicacion: string
+    ubicación: string
     situacion: string
   }
   problema: string
   antes: Array<{ label: string; value: string }>
-  solucion: {
+  solución: {
     intro: string
     acciones: Array<{ emoji: string; title: string; desc: string }>
   }
-  despues: Array<{ label: string; value: string }>
+  después: Array<{ label: string; value: string }>
   resultado: string
   leccion: string
   ctaText: string
@@ -29,7 +29,7 @@ const NIVEL_CASOS: Record<string, {
     titulo: 'De Cero a Primera Reserva en 48 Horas',
     persona: {
       nombre: 'Ana',
-      ubicacion: 'Valencia',
+      ubicación: 'Valencia',
       situacion: 'Primera vez como anfitriona, apartamento heredado'
     },
     problema: 'Publicó su anuncio en Airbnb pero después de 2 semanas: 0 reservas, 150 visitas, 3 consultas sin conversión.',
@@ -39,7 +39,7 @@ const NIVEL_CASOS: Record<string, {
       { label: 'Tasa de conversión', value: '0%' },
       { label: 'Reviews', value: '0 (cuenta nueva)' }
     ],
-    solucion: {
+    solución: {
       intro: 'Ana hizo 3 cambios basados en su perfil de principiante:',
       acciones: [
         {
@@ -59,7 +59,7 @@ const NIVEL_CASOS: Record<string, {
         }
       ]
     },
-    despues: [
+    después: [
       { label: 'Primera reserva', value: 'A las 48h del cambio' },
       { label: 'Reservas primer mes', value: '8 (24 noches)' },
       { label: 'Reviews conseguidas', value: '7 de 5★' },
@@ -73,7 +73,7 @@ const NIVEL_CASOS: Record<string, {
     titulo: 'De 800€/mes a 1,340€/mes en el Mismo Apartamento',
     persona: {
       nombre: 'Laura',
-      ubicacion: 'Barcelona',
+      ubicación: 'Barcelona',
       situacion: '18 meses como anfitriona, 2 apartamentos'
     },
     problema: '"Tengo el 90% de ocupación pero gano menos de lo que debería. Mis vecinos con menos ocupación ganan más que yo."',
@@ -83,7 +83,7 @@ const NIVEL_CASOS: Record<string, {
       { label: 'Ingresos mensuales', value: '1,755€ brutos' },
       { label: 'RevPAR', value: '58.5€' }
     ],
-    solucion: {
+    solución: {
       intro: 'Laura optimizó 3 elementos clave:',
       acciones: [
         {
@@ -103,7 +103,7 @@ const NIVEL_CASOS: Record<string, {
         }
       ]
     },
-    despues: [
+    después: [
       { label: 'Ocupación', value: '88%' },
       { label: 'Precio promedio', value: '85€/noche' },
       { label: 'Ingresos mensuales', value: '2,244€ brutos' },
@@ -117,7 +117,7 @@ const NIVEL_CASOS: Record<string, {
     titulo: 'De 8 a 15 Propiedades Sin Contratar a Nadie',
     persona: {
       nombre: 'David',
-      ubicacion: 'Madrid',
+      ubicación: 'Madrid',
       situacion: '3 años de experiencia, 8 propiedades gestionadas'
     },
     problema: 'Trabajaba 55h/semana apagando fuegos. Cada nueva propiedad multiplicaba el caos. No podía crecer sin perder calidad o contratar equipo (sin margen para ello).',
@@ -127,7 +127,7 @@ const NIVEL_CASOS: Record<string, {
       { label: 'Emergencias/mes', value: '12-15' },
       { label: 'Ingresos netos', value: '4,200€/mes' }
     ],
-    solucion: {
+    solución: {
       intro: 'David implementó 3 sistemas antes de crecer:',
       acciones: [
         {
@@ -147,7 +147,7 @@ const NIVEL_CASOS: Record<string, {
         }
       ]
     },
-    despues: [
+    después: [
       { label: 'Propiedades', value: '15' },
       { label: 'Horas/semana', value: '30h' },
       { label: 'Emergencias/mes', value: '3-4' },
@@ -161,7 +161,7 @@ const NIVEL_CASOS: Record<string, {
     titulo: 'De 12 Propiedades Estancadas a 25 con Revenue Management',
     persona: {
       nombre: 'Carlos',
-      ubicacion: 'Málaga',
+      ubicación: 'Málaga',
       situacion: '5+ años, portfolio de 12 propiedades, estancado 2 años'
     },
     problema: 'Tenía operaciones rodadas pero sentía que había tocado techo. No sabía cómo duplicar sin duplicar problemas. Competencia nueva con precios agresivos.',
@@ -171,7 +171,7 @@ const NIVEL_CASOS: Record<string, {
       { label: 'Ocupación promedio', value: '78%' },
       { label: 'Ingresos netos', value: '11,500€/mes' }
     ],
-    solucion: {
+    solución: {
       intro: 'Carlos implementó estrategias del top 5%:',
       acciones: [
         {
@@ -191,7 +191,7 @@ const NIVEL_CASOS: Record<string, {
         }
       ]
     },
-    despues: [
+    después: [
       { label: 'Propiedades', value: '25 (+13 en 18 meses)' },
       { label: 'RevPAR promedio', value: '82€ (+20.5%)' },
       { label: 'Ocupación promedio', value: '81%' },
@@ -237,7 +237,7 @@ export default function NivelDay5Email({ name, nivel }: NivelDay5EmailProps) {
         marginBottom: '25px'
       }}>
         <p style={{ fontSize: '16px', color: '#166534', marginBottom: '8px' }}>
-          <strong>{caso.persona.nombre}</strong> - {caso.persona.ubicacion}
+          <strong>{caso.persona.nombre}</strong> - {caso.persona.ubicación}
         </p>
         <p style={{ fontSize: '15px', color: '#15803d', margin: 0 }}>
           {caso.persona.situacion}
@@ -270,10 +270,10 @@ export default function NivelDay5Email({ name, nivel }: NivelDay5EmailProps) {
         💡 La Solución
       </h3>
       <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#333', marginBottom: '20px' }}>
-        {caso.solucion.intro}
+        {caso.solución.intro}
       </p>
       <div style={{ marginBottom: '25px' }}>
-        {caso.solucion.acciones.map((accion, idx) => (
+        {caso.solución.acciones.map((accion, idx) => (
           <div
             key={idx}
             style={{
@@ -299,7 +299,7 @@ export default function NivelDay5Email({ name, nivel }: NivelDay5EmailProps) {
         ✅ Resultados
       </h3>
       <div style={{ background: '#f0fdf4', padding: '20px', borderRadius: '8px', marginBottom: '25px' }}>
-        {caso.despues.map((item, idx) => (
+        {caso.después.map((item, idx) => (
           <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
             <span style={{ fontSize: '15px', color: '#065f46' }}>{item.label}:</span>
             <strong style={{ fontSize: '15px', color: '#047857' }}>{item.value}</strong>

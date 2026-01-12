@@ -29,7 +29,7 @@ const NIVEL_CONTENT: Record<string, {
     },
     recurso3: {
       title: 'Template: Manual Básico para Huéspedes',
-      url: 'https://www.itineramio.com/recursos/manual-basico',
+      url: 'https://www.itineramio.com/recursos/manual-básico',
       desc: 'Descargable listo para personalizar en 10 minutos'
     }
   },
@@ -38,7 +38,7 @@ const NIVEL_CONTENT: Record<string, {
     mensaje: 'Estás en la fase de crecimiento. Has superado los errores básicos, ahora toca aumentar ingresos y reducir tiempo:',
     recurso1: {
       title: 'Artículo: Automatización que Realmente Funciona',
-      url: 'https://www.itineramio.com/blog/automatizacion-airbnb-stack-completo',
+      url: 'https://www.itineramio.com/blog/automatización-airbnb-stack-completo',
       desc: 'El stack completo de herramientas para anfitriones intermedios'
     },
     recurso2: {

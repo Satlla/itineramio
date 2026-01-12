@@ -888,7 +888,7 @@ export default function BillingPage() {
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900">Itineramio</h3>
-                    <p className="text-sm text-gray-600">Gestion de Alojamientos Turisticos</p>
+                    <p className="text-sm text-gray-600">Gestión de Alojamientos Turisticos</p>
                   </div>
                 </div>
               </div>

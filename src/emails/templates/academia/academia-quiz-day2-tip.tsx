@@ -26,12 +26,12 @@ export default function AcademiaQuizDay2Tip({ name, email, nivel }: Props) {
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Despues de analizar cientos de perfiles de anfitriones, hemos detectado un patron claro:
+              Después de analizar cientos de perfiles de anfitriones, hemos detectado un patron claro:
             </p>
 
             <div style={{ backgroundColor: '#fef3c7', border: '1px solid #fcd34d', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}>
               <p style={{ margin: 0, color: '#92400e', fontSize: '16px', fontWeight: 600 }}>
-                El error #1: No tener un sistema claro de comunicacion con huespedes
+                El error #1: No tener un sistema claro de comunicación con huéspedes
               </p>
             </div>
 
@@ -41,16 +41,16 @@ export default function AcademiaQuizDay2Tip({ name, email, nivel }: Props) {
 
             <ul style={{ margin: '0 0 24px 0', paddingLeft: '20px', color: '#374151', fontSize: '15px', lineHeight: 1.8 }}>
               <li>Respuestas tardias o inconsistentes</li>
-              <li>Preguntas repetidas de cada huesped</li>
+              <li>Preguntas repetidas de cada huésped</li>
               <li>Estres y sensacion de estar siempre "apagando fuegos"</li>
             </ul>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              <strong>La solucion:</strong> Crear un manual digital con toda la informacion que los huespedes necesitan. Asi pueden resolver sus dudas solos.
+              <strong>La solución:</strong> Crear un manual digital con toda la información que los huéspedes necesitan. Así pueden resolver sus dudas solos.
             </p>
 
             <p style={{ margin: '0', color: '#374151', fontSize: '16px' }}>
-              En el proximo email te enviare una mini-guia para implementar esto en 7 dias.
+              En el próximo email te enviaré una mini-guia para implementar esto en 7 días.
             </p>
 
             <p style={{ margin: '20px 0 0 0', color: '#374151', fontSize: '16px' }}>

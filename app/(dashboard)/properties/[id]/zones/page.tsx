@@ -2406,7 +2406,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 </div>
               </div>
 
-              {/* Right Section - Menu */}
+              {/* Right Section - Menú */}
               <div className="flex items-center ml-4 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
@@ -2518,7 +2518,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         >
           <CardContent className="p-3">
             <div className="flex flex-col h-full">
-              {/* Header with drag handle and menu */}
+              {/* Header with drag handle and menú */}
               <div className="flex items-center justify-between mb-3">
                 <div
                   {...attributes}
@@ -2847,7 +2847,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             <Eye className="w-5 h-5 text-gray-700" />
           </button>
 
-          {/* Property Options Menu */}
+          {/* Property Options Menú */}
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <Button
@@ -3402,7 +3402,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   🎯 Zonas Esenciales para tu Apartamento
                 </h2>
                 <p className="text-gray-600 text-lg">
-                  Te recomendamos estas zonas que más consultan los huéspedes. ¡Selecciona las que necesites para empezar!
+                  Te recomendamos estás zonas que más consultan los huéspedes. ¡Selecciona las que necesites para empezar!
                 </p>
               </div>
 
@@ -3482,8 +3482,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 <div className="flex gap-3">
                   <Info className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-violet-800">
-                    <p className="font-medium mb-1">💡 ¿Por qué estas zonas son esenciales?</p>
-                    <p>Basado en miles de apartamentos, estas son las zonas que más consultan los huéspedes. Tenerlas preparadas:</p>
+                    <p className="font-medium mb-1">💡 ¿Por qué estás zonas son esenciales?</p>
+                    <p>Basado en miles de apartamentos, estás son las zonas que más consultan los huéspedes. Tenerlas preparadas:</p>
                     <ul className="mt-2 space-y-1 text-xs">
                       <li>✅ Mejora la experiencia de tus huéspedes</li>
                       <li>✅ Reduce preguntas repetitivas</li>

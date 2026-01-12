@@ -9,7 +9,7 @@ export async function GET() {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="protocolo-inspeccion-pre-huesped.pdf"',
+        'Content-Disposition': 'attachment; filename="protocolo-inspeccion-pre-huésped.pdf"',
         'Cache-Control': 'no-cache'
       }
     })

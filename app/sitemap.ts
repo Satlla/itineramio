@@ -87,9 +87,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Blog category routes
   const categories = [
     'guias',
-    'mejores-practicas',
+    'mejores-prácticas',
     'normativa',
-    'automatizacion',
+    'automatización',
     'marketing',
     'operaciones',
     'casos-estudio',

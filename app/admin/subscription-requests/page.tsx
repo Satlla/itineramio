@@ -382,7 +382,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
               />
               <p className="text-xs text-amber-700 mt-2 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
-                Estas notas serán visibles para todos los administradores
+                Estás notas serán visibles para todos los administradores
               </p>
             </div>
 
@@ -1186,7 +1186,7 @@ export default function SubscriptionRequestsPage() {
                           {canceledSubscriptions.length} {canceledSubscriptions.length === 1 ? 'usuario ha' : 'usuarios han'} cancelado
                         </h3>
                         <p className="text-xs text-orange-700 mt-1">
-                          Estas suscripciones se desactivarán al finalizar su período actual. Contacta con ellos para recuperarlos.
+                          Estás suscripciones se desactivarán al finalizar su período actual. Contacta con ellos para recuperarlos.
                         </p>
                       </div>
                     </div>

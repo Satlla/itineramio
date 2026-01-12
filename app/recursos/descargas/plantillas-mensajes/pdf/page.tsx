@@ -228,7 +228,7 @@ export default function PlantillasMensajesPDF() {
                 <li>¿Hay algo que podamos mejorar o ayudarte con algo?</li>
               </ul>
 
-              <p>Tu opinión nos ayuda a mejorar. Si tienes 1 minuto, nos encantaría que respondieras estas 5 preguntas rápidas:<br/>
+              <p>Tu opinión nos ayuda a mejorar. Si tienes 1 minuto, nos encantaría que respondieras estás 5 preguntas rápidas:<br/>
               👉 <span className="bg-yellow-100 px-1">[Enlace a Google Form]</span></p>
 
               <p>Si hay cualquier incidencia, por pequeña que sea, por favor avísanos ahora para poder solucionarla durante tu estancia.</p>
@@ -413,7 +413,7 @@ export default function PlantillasMensajesPDF() {
             <h2 className="text-2xl font-bold text-gray-900">Respuestas Rápidas Frecuentes</h2>
           </div>
           <p className="text-gray-600 mb-6">
-            Configura estas respuestas guardadas en Airbnb para responder en segundos.
+            Configura estás respuestas guardadas en Airbnb para responder en segundos.
           </p>
 
           {/* Early check-in SI */}
@@ -536,7 +536,7 @@ export default function PlantillasMensajesPDF() {
                 </div>
                 <div className="pt-3 border-t border-rose-200">
                   <p className="font-medium text-rose-700">📖 Tutorial completo:</p>
-                  <p className="text-rose-600">itineramio.com/blog/mensajes-automaticos-airbnb</p>
+                  <p className="text-rose-600">itineramio.com/blog/mensajes-automáticos-airbnb</p>
                 </div>
               </div>
             </div>
@@ -560,7 +560,7 @@ export default function PlantillasMensajesPDF() {
                 </div>
                 <div className="pt-3 border-t border-blue-200">
                   <p className="font-medium text-blue-700">📖 Tutorial completo:</p>
-                  <p className="text-blue-600">itineramio.com/blog/mensajes-automaticos-booking</p>
+                  <p className="text-blue-600">itineramio.com/blog/mensajes-automáticos-booking</p>
                 </div>
               </div>
             </div>
@@ -576,7 +576,7 @@ export default function PlantillasMensajesPDF() {
                 ¿Qué incluir en tu guía digital de Itineramio?
               </h3>
               <p className="text-gray-600 mb-4">
-                Para que los mensajes funcionen, tu guía debe tener estas secciones:
+                Para que los mensajes funcionen, tu guía debe tener estás secciones:
               </p>
               <div className="grid sm:grid-cols-2 gap-3 text-sm">
                 <div className="flex items-center gap-2">

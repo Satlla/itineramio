@@ -59,7 +59,7 @@ export async function sendVerificationEmail(email: string, fullName: string, tok
               </h2>
 
               <p style="margin: 0 0 24px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
-                Bienvenido a <strong>Academia Itineramio</strong>. Estamos emocionados de tenerte con nosotros en este viaje hacia convertirte en un Superhost profesional.
+                Bienvenido a <strong>Academia Itineramio</strong>. Estamos emocionados de tenerte con nosotros en este viaje hacía convertirte en un Superhost profesional.
               </p>
 
               <p style="margin: 0 0 32px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">

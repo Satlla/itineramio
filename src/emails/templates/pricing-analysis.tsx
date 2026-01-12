@@ -107,8 +107,8 @@ export const PricingAnalysisEmail: React.FC<PricingAnalysisEmailProps> = ({
                 marginBottom: '30px',
               }}
             >
-              Hemos analizado tu propiedad y aqui tienes los resultados.
-              Encontraras el informe completo en PDF adjunto a este email.
+              Hemos analizado tu propiedad y aquí tienes los resultados.
+              Encontrarás el informe completo en PDF adjunto a este email.
             </p>
 
             {/* Price Summary Card */}
@@ -258,7 +258,7 @@ export const PricingAnalysisEmail: React.FC<PricingAnalysisEmailProps> = ({
                   </tr>
                   <tr>
                     <td style={{ color: '#6b7280', fontSize: '14px', padding: '8px 0' }}>
-                      Ubicacion:
+                      Ubicación:
                     </td>
                     <td
                       style={{
@@ -348,7 +348,7 @@ export const PricingAnalysisEmail: React.FC<PricingAnalysisEmailProps> = ({
                 <li>Ajusta precios segun eventos locales y festividades</li>
                 <li>Ofrece descuentos para reservas de larga estancia</li>
                 <li>Sube precios en fines de semana y temporada alta</li>
-                <li>Responde rapido para mejorar tu posicionamiento</li>
+                <li>Responde rápido para mejorar tu posicionamiento</li>
               </ul>
             </div>
 
@@ -371,7 +371,7 @@ export const PricingAnalysisEmail: React.FC<PricingAnalysisEmailProps> = ({
                   fontWeight: 'bold',
                 }}
               >
-                Automatiza la gestion de tu alquiler
+                Automatiza la gestión de tu alquiler
               </h3>
               <p
                 style={{
@@ -382,7 +382,7 @@ export const PricingAnalysisEmail: React.FC<PricingAnalysisEmailProps> = ({
                 }}
               >
                 Itineramio te ayuda a crear manuales digitales, responder automaticamente
-                a tus huespedes y mejorar tus valoraciones.
+                a tus huéspedes y mejorar tus valoraciones.
               </p>
 
               <a
@@ -398,7 +398,7 @@ export const PricingAnalysisEmail: React.FC<PricingAnalysisEmailProps> = ({
                   fontSize: '16px',
                 }}
               >
-                Prueba gratis 15 dias
+                Prueba gratis 15 días
               </a>
             </div>
 

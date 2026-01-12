@@ -30,7 +30,7 @@ export default function Day3TestCta({ name }: Day3TestCtaProps) {
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              Algunos somos mas analiticos, otros mas intuitivos. Algunos priorizamos la eficiencia, otros la experiencia del huesped.
+              Algunos somos mas analíticos, otros mas intuitivos. Algunos priorizamos la eficiencia, otros la experiencia del huésped.
             </p>
 
             <p style={{ margin: '0 0 24px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
@@ -68,7 +68,7 @@ export default function Day3TestCta({ name }: Day3TestCtaProps) {
             </div>
 
             <p style={{ margin: '0 0 24px 0', color: '#717171', fontSize: '14px', lineHeight: 1.6 }}>
-              Al finalizar recibiras tu perfil completo + una guia personalizada segun tu tipo de anfitrion.
+              Al finalizar recibirás tu perfil completo + una guia personalizada segun tu tipo de anfitrion.
             </p>
 
             <p style={{ margin: '0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>

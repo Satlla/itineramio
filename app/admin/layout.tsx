@@ -14,7 +14,7 @@ import {
   BarChart3,
   Building2,
   FileText,
-  Menu,
+  Menú,
   X,
   Tag,
   Star,
@@ -111,7 +111,7 @@ const navigationSections = [
   },
 ]
 
-// Keep these for backwards compatibility (used in mobile menu)
+// Keep these for backwards compatibility (used in mobile menú)
 const adminNavigation = navigationSections.flatMap(s => s.items)
 const marketingNavigation = navigationSections.find(s => s.id === 'marketing')?.items || []
 const academyNavigation = navigationSections.find(s => s.id === 'academia')?.items || []
@@ -278,7 +278,7 @@ export default function AdminLayout({
         <div className="mx-auto px-3 sm:px-4 lg:px-6">
           <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="flex items-center min-w-0">
-              {/* Mobile menu button */}
+              {/* Mobile menú button */}
               <button
                 type="button"
                 className="lg:hidden p-1.5 sm:p-2 rounded-md text-gray-400 hover:text-gray-200 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 mr-2"
@@ -287,7 +287,7 @@ export default function AdminLayout({
                 {sidebarOpen ? (
                   <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 ) : (
-                  <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <Menú className="h-5 w-5 sm:h-6 sm:w-6" />
                 )}
               </button>
 

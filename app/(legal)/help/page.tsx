@@ -668,7 +668,7 @@ export default function HelpPage() {
                 ¿No encuentras tu pregunta?
               </h3>
               <p className="text-gray-600">
-                Envíanos tu duda y te responderemos lo antes posible. Tu pregunta podría ayudar a otros usuarios.
+                Envíaños tu duda y te responderemos lo antes posible. Tu pregunta podría ayudar a otros usuarios.
               </p>
             </div>
 

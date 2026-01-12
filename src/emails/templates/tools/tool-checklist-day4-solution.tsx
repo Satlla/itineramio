@@ -119,5 +119,5 @@ export default function ToolChecklistDay4Solution({ name, email }: ToolChecklist
 }
 
 export function getSubject(): string {
-  return 'Asi lo han solucionado otros anfitriones'
+  return 'Así lo han solucionado otros anfitriones'
 }

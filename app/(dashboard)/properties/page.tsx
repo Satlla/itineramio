@@ -1564,7 +1564,7 @@ function PropertiesPageContent() {
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={(e) => {
                   // Verificar si el click viene del dropdown
                   const target = e.target as HTMLElement
-                  const isDropdownClick = target.closest('[role="menu"]') || target.closest('[data-radix-collection-item]')
+                  const isDropdownClick = target.closest('[role="menú"]') || target.closest('[data-radix-collection-item]')
                   
                   if (!isDropdownClick) {
                     router.push(getFriendlyUrl(property))

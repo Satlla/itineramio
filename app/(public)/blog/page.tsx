@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   keywords: [
     'blog apartamentos turisticos',
     'consejos anfitriones airbnb',
-    'guias gestion alquiler turistico',
+    'guias gestión alquiler turistico',
     'normativa vivienda turistica',
     'manual digital apartamento',
   ],
@@ -76,7 +76,7 @@ const categoryConfig: Record<string, { name: string; icon: any; color: string; g
     color: 'text-purple-600',
     gradient: 'from-purple-50 to-purple-100'
   },
-  'AUTOMATIZACION': {
+  'AUTOMATIZACIÓN': {
     name: 'Automatización',
     icon: Zap,
     color: 'text-violet-600',

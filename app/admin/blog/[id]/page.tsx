@@ -23,7 +23,7 @@ const categoryOptions = [
   { value: 'GUIAS', label: 'Guías' },
   { value: 'MEJORES_PRACTICAS', label: 'Mejores Prácticas' },
   { value: 'NORMATIVA', label: 'Normativa' },
-  { value: 'AUTOMATIZACION', label: 'Automatización' },
+  { value: 'AUTOMATIZACIÓN', label: 'Automatización' },
   { value: 'MARKETING', label: 'Marketing' },
   { value: 'OPERACIONES', label: 'Operaciones' },
   { value: 'CASOS_ESTUDIO', label: 'Casos de Estudio' },

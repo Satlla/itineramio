@@ -115,12 +115,12 @@ export function generatePricingAnalysisPDF(data: PricingAnalysisData): Buffer {
 
   const propertyDetails = [
     ['Tipo de propiedad:', data.propertyType],
-    ['Ubicacion:', data.location],
+    ['Ubicación:', data.location],
     ['Temporada:', data.season],
-    ['Huespedes:', `${data.guests}`],
+    ['Huéspedes:', `${data.guests}`],
     ['Dormitorios:', `${data.bedrooms}`],
     ['Banos:', `${data.bathrooms}`],
-    ['Servicios:', data.amenities.length > 0 ? data.amenities.join(', ') : 'Basicos']
+    ['Servicios:', data.amenities.length > 0 ? data.amenities.join(', ') : 'Básicos']
   ]
 
   propertyDetails.forEach(([label, value]) => {
@@ -583,7 +583,7 @@ export function generateInspectionProtocolPDF(data?: InspectionProtocolData): Bu
   y = 28
   doc.setFontSize(22)
   doc.setFont('helvetica', 'bold')
-  doc.text('Protocolo de Inspeccion Pre-huesped', margin, y)
+  doc.text('Protocolo de Inspeccion Pre-huésped', margin, y)
 
   y = 36
   doc.setFontSize(10)
@@ -755,9 +755,9 @@ export function generateInspectionProtocolPDF(data?: InspectionProtocolData): Bu
   y += 10
 
   const extraItems = [
-    'Manual del huesped visible y accesible',
-    'Llaves / codigos preparados',
-    'Sin objetos olvidados del huesped anterior',
+    'Manual del huésped visible y accesible',
+    'Llaves / códigos preparados',
+    'Sin objetos olvidados del huésped anterior',
     'Detector de humo con bateria',
     'Extintor accesible (si aplica)'
   ]
@@ -816,7 +816,7 @@ export function generateInspectionProtocolPDF(data?: InspectionProtocolData): Bu
 
   doc.setTextColor(...foggy)
   doc.setFontSize(8)
-  doc.text('Protocolo de Inspeccion Pre-huesped', margin, footerY)
+  doc.text('Protocolo de Inspeccion Pre-huésped', margin, footerY)
 
   const brandText = 'itineramio.com'
   const brandWidth = doc.getTextWidth(brandText)

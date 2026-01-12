@@ -75,11 +75,11 @@ function UnsubscribeContent() {
             Te has dado de baja
           </h1>
           <p className="text-gray-600 mb-6">
-            Ya no recibiras mas emails de nuestra parte.
+            Ya no recibirás más emails de nuestra parte.
             Lamentamos verte partir.
           </p>
           <p className="text-sm text-gray-500 mb-6">
-            Si cambias de opinion, siempre puedes volver a suscribirte
+            Si cambias de opinión, siempre puedes volver a suscribirte
             completando nuestro quiz de anfitriones.
           </p>
           <Link
@@ -113,7 +113,7 @@ function UnsubscribeContent() {
         )}
 
         <p className="text-sm text-gray-500 mb-6">
-          Ya no recibiras emails de la secuencia de Itineramio.
+          Ya no recibirás emails de la secuencia de Itineramio.
           Puedes volver a suscribirte en cualquier momento.
         </p>
 

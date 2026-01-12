@@ -25,27 +25,27 @@ export default function AcademiaQuizDay10Invite({ name, email }: Props) {
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              En estos dias te he compartido:
+              En estos días te he compartido:
             </p>
 
             <ul style={{ margin: '0 0 24px 0', paddingLeft: '20px', color: '#374151', fontSize: '15px', lineHeight: 1.8 }}>
               <li>Tu perfil de anfitrion segun el quiz</li>
               <li>El error mas comun y como evitarlo</li>
-              <li>Una mini-guia de 7 dias</li>
+              <li>Una mini-guia de 7 días</li>
               <li>Un caso de exito real</li>
             </ul>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Ahora la pregunta es: <strong>estas listo para dar el siguiente paso?</strong>
+              Ahora la pregunta es: <strong>estás listo para dar el siguiente paso?</strong>
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Si quieres profesionalizar tu gestion y ahorrar horas cada semana, te invito a probar Itineramio:
+              Si quieres profesionalizar tu gestión y ahorrar horas cada semana, te invito a probar Itineramio:
             </p>
 
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <a href="https://www.itineramio.com/auth/register" style={{ display: 'inline-block', backgroundColor: '#7c3aed', color: '#ffffff', padding: '14px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 600, fontSize: '16px' }}>
-                Empezar prueba de 15 dias
+                Empezar prueba de 15 días
               </a>
             </div>
 

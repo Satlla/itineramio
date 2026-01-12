@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     'mejor software manuales digitales',
     'alternativa touch stay',
     'hostfully vs hospitable',
-    'software gestion alquiler vacacional'
+    'software gestión alquiler vacacional'
   ],
   openGraph: {
     title: 'Comparativas de Software para Alojamientos Turísticos',

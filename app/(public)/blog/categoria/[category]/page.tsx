@@ -30,9 +30,9 @@ const categoryMeta: Record<string, {
     keywords: ['guías apartamentos turísticos', 'manual airbnb', 'gestión alojamiento', 'anfitriones guías'],
     icon: '📚'
   },
-  'automatizacion': {
+  'automatización': {
     name: 'Automatización',
-    slug: 'AUTOMATIZACION',
+    slug: 'AUTOMATIZACIÓN',
     title: 'Automatización para Airbnb y Apartamentos Turísticos | Itineramio',
     description: 'Descubre cómo automatizar la gestión de tu apartamento turístico. Ahorra tiempo, reduce errores y escala tu negocio con herramientas de automatización.',
     keywords: ['automatización airbnb', 'gestión automática apartamentos', 'herramientas anfitriones', 'automatizar check-in'],
@@ -62,7 +62,7 @@ const categoryMeta: Record<string, {
     keywords: ['gestión operaciones airbnb', 'check-in automático', 'limpieza apartamentos', 'mantenimiento alojamiento'],
     icon: '🔧'
   },
-  'mejores-practicas': {
+  'mejores-prácticas': {
     name: 'Mejores Prácticas',
     slug: 'MEJORES_PRACTICAS',
     title: 'Mejores Prácticas para Anfitriones de Airbnb | Consejos Expertos',

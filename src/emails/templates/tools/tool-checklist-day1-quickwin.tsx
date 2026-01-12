@@ -54,7 +54,7 @@ export default function ToolChecklistDay1QuickWin({ name, email }: ToolChecklist
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#484848', fontSize: '16px', lineHeight: 1.7 }}>
-              Estas preguntas llegan por WhatsApp. A cualquier hora. Una y otra vez.
+              Estás preguntas llegan por WhatsApp. A cualquier hora. Una y otra vez.
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#484848', fontSize: '16px', lineHeight: 1.7 }}>

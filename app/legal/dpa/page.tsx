@@ -409,7 +409,7 @@ export default function DPAPage() {
             <div className="mt-4 bg-blue-50 p-4 rounded-lg">
               <p className="text-sm text-gray-700">
                 <strong>Certificaciones:</strong> Nuestros proveedores de infraestructura (Supabase, Vercel, Stripe)
-                cuentan con certificaciones SOC 2 Type II, ISO 27001 y PCI DSS (Stripe). Revisamos anualmente estas
+                cuentan con certificaciones SOC 2 Type II, ISO 27001 y PCI DSS (Stripe). Revisamos anualmente estás
                 certificaciones para garantizar el cumplimiento continuo.
               </p>
             </div>

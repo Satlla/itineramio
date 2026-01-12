@@ -39,7 +39,7 @@ const BLOG_CATEGORY_LABELS: Record<string, string> = {
   GUIAS: 'Guías',
   MEJORES_PRACTICAS: 'Mejores Prácticas',
   NORMATIVA: 'Normativa y Legal',
-  AUTOMATIZACION: 'Automatización',
+  AUTOMATIZACIÓN: 'Automatización',
   MARKETING: 'Marketing',
   OPERACIONES: 'Operaciones',
   CASOS_ESTUDIO: 'Casos de Estudio',

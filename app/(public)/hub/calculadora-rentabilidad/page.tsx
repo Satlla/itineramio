@@ -92,7 +92,7 @@ const MARKET_DATA: Record<string, {
   'cusco': { adrHigh: 120, adrMid: 75, adrLow: 45, occHigh: 90, occMid: 70, occLow: 45, demand: 'alta', seasonality: 'Mayo-sept temporada seca', currency: 'USD' },
 
   // ========== COSTA RICA ==========
-  'san-jose': { adrHigh: 80, adrMid: 55, adrLow: 35, occHigh: 75, occMid: 60, occLow: 45, demand: 'media', seasonality: 'Escala hacia playas', currency: 'USD' },
+  'san-jose': { adrHigh: 80, adrMid: 55, adrLow: 35, occHigh: 75, occMid: 60, occLow: 45, demand: 'media', seasonality: 'Escala hacía playas', currency: 'USD' },
   'guanacaste': { adrHigh: 180, adrMid: 110, adrLow: 60, occHigh: 90, occMid: 65, occLow: 40, demand: 'alta', seasonality: 'Dic-abril temporada seca', currency: 'USD' },
   'manuel-antonio': { adrHigh: 160, adrMid: 100, adrLow: 55, occHigh: 88, occMid: 65, occLow: 40, demand: 'alta', seasonality: 'Todo el año, pico dic-abril', currency: 'USD' },
 
@@ -101,9 +101,9 @@ const MARKET_DATA: Record<string, {
   'santo-domingo': { adrHigh: 90, adrMid: 60, adrLow: 40, occHigh: 80, occMid: 65, occLow: 50, demand: 'media', seasonality: 'Negocios todo el año', currency: 'USD' },
 
   // ========== GENÉRICOS ==========
-  'otras-capital-espana': { adrHigh: 90, adrMid: 65, adrLow: 45, occHigh: 75, occMid: 60, occLow: 40, demand: 'media', seasonality: 'Variable' },
-  'otras-costa-espana': { adrHigh: 100, adrMid: 70, adrLow: 40, occHigh: 85, occMid: 55, occLow: 25, demand: 'baja', seasonality: 'Muy estacional' },
-  'otras-interior-espana': { adrHigh: 70, adrMid: 50, adrLow: 35, occHigh: 65, occMid: 50, occLow: 30, demand: 'baja', seasonality: 'Puentes y vacaciones' },
+  'otras-capital-España': { adrHigh: 90, adrMid: 65, adrLow: 45, occHigh: 75, occMid: 60, occLow: 40, demand: 'media', seasonality: 'Variable' },
+  'otras-costa-España': { adrHigh: 100, adrMid: 70, adrLow: 40, occHigh: 85, occMid: 55, occLow: 25, demand: 'baja', seasonality: 'Muy estacional' },
+  'otras-interior-España': { adrHigh: 70, adrMid: 50, adrLow: 35, occHigh: 65, occMid: 50, occLow: 30, demand: 'baja', seasonality: 'Puentes y vacaciones' },
   'otras-latam-capital': { adrHigh: 80, adrMid: 55, adrLow: 35, occHigh: 75, occMid: 60, occLow: 45, demand: 'media', seasonality: 'Variable', currency: 'USD' },
   'otras-latam-playa': { adrHigh: 120, adrMid: 75, adrLow: 40, occHigh: 85, occMid: 60, occLow: 35, demand: 'media', seasonality: 'Estacional', currency: 'USD' },
   'otras-latam-interior': { adrHigh: 60, adrMid: 40, adrLow: 25, occHigh: 70, occMid: 50, occLow: 30, demand: 'baja', seasonality: 'Fines de semana', currency: 'USD' },
@@ -629,9 +629,9 @@ export default function CalculadoraRentabilidad() {
             <option value="baleares">Baleares (Mallorca, Ibiza...)</option>
           </optgroup>
           <optgroup label="🇪🇸 ESPAÑA - Otras">
-            <option value="otras-capital-espana">Otra capital de provincia</option>
-            <option value="otras-costa-espana">Otra zona costera</option>
-            <option value="otras-interior-espana">Zona interior / rural</option>
+            <option value="otras-capital-España">Otra capital de provincia</option>
+            <option value="otras-costa-España">Otra zona costera</option>
+            <option value="otras-interior-España">Zona interior / rural</option>
           </optgroup>
 
           <optgroup label="🇲🇽 MÉXICO - CDMX">

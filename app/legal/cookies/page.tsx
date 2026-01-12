@@ -36,10 +36,10 @@ export default function CookiesPage() {
           <ul className="space-y-2">
             <li><a href="#que-son" className="text-blue-600 hover:underline">1. ¿Qué son las Cookies?</a></li>
             <li><a href="#tipos" className="text-blue-600 hover:underline">2. Tipos de Cookies que Utilizamos</a></li>
-            <li><a href="#tecnicas" className="text-blue-600 hover:underline">3. Cookies Técnicas (Esenciales)</a></li>
+            <li><a href="#técnicas" className="text-blue-600 hover:underline">3. Cookies Técnicas (Esenciales)</a></li>
             <li><a href="#analiticas" className="text-blue-600 hover:underline">4. Cookies Analíticas</a></li>
             <li><a href="#marketing" className="text-blue-600 hover:underline">5. Cookies de Marketing</a></li>
-            <li><a href="#gestion" className="text-blue-600 hover:underline">6. Gestión de Cookies</a></li>
+            <li><a href="#gestión" className="text-blue-600 hover:underline">6. Gestión de Cookies</a></li>
             <li><a href="#duracion" className="text-blue-600 hover:underline">7. Duración de las Cookies</a></li>
             <li><a href="#terceros" className="text-blue-600 hover:underline">8. Cookies de Terceros</a></li>
             <li><a href="#actualizaciones" className="text-blue-600 hover:underline">9. Actualizaciones de esta Política</a></li>
@@ -117,11 +117,11 @@ export default function CookiesPage() {
             </div>
           </section>
 
-          <section id="tecnicas">
+          <section id="técnicas">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Cookies Técnicas (Esenciales)</h2>
             <p className="text-gray-700 mb-4">
-              Estas cookies son estrictamente necesarias para que pueda navegar por el sitio web y usar sus funcionalidades.
-              Sin estas cookies, no podemos prestar el servicio correctamente.
+              Estás cookies son estrictamente necesarias para que pueda navegar por el sitio web y usar sus funcionalidades.
+              Sin estás cookies, no podemos prestar el servicio correctamente.
             </p>
 
             <div className="bg-gray-50 rounded-lg overflow-hidden">
@@ -160,7 +160,7 @@ export default function CookiesPage() {
 
             <div className="mt-4 bg-green-50 border-l-4 border-green-500 p-4">
               <p className="text-sm text-gray-700">
-                <strong>Nota legal:</strong> Según el Art. 22.2 de la LSSI-CE, estas cookies están exentas de la obligación
+                <strong>Nota legal:</strong> Según el Art. 22.2 de la LSSI-CE, estás cookies están exentas de la obligación
                 de obtener consentimiento informado, ya que son estrictamente necesarias para la prestación del servicio
                 solicitado expresamente por el usuario.
               </p>
@@ -171,7 +171,7 @@ export default function CookiesPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Cookies Analíticas</h2>
             <p className="text-gray-700 mb-4">
               Utilizamos cookies analíticas para entender cómo interactúa con nuestro sitio web y mejorar su experiencia.
-              Solo activamos estas cookies si nos ha dado su consentimiento explícito.
+              Solo activamos estás cookies si nos ha dado su consentimiento explícito.
             </p>
 
             <div className="bg-gray-50 rounded-lg overflow-hidden mb-4">
@@ -247,7 +247,7 @@ export default function CookiesPage() {
             </ul>
           </section>
 
-          <section id="gestion">
+          <section id="gestión">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Gestión de Cookies</h2>
             <p className="text-gray-700 mb-4">
               Usted tiene control total sobre las cookies que acepta. Puede gestionar sus preferencias de las siguientes formas:

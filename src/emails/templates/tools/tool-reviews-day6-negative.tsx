@@ -110,7 +110,7 @@ export default function ToolReviewsDay6Negative({
           </Section>
 
           <Section style={ctaSection}>
-            <Link href="https://www.itineramio.com/blog/como-responder-resenas-negativas-airbnb" style={button}>
+            <Link href="https://www.itineramio.com/blog/como-responder-reseñas-negativas-airbnb" style={button}>
               Leer guía completa
             </Link>
           </Section>

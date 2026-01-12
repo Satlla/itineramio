@@ -38,11 +38,11 @@ export default function ToolTimeDay4Offer({ name, email, timeData, couponsRemain
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#484848', fontSize: '16px', lineHeight: 1.7 }}>
-              Si lo que te mostre el otro dia te parecio util, hoy puedes probarlo.
+              Si lo que te mostre el otro día te parecio util, hoy puedes probarlo.
             </p>
 
             <p style={{ margin: '0 0 24px 0', color: '#484848', fontSize: '16px', lineHeight: 1.7 }}>
-              <strong>15 dias gratis</strong>. Sin tarjeta. Creas tu manual, lo pruebas con tus huespedes, y decides.
+              <strong>15 días gratis</strong>. Sin tarjeta. Creas tu manual, lo pruebas con tus huéspedes, y decides.
             </p>
 
             {/* CTA */}
@@ -71,18 +71,18 @@ export default function ToolTimeDay4Offer({ name, email, timeData, couponsRemain
             {/* Result reminder */}
             <div style={{ backgroundColor: '#F7F7F7', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
               <p style={{ margin: 0, color: '#484848', fontSize: '14px', lineHeight: 1.6 }}>
-                Recuerda: calculamos que pierdes <strong>{hoursLost} horas al ano</strong> en mensajes repetitivos. Con un manual digital puedes recuperar {hoursRecovered} de esas horas.
+                Recuerda: calculamos que pierdes <strong>{hoursLost} horas al año</strong> en mensajes repetitivos. Con un manual digital puedes recuperar {hoursRecovered} de esas horas.
               </p>
             </div>
 
             <p style={{ margin: '0 0 20px 0', color: '#484848', fontSize: '16px', lineHeight: 1.7 }}>
-              Y si decides quedarte, usa el codigo <strong style={{ color: '#FF385C' }}>BIENVENIDO20</strong> para un 20% en tu primer pago.
+              Y si decides quedarte, usa el código <strong style={{ color: '#FF385C' }}>BIENVENIDO20</strong> para un 20% en tu primer pago.
             </p>
 
             {/* Closing */}
             <div style={{ backgroundColor: '#F7F7F7', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
               <p style={{ margin: 0, color: '#484848', fontSize: '14px', lineHeight: 1.6 }}>
-                Si no es el momento, no pasa nada. Y si algun dia necesitas ayuda con tus huespedes, aqui estaremos.
+                Si no es el momento, no pasa nada. Y si algun día necesitas ayuda con tus huéspedes, aquí estaremos.
               </p>
             </div>
 
@@ -114,7 +114,7 @@ export default function ToolTimeDay4Offer({ name, email, timeData, couponsRemain
 
 export function getSubject(couponsRemaining?: number): string {
   if (couponsRemaining && couponsRemaining < 20) {
-    return `Ultimo email (+ codigo 20% - quedan ${couponsRemaining})`
+    return `Último email (+ código 20% - quedan ${couponsRemaining})`
   }
-  return 'Ultimo email (+ codigo 20%)'
+  return 'Último email (+ código 20%)'
 }

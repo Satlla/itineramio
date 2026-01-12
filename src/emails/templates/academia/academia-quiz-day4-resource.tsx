@@ -14,7 +14,7 @@ export default function AcademiaQuizDay4Resource({ name, email }: Props) {
         <tr>
           <td style={{ textAlign: 'center', paddingBottom: '32px' }}>
             <p style={{ margin: '0 0 6px 0', color: '#999', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px' }}>Academia Itineramio</p>
-            <h1 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '24px', fontWeight: 600 }}>Mini-guia: 7 dias</h1>
+            <h1 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '24px', fontWeight: 600 }}>Mini-guia: 7 días</h1>
           </td>
         </tr>
 
@@ -25,21 +25,21 @@ export default function AcademiaQuizDay4Resource({ name, email }: Props) {
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Como te prometi, aqui tienes la mini-guia para mejorar tu gestion en 7 dias:
+              Como te prometi, aquí tienes la mini-guia para mejorar tu gestión en 7 días:
             </p>
 
             <div style={{ backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}>
-              <p style={{ margin: '0 0 12px 0', color: '#0369a1', fontSize: '14px', fontWeight: 600 }}>Plan de 7 dias:</p>
+              <p style={{ margin: '0 0 12px 0', color: '#0369a1', fontSize: '14px', fontWeight: 600 }}>Plan de 7 días:</p>
               <ul style={{ margin: 0, paddingLeft: '20px', color: '#0369a1', fontSize: '14px', lineHeight: 1.8 }}>
-                <li><strong>Dia 1-2:</strong> Documenta las 10 preguntas mas frecuentes de tus huespedes</li>
-                <li><strong>Dia 3-4:</strong> Crea respuestas claras para cada una</li>
-                <li><strong>Dia 5-6:</strong> Organiza la informacion en secciones (check-in, wifi, normas...)</li>
-                <li><strong>Dia 7:</strong> Comparte el manual con tu proximo huesped y pide feedback</li>
+                <li><strong>Día 1-2:</strong> Documenta las 10 preguntas mas frecuentes de tus huéspedes</li>
+                <li><strong>Día 3-4:</strong> Crea respuestas claras para cada una</li>
+                <li><strong>Día 5-6:</strong> Organiza la información en secciones (check-in, wifi, normas...)</li>
+                <li><strong>Día 7:</strong> Comparte el manual con tu próximo huésped y pide feedback</li>
               </ul>
             </div>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Si quieres hacerlo mas rapido, en Itineramio puedes crear un manual digital profesional en minutos, con plantillas predefinidas y QR para compartirlo facilmente.
+              Si quieres hacerlo mas rápido, en Itineramio puedes crear un manual digital profesional en minutos, con plantillas predefinidas y QR para compartirlo fácilmente.
             </p>
 
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>

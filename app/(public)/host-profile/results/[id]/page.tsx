@@ -64,7 +64,7 @@ const blogRecommendations: Record<Archetype, Array<{
     {
       title: 'Automatización: ahorra tiempo sin perder calidad',
       description: 'Qué tareas automatizar y cuáles mantener manuales',
-      url: '/blog/automatizacion-efectiva'
+      url: '/blog/automatización-efectiva'
     }
   ],
   DIFERENCIADOR: [
@@ -76,7 +76,7 @@ const blogRecommendations: Record<Archetype, Array<{
     {
       title: 'Gestión de reseñas: convierte críticas en oportunidades',
       description: 'Cómo responder a reseñas y mejorar tu reputación',
-      url: '/blog/gestion-reseñas'
+      url: '/blog/gestión-reseñas'
     }
   ],
   EJECUTOR: [
@@ -259,7 +259,7 @@ export default function ResultsPage() {
   const archetypeInfo = archetypeDescriptions[result.archetype]
   const scores = {
     HOSPITALIDAD: result.scores.scoreHospitalidad,
-    COMUNICACION: result.scores.scoreComunicacion,
+    COMUNICACIÓN: result.scores.scoreComunicacion,
     OPERATIVA: result.scores.scoreOperativa,
     CRISIS: result.scores.scoreCrisis,
     DATA: result.scores.scoreData,

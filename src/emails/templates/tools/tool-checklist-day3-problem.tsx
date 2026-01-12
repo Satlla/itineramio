@@ -105,5 +105,5 @@ export default function ToolChecklistDay3Problem({ name, email }: ToolChecklistD
 }
 
 export function getSubject(): string {
-  return 'Cuantas veces has explicado lo mismo?'
+  return 'Cuántas veces has explicado lo mismo?'
 }

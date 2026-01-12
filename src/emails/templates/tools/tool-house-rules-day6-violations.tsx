@@ -78,7 +78,7 @@ export default function ToolHouseRulesDay6Violations({ name, email, rulesData }:
             </div>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              <strong>Recuerda:</strong> La mayoría de huéspedes son respetuosos. Estas situaciones son la excepción, no la norma.
+              <strong>Recuerda:</strong> La mayoría de huéspedes son respetuosos. Estás situaciones son la excepción, no la norma.
             </p>
 
             <p style={{ margin: '0', color: '#374151', fontSize: '16px' }}>

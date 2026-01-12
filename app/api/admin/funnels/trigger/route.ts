@@ -65,7 +65,7 @@ function generateEmailHtml(
           <span style="font-size: 48px;">${leadMagnet.icon}</span>
         </div>
         <h1 style="margin: 0 0 24px 0; color: #222222; font-size: 24px; font-weight: 600; line-height: 1.3; text-align: center;">
-          ${firstName}, aqui tienes tu recurso
+          ${firstName}, aquí tienes tu recurso
         </h1>
         <p style="margin: 0 0 24px 0; color: #222222; font-size: 16px; line-height: 1.6;">
           Gracias por tu interes en <strong>${leadMagnet.title}</strong>.
@@ -86,7 +86,7 @@ function generateEmailHtml(
         </div>
         ` : ''}
         <p style="margin: 24px 0 0 0; color: #222222; font-size: 16px; line-height: 1.6;">
-          En los proximos dias te enviare contenido relacionado que te ayudara a sacar el maximo partido.
+          En los próximos días te enviaré contenido relacionado que te ayudara a sacar el maximo partido.
         </p>
         <p style="margin: 24px 0 0 0; color: #222222; font-size: 16px; line-height: 1.6;">
           Un saludo,<br>
