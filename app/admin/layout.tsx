@@ -14,7 +14,7 @@ import {
   BarChart3,
   Building2,
   FileText,
-  Menú,
+  Menu,
   X,
   Tag,
   Star,
@@ -287,7 +287,7 @@ export default function AdminLayout({
                 {sidebarOpen ? (
                   <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 ) : (
-                  <Menú className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
                 )}
               </button>
 
