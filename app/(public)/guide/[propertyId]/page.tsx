@@ -197,7 +197,11 @@ const translations = {
     propertyNotActive: 'Manual no disponible',
     propertyNotActiveDesc: 'El propietario está preparando el manual digital de esta propiedad. Por favor, contacta directamente con el anfitrión para obtener las instrucciones necesarias.',
     callHost: 'Llamar al anfitrión',
-    emailHost: 'Enviar email'
+    emailHost: 'Enviar email',
+    verifiedHost: '{hostName} es un anfitrión verificado',
+    verifiedHostDesc: 'Los anfitriones verificados tienen un historial de excelentes evaluaciones.',
+    selfCheckIn: 'Check-in autónomo',
+    selfCheckInDesc: 'Realiza el check-in fácilmente usando las instrucciones del manual.'
   },
   en: {
     loading: 'Loading property manual...',
@@ -252,7 +256,11 @@ const translations = {
     propertyNotActive: 'Manual not available',
     propertyNotActiveDesc: 'The owner is preparing the digital manual for this property. Please contact the host directly for the necessary instructions.',
     callHost: 'Call host',
-    emailHost: 'Send email'
+    emailHost: 'Send email',
+    verifiedHost: '{hostName} is a verified host',
+    verifiedHostDesc: 'Verified hosts have a track record of excellent reviews.',
+    selfCheckIn: 'Self check-in',
+    selfCheckInDesc: 'Check in easily using the manual instructions.'
   },
   fr: {
     loading: 'Chargement du manuel de la propriété...',
@@ -307,7 +315,11 @@ const translations = {
     propertyNotActive: 'Manuel non disponible',
     propertyNotActiveDesc: 'Le propriétaire prépare le manuel numérique de cette propriété. Veuillez contacter directement l\'hôte pour obtenir les instructions nécessaires.',
     callHost: 'Appeler l\'hôte',
-    emailHost: 'Envoyer un email'
+    emailHost: 'Envoyer un email',
+    verifiedHost: '{hostName} est un hôte vérifié',
+    verifiedHostDesc: 'Les hôtes vérifiés ont un historique d\'excellentes évaluations.',
+    selfCheckIn: 'Enregistrement autonome',
+    selfCheckInDesc: 'Effectuez facilement l\'enregistrement en utilisant les instructions du manuel.'
   }
 }
 
@@ -970,15 +982,15 @@ export default function PropertyGuidePage() {
                 <div className="flex items-start gap-4">
                   <Shield className={`w-6 h-6 flex-shrink-0 mt-0.5 ${darkMode ? 'text-white' : 'text-[#222222]'}`} />
                   <div>
-                    <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-[#222222]'}`}>{property.hostContactName} es un anfitrión verificado</h3>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>Los anfitriones verificados tienen un historial de excelentes evaluaciones.</p>
+                    <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-[#222222]'}`}>{t('verifiedHost', language, { hostName: property.hostContactName || '' })}</h3>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>{t('verifiedHostDesc', language)}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <Key className={`w-6 h-6 flex-shrink-0 mt-0.5 ${darkMode ? 'text-white' : 'text-[#222222]'}`} />
                   <div>
-                    <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-[#222222]'}`}>Check-in autónomo</h3>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>Realiza el check-in fácilmente usando las instrucciones del manual.</p>
+                    <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-[#222222]'}`}>{t('selfCheckIn', language)}</h3>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>{t('selfCheckInDesc', language)}</p>
                   </div>
                 </div>
               </div>
