@@ -3,7 +3,7 @@ import { put } from '@vercel/blob'
 import { v4 as uuidv4 } from 'uuid'
 import { createHash } from 'crypto'
 import { prisma } from '../../../src/lib/prisma'
-import jwt from 'jsonwebtoken'
+import { verifyToken } from '../../../src/lib/auth'
 
 // Helper function to safely extract text from multilingual objects
 function getTextSafely(value: any, fallback: string = '') {
@@ -15,8 +15,6 @@ function getTextSafely(value: any, fallback: string = '') {
   }
   return fallback
 }
-
-const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
 
 // Function to get media usage information
 async function getMediaUsage(mediaUrl: string) {
@@ -73,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     let userId: string
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+      const decoded = verifyToken(token)
       userId = decoded.userId
     } catch (error) {
       return NextResponse.json({ error: 'Token inválido' }, { status: 401 })

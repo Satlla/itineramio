@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 import { sendEmail } from '../../../../src/lib/email'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
+import { verifyToken } from '../../../../src/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,7 +13,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = verifyToken(token)
     
     const body = await request.json()
     const { newEmail, password } = body

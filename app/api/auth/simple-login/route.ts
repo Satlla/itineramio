@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
 import { prisma } from '../../../../src/lib/prisma'
+import { signToken } from '../../../../src/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -69,16 +69,10 @@ export async function POST(request: NextRequest) {
       }, { status: 401 })
     }
 
-    // Create token with appropriate expiration based on rememberMe
-    const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
-    const tokenExpiration = rememberMe ? '30d' : '24h'
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: tokenExpiration }
-    )
+    // Create token using centralized auth (always 30d, cookie manages shorter sessions)
+    const token = signToken({ userId: user.id, email: user.email, role: 'HOST' })
 
-    console.log('🔑 Token created with expiration:', tokenExpiration)
+    console.log('🔑 Token created with centralized auth')
 
     // Create response
     const response = NextResponse.json({

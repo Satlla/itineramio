@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
+import { verifyToken } from '../../../src/lib/auth'
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   // Check authentication
@@ -13,7 +11,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   let userId: string
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = verifyToken(token)
     userId = decoded.userId
   } catch (error) {
     return NextResponse.json({ error: 'Token inválido' }, { status: 401 })

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
+import { verifyToken } from '../../../../src/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +12,7 @@ export async function POST(request: NextRequest) {
 
     let userId: string
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+      const decoded = verifyToken(token)
       userId = decoded.userId
     } catch (error) {
       return NextResponse.json({ error: 'Token inválido' }, { status: 401 })

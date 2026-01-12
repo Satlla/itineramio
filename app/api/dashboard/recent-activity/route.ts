@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import * as jwt from 'jsonwebtoken'
 import { prisma } from '../../../../src/lib/prisma'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'itineramio-secret-key-2024'
+import { verifyToken } from '../../../../src/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +10,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = verifyToken(token)
     const userId = decoded.userId
 
     // Get recent evaluations from both Review and ZoneRating tables
