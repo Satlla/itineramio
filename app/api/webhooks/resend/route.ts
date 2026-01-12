@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { trackEmailEvent, EmailEventType } from '@/lib/email-sequences'
+import crypto from 'crypto'
 
 /**
  * Webhook de Resend para trackear eventos de email
@@ -18,6 +19,71 @@ import { trackEmailEvent, EmailEventType } from '@/lib/email-sequences'
  * https://resend.com/webhooks
  * URL: https://tudominio.com/api/webhooks/resend
  */
+
+const WEBHOOK_SECRET = process.env.RESEND_WEBHOOK_SECRET
+
+/**
+ * Verifica la firma del webhook de Resend (usa Svix)
+ * https://docs.svix.com/receiving/verifying-payloads/how
+ */
+function verifyWebhookSignature(
+  payload: string,
+  headers: {
+    svixId: string | null
+    svixTimestamp: string | null
+    svixSignature: string | null
+  }
+): boolean {
+  if (!WEBHOOK_SECRET) {
+    console.warn('⚠️ RESEND_WEBHOOK_SECRET no configurado - saltando verificación')
+    return true // Permitir en desarrollo
+  }
+
+  const { svixId, svixTimestamp, svixSignature } = headers
+
+  if (!svixId || !svixTimestamp || !svixSignature) {
+    console.error('❌ Faltan headers de firma Svix')
+    return false
+  }
+
+  // Verificar que el timestamp no sea muy viejo (5 minutos)
+  const timestamp = parseInt(svixTimestamp)
+  const now = Math.floor(Date.now() / 1000)
+  if (Math.abs(now - timestamp) > 300) {
+    console.error('❌ Timestamp del webhook muy viejo')
+    return false
+  }
+
+  // Crear el mensaje a firmar
+  const signedPayload = `${svixId}.${svixTimestamp}.${payload}`
+
+  // Extraer las firmas del header (puede haber múltiples versiones)
+  const signatures = svixSignature.split(' ')
+
+  for (const sig of signatures) {
+    const [version, signature] = sig.split(',')
+
+    if (version !== 'v1') continue
+
+    // Calcular la firma esperada
+    const secret = WEBHOOK_SECRET.startsWith('whsec_')
+      ? WEBHOOK_SECRET.slice(6)
+      : WEBHOOK_SECRET
+
+    const secretBytes = Buffer.from(secret, 'base64')
+    const expectedSignature = crypto
+      .createHmac('sha256', secretBytes)
+      .update(signedPayload)
+      .digest('base64')
+
+    if (signature === expectedSignature) {
+      return true
+    }
+  }
+
+  console.error('❌ Firma del webhook inválida')
+  return false
+}
 
 // Tipos de eventos de Resend
 type ResendEventType =
@@ -50,8 +116,26 @@ interface ResendWebhookPayload {
 
 export async function POST(request: NextRequest) {
   try {
+    // Leer el body como texto para verificar firma
+    const rawBody = await request.text()
+
+    // Verificar firma del webhook
+    const isValid = verifyWebhookSignature(rawBody, {
+      svixId: request.headers.get('svix-id'),
+      svixTimestamp: request.headers.get('svix-timestamp'),
+      svixSignature: request.headers.get('svix-signature')
+    })
+
+    if (!isValid) {
+      console.error('❌ Webhook rechazado: firma inválida')
+      return NextResponse.json(
+        { error: 'Invalid signature' },
+        { status: 401 }
+      )
+    }
+
     // Parsear el payload
-    const payload: ResendWebhookPayload = await request.json()
+    const payload: ResendWebhookPayload = JSON.parse(rawBody)
 
     console.log('📨 Resend Webhook recibido:', {
       type: payload.type,
