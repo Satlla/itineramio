@@ -17,6 +17,9 @@ interface SubmitRequest {
   name?: string
   gender?: 'M' | 'F' | 'O'
   interests?: string[]
+  // Funnel tracking params
+  sourceEmail?: string  // e.g., 'email2'
+  sourceLevel?: string  // e.g., '2'
 }
 
 // Algoritmo de cálculo de scores por dimensión
@@ -220,6 +223,58 @@ export async function POST(request: NextRequest) {
         shareConsent: false
       }
     })
+
+    // Si viene del embudo (tiene sourceEmail), actualizar el Lead existente
+    if (body.sourceEmail) {
+      try {
+        // Buscar leads existentes con este email
+        const existingLeads = await prisma.lead.findMany({
+          where: { email: normalizedEmail },
+          orderBy: { createdAt: 'desc' }
+        })
+
+        if (existingLeads.length > 0) {
+          // Actualizar el lead más reciente con datos del quiz
+          const leadToUpdate = existingLeads[0]
+          const existingMetadata = (leadToUpdate.metadata as Record<string, unknown>) || {}
+          const existingJourney = (existingMetadata.funnelJourney as Record<string, unknown>) || {}
+
+          await prisma.lead.update({
+            where: { id: leadToUpdate.id },
+            data: {
+              metadata: {
+                ...existingMetadata,
+                funnelJourney: {
+                  ...existingJourney,
+                  currentLevel: 3,
+                  currentStage: 'quiz_completed',
+                  emailsClicked: [
+                    ...((existingJourney.emailsClicked as string[]) || []),
+                    body.sourceEmail
+                  ],
+                  quizCompleted: true,
+                  quizCompletedAt: new Date().toISOString()
+                },
+                quizResult: {
+                  testResultId: testResult.id,
+                  archetype,
+                  topStrength,
+                  criticalGap,
+                  scores: dimensionScores,
+                  completedAt: new Date().toISOString(),
+                  arrivedFrom: body.sourceEmail,
+                  sourceLevel: body.sourceLevel
+                }
+              }
+            }
+          })
+          console.log('✅ Lead updated with quiz data:', leadToUpdate.id)
+        }
+      } catch (leadError) {
+        // No fallar si hay error actualizando lead
+        console.error('⚠️ Could not update lead with quiz data:', leadError)
+      }
+    }
 
     // Determinar nivel basado en arquetipo (para SOAP OPERA sequence)
     const archetypeToNivel: Record<string, string> = {

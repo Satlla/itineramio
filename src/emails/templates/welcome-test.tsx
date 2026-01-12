@@ -23,8 +23,8 @@ const ARCHETYPE_INFO: Record<EmailArchetype, { emoji: string; strength: string; 
     emoji: '⚙️',
     strength: 'Procesos organizados y escalables',
     gap: 'Necesitas más herramientas de automatización',
-    guide: 'El Sistema del Sistemático: 47 Tareas Automatizables',
-    slug: 'sistematico-47-tareas'
+    guide: 'El Manual del Organizador: 47 Tareas Automatizables',
+    slug: 'organizador-47-tareas'
   },
   DIFERENCIADOR: {
     emoji: '✨',
@@ -90,7 +90,8 @@ export const WelcomeTestEmail: React.FC<WelcomeTestEmailProps> = ({
   interests
 }) => {
   const info = ARCHETYPE_INFO[archetype]
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  // Always use production URL for emails (emails are sent from server)
+  const baseUrl = 'https://itineramio.com'
 
   // Generar token de descarga si tenemos subscriberId
   const downloadToken = subscriberId

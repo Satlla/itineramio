@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react'
 import { InlineSpinner } from '@/components/ui/Spinner'
@@ -17,9 +17,16 @@ interface Answer {
 
 export default function HostProfileTestPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Tracking params from URL (from funnel emails)
+  const sourceEmail = searchParams.get('src') || null  // e.g., 'email2'
+  const sourceLevel = searchParams.get('level') || null // e.g., '2'
+  const initialEmail = searchParams.get('email') || ''
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<number, number>>({})
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(initialEmail)
   const [name, setName] = useState('')
   const [gender, setGender] = useState<'M' | 'F' | 'O' | ''>('')
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
@@ -34,8 +41,16 @@ export default function HostProfileTestPage() {
 
   // Track test started on mount
   useEffect(() => {
-    trackTestStarted({ source: 'organic' })
-  }, [])
+    trackTestStarted({ source: sourceEmail || 'organic' })
+  }, [sourceEmail])
+
+  // Update email if URL param changes
+  useEffect(() => {
+    const emailParam = searchParams.get('email')
+    if (emailParam && emailParam !== email) {
+      setEmail(emailParam)
+    }
+  }, [searchParams])
 
   const handleAnswer = (value: number) => {
     const newAnswers = {
@@ -145,7 +160,10 @@ export default function HostProfileTestPage() {
           email: email.toLowerCase(),
           name: name || undefined,
           gender: gender || undefined,
-          interests: selectedInterests.length > 0 ? selectedInterests : undefined
+          interests: selectedInterests.length > 0 ? selectedInterests : undefined,
+          // Funnel tracking params
+          sourceEmail: sourceEmail || undefined,
+          sourceLevel: sourceLevel || undefined
         })
       })
 
@@ -159,7 +177,7 @@ export default function HostProfileTestPage() {
       trackTestCompleted({
         archetype: data.archetype || 'unknown',
         email: email,
-        source: 'organic'
+        source: sourceEmail || 'organic'
       })
       trackGenerateLead({
         source: 'quiz',

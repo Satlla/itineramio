@@ -7,10 +7,10 @@ import { Loader2, Mail, CheckCircle2, Award, AlertCircle, BookOpen, Sparkles, Ar
 import ResultCard from '@/components/host-profile/ResultCard'
 import { archetypeDescriptions, dimensionLabels, type Archetype, type Dimension } from '@/data/hostProfileQuestions'
 
-// Mapeo de arquetipos a slugs de lead magnets
+// Mapeo de arquetipos a slugs de lead magnets (deben coincidir con src/data/lead-magnets.ts)
 const archetypeToSlug: Record<Archetype, string> = {
   ESTRATEGA: 'estratega-5-kpis',
-  SISTEMATICO: 'sistematico-47-tareas',
+  SISTEMATICO: 'organizador-47-tareas',
   DIFERENCIADOR: 'diferenciador-storytelling',
   EJECUTOR: 'ejecutor-modo-ceo',
   RESOLUTOR: 'resolutor-27-crisis',
