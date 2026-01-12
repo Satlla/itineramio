@@ -21,9 +21,11 @@ import {
   Filter,
   Trophy,
   BarChart3,
-  Clock
+  Clock,
+  LucideIcon
 } from 'lucide-react'
 import { Navbar } from '../../../src/components/layout/Navbar'
+import { ComingSoonModal } from '../../../src/components/marketing/ComingSoonModal'
 
 // Animation variants
 const fadeInUp = {
@@ -46,8 +48,23 @@ const scaleIn = {
   visible: { opacity: 1, scale: 1 }
 }
 
+// Tool type definition
+interface Tool {
+  id: string
+  title: string
+  description: string
+  icon: LucideIcon
+  color: string
+  bgColor: string
+  borderColor: string
+  href: string
+  badge?: string
+  popular?: boolean
+  enabled: boolean // true = available, false = coming soon
+}
+
 // Herramientas interactivas
-const tools = [
+const tools: Tool[] = [
   {
     id: 'time-calculator',
     title: 'Calculadora de Tiempo',
@@ -58,7 +75,8 @@ const tools = [
     borderColor: 'border-rose-200',
     href: '/hub/tools/time-calculator',
     badge: 'Nuevo',
-    popular: true
+    popular: true,
+    enabled: true
   },
   {
     id: 'qr-generator',
@@ -69,8 +87,9 @@ const tools = [
     bgColor: 'from-violet-50 to-purple-50',
     borderColor: 'border-violet-200',
     href: '/hub/tools/qr-generator',
-    badge: 'Gratis',
-    popular: true
+    badge: 'Próximamente',
+    popular: true,
+    enabled: false
   },
   {
     id: 'pricing-calculator',
@@ -81,8 +100,9 @@ const tools = [
     bgColor: 'from-blue-50 to-cyan-50',
     borderColor: 'border-blue-200',
     href: '/hub/tools/pricing-calculator',
-    badge: 'Popular',
-    popular: true
+    badge: 'Próximamente',
+    popular: true,
+    enabled: false
   },
   {
     id: 'wifi-card',
@@ -94,7 +114,8 @@ const tools = [
     borderColor: 'border-green-200',
     href: '/hub/tools/wifi-card',
     badge: 'Nuevo',
-    popular: true
+    popular: true,
+    enabled: true
   },
   {
     id: 'roi-calculator',
@@ -105,7 +126,8 @@ const tools = [
     bgColor: 'from-orange-50 to-red-50',
     borderColor: 'border-orange-200',
     href: '/hub/tools/roi-calculator',
-    badge: 'Popular'
+    badge: 'Próximamente',
+    enabled: false
   },
   {
     id: 'profitability-calculator',
@@ -117,18 +139,20 @@ const tools = [
     borderColor: 'border-emerald-200',
     href: '/hub/calculadora-rentabilidad',
     badge: 'Nuevo',
-    popular: true
+    popular: true,
+    enabled: true
   },
   {
     id: 'description-generator',
     title: 'Generador de Descripciones',
-    description: 'Crea descripciones profesionales para tu listado de Airbnb',
+    description: 'Crea descripciones profesionales para tu listado de Airbnb con IA',
     icon: FileText,
     color: 'from-purple-500 to-pink-600',
     bgColor: 'from-purple-50 to-pink-50',
     borderColor: 'border-purple-200',
     href: '/hub/tools/description-generator',
-    badge: 'Nuevo'
+    badge: 'Próximamente',
+    enabled: false
   },
   {
     id: 'checkin-builder',
@@ -139,8 +163,9 @@ const tools = [
     bgColor: 'from-indigo-50 to-blue-50',
     borderColor: 'border-indigo-200',
     href: '/hub/tools/checkin-builder',
-    badge: 'Nuevo',
-    popular: true
+    badge: 'Próximamente',
+    popular: true,
+    enabled: false
   },
   {
     id: 'occupancy-calculator',
@@ -151,7 +176,8 @@ const tools = [
     bgColor: 'from-emerald-50 to-teal-50',
     borderColor: 'border-emerald-200',
     href: '/hub/tools/occupancy-calculator',
-    badge: 'Popular'
+    badge: 'Próximamente',
+    enabled: false
   },
   {
     id: 'cleaning-checklist',
@@ -162,20 +188,22 @@ const tools = [
     bgColor: 'from-blue-50 to-cyan-50',
     borderColor: 'border-blue-200',
     href: '/hub/tools/cleaning-checklist',
-    badge: 'Nuevo',
-    popular: true
+    badge: 'Popular',
+    popular: true,
+    enabled: true
   },
   {
     id: 'plantilla-reviews',
     title: 'Plantilla de Reviews',
-    description: 'Guia del significado de las estrellas + QR de WhatsApp personalizado',
+    description: 'Guía del significado de las estrellas + QR de WhatsApp personalizado',
     icon: Star,
     color: 'from-rose-500 to-orange-500',
     bgColor: 'from-rose-50 to-orange-50',
     borderColor: 'border-rose-200',
     href: '/recursos/plantilla-reviews',
     badge: 'Popular',
-    popular: true
+    popular: true,
+    enabled: true
   },
   {
     id: 'airbnb-setup',
@@ -186,8 +214,9 @@ const tools = [
     bgColor: 'from-violet-50 to-purple-50',
     borderColor: 'border-violet-200',
     href: '/hub/tools/airbnb-setup',
-    badge: 'Nuevo',
-    popular: true
+    badge: 'Próximamente',
+    popular: true,
+    enabled: false
   }
 ]
 
@@ -265,6 +294,10 @@ const articles = [
 export default function KnowledgeHub() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [comingSoonModal, setComingSoonModal] = useState<{
+    isOpen: boolean
+    tool: Tool | null
+  }>({ isOpen: false, tool: null })
 
   // Filter functions
   const filterBySearch = (item: any) => {
@@ -552,6 +585,66 @@ export default function KnowledgeHub() {
             >
               {filteredTools.map((tool) => {
               const Icon = tool.icon
+              const isDisabled = !tool.enabled
+
+              const handleClick = (e: React.MouseEvent) => {
+                if (isDisabled) {
+                  e.preventDefault()
+                  setComingSoonModal({ isOpen: true, tool })
+                }
+              }
+
+              const CardContent = (
+                <div className={`relative p-8 rounded-3xl bg-gradient-to-br ${tool.bgColor} border-2 ${tool.borderColor} hover:shadow-2xl transition-all h-full ${isDisabled ? 'opacity-90' : ''}`}>
+                  {/* Badge */}
+                  {tool.badge && (
+                    <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold shadow-lg ${
+                      isDisabled
+                        ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                        : 'bg-white text-gray-900'
+                    }`}>
+                      {tool.badge}
+                    </div>
+                  )}
+
+                  {/* Popular indicator - only for enabled tools */}
+                  {tool.popular && tool.enabled && (
+                    <div className="absolute -top-3 -left-3">
+                      <Star className="w-8 h-8 text-yellow-400 fill-yellow-400" />
+                    </div>
+                  )}
+
+                  {/* Icon */}
+                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tool.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform ${isDisabled ? 'grayscale-[30%]' : ''}`}>
+                    <Icon className="w-8 h-8 text-white" />
+                  </div>
+
+                  {/* Content */}
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-violet-600 group-hover:to-purple-600 transition-all">
+                    {tool.title}
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    {tool.description}
+                  </p>
+
+                  {/* CTA */}
+                  <div className={`flex items-center font-semibold group-hover:translate-x-2 transition-transform ${
+                    isDisabled ? 'text-amber-600' : 'text-violet-600'
+                  }`}>
+                    {isDisabled ? (
+                      <>
+                        <Clock className="mr-2 w-4 h-4" />
+                        Avisarme cuando esté listo
+                      </>
+                    ) : (
+                      <>
+                        Usar herramienta <ArrowRight className="ml-2 w-4 h-4" />
+                      </>
+                    )}
+                  </div>
+                </div>
+              )
+
               return (
                 <motion.div
                   key={tool.id}
@@ -559,41 +652,15 @@ export default function KnowledgeHub() {
                   whileHover={{ y: -10, scale: 1.02 }}
                   className="group relative"
                 >
-                  <Link href={tool.href}>
-                    <div className={`relative p-8 rounded-3xl bg-gradient-to-br ${tool.bgColor} border-2 ${tool.borderColor} hover:shadow-2xl transition-all h-full`}>
-                      {/* Badge */}
-                      {tool.badge && (
-                        <div className="absolute top-4 right-4 px-3 py-1 bg-white rounded-full text-xs font-bold text-gray-900 shadow-lg">
-                          {tool.badge}
-                        </div>
-                      )}
-
-                      {/* Popular indicator */}
-                      {tool.popular && (
-                        <div className="absolute -top-3 -left-3">
-                          <Star className="w-8 h-8 text-yellow-400 fill-yellow-400" />
-                        </div>
-                      )}
-
-                      {/* Icon */}
-                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tool.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                        <Icon className="w-8 h-8 text-white" />
-                      </div>
-
-                      {/* Content */}
-                      <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-violet-600 group-hover:to-purple-600 transition-all">
-                        {tool.title}
-                      </h3>
-                      <p className="text-gray-600 mb-4">
-                        {tool.description}
-                      </p>
-
-                      {/* CTA */}
-                      <div className="flex items-center text-violet-600 font-semibold group-hover:translate-x-2 transition-transform">
-                        Usar herramienta <ArrowRight className="ml-2 w-4 h-4" />
-                      </div>
+                  {isDisabled ? (
+                    <div onClick={handleClick} className="cursor-pointer">
+                      {CardContent}
                     </div>
-                  </Link>
+                  ) : (
+                    <Link href={tool.href}>
+                      {CardContent}
+                    </Link>
+                  )}
                 </motion.div>
               )
             })}
@@ -976,6 +1043,17 @@ export default function KnowledgeHub() {
           </motion.div>
         </div>
         </section>
+      )}
+
+      {/* Coming Soon Modal */}
+      {comingSoonModal.tool && (
+        <ComingSoonModal
+          isOpen={comingSoonModal.isOpen}
+          onClose={() => setComingSoonModal({ isOpen: false, tool: null })}
+          toolName={comingSoonModal.tool.title}
+          toolDescription={comingSoonModal.tool.description}
+          toolIcon={<comingSoonModal.tool.icon className="w-6 h-6 text-white" />}
+        />
       )}
     </div>
   )
