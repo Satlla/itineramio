@@ -4,7 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, ChevronRight, Plus, Minus, Crown, Check, ArrowRight, Sparkles, Zap, Shield, Trophy, Star, BarChart3, DollarSign, Calendar, Rocket } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, Minus, Crown, Check, ArrowRight, Sparkles, Zap, Shield, Trophy, Star, BarChart3, DollarSign, Calendar, Rocket, Video } from 'lucide-react'
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { StructuredData } from '../src/components/StructuredData'
@@ -354,9 +354,10 @@ export default function LandingPage() {
                   </Link>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
-                  <Link href="/funcionalidades">
+                  <Link href="/consulta">
                     <button className="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white border-2 border-gray-200 text-gray-900 rounded-full text-base sm:text-lg font-semibold hover:border-gray-300 hover:shadow-lg transition-all">
-                      Explorar Funcionalidades
+                      <Video className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                      Hablar con un Experto
                     </button>
                   </Link>
                 </motion.div>
@@ -1524,18 +1525,32 @@ export default function LandingPage() {
               Únete a cientos de anfitriones que ya recuperaron su tiempo y duermen tranquilos
             </p>
 
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Link
-                href="/register"
-                className="inline-flex items-center justify-center px-12 py-5 bg-white text-violet-600 rounded-full text-xl font-bold hover:shadow-2xl hover:shadow-white/30 transition-all group"
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                Crear cuenta gratis
-                <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
-              </Link>
-            </motion.div>
+                <Link
+                  href="/register"
+                  className="inline-flex items-center justify-center px-12 py-5 bg-white text-violet-600 rounded-full text-xl font-bold hover:shadow-2xl hover:shadow-white/30 transition-all group"
+                >
+                  Crear cuenta gratis
+                  <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                </Link>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Link
+                  href="/consulta"
+                  className="inline-flex items-center justify-center px-12 py-5 bg-white/10 border-2 border-white text-white rounded-full text-xl font-bold hover:bg-white/20 transition-all group"
+                >
+                  <Video className="w-6 h-6 mr-3" />
+                  Agendar videollamada
+                </Link>
+              </motion.div>
+            </div>
 
             <p className="mt-8 text-white/80 text-sm">
               Sin tarjeta de crédito. Prueba gratis 15 días.

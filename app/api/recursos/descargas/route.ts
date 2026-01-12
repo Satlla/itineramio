@@ -2,38 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { prisma } from '@/lib/prisma'
 import { getFunnelResource } from '@/data/funnel-resources'
-
-// Lead scoring based on qualification data
-function calculateLeadScore(
-  propiedades: string,
-  automatizacion: string,
-  intereses: string[]
-): number {
-  let score = 0
-
-  // Properties score (max 40 points)
-  const propScore: Record<string, number> = {
-    '1': 5,
-    '2-3': 15,
-    '4-5': 30,
-    '6-10': 40,
-    '10+': 40
-  }
-  score += propScore[propiedades] || 0
-
-  // Automation score (max 30 points) - less automation = higher need
-  const autoScore: Record<string, number> = {
-    'nada': 30,
-    'basico': 15,
-    'herramientas': 5
-  }
-  score += autoScore[automatizacion] || 0
-
-  // Interests score (max 30 points) - more pain points = higher need
-  score += Math.min(intereses.length * 6, 30)
-
-  return score // Total max: 100
-}
+import { updateLeadWithPlantillasForm } from '@/lib/unified-lead'
 
 // Lazy initialization to avoid build errors
 let _resend: Resend | null = null
@@ -334,126 +303,20 @@ export async function POST(request: NextRequest) {
 
     const normalizedEmail = email.toLowerCase().trim()
 
-    // Build tags for segmentation
-    const tags = [
-      ...resource.tags,
-      'funnel-level-2',
-      `propiedades-${propiedades}`,
-      `automatizacion-${automatizacion}`,
-      ...(intereses as string[]).map((i: string) => `interes-${i}`)
-    ]
-
-    // Build funnel journey tracking
-    const funnelJourney = {
-      // Current status
-      currentLevel: 2, // 0=captured, 1=email1_sent, 2=form_completed, 3=resource_sent, etc.
-      currentStage: 'form_completed',
-
-      // Source tracking - how they arrived to this form
-      arrivedFrom: sourceEmail || 'direct',  // 'email1', 'email2', 'direct'
-      arrivedLevel: sourceLevel ? parseInt(sourceLevel) : 0,
-
-      // History of interactions
-      emailsClicked: sourceEmail ? [sourceEmail] : [],
-      resourcesRequested: [resourceSlug],
-
-      // Qualification data
-      qualification: {
+    // Update unified lead with plantillas form data
+    let leadResult
+    try {
+      leadResult = await updateLeadWithPlantillasForm(normalizedEmail, {
         propiedades,
         automatizacion,
         intereses,
-        comentario: comentario || null,
-        score: calculateLeadScore(propiedades, automatizacion, intereses)
-      },
-
-      // Timestamps
-      firstTouch: new Date().toISOString(),
-      lastTouch: new Date().toISOString(),
-      formCompletedAt: new Date().toISOString()
-    }
-
-    // Save to Lead
-    try {
-      await prisma.lead.create({
-        data: {
-          name: normalizedEmail.split('@')[0], // Use email prefix as name
-          email: normalizedEmail,
-          source: `funnel-${resourceSlug}`,
-          metadata: funnelJourney
-        }
+        comentario,
+        resourceSlug,
+        sourceEmail
       })
-      console.log(`[Lead] Created for ${normalizedEmail} from funnel-${resourceSlug}`)
-    } catch (dbError: any) {
-      // If lead already exists, update with new journey data
-      if (dbError.code === 'P2002') {
-        // Get existing lead to merge journey data
-        const existingLead = await prisma.lead.findFirst({
-          where: { email: normalizedEmail }
-        })
-        const existingMeta = (existingLead?.metadata as any) || {}
-
-        // Merge journey history
-        const mergedJourney = {
-          ...funnelJourney,
-          firstTouch: existingMeta.firstTouch || funnelJourney.firstTouch,
-          emailsClicked: [...new Set([
-            ...(existingMeta.emailsClicked || []),
-            ...(sourceEmail ? [sourceEmail] : [])
-          ])],
-          resourcesRequested: [...new Set([
-            ...(existingMeta.resourcesRequested || []),
-            resourceSlug
-          ])],
-          emailsReceived: existingMeta.emailsReceived || []
-        }
-
-        await prisma.lead.updateMany({
-          where: { email: normalizedEmail },
-          data: {
-            metadata: mergedJourney
-          }
-        })
-        console.log(`[Lead] Updated for ${normalizedEmail} - funnel level 2`)
-      } else {
-        console.error('Error saving lead:', dbError)
-      }
-    }
-
-    // Create or update EmailSubscriber
-    try {
-      await prisma.emailSubscriber.upsert({
-        where: { email: normalizedEmail },
-        create: {
-          email: normalizedEmail,
-          source: `funnel-${resourceSlug}`,
-          status: 'active',
-          tags,
-          sourceMetadata: {
-            propiedades,
-            automatizacion,
-            intereses,
-            comentario: comentario || null,
-            funnelLevel: 2
-          }
-        },
-        update: {
-          tags: {
-            push: tags.filter(t => t !== 'funnel-level-2') // Don't duplicate base tags
-          },
-          sourceMetadata: {
-            propiedades,
-            automatizacion,
-            intereses,
-            comentario: comentario || null,
-            funnelLevel: 2,
-            updatedAt: new Date().toISOString()
-          },
-          updatedAt: new Date()
-        }
-      })
-      console.log(`[EmailSubscriber] Upserted for ${normalizedEmail} with tags: ${tags.join(', ')}`)
-    } catch (subscriberError) {
-      console.error('Error creating subscriber:', subscriberError)
+      console.log(`[UnifiedLead] Updated for ${normalizedEmail} - score: ${leadResult.score}, status: ${leadResult.status}`)
+    } catch (leadError) {
+      console.error('Error updating unified lead:', leadError)
     }
 
     // Send email with resource
@@ -480,9 +343,8 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Email] Sent ${resource.emailSubject} to ${normalizedEmail}`)
 
-    // Send notification for hot leads (4+ properties or 10+)
-    const hotLeadProperties = ['4-5', '6-10', '10+']
-    const isHotLead = hotLeadProperties.includes(propiedades) && automatizacion === 'nada'
+    // Send notification for hot leads
+    const isHotLead = leadResult?.status === 'hot'
 
     if (isHotLead) {
       try {

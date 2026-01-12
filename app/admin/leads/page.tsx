@@ -10,44 +10,70 @@ import {
   Mail,
   MessageSquare,
   Flame,
-  Filter,
   RefreshCw,
-  ExternalLink,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Calculator,
+  FileText,
+  Brain,
+  Video,
+  CheckCircle2,
+  Circle,
+  TrendingUp
 } from 'lucide-react'
 
-interface QualifiedLead {
+interface UnifiedLeadMetadata {
+  completed: {
+    calculator?: boolean
+    plantillasForm?: boolean
+    quiz?: boolean
+    videoCall?: boolean
+  }
+  calculator?: {
+    properties: number
+    hoursPerYear: number
+    completedAt: string
+  }
+  plantillasForm?: {
+    propiedades: string
+    automatizacion: string
+    intereses: string[]
+    comentario?: string
+    resourceSlug: string
+    completedAt: string
+  }
+  quiz?: {
+    testResultId: string
+    archetype: string
+    topStrength: string
+    criticalGap: string
+    scores: Record<string, number>
+    completedAt: string
+  }
+  score: number
+  status: 'cold' | 'warm' | 'hot'
+  firstTouch: string
+  lastActivity: string
+  source: string
+  emailsClicked?: string[]
+}
+
+interface UnifiedLead {
   id: string
   email: string
-  name: string | null
   source: string
+  metadata: UnifiedLeadMetadata
   createdAt: string
-  metadata: {
-    // Legacy fields
-    propiedades?: string
-    automatizacion?: string
-    intereses?: string[]
-    comentario?: string
-    funnelLevel?: number
-    resourceSlug?: string
-    // New funnel journey fields
-    currentLevel?: number
-    currentStage?: string
-    arrivedFrom?: string
-    emailsClicked?: string[]
-    resourcesRequested?: string[]
-    emailsReceived?: string[]
-    qualification?: {
-      propiedades?: string
-      automatizacion?: string
-      intereses?: string[]
-      comentario?: string
-      score?: number
-    }
-    firstTouch?: string
-    lastTouch?: string
-  } | null
+}
+
+interface Stats {
+  total: number
+  hot: number
+  warm: number
+  cold: number
+  withQuiz: number
+  withForm: number
+  withCalculator: number
 }
 
 const PROPERTY_LABELS: Record<string, string> = {
@@ -72,25 +98,58 @@ const INTEREST_LABELS: Record<string, string> = {
   'resenas': '⭐ Reseñas'
 }
 
-const STAGE_LABELS: Record<string, { label: string; color: string }> = {
-  'captured': { label: 'Capturado', color: 'bg-gray-100 text-gray-700' },
-  'email1_sent': { label: 'Email 1', color: 'bg-blue-100 text-blue-700' },
-  'email1_clicked': { label: 'Click Email 1', color: 'bg-indigo-100 text-indigo-700' },
-  'form_completed': { label: 'Formulario', color: 'bg-purple-100 text-purple-700' },
-  'resource_sent': { label: 'Recurso enviado', color: 'bg-green-100 text-green-700' }
+const ARCHETYPE_EMOJIS: Record<string, string> = {
+  'ESTRATEGA': '🎯',
+  'SISTEMATICO': '⚙️',
+  'DIFERENCIADOR': '✨',
+  'EJECUTOR': '⚡',
+  'RESOLUTOR': '🛡️',
+  'EXPERIENCIAL': '❤️',
+  'EQUILIBRADO': '⚖️',
+  'IMPROVISADOR': '🎲'
 }
 
-function getScoreColor(score: number): string {
-  if (score >= 70) return 'text-green-600 bg-green-50'
-  if (score >= 50) return 'text-amber-600 bg-amber-50'
-  if (score >= 30) return 'text-orange-600 bg-orange-50'
-  return 'text-gray-600 bg-gray-50'
+function getStatusColor(status: string): string {
+  switch (status) {
+    case 'hot': return 'bg-rose-100 text-rose-700 border-rose-200'
+    case 'warm': return 'bg-amber-100 text-amber-700 border-amber-200'
+    case 'cold': return 'bg-blue-100 text-blue-700 border-blue-200'
+    default: return 'bg-gray-100 text-gray-700 border-gray-200'
+  }
+}
+
+function getStatusLabel(status: string): string {
+  switch (status) {
+    case 'hot': return 'Caliente'
+    case 'warm': return 'Tibio'
+    case 'cold': return 'Frío'
+    default: return status
+  }
+}
+
+function JourneyStep({ completed, icon: Icon, label }: { completed: boolean; icon: React.ElementType; label: string }) {
+  return (
+    <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
+      completed
+        ? 'bg-green-100 text-green-700'
+        : 'bg-gray-100 text-gray-400'
+    }`}>
+      {completed ? (
+        <CheckCircle2 className="w-3.5 h-3.5" />
+      ) : (
+        <Circle className="w-3.5 h-3.5" />
+      )}
+      <Icon className="w-3.5 h-3.5" />
+      <span className="hidden sm:inline">{label}</span>
+    </div>
+  )
 }
 
 export default function AdminLeadsPage() {
-  const [leads, setLeads] = useState<QualifiedLead[]>([])
+  const [leads, setLeads] = useState<UnifiedLead[]>([])
+  const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'hot'>('all')
+  const [filter, setFilter] = useState<'all' | 'hot' | 'warm' | 'cold' | 'quiz'>('all')
   const [expandedLead, setExpandedLead] = useState<string | null>(null)
 
   useEffect(() => {
@@ -100,12 +159,13 @@ export default function AdminLeadsPage() {
   const fetchLeads = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/admin/leads/qualified', {
+      const response = await fetch('/api/admin/leads/unified', {
         credentials: 'include'
       })
       if (response.ok) {
         const data = await response.json()
         setLeads(data.leads || [])
+        setStats(data.stats || null)
       }
     } catch (error) {
       console.error('Error fetching leads:', error)
@@ -114,39 +174,11 @@ export default function AdminLeadsPage() {
     }
   }
 
-  const isHotLead = (lead: QualifiedLead) => {
-    const meta = lead.metadata
-    // Support both old and new metadata structure
-    const props = meta?.qualification?.propiedades || meta?.propiedades
-    const auto = meta?.qualification?.automatizacion || meta?.automatizacion
-    return ['4-5', '6-10', '10+'].includes(props || '') && auto === 'nada'
-  }
-
-  const getLeadScore = (lead: QualifiedLead): number | null => {
-    return lead.metadata?.qualification?.score || null
-  }
-
-  const getProps = (lead: QualifiedLead): string | undefined => {
-    return lead.metadata?.qualification?.propiedades || lead.metadata?.propiedades
-  }
-
-  const getAuto = (lead: QualifiedLead): string | undefined => {
-    return lead.metadata?.qualification?.automatizacion || lead.metadata?.automatizacion
-  }
-
-  const getIntereses = (lead: QualifiedLead): string[] => {
-    return lead.metadata?.qualification?.intereses || lead.metadata?.intereses || []
-  }
-
-  const getComentario = (lead: QualifiedLead): string | undefined => {
-    return lead.metadata?.qualification?.comentario || lead.metadata?.comentario || undefined
-  }
-
-  const filteredLeads = filter === 'hot'
-    ? leads.filter(isHotLead)
-    : leads
-
-  const hotLeadsCount = leads.filter(isHotLead).length
+  const filteredLeads = leads.filter(lead => {
+    if (filter === 'all') return true
+    if (filter === 'quiz') return lead.metadata.completed.quiz
+    return lead.metadata.status === filter
+  })
 
   return (
     <div className="p-6">
@@ -164,67 +196,112 @@ export default function AdminLeadsPage() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Users className="h-6 w-6 text-rose-600" />
-              Leads Cualificados
+              <TrendingUp className="h-6 w-6 text-violet-600" />
+              Leads Unificados
             </h1>
             <p className="text-gray-600 mt-1">
-              Leads del formulario de recursos con datos de cualificación
+              Vista completa del journey de cada lead
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filter === 'all'
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Todos ({leads.length})
-            </button>
-            <button
-              onClick={() => setFilter('hot')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
-                filter === 'hot'
-                  ? 'bg-rose-600 text-white'
-                  : 'bg-rose-100 text-rose-700 hover:bg-rose-200'
-              }`}
-            >
-              <Flame className="w-4 h-4" />
-              Calientes ({hotLeadsCount})
-            </button>
-            <button
-              onClick={fetchLeads}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
-          </div>
+          <button
+            onClick={fetchLeads}
+            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-gray-900">{leads.length}</div>
-          <div className="text-sm text-gray-600">Total leads</div>
-        </div>
-        <div className="bg-rose-50 rounded-lg border border-rose-200 p-4">
-          <div className="text-2xl font-bold text-rose-600">{hotLeadsCount}</div>
-          <div className="text-sm text-rose-600">Leads calientes</div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-gray-900">
-            {leads.filter(l => ['4-5', '6-10', '10+'].includes(l.metadata?.propiedades || '')).length}
+      {stats && (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
+          <button
+            onClick={() => setFilter('all')}
+            className={`rounded-lg border p-3 text-left transition-all ${
+              filter === 'all' ? 'ring-2 ring-violet-500 border-violet-300' : 'border-gray-200 hover:border-gray-300'
+            }`}
+          >
+            <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
+            <div className="text-xs text-gray-600">Total</div>
+          </button>
+          <button
+            onClick={() => setFilter('hot')}
+            className={`rounded-lg border p-3 text-left transition-all ${
+              filter === 'hot' ? 'ring-2 ring-rose-500 bg-rose-50 border-rose-300' : 'bg-rose-50/50 border-rose-200 hover:bg-rose-50'
+            }`}
+          >
+            <div className="text-2xl font-bold text-rose-600 flex items-center gap-1">
+              <Flame className="w-5 h-5" />
+              {stats.hot}
+            </div>
+            <div className="text-xs text-rose-600">Calientes</div>
+          </button>
+          <button
+            onClick={() => setFilter('warm')}
+            className={`rounded-lg border p-3 text-left transition-all ${
+              filter === 'warm' ? 'ring-2 ring-amber-500 bg-amber-50 border-amber-300' : 'bg-amber-50/50 border-amber-200 hover:bg-amber-50'
+            }`}
+          >
+            <div className="text-2xl font-bold text-amber-600">{stats.warm}</div>
+            <div className="text-xs text-amber-600">Tibios</div>
+          </button>
+          <button
+            onClick={() => setFilter('cold')}
+            className={`rounded-lg border p-3 text-left transition-all ${
+              filter === 'cold' ? 'ring-2 ring-blue-500 bg-blue-50 border-blue-300' : 'bg-blue-50/50 border-blue-200 hover:bg-blue-50'
+            }`}
+          >
+            <div className="text-2xl font-bold text-blue-600">{stats.cold}</div>
+            <div className="text-xs text-blue-600">Fríos</div>
+          </button>
+          <button
+            onClick={() => setFilter('quiz')}
+            className={`rounded-lg border p-3 text-left transition-all ${
+              filter === 'quiz' ? 'ring-2 ring-violet-500 bg-violet-50 border-violet-300' : 'bg-violet-50/50 border-violet-200 hover:bg-violet-50'
+            }`}
+          >
+            <div className="text-2xl font-bold text-violet-600 flex items-center gap-1">
+              <Brain className="w-5 h-5" />
+              {stats.withQuiz}
+            </div>
+            <div className="text-xs text-violet-600">Con Quiz</div>
+          </button>
+          <div className="rounded-lg border border-gray-200 p-3">
+            <div className="text-2xl font-bold text-gray-700 flex items-center gap-1">
+              <FileText className="w-5 h-5" />
+              {stats.withForm}
+            </div>
+            <div className="text-xs text-gray-600">Con Formulario</div>
           </div>
-          <div className="text-sm text-gray-600">Con 4+ propiedades</div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-gray-900">
-            {leads.filter(l => l.metadata?.automatizacion === 'nada').length}
+          <div className="rounded-lg border border-gray-200 p-3">
+            <div className="text-2xl font-bold text-gray-700 flex items-center gap-1">
+              <Calculator className="w-5 h-5" />
+              {stats.withCalculator}
+            </div>
+            <div className="text-xs text-gray-600">Con Calculadora</div>
           </div>
-          <div className="text-sm text-gray-600">Sin automatizar</div>
+        </div>
+      )}
+
+      {/* Journey Legend */}
+      <div className="bg-gray-50 rounded-lg p-3 mb-4 flex flex-wrap items-center gap-4 text-xs text-gray-600">
+        <span className="font-medium">Journey:</span>
+        <div className="flex items-center gap-1">
+          <Calculator className="w-3.5 h-3.5" />
+          <span>Calculadora</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <FileText className="w-3.5 h-3.5" />
+          <span>Formulario</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Brain className="w-3.5 h-3.5" />
+          <span>Quiz</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Video className="w-3.5 h-3.5" />
+          <span>VideoCall</span>
         </div>
       </div>
 
@@ -238,96 +315,68 @@ export default function AdminLeadsPage() {
         ) : filteredLeads.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             <Users className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-            <p>No hay leads {filter === 'hot' ? 'calientes' : ''}</p>
+            <p>No hay leads</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
             {filteredLeads.map((lead) => {
-              const hot = isHotLead(lead)
               const expanded = expandedLead === lead.id
-              const meta = lead.metadata || {}
-              const score = getLeadScore(lead)
-              const props = getProps(lead)
-              const auto = getAuto(lead)
-              const intereses = getIntereses(lead)
-              const comentario = getComentario(lead)
+              const meta = lead.metadata
+              const completed = meta.completed
 
               return (
                 <div
                   key={lead.id}
-                  className={`${hot ? 'bg-rose-50/50' : ''}`}
+                  className={`${meta.status === 'hot' ? 'bg-rose-50/30' : ''}`}
                 >
                   {/* Main row */}
                   <div
                     className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
                     onClick={() => setExpandedLead(expanded ? null : lead.id)}
                   >
-                    <div className="flex items-center gap-4">
-                      {/* Hot indicator */}
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        hot ? 'bg-rose-100' : 'bg-gray-100'
-                      }`}>
-                        {hot ? (
-                          <Flame className="w-5 h-5 text-rose-600" />
-                        ) : (
-                          <Users className="w-5 h-5 text-gray-400" />
-                        )}
-                      </div>
-
-                      {/* Email & date */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900 truncate">
-                            {lead.email}
-                          </span>
-                          {hot && (
-                            <span className="px-2 py-0.5 bg-rose-100 text-rose-700 text-xs font-medium rounded-full">
-                              HOT
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                      {/* Status & Email */}
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold border ${getStatusColor(meta.status)}`}>
+                          {meta.score}
+                        </span>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-gray-900 truncate">
+                              {lead.email}
                             </span>
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {new Date(lead.createdAt).toLocaleDateString('es-ES', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                            {meta.status === 'hot' && (
+                              <Flame className="w-4 h-4 text-rose-500 flex-shrink-0" />
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {new Date(meta.lastActivity).toLocaleDateString('es-ES', {
+                              day: '2-digit',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                            {' · '}
+                            <span className="text-gray-400">{meta.source}</span>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Score */}
-                      {score !== null && (
-                        <div className="hidden lg:block">
-                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${getScoreColor(score)}`}>
-                            {score}pts
-                          </span>
+                      {/* Journey Steps */}
+                      <div className="flex items-center gap-1">
+                        <JourneyStep completed={!!completed.calculator} icon={Calculator} label="Calc" />
+                        <JourneyStep completed={!!completed.plantillasForm} icon={FileText} label="Form" />
+                        <JourneyStep completed={!!completed.quiz} icon={Brain} label="Quiz" />
+                        <JourneyStep completed={!!completed.videoCall} icon={Video} label="Call" />
+                      </div>
+
+                      {/* Archetype badge */}
+                      {meta.quiz && (
+                        <div className="hidden lg:flex items-center gap-1 px-2 py-1 bg-violet-100 text-violet-700 rounded-full text-xs font-medium">
+                          <span>{ARCHETYPE_EMOJIS[meta.quiz.archetype] || ''}</span>
+                          <span>{meta.quiz.archetype}</span>
                         </div>
                       )}
-
-                      {/* Properties */}
-                      <div className="hidden sm:flex items-center gap-2">
-                        <Building2 className="w-4 h-4 text-gray-400" />
-                        <span className={`font-medium ${
-                          ['4-5', '6-10', '10+'].includes(props || '')
-                            ? 'text-rose-600'
-                            : 'text-gray-600'
-                        }`}>
-                          {PROPERTY_LABELS[props || ''] || props || '-'}
-                        </span>
-                      </div>
-
-                      {/* Automation */}
-                      <div className="hidden md:block">
-                        {auto && (
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            AUTOMATION_LABELS[auto]?.color || 'bg-gray-100 text-gray-700'
-                          }`}>
-                            {AUTOMATION_LABELS[auto]?.label || auto}
-                          </span>
-                        )}
-                      </div>
 
                       {/* Actions */}
                       <div className="flex items-center gap-2">
@@ -351,99 +400,133 @@ export default function AdminLeadsPage() {
                   {/* Expanded details */}
                   {expanded && (
                     <div className="px-4 pb-4 pt-0">
-                      <div className="ml-14 bg-gray-50 rounded-lg p-4 space-y-3">
-                        {/* Score & Stage (top row) */}
+                      <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                        {/* Status banner */}
                         <div className="flex flex-wrap gap-2 items-center">
-                          {score !== null && (
-                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${getScoreColor(score)}`}>
-                              Score: {score}/100
-                            </span>
-                          )}
-                          {meta.currentStage && (
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              STAGE_LABELS[meta.currentStage]?.color || 'bg-gray-100 text-gray-700'
-                            }`}>
-                              {STAGE_LABELS[meta.currentStage]?.label || meta.currentStage}
-                            </span>
-                          )}
-                          {meta.arrivedFrom && meta.arrivedFrom !== 'direct' && (
+                          <span className={`px-3 py-1 rounded-full text-sm font-bold border ${getStatusColor(meta.status)}`}>
+                            {getStatusLabel(meta.status)} · {meta.score}/100 puntos
+                          </span>
+                          {meta.emailsClicked && meta.emailsClicked.length > 0 && (
                             <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs">
-                              Vino de: {meta.arrivedFrom}
+                              Emails clickados: {meta.emailsClicked.join(', ')}
                             </span>
                           )}
                         </div>
 
-                        {/* Properties & Automation (mobile) */}
-                        <div className="sm:hidden flex flex-wrap gap-2">
-                          <div className="flex items-center gap-1 text-sm">
-                            <Building2 className="w-4 h-4 text-gray-400" />
-                            <span className="font-medium">
-                              {PROPERTY_LABELS[props || ''] || '-'}
-                            </span>
+                        {/* Calculator data */}
+                        {meta.calculator && (
+                          <div className="bg-white rounded-lg border border-gray-200 p-3">
+                            <div className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                              <Calculator className="w-4 h-4 text-green-600" />
+                              Calculadora de Tiempo
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <div>
+                                <span className="text-gray-500">Propiedades:</span>
+                                <span className="ml-1 font-medium">{meta.calculator.properties}</span>
+                              </div>
+                              <div>
+                                <span className="text-gray-500">Horas/año:</span>
+                                <span className="ml-1 font-medium">{meta.calculator.hoursPerYear}h</span>
+                              </div>
+                            </div>
                           </div>
-                          {auto && (
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                              AUTOMATION_LABELS[auto]?.color
-                            }`}>
-                              {AUTOMATION_LABELS[auto]?.label}
-                            </span>
-                          )}
-                        </div>
+                        )}
 
-                        {/* Interests */}
-                        {intereses.length > 0 && (
-                          <div>
-                            <div className="text-xs font-medium text-gray-500 mb-1">Intereses:</div>
-                            <div className="flex flex-wrap gap-1">
-                              {intereses.map((i) => (
-                                <span
-                                  key={i}
-                                  className="px-2 py-1 bg-white border border-gray-200 rounded-full text-xs"
-                                >
-                                  {INTEREST_LABELS[i] || i}
+                        {/* Form data */}
+                        {meta.plantillasForm && (
+                          <div className="bg-white rounded-lg border border-gray-200 p-3">
+                            <div className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                              <FileText className="w-4 h-4 text-blue-600" />
+                              Formulario de Recursos
+                            </div>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex flex-wrap gap-2">
+                                <span className="flex items-center gap-1">
+                                  <Building2 className="w-3.5 h-3.5 text-gray-400" />
+                                  {PROPERTY_LABELS[meta.plantillasForm.propiedades] || meta.plantillasForm.propiedades}
                                 </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Funnel journey info */}
-                        {(meta.emailsClicked?.length || meta.resourcesRequested?.length) && (
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            {meta.emailsClicked && meta.emailsClicked.length > 0 && (
-                              <div>
-                                <span className="text-gray-500">Emails clickados:</span>
-                                <span className="ml-1 font-medium">{meta.emailsClicked.join(', ')}</span>
+                                {meta.plantillasForm.automatizacion && (
+                                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                    AUTOMATION_LABELS[meta.plantillasForm.automatizacion]?.color || 'bg-gray-100'
+                                  }`}>
+                                    {AUTOMATION_LABELS[meta.plantillasForm.automatizacion]?.label || meta.plantillasForm.automatizacion}
+                                  </span>
+                                )}
                               </div>
-                            )}
-                            {meta.resourcesRequested && meta.resourcesRequested.length > 0 && (
-                              <div>
-                                <span className="text-gray-500">Recursos:</span>
-                                <span className="ml-1 font-medium">{meta.resourcesRequested.join(', ')}</span>
+                              {meta.plantillasForm.intereses.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                  {meta.plantillasForm.intereses.map((i) => (
+                                    <span
+                                      key={i}
+                                      className="px-2 py-1 bg-gray-100 rounded-full text-xs"
+                                    >
+                                      {INTEREST_LABELS[i] || i}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                              {meta.plantillasForm.comentario && (
+                                <div className="bg-gray-50 rounded p-2 text-gray-600">
+                                  <MessageSquare className="w-3 h-3 inline mr-1" />
+                                  {meta.plantillasForm.comentario}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Quiz data */}
+                        {meta.quiz && (
+                          <div className="bg-white rounded-lg border border-gray-200 p-3">
+                            <div className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                              <Brain className="w-4 h-4 text-violet-600" />
+                              Quiz de Perfil
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-2xl">{ARCHETYPE_EMOJIS[meta.quiz.archetype]}</span>
+                                <div>
+                                  <div className="font-bold text-gray-900">{meta.quiz.archetype}</div>
+                                  <div className="text-xs text-gray-500">
+                                    Fortaleza: {meta.quiz.topStrength}
+                                  </div>
+                                </div>
                               </div>
-                            )}
+                              <div className="text-xs text-amber-600 bg-amber-50 rounded px-2 py-1 inline-block">
+                                Brecha crítica: {meta.quiz.criticalGap}
+                              </div>
+                              {meta.quiz.testResultId && (
+                                <Link
+                                  href={`/host-profile/results/${meta.quiz.testResultId}`}
+                                  className="text-xs text-violet-600 hover:underline block"
+                                  target="_blank"
+                                >
+                                  Ver resultados completos →
+                                </Link>
+                              )}
+                            </div>
                           </div>
                         )}
 
-                        {/* Comment */}
-                        {comentario && (
-                          <div>
-                            <div className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1">
-                              <MessageSquare className="w-3 h-3" />
-                              Comentario:
-                            </div>
-                            <div className="text-sm text-gray-700 bg-white border border-gray-200 rounded-lg p-3">
-                              {comentario}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Source & timestamps */}
-                        <div className="text-xs text-gray-500 flex flex-wrap gap-3">
-                          <span>Fuente: {meta.resourceSlug || lead.source}</span>
-                          {meta.firstTouch && (
-                            <span>Primer contacto: {new Date(meta.firstTouch).toLocaleDateString('es-ES')}</span>
-                          )}
+                        {/* Timestamps */}
+                        <div className="text-xs text-gray-500 flex flex-wrap gap-3 pt-2 border-t border-gray-200">
+                          <span>
+                            Primer contacto: {new Date(meta.firstTouch).toLocaleDateString('es-ES', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </span>
+                          <span>
+                            Última actividad: {new Date(meta.lastActivity).toLocaleDateString('es-ES', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
                         </div>
                       </div>
                     </div>

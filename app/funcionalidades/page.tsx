@@ -439,15 +439,16 @@ export default function FuncionalidadesPage() {
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-6"
-              onClick={() => document.getElementById('mensajes-automaticos')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              Ver Funcionalidades
-              <Play className="w-5 h-5 ml-2" />
-            </Button>
+            <Link href="/consulta">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-6"
+              >
+                <Video className="w-5 h-5 mr-2" />
+                Agendar Videollamada
+              </Button>
+            </Link>
           </motion.div>
 
           {/* Stats */}
@@ -532,6 +533,7 @@ export default function FuncionalidadesPage() {
                 </motion.p>
 
                 <motion.div
+                  className="flex flex-col sm:flex-row gap-4 justify-center"
                   initial={{ y: 30, opacity: 0 }}
                   whileInView={{ y: 0, opacity: 1 }}
                   viewport={{ once: true }}
@@ -544,6 +546,12 @@ export default function FuncionalidadesPage() {
                       <ArrowRight className="w-6 h-6 ml-2" />
                     </Button>
                   </Link>
+                  <Link href="/consulta">
+                    <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 text-xl px-10 py-7">
+                      <Video className="w-6 h-6 mr-2" />
+                      Hablar con un Experto
+                    </Button>
+                  </Link>
                 </motion.div>
 
                 <motion.p
@@ -553,7 +561,7 @@ export default function FuncionalidadesPage() {
                   viewport={{ once: true }}
                   transition={{ delay: 0.6 }}
                 >
-                  Solo toma 5 minutos. No necesitas tarjeta de crédito.
+                  Solo toma 5 minutos. Sin compromiso.
                 </motion.p>
               </div>
             </section>
@@ -717,13 +725,14 @@ export default function FuncionalidadesPage() {
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
-            <Link href="/register">
+            <Link href="/consulta">
               <Button
                 size="lg"
                 variant="outline"
                 className="border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-6"
               >
-                Registrarme
+                <Video className="w-5 h-5 mr-2" />
+                Agendar Videollamada
               </Button>
             </Link>
           </motion.div>
@@ -735,7 +744,7 @@ export default function FuncionalidadesPage() {
             viewport={{ once: true }}
             transition={{ delay: 0.6 }}
           >
-            Sin compromisos. Prueba 15 días sin compromiso.
+            Sin compromiso. Prueba 15 días.
           </motion.p>
         </div>
       </section>

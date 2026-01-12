@@ -2072,3 +2072,41 @@ model EmailLog {
   @@index([type, createdAt])
   @@map("email_logs")
 }
+
+// Consultation Booking - video call scheduling
+model ConsultationBooking {
+  id            String   @id @default(cuid())
+  email         String
+  name          String
+  properties    String   // 1, 2-3, 4-5, 6-10, 10+
+  challenge     String?  @db.Text
+  scheduledDate DateTime
+  status        String   @default("scheduled") // scheduled, completed, cancelled, no_show
+  source        String   @default("direct")
+  meetLink      String?
+  notes         String?  @db.Text
+  adminNotes    String?  @db.Text // Private notes for admin
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  completedAt   DateTime?
+  leadId        String?  // Link to unified lead
+
+  @@index([email])
+  @@index([scheduledDate])
+  @@index([status])
+  @@map("consultation_bookings")
+}
+
+// Blocked calendar slots for consultations
+model BlockedSlot {
+  id        String   @id @default(cuid())
+  date      DateTime @db.Date // The date to block
+  time      String?  // Specific time to block (e.g., "10:00"), null = whole day
+  reason    String?  // Optional reason for blocking
+  createdAt DateTime @default(now())
+
+  @@unique([date, time])
+  @@index([date])
+  @@map("blocked_slots")
+}

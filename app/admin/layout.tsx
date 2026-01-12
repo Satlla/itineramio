@@ -27,7 +27,8 @@ import {
   Megaphone,
   UsersRound,
   GraduationCap,
-  HelpCircle
+  HelpCircle,
+  Video
 } from 'lucide-react'
 
 // Navigation structure organized by function
@@ -78,6 +79,7 @@ const navigationSections = [
     collapsible: true,
     items: [
       { name: 'Leads Cualificados', href: '/admin/leads', icon: UsersRound, hot: true },
+      { name: 'Consultas', href: '/admin/consultas', icon: Video },
       { name: 'Suscriptores', href: '/admin/marketing/leads', icon: Mail },
       { name: 'Embudos', href: '/admin/funnels', icon: Megaphone },
       { name: 'Blog', href: '/admin/blog', icon: FileText },

@@ -24,6 +24,11 @@ const nextConfig = {
         destination: '/hub/tools/:path*',
         permanent: true,
       },
+      {
+        source: '/terms',
+        destination: '/blog/manual-digital-apartamento-turistico-guia-completa',
+        permanent: true,
+      },
     ]
   },
   // Strategic caching headers
