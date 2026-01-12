@@ -15,6 +15,170 @@ const LANGUAGES = [
   { code: 'pt', name: 'Português', flag: '🇵🇹' },
 ]
 
+// Translations for the preview
+const translations: Record<string, {
+  accommodation: string
+  templateTitle: string
+  templateSubtitle: string
+  context: string
+  contextBold: string
+  beforeRating: string
+  beforeRatingText: string
+  scaleTitle: string
+  stars5: string
+  stars4: string
+  stars3: string
+  stars2: string
+  stars1: string
+  transparencyNote: string
+  needHelp: string
+  contactUs: string
+  whatYouGet: string
+  item1: string
+  item2: string
+  item3: string
+  item4: string
+}> = {
+  es: {
+    accommodation: 'Alojamiento',
+    templateTitle: 'Guía rápida de reseñas',
+    templateSubtitle: 'Tu opinión ayuda a futuros viajeros y nos permite mejorar.',
+    context: 'En Airbnb, las estrellas se interpretan distinto.',
+    contextBold: '5 estrellas',
+    beforeRating: 'Antes de valorar',
+    beforeRatingText: 'Si algo no estuvo perfecto, cuéntanoslo. La mayoría de incidencias se resuelven rápido.',
+    scaleTitle: 'Escala orientativa',
+    stars5: 'Todo según lo descrito, experiencia buena.',
+    stars4: 'Algún aspecto importante no cumplió expectativas.',
+    stars3: 'Varios problemas relevantes afectaron la estancia.',
+    stars2: 'Incidencias graves o deficiencias importantes.',
+    stars1: 'Experiencia inaceptable.',
+    transparencyNote: 'Valora con honestidad. Esta guía solo aclara el significado habitual de las estrellas.',
+    needHelp: '¿Necesitas ayuda?',
+    contactUs: 'Escríbenos y lo resolvemos.',
+    whatYouGet: '¿Qué recibirás?',
+    item1: 'Plantilla PDF lista para imprimir',
+    item2: 'Tu nombre de alojamiento personalizado',
+    item3: 'Código QR de tu WhatsApp',
+    item4: 'Diseño profesional A4'
+  },
+  en: {
+    accommodation: 'Accommodation',
+    templateTitle: 'Quick review guide',
+    templateSubtitle: 'Your feedback helps future travelers and allows us to improve.',
+    context: 'On Airbnb, stars are interpreted differently.',
+    contextBold: '5 stars',
+    beforeRating: 'Before rating',
+    beforeRatingText: 'If something wasn\'t perfect, let us know. Most issues can be resolved quickly.',
+    scaleTitle: 'Rating guide',
+    stars5: 'Everything as described, good experience.',
+    stars4: 'An important aspect didn\'t meet expectations.',
+    stars3: 'Several relevant issues affected the stay.',
+    stars2: 'Serious issues or significant deficiencies.',
+    stars1: 'Unacceptable experience.',
+    transparencyNote: 'Please rate honestly. This guide only clarifies the usual meaning of stars.',
+    needHelp: 'Need help?',
+    contactUs: 'Message us and we\'ll resolve it.',
+    whatYouGet: 'What you\'ll receive?',
+    item1: 'Print-ready PDF template',
+    item2: 'Your personalized accommodation name',
+    item3: 'Your WhatsApp QR code',
+    item4: 'Professional A4 design'
+  },
+  fr: {
+    accommodation: 'Hébergement',
+    templateTitle: 'Guide rapide des avis',
+    templateSubtitle: 'Votre avis aide les futurs voyageurs et nous permet de nous améliorer.',
+    context: 'Sur Airbnb, les étoiles sont interprétées différemment.',
+    contextBold: '5 étoiles',
+    beforeRating: 'Avant de noter',
+    beforeRatingText: 'Si quelque chose n\'était pas parfait, dites-le nous. La plupart des problèmes peuvent être résolus rapidement.',
+    scaleTitle: 'Guide de notation',
+    stars5: 'Tout conforme à la description, bonne expérience.',
+    stars4: 'Un aspect important n\'a pas répondu aux attentes.',
+    stars3: 'Plusieurs problèmes importants ont affecté le séjour.',
+    stars2: 'Problèmes graves ou déficiences importantes.',
+    stars1: 'Expérience inacceptable.',
+    transparencyNote: 'Veuillez noter honnêtement. Ce guide clarifie uniquement le sens habituel des étoiles.',
+    needHelp: 'Besoin d\'aide?',
+    contactUs: 'Écrivez-nous et nous résoudrons le problème.',
+    whatYouGet: 'Que recevrez-vous?',
+    item1: 'Modèle PDF prêt à imprimer',
+    item2: 'Votre nom d\'hébergement personnalisé',
+    item3: 'Votre code QR WhatsApp',
+    item4: 'Design professionnel A4'
+  },
+  de: {
+    accommodation: 'Unterkunft',
+    templateTitle: 'Schneller Bewertungsleitfaden',
+    templateSubtitle: 'Ihr Feedback hilft zukünftigen Reisenden und ermöglicht uns, uns zu verbessern.',
+    context: 'Bei Airbnb werden Sterne anders interpretiert.',
+    contextBold: '5 Sterne',
+    beforeRating: 'Vor der Bewertung',
+    beforeRatingText: 'Wenn etwas nicht perfekt war, lassen Sie es uns wissen. Die meisten Probleme können schnell gelöst werden.',
+    scaleTitle: 'Bewertungsleitfaden',
+    stars5: 'Alles wie beschrieben, gute Erfahrung.',
+    stars4: 'Ein wichtiger Aspekt entsprach nicht den Erwartungen.',
+    stars3: 'Mehrere relevante Probleme beeinträchtigten den Aufenthalt.',
+    stars2: 'Ernsthafte Probleme oder erhebliche Mängel.',
+    stars1: 'Inakzeptable Erfahrung.',
+    transparencyNote: 'Bitte bewerten Sie ehrlich. Dieser Leitfaden verdeutlicht nur die übliche Bedeutung der Sterne.',
+    needHelp: 'Brauchen Sie Hilfe?',
+    contactUs: 'Schreiben Sie uns und wir lösen es.',
+    whatYouGet: 'Was erhalten Sie?',
+    item1: 'Druckfertige PDF-Vorlage',
+    item2: 'Ihr personalisierter Unterkunftsname',
+    item3: 'Ihr WhatsApp QR-Code',
+    item4: 'Professionelles A4-Design'
+  },
+  it: {
+    accommodation: 'Alloggio',
+    templateTitle: 'Guida rapida alle recensioni',
+    templateSubtitle: 'Il tuo feedback aiuta i futuri viaggiatori e ci permette di migliorare.',
+    context: 'Su Airbnb, le stelle vengono interpretate diversamente.',
+    contextBold: '5 stelle',
+    beforeRating: 'Prima di valutare',
+    beforeRatingText: 'Se qualcosa non era perfetto, faccelo sapere. La maggior parte dei problemi può essere risolta rapidamente.',
+    scaleTitle: 'Guida alla valutazione',
+    stars5: 'Tutto come descritto, buona esperienza.',
+    stars4: 'Un aspetto importante non ha soddisfatto le aspettative.',
+    stars3: 'Diversi problemi rilevanti hanno influenzato il soggiorno.',
+    stars2: 'Problemi gravi o carenze significative.',
+    stars1: 'Esperienza inaccettabile.',
+    transparencyNote: 'Per favore valuta onestamente. Questa guida chiarisce solo il significato abituale delle stelle.',
+    needHelp: 'Hai bisogno di aiuto?',
+    contactUs: 'Scrivici e lo risolveremo.',
+    whatYouGet: 'Cosa riceverai?',
+    item1: 'Modello PDF pronto per la stampa',
+    item2: 'Il nome del tuo alloggio personalizzato',
+    item3: 'Il tuo codice QR WhatsApp',
+    item4: 'Design professionale A4'
+  },
+  pt: {
+    accommodation: 'Alojamento',
+    templateTitle: 'Guia rápido de avaliações',
+    templateSubtitle: 'Sua opinião ajuda futuros viajantes e nos permite melhorar.',
+    context: 'No Airbnb, as estrelas são interpretadas de forma diferente.',
+    contextBold: '5 estrelas',
+    beforeRating: 'Antes de avaliar',
+    beforeRatingText: 'Se algo não estava perfeito, nos avise. A maioria dos problemas pode ser resolvida rapidamente.',
+    scaleTitle: 'Guia de avaliação',
+    stars5: 'Tudo como descrito, boa experiência.',
+    stars4: 'Um aspecto importante não atendeu às expectativas.',
+    stars3: 'Vários problemas relevantes afetaram a estadia.',
+    stars2: 'Problemas graves ou deficiências significativas.',
+    stars1: 'Experiência inaceitável.',
+    transparencyNote: 'Por favor, avalie com honestidade. Este guia apenas esclarece o significado habitual das estrelas.',
+    needHelp: 'Precisa de ajuda?',
+    contactUs: 'Escreva-nos e resolveremos.',
+    whatYouGet: 'O que você receberá?',
+    item1: 'Modelo PDF pronto para imprimir',
+    item2: 'Seu nome de alojamento personalizado',
+    item3: 'Seu código QR do WhatsApp',
+    item4: 'Design profissional A4'
+  }
+}
+
 export default function PlantillaReviewsPage() {
   const [formData, setFormData] = useState({
     nombre: '',
@@ -59,6 +223,9 @@ export default function PlantillaReviewsPage() {
       setLoading(false)
     }
   }
+
+  // Get translations for current language
+  const t = translations[formData.idioma] || translations.es
 
   const formatPhoneForWhatsApp = (phone: string) => {
     // Remove spaces and special chars, keep + and digits
@@ -242,51 +409,51 @@ export default function PlantillaReviewsPage() {
             <div className="bg-white border border-gray-200 shadow-sm">
               {/* Header con nombre del alojamiento */}
               <div className="px-5 pt-4 pb-3 border-b border-gray-100">
-                <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5">Alojamiento</p>
+                <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5">{t.accommodation}</p>
                 <p className="text-base font-semibold text-gray-900 mb-2">{formData.nombre || 'Tu Alojamiento'}</p>
-                <h4 className="text-lg font-semibold text-gray-900">Guía rápida de reseñas</h4>
-                <p className="text-[11px] text-gray-500 mt-0.5">Tu opinión ayuda a futuros viajeros y nos permite mejorar.</p>
+                <h4 className="text-lg font-semibold text-gray-900">{t.templateTitle}</h4>
+                <p className="text-[11px] text-gray-500 mt-0.5">{t.templateSubtitle}</p>
               </div>
 
               {/* Contexto */}
               <div className="px-5 py-2.5 bg-gray-50">
                 <p className="text-[11px] text-gray-600 leading-relaxed">
-                  En Airbnb, las estrellas se interpretan distinto. <strong className="text-gray-900">5 estrellas</strong> = la estancia fue buena y cumplió lo prometido.
+                  {t.context} <strong className="text-gray-900">{t.contextBold}</strong> = {t.stars5.toLowerCase()}
                 </p>
               </div>
 
               {/* Antes de valorar */}
               <div className="px-5 py-2.5 border-b border-gray-100">
-                <p className="text-[9px] font-semibold uppercase tracking-wide text-gray-900 mb-0.5">Antes de valorar</p>
+                <p className="text-[9px] font-semibold uppercase tracking-wide text-gray-900 mb-0.5">{t.beforeRating}</p>
                 <p className="text-[11px] text-gray-600">
-                  Si algo no estuvo perfecto, cuéntanoslo. La mayoría de incidencias se resuelven rápido.
+                  {t.beforeRatingText}
                 </p>
               </div>
 
               {/* Escala de estrellas */}
               <div className="px-5 py-2.5">
-                <p className="text-[9px] font-semibold uppercase tracking-wide text-gray-900 mb-1.5">Escala orientativa</p>
+                <p className="text-[9px] font-semibold uppercase tracking-wide text-gray-900 mb-1.5">{t.scaleTitle}</p>
                 <table className="w-full text-[11px]">
                   <tbody>
                     <tr className="border-b border-gray-50">
                       <td className="py-1 w-16 text-gray-900">★★★★★</td>
-                      <td className="py-1 text-gray-600">Todo según lo descrito, experiencia buena.</td>
+                      <td className="py-1 text-gray-600">{t.stars5}</td>
                     </tr>
                     <tr className="border-b border-gray-50">
                       <td className="py-1 w-16"><span className="text-gray-900">★★★★</span><span className="text-gray-300">★</span></td>
-                      <td className="py-1 text-gray-600">Algún aspecto importante no cumplió expectativas.</td>
+                      <td className="py-1 text-gray-600">{t.stars4}</td>
                     </tr>
                     <tr className="border-b border-gray-50">
                       <td className="py-1 w-16"><span className="text-gray-900">★★★</span><span className="text-gray-300">★★</span></td>
-                      <td className="py-1 text-gray-600">Varios problemas relevantes afectaron la estancia.</td>
+                      <td className="py-1 text-gray-600">{t.stars3}</td>
                     </tr>
                     <tr className="border-b border-gray-50">
                       <td className="py-1 w-16"><span className="text-gray-900">★★</span><span className="text-gray-300">★★★</span></td>
-                      <td className="py-1 text-gray-600">Incidencias graves o deficiencias importantes.</td>
+                      <td className="py-1 text-gray-600">{t.stars2}</td>
                     </tr>
                     <tr>
                       <td className="py-1 w-16"><span className="text-gray-900">★</span><span className="text-gray-300">★★★★</span></td>
-                      <td className="py-1 text-gray-600">Experiencia inaceptable.</td>
+                      <td className="py-1 text-gray-600">{t.stars1}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -295,7 +462,7 @@ export default function PlantillaReviewsPage() {
               {/* Nota de transparencia */}
               <div className="px-5 py-1.5 bg-gray-50 border-t border-gray-100">
                 <p className="text-[9px] text-gray-400 italic">
-                  Valora con honestidad. Esta guía solo aclara el significado habitual de las estrellas.
+                  {t.transparencyNote}
                 </p>
               </div>
 
@@ -303,8 +470,8 @@ export default function PlantillaReviewsPage() {
               <div className="px-5 py-3 border-t border-gray-200">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1">
-                    <p className="text-[9px] font-semibold uppercase tracking-wide text-gray-900 mb-0.5">¿Necesitas ayuda?</p>
-                    <p className="text-[11px] text-gray-600 mb-0.5">Escríbenos y lo resolvemos.</p>
+                    <p className="text-[9px] font-semibold uppercase tracking-wide text-gray-900 mb-0.5">{t.needHelp}</p>
+                    <p className="text-[11px] text-gray-600 mb-0.5">{t.contactUs}</p>
                     <p className="text-sm font-medium text-gray-900">{formData.teléfono || '+34 600 000 000'}</p>
                   </div>
                   <div className="flex-shrink-0">
@@ -322,13 +489,13 @@ export default function PlantillaReviewsPage() {
 
             <div className="mt-4 bg-gray-50 rounded-lg p-4 border border-gray-200">
               <h4 className="font-medium text-gray-900 text-sm mb-2">
-                ¿Qué recibirás?
+                {t.whatYouGet}
               </h4>
               <ul className="text-gray-600 text-sm space-y-1">
-                <li>✓ Plantilla PDF lista para imprimir</li>
-                <li>✓ Tu nombre de alojamiento personalizado</li>
-                <li>✓ Código QR de tu WhatsApp</li>
-                <li>✓ Diseño profesional A4</li>
+                <li>✓ {t.item1}</li>
+                <li>✓ {t.item2}</li>
+                <li>✓ {t.item3}</li>
+                <li>✓ {t.item4}</li>
               </ul>
             </div>
           </div>
