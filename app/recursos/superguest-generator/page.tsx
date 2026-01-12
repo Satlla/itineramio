@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Download, Share2, Copy, Check, Sparkles, Award, FileText } from 'lucide-react'
+import { ArrowLeft, Download, Share2, Copy, Check, Sparkles, Award, FileText, Mail, Loader2, CheckCircle } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 
@@ -11,8 +11,12 @@ export default function SuperGuestGeneratorPage() {
   const [discount, setDiscount] = useState('15')
   const [propertyName, setPropertyName] = useState('')
   const [hostName, setHostName] = useState('')
+  const [email, setEmail] = useState('')
   const [copied, setCopied] = useState(false)
   const [downloading, setDownloading] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
   const cardRef = useRef<HTMLDivElement>(null)
 
   const generateCode = () => {
@@ -95,6 +99,61 @@ export default function SuperGuestGeneratorPage() {
       })
     } catch (error) {
       console.error('Error sharing:', error)
+    }
+  }
+
+  const handleSendByEmail = async () => {
+    if (!cardRef.current || !guestName || !email) return
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError('Por favor, introduce un email válido')
+      return
+    }
+
+    setSending(true)
+    setError('')
+
+    try {
+      // Generate image
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 3,
+        backgroundColor: '#ffffff',
+        logging: false,
+        useCORS: true,
+        allowTaint: true
+      })
+
+      const imageData = canvas.toDataURL('image/png', 1.0)
+
+      // Send to API
+      const response = await fetch('/api/recursos/superguest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          hostName: hostName || 'Anfitrión',
+          propertyName: propertyName || '',
+          guestName,
+          discount,
+          code: generateCode(),
+          imageData
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al enviar')
+      }
+
+      setSent(true)
+    } catch (err) {
+      console.error('Error sending email:', err)
+      setError('Error al enviar el email. Inténtalo de nuevo.')
+    } finally {
+      setSending(false)
     }
   }
 
@@ -215,37 +274,105 @@ export default function SuperGuestGeneratorPage() {
                   </button>
                 </div>
               </div>
+
+              {/* Email field */}
+              <div className="pt-4 border-t border-gray-100">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tu email (para recibir la insignia) *
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setError(''); }}
+                  placeholder="tu@email.com"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all"
+                />
+                {error && (
+                  <p className="mt-2 text-sm text-red-600">{error}</p>
+                )}
+              </div>
             </div>
 
             {/* Actions */}
-            <div className="mt-8 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+            {sent ? (
+              <div className="mt-8 bg-green-50 border border-green-200 rounded-xl p-6 text-center">
+                <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                <h3 className="text-lg font-semibold text-green-800 mb-2">
+                  ¡Insignia enviada!
+                </h3>
+                <p className="text-green-700 text-sm mb-4">
+                  Hemos enviado la insignia SuperGuest a <strong>{email}</strong>
+                </p>
                 <button
-                  onClick={() => handleDownload('png')}
-                  disabled={!guestName || downloading}
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 disabled:from-gray-300 disabled:to-gray-300 text-white font-semibold py-4 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none"
+                  onClick={() => {
+                    setSent(false)
+                    setGuestName('')
+                    setEmail('')
+                  }}
+                  className="text-green-600 hover:text-green-700 text-sm font-medium underline"
                 >
-                  <Download className="w-5 h-5" />
-                  {downloading ? 'Generando...' : 'PNG'}
-                </button>
-                <button
-                  onClick={() => handleDownload('pdf')}
-                  disabled={!guestName || downloading}
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-300 text-white font-semibold py-4 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none"
-                >
-                  <FileText className="w-5 h-5" />
-                  {downloading ? 'Generando...' : 'PDF'}
+                  Crear otra insignia
                 </button>
               </div>
-              <button
-                onClick={handleShare}
-                disabled={!guestName}
-                className="w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 text-gray-700 font-medium py-3 px-6 rounded-xl border-2 border-gray-200 transition-colors"
-              >
-                <Share2 className="w-5 h-5" />
-                Compartir por WhatsApp
-              </button>
-            </div>
+            ) : (
+              <div className="mt-8 space-y-3">
+                {/* Primary CTA - Send by email */}
+                <button
+                  onClick={handleSendByEmail}
+                  disabled={!guestName || !email || sending}
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 disabled:from-gray-300 disabled:to-gray-300 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none"
+                >
+                  {sending ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-5 h-5" />
+                      Recibir insignia por email
+                    </>
+                  )}
+                </button>
+
+                {/* Secondary options */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">o descarga directamente</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    onClick={() => handleDownload('png')}
+                    disabled={!guestName || downloading}
+                    className="flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 font-medium py-3 px-3 rounded-xl transition-colors text-sm"
+                  >
+                    <Download className="w-4 h-4" />
+                    PNG
+                  </button>
+                  <button
+                    onClick={() => handleDownload('pdf')}
+                    disabled={!guestName || downloading}
+                    className="flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 font-medium py-3 px-3 rounded-xl transition-colors text-sm"
+                  >
+                    <FileText className="w-4 h-4" />
+                    PDF
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    disabled={!guestName}
+                    className="flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 font-medium py-3 px-3 rounded-xl transition-colors text-sm"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Compartir
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Preview */}
