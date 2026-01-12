@@ -14,11 +14,13 @@ import {
 
 interface ToolReviewsDay0Props {
   name?: string
+  email?: string
   propertyName?: string
 }
 
 export default function ToolReviewsDay0Delivery({
   name = 'anfitrión',
+  email = '',
   propertyName = 'tu alojamiento'
 }: ToolReviewsDay0Props) {
   return (

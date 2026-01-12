@@ -14,10 +14,12 @@ import {
 
 interface ToolReviewsDay6Props {
   name?: string
+  email?: string
 }
 
 export default function ToolReviewsDay6Negative({
-  name = 'anfitrión'
+  name = 'anfitrión',
+  email = ''
 }: ToolReviewsDay6Props) {
   return (
     <Html>

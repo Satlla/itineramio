@@ -38,17 +38,32 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
   const [propertySetProperties, setPropertySetProperties] = useState<Array<{ id: string; name: string }>>([])
   const [loadingPropertySet, setLoadingPropertySet] = useState(false)
 
-  // Form state
+  // Form state with multi-language support
   const [formData, setFormData] = useState({
-    name: '',
+    nameEs: '',
+    nameEn: '',
+    nameFr: '',
     icon: ''
   })
 
+  // Helper to extract language from multilingual object
+  const getLanguageValue = (value: any, lang: string): string => {
+    if (typeof value === 'string') {
+      return lang === 'es' ? value : ''
+    }
+    if (value && typeof value === 'object') {
+      return value[lang] || ''
+    }
+    return ''
+  }
+
   useEffect(() => {
     if (zone) {
-      console.log('🔧 Initializing modal with zone:', { name: getZoneText(zone.name), icon: zone.icon })
+      console.log('🔧 Initializing modal with zone:', { name: zone.name, icon: zone.icon })
       setFormData({
-        name: getZoneText(zone.name),
+        nameEs: getLanguageValue(zone.name, 'es'),
+        nameEn: getLanguageValue(zone.name, 'en'),
+        nameFr: getLanguageValue(zone.name, 'fr'),
         icon: zone.icon || ''
       })
     }
@@ -141,7 +156,7 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
   }
 
   const handleSave = async () => {
-    if (!zone || !formData.name.trim()) return
+    if (!zone || !formData.nameEs.trim()) return
 
     console.log('🔍 SAVE DEBUG:', {
       propertySetId,
@@ -176,20 +191,27 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
     scope: 'single' | 'all' | 'selected',
     selectedPropertyIds?: string[]
   ) => {
-    if (!zone || !formData.name.trim()) return
+    if (!zone || !formData.nameEs.trim()) return
 
     try {
       setSaving(true)
 
+      // Build multilingual name object
+      const multilingualName = {
+        es: formData.nameEs.trim(),
+        en: formData.nameEn.trim() || formData.nameEs.trim(), // Fallback to Spanish
+        fr: formData.nameFr.trim() || formData.nameEs.trim()  // Fallback to Spanish
+      }
+
       console.log('💾 Saving zone with data:', {
-        name: formData.name,
+        name: multilingualName,
         icon: formData.icon,
         scope,
         selectedPropertyIds
       })
 
       const body: any = {
-        name: formData.name,
+        name: multilingualName,
         icon: formData.icon
       }
 
@@ -270,18 +292,54 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:p-4 md:p-6">
               {/* Form */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Zone Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                {/* Zone Names - Multi-language */}
+                <div className="space-y-4">
+                  <label className="block text-sm font-medium text-gray-700">
                     {t('modals.editZone.zoneName')} *
                   </label>
-                  <Input
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder={t('modals.editZone.zoneNamePlaceholder')}
-                    className="w-full"
-                    autoFocus
-                  />
+
+                  {/* Spanish (Required) */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-medium bg-red-100 text-red-700 px-2 py-0.5 rounded">ES</span>
+                      <span className="text-xs text-gray-500">Español (requerido)</span>
+                    </div>
+                    <Input
+                      value={formData.nameEs}
+                      onChange={(e) => setFormData(prev => ({ ...prev, nameEs: e.target.value }))}
+                      placeholder="Nombre en español"
+                      className="w-full"
+                      autoFocus
+                    />
+                  </div>
+
+                  {/* English */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded">EN</span>
+                      <span className="text-xs text-gray-500">English (optional)</span>
+                    </div>
+                    <Input
+                      value={formData.nameEn}
+                      onChange={(e) => setFormData(prev => ({ ...prev, nameEn: e.target.value }))}
+                      placeholder="Name in English"
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* French */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-medium bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">FR</span>
+                      <span className="text-xs text-gray-500">Français (optionnel)</span>
+                    </div>
+                    <Input
+                      value={formData.nameFr}
+                      onChange={(e) => setFormData(prev => ({ ...prev, nameFr: e.target.value }))}
+                      placeholder="Nom en français"
+                      className="w-full"
+                    />
+                  </div>
                 </div>
 
                 {/* Zone Icon */}
@@ -296,7 +354,7 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
                     >
                       {formData.icon ? (
                         (() => {
-                          const IconComponent = getZoneIcon(formData.icon, formData.name)
+                          const IconComponent = getZoneIcon(formData.icon, formData.nameEs)
                           return IconComponent ? (
                             <IconComponent className="w-8 h-8 text-gray-700" />
                           ) : (
@@ -331,7 +389,7 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
                     <div className={`w-14 h-14 rounded-xl mx-auto mb-3 flex items-center justify-center ${zone.color || 'bg-gray-100'}`}>
                       {formData.icon ? (
                         (() => {
-                          const IconComponent = getZoneIcon(formData.icon, formData.name)
+                          const IconComponent = getZoneIcon(formData.icon, formData.nameEs)
                           return IconComponent ? (
                             <IconComponent className="w-7 h-7 text-gray-700" />
                           ) : (
@@ -343,7 +401,7 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
                       )}
                     </div>
                     <h4 className="font-medium text-gray-900 text-sm">
-                      {formData.name || t('modals.editZone.zoneNamePreview')}
+                      {formData.nameEs || t('modals.editZone.zoneNamePreview')}
                     </h4>
                   </div>
                 </div>
@@ -361,7 +419,7 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
             </Button>
             <Button
               onClick={handleSave}
-              disabled={saving || !formData.name.trim()}
+              disabled={saving || !formData.nameEs.trim()}
               className="bg-violet-600 hover:bg-violet-700"
             >
               {saving ? (

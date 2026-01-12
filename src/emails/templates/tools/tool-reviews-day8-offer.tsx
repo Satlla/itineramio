@@ -14,10 +14,12 @@ import {
 
 interface ToolReviewsDay8Props {
   name?: string
+  email?: string
 }
 
 export default function ToolReviewsDay8Offer({
-  name = 'anfitrión'
+  name = 'anfitrión',
+  email = ''
 }: ToolReviewsDay8Props) {
   return (
     <Html>

@@ -14,10 +14,12 @@ import {
 
 interface ToolReviewsDay2Props {
   name?: string
+  email?: string
 }
 
 export default function ToolReviewsDay2Mistakes({
-  name = 'anfitrión'
+  name = 'anfitrión',
+  email = ''
 }: ToolReviewsDay2Props) {
   return (
     <Html>

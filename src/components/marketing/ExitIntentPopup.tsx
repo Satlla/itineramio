@@ -17,29 +17,8 @@ interface ExitIntentPopupProps {
   autoShowDelay?: number
 }
 
-// Pages where popup should NOT show
-const EXCLUDED_PATHS = [
-  '/hub/tools/time-calculator', // The calculator itself
-  '/hub/tools/', // All tools
-  '/recursos', // Resource pages (lead magnets)
-  '/guide/', // Guest guides
-  '/p/', // Property pages for guests
-  '/login',
-  '/register',
-  '/admin',
-  '/dashboard',
-  '/account',
-  '/onboarding',
-  '/verify',
-  '/unsubscribe',
-  '/blog', // Blog pages
-  '/legal', // Legal pages
-  '/consulta', // Booking page
-  '/host-profile', // Archetype test
-]
-
-// Pages where autoShowDelay is allowed (landings only)
-const LANDING_PAGES = [
+// ONLY show popup on these landing pages (for non-customers)
+const ALLOWED_PAGES = [
   '/',
   '/main',
   '/comparar',
@@ -57,8 +36,8 @@ export function ExitIntentPopup({
   const [hasShownThisSession, setHasShownThisSession] = useState(false) // Only show once per session
   const pathname = usePathname()
 
-  // Check if current path is excluded
-  const isExcludedPath = EXCLUDED_PATHS.some(path => pathname?.startsWith(path))
+  // ONLY show on allowed landing pages (whitelist approach)
+  const isAllowedPage = ALLOWED_PAGES.some(path => pathname === path)
 
   // Check cooldown function
   const checkCooldown = useCallback(() => {
@@ -74,9 +53,9 @@ export function ExitIntentPopup({
     return daysSince >= cooldownDays
   }, [storageKey, cooldownDays])
 
-  // Check if we should show the popup
+  // Check if we should show the popup (only on allowed pages)
   useEffect(() => {
-    if (isExcludedPath) return
+    if (!isAllowedPage) return
 
     // Don't show if already used calculator or recently shown
     const hasUsedCalculator = localStorage.getItem('hasUsedTimeCalculator')
@@ -88,15 +67,11 @@ export function ExitIntentPopup({
     }, delay)
 
     return () => clearTimeout(timer)
-  }, [delay, checkCooldown, isExcludedPath])
+  }, [delay, checkCooldown, isAllowedPage])
 
-  // Check if current path is a landing page (where autoShowDelay is allowed)
-  const isLandingPage = LANDING_PAGES.some(path => pathname === path || pathname?.startsWith(path + '/'))
-
-  // Auto-show after specified delay (ONLY for landing pages)
+  // Auto-show after specified delay (ONLY on allowed landing pages)
   useEffect(() => {
-    // Only auto-show on landing pages, not on resources or other pages
-    if (isExcludedPath || !isLandingPage || !autoShowDelay || isVisible) return
+    if (!isAllowedPage || !autoShowDelay || isVisible || hasShownThisSession) return
 
     // Don't show if already used calculator or recently shown
     const hasUsedCalculator = localStorage.getItem('hasUsedTimeCalculator')
@@ -104,7 +79,7 @@ export function ExitIntentPopup({
 
     const autoTimer = setTimeout(() => {
       setIsVisible(true)
-      setHasShownThisSession(true) // Prevent showing again this session
+      setHasShownThisSession(true)
       localStorage.setItem(storageKey, Date.now().toString())
 
       // Track event
@@ -118,17 +93,16 @@ export function ExitIntentPopup({
     }, autoShowDelay)
 
     return () => clearTimeout(autoTimer)
-  }, [autoShowDelay, isExcludedPath, isLandingPage, isVisible, checkCooldown, storageKey, pathname])
+  }, [autoShowDelay, isAllowedPage, isVisible, hasShownThisSession, checkCooldown, storageKey, pathname])
 
-  // Detect exit intent (mouse leaving viewport at top)
+  // Detect exit intent (mouse leaving viewport at top) - ONLY on allowed pages
   const handleMouseLeave = useCallback((e: MouseEvent) => {
-    // Don't show if: not ready, already visible, excluded path, or already shown this session
-    if (!isReady || isVisible || isExcludedPath || hasShownThisSession) return
+    if (!isReady || isVisible || !isAllowedPage || hasShownThisSession) return
 
     // Only trigger if mouse leaves at the top
     if (e.clientY <= 5) {
       setIsVisible(true)
-      setHasShownThisSession(true) // Prevent showing again this session
+      setHasShownThisSession(true)
       localStorage.setItem(storageKey, Date.now().toString())
 
       // Track event
@@ -139,7 +113,7 @@ export function ExitIntentPopup({
         })
       }
     }
-  }, [isReady, isVisible, storageKey, isExcludedPath, hasShownThisSession])
+  }, [isReady, isVisible, storageKey, isAllowedPage, hasShownThisSession])
 
   useEffect(() => {
     document.addEventListener('mouseleave', handleMouseLeave)
@@ -162,8 +136,8 @@ export function ExitIntentPopup({
     setIsVisible(false)
   }
 
-  // Don't render anything on excluded paths
-  if (isExcludedPath) return null
+  // Only render on allowed landing pages
+  if (!isAllowedPage) return null
 
   return (
     <AnimatePresence>

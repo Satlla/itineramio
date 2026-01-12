@@ -2,85 +2,180 @@ import { getZoneContentTemplate } from '../data/zone-content-templates'
 
 // Zonas esenciales expandidas para apartamentos (sin cocina)
 // templateId maps to zone-content-templates.ts keys
+// All names and descriptions are multilingual (ES/EN/FR)
 export const zonasEsenciales = [
   {
-    name: 'Check In',
-    description: 'Proceso de entrada al apartamento',
+    name: {
+      es: 'Check In',
+      en: 'Check In',
+      fr: 'Enregistrement'
+    },
+    description: {
+      es: 'Proceso de entrada al apartamento',
+      en: 'Apartment check-in process',
+      fr: 'Processus d\'enregistrement à l\'appartement'
+    },
     icon: 'key',
     order: 1,
     templateId: 'check-in'
   },
   {
-    name: 'WiFi',
-    description: 'Información de conexión a internet',
+    name: {
+      es: 'WiFi',
+      en: 'WiFi',
+      fr: 'WiFi'
+    },
+    description: {
+      es: 'Información de conexión a internet',
+      en: 'Internet connection information',
+      fr: 'Informations de connexion internet'
+    },
     icon: 'wifi',
     order: 2,
     templateId: 'wifi'
   },
   {
-    name: 'Check Out',
-    description: 'Instrucciones para la salida',
+    name: {
+      es: 'Check Out',
+      en: 'Check Out',
+      fr: 'Départ'
+    },
+    description: {
+      es: 'Instrucciones para la salida',
+      en: 'Check-out instructions',
+      fr: 'Instructions de départ'
+    },
     icon: 'exit',
     order: 3,
     templateId: 'check-out'
   },
   {
-    name: 'Cómo Llegar',
-    description: 'Direcciones desde aeropuerto, estación y ubicación exacta',
+    name: {
+      es: 'Cómo Llegar',
+      en: 'How to Get Here',
+      fr: 'Comment Arriver'
+    },
+    description: {
+      es: 'Direcciones desde aeropuerto, estación y ubicación exacta',
+      en: 'Directions from airport, station and exact location',
+      fr: 'Itinéraire depuis l\'aéroport, la gare et localisation exacte'
+    },
     icon: 'map-pin',
     order: 4,
     templateId: 'directions'
   },
   {
-    name: 'Normas de la Casa',
-    description: 'Reglas y políticas del apartamento',
+    name: {
+      es: 'Normas de la Casa',
+      en: 'House Rules',
+      fr: 'Règles de la Maison'
+    },
+    description: {
+      es: 'Reglas y políticas del apartamento',
+      en: 'Apartment rules and policies',
+      fr: 'Règles et politiques de l\'appartement'
+    },
     icon: 'list',
     order: 5,
     templateId: 'house-rules'
   },
   {
-    name: 'Parking',
-    description: 'Información sobre aparcamiento',
+    name: {
+      es: 'Parking',
+      en: 'Parking',
+      fr: 'Parking'
+    },
+    description: {
+      es: 'Información sobre aparcamiento',
+      en: 'Parking information',
+      fr: 'Informations sur le stationnement'
+    },
     icon: 'car',
     order: 6,
     templateId: 'parking'
   },
   {
-    name: 'Climatización',
-    description: 'Aire acondicionado y calefacción',
+    name: {
+      es: 'Climatización',
+      en: 'Climate Control',
+      fr: 'Climatisation'
+    },
+    description: {
+      es: 'Aire acondicionado y calefacción',
+      en: 'Air conditioning and heating',
+      fr: 'Climatisation et chauffage'
+    },
     icon: 'thermometer',
     order: 7,
-    templateId: 'heating' // Uses heating template
+    templateId: 'heating'
   },
   {
-    name: 'Teléfonos de Emergencia',
-    description: 'Contactos importantes y anfitrión',
+    name: {
+      es: 'Teléfonos de Emergencia',
+      en: 'Emergency Contacts',
+      fr: 'Contacts d\'Urgence'
+    },
+    description: {
+      es: 'Contactos importantes y anfitrión',
+      en: 'Important contacts and host',
+      fr: 'Contacts importants et hôte'
+    },
     icon: 'phone',
     order: 8,
     templateId: 'emergency-contacts'
   },
   {
-    name: 'Transporte Público',
-    description: 'Metro, autobús y opciones de movilidad',
+    name: {
+      es: 'Transporte Público',
+      en: 'Public Transport',
+      fr: 'Transports en Commun'
+    },
+    description: {
+      es: 'Metro, autobús y opciones de movilidad',
+      en: 'Metro, bus and mobility options',
+      fr: 'Métro, bus et options de mobilité'
+    },
     icon: 'bus',
     order: 9,
     templateId: 'public-transport'
   },
   {
-    name: 'Recomendaciones',
-    description: 'Restaurantes, tiendas y lugares de interés',
+    name: {
+      es: 'Recomendaciones',
+      en: 'Recommendations',
+      fr: 'Recommandations'
+    },
+    description: {
+      es: 'Restaurantes, tiendas y lugares de interés',
+      en: 'Restaurants, shops and points of interest',
+      fr: 'Restaurants, boutiques et points d\'intérêt'
+    },
     icon: 'star',
     order: 10,
     templateId: 'recommendations'
   },
   {
-    name: 'Basura y Reciclaje',
-    description: 'Cómo y dónde desechar la basura',
+    name: {
+      es: 'Basura y Reciclaje',
+      en: 'Trash & Recycling',
+      fr: 'Poubelles et Recyclage'
+    },
+    description: {
+      es: 'Cómo y dónde desechar la basura',
+      en: 'How and where to dispose of trash',
+      fr: 'Comment et où jeter les déchets'
+    },
     icon: 'trash',
     order: 11,
     templateId: 'recycling'
   }
 ]
+
+// Helper to get zone name text (supports both string and multilingual object)
+const getZoneName = (name: string | { es: string; en: string; fr: string }): string => {
+  if (typeof name === 'string') return name
+  return name.es || name.en || name.fr || ''
+}
 
 export async function crearZonasEsenciales(
   propertyId: string,
@@ -104,24 +199,27 @@ export async function crearZonasEsenciales(
     const totalZones = zonasEsenciales.length
 
     for (const zona of zonasEsenciales) {
+      // Get the Spanish name for comparison (primary language)
+      const zoneName = getZoneName(zona.name)
+
       // Skip if zone already exists
-      if (existingZoneNames.includes(zona.name.toLowerCase())) {
-        console.log(`Skipping duplicate zone: ${zona.name}`)
+      if (existingZoneNames.includes(zoneName.toLowerCase())) {
+        console.log(`Skipping duplicate zone: ${zoneName}`)
         continue
       }
-      
+
       // Get content template if available
       const contentTemplate = zona.templateId ? getZoneContentTemplate(zona.templateId) : null
 
       // Use batch API ALWAYS for reliability
-      console.log(`🚀 Creating zone "${zona.name}" via BATCH API`, contentTemplate ? `with ${contentTemplate.steps.length} template steps` : 'without template')
+      console.log(`🚀 Creating zone "${zoneName}" via BATCH API`, contentTemplate ? `with ${contentTemplate.steps.length} template steps` : 'without template')
       const response = await fetch(`/api/properties/${propertyId}/zones/batch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           zones: [{
-            name: zona.name,
-            description: zona.description,
+            name: zona.name,        // Pass full multilingual object
+            description: zona.description, // Pass full multilingual object
             icon: zona.icon,
             color: 'bg-gray-100',
             status: 'ACTIVE',
@@ -133,8 +231,8 @@ export async function crearZonasEsenciales(
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error(`❌ Error creando zona "${zona.name}":`, response.status, errorText)
-        
+        console.error(`❌ Error creando zona "${zoneName}":`, response.status, errorText)
+
         // Try to parse as JSON for more details
         try {
           const errorData = JSON.parse(errorText)
@@ -147,14 +245,14 @@ export async function crearZonasEsenciales(
 
       const result = await response.json()
       if (result.success && result.data?.zones?.length > 0) {
-        console.log(`✅ Zona "${zona.name}" creada via batch:`, result.data.zones[0].id)
+        console.log(`✅ Zona "${zoneName}" creada via batch:`, result.data.zones[0].id)
         createdCount++
         // Call progress callback
         if (onProgress) {
           onProgress(createdCount, totalZones)
         }
       } else {
-        console.error(`❌ Batch result failed for "${zona.name}":`, result)
+        console.error(`❌ Batch result failed for "${zoneName}":`, result)
       }
     }
 
