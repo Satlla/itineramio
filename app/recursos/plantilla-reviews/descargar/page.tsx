@@ -6,7 +6,8 @@ import { Suspense } from 'react'
 function PlantillaContent() {
   const searchParams = useSearchParams()
   const nombre = searchParams.get('nombre') || 'Tu Alojamiento'
-  const teléfono = searchParams.get('teléfono') || '+34 600 000 000'
+  // Support both 'telefono' (without accent) and 'teléfono' (with accent) for compatibility
+  const teléfono = searchParams.get('telefono') || searchParams.get('teléfono') || '+34 600 000 000'
 
   const whatsappPhone = teléfono.replace(/[^\d+]/g, '').replace('+', '')
   const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent('Hola, tengo una pregunta sobre mi estancia')}`

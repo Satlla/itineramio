@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
     const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent('Hola, tengo una pregunta sobre mi estancia')}`
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(whatsappUrl)}&bgcolor=ffffff&color=222222`
 
-    // URL de descarga con parámetros
-    const downloadUrl = `https://www.itineramio.com/recursos/plantilla-reviews/descargar?nombre=${encodeURIComponent(nombre)}&teléfono=${encodeURIComponent(teléfono)}`
+    // URL de descarga con parámetros (usar 'telefono' sin tilde para evitar problemas de encoding)
+    const downloadUrl = `https://www.itineramio.com/recursos/plantilla-reviews/descargar?nombre=${encodeURIComponent(nombre)}&telefono=${encodeURIComponent(teléfono)}`
 
     // Save lead to database
     try {
