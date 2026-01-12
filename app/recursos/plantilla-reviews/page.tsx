@@ -2,15 +2,25 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Star, Download, Mail, Phone, User, ArrowLeft, Check, Loader2, QrCode } from 'lucide-react'
+import { Star, Download, Mail, Phone, User, ArrowLeft, Check, Loader2, QrCode, Globe } from 'lucide-react'
 import { fbEvents } from '@/components/analytics/FacebookPixel'
 import { PrioritySelector } from '@/components/forms/PrioritySelector'
+
+const LANGUAGES = [
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+  { code: 'pt', name: 'Português', flag: '🇵🇹' },
+]
 
 export default function PlantillaReviewsPage() {
   const [formData, setFormData] = useState({
     nombre: '',
     teléfono: '',
     email: '',
+    idioma: 'es',
     prioridades: [] as string[]
   })
   const [loading, setLoading] = useState(false)
@@ -162,6 +172,27 @@ export default function PlantillaReviewsPage() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
                     required
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Globe className="w-4 h-4 inline mr-2" />
+                    Idioma de la plantilla
+                  </label>
+                  <select
+                    value={formData.idioma}
+                    onChange={(e) => setFormData({ ...formData, idioma: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 bg-white"
+                  >
+                    {LANGUAGES.map((lang) => (
+                      <option key={lang.code} value={lang.code}>
+                        {lang.flag} {lang.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Elige el idioma en el que tus huéspedes leerán la plantilla
+                  </p>
                 </div>
 
                 {/* Selector de prioridades */}
