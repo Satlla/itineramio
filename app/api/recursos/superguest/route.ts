@@ -192,24 +192,6 @@ export async function POST(request: NextRequest) {
             </td>
           </tr>
 
-          <!-- Related Resources -->
-          <tr>
-            <td style="padding: 24px 0 0 0;">
-              <p style="margin: 0 0 12px 0; font-size: 12px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 1px;">Recursos relacionados</p>
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="padding: 8px 0;">
-                    <a href="https://www.itineramio.com/recursos/plantilla-reviews" style="color: #7c3aed; text-decoration: none; font-size: 14px;">📋 Plantilla significado de estrellas →</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0;">
-                    <a href="https://www.itineramio.com/blog/como-conseguir-reseñas-5-estrellas-airbnb" style="color: #7c3aed; text-decoration: none; font-size: 14px;">⭐ Cómo conseguir reseñas de 5 estrellas →</a>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
 
           <!-- Footer -->
           <tr>

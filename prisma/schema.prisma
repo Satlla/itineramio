@@ -986,6 +986,8 @@ model BlogPost {
   @@index([category])
   @@index([publishedAt])
   @@index([featured])
+  @@index([status, category, publishedAt]) // Composite index for filtered blog queries
+  @@index([status, publishedAt])           // For listing all published posts by date
   @@map("blog_posts")
 }
 

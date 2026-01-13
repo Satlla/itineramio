@@ -173,12 +173,12 @@ export async function POST(request: NextRequest) {
 
     // 1. NOTIFICACIÓN AL BACKOFFICE (EMAIL A ADMINS)
     try {
-      // SIEMPRE enviar a hola@itineramio.com como prioridad
-      const adminEmails = ['hola@itineramio.com']
+      // SIEMPRE enviar a estos emails como prioridad
+      const adminEmails = ['hola@itineramio.com', 'alejandrosatlla@gmail.com']
 
       // Intentar obtener emails adicionales de admins
       const additionalAdmins = await getAdminEmails()
-      adminEmails.push(...additionalAdmins.filter(email => email !== 'hola@itineramio.com'))
+      adminEmails.push(...additionalAdmins.filter(email => !adminEmails.includes(email)))
 
       const planDetails = `${plan.name} (${normalizedBillingPeriod})`
       const propertiesText = propertiesCount ? ` - ${propertiesCount} propiedades` : ''
@@ -292,13 +292,13 @@ async function getAdminEmails(): Promise<string[]> {
 
     // Fallback si no hay admins en BD
     if (admins.length === 0) {
-      return ['info@mrbarriot.com', 'hola@itineramio.com']
+      return ['hola@itineramio.com', 'alejandrosatlla@gmail.com']
     }
 
     return admins.map(admin => admin.email)
   } catch (error) {
     console.error('Error fetching admin emails:', error)
     // Fallback
-    return ['info@mrbarriot.com', 'hola@itineramio.com']
+    return ['hola@itineramio.com', 'alejandrosatlla@gmail.com']
   }
 }

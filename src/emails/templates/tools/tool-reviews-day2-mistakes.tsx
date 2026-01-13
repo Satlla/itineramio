@@ -95,17 +95,18 @@ export default function ToolReviewsDay2Mistakes({
           </Section>
 
           <Text style={paragraph}>
-            Esto es solo el principio. Tenemos una <strong>guía completa con 12 áreas
-            críticas</strong> para conseguir reseñas de 5 estrellas de forma consistente:
+            Ahora que tienes la plantilla de reviews, el siguiente paso es <strong>automatizar
+            las tareas que te quitan tiempo</strong>. Si dedicas menos horas a lo repetitivo,
+            tendrás más energía para los detalles que generan 5 estrellas:
           </Text>
 
           <Section style={ctaSection}>
-            <Link href="https://www.itineramio.com/blog/como-crear-airbnb-5-estrellas-guia-superhost" style={button}>
-              Ver la guía completa →
+            <Link href="https://www.itineramio.com/blog/automatizacion-airbnb-recupera-8-horas-semanales" style={button}>
+              Recuperar 8 horas a la semana →
             </Link>
             <Text style={ctaSubtext}>
-              Decoración, limpieza, comunicación, detalles premium... todo lo que
-              diferencia a los Superhosts.
+              Mensajes automáticos, check-in sin contacto, limpieza programada...
+              todo lo que puedes automatizar hoy.
             </Text>
           </Section>
 

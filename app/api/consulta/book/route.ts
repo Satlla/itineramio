@@ -217,11 +217,11 @@ export async function POST(request: NextRequest) {
       console.error('Error sending confirmation email:', emailError)
     }
 
-    // Send notification to Alex
+    // Send notification to admins
     try {
       await resend.emails.send({
         from: 'Itineramio <notificaciones@itineramio.com>',
-        to: ['alejandrosatlla@gmail.com'],
+        to: ['hola@itineramio.com', 'alejandrosatlla@gmail.com'],
         subject: `🎯 Nueva consultoría: ${body.name} (${body.properties})`,
         html: `
 <!DOCTYPE html>

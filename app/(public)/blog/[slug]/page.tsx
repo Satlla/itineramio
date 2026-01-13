@@ -12,6 +12,10 @@ import ReadingProgress from './ReadingProgress'
 import BlogArticleTracker from './BlogArticleTracker'
 import RelatedArticlesCarousel from '../../../../src/components/blog/RelatedArticlesCarousel'
 
+// ISR: Revalidate every hour (3600 seconds) for better performance
+// Pages are cached and served statically, regenerated in background when stale
+export const revalidate = 3600
+
 interface BlogPostPageProps {
   params: Promise<{
     slug: string
@@ -103,6 +107,20 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     data: { views: { increment: 1 } }
   })
 
+  // Fields needed for related posts display (excludes heavy 'content' field)
+  const relatedSelectFields = {
+    id: true,
+    slug: true,
+    title: true,
+    excerpt: true,
+    coverImage: true,
+    coverImageAlt: true,
+    category: true,
+    publishedAt: true,
+    readTime: true,
+    views: true
+  }
+
   // Get related posts with variety:
   // 1. First try same category
   // 2. Then fill with other categories (educational mix)
@@ -114,7 +132,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       id: { not: post.id }
     },
     take: 6,
-    orderBy: { views: 'desc' }
+    orderBy: { views: 'desc' },
+    select: relatedSelectFields
   })
 
   // Get posts from other categories for variety
@@ -128,7 +147,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     orderBy: [
       { views: 'desc' },
       { publishedAt: 'desc' }
-    ]
+    ],
+    select: relatedSelectFields
   })
 
   // Combine and shuffle for variety, then take 3
@@ -319,8 +339,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         </header>
 
-        {/* Cover Image */}
-        {post.coverImage && (
+        {/* Cover Image - skip if coverImageAlt starts with "og:" (image only for Open Graph/social sharing) */}
+        {post.coverImage && !post.coverImageAlt?.startsWith('og:') && (
           <div className="max-w-4xl mx-auto px-6 mb-12">
             <div className="relative aspect-[16/9] rounded-lg overflow-hidden bg-gray-100">
               <Image

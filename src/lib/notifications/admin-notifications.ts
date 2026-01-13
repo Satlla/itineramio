@@ -10,7 +10,7 @@ function getResend(): Resend {
   return _resend
 }
 
-const ADMIN_EMAILS = ['info@mrbarriot.com', 'hola@itineramio.com']
+const ADMIN_EMAILS = ['hola@itineramio.com', 'alejandrosatlla@gmail.com']
 
 /**
  * Envía notificación a los admins cuando hay un nuevo usuario registrado

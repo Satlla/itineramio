@@ -195,6 +195,56 @@ export async function POST(
       }
     })
 
+    // Send notification to admin about new comment
+    const ADMIN_EMAILS = ['hola@itineramio.com', 'alejandrosatlla@gmail.com']
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
+      const adminUrl = `${baseUrl}/admin/blog/comments`
+      const articleUrl = `${baseUrl}/blog/${slug}`
+
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: ADMIN_EMAILS,
+        subject: `💬 Nuevo comentario en: ${post.title.substring(0, 50)}...`,
+        reply_to: authorEmail.trim().toLowerCase(),
+        html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f5; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+    <h2 style="color: #7c3aed; margin: 0 0 20px 0;">💬 Nuevo comentario en el blog</h2>
+
+    <p style="color: #3f3f46; margin-bottom: 8px;"><strong>Artículo:</strong> ${post.title}</p>
+    <p style="color: #3f3f46; margin-bottom: 8px;"><strong>Autor:</strong> ${authorName.trim()}</p>
+    <p style="color: #3f3f46; margin-bottom: 8px;"><strong>Email:</strong> ${authorEmail.trim().toLowerCase()}</p>
+    <p style="color: #3f3f46; margin-bottom: 8px;"><strong>Estado:</strong> ${isAuthor ? 'Aprobado (autor)' : (isTrustedUser ? 'Pendiente aprobación' : 'Pendiente verificación email')}</p>
+
+    <div style="background: #faf5ff; border-left: 4px solid #7c3aed; padding: 16px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+      <p style="color: #3f3f46; margin: 0; white-space: pre-wrap;">${content.trim()}</p>
+    </div>
+
+    <div style="margin-top: 24px;">
+      <a href="${adminUrl}" style="display: inline-block; background: #7c3aed; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; margin-right: 10px;">
+        Moderar comentarios
+      </a>
+      <a href="${articleUrl}" style="display: inline-block; background: #e4e4e7; color: #3f3f46; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600;">
+        Ver artículo
+      </a>
+    </div>
+  </div>
+</body>
+</html>
+        `
+      })
+      console.log('[Comment] Admin notification sent for comment:', comment.id)
+    } catch (notifyError) {
+      console.error('[Comment] Error sending admin notification:', notifyError)
+      // Don't fail the request if admin notification fails
+    }
+
     // Send verification email if needed
     if (!isTrustedUser && verificationToken) {
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'

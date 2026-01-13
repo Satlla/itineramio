@@ -128,12 +128,33 @@ export default async function BlogPage({
       }
     : {}
 
+  // Fields needed for blog list display (excludes heavy 'content' field)
+  const listSelectFields = {
+    id: true,
+    slug: true,
+    title: true,
+    subtitle: true,
+    excerpt: true,
+    coverImage: true,
+    coverImageAlt: true,
+    category: true,
+    tags: true,
+    featured: true,
+    publishedAt: true,
+    authorName: true,
+    authorImage: true,
+    views: true,
+    readTime: true,
+    likes: true
+  }
+
   // Fetch hero article (most recent featured or published) - only if no search
   const heroArticle = searchQuery
     ? null
     : await prisma.blogPost.findFirst({
         where: { status: 'PUBLISHED' },
-        orderBy: { publishedAt: 'desc' }
+        orderBy: { publishedAt: 'desc' },
+        select: listSelectFields
       })
 
   // Fetch other articles - MORE for abundance
@@ -144,14 +165,16 @@ export default async function BlogPage({
       ...searchFilter
     },
     orderBy: { publishedAt: 'desc' },
-    take: searchQuery ? 50 : 20 // More results for search
+    take: searchQuery ? 50 : 20, // More results for search
+    select: listSelectFields
   })
 
   // Fetch popular articles (by views)
   const popularArticles = await prisma.blogPost.findMany({
     where: { status: 'PUBLISHED' },
     orderBy: { views: 'desc' },
-    take: 8 // Increased from 5
+    take: 8, // Increased from 5
+    select: listSelectFields
   })
 
   // Fetch trending (recent popular)
@@ -161,7 +184,8 @@ export default async function BlogPage({
       publishedAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } // Last 30 days
     },
     orderBy: { views: 'desc' },
-    take: 6
+    take: 6,
+    select: listSelectFields
   })
 
   // Get unique categories from articles

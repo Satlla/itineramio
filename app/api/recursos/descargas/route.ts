@@ -350,7 +350,7 @@ export async function POST(request: NextRequest) {
       try {
         await getResend().emails.send({
           from: 'Itineramio Leads <hola@itineramio.com>',
-          to: ['alejandrosatlla@gmail.com'],
+          to: ['hola@itineramio.com', 'alejandrosatlla@gmail.com'],
           subject: `🔥 Lead caliente: ${propiedades} propiedades, sin automatizar`,
           html: `
             <div style="font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
