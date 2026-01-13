@@ -70,7 +70,9 @@ export default function SuperGuestGeneratorPage() {
 
         const imgData = canvas.toDataURL('image/png', 1.0)
         pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight)
-        fileData = pdf.output('datauristring')
+        // Get base64 directly without the data URI prefix issues
+        const pdfBase64 = pdf.output('datauristring').split(',')[1]
+        fileData = 'data:application/pdf;base64,' + pdfBase64
       } else {
         // PNG with transparency
         fileData = canvas.toDataURL('image/png', 1.0)
