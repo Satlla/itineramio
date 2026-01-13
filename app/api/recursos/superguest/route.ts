@@ -13,7 +13,7 @@ function getResend(): Resend {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, hostName, propertyName, guestName, discount, code, imageData } = body
+    const { email, hostName, propertyName, guestName, discount, code, imageData, downloadOnly } = body
 
     if (!email || !guestName) {
       return NextResponse.json(
@@ -36,7 +36,8 @@ export async function POST(request: NextRequest) {
             propertyName,
             guestName,
             discount,
-            code
+            code,
+            downloadOnly: downloadOnly || false
           }
         }
       })
@@ -80,6 +81,14 @@ export async function POST(request: NextRequest) {
       console.log(`[EmailSubscriber] Enrolled ${normalizedEmail} in sequences`)
     } catch (subscriberError) {
       console.error('Error creating subscriber:', subscriberError)
+    }
+
+    // If downloadOnly, just return success without sending email
+    if (downloadOnly) {
+      return NextResponse.json({
+        success: true,
+        message: 'Lead registrado correctamente'
+      })
     }
 
     // Prepare image attachment if provided

@@ -211,6 +211,44 @@ const toolSequences: ToolSequenceConfig[] = [
         delayDays: 8
       }
     ]
+  },
+  {
+    toolSlug: 'plantilla-reviews',
+    toolName: 'Plantilla de Reviews',
+    description: 'Secuencia para usuarios de la plantilla de reviews. Enfocada en mejorar valoraciones y gestionar reseñas.',
+    steps: [
+      {
+        name: 'Entrega del recurso',
+        subject: '⭐ Tu Plantilla de Reviews está lista',
+        templateName: 'tool-reviews-day0-delivery',
+        delayDays: 0,
+        delayHours: 0
+      },
+      {
+        name: 'Por qué 4 estrellas',
+        subject: 'Por qué te ponen 4 estrellas cuando todo fue "perfecto"',
+        templateName: 'tool-reviews-day2-mistakes',
+        delayDays: 2
+      },
+      {
+        name: 'Caso de estudio',
+        subject: '📈 De 4.2 a 4.8 estrellas: caso real',
+        templateName: 'tool-reviews-day4-case',
+        delayDays: 4
+      },
+      {
+        name: 'Reseñas negativas',
+        subject: 'Cómo responder a una reseña negativa (sin empeorarla)',
+        templateName: 'tool-reviews-day6-negative',
+        delayDays: 6
+      },
+      {
+        name: 'Oferta trial',
+        subject: 'Automatiza la gestión de tus reseñas',
+        templateName: 'tool-reviews-day8-offer',
+        delayDays: 8
+      }
+    ]
   }
 ]
 

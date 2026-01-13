@@ -58,12 +58,28 @@ export function QRCodeDisplay({
     generateQR()
   }, [propertyId, zoneId, size])
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (qrCode) {
-      const filename = zoneId 
+      const filename = zoneId
         ? `qr-${propertyId}-${zoneId}.png`
         : `qr-${propertyId}.png`
       downloadQRCode(qrCode, filename)
+
+      // Track QR download for analytics
+      try {
+        await fetch('/api/analytics/track-interaction', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            propertyId,
+            zoneId: zoneId || null,
+            interactionType: 'qr_download'
+          })
+        })
+        console.log('📥 QR download tracked:', propertyId, zoneId || 'property')
+      } catch (error) {
+        console.error('Error tracking QR download:', error)
+      }
     }
   }
 

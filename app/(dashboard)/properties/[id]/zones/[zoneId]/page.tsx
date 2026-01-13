@@ -186,14 +186,14 @@ export default function ZoneDetailPage() {
       setZone(zoneData)
 
       // Initialize translations from zone data
-      const zoneName = zoneData.name
-      if (typeof zoneName === 'string') {
-        setTranslations({ es: zoneName, en: '', fr: '' })
-      } else if (zoneName && typeof zoneName === 'object') {
+      const nameData = zoneData.name
+      if (typeof nameData === 'string') {
+        setTranslations({ es: nameData, en: '', fr: '' })
+      } else if (nameData && typeof nameData === 'object') {
         setTranslations({
-          es: zoneName.es || '',
-          en: zoneName.en || '',
-          fr: zoneName.fr || ''
+          es: nameData.es || '',
+          en: nameData.en || '',
+          fr: nameData.fr || ''
         })
       }
     } catch (error) {

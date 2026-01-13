@@ -286,14 +286,14 @@ export async function POST(request: NextRequest) {
     let subscriber = null
     try {
       const normalizedEmail = email.toLowerCase().trim()
-      const baseTags = ['plantilla-reviews', 'recurso-gratuito', ...priorityTags]
+      const baseTags = ['tool_plantilla-reviews', 'recurso-gratuito', ...priorityTags]
 
       subscriber = await prisma.emailSubscriber.upsert({
         where: { email: normalizedEmail },
         create: {
           email: normalizedEmail,
           name: nombre,
-          source: 'plantilla-reviews',
+          source: 'tool_plantilla-reviews',
           status: 'active',
           tags: baseTags,
           archetype: 'SISTEMATICO' // Default archetype for reviews template users
@@ -307,13 +307,13 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      console.log(`[EmailSubscriber] Created/updated for ${normalizedEmail} from plantilla-reviews with tags: ${baseTags.join(', ')}`)
+      console.log(`[EmailSubscriber] Created/updated for ${normalizedEmail} from tool_plantilla-reviews with tags: ${baseTags.join(', ')}`)
 
       // Enroll in nurturing sequences
       await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
         archetype: subscriber.archetype || 'SISTEMATICO',
-        source: 'plantilla-reviews',
-        tags: ['plantilla-reviews', 'recurso-gratuito']
+        source: 'tool_plantilla-reviews',
+        tags: ['tool_plantilla-reviews', 'recurso-gratuito']
       })
 
       console.log(`[EmailSubscriber] Enrolled ${normalizedEmail} in sequences`)

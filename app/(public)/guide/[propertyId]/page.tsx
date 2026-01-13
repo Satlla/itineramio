@@ -464,6 +464,42 @@ const trackWhatsAppClick = async (propertyId: string) => {
   }
 }
 
+const trackEmailClick = async (propertyId: string) => {
+  console.log('📧 Tracking Email click for property:', propertyId)
+  try {
+    const response = await fetch('/api/analytics/track-interaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        propertyId,
+        interactionType: 'email_click'
+      })
+    })
+    const data = await response.json()
+    console.log('📧 Email click tracked:', data)
+  } catch (error) {
+    console.error('❌ Error tracking Email click:', error)
+  }
+}
+
+const trackCallClick = async (propertyId: string) => {
+  console.log('📞 Tracking Call click for property:', propertyId)
+  try {
+    const response = await fetch('/api/analytics/track-interaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        propertyId,
+        interactionType: 'call_click'
+      })
+    })
+    const data = await response.json()
+    console.log('📞 Call click tracked:', data)
+  } catch (error) {
+    console.error('❌ Error tracking Call click:', error)
+  }
+}
+
 export default function PropertyGuidePage() {
   const router = useRouter()
   const params = useParams()
@@ -809,6 +845,7 @@ export default function PropertyGuidePage() {
             {property.hostContactPhone && (
               <a
                 href={`tel:${property.hostContactPhone}`}
+                onClick={() => trackCallClick(property.id)}
                 className="flex items-center justify-center w-full px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors"
               >
                 <Phone className="w-5 h-5 mr-2" />
@@ -818,6 +855,7 @@ export default function PropertyGuidePage() {
             {property.hostContactEmail && (
               <a
                 href={`mailto:${property.hostContactEmail}`}
+                onClick={() => trackEmailClick(property.id)}
                 className="flex items-center justify-center w-full px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors"
               >
                 <Mail className="w-5 h-5 mr-2" />

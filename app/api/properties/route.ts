@@ -330,7 +330,27 @@ export async function POST(request: NextRequest) {
       console.error('❌ Warning: Failed to auto-create zones for property:', property.id, zoneError)
       // Don't fail the property creation if zone creation fails
     }
-    
+
+    // Track property creation event for analytics
+    try {
+      await prisma.trackingEvent.create({
+        data: {
+          type: 'PROPERTY_CREATED',
+          propertyId: property.id,
+          metadata: {
+            propertyName: property.name,
+            propertyType: property.type,
+            userId: userId
+          },
+          timestamp: new Date()
+        }
+      })
+      console.log('📊 Property creation tracked:', property.id)
+    } catch (trackError) {
+      console.error('Error tracking property creation:', trackError)
+      // Don't fail the request if tracking fails
+    }
+
     // Check if this property needs trial activation
     const activePropertiesCount = await prisma.property.count({
       where: {

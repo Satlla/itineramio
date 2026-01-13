@@ -112,12 +112,28 @@ export default function ZoneQRPage() {
           light: '#FFFFFF'
         }
       })
-      
+
       // Create download link
       const link = document.createElement('a')
       link.download = `qr-${zone.name.toLowerCase().replace(/\s+/g, '-')}.png`
       link.href = qrDataUrl
       link.click()
+
+      // Track QR download for analytics
+      const propertyId = params.id as string
+      try {
+        await fetch('/api/analytics/track-interaction', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            propertyId,
+            zoneId: zone.id,
+            interactionType: 'qr_download'
+          })
+        })
+      } catch (trackError) {
+        console.error('Error tracking QR download:', trackError)
+      }
     } catch (error) {
       console.error('Error downloading QR:', error)
     } finally {

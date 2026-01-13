@@ -27,16 +27,48 @@ export default function SuperGuestGeneratorPage() {
   const currentYear = new Date().getFullYear()
 
   const handleDownload = async (format: 'png' | 'pdf' = 'png') => {
-    if (!cardRef.current || !guestName) return
+    if (!cardRef.current || !guestName || !email) return
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError('Por favor, introduce un email válido')
+      return
+    }
 
     setDownloading(true)
+    setError('')
+
     try {
+      // Register the download with email
+      await fetch('/api/recursos/superguest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          hostName: hostName || 'Anfitrión',
+          propertyName: propertyName || '',
+          guestName,
+          discount,
+          code: generateCode(),
+          downloadOnly: true // Flag to indicate just registration, no email send
+        })
+      })
+
       const canvas = await html2canvas(cardRef.current, {
         scale: 3,
         backgroundColor: '#ffffff',
         logging: false,
         useCORS: true,
-        allowTaint: true
+        allowTaint: true,
+        onclone: (clonedDoc) => {
+          // Ensure SVG elements are properly rendered
+          const svgs = clonedDoc.querySelectorAll('svg')
+          svgs.forEach(svg => {
+            svg.setAttribute('width', svg.getBoundingClientRect().width.toString())
+            svg.setAttribute('height', svg.getBoundingClientRect().height.toString())
+          })
+        }
       })
 
       if (format === 'pdf') {
@@ -61,6 +93,7 @@ export default function SuperGuestGeneratorPage() {
       }
     } catch (error) {
       console.error('Error generating image:', error)
+      setError('Error al generar la imagen. Inténtalo de nuevo.')
     } finally {
       setDownloading(false)
     }
@@ -348,7 +381,7 @@ export default function SuperGuestGeneratorPage() {
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     onClick={() => handleDownload('png')}
-                    disabled={!guestName || downloading}
+                    disabled={!guestName || !email || downloading}
                     className="flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 font-medium py-3 px-3 rounded-xl transition-colors text-sm"
                   >
                     <Download className="w-4 h-4" />
@@ -356,7 +389,7 @@ export default function SuperGuestGeneratorPage() {
                   </button>
                   <button
                     onClick={() => handleDownload('pdf')}
-                    disabled={!guestName || downloading}
+                    disabled={!guestName || !email || downloading}
                     className="flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 font-medium py-3 px-3 rounded-xl transition-colors text-sm"
                   >
                     <FileText className="w-4 h-4" />
@@ -364,7 +397,7 @@ export default function SuperGuestGeneratorPage() {
                   </button>
                   <button
                     onClick={handleShare}
-                    disabled={!guestName}
+                    disabled={!guestName || !email}
                     className="flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 font-medium py-3 px-3 rounded-xl transition-colors text-sm"
                   >
                     <Share2 className="w-4 h-4" />
@@ -443,34 +476,34 @@ export default function SuperGuestGeneratorPage() {
                 <div className="absolute inset-0 flex flex-col items-center justify-center pt-4">
                   {/* SuperGuest Title */}
                   <div className="mt-8 text-center">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-rose-400 font-medium">
+                    <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#fb7185', fontWeight: 500 }}>
                       Certificado
                     </p>
-                    <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-amber-500 tracking-tight">
+                    <h3 style={{ fontSize: '24px', fontWeight: 900, color: '#f43f5e', letterSpacing: '-0.025em' }}>
                       SuperGuest
                     </h3>
-                    <p className="text-[10px] text-gray-400 mt-0.5">{currentYear}</p>
+                    <p style={{ fontSize: '10px', color: '#9ca3af', marginTop: '2px' }}>{currentYear}</p>
                   </div>
 
                   {/* Guest Name */}
                   <div className="mt-3 text-center px-6">
-                    <p className="text-xl font-bold text-gray-800 leading-tight">
+                    <p style={{ fontSize: '20px', fontWeight: 700, color: '#1f2937', lineHeight: 1.25 }}>
                       {guestName || 'Nombre del huésped'}
                     </p>
                   </div>
 
                   {/* Discount Badge */}
-                  <div className="mt-4 bg-gradient-to-r from-rose-500 to-amber-500 rounded-full px-6 py-2">
-                    <p className="text-white text-center">
-                      <span className="text-2xl font-black">{discount}%</span>
-                      <span className="text-xs ml-1 opacity-90">OFF</span>
+                  <div style={{ marginTop: '16px', background: 'linear-gradient(to right, #f43f5e, #f59e0b)', borderRadius: '9999px', padding: '8px 24px' }}>
+                    <p style={{ color: 'white', textAlign: 'center', margin: 0 }}>
+                      <span style={{ fontSize: '24px', fontWeight: 900 }}>{discount}%</span>
+                      <span style={{ fontSize: '12px', marginLeft: '4px', opacity: 0.9 }}>OFF</span>
                     </p>
                   </div>
 
                   {/* Code */}
-                  <div className="mt-3">
-                    <p className="text-xs text-gray-400">Código exclusivo</p>
-                    <p className="font-mono font-bold text-gray-700 text-sm tracking-wide">
+                  <div style={{ marginTop: '12px' }}>
+                    <p style={{ fontSize: '12px', color: '#9ca3af' }}>Código exclusivo</p>
+                    <p style={{ fontFamily: 'monospace', fontWeight: 700, color: '#374151', fontSize: '14px', letterSpacing: '0.05em' }}>
                       {generateCode()}
                     </p>
                   </div>
@@ -478,14 +511,14 @@ export default function SuperGuestGeneratorPage() {
               </div>
 
               {/* Footer info */}
-              <div className="mt-4 text-center border-t border-gray-100 pt-4">
+              <div style={{ marginTop: '16px', textAlign: 'center', borderTop: '1px solid #f3f4f6', paddingTop: '16px' }}>
                 {propertyName && (
-                  <p className="text-sm font-medium text-gray-700">{propertyName}</p>
+                  <p style={{ fontSize: '14px', fontWeight: 500, color: '#374151' }}>{propertyName}</p>
                 )}
                 {hostName && (
-                  <p className="text-xs text-gray-400 mt-1">Otorgado por {hostName}</p>
+                  <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>Otorgado por {hostName}</p>
                 )}
-                <p className="text-[10px] text-gray-300 mt-2">
+                <p style={{ fontSize: '10px', color: '#d1d5db', marginTop: '8px' }}>
                   Válido para reserva directa • {currentYear}
                 </p>
               </div>

@@ -62,6 +62,15 @@ export async function POST(request: NextRequest) {
       case 'whatsapp_click':
         propertyUpdateData.whatsappClicks = { increment: 1 }
         break
+      case 'email_click':
+        // Email click tracked via TrackingEvent, no dedicated counter in analytics
+        break
+      case 'call_click':
+        // Call click tracked via TrackingEvent, no dedicated counter in analytics
+        break
+      case 'qr_download':
+        // QR download tracked via TrackingEvent, no dedicated counter in analytics
+        break
       case 'session_complete':
         // When a session is completed, calculate proper average
         if (duration && duration > 0) {

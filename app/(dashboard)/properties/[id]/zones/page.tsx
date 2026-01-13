@@ -173,12 +173,21 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [isLoadingZones, setIsLoadingZones] = useState(true)
   const [formData, setFormData] = useState({
     name: '',
+    nameEn: '',
+    nameFr: '',
     description: '',
     iconId: ''
   })
+  const [formNameLang, setFormNameLang] = useState<'es' | 'en' | 'fr'>('es')
   const [isReordering, setIsReordering] = useState(false)
   const [showCopiedBadge, setShowCopiedBadge] = useState(false)
   const [showEvaluationsModal, setShowEvaluationsModal] = useState(false)
+
+  // Zone translations state
+  const [editingTranslationsZoneId, setEditingTranslationsZoneId] = useState<string | null>(null)
+  const [zoneTranslations, setZoneTranslations] = useState({ es: '', en: '', fr: '' })
+  const [savingTranslations, setSavingTranslations] = useState(false)
+  const [rawZonesData, setRawZonesData] = useState<Map<string, any>>(new Map())
 
   // Property Set Update Modal state
   const [showPropertySetModal, setShowPropertySetModal] = useState(false)
@@ -689,37 +698,190 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  const handleEditZone = (zone: Zone) => {
+  const handleEditZone = async (zone: Zone) => {
     setEditingZone(zone)
-    setFormData({
-      name: getZoneText(zone.name),
-      description: getZoneText(zone.description),
-      iconId: zone.iconId
-    })
+
+    // Fetch raw zone data to get translations
+    try {
+      const response = await fetch(`/api/properties/${id}/zones/${zone.id}`)
+      const result = await response.json()
+      if (result.success && result.data) {
+        const rawZone = result.data
+        const nameObj = rawZone.name
+
+        setFormData({
+          name: typeof nameObj === 'string' ? nameObj : nameObj?.es || '',
+          nameEn: typeof nameObj === 'string' ? '' : nameObj?.en || '',
+          nameFr: typeof nameObj === 'string' ? '' : nameObj?.fr || '',
+          description: getZoneText(rawZone.description),
+          iconId: rawZone.icon || zone.iconId
+        })
+      } else {
+        // Fallback to basic data
+        setFormData({
+          name: getZoneText(zone.name),
+          nameEn: '',
+          nameFr: '',
+          description: getZoneText(zone.description),
+          iconId: zone.iconId
+        })
+      }
+    } catch (error) {
+      console.error('Error loading zone data:', error)
+      setFormData({
+        name: getZoneText(zone.name),
+        nameEn: '',
+        nameFr: '',
+        description: getZoneText(zone.description),
+        iconId: zone.iconId
+      })
+    }
+
     setShowCreateForm(true)
+  }
+
+  // Handle zone translations
+  const handleOpenTranslations = async (zone: Zone) => {
+    // Check if we have cached raw data
+    const cachedRaw = rawZonesData.get(zone.id)
+    if (cachedRaw) {
+      const nameObj = cachedRaw.name
+      setZoneTranslations({
+        es: typeof nameObj === 'string' ? nameObj : nameObj?.es || '',
+        en: typeof nameObj === 'string' ? '' : nameObj?.en || '',
+        fr: typeof nameObj === 'string' ? '' : nameObj?.fr || ''
+      })
+      setEditingTranslationsZoneId(zone.id)
+      return
+    }
+
+    // Fetch raw zone data
+    try {
+      const response = await fetch(`/api/properties/${id}/zones/${zone.id}`)
+      const result = await response.json()
+      if (result.success && result.data) {
+        const rawZone = result.data
+        // Cache the raw data
+        setRawZonesData(prev => new Map(prev).set(zone.id, rawZone))
+
+        const nameObj = rawZone.name
+        setZoneTranslations({
+          es: typeof nameObj === 'string' ? nameObj : nameObj?.es || '',
+          en: typeof nameObj === 'string' ? '' : nameObj?.en || '',
+          fr: typeof nameObj === 'string' ? '' : nameObj?.fr || ''
+        })
+        setEditingTranslationsZoneId(zone.id)
+      }
+    } catch (error) {
+      console.error('Error loading zone translations:', error)
+    }
+  }
+
+  const handleSaveTranslations = async (zoneId: string) => {
+    if (!zoneTranslations.es) {
+      alert('El nombre en español es obligatorio')
+      return
+    }
+
+    setSavingTranslations(true)
+    try {
+      const response = await fetch(`/api/properties/${id}/zones/${zoneId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: {
+            es: zoneTranslations.es,
+            en: zoneTranslations.en || zoneTranslations.es,
+            fr: zoneTranslations.fr || zoneTranslations.es
+          }
+        })
+      })
+
+      const result = await response.json()
+      if (response.ok && result.success) {
+        // Update local state
+        setZones(zones.map(z =>
+          z.id === zoneId
+            ? { ...z, name: zoneTranslations.es }
+            : z
+        ))
+        // Update cache
+        setRawZonesData(prev => {
+          const newMap = new Map(prev)
+          const existing = newMap.get(zoneId) || {}
+          newMap.set(zoneId, {
+            ...existing,
+            name: {
+              es: zoneTranslations.es,
+              en: zoneTranslations.en || zoneTranslations.es,
+              fr: zoneTranslations.fr || zoneTranslations.es
+            }
+          })
+          return newMap
+        })
+        setEditingTranslationsZoneId(null)
+      } else {
+        alert(result.error || 'Error al guardar traducciones')
+      }
+    } catch (error) {
+      console.error('Error saving translations:', error)
+      alert('Error al guardar traducciones')
+    } finally {
+      setSavingTranslations(false)
+    }
   }
 
   const handleUpdateZone = async () => {
     if (!editingZone || !formData.name || !formData.iconId) return
 
+    // Build multilingual name object
+    const multilingualName = {
+      es: formData.name,
+      en: formData.nameEn || formData.name,
+      fr: formData.nameFr || formData.name
+    }
+
+    const zoneUpdateData = {
+      name: multilingualName,
+      description: formData.description || '',
+      iconId: formData.iconId
+    }
+
     console.log('🔄 Updating zone with data:', {
-      name: formData.name,
-      description: formData.description,
-      iconId: formData.iconId,
+      ...zoneUpdateData,
       editingZone: editingZone.id
     })
 
+    // If property is in a set with multiple properties, show PropertySetUpdateModal
+    if (propertySetId && propertySetProperties.length > 1) {
+      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for UPDATE ZONE')
+      setPendingOperation('update')
+      setPendingZoneData({ ...zoneUpdateData, zoneId: editingZone.id, zoneName: editingZone.name })
+      setPendingZoneForSave(editingZone)
+      setShowPropertySetModal(true)
+      return
+    }
+
+    // Otherwise, update directly
+    await performUpdateZone(editingZone, zoneUpdateData, 'single')
+  }
+
+  const performUpdateZone = async (
+    zone: Zone,
+    updateData: { name: any; description: string; iconId: string },
+    scope: 'single' | 'all' | 'selected',
+    selectedPropertyIds?: string[]
+  ) => {
     setIsUpdatingZone(true)
     try {
-      const response = await fetch(`/api/properties/${id}/zones/${editingZone.id}`, {
+      // First update the current zone
+      const response = await fetch(`/api/properties/${id}/zones/${zone.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.name,
-          description: formData.description || '',
-          iconId: formData.iconId,
+          name: updateData.name,
+          description: updateData.description,
+          iconId: updateData.iconId,
           color: 'bg-gray-100',
           status: 'ACTIVE'
         })
@@ -727,31 +889,83 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
       const result = await response.json()
 
-      if (response.ok && result.success) {
-        console.log('✅ Zone updated successfully, API response:', result.data)
-        
-        setZones(zones.map(zone => 
-          zone.id === editingZone.id 
-            ? {
-                ...zone,
-                name: formData.name,
-                description: formData.description,
-                iconId: formData.iconId,
-                lastUpdated: new Date().toISOString().split('T')[0]
-              }
-            : zone
-        ))
-
-        console.log('✅ Local zones state updated')
-
-        setEditingZone(null)
-        setFormData({ name: '', description: '', iconId: '' })
-        setShowCreateForm(false)
-        setShowIconSelector(false)
-      } else {
+      if (!response.ok || !result.success) {
         console.error('Error updating zone:', result.error)
         alert(result.error || 'Error al actualizar la zona')
+        return
       }
+
+      console.log('✅ Zone updated successfully')
+
+      // If scope is 'all' or 'selected', update matching zones in other properties
+      if (scope !== 'single') {
+        const currentZoneName = getZoneText(zone.name).toLowerCase()
+        const propertiesToUpdate = scope === 'all'
+          ? propertySetProperties.filter(p => p.id !== id)
+          : propertySetProperties.filter(p => selectedPropertyIds?.includes(p.id) && p.id !== id)
+
+        console.log(`🔗 Updating zone "${currentZoneName}" in ${propertiesToUpdate.length} other properties`)
+
+        for (const prop of propertiesToUpdate) {
+          try {
+            // Find matching zone in this property
+            const zonesResponse = await fetch(`/api/properties/${prop.id}/zones`)
+            const zonesResult = await zonesResponse.json()
+
+            if (zonesResult.success && zonesResult.data) {
+              const matchingZone = zonesResult.data.find((z: any) => {
+                const zName = getZoneText(z.name).toLowerCase()
+                return zName === currentZoneName
+              })
+
+              if (matchingZone) {
+                console.log(`📝 Updating zone in property ${prop.name}`)
+                await fetch(`/api/properties/${prop.id}/zones/${matchingZone.id}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    name: updateData.name,
+                    description: updateData.description,
+                    iconId: updateData.iconId,
+                    color: 'bg-gray-100',
+                    status: 'ACTIVE'
+                  })
+                })
+              }
+            }
+          } catch (error) {
+            console.error(`Error updating zone in property ${prop.id}:`, error)
+          }
+        }
+
+        addNotification({
+          type: 'info',
+          title: '✅ Zonas actualizadas',
+          message: `Zona actualizada en ${propertiesToUpdate.length + 1} propiedades`,
+          read: false
+        })
+      }
+
+      // Update local state
+      setZones(zones.map(z =>
+        z.id === zone.id
+          ? {
+              ...z,
+              name: updateData.name.es || formData.name,
+              description: updateData.description,
+              iconId: updateData.iconId,
+              lastUpdated: new Date().toISOString().split('T')[0]
+            }
+          : z
+      ))
+
+      console.log('✅ Local zones state updated')
+
+      setEditingZone(null)
+      setFormData({ name: '', nameEn: '', nameFr: '', description: '', iconId: '' })
+      setFormNameLang('es')
+      setShowCreateForm(false)
+      setShowIconSelector(false)
     } catch (error) {
       console.error('Error updating zone:', error)
       alert('Error al actualizar la zona')
@@ -886,7 +1100,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   const resetForm = () => {
-    setFormData({ name: '', description: '', iconId: '' })
+    setFormData({ name: '', nameEn: '', nameFr: '', description: '', iconId: '' })
+    setFormNameLang('es')
     setEditingZone(null)
     setShowCreateForm(false)
     setShowIconSelector(false)
@@ -2388,16 +2603,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 {/* Zone content */}
                 <div className="flex-1 min-w-0">
                   <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate pr-2">{getZoneText(zone.name)}</h3>
-                  
+
                   <div className="flex flex-wrap items-center gap-2 text-sm">
                     <div className="inline-flex items-center bg-blue-50 rounded-full px-2 py-0.5">
                       <Edit className="w-3 h-3 mr-1 text-blue-500" />
                       <span className="font-medium text-blue-700">{zone.stepsCount}</span>
                       <span className="ml-0.5 text-blue-600 hidden xs:inline">steps</span>
                     </div>
-                    
+
                     <span className="text-gray-400">•</span>
-                    
+
                     <div className="text-gray-600">
                       <span className="hidden sm:inline text-gray-500">Actualizado: </span>
                       <span className="font-medium">{zone.lastUpdated}</span>
@@ -2591,12 +2806,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   <div className="mb-3">
                     <ZoneIconDisplay iconId={zone.iconId} size="lg" />
                   </div>
-                  
+
                   <h3 className="text-sm font-semibold text-gray-900 mb-3 line-clamp-2 break-words px-1">
                     {getZoneText(zone.name)}
                   </h3>
                 </div>
-                
+
                 <div className="inline-flex items-center justify-center text-xs text-gray-600 bg-gray-50 rounded-full px-2 py-0.5 max-w-full">
                   <Edit className="w-2.5 h-2.5 mr-0.5 text-gray-400 flex-shrink-0" />
                   <span className="font-medium">{zone.stepsCount}</span>
@@ -2620,7 +2835,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setShowPropertySetModal(false)
 
     try {
-      if (pendingOperation === 'update' && pendingStepsToSave && pendingZoneForSave) {
+      if (pendingOperation === 'update' && pendingZoneData?.zoneId && pendingZoneForSave) {
+        // Zone metadata update (name, description, icon, translations)
+        await performUpdateZone(
+          pendingZoneForSave,
+          { name: pendingZoneData.name, description: pendingZoneData.description, iconId: pendingZoneData.iconId },
+          scope,
+          selectedPropertyIds
+        )
+      } else if (pendingOperation === 'update' && pendingStepsToSave && pendingZoneForSave) {
+        // Steps update
         await performSaveSteps(pendingStepsToSave, pendingZoneForSave, scope, selectedPropertyIds)
       } else if (pendingOperation === 'create' && pendingZoneData) {
         setIsCreatingZone(true)
@@ -3130,17 +3354,54 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               </div>
 
               <div className="space-y-4">
+                {/* Zone Name with translations */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('zones.zoneName')}
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t('zones.zoneName')}
+                    </label>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setFormNameLang('es')}
+                        className={`text-lg px-1.5 py-0.5 rounded transition-all ${formNameLang === 'es' ? 'bg-blue-100 ring-2 ring-blue-400' : 'hover:bg-gray-100'}`}
+                        title="Español"
+                      >
+                        🇪🇸
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormNameLang('en')}
+                        className={`text-lg px-1.5 py-0.5 rounded transition-all ${formNameLang === 'en' ? 'bg-blue-100 ring-2 ring-blue-400' : 'hover:bg-gray-100'}`}
+                        title="English"
+                      >
+                        🇬🇧
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormNameLang('fr')}
+                        className={`text-lg px-1.5 py-0.5 rounded transition-all ${formNameLang === 'fr' ? 'bg-blue-100 ring-2 ring-blue-400' : 'hover:bg-gray-100'}`}
+                        title="Français"
+                      >
+                        🇫🇷
+                      </button>
+                    </div>
+                  </div>
                   <Input
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder={t('zones.zoneNamePlaceholder')}
+                    value={formNameLang === 'es' ? formData.name : formNameLang === 'en' ? formData.nameEn : formData.nameFr}
+                    onChange={(e) => {
+                      if (formNameLang === 'es') {
+                        setFormData({ ...formData, name: e.target.value })
+                      } else if (formNameLang === 'en') {
+                        setFormData({ ...formData, nameEn: e.target.value })
+                      } else {
+                        setFormData({ ...formData, nameFr: e.target.value })
+                      }
+                    }}
+                    placeholder={formNameLang === 'es' ? 'Nombre en español *' : formNameLang === 'en' ? 'Name in English' : 'Nom en français'}
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {t('zones.descriptionOptional')}

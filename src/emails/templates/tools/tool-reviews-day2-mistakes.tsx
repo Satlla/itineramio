@@ -24,13 +24,13 @@ export default function ToolReviewsDay2Mistakes({
   return (
     <Html>
       <Head />
-      <Preview>5 errores que están arruinando tus reseñas en Airbnb</Preview>
+      <Preview>Por qué te ponen 4 estrellas cuando "todo fue perfecto"</Preview>
       <Body style={main}>
         <Container style={container}>
           <Text style={logo}>ITINERAMIO</Text>
 
           <Heading style={heading}>
-            5 errores que arruinan tus reseñas
+            Por qué te ponen 4 estrellas cuando "todo fue perfecto"
           </Heading>
 
           <Text style={paragraph}>
@@ -38,72 +38,74 @@ export default function ToolReviewsDay2Mistakes({
           </Text>
 
           <Text style={paragraph}>
-            Después de analizar cientos de propiedades, hemos identificado los
-            <strong> 5 errores más comunes</strong> que bajan el rating de los anfitriones.
-            Evítalos y verás cómo suben tus estrellas.
+            ¿Te ha pasado? El huésped te dice que todo estuvo genial,
+            que volverá seguro... y luego te deja 4 estrellas.
+          </Text>
+
+          <Text style={paragraph}>
+            La realidad es que <strong>las 5 estrellas no se ganan con lo grande,
+            sino con los pequeños detalles</strong>. Después de analizar cientos de propiedades,
+            estos son los errores más comunes:
           </Text>
 
           <Section style={errorBox}>
             <Text style={errorNumber}>1</Text>
-            <Text style={errorTitle}>No responder antes de 1 hora</Text>
+            <Text style={errorTitle}>Escatimar en la cama</Text>
             <Text style={errorText}>
-              El 68% de las reseñas negativas mencionan "comunicación lenta".
-              Airbnb premia a los SuperHost que responden en menos de 1 hora.
+              Si solo te quedas con una idea: <strong>en la cama NO se ahorra</strong>.
+              Un mal colchón = reseña negativa garantizada. Un buen colchón =
+              "Dormí como en un hotel de lujo" en tu reseña.
             </Text>
           </Section>
 
           <Section style={errorBox}>
             <Text style={errorNumber}>2</Text>
-            <Text style={errorTitle}>Fotos que no coinciden con la realidad</Text>
+            <Text style={errorTitle}>Sábanas de colores</Text>
             <Text style={errorText}>
-              Las expectativas vs realidad es el killer #1 de reseñas. Si renovaste
-              hace 3 años, actualiza las fotos.
+              Las sábanas blancas no son casualidad: parecen de hotel, se pueden
+              blanquear, transmiten limpieza absoluta y se reemplazan fácil si se manchan.
+              Mínimo 300 hilos de algodón.
             </Text>
           </Section>
 
           <Section style={errorBox}>
             <Text style={errorNumber}>3</Text>
-            <Text style={errorTitle}>Check-in confuso o tardío</Text>
+            <Text style={errorTitle}>No tener cargadores en las mesillas</Text>
             <Text style={errorText}>
-              El huésped llega cansado del viaje. Si el check-in es complicado,
-              empiezas con -1 estrella mental.
+              Un huésped que puede cargar su móvil cómodamente desde la cama es un
+              huésped feliz. Parece tonto, pero aparece constantemente en las reseñas.
             </Text>
           </Section>
 
           <Section style={errorBox}>
             <Text style={errorNumber}>4</Text>
-            <Text style={errorTitle}>No anticipar problemas conocidos</Text>
+            <Text style={errorTitle}>Check-in confuso</Text>
             <Text style={errorText}>
-              Si sabes que hay obras en el edificio o ruido de la calle, avisa ANTES.
-              Los huéspedes perdonan problemas, no sorpresas.
-            </Text>
-          </Section>
-
-          <Section style={errorBox}>
-            <Text style={errorNumber}>5</Text>
-            <Text style={errorTitle}>No pedir feedback antes de la reseña</Text>
-            <Text style={errorText}>
-              Envía un mensaje el día antes del checkout: "¿Todo bien? ¿Necesitas algo?"
-              Así resuelves problemas ANTES de que lleguen a la reseña.
+              El huésped llega cansado del viaje. Si el check-in es complicado o tiene
+              que llamarte para preguntar, empiezas con -1 estrella mental.
             </Text>
           </Section>
 
           <Section style={tipBox}>
-            <Text style={tipTitle}>Pro tip</Text>
+            <Text style={tipTitle}>Detalle que aparece en el 40% de reseñas de 5 estrellas</Text>
             <Text style={tipText}>
-              La mayoría de reseñas de 4 estrellas vienen de pequeños detalles
-              acumulados. Un WiFi lento + una toalla manchada + un grifo que gotea
-              = 4 estrellas aunque el piso sea espectacular.
+              Agua fría en la nevera a la llegada + nota de bienvenida con el nombre del huésped.
+              Coste: menos de 2€. Impacto: enorme. "Se nota que cuidan cada detalle."
             </Text>
           </Section>
 
+          <Text style={paragraph}>
+            Esto es solo el principio. Tenemos una <strong>guía completa con 12 áreas
+            críticas</strong> para conseguir reseñas de 5 estrellas de forma consistente:
+          </Text>
+
           <Section style={ctaSection}>
-            <Link href="https://www.itineramio.com/register" style={button}>
-              Automatiza tu comunicación
+            <Link href="https://www.itineramio.com/blog/como-crear-airbnb-5-estrellas-guia-superhost" style={button}>
+              Ver la guía completa →
             </Link>
             <Text style={ctaSubtext}>
-              Con Itineramio, tus huéspedes tienen toda la info que necesitan
-              sin tener que preguntarte.
+              Decoración, limpieza, comunicación, detalles premium... todo lo que
+              diferencia a los Superhosts.
             </Text>
           </Section>
 
