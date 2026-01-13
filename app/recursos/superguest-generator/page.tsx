@@ -12,8 +12,8 @@ export default function SuperGuestGeneratorPage() {
   const [propertyName, setPropertyName] = useState('')
   const [hostName, setHostName] = useState('')
   const [email, setEmail] = useState('')
+  const [format, setFormat] = useState<'png' | 'pdf'>('png')
   const [copied, setCopied] = useState(false)
-  const [downloading, setDownloading] = useState(false)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
@@ -26,113 +26,10 @@ export default function SuperGuestGeneratorPage() {
 
   const currentYear = new Date().getFullYear()
 
-  const handleDownload = async (format: 'png' | 'pdf' = 'png') => {
-    if (!cardRef.current || !guestName || !email) return
-
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      setError('Por favor, introduce un email válido')
-      return
-    }
-
-    setDownloading(true)
-    setError('')
-
-    try {
-      // Register the download with email
-      await fetch('/api/recursos/superguest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          hostName: hostName || 'Anfitrión',
-          propertyName: propertyName || '',
-          guestName,
-          discount,
-          code: generateCode(),
-          downloadOnly: true // Flag to indicate just registration, no email send
-        })
-      })
-
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 3,
-        backgroundColor: '#ffffff',
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-        onclone: (clonedDoc) => {
-          // Ensure SVG elements are properly rendered
-          const svgs = clonedDoc.querySelectorAll('svg')
-          svgs.forEach(svg => {
-            svg.setAttribute('width', svg.getBoundingClientRect().width.toString())
-            svg.setAttribute('height', svg.getBoundingClientRect().height.toString())
-          })
-        }
-      })
-
-      if (format === 'pdf') {
-        // Crear PDF con dimensiones de la tarjeta
-        const imgWidth = 100 // mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width
-
-        const pdf = new jsPDF({
-          orientation: imgHeight > imgWidth ? 'portrait' : 'landscape',
-          unit: 'mm',
-          format: [imgWidth + 20, imgHeight + 20] // Añadir margen
-        })
-
-        const imgData = canvas.toDataURL('image/png', 1.0)
-        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight)
-        pdf.save(`superguest-${guestName.toLowerCase().replace(/\s+/g, '-')}.pdf`)
-      } else {
-        const link = document.createElement('a')
-        link.download = `superguest-${guestName.toLowerCase().replace(/\s+/g, '-')}.png`
-        link.href = canvas.toDataURL('image/png', 1.0)
-        link.click()
-      }
-    } catch (error) {
-      console.error('Error generating image:', error)
-      setError('Error al generar la imagen. Inténtalo de nuevo.')
-    } finally {
-      setDownloading(false)
-    }
-  }
-
   const handleCopyCode = () => {
     navigator.clipboard.writeText(generateCode())
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-  }
-
-  const handleShare = async () => {
-    if (!cardRef.current || !guestName) return
-
-    try {
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 3,
-        backgroundColor: '#ffffff',
-        logging: false
-      })
-
-      canvas.toBlob(async (blob) => {
-        if (!blob) return
-
-        const file = new File([blob], `superguest-${guestName}.png`, { type: 'image/png' })
-
-        if (navigator.share && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: 'Tu tarjeta SuperGuest',
-            text: `¡Felicidades ${guestName}! Eres un SuperGuest. Usa el código ${generateCode()} para tu próximo descuento.`
-          })
-        } else {
-          handleDownload()
-        }
-      })
-    } catch (error) {
-      console.error('Error sharing:', error)
-    }
   }
 
   const handleSendByEmail = async () => {
@@ -149,16 +46,35 @@ export default function SuperGuestGeneratorPage() {
     setError('')
 
     try {
-      // Generate image
+      // Generate image with transparent background for PNG
       const canvas = await html2canvas(cardRef.current, {
         scale: 3,
-        backgroundColor: '#ffffff',
+        backgroundColor: format === 'png' ? null : '#ffffff', // Transparent for PNG
         logging: false,
         useCORS: true,
         allowTaint: true
       })
 
-      const imageData = canvas.toDataURL('image/png', 1.0)
+      let fileData: string
+
+      if (format === 'pdf') {
+        // Generate PDF
+        const imgWidth = 100 // mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: [imgWidth + 20, imgHeight + 20]
+        })
+
+        const imgData = canvas.toDataURL('image/png', 1.0)
+        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight)
+        fileData = pdf.output('datauristring')
+      } else {
+        // PNG with transparency
+        fileData = canvas.toDataURL('image/png', 1.0)
+      }
 
       // Send to API
       const response = await fetch('/api/recursos/superguest', {
@@ -171,7 +87,8 @@ export default function SuperGuestGeneratorPage() {
           guestName,
           discount,
           code: generateCode(),
-          imageData
+          fileData,
+          format
         })
       })
 
@@ -348,7 +265,38 @@ export default function SuperGuestGeneratorPage() {
                 </button>
               </div>
             ) : (
-              <div className="mt-8 space-y-3">
+              <div className="mt-8 space-y-4">
+                {/* Format selector */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Formato de la insignia
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setFormat('png')}
+                      className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
+                        format === 'png'
+                          ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-lg'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <Download className="w-4 h-4" />
+                      PNG (transparente)
+                    </button>
+                    <button
+                      onClick={() => setFormat('pdf')}
+                      className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
+                        format === 'pdf'
+                          ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-lg'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <FileText className="w-4 h-4" />
+                      PDF
+                    </button>
+                  </div>
+                </div>
+
                 {/* Primary CTA - Send by email */}
                 <button
                   onClick={handleSendByEmail}
@@ -367,43 +315,6 @@ export default function SuperGuestGeneratorPage() {
                     </>
                   )}
                 </button>
-
-                {/* Secondary options */}
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">o descarga directamente</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    onClick={() => handleDownload('png')}
-                    disabled={!guestName || !email || downloading}
-                    className="flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 font-medium py-3 px-3 rounded-xl transition-colors text-sm"
-                  >
-                    <Download className="w-4 h-4" />
-                    PNG
-                  </button>
-                  <button
-                    onClick={() => handleDownload('pdf')}
-                    disabled={!guestName || !email || downloading}
-                    className="flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 font-medium py-3 px-3 rounded-xl transition-colors text-sm"
-                  >
-                    <FileText className="w-4 h-4" />
-                    PDF
-                  </button>
-                  <button
-                    onClick={handleShare}
-                    disabled={!guestName || !email}
-                    className="flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 font-medium py-3 px-3 rounded-xl transition-colors text-sm"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    Compartir
-                  </button>
-                </div>
               </div>
             )}
           </div>
@@ -473,37 +384,35 @@ export default function SuperGuestGeneratorPage() {
                 </svg>
 
                 {/* Content overlay */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center pt-4">
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: '16px' }}>
                   {/* SuperGuest Title */}
-                  <div className="mt-8 text-center">
-                    <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#fb7185', fontWeight: 500 }}>
+                  <div style={{ marginTop: '32px', textAlign: 'center' }}>
+                    <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#fb7185', fontWeight: 500, margin: 0 }}>
                       Certificado
                     </p>
-                    <h3 style={{ fontSize: '24px', fontWeight: 900, color: '#f43f5e', letterSpacing: '-0.025em' }}>
+                    <h3 style={{ fontSize: '24px', fontWeight: 900, color: '#f43f5e', letterSpacing: '-0.025em', margin: '4px 0 0 0' }}>
                       SuperGuest
                     </h3>
-                    <p style={{ fontSize: '10px', color: '#9ca3af', marginTop: '2px' }}>{currentYear}</p>
+                    <p style={{ fontSize: '10px', color: '#9ca3af', margin: '2px 0 0 0' }}>{currentYear}</p>
                   </div>
 
                   {/* Guest Name */}
-                  <div className="mt-3 text-center px-6">
-                    <p style={{ fontSize: '20px', fontWeight: 700, color: '#1f2937', lineHeight: 1.25 }}>
+                  <div style={{ marginTop: '12px', textAlign: 'center', padding: '0 24px' }}>
+                    <p style={{ fontSize: '20px', fontWeight: 700, color: '#1f2937', lineHeight: 1.25, margin: 0 }}>
                       {guestName || 'Nombre del huésped'}
                     </p>
                   </div>
 
                   {/* Discount Badge */}
-                  <div style={{ marginTop: '16px', background: 'linear-gradient(to right, #f43f5e, #f59e0b)', borderRadius: '9999px', padding: '8px 24px' }}>
-                    <p style={{ color: 'white', textAlign: 'center', margin: 0 }}>
-                      <span style={{ fontSize: '24px', fontWeight: 900 }}>{discount}%</span>
-                      <span style={{ fontSize: '12px', marginLeft: '4px', opacity: 0.9 }}>OFF</span>
-                    </p>
+                  <div style={{ marginTop: '16px', background: 'linear-gradient(to right, #f43f5e, #f59e0b)', borderRadius: '9999px', padding: '8px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: '24px', fontWeight: 900, color: 'white', lineHeight: 1 }}>{discount}%</span>
+                    <span style={{ fontSize: '12px', marginLeft: '4px', color: 'white', opacity: 0.9, lineHeight: 1 }}>OFF</span>
                   </div>
 
                   {/* Code */}
-                  <div style={{ marginTop: '12px' }}>
-                    <p style={{ fontSize: '12px', color: '#9ca3af' }}>Código exclusivo</p>
-                    <p style={{ fontFamily: 'monospace', fontWeight: 700, color: '#374151', fontSize: '14px', letterSpacing: '0.05em' }}>
+                  <div style={{ marginTop: '12px', textAlign: 'center' }}>
+                    <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>Código exclusivo</p>
+                    <p style={{ fontFamily: 'monospace', fontWeight: 700, color: '#374151', fontSize: '14px', letterSpacing: '0.05em', margin: '4px 0 0 0' }}>
                       {generateCode()}
                     </p>
                   </div>

@@ -13,7 +13,7 @@ function getResend(): Resend {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, hostName, propertyName, guestName, discount, code, imageData, downloadOnly } = body
+    const { email, hostName, propertyName, guestName, discount, code, fileData, format = 'png' } = body
 
     if (!email || !guestName) {
       return NextResponse.json(
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
             guestName,
             discount,
             code,
-            downloadOnly: downloadOnly || false
+            format
           }
         }
       })
@@ -83,23 +83,25 @@ export async function POST(request: NextRequest) {
       console.error('Error creating subscriber:', subscriberError)
     }
 
-    // If downloadOnly, just return success without sending email
-    if (downloadOnly) {
-      return NextResponse.json({
-        success: true,
-        message: 'Lead registrado correctamente'
-      })
+    // Prepare attachment based on format
+    const attachments: { filename: string; content: string }[] = []
+    const fileSlug = guestName.toLowerCase().replace(/\s+/g, '-')
+
+    if (fileData) {
+      if (format === 'pdf' && fileData.startsWith('data:application/pdf;base64,')) {
+        attachments.push({
+          filename: `superguest-${fileSlug}.pdf`,
+          content: fileData.replace('data:application/pdf;base64,', '')
+        })
+      } else if (fileData.startsWith('data:image/png;base64,')) {
+        attachments.push({
+          filename: `superguest-${fileSlug}.png`,
+          content: fileData.replace('data:image/png;base64,', '')
+        })
+      }
     }
 
-    // Prepare image attachment if provided
-    const attachments = []
-    if (imageData && imageData.startsWith('data:image/png;base64,')) {
-      const base64Data = imageData.replace('data:image/png;base64,', '')
-      attachments.push({
-        filename: `superguest-${guestName.toLowerCase().replace(/\s+/g, '-')}.png`,
-        content: base64Data
-      })
-    }
+    const formatText = format === 'pdf' ? 'PDF' : 'PNG'
 
     // Send email with the badge
     const emailResult = await getResend().emails.send({
@@ -150,7 +152,7 @@ export async function POST(request: NextRequest) {
               <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 20px;">
                 <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: #166534;">📎 Archivo adjunto</p>
                 <p style="margin: 0; font-size: 13px; color: #166534; line-height: 1.5;">
-                  Hemos adjuntado la insignia en formato PNG lista para enviar a tu huésped por WhatsApp, Airbnb o email.
+                  Hemos adjuntado la insignia en formato ${formatText} lista para enviar a tu huésped por WhatsApp, Airbnb o email.
                 </p>
               </div>
             </td>
