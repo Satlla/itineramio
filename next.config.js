@@ -14,7 +14,16 @@ const nextConfig = {
     esmExternals: true,
   },
   images: {
-    domains: ['k1f4x7ksxbn13s8z.public.blob.vercel-storage.com', 'images.unsplash.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
   },
   // Redirects for legacy/short URLs
   async redirects() {
