@@ -149,15 +149,75 @@ export function StructuredData() {
       {
         "@type": "ListItem",
         "position": 2,
-        "name": "Funcionalidades",
-        "item": "https://www.itineramio.com/funcionalidades"
+        "name": "Blog",
+        "item": "https://www.itineramio.com/blog"
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": "Precios",
-        "item": "https://www.itineramio.com/#pricing"
+        "item": "https://www.itineramio.com/pricing"
       }
+    ]
+  }
+
+  // LocalBusiness schema for local SEO (Spain/Europe)
+  const localBusinessSchema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": "https://www.itineramio.com/#localbusiness",
+    "name": "Itineramio",
+    "description": "Software de manuales digitales para apartamentos turísticos y gestión de alquiler vacacional en España y Europa.",
+    "url": "https://www.itineramio.com",
+    "logo": "https://www.itineramio.com/logo.png",
+    "image": "https://www.itineramio.com/og-image.jpg",
+    "email": "hola@itineramio.com",
+    "priceRange": "€€",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "ES",
+      "addressRegion": "Madrid",
+      "addressLocality": "Madrid"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "40.4168",
+      "longitude": "-3.7038"
+    },
+    "areaServed": [
+      {
+        "@type": "Country",
+        "name": "España"
+      },
+      {
+        "@type": "Country",
+        "name": "Portugal"
+      },
+      {
+        "@type": "Country",
+        "name": "México"
+      },
+      {
+        "@type": "Country",
+        "name": "Argentina"
+      }
+    ],
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      "opens": "09:00",
+      "closes": "18:00"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "127",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "sameAs": [
+      "https://www.linkedin.com/company/itineramio",
+      "https://twitter.com/itineramio"
     ]
   }
 
@@ -240,6 +300,12 @@ export function StructuredData() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
+      {/* LocalBusiness Schema (for local SEO) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
       />
 
       {/* FAQ Schema */}

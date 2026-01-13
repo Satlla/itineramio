@@ -354,78 +354,110 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         )}
 
-        {/* Custom Article Styles */}
+        {/* Custom Article Styles - Minimal Apple/Airbnb inspired */}
         <style dangerouslySetInnerHTML={{ __html: `
           /* Lead paragraph */
-          .article-lead { font-size: 1.25rem; line-height: 1.8; color: #374151; margin-bottom: 2rem; }
+          .article-lead { font-size: 1.25rem; line-height: 1.9; color: #484848; margin-bottom: 2.5rem; }
 
-          /* Section titles */
-          .section-title { font-size: 1.875rem; font-weight: 700; color: #111827; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #e5e7eb; }
-          .subsection-title { font-size: 1.5rem; font-weight: 600; color: #1f2937; margin-top: 2rem; margin-bottom: 1rem; }
+          /* Section titles - clean, no borders */
+          .section-title { font-size: 1.75rem; font-weight: 600; color: #222; margin-top: 3.5rem; margin-bottom: 1.25rem; letter-spacing: -0.02em; }
+          .subsection-title { font-size: 1.25rem; font-weight: 600; color: #222; margin-top: 2.5rem; margin-bottom: 1rem; }
 
-          /* Key points box */
-          .key-points { background: linear-gradient(to bottom right, #f5f3ff, #ede9fe); border-radius: 0.75rem; padding: 1.5rem; margin: 2rem 0; }
-          .key-points h3 { font-size: 1.125rem; font-weight: 700; color: #5b21b6; margin-bottom: 1rem; }
+          /* Key points - minimal */
+          .key-points { border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 1.5rem 0; margin: 2.5rem 0; }
+          .key-points h3 { font-size: 0.875rem; font-weight: 600; color: #717171; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
           .key-points ul { margin: 0; padding-left: 1.25rem; }
-          .key-points li { color: #4c1d95; margin-bottom: 0.5rem; }
+          .key-points li { color: #484848; margin-bottom: 0.5rem; line-height: 1.6; }
 
-          /* Tip box */
-          .tip-box { background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 0 0.5rem 0.5rem 0; padding: 1rem 1.5rem; margin: 1.5rem 0; }
-          .tip-box-title { font-weight: 700; color: #047857; margin-bottom: 0.5rem; }
-          .tip-box p:last-child { margin-bottom: 0; color: #065f46; }
+          /* Tip/Info/Warning boxes - all unified, subtle */
+          .tip-box, .warning-box, .info-box, .danger-box, .highlight-box {
+            background: #f7f7f7;
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin: 2rem 0;
+            border: none;
+          }
+          .tip-box strong, .warning-box strong, .info-box strong, .danger-box strong, .highlight-box strong {
+            display: block;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 0.5rem;
+            font-size: 0.9375rem;
+          }
+          .tip-box p, .warning-box p, .info-box p, .danger-box p, .highlight-box p {
+            color: #484848;
+            margin: 0;
+            line-height: 1.6;
+            font-size: 0.9375rem;
+          }
 
-          /* Warning box */
-          .warning-box { background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 0 0.5rem 0.5rem 0; padding: 1rem 1.5rem; margin: 1.5rem 0; }
-          .warning-box-title { font-weight: 700; color: #b45309; margin-bottom: 0.5rem; }
-          .warning-box p:last-child { margin-bottom: 0; color: #92400e; }
+          /* Checklist - clean */
+          .checklist-box { margin: 2.5rem 0; }
+          .checklist-box h4 { font-size: 1.125rem; font-weight: 600; color: #222; margin-bottom: 1rem; }
+          .checklist-group { margin-bottom: 1.5rem; }
+          .checklist-group h5 { font-size: 0.8125rem; font-weight: 600; color: #717171; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+          .checklist-group ul { margin: 0; padding-left: 1.25rem; list-style-type: none; }
+          .checklist-group li { color: #484848; margin-bottom: 0.375rem; position: relative; padding-left: 1.5rem; }
+          .checklist-group li::before { content: "✓"; position: absolute; left: 0; color: #222; font-weight: 500; }
 
-          /* Info box */
-          .info-box { background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 0 0.5rem 0.5rem 0; padding: 1rem 1.5rem; margin: 1.5rem 0; }
-          .info-box-title { font-weight: 700; color: #1d4ed8; margin-bottom: 0.5rem; }
-          .info-box p:last-child { margin-bottom: 0; color: #1e40af; }
+          /* Check list with checkmarks */
+          .check-list { list-style: none; padding: 0; margin: 1.5rem 0; }
+          .check-list li { position: relative; padding-left: 1.75rem; margin-bottom: 0.75rem; color: #484848; line-height: 1.5; }
+          .check-list li::before { content: "✓"; position: absolute; left: 0; color: #222; font-weight: 600; }
 
-          /* Checklist box */
-          .checklist-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem; margin: 2rem 0; }
-          .checklist-box h4 { font-size: 1.125rem; font-weight: 700; color: #111827; margin-bottom: 1rem; }
-          .checklist-group { margin-bottom: 1rem; }
-          .checklist-group h5 { font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 0.5rem; }
-          .checklist-group ul { margin: 0; padding-left: 1.25rem; }
-          .checklist-group li { color: #374151; margin-bottom: 0.25rem; }
+          /* Cross list */
+          .cross-list { list-style: none; padding: 0; margin: 1.5rem 0; }
+          .cross-list li { position: relative; padding-left: 1.75rem; margin-bottom: 0.75rem; color: #484848; line-height: 1.5; }
+          .cross-list li::before { content: "✕"; position: absolute; left: 0; color: #717171; font-weight: 500; }
 
-          /* Steps box */
-          .steps-box { background: #fafafa; border-radius: 0.75rem; padding: 1.5rem; margin: 2rem 0; }
-          .steps-box h4 { font-size: 1.125rem; font-weight: 700; color: #111827; margin-bottom: 1.5rem; }
-          .step { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
-          .step-number { flex-shrink: 0; width: 2rem; height: 2rem; background: #7c3aed; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; }
-          .step-content h5 { font-weight: 600; color: #111827; margin-bottom: 0.25rem; }
-          .step-content p { color: #6b7280; margin: 0; font-size: 0.9375rem; }
+          /* Steps - minimal numbered */
+          .steps-box { margin: 2.5rem 0; }
+          .steps-box h4 { font-size: 1.125rem; font-weight: 600; color: #222; margin-bottom: 1.5rem; }
+          .step { display: flex; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid #ebebeb; }
+          .step:last-child { border-bottom: none; }
+          .step-number { flex-shrink: 0; width: 1.75rem; height: 1.75rem; background: #222; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8125rem; }
+          .step-content h5 { font-weight: 600; color: #222; margin-bottom: 0.25rem; font-size: 1rem; }
+          .step-content p { color: #717171; margin: 0; font-size: 0.9375rem; line-height: 1.5; }
 
-          /* Scripts box */
-          .scripts-box { background: #1f2937; border-radius: 0.75rem; padding: 1.5rem; margin: 2rem 0; }
-          .scripts-box h4 { color: #f3f4f6; font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
-          .script { background: #111827; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; }
-          .script:last-child { margin-bottom: 0; }
-          .script-label { font-size: 0.75rem; text-transform: uppercase; color: #9ca3af; margin-bottom: 0.5rem; font-weight: 600; }
-          .script p:last-child { color: #e5e7eb; white-space: pre-wrap; margin: 0; font-family: ui-monospace, monospace; font-size: 0.875rem; line-height: 1.6; }
+          /* Feature grid - clean cards */
+          .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+          .feature-card { padding: 1.5rem; border: 1px solid #ebebeb; border-radius: 12px; }
+          .feature-card h4 { font-size: 1rem; font-weight: 600; color: #222; margin-bottom: 0.5rem; }
+          .feature-card p { color: #717171; margin: 0; font-size: 0.9375rem; line-height: 1.5; }
 
-          /* Comparison grid */
+          /* Comparison grid - subtle */
           .comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
-          .comparison-card { background: #f9fafb; border-radius: 0.75rem; padding: 1.5rem; }
-          .comparison-card.good { background: #ecfdf5; border: 1px solid #10b981; }
-          .comparison-card.bad { background: #fef2f2; border: 1px solid #ef4444; }
-          .comparison-card h4 { font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; }
+          .comparison-card { border: 1px solid #ebebeb; border-radius: 12px; padding: 1.5rem; }
+          .comparison-card.good { border-color: #222; }
+          .comparison-card.bad { border-color: #ddd; background: #fafafa; }
+          .comparison-card h4 { font-size: 1rem; font-weight: 600; color: #222; margin-bottom: 1rem; }
           .comparison-card ul { margin: 0; padding-left: 1.25rem; }
-          .comparison-card li { margin-bottom: 0.5rem; }
+          .comparison-card li { margin-bottom: 0.5rem; color: #484848; font-size: 0.9375rem; }
 
-          /* Pull quote */
-          .pull-quote { font-size: 1.375rem; font-style: italic; color: #4b5563; border-left: 4px solid #7c3aed; padding-left: 1.5rem; margin: 2rem 0; line-height: 1.7; }
+          /* Pull quote - elegant */
+          .pull-quote { font-size: 1.5rem; font-weight: 300; color: #222; border-left: 2px solid #222; padding-left: 1.5rem; margin: 3rem 0; line-height: 1.6; letter-spacing: -0.01em; }
 
-          /* Styled table */
-          .styled-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9375rem; }
-          .styled-table thead { background: #f3f4f6; }
-          .styled-table th { padding: 0.75rem 1rem; text-align: left; font-weight: 600; color: #374151; border: 1px solid #e5e7eb; }
-          .styled-table td { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; color: #4b5563; }
-          .styled-table tbody tr:nth-child(even) { background: #f9fafb; }
+          /* CTA box - minimal */
+          .cta-box { text-align: center; padding: 2.5rem 2rem; margin: 3rem 0; border: 1px solid #ebebeb; border-radius: 12px; }
+          .cta-box h3 { font-size: 1.25rem; font-weight: 600; color: #222; margin-bottom: 0.75rem; }
+          .cta-box p { color: #717171; margin-bottom: 1.5rem; font-size: 0.9375rem; }
+          .cta-button { display: inline-block; background: #222; color: #fff; padding: 0.875rem 1.75rem; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9375rem; transition: background 0.2s; }
+          .cta-button:hover { background: #484848; }
+
+          /* Styled table - clean */
+          .styled-table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-size: 0.9375rem; }
+          .styled-table thead { border-bottom: 2px solid #222; }
+          .styled-table th { padding: 0.875rem 1rem; text-align: left; font-weight: 600; color: #222; }
+          .styled-table td { padding: 0.875rem 1rem; border-bottom: 1px solid #ebebeb; color: #484848; }
+          .styled-table tbody tr:last-child td { border-bottom: none; }
+
+          /* Scripts/code box */
+          .scripts-box { background: #1a1a1a; border-radius: 12px; padding: 1.5rem; margin: 2rem 0; }
+          .scripts-box h4 { color: #fff; font-size: 0.875rem; font-weight: 500; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+          .script { background: #0a0a0a; border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
+          .script:last-child { margin-bottom: 0; }
+          .script-label { font-size: 0.6875rem; text-transform: uppercase; color: #888; margin-bottom: 0.5rem; font-weight: 500; letter-spacing: 0.05em; }
+          .script p:last-child { color: #e5e5e5; white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.8125rem; line-height: 1.6; }
         `}} />
 
         {/* Article Content */}

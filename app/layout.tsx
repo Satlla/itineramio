@@ -37,30 +37,42 @@ const satisfy = Satisfy({
 })
 
 export const metadata: Metadata = {
-  title: 'Itineramio - Manual Digital para Apartamentos Turísticos | Sin Llamadas 24/7',
-  description: 'Crea manuales digitales interactivos para tus alojamientos turísticos. Ahorra tiempo cada semana. Códigos QR, zonas personalizadas y analytics. Prueba gratis 15 días. ¡Adiós a las llamadas a las 4 AM!',
+  title: 'Manual Digital Apartamentos Turísticos | Software Gestión Airbnb | Itineramio',
+  description: 'Crea manuales digitales para apartamentos turísticos en minutos. Software de gestión para Airbnb y alquiler vacacional: QR codes, check-in automático, comunicación con huéspedes. Prueba gratis 15 días.',
   keywords: [
     // Primary keywords (high volume, high intent)
     'manual digital apartamento turistico',
+    'manuales digitales apartamentos turisticos',
     'guia digital vivienda vacacional',
     'manual digital piso turistico',
     'manual bienvenida airbnb',
+    'software gestion apartamentos turisticos',
+    'gestion alquiler vacacional',
 
     // Problem-based keywords
     'como hacer manual apartamento turistico',
     'instrucciones apartamento turistico',
-    'manual huéspedes apartamento',
-    'automatizar gestión apartamento turistico',
+    'manual huespedes apartamento',
+    'automatizar gestion apartamento turistico',
+    'automatizar airbnb',
+    'reducir llamadas huespedes',
+
+    // Feature keywords
+    'codigo qr apartamento turistico',
+    'manual interactivo airbnb',
+    'check-in digital apartamento',
+    'comunicacion huespedes automatizada',
+    'PMS apartamentos turisticos',
+
+    // Superhost & Quality
+    'como ser superhost airbnb',
+    'conseguir resenas 5 estrellas',
+    'mejorar experiencia huesped',
 
     // Location-specific
     'manual apartamento turistico madrid',
     'guia digital vivienda turistica barcelona',
-    'vut madrid manual digital',
-
-    // Feature keywords
-    'código qr apartamento turistico',
-    'manual interactivo airbnb',
-    'software gestión apartamentos turisticos',
+    'normativa vivienda turistica espana',
   ],
   authors: [{ name: 'Itineramio' }],
   creator: 'Itineramio',
