@@ -369,14 +369,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           .key-points ul { margin: 0; padding-left: 1.25rem; }
           .key-points li { color: #484848; margin-bottom: 0.5rem; line-height: 1.6; }
 
-          /* Tip/Info/Warning boxes - Dynamic with icons and colors */
+          /* Tip/Info/Warning boxes - Brand colors, no borders */
           .tip-box, .info-box, .highlight-box {
-            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
             border-radius: 16px;
             padding: 1.5rem 1.75rem;
             margin: 2rem 0;
-            border-left: 5px solid #10b981;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.12);
           }
           .tip-box::before, .info-box::before, .highlight-box::before {
             content: '💡';
@@ -389,8 +388,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             border-radius: 16px;
             padding: 1.5rem 1.75rem;
             margin: 2rem 0;
-            border-left: 5px solid #f59e0b;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.12);
           }
           .warning-box::before {
             content: '⚠️';
@@ -403,8 +401,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             border-radius: 16px;
             padding: 1.5rem 1.75rem;
             margin: 2rem 0;
-            border-left: 5px solid #ef4444;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.15);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.12);
           }
           .danger-box::before {
             content: '🚨';
@@ -415,7 +412,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           .tip-box strong, .warning-box strong, .info-box strong, .danger-box strong, .highlight-box strong {
             display: block;
             font-weight: 700;
-            color: #1e293b;
+            color: #1f2937;
             margin-bottom: 0.5rem;
             font-size: 1.125rem;
           }
@@ -454,21 +451,20 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           .step-content h5 { font-weight: 600; color: #222; margin-bottom: 0.25rem; font-size: 1rem; }
           .step-content p { color: #717171; margin: 0; font-size: 0.9375rem; line-height: 1.5; }
 
-          /* Feature grid - Dynamic cards with colors */
+          /* Feature grid - Brand colors, no border */
           .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2.5rem 0; }
           .feature-card {
             padding: 1.75rem;
-            background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+            background: linear-gradient(135deg, #f0f0ff 0%, #e6e6ff 100%);
             border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.15);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.12);
             transition: transform 0.3s, box-shadow 0.3s;
-            border-left: 4px solid #14b8a6;
           }
-          .feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(20, 184, 166, 0.25); }
-          .feature-card h4 { font-size: 1.125rem; font-weight: 700; color: #0f766e; margin-bottom: 0.75rem; }
-          .feature-card p { color: #115e59; margin: 0; font-size: 1rem; line-height: 1.6; }
+          .feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2); }
+          .feature-card h4 { font-size: 1.125rem; font-weight: 700; color: #4338ca; margin-bottom: 0.75rem; }
+          .feature-card p { color: #374151; margin: 0; font-size: 1rem; line-height: 1.6; }
 
-          /* Comparison grid - Dynamic good vs bad */
+          /* Comparison grid - No borders */
           .comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2.5rem 0; }
           .comparison-card {
             border-radius: 20px;
@@ -477,23 +473,21 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           }
           .comparison-card:hover { transform: translateY(-2px); }
           .comparison-card.good {
-            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-            border: 2px solid #10b981;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
           }
           .comparison-card.good::before { content: '✅ '; }
           .comparison-card.bad {
-            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
-            border: 2px solid #ef4444;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.15);
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.12);
           }
           .comparison-card.bad::before { content: '❌ '; }
-          .comparison-card h4 { font-size: 1.125rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; display: inline; }
+          .comparison-card h4 { font-size: 1.125rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem; display: inline; }
           .comparison-card ul { margin: 1rem 0 0 0; padding-left: 1.5rem; }
           .comparison-card li { margin-bottom: 0.625rem; color: #374151; font-size: 1rem; line-height: 1.5; }
 
-          /* Pull quote - elegant with accent */
-          .pull-quote { font-size: 1.625rem; font-weight: 500; color: #1e293b; border-left: 4px solid #3b82f6; padding-left: 1.75rem; margin: 3rem 0; line-height: 1.5; letter-spacing: -0.02em; font-style: italic; }
+          /* Pull quote - brand color accent */
+          .pull-quote { font-size: 1.5rem; font-weight: 500; color: #1f2937; background: linear-gradient(135deg, #f0f0ff 0%, #e6e6ff 100%); padding: 1.5rem 2rem; border-radius: 16px; margin: 2.5rem 0; line-height: 1.6; font-style: italic; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.1); }
 
           /* Hero banner - for impactful statements */
           .hero-box, .impact-box, .attention-box {
@@ -516,16 +510,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             font-weight: 700;
           }
 
-          /* Hook box - dynamic and attention-grabbing */
+          /* Hook box - brand colors */
           .hook-box-subtle {
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            background: linear-gradient(135deg, #312e81 0%, #4338ca 100%);
             border-radius: 20px;
             padding: 2.5rem 2rem;
             margin: 2.5rem 0;
             text-align: center;
-            box-shadow: 0 8px 30px rgba(49, 46, 129, 0.3);
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.25);
           }
           .hook-box-subtle::before {
             content: '🎯';
@@ -544,27 +536,24 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             font-weight: 700;
           }
           .hook-box-subtle .hook-punchline {
-            color: #f87171 !important;
+            color: #fbbf24 !important;
             font-size: 1.75rem;
             font-weight: 800;
             margin-top: 1rem !important;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
           }
 
-          /* TOC box - dynamic with gradient */
+          /* TOC box - brand colors */
           .toc-box {
-            background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+            background: linear-gradient(135deg, #f0f0ff 0%, #e6e6ff 100%);
             border-radius: 20px;
             padding: 2rem 2.5rem;
             margin: 2.5rem 0;
-            border: none;
-            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.12);
           }
           .toc-box h4 {
             font-size: 1.25rem;
             font-weight: 700;
-            color: #5b21b6;
+            color: #4338ca;
             margin: 0 0 1.5rem 0;
           }
           .toc-box ul {
@@ -577,13 +566,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           }
           .toc-box li {
             padding: 0.625rem 0;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.15);
           }
           .toc-box li:last-child {
             border-bottom: none;
           }
           .toc-box a {
-            color: #6d28d9 !important;
+            color: #4338ca !important;
             text-decoration: none;
             font-size: 1rem;
             font-weight: 500;
@@ -591,7 +580,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             display: block;
           }
           .toc-box a:hover {
-            color: #4c1d95 !important;
+            color: #312e81 !important;
             transform: translateX(4px);
           }
 
@@ -647,16 +636,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             padding-left: 2rem;
           }
 
-          /* CTA box - Dynamic gradient with icon */
+          /* CTA box - Brand gradient */
           .cta-box {
             text-align: center;
             padding: 3rem 2.5rem;
             margin: 3rem 0;
-            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%) !important;
+            background: linear-gradient(135deg, #4338ca 0%, #6366f1 50%, #818cf8 100%) !important;
             border-radius: 24px;
-            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.35);
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
           }
           .cta-box::before {
             content: '⭐';
@@ -669,16 +656,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           .cta-button {
             display: inline-block;
             background: #fff;
-            color: #7c3aed !important;
+            color: #4338ca !important;
             padding: 1rem 2.5rem;
             border-radius: 50px;
             text-decoration: none;
             font-weight: 700;
             font-size: 1.125rem;
             transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
           }
-          .cta-button:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+          .cta-button:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
 
           /* Styled table - clean */
           .styled-table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-size: 0.9375rem; }
