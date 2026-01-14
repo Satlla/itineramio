@@ -118,9 +118,9 @@ export default function PropertyPlanSelectorV3({
   // Proration credit (usar creditAmount del API)
   const prorationCredit = prorationData?.creditAmount || 0
 
-  // Final price (si hay prorrateo, usar directamente finalPrice del API que ya tiene todo calculado)
+  // Final price (aplicar cupón sobre el precio con prorrateo si existe)
   const finalPrice = prorationData?.hasProration
-    ? prorationData.finalPrice
+    ? Math.max(0, prorationData.finalPrice - couponDiscount)
     : Math.max(0, priceAfterCoupon - prorationCredit)
 
   // Calculate without IVA
