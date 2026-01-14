@@ -369,19 +369,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           .key-points ul { margin: 0; padding-left: 1.25rem; }
           .key-points li { color: #484848; margin-bottom: 0.5rem; line-height: 1.6; }
 
-          /* Tip/Info/Warning boxes - Brand colors, no borders */
+          /* Tip/Info/Warning boxes - Brand colors, no borders, no auto icons */
           .tip-box, .info-box, .highlight-box {
             background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
             border-radius: 16px;
             padding: 1.5rem 1.75rem;
             margin: 2rem 0;
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.12);
-          }
-          .tip-box::before, .info-box::before, .highlight-box::before {
-            content: '💡';
-            font-size: 1.5rem;
-            display: block;
-            margin-bottom: 0.5rem;
           }
           .warning-box {
             background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
@@ -390,24 +384,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             margin: 2rem 0;
             box-shadow: 0 4px 15px rgba(245, 158, 11, 0.12);
           }
-          .warning-box::before {
-            content: '⚠️';
-            font-size: 1.5rem;
-            display: block;
-            margin-bottom: 0.5rem;
-          }
           .danger-box {
             background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
             border-radius: 16px;
             padding: 1.5rem 1.75rem;
             margin: 2rem 0;
             box-shadow: 0 4px 15px rgba(239, 68, 68, 0.12);
-          }
-          .danger-box::before {
-            content: '🚨';
-            font-size: 1.5rem;
-            display: block;
-            margin-bottom: 0.5rem;
           }
           .tip-box strong, .warning-box strong, .info-box strong, .danger-box strong, .highlight-box strong {
             display: block;
@@ -476,12 +458,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
           }
-          .comparison-card.good::before { content: '✅ '; }
           .comparison-card.bad {
             background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
             box-shadow: 0 4px 15px rgba(239, 68, 68, 0.12);
           }
-          .comparison-card.bad::before { content: '❌ '; }
           .comparison-card h4 { font-size: 1.125rem; font-weight: 700; color: #1f2937; margin-bottom: 1rem; display: inline; }
           .comparison-card ul { margin: 1rem 0 0 0; padding-left: 1.5rem; }
           .comparison-card li { margin-bottom: 0.625rem; color: #374151; font-size: 1rem; line-height: 1.5; }
@@ -518,12 +498,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             margin: 2.5rem 0;
             text-align: center;
             box-shadow: 0 8px 30px rgba(99, 102, 241, 0.25);
-          }
-          .hook-box-subtle::before {
-            content: '🎯';
-            font-size: 2.5rem;
-            display: block;
-            margin-bottom: 1rem;
           }
           .hook-box-subtle p {
             color: #e0e7ff !important;
@@ -644,12 +618,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             background: linear-gradient(135deg, #4338ca 0%, #6366f1 50%, #818cf8 100%) !important;
             border-radius: 24px;
             box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
-          }
-          .cta-box::before {
-            content: '⭐';
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 1rem;
           }
           .cta-box h3 { font-size: 1.75rem; font-weight: 800; color: #fff !important; margin-bottom: 1rem; }
           .cta-box p { color: rgba(255,255,255,0.9) !important; margin-bottom: 2rem; font-size: 1.125rem; line-height: 1.6; }
