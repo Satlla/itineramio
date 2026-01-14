@@ -438,7 +438,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           .pull-quote { font-size: 1.5rem; font-weight: 300; color: #222; border-left: 2px solid #222; padding-left: 1.5rem; margin: 3rem 0; line-height: 1.6; letter-spacing: -0.01em; }
 
           /* CTA box - minimal */
-          .cta-box { text-align: center; padding: 2.5rem 2rem; margin: 3rem 0; border: 1px solid #ebebeb; border-radius: 12px; }
+          .cta-box { text-align: center; padding: 2.5rem 2rem; margin: 3rem 0; background: #f7f7f7; border-radius: 12px; }
           .cta-box h3 { font-size: 1.25rem; font-weight: 600; color: #222; margin-bottom: 0.75rem; }
           .cta-box p { color: #717171; margin-bottom: 1.5rem; font-size: 0.9375rem; }
           .cta-button { display: inline-block; background: #222; color: #fff; padding: 0.875rem 1.75rem; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9375rem; transition: background 0.2s; }

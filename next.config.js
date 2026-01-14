@@ -25,9 +25,10 @@ const nextConfig = {
       },
     ],
   },
-  // Redirects for legacy/short URLs
+  // Redirects for legacy/short URLs and 404 fixes
   async redirects() {
     return [
+      // Legacy tool URLs
       {
         source: '/tools/:path*',
         destination: '/hub/tools/:path*',
@@ -36,6 +37,49 @@ const nextConfig = {
       {
         source: '/terms',
         destination: '/blog/manual-digital-apartamento-turistico-guia-completa',
+        permanent: true,
+      },
+      // 404 fixes - pages that Google found but don't exist
+      {
+        source: '/cookies',
+        destination: '/legal/privacy',
+        permanent: true,
+      },
+      {
+        source: '/estandares',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/%24', // encoded "$" character
+        destination: '/',
+        permanent: true,
+      },
+      // Old blog posts - redirect to blog or related content
+      {
+        source: '/blog/normativa-vut-2025-cambios-legales',
+        destination: '/blog',
+        permanent: true,
+      },
+      {
+        source: '/blog/como-optimizar-precio-apartamento-turistico-2025',
+        destination: '/blog',
+        permanent: true,
+      },
+      {
+        source: '/blog/manual-digital-apartamentos-guia-definitiva',
+        destination: '/blog/manual-digital-apartamento-turistico-guia-completa',
+        permanent: true,
+      },
+      {
+        source: '/blog/manual-digital-apartamento-turistico-plantilla-completa-2025',
+        destination: '/blog/manual-digital-apartamento-turistico-guia-completa',
+        permanent: true,
+      },
+      // Old URL structure (apartments was renamed to properties/z)
+      {
+        source: '/apartments/:path*',
+        destination: '/',
         permanent: true,
       },
     ]
