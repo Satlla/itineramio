@@ -369,25 +369,42 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           .key-points ul { margin: 0; padding-left: 1.25rem; }
           .key-points li { color: #484848; margin-bottom: 0.5rem; line-height: 1.6; }
 
-          /* Tip/Info/Warning boxes - all unified, subtle */
-          .tip-box, .warning-box, .info-box, .danger-box, .highlight-box {
-            background: #f7f7f7;
-            border-radius: 12px;
-            padding: 1.25rem 1.5rem;
+          /* Tip/Info/Warning boxes - Apple style with subtle differentiation */
+          .tip-box, .info-box, .highlight-box {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+            padding: 1.5rem 1.75rem;
             margin: 2rem 0;
-            border: none;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+          }
+          .warning-box {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-radius: 16px;
+            padding: 1.5rem 1.75rem;
+            margin: 2rem 0;
+            border-left: 4px solid #f59e0b;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+          }
+          .danger-box {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-radius: 16px;
+            padding: 1.5rem 1.75rem;
+            margin: 2rem 0;
+            border-left: 4px solid #ef4444;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
           }
           .tip-box strong, .warning-box strong, .info-box strong, .danger-box strong, .highlight-box strong {
             display: block;
             font-weight: 600;
-            color: #222;
+            color: #1e293b;
             margin-bottom: 0.5rem;
-            font-size: 0.9375rem;
+            font-size: 1rem;
           }
           .tip-box p, .warning-box p, .info-box p, .danger-box p, .highlight-box p {
-            color: #484848;
+            color: #475569;
             margin: 0;
-            line-height: 1.6;
+            line-height: 1.7;
             font-size: 0.9375rem;
           }
 
@@ -419,11 +436,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           .step-content h5 { font-weight: 600; color: #222; margin-bottom: 0.25rem; font-size: 1rem; }
           .step-content p { color: #717171; margin: 0; font-size: 0.9375rem; line-height: 1.5; }
 
-          /* Feature grid - clean cards */
-          .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
-          .feature-card { padding: 1.5rem; border: 1px solid #ebebeb; border-radius: 12px; }
-          .feature-card h4 { font-size: 1rem; font-weight: 600; color: #222; margin-bottom: 0.5rem; }
-          .feature-card p { color: #717171; margin: 0; font-size: 0.9375rem; line-height: 1.5; }
+          /* Feature grid - Airbnb style cards with shadow */
+          .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; margin: 2.5rem 0; }
+          .feature-card { padding: 1.5rem; background: #fff; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04); transition: transform 0.2s, box-shadow 0.2s; }
+          .feature-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.06); }
+          .feature-card h4 { font-size: 1rem; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; }
+          .feature-card p { color: #64748b; margin: 0; font-size: 0.9375rem; line-height: 1.6; }
 
           /* Comparison grid - subtle */
           .comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
@@ -434,15 +452,108 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           .comparison-card ul { margin: 0; padding-left: 1.25rem; }
           .comparison-card li { margin-bottom: 0.5rem; color: #484848; font-size: 0.9375rem; }
 
-          /* Pull quote - elegant */
-          .pull-quote { font-size: 1.5rem; font-weight: 300; color: #222; border-left: 2px solid #222; padding-left: 1.5rem; margin: 3rem 0; line-height: 1.6; letter-spacing: -0.01em; }
+          /* Pull quote - elegant with accent */
+          .pull-quote { font-size: 1.625rem; font-weight: 500; color: #1e293b; border-left: 4px solid #3b82f6; padding-left: 1.75rem; margin: 3rem 0; line-height: 1.5; letter-spacing: -0.02em; font-style: italic; }
 
-          /* CTA box - minimal */
-          .cta-box { text-align: center; padding: 2.5rem 2rem; margin: 3rem 0; background: #f0f0f0 !important; border: 1px solid #ddd !important; border-radius: 12px; }
-          .cta-box h3 { font-size: 1.25rem; font-weight: 600; color: #222 !important; margin-bottom: 0.75rem; }
-          .cta-box p { color: #444 !important; margin-bottom: 1.5rem; font-size: 0.9375rem; }
-          .cta-button { display: inline-block; background: #222; color: #fff; padding: 0.875rem 1.75rem; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9375rem; transition: background 0.2s; }
-          .cta-button:hover { background: #484848; }
+          /* Hero banner - for impactful statements */
+          .hero-box, .impact-box, .attention-box, .hook-box {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            margin: 3rem 0;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+            position: relative;
+            overflow: hidden;
+          }
+          .hero-box::before, .impact-box::before, .attention-box::before, .hook-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #f59e0b 0%, #ef4444 50%, #f59e0b 100%);
+          }
+          .hero-box p, .impact-box p, .attention-box p, .hook-box p {
+            color: #fff !important;
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.5;
+            margin: 0;
+            position: relative;
+          }
+          .hero-box p strong, .impact-box p strong, .attention-box p strong, .hook-box p strong {
+            color: #fbbf24 !important;
+            font-weight: 700;
+          }
+          .hook-box .hook-punchline {
+            color: #ef4444 !important;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-top: 1rem !important;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+          }
+
+          /* Stats highlight */
+          .stat-box, .number-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            border: 1px solid #bae6fd;
+          }
+          .stat-box .number, .number-box strong:first-child {
+            display: block;
+            font-size: 3rem;
+            font-weight: 800;
+            color: #0369a1;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+          }
+          .stat-box p, .number-box p {
+            color: #0c4a6e;
+            font-size: 1rem;
+            margin: 0;
+          }
+
+          /* Quote card - testimonial style */
+          .quote-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid #10b981;
+            position: relative;
+          }
+          .quote-card::before {
+            content: '"';
+            position: absolute;
+            top: 1rem;
+            left: 1.5rem;
+            font-size: 4rem;
+            color: #d1fae5;
+            font-family: Georgia, serif;
+            line-height: 1;
+          }
+          .quote-card p {
+            color: #374151;
+            font-size: 1.125rem;
+            font-style: italic;
+            line-height: 1.6;
+            margin: 0;
+            padding-left: 2rem;
+          }
+
+          /* CTA box - Airbnb style prominent */
+          .cta-box { text-align: center; padding: 3rem 2.5rem; margin: 3rem 0; background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+          .cta-box h3 { font-size: 1.5rem; font-weight: 700; color: #fff !important; margin-bottom: 0.75rem; }
+          .cta-box p { color: rgba(255,255,255,0.85) !important; margin-bottom: 1.75rem; font-size: 1rem; line-height: 1.6; }
+          .cta-button { display: inline-block; background: #fff; color: #1e293b !important; padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+          .cta-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
           /* Styled table - clean */
           .styled-table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-size: 0.9375rem; }
