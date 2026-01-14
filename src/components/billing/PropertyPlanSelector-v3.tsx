@@ -35,7 +35,7 @@ interface PropertyPlanSelectorProps {
     nextPaymentDate?: string
     maxProperties?: number
   } | null
-  onPlanSelect: (plan: any, billingPeriod: string, propertyCount: number, prorationData?: any) => void
+  onPlanSelect: (plan: any, billingPeriod: string, propertyCount: number, prorationData?: any, couponData?: any) => void
   loading?: boolean
 }
 
@@ -219,7 +219,15 @@ export default function PropertyPlanSelectorV3({
   }
 
   const handleSelectPlan = () => {
-    onPlanSelect(requiredPlan, billingPeriod, propertyCount, prorationData)
+    // Pass coupon data if applied
+    const couponData = appliedCoupon ? {
+      code: appliedCoupon.code,
+      discountType: appliedCoupon.discountType,
+      discountValue: appliedCoupon.discountValue,
+      discountAmount: couponDiscount
+    } : null
+
+    onPlanSelect(requiredPlan, billingPeriod, propertyCount, prorationData, couponData)
   }
 
   // Get plan expiry date

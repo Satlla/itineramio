@@ -173,17 +173,17 @@ export default function PlansPage() {
 
     // If there's a pending plan, process it automatically
     if (pendingPlanData) {
-      const { plan, billingPeriod, propertyCount, prorationData } = pendingPlanData
+      const { plan, billingPeriod, propertyCount, prorationData, couponData } = pendingPlanData
 
       // Clear pending data
       setPendingPlanData(null)
 
       // Process the plan selection
-      await handlePlanSelection(plan, billingPeriod, propertyCount, prorationData)
+      await handlePlanSelection(plan, billingPeriod, propertyCount, prorationData, couponData)
     }
   }
 
-  const handlePlanSelection = async (plan: any, billingPeriod: string, propertyCount: number, prorationData?: any) => {
+  const handlePlanSelection = async (plan: any, billingPeriod: string, propertyCount: number, prorationData?: any, couponData?: any) => {
     setLoading(true)
 
     try {
@@ -207,7 +207,8 @@ export default function PlansPage() {
           plan,
           billingPeriod,
           propertyCount,
-          prorationData
+          prorationData,
+          couponData
         }
         setPendingPlanData(tempPlanData)
 
@@ -293,7 +294,12 @@ export default function PlansPage() {
         hasProration: !!prorationData,
         proratedAmount: prorationData?.finalPrice || null,
         daysRemaining: prorationData?.currentPlan?.daysRemaining || null,
-        creditAmount: prorationData?.creditAmount || null
+        creditAmount: prorationData?.creditAmount || null,
+        // Coupon data
+        couponCode: couponData?.code || null,
+        couponDiscountType: couponData?.discountType || null,
+        couponDiscountValue: couponData?.discountValue || null,
+        couponDiscountAmount: couponData?.discountAmount || null
       }
 
       // Open payment method modal

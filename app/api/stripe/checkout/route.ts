@@ -57,7 +57,10 @@ export async function POST(request: NextRequest) {
       // Proration data
       hasProration,
       proratedAmount,
-      originalPrice
+      originalPrice,
+      // Coupon data
+      couponCode,
+      couponDiscountAmount
     } = body
 
     // Validate plan
@@ -87,7 +90,9 @@ export async function POST(request: NextRequest) {
       hasProration,
       proratedAmount,
       priceToCharge,
-      priceInCents: Math.round(priceToCharge * 100)
+      priceInCents: Math.round(priceToCharge * 100),
+      couponCode: couponCode || null,
+      couponDiscountAmount: couponDiscountAmount || 0
     })
 
     // Calculate interval for Stripe
@@ -136,7 +141,10 @@ export async function POST(request: NextRequest) {
         billingPeriod: period,
         fullPriceEur: fullPrice.toString(),
         chargedPriceEur: priceToCharge.toString(),
-        hasProration: hasProration ? 'true' : 'false'
+        hasProration: hasProration ? 'true' : 'false',
+        // Coupon tracking
+        couponCode: couponCode || '',
+        couponDiscountAmount: couponDiscountAmount ? couponDiscountAmount.toString() : '0'
       },
       success_url: successUrl || `${request.headers.get('origin')}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancelUrl || `${request.headers.get('origin')}/account/plans?cancelled=true`,

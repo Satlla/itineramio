@@ -25,6 +25,11 @@ interface PaymentMethodModalProps {
     features: string[]
     maxProperties: number
     monthlyPrice: number
+    // Coupon data
+    couponCode?: string | null
+    couponDiscountType?: string | null
+    couponDiscountValue?: number | null
+    couponDiscountAmount?: number | null
   }
 }
 
@@ -160,7 +165,10 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
               // Send proration data if exists
               hasProration: planDetails.hasProration,
               proratedAmount: planDetails.proratedAmount,
-              originalPrice: planDetails.price
+              originalPrice: planDetails.price,
+              // Send coupon data if exists
+              couponCode: planDetails.couponCode,
+              couponDiscountAmount: planDetails.couponDiscountAmount
             })
           })
 

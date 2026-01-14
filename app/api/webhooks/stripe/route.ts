@@ -111,11 +111,21 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
   const userId = session.metadata?.userId
   const planCode = session.metadata?.planCode
   const billingPeriod = session.metadata?.billingPeriod
+  const couponCode = session.metadata?.couponCode
+  const couponDiscountAmount = session.metadata?.couponDiscountAmount
 
   if (!userId || !planCode) {
     console.error('Missing metadata in checkout session')
     return
   }
+
+  console.log('📦 Checkout metadata:', {
+    userId,
+    planCode,
+    billingPeriod,
+    couponCode: couponCode || 'none',
+    couponDiscountAmount: couponDiscountAmount || '0'
+  })
 
   // Get subscription details from Stripe
   const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
@@ -168,6 +178,45 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
   })
 
   console.log(`✅ Subscription created: ${userSubscription.id} for user ${userId}`)
+
+  // Record coupon usage if a coupon was applied
+  if (couponCode && couponCode.trim() !== '') {
+    try {
+      console.log(`🎟️ Recording coupon usage: ${couponCode}`)
+
+      // Find the coupon in our database
+      const coupon = await prisma.coupon.findUnique({
+        where: { code: couponCode.toUpperCase() }
+      })
+
+      if (coupon) {
+        // Create coupon use record
+        await prisma.couponUse.create({
+          data: {
+            couponId: coupon.id,
+            userId: userId,
+            orderId: session.id, // Use checkout session ID as reference
+            discountApplied: couponDiscountAmount ? parseFloat(couponDiscountAmount) : 0,
+            originalAmount: session.amount_total ? session.amount_total / 100 : 0,
+            finalAmount: session.amount_total ? session.amount_total / 100 : 0
+          }
+        })
+
+        // Update coupon usage count
+        await prisma.coupon.update({
+          where: { id: coupon.id },
+          data: { usedCount: { increment: 1 } }
+        })
+
+        console.log(`✅ Coupon usage recorded: ${couponCode} for user ${userId}`)
+      } else {
+        console.log(`⚠️ Coupon not found in database: ${couponCode}`)
+      }
+    } catch (couponError) {
+      console.error('Error recording coupon usage:', couponError)
+      // Don't fail the whole checkout if coupon recording fails
+    }
+  }
 }
 
 /**
