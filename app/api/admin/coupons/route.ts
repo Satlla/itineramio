@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       validUntil,
       minAmount,
       minDuration,
-      applicableToPlans = ['STANDARD'],
+      applicableToPlans = ['BASIC', 'HOST', 'SUPERHOST', 'BUSINESS'],
       isPublic = false,
       campaignSource
     } = await request.json()
