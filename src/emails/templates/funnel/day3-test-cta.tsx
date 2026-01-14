@@ -30,7 +30,7 @@ export default function Day3TestCta({ name }: Day3TestCtaProps) {
             </p>
 
             <p style={{ margin: '0 0 20px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              Algunos somos mas analíticos, otros mas intuitivos. Algunos priorizamos la eficiencia, otros la experiencia del huésped.
+              Algunos somos más analíticos, otros más intuitivos. Algunos priorizamos la eficiencia, otros la experiencia del huésped.
             </p>
 
             <p style={{ margin: '0 0 24px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>

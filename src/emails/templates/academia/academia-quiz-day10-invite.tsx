@@ -30,7 +30,7 @@ export default function AcademiaQuizDay10Invite({ name, email }: Props) {
 
             <ul style={{ margin: '0 0 24px 0', paddingLeft: '20px', color: '#374151', fontSize: '15px', lineHeight: 1.8 }}>
               <li>Tu perfil de anfitrion segun el quiz</li>
-              <li>El error mas comun y como evitarlo</li>
+              <li>El error más comun y como evitarlo</li>
               <li>Una mini-guia de 7 días</li>
               <li>Un caso de exito real</li>
             </ul>

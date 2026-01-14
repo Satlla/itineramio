@@ -15,7 +15,7 @@ export default function AcademiaQuizDay2Tip({ name, email, nivel }: Props) {
         <tr>
           <td style={{ textAlign: 'center', paddingBottom: '32px' }}>
             <p style={{ margin: '0 0 6px 0', color: '#999', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px' }}>Academia Itineramio</p>
-            <h1 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '24px', fontWeight: 600 }}>El error mas comun</h1>
+            <h1 style={{ margin: '0 0 12px 0', color: '#1a1a1a', fontSize: '24px', fontWeight: 600 }}>El error más comun</h1>
           </td>
         </tr>
 

@@ -2,7 +2,7 @@
   "title": "Configuracion de Cuenta",
   "profile": {
     "title": "Foto de Perfil",
-    "uploadHint": "Sube una foto de perfil. Maximo 5MB.",
+    "uploadHint": "Sube una foto de perfil. Máximo 5MB.",
     "altText": "Perfil"
   },
   "personalInfo": {
@@ -17,14 +17,14 @@
     "phonePlaceholder": "+34 600 000 000"
   },
   "password": {
-    "title": "Cambiar Contrasena",
-    "newPassword": "Nueva Contrasena",
+    "title": "Cambiar Contraseña",
+    "newPassword": "Nueva Contraseña",
     "newPasswordPlaceholder": "Minimo 8 caracteres",
-    "confirmPassword": "Confirmar Nueva Contrasena",
-    "confirmPasswordPlaceholder": "Repite la contrasena",
-    "changeButton": "Cambiar Contrasena",
-    "currentPassword": "Contrasena Actual",
-    "currentPasswordPlaceholder": "Tu contrasena actual"
+    "confirmPassword": "Confirmar Nueva Contraseña",
+    "confirmPasswordPlaceholder": "Repite la contraseña",
+    "changeButton": "Cambiar Contraseña",
+    "currentPassword": "Contraseña Actual",
+    "currentPasswordPlaceholder": "Tu contraseña actual"
   },
   "save": {
     "button": "Guardar Cambios",
@@ -33,15 +33,15 @@
   "notifications": {
     "title": "Notificaciones",
     "settingsTitle": "Configuracion de Notificaciones",
-    "settingsDescription": "Gestiona como y cuando quieres recibir notificaciones por email",
+    "settingsDescription": "Gestiona como y cuando quieres recibir notificaciónes por email",
     "configureButton": "Configurar"
   },
   "billing": {
-    "title": "Facturacion y Suscripcion",
-    "cardTitle": "Datos de Facturacion",
+    "title": "Facturación y Suscripcion",
+    "cardTitle": "Datos de Facturación",
     "cardDescription": "Gestiona tu plan, datos fiscales y programa de afiliados",
     "manageButton": "Gestionar",
-    "pageSubtitle": "Gestiona tus datos de facturacion e historial de pagos",
+    "pageSubtitle": "Gestiona tus datos de facturación e historial de pagos",
     "back": "Volver",
     "currentPlan": "Plan Actual",
     "noPlan": "Sin Plan",
@@ -49,10 +49,10 @@
     "active": "Activa",
     "inactive": "Inactiva",
     "tabs": {
-      "data": "Datos de Facturacion",
+      "data": "Datos de Facturación",
       "history": "Historial de Facturas"
     },
-    "checkoutInfo": "Completa tus datos de facturacion. Necesitamos esta informacion para emitir facturas legalmente validas. Despues continuaras con tu compra.",
+    "checkoutInfo": "Completa tus datos de facturación. Necesitamos esta información para emitir facturas legalmente válidas. Despues continuaras con tu compra.",
     "entityType": {
       "title": "Tipo de Entidad",
       "company": "Empresa",
@@ -73,7 +73,7 @@
       "nif": "NIF",
       "nifPlaceholder": "Ej: 12345678A",
       "businessActivity": "Actividad Empresarial",
-      "businessActivityPlaceholder": "Ej: Gestion de alojamientos turisticos",
+      "businessActivityPlaceholder": "Ej: Gestion de alojamientos turísticos",
       "firstName": "Nombre",
       "firstNamePlaceholder": "Ej: Juan",
       "lastName": "Apellidos",
@@ -89,16 +89,16 @@
       "phonePlaceholder": "+34 600 000 000"
     },
     "address": {
-      "title": "Direccion Fiscal",
-      "address": "Direccion",
-      "addressPlaceholder": "Calle, numero, piso, puerta",
+      "title": "Dirección Fiscal",
+      "address": "Dirección",
+      "addressPlaceholder": "Calle, número, piso, puerta",
       "city": "Ciudad",
       "cityPlaceholder": "Ej: Madrid",
-      "postalCode": "Codigo Postal",
+      "postalCode": "Código Postal",
       "postalCodePlaceholder": "Ej: 28001",
       "country": "Pais",
       "countries": {
-        "spain": "Espana",
+        "spain": "España",
         "portugal": "Portugal",
         "france": "Francia",
         "italy": "Italia",
@@ -108,20 +108,20 @@
       }
     },
     "infoNote": {
-      "title": "Sobre tus datos de facturacion",
-      "description": "Esta informacion se utilizara unicamente para emitir facturas validas segun la normativa fiscal espanola. Los pagos se realizan mediante transferencia bancaria o tarjeta de credito a traves de Stripe."
+      "title": "Sobre tus datos de facturación",
+      "description": "Esta información se utilizara únicamente para emitir facturas válidas según la normativa fiscal española. Los pagos se realizan mediante transferencia bancaria o tarjeta de crédito a traves de Stripe."
     },
     "buttons": {
       "cancel": "Cancelar",
-      "save": "Guardar Datos de Facturacion",
+      "save": "Guardar Datos de Facturación",
       "saving": "Guardando..."
     },
-    "success": "Informacion de facturacion guardada correctamente",
-    "error": "Error al guardar la informacion. Por favor, intentalo de nuevo."
+    "success": "Informacion de facturación guardada correctamente",
+    "error": "Error al guardar la información. Por favor, intentalo de nuevo."
   },
   "invoices": {
     "title": "Historial de Facturas",
-    "noInvoices": "No tienes facturas aun",
+    "noInvoices": "No tienes facturas aún.,
     "noInvoicesDescription": "Tus facturas apareceran aqui cuando realices pagos",
     "status": {
       "paid": "Pagada",
@@ -143,7 +143,7 @@
       "description": "DESCRIPCION",
       "amount": "IMPORTE",
       "subscription": "Suscripcion",
-      "billingPeriod": "Periodo de facturacion",
+      "billingPeriod": "Periodo de facturación",
       "discount": "Descuento",
       "total": "Total",
       "paid": "Pagado",
@@ -156,7 +156,7 @@
   "referrals": {
     "title": "Programa de Referidos",
     "cardTitle": "Invita y Gana",
-    "cardDescription": "Comparte tu enlace y gana el 20% de cada suscripcion referida",
+    "cardDescription": "Comparte tu enlace y gana el 20% de cada suscripción referida",
     "viewButton": "Ver Programa"
   },
   "deleteAccount": {
@@ -166,16 +166,16 @@
     "warningItems": {
       "properties": "Se eliminaran TODAS tus propiedades",
       "manuals": "Se eliminaran TODOS los manuales y zonas creadas",
-      "files": "Se perderan TODAS las imagenes y archivos subidos",
-      "noRecovery": "NO podras recuperar ningun dato",
+      "files": "Se perderan TODAS las imágenes y archivos subidos",
+      "noRecovery": "NO podras recuperar ningún dato",
       "irreversible": "Esta accion es IRREVERSIBLE"
     },
     "button": "Eliminar Cuenta",
     "modal": {
       "title": "Estas absolutamente seguro?",
-      "description": "Esta accion eliminara permanentemente tu cuenta y todos tus datos. No podras recuperar nada despues de esto.",
-      "passwordLabel": "Escribe tu contrasena para confirmar",
-      "passwordPlaceholder": "Tu contrasena",
+      "description": "Esta accion eliminara permanentemente tu cuenta y todos tus datos. No podras recuperar nada después de esto.",
+      "passwordLabel": "Escribe tu contraseña para confirmar",
+      "passwordPlaceholder": "Tu contraseña",
       "cancelButton": "Cancelar",
       "confirmButton": "Si, eliminar mi cuenta",
       "deleting": "Eliminando..."
@@ -183,37 +183,37 @@
   },
   "passwordModal": {
     "securityVerification": "Verificacion de Seguridad",
-    "changePassword": "Cambiar Contrasena",
+    "changePassword": "Cambiar Contraseña",
     "emailChangeDetected": "Cambio de email detectado",
     "emailChangeDescription": "Para tu seguridad, necesitamos verificar tu identidad antes de cambiar tu email.",
     "emailChangeSteps": {
-      "step1": "Se enviara un email de confirmacion a tu direccion actual",
+      "step1": "Se enviara un email de confirmacion a tu dirección actual",
       "step2": "Deberas confirmar el cambio desde ese email",
       "step3": "Tu cuenta estara protegida durante todo el proceso"
     },
-    "enterCurrentPassword": "Introduce tu contrasena actual para confirmar el cambio.",
+    "enterCurrentPassword": "Introduce tu contraseña actual para confirmar el cambio.",
     "cancelButton": "Cancelar",
     "confirmButton": "Confirmar Cambio",
     "processing": "Procesando..."
   },
   "successToast": "Perfil actualizado correctamente",
   "errors": {
-    "invalidImage": "Por favor selecciona una imagen valida",
+    "invalidImage": "Por favor selecciona una imagen válida",
     "imageTooLarge": "La imagen debe ser menor a 5MB",
     "uploadError": "Error al subir la imagen. Intentalo de nuevo.",
     "emailRequired": "Email es requerido",
-    "emailInvalid": "Email invalido",
-    "currentPasswordRequired": "Debes ingresar tu contrasena actual",
-    "newPasswordRequired": "Debes ingresar una nueva contrasena",
-    "passwordMinLength": "La contrasena debe tener al menos 8 caracteres",
-    "passwordMismatch": "Las contrasenas no coinciden",
-    "enterPassword": "Por favor, ingresa tu contrasena",
-    "deletePasswordRequired": "Debes ingresar tu contrasena para eliminar la cuenta",
-    "changePasswordError": "Error al cambiar contrasena",
+    "emailInvalid": "Email inválido",
+    "currentPasswordRequired": "Debes ingresar tu contraseña actual",
+    "newPasswordRequired": "Debes ingresar una nueva contraseña",
+    "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "enterPassword": "Por favor, ingresa tu contraseña",
+    "deletePasswordRequired": "Debes ingresar tu contraseña para eliminar la cuenta",
+    "changePasswordError": "Error al cambiar contraseña",
     "deleteError": "Error al eliminar cuenta",
-    "connectionError": "Error de conexion",
+    "connectionError": "Error de conexión",
     "emailChangeRequestError": "Error al solicitar cambio de email",
-    "emailChangeSent": "Se ha enviado un email de confirmacion a tu direccion actual. Por favor, revisa tu bandeja de entrada para completar el cambio.",
+    "emailChangeSent": "Se ha enviado un email de confirmacion a tu dirección actual. Por favor, revisa tu bandeja de entrada para completar el cambio.",
     "unknownError": "Error desconocido",
     "saveError": "Error al guardar los datos"
   }

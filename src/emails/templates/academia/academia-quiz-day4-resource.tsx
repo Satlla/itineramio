@@ -31,7 +31,7 @@ export default function AcademiaQuizDay4Resource({ name, email }: Props) {
             <div style={{ backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}>
               <p style={{ margin: '0 0 12px 0', color: '#0369a1', fontSize: '14px', fontWeight: 600 }}>Plan de 7 días:</p>
               <ul style={{ margin: 0, paddingLeft: '20px', color: '#0369a1', fontSize: '14px', lineHeight: 1.8 }}>
-                <li><strong>Día 1-2:</strong> Documenta las 10 preguntas mas frecuentes de tus huéspedes</li>
+                <li><strong>Día 1-2:</strong> Documenta las 10 preguntas más frecuentes de tus huéspedes</li>
                 <li><strong>Día 3-4:</strong> Crea respuestas claras para cada una</li>
                 <li><strong>Día 5-6:</strong> Organiza la información en secciones (check-in, wifi, normas...)</li>
                 <li><strong>Día 7:</strong> Comparte el manual con tu próximo huésped y pide feedback</li>
@@ -39,7 +39,7 @@ export default function AcademiaQuizDay4Resource({ name, email }: Props) {
             </div>
 
             <p style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '16px', lineHeight: 1.6 }}>
-              Si quieres hacerlo mas rápido, en Itineramio puedes crear un manual digital profesional en minutos, con plantillas predefinidas y QR para compartirlo fácilmente.
+              Si quieres hacerlo más rápido, en Itineramio puedes crear un manual digital profesional en minutos, con plantillas predefinidas y QR para compartirlo fácilmente.
             </p>
 
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
