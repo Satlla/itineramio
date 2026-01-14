@@ -226,7 +226,12 @@ async function handleProrationPreview(
       (currentBillingPeriod === 'annual' && billingPeriod === 'ANNUAL')
     )
 
+    console.log('🔍 Plan comparison:')
+    console.log(`  isSamePlan: ${isSamePlan} (current: ${activeSubscription.plan.code}, target: ${planCode})`)
+    console.log(`  isSamePeriod: ${isSamePeriod} (current: ${currentBillingPeriod}, target: ${billingPeriod})`)
+
     if (isSamePlan && isSamePeriod) {
+      console.log('❌ BLOCKED: Same plan and period')
       return NextResponse.json({
         error: 'Ya tienes este plan activo',
         message: `Ya estás suscrito a ${activeSubscription.plan.name} con el mismo período de facturación.`
@@ -241,8 +246,12 @@ async function handleProrationPreview(
     const newMonthlyPrice = newPlan.priceMonthly
     const isUpgrade = newMonthlyPrice > currentMonthlyPrice
 
+    console.log('🔍 Upgrade check:')
+    console.log(`  isUpgrade: ${isUpgrade} (current monthly: €${currentMonthlyPrice}, new monthly: €${newMonthlyPrice})`)
+
     // Si es DOWNGRADE, no permitir cambio inmediato
     if (!isUpgrade && activeSubscription.plan.code !== planCode) {
+      console.log('❌ BLOCKED: Downgrade detected')
       const endDateFormatted = activeSubscription.endDate
         ? new Date(activeSubscription.endDate).toLocaleDateString('es-ES', {
             day: 'numeric',
@@ -285,8 +294,13 @@ async function handleProrationPreview(
       console.log(`  New period: ${newBillingPeriodLowercase} (level: ${newLevel})`)
       console.log(`  Is downgrade? ${newLevel < currentLevel}`)
 
+      console.log('🔍 Period hierarchy check:')
+      console.log(`  currentLevel: ${currentLevel} (${currentBillingPeriod})`)
+      console.log(`  newLevel: ${newLevel} (${newBillingPeriodLowercase})`)
+
       // Si el nuevo periodo es menor en la jerarquía, es downgrade
       if (newLevel < currentLevel) {
+        console.log('❌ BLOCKED: Period downgrade detected')
         const endDateFormatted = activeSubscription.endDate
           ? new Date(activeSubscription.endDate).toLocaleDateString('es-ES', {
               day: 'numeric',
