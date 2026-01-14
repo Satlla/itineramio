@@ -369,43 +369,61 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           .key-points ul { margin: 0; padding-left: 1.25rem; }
           .key-points li { color: #484848; margin-bottom: 0.5rem; line-height: 1.6; }
 
-          /* Tip/Info/Warning boxes - Apple style with subtle differentiation */
+          /* Tip/Info/Warning boxes - Dynamic with icons and colors */
           .tip-box, .info-box, .highlight-box {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
             border-radius: 16px;
             padding: 1.5rem 1.75rem;
             margin: 2rem 0;
-            border-left: 4px solid #3b82f6;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            border-left: 5px solid #10b981;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
+          }
+          .tip-box::before, .info-box::before, .highlight-box::before {
+            content: '💡';
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
           }
           .warning-box {
             background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
             border-radius: 16px;
             padding: 1.5rem 1.75rem;
             margin: 2rem 0;
-            border-left: 4px solid #f59e0b;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            border-left: 5px solid #f59e0b;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);
+          }
+          .warning-box::before {
+            content: '⚠️';
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
           }
           .danger-box {
-            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
             border-radius: 16px;
             padding: 1.5rem 1.75rem;
             margin: 2rem 0;
-            border-left: 4px solid #ef4444;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            border-left: 5px solid #ef4444;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.15);
+          }
+          .danger-box::before {
+            content: '🚨';
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
           }
           .tip-box strong, .warning-box strong, .info-box strong, .danger-box strong, .highlight-box strong {
             display: block;
-            font-weight: 600;
+            font-weight: 700;
             color: #1e293b;
             margin-bottom: 0.5rem;
-            font-size: 1rem;
+            font-size: 1.125rem;
           }
           .tip-box p, .warning-box p, .info-box p, .danger-box p, .highlight-box p {
-            color: #475569;
+            color: #374151;
             margin: 0;
             line-height: 1.7;
-            font-size: 0.9375rem;
+            font-size: 1rem;
           }
 
           /* Checklist - clean */
@@ -436,21 +454,43 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           .step-content h5 { font-weight: 600; color: #222; margin-bottom: 0.25rem; font-size: 1rem; }
           .step-content p { color: #717171; margin: 0; font-size: 0.9375rem; line-height: 1.5; }
 
-          /* Feature grid - Airbnb style cards with shadow */
-          .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; margin: 2.5rem 0; }
-          .feature-card { padding: 1.5rem; background: #fff; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04); transition: transform 0.2s, box-shadow 0.2s; }
-          .feature-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.06); }
-          .feature-card h4 { font-size: 1rem; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; }
-          .feature-card p { color: #64748b; margin: 0; font-size: 0.9375rem; line-height: 1.6; }
+          /* Feature grid - Dynamic cards with colors */
+          .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2.5rem 0; }
+          .feature-card {
+            padding: 1.75rem;
+            background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 4px solid #14b8a6;
+          }
+          .feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(20, 184, 166, 0.25); }
+          .feature-card h4 { font-size: 1.125rem; font-weight: 700; color: #0f766e; margin-bottom: 0.75rem; }
+          .feature-card p { color: #115e59; margin: 0; font-size: 1rem; line-height: 1.6; }
 
-          /* Comparison grid - subtle */
-          .comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
-          .comparison-card { border: 1px solid #ebebeb; border-radius: 12px; padding: 1.5rem; }
-          .comparison-card.good { border-color: #222; }
-          .comparison-card.bad { border-color: #ddd; background: #fafafa; }
-          .comparison-card h4 { font-size: 1rem; font-weight: 600; color: #222; margin-bottom: 1rem; }
-          .comparison-card ul { margin: 0; padding-left: 1.25rem; }
-          .comparison-card li { margin-bottom: 0.5rem; color: #484848; font-size: 0.9375rem; }
+          /* Comparison grid - Dynamic good vs bad */
+          .comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2.5rem 0; }
+          .comparison-card {
+            border-radius: 20px;
+            padding: 1.75rem;
+            transition: transform 0.2s;
+          }
+          .comparison-card:hover { transform: translateY(-2px); }
+          .comparison-card.good {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 2px solid #10b981;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+          }
+          .comparison-card.good::before { content: '✅ '; }
+          .comparison-card.bad {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.15);
+          }
+          .comparison-card.bad::before { content: '❌ '; }
+          .comparison-card h4 { font-size: 1.125rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; display: inline; }
+          .comparison-card ul { margin: 1rem 0 0 0; padding-left: 1.5rem; }
+          .comparison-card li { margin-bottom: 0.625rem; color: #374151; font-size: 1rem; line-height: 1.5; }
 
           /* Pull quote - elegant with accent */
           .pull-quote { font-size: 1.625rem; font-weight: 500; color: #1e293b; border-left: 4px solid #3b82f6; padding-left: 1.75rem; margin: 3rem 0; line-height: 1.5; letter-spacing: -0.02em; font-style: italic; }
@@ -476,45 +516,56 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             font-weight: 700;
           }
 
-          /* Hook box - subtle but noticeable */
+          /* Hook box - dynamic and attention-grabbing */
           .hook-box-subtle {
-            background: #fafafa;
-            border: 1px solid #e5e5e5;
-            border-radius: 16px;
-            padding: 2rem 2.5rem;
-            margin: 2rem 0;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            margin: 2.5rem 0;
             text-align: center;
+            box-shadow: 0 8px 30px rgba(49, 46, 129, 0.3);
+            position: relative;
+            overflow: hidden;
+          }
+          .hook-box-subtle::before {
+            content: '🎯';
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 1rem;
           }
           .hook-box-subtle p {
-            color: #374151 !important;
-            font-size: 1.125rem;
+            color: #e0e7ff !important;
+            font-size: 1.25rem;
             line-height: 1.6;
             margin: 0;
           }
           .hook-box-subtle p strong {
-            color: #1e293b !important;
-            font-weight: 600;
+            color: #fbbf24 !important;
+            font-weight: 700;
           }
           .hook-box-subtle .hook-punchline {
-            color: #dc2626 !important;
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-top: 0.75rem !important;
+            color: #f87171 !important;
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-top: 1rem !important;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
           }
 
-          /* TOC box - clean Apple style */
+          /* TOC box - dynamic with gradient */
           .toc-box {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-radius: 16px;
+            background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+            border-radius: 20px;
             padding: 2rem 2.5rem;
             margin: 2.5rem 0;
-            border: 1px solid #e2e8f0;
+            border: none;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
           }
           .toc-box h4 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #1e293b;
-            margin: 0 0 1.25rem 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #5b21b6;
+            margin: 0 0 1.5rem 0;
           }
           .toc-box ul {
             margin: 0;
@@ -522,24 +573,26 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             list-style: none;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 0.5rem 2rem;
+            gap: 0.75rem 2rem;
           }
           .toc-box li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 0.625rem 0;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
           }
           .toc-box li:last-child {
             border-bottom: none;
           }
           .toc-box a {
-            color: #475569 !important;
+            color: #6d28d9 !important;
             text-decoration: none;
-            font-size: 0.9375rem;
-            transition: color 0.2s;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s;
             display: block;
           }
           .toc-box a:hover {
-            color: #1e293b !important;
+            color: #4c1d95 !important;
+            transform: translateX(4px);
           }
 
           /* Stats highlight */
@@ -594,12 +647,38 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             padding-left: 2rem;
           }
 
-          /* CTA box - Airbnb style prominent */
-          .cta-box { text-align: center; padding: 3rem 2.5rem; margin: 3rem 0; background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-          .cta-box h3 { font-size: 1.5rem; font-weight: 700; color: #fff !important; margin-bottom: 0.75rem; }
-          .cta-box p { color: rgba(255,255,255,0.85) !important; margin-bottom: 1.75rem; font-size: 1rem; line-height: 1.6; }
-          .cta-button { display: inline-block; background: #fff; color: #1e293b !important; padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-          .cta-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+          /* CTA box - Dynamic gradient with icon */
+          .cta-box {
+            text-align: center;
+            padding: 3rem 2.5rem;
+            margin: 3rem 0;
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%) !important;
+            border-radius: 24px;
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.35);
+            position: relative;
+            overflow: hidden;
+          }
+          .cta-box::before {
+            content: '⭐';
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+          }
+          .cta-box h3 { font-size: 1.75rem; font-weight: 800; color: #fff !important; margin-bottom: 1rem; }
+          .cta-box p { color: rgba(255,255,255,0.9) !important; margin-bottom: 2rem; font-size: 1.125rem; line-height: 1.6; }
+          .cta-button {
+            display: inline-block;
+            background: #fff;
+            color: #7c3aed !important;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.125rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+          }
+          .cta-button:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
 
           /* Styled table - clean */
           .styled-table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-size: 0.9375rem; }
