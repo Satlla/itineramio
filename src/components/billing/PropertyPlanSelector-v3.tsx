@@ -258,7 +258,7 @@ export default function PropertyPlanSelectorV3({
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <p className="text-white/80 text-sm mb-1">Plan</p>
                 <p className="text-white text-xl font-bold">
-                  {currentPlan.name} {currentPlan.term && BILLING_PERIODS[getCurrentBillingPeriod()].label}
+                  {currentPlan.name}
                 </p>
               </div>
 
