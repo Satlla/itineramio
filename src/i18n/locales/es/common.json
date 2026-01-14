@@ -341,9 +341,9 @@
       "dashboardNotifications": "Notificaciones Dashboard",
       "zoneEvaluationsTab": "Evaluaciones de Zona",
       "generalEvaluationsTab": "Evaluaciones Generales",
-      "noEvaluationsYet": "No hay evaluaciónes aún.,
-      "zoneEvaluationsWillAppear": "Las evaluaciónes de zona apareceran aqui cuando los huéspedes evaluen zonas específicas.",
-      "generalEvaluationsWillAppear": "Las evaluaciónes generales apareceran aqui cuando los huéspedes evaluen todo el manual.",
+      "noEvaluationsYet": "No hay evaluaciones aún",
+      "zoneEvaluationsWillAppear": "Las evaluaciones de zona aparecerán aquí cuando los huéspedes evalúen zonas específicas.",
+      "generalEvaluationsWillAppear": "Las evaluaciones generales aparecerán aquí cuando los huéspedes evalúen todo el manual.",
       "makePrivate": "Hacer privada",
       "makePublic": "Hacer pública",
       "public": "Publica"

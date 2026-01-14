@@ -121,8 +121,8 @@
   },
   "invoices": {
     "title": "Historial de Facturas",
-    "noInvoices": "No tienes facturas aún.,
-    "noInvoicesDescription": "Tus facturas apareceran aqui cuando realices pagos",
+    "noInvoices": "No tienes facturas aún",
+    "noInvoicesDescription": "Tus facturas aparecerán aquí cuando realices pagos",
     "status": {
       "paid": "Pagada",
       "pending": "Pendiente",

@@ -20,7 +20,10 @@ import {
   User,
   Search,
   Filter,
-  RefreshCw
+  RefreshCw,
+  Trash2,
+  Eye,
+  AlertTriangle
 } from 'lucide-react'
 import Link from 'next/link'
 import {
@@ -65,6 +68,13 @@ export default function AdminFunnelsPage() {
 
   // Expanded funnel view
   const [expandedFunnel, setExpandedFunnel] = useState<string | null>(null)
+
+  // Lead detail modal
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
+
+  // Delete confirmation
+  const [deleteConfirm, setDeleteConfirm] = useState<Lead | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchLeads()
@@ -150,6 +160,29 @@ export default function AdminFunnelsPage() {
       alert('Error al lanzar embudo')
     } finally {
       setTriggeringFunnel(null)
+    }
+  }
+
+  const handleDeleteLead = async (lead: Lead) => {
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/admin/funnels/leads?id=${lead.id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        setDeleteConfirm(null)
+        fetchLeads()
+      } else {
+        const data = await response.json()
+        alert(data.error || 'Error al eliminar lead')
+      }
+    } catch (error) {
+      console.error('Error deleting lead:', error)
+      alert('Error al eliminar lead')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -356,16 +389,20 @@ export default function AdminFunnelsPage() {
                 leads.map((lead) => (
                   <tr key={lead.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-violet-100 rounded-full flex items-center justify-center">
+                      <div
+                        className="flex items-center gap-3 cursor-pointer group"
+                        onClick={() => setSelectedLead(lead)}
+                      >
+                        <div className="w-8 h-8 bg-violet-100 rounded-full flex items-center justify-center group-hover:bg-violet-200 transition-colors">
                           <User className="w-4 h-4 text-violet-600" />
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">
+                          <div className="font-medium text-gray-900 group-hover:text-violet-600 transition-colors">
                             {lead.name || 'Sin nombre'}
                           </div>
                           <div className="text-sm text-gray-500">{lead.email}</div>
                         </div>
+                        <Eye className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                     </td>
                     <td className="px-4 py-4">
@@ -399,35 +436,47 @@ export default function AdminFunnelsPage() {
                         year: 'numeric'
                       })}
                     </td>
-                    <td className="px-4 py-4 text-center">
-                      {triggerSuccess === lead.id ? (
-                        <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-green-100 text-green-700">
-                          <Check className="w-4 h-4 mr-1" />
-                          Enviado
-                        </span>
-                      ) : lead.funnelTheme && !lead.funnelStartedAt ? (
+                    <td className="px-4 py-4">
+                      <div className="flex items-center justify-center gap-2">
+                        {triggerSuccess === lead.id ? (
+                          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-green-100 text-green-700">
+                            <Check className="w-4 h-4 mr-1" />
+                            Enviado
+                          </span>
+                        ) : lead.funnelTheme && !lead.funnelStartedAt ? (
+                          <button
+                            onClick={() => handleTriggerFunnel(lead.id, lead.funnelTheme as FunnelTheme)}
+                            disabled={triggeringFunnel === lead.id}
+                            className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors disabled:opacity-50"
+                          >
+                            {triggeringFunnel === lead.id ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                Enviando...
+                              </>
+                            ) : (
+                              <>
+                                <Send className="w-4 h-4 mr-1" />
+                                Lanzar
+                              </>
+                            )}
+                          </button>
+                        ) : lead.funnelStartedAt ? (
+                          <span className="text-sm text-gray-400">En curso</span>
+                        ) : null}
+
+                        {/* Delete button */}
                         <button
-                          onClick={() => handleTriggerFunnel(lead.id, lead.funnelTheme as FunnelTheme)}
-                          disabled={triggeringFunnel === lead.id}
-                          className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors disabled:opacity-50"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setDeleteConfirm(lead)
+                          }}
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Eliminar lead"
                         >
-                          {triggeringFunnel === lead.id ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                              Enviando...
-                            </>
-                          ) : (
-                            <>
-                              <Send className="w-4 h-4 mr-1" />
-                              Lanzar
-                            </>
-                          )}
+                          <Trash2 className="w-4 h-4" />
                         </button>
-                      ) : lead.funnelStartedAt ? (
-                        <span className="text-sm text-gray-400">En curso</span>
-                      ) : (
-                        <span className="text-sm text-gray-400">-</span>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -569,6 +618,189 @@ export default function AdminFunnelsPage() {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Lead Detail Modal */}
+      {selectedLead && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-4 rounded-t-xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <User className="w-5 h-5" />
+                  Detalle del Lead
+                </h3>
+                <button
+                  onClick={() => setSelectedLead(null)}
+                  className="text-white/80 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <div className="space-y-4">
+                {/* Basic info */}
+                <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
+                  <div className="w-14 h-14 bg-violet-100 rounded-full flex items-center justify-center">
+                    <User className="w-7 h-7 text-violet-600" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-semibold text-gray-900">
+                      {selectedLead.name || 'Sin nombre'}
+                    </h4>
+                    <p className="text-gray-600">{selectedLead.email}</p>
+                  </div>
+                </div>
+
+                {/* Details grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <p className="text-xs text-gray-500 mb-1">Embudo</p>
+                    {selectedLead.funnelTheme ? (
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${themeColors[selectedLead.funnelTheme as FunnelTheme] || 'bg-gray-100 text-gray-800'}`}>
+                        {LEAD_MAGNETS_BY_THEME[selectedLead.funnelTheme as FunnelTheme]?.icon} {getThemeLabel(selectedLead.funnelTheme as FunnelTheme)}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 text-sm">Sin asignar</span>
+                    )}
+                  </div>
+
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <p className="text-xs text-gray-500 mb-1">Estado</p>
+                    {selectedLead.funnelStartedAt ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <Play className="w-3 h-3 mr-1" />
+                        Día {selectedLead.funnelCurrentDay || 0}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                        <Clock className="w-3 h-3 mr-1" />
+                        Pendiente
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <p className="text-xs text-gray-500 mb-1">Fuente</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {selectedLead.source || 'Desconocida'}
+                    </p>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <p className="text-xs text-gray-500 mb-1">Fecha registro</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {new Date(selectedLead.createdAt).toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric'
+                      })}
+                    </p>
+                  </div>
+
+                  {selectedLead.funnelStartedAt && (
+                    <div className="bg-gray-50 rounded-lg p-3 col-span-2">
+                      <p className="text-xs text-gray-500 mb-1">Inicio del embudo</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {new Date(selectedLead.funnelStartedAt).toLocaleDateString('es-ES', {
+                          day: '2-digit',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* ID */}
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 mb-1">ID</p>
+                  <p className="text-xs font-mono text-gray-600 break-all">{selectedLead.id}</p>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={() => setSelectedLead(null)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Cerrar
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedLead(null)
+                    setDeleteConfirm(selectedLead)
+                  }}
+                  className="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors font-medium flex items-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Eliminar Lead</h3>
+                  <p className="text-gray-600 text-sm">
+                    Esta acción no se puede deshacer
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <p className="text-sm text-gray-600 mb-1">Vas a eliminar:</p>
+                <p className="font-medium text-gray-900">{deleteConfirm.name || 'Sin nombre'}</p>
+                <p className="text-sm text-gray-600">{deleteConfirm.email}</p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteConfirm(null)}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => handleDeleteLead(deleteConfirm)}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {deleting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Eliminando...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      Eliminar
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

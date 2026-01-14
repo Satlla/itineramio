@@ -2026,51 +2026,35 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         console.log('🚨🚨🚨 Steps data:', JSON.stringify(steps, null, 2))
 
         // Check if any steps are missing EN or FR content
+        // Only validate CONTENT (not titles, since titles are optional)
+        // Only show modal if user has Spanish content but missing translations
         console.log('🔍 Validating language completion for zone:', zoneName)
         console.log('🔍 Total steps to validate:', steps.length)
 
         const hasMissingLanguages = steps.some((step, index) => {
-          // Debug: log the actual step data
-          console.log(`\n📝 Step ${index + 1}:`, {
-            id: step.id,
-            type: step.type,
-            contentEs: step.content?.es?.substring(0, 80) + '...',
-            contentEn: step.content?.en ? step.content.en.substring(0, 80) + '...' : null,
-            contentFr: step.content?.fr ? step.content.fr.substring(0, 80) + '...' : null,
-            titleEs: step.title?.es,
-            titleEn: step.title?.en,
-            titleFr: step.title?.fr
-          })
-
-          // Check content languages
+          // Only check content, not titles (titles are optional)
           const contentEs = step.content?.es?.trim()
           const contentEn = step.content?.en?.trim()
           const contentFr = step.content?.fr?.trim()
 
-          if (contentEs && (!contentEn || !contentFr)) {
-            console.log(`❌ Step ${index + 1}: Missing content language`, {
-              hasEs: !!contentEs,
-              hasEn: !!contentEn,
-              hasFr: !!contentFr
-            })
+          // Debug log
+          console.log(`📝 Step ${index + 1}:`, {
+            hasEs: !!contentEs,
+            hasEn: !!contentEn,
+            hasFr: !!contentFr
+          })
+
+          // Only flag as missing if:
+          // 1. There's Spanish content (user is actively using the zone)
+          // 2. AND both EN and FR are empty (not just one missing)
+          // This way we only suggest translations when the zone is actively used
+          // but doesn't have ANY translations yet
+          if (contentEs && !contentEn && !contentFr) {
+            console.log(`❌ Step ${index + 1}: Has ES but missing both EN and FR`)
             return true
           }
 
-          // Check title languages
-          const titleEs = step.title?.es?.trim()
-          const titleEn = step.title?.en?.trim()
-          const titleFr = step.title?.fr?.trim()
-
-          if (titleEs && (!titleEn || !titleFr)) {
-            console.log(`❌ Step ${index + 1}: Missing title language`, {
-              hasEs: !!titleEs,
-              hasEn: !!titleEn,
-              hasFr: !!titleFr
-            })
-            return true
-          }
-
-          console.log(`✅ Step ${index + 1}: Has all required languages`)
+          console.log(`✅ Step ${index + 1}: OK (has translations or no ES content)`)
           return false
         })
 

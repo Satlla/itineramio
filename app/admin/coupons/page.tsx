@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { 
+import {
   Plus,
   Edit,
   Trash2,
@@ -10,8 +10,13 @@ import {
   Users,
   Percent,
   Gift,
-  Eye
+  Eye,
+  X,
+  Loader2,
+  Check,
+  ArrowLeft
 } from 'lucide-react'
+import Link from 'next/link'
 import { Button } from '../../../src/components/ui/Button'
 import { Input } from '../../../src/components/ui/Input'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../src/components/ui/Card'
@@ -36,10 +41,44 @@ interface Coupon {
   createdAt: string
 }
 
+interface NewCoupon {
+  code: string
+  name: string
+  description: string
+  type: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_MONTHS'
+  discountPercent: number
+  discountAmount: number
+  freeMonths: number
+  maxUses: number | null
+  maxUsesPerUser: number
+  validUntil: string
+  isPublic: boolean
+  campaignSource: string
+}
+
+const initialNewCoupon: NewCoupon = {
+  code: '',
+  name: '',
+  description: '',
+  type: 'PERCENTAGE',
+  discountPercent: 20,
+  discountAmount: 10,
+  freeMonths: 1,
+  maxUses: null,
+  maxUsesPerUser: 1,
+  validUntil: '',
+  isPublic: false,
+  campaignSource: ''
+}
+
 export default function CouponsAdminPage() {
   const [coupons, setCoupons] = useState<Coupon[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [newCoupon, setNewCoupon] = useState<NewCoupon>(initialNewCoupon)
+  const [creating, setCreating] = useState(false)
+  const [createSuccess, setCreateSuccess] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchCoupons()
@@ -77,6 +116,45 @@ export default function CouponsAdminPage() {
       }
     } catch (error) {
       console.error('Error toggling coupon:', error)
+    }
+  }
+
+  const handleCreateCoupon = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setCreating(true)
+    setCreateError(null)
+
+    try {
+      const response = await fetch('/api/admin/coupons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          ...newCoupon,
+          validUntil: newCoupon.validUntil || null,
+          maxUses: newCoupon.maxUses || null,
+          campaignSource: newCoupon.campaignSource || null
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setCreateSuccess(true)
+        setTimeout(() => {
+          setShowCreateModal(false)
+          setNewCoupon(initialNewCoupon)
+          setCreateSuccess(false)
+          fetchCoupons()
+        }, 1500)
+      } else {
+        setCreateError(data.error || 'Error al crear el cupón')
+      }
+    } catch (error) {
+      console.error('Error creating coupon:', error)
+      setCreateError('Error de conexión')
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -299,6 +377,275 @@ export default function CouponsAdminPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Create Coupon Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4 rounded-t-xl sticky top-0">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Tag className="w-5 h-5" />
+                  Crear Nuevo Cupón
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowCreateModal(false)
+                    setNewCoupon(initialNewCoupon)
+                    setCreateError(null)
+                  }}
+                  className="text-white/80 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            {createSuccess ? (
+              <div className="p-8 text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Check className="w-8 h-8 text-green-600" />
+                </div>
+                <h4 className="text-xl font-semibold text-gray-900 mb-2">Cupón Creado</h4>
+                <p className="text-gray-600">El cupón {newCoupon.code.toUpperCase()} se ha creado correctamente.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleCreateCoupon} className="p-6">
+                {createError && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                    {createError}
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  {/* Código y Nombre */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Código <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={newCoupon.code}
+                        onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
+                        placeholder="WELCOME20"
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 uppercase"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Nombre <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={newCoupon.name}
+                        onChange={(e) => setNewCoupon({ ...newCoupon, name: e.target.value })}
+                        placeholder="Descuento bienvenida"
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Descripción */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Descripción
+                    </label>
+                    <textarea
+                      value={newCoupon.description}
+                      onChange={(e) => setNewCoupon({ ...newCoupon, description: e.target.value })}
+                      placeholder="Descripción del cupón para uso interno..."
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+                    />
+                  </div>
+
+                  {/* Tipo de descuento */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Tipo de descuento <span className="text-red-500">*</span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { value: 'PERCENTAGE', label: 'Porcentaje', icon: '%' },
+                        { value: 'FIXED_AMOUNT', label: 'Cantidad', icon: '€' },
+                        { value: 'FREE_MONTHS', label: 'Meses', icon: '📅' }
+                      ].map((type) => (
+                        <button
+                          key={type.value}
+                          type="button"
+                          onClick={() => setNewCoupon({ ...newCoupon, type: type.value as NewCoupon['type'] })}
+                          className={`p-3 rounded-lg border-2 transition-all text-center ${
+                            newCoupon.type === type.value
+                              ? 'border-green-500 bg-green-50 text-green-700'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <span className="text-lg">{type.icon}</span>
+                          <p className="text-xs mt-1 font-medium">{type.label}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Valor del descuento según tipo */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {newCoupon.type === 'PERCENTAGE' && 'Porcentaje de descuento'}
+                      {newCoupon.type === 'FIXED_AMOUNT' && 'Cantidad fija (€)'}
+                      {newCoupon.type === 'FREE_MONTHS' && 'Meses incluidos'}
+                    </label>
+                    {newCoupon.type === 'PERCENTAGE' && (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          value={newCoupon.discountPercent}
+                          onChange={(e) => setNewCoupon({ ...newCoupon, discountPercent: parseInt(e.target.value) || 0 })}
+                          min="1"
+                          max="100"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                        <span className="text-gray-500">%</span>
+                      </div>
+                    )}
+                    {newCoupon.type === 'FIXED_AMOUNT' && (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          value={newCoupon.discountAmount}
+                          onChange={(e) => setNewCoupon({ ...newCoupon, discountAmount: parseInt(e.target.value) || 0 })}
+                          min="1"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                        <span className="text-gray-500">€</span>
+                      </div>
+                    )}
+                    {newCoupon.type === 'FREE_MONTHS' && (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          value={newCoupon.freeMonths}
+                          onChange={(e) => setNewCoupon({ ...newCoupon, freeMonths: parseInt(e.target.value) || 0 })}
+                          min="1"
+                          max="12"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                        <span className="text-gray-500">meses</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Límites */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Máximo usos totales
+                      </label>
+                      <input
+                        type="number"
+                        value={newCoupon.maxUses || ''}
+                        onChange={(e) => setNewCoupon({ ...newCoupon, maxUses: e.target.value ? parseInt(e.target.value) : null })}
+                        placeholder="Ilimitado"
+                        min="1"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Usos por usuario
+                      </label>
+                      <input
+                        type="number"
+                        value={newCoupon.maxUsesPerUser}
+                        onChange={(e) => setNewCoupon({ ...newCoupon, maxUsesPerUser: parseInt(e.target.value) || 1 })}
+                        min="1"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Fecha expiración y campaña */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Fecha expiración
+                      </label>
+                      <input
+                        type="date"
+                        value={newCoupon.validUntil}
+                        onChange={(e) => setNewCoupon({ ...newCoupon, validUntil: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Campaña/Fuente
+                      </label>
+                      <input
+                        type="text"
+                        value={newCoupon.campaignSource}
+                        onChange={(e) => setNewCoupon({ ...newCoupon, campaignSource: e.target.value })}
+                        placeholder="ej: email-junio"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Público */}
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="isPublic"
+                      checked={newCoupon.isPublic}
+                      onChange={(e) => setNewCoupon({ ...newCoupon, isPublic: e.target.checked })}
+                      className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                    />
+                    <label htmlFor="isPublic" className="text-sm text-gray-700">
+                      Cupón público (visible en la web)
+                    </label>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="mt-6 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCreateModal(false)
+                      setNewCoupon(initialNewCoupon)
+                      setCreateError(null)
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={creating || !newCoupon.code || !newCoupon.name}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {creating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Creando...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4" />
+                        Crear Cupón
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

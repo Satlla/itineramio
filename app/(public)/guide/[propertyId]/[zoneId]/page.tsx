@@ -979,7 +979,90 @@ export default function ZoneGuidePage({
                   </div>
 
                   <div className="p-6 sm:p-8 pl-8 sm:pl-10">
-                    {/* Step Header - Clean, no badges */}
+                    {/* Step Media FIRST - Image/Video before text */}
+                    <AnimatePresence mode="wait">
+                      {step.type === 'IMAGE' && step.mediaUrl && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          className="mb-6"
+                        >
+                          <div className="relative rounded-xl overflow-hidden">
+                            <img
+                              src={step.mediaUrl}
+                              alt={getText(step.title, language, 'Imagen del paso')}
+                              className="w-full h-auto block rounded-xl shadow-lg hover:shadow-xl transition-shadow"
+                              style={{
+                                maxHeight: '60vh',
+                                objectFit: 'contain'
+                              }}
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {step.type === 'VIDEO' && step.mediaUrl && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          className="mb-6"
+                        >
+                          <div className="relative rounded-2xl overflow-hidden shadow-lg bg-black">
+                            {/* Video optimized for vertical format */}
+                            <video
+                              className="w-full h-auto block"
+                              controls
+                              playsInline
+                              preload="metadata"
+                              poster={step.thumbnail || undefined}
+                              style={{
+                                maxHeight: '60vh',
+                                minHeight: '200px',
+                                objectFit: 'contain'
+                              }}
+                            >
+                              <source src={step.mediaUrl} type="video/mp4" />
+                              <source src={step.mediaUrl} type="video/webm" />
+                              {t('videoNotSupported', language) || 'Tu navegador no soporta este video'}
+                            </video>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {step.type === 'LINK' && step.linkUrl && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 20 }}
+                          className="mb-6"
+                        >
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 sm:p-6 hover:shadow-lg transition-shadow">
+                            <div className="flex items-center space-x-3 sm:space-x-4">
+                              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                              </div>
+                              <div className="flex-1">
+                                <h3 className="font-semibold text-blue-900 mb-1">{t('externalLink', language)}</h3>
+                                <p className="text-blue-700 text-sm mb-3">
+                                  {t('externalLinkDesc', language)}
+                                </p>
+                                <Button
+                                  onClick={() => window.open(step.linkUrl, '_blank')}
+                                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                                >
+                                  {t('openLink', language)}
+                                  <ArrowRight className="w-4 h-4 ml-2" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Step Header - Title and Description AFTER media */}
                     <div className="mb-6">
                       {/* Simple content display - title as heading only if short, content always as normal text */}
                       {(() => {
@@ -1048,14 +1131,14 @@ export default function ZoneGuidePage({
                           </>
                         );
                       })()}
-                      
+
                       {step.estimatedTime && (
                         <div className="flex items-center text-sm text-gray-500 mb-2 mt-3">
                           <Clock className="w-4 h-4 mr-1" />
                           <span>{step.estimatedTime} min</span>
                         </div>
                       )}
-                      
+
                       {completedSteps.has(step.id) && (
                         <motion.div
                           initial={{ opacity: 0, y: 10 }}
@@ -1067,103 +1150,6 @@ export default function ZoneGuidePage({
                         </motion.div>
                       )}
                     </div>
-
-                    {/* Enhanced Step Media */}
-                    <AnimatePresence mode="wait">
-                      {step.type === 'IMAGE' && step.mediaUrl && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.9 }}
-                          className="mb-6"
-                        >
-                          <div className="relative rounded-xl overflow-hidden shadow-lg">
-                            <img
-                              src={step.mediaUrl}
-                              alt={getText(step.title, language, 'Imagen del paso')}
-                              className="w-full h-auto max-w-xs sm:max-w-sm lg:max-w-md mx-auto block rounded-xl shadow-lg hover:shadow-xl transition-shadow"
-                              style={{
-                                maxHeight: '40vh',
-                                objectFit: 'contain'
-                              }}
-                            />
-                            
-                            {/* Mobile-optimized image hint */}
-                            <div className="absolute bottom-1 sm:bottom-2 left-1 sm:left-2 right-1 sm:right-2 bg-black bg-opacity-50 text-white text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded pointer-events-none">
-                              📱 Optimizado para móvil
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-
-                      {step.type === 'VIDEO' && step.mediaUrl && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.9 }}
-                          className="mb-6"
-                        >
-                          <div className="relative rounded-2xl overflow-hidden shadow-lg bg-black mx-auto max-w-xs sm:max-w-sm">
-                            {/* Video optimized for vertical format */}
-                            <video
-                              className="w-full h-auto block"
-                              controls
-                              playsInline
-                              preload="metadata"
-                              poster={step.thumbnail || undefined}
-                              style={{
-                                maxHeight: '50vh',
-                                minHeight: '200px',
-                                aspectRatio: '9/16', // Force vertical aspect ratio
-                                objectFit: 'cover'
-                              }}
-                            >
-                              <source src={step.mediaUrl} type="video/mp4" />
-                              <source src={step.mediaUrl} type="video/webm" />
-                              {t('videoNotSupported', language) || 'Tu navegador no soporta este video'}
-                            </video>
-                            
-                            {/* Mobile-optimized video controls hint */}
-                            <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 right-2 sm:right-3 bg-black bg-opacity-60 text-white text-xs px-2 sm:px-3 py-1 sm:py-2 rounded-lg backdrop-blur-sm pointer-events-none">
-                              <div className="flex items-center justify-center space-x-1 sm:space-x-2">
-                                <span>📱</span>
-                                <span className="text-center">Optimizado para móvil - Toca para reproducir</span>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-
-                      {step.type === 'LINK' && step.linkUrl && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 20 }}
-                          className="mb-6"
-                        >
-                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 sm:p-6 hover:shadow-lg transition-shadow">
-                            <div className="flex items-center space-x-3 sm:space-x-4">
-                              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                                <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                              </div>
-                              <div className="flex-1">
-                                <h3 className="font-semibold text-blue-900 mb-1">{t('externalLink', language)}</h3>
-                                <p className="text-blue-700 text-sm mb-3">
-                                  {t('externalLinkDesc', language)}
-                                </p>
-                                <Button
-                                  onClick={() => window.open(step.linkUrl, '_blank')}
-                                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                                >
-                                  {t('openLink', language)}
-                                  <ArrowRight className="w-4 h-4 ml-2" />
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
 
                     {/* Step Actions - Airbnb style buttons */}
                     {index === activeStepIndex && (
