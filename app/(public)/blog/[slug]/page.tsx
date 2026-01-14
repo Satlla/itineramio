@@ -456,44 +456,90 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           .pull-quote { font-size: 1.625rem; font-weight: 500; color: #1e293b; border-left: 4px solid #3b82f6; padding-left: 1.75rem; margin: 3rem 0; line-height: 1.5; letter-spacing: -0.02em; font-style: italic; }
 
           /* Hero banner - for impactful statements */
-          .hero-box, .impact-box, .attention-box, .hook-box {
+          .hero-box, .impact-box, .attention-box {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            border-radius: 24px;
-            padding: 3rem 2.5rem;
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
             margin: 3rem 0;
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
           }
-          .hero-box::before, .impact-box::before, .attention-box::before, .hook-box::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #f59e0b 0%, #ef4444 50%, #f59e0b 100%);
-          }
-          .hero-box p, .impact-box p, .attention-box p, .hook-box p {
+          .hero-box p, .impact-box p, .attention-box p {
             color: #fff !important;
-            font-size: 1.5rem;
+            font-size: 1.375rem;
             font-weight: 600;
             line-height: 1.5;
             margin: 0;
-            position: relative;
           }
-          .hero-box p strong, .impact-box p strong, .attention-box p strong, .hook-box p strong {
+          .hero-box p strong, .impact-box p strong, .attention-box p strong {
             color: #fbbf24 !important;
             font-weight: 700;
           }
-          .hook-box .hook-punchline {
-            color: #ef4444 !important;
-            font-size: 2rem;
-            font-weight: 800;
-            margin-top: 1rem !important;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+
+          /* Hook box - subtle but noticeable */
+          .hook-box-subtle {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 16px;
+            padding: 2rem 2.5rem;
+            margin: 2rem 0;
+            text-align: center;
+          }
+          .hook-box-subtle p {
+            color: #374151 !important;
+            font-size: 1.125rem;
+            line-height: 1.6;
+            margin: 0;
+          }
+          .hook-box-subtle p strong {
+            color: #1e293b !important;
+            font-weight: 600;
+          }
+          .hook-box-subtle .hook-punchline {
+            color: #dc2626 !important;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 0.75rem !important;
+          }
+
+          /* TOC box - clean Apple style */
+          .toc-box {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+            padding: 2rem 2.5rem;
+            margin: 2.5rem 0;
+            border: 1px solid #e2e8f0;
+          }
+          .toc-box h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0 0 1.25rem 0;
+          }
+          .toc-box ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 0.5rem 2rem;
+          }
+          .toc-box li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+          }
+          .toc-box li:last-child {
+            border-bottom: none;
+          }
+          .toc-box a {
+            color: #475569 !important;
+            text-decoration: none;
+            font-size: 0.9375rem;
+            transition: color 0.2s;
+            display: block;
+          }
+          .toc-box a:hover {
+            color: #1e293b !important;
           }
 
           /* Stats highlight */
