@@ -95,11 +95,11 @@ export async function GET(request: NextRequest) {
     let periodMultiplier = 1
 
     const normalizedPeriod = savedBillingPeriod.toUpperCase()
-    if (normalizedPeriod.includes('YEAR') || normalizedPeriod.includes('ANUAL')) {
+    if (normalizedPeriod.includes('YEAR') || normalizedPeriod.includes('ANNUAL') || normalizedPeriod.includes('ANUAL')) {
       term = 'annual'
       termLabel = 'Anual'
       periodMultiplier = 12
-    } else if (normalizedPeriod.includes('SEMI') || normalizedPeriod.includes('SEMEST')) {
+    } else if (normalizedPeriod.includes('SEMI') || normalizedPeriod.includes('BIANNUAL') || normalizedPeriod.includes('SEMEST')) {
       term = 'semiannual'
       termLabel = 'Semestral'
       periodMultiplier = 6
