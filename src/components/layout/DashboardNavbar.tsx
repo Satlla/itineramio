@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, User, Zap, Bell } from 'lucide-react'
+import { Menu, X, User, Bell } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
+import { ItineramioLogo } from '../ui/ItineramioLogo'
 import { SideMenu } from './SideMenu'
 import { useRealNotifications } from '../../hooks/useRealNotifications'
 import { useRouter } from 'next/navigation'
@@ -129,11 +130,9 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
               className="flex items-center space-x-1 sm:space-x-2"
               whileHover={{ scale: 1.05 }}
             >
-              <Link href="/main" className="flex items-center space-x-1">
-                <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white" />
-                </div>
-                <span className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent hidden xs:block">
+              <Link href="/main" className="flex items-center space-x-2">
+                <ItineramioLogo size="md" gradient />
+                <span className="text-base sm:text-lg md:text-xl font-bold hidden xs:block" style={{ color: '#484848' }}>
                   Itineramio
                 </span>
               </Link>

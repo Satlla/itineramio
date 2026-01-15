@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
+import { ItineramioLogo } from '../ui/ItineramioLogo'
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher'
 import { useRealNotifications } from '../../hooks/useRealNotifications'
 
@@ -269,13 +270,11 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
               {/* Footer */}
               <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200 text-center">
                 <div className="flex items-center justify-center space-x-1.5 sm:space-x-2 mb-1.5 sm:mb-2">
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">I</span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium text-gray-700">Itineramio</span>
+                  <ItineramioLogo size="sm" gradient />
+                  <span className="text-xs sm:text-sm font-medium" style={{ color: '#484848' }}>Itineramio</span>
                 </div>
                 <p className="text-[10px] sm:text-xs text-gray-500">
-                  Versión 2.0 • © 2024 Itineramio
+                  Versión 2.0 • © 2025 Itineramio
                 </p>
               </div>
             </div>
