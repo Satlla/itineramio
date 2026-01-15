@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import { cn } from '../../lib/utils'
 
 interface ItineramioLogoProps {
@@ -12,82 +11,64 @@ interface ItineramioLogoProps {
   white?: boolean
 }
 
-const sizeClasses = {
-  sm: { width: 24, height: 13 },
-  md: { width: 32, height: 18 },
-  lg: { width: 48, height: 26 },
-  xl: { width: 64, height: 35 }
+const squareSizes = {
+  sm: 24,
+  md: 32,
+  lg: 40,
+  xl: 48
 }
 
 const textSizeClasses = {
-  sm: 'text-lg',
-  md: 'text-xl',
-  lg: 'text-2xl',
-  xl: 'text-3xl'
+  sm: 'text-base',
+  md: 'text-lg',
+  lg: 'text-xl',
+  xl: 'text-2xl'
 }
 
 export function ItineramioLogo({
   className,
   size = 'md',
   variant = 'icon',
-  showText = false,
+  showText = true,
   white = false
 }: ItineramioLogoProps) {
-  const dimensions = sizeClasses[size]
+  const squareSize = squareSizes[size]
 
-  // New logo SVG component
-  const LogoSVG = () => (
+  // Square logo with rounded corners and brand color background
+  const SquareLogo = () => (
     <svg
-      width={dimensions.width}
-      height={dimensions.height}
-      viewBox="0 0 195 107"
+      width={squareSize}
+      height={squareSize}
+      viewBox="0 0 250 250"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
     >
-      <path d="M123.34 44.7245L112.607 53.6594L132.443 69.8455C133.344 70.5824 134.387 71.2027 135.527 71.6601C139.241 73.1402 147.773 75.5045 157.981 69.8791C172.84 61.6754 164.645 45.4257 163.177 43.566" stroke={white ? "white" : "black"} strokeWidth="10" strokeMiterlimit="10" strokeLinecap="round"/>
-      <path d="M108.092 32.1245C110.237 30.3864 110.568 27.2378 108.83 25.0921C107.091 22.9463 103.943 22.6159 101.797 24.3541L104.944 28.2393L108.092 32.1245ZM92.9446 37.9599L96.0918 41.8452L108.092 32.1245L104.944 28.2393L101.797 24.3541L89.7973 34.0747L92.9446 37.9599Z" fill={white ? "white" : "black"}/>
-      <path d="M181.884 24.5146C189.23 35.2595 190.799 47.2539 188.215 60.0171" stroke={white ? "white" : "black"} strokeWidth="10" strokeMiterlimit="10"/>
-      <path d="M5.53057 58.7791C5.53057 58.7791 7.35412 72.7401 19.2757 83.5876C22.13 86.1931 31.8263 94.551 46.7103 95.5529C66.571 96.9067 79.8677 84.1505 81.9592 82.0792L97.3746 66.6829L112.771 82.0984C117.991 87.322 124.37 91.2585 131.42 93.4503C142.047 96.7418 157.391 98.0816 171.693 86.6627C181.913 78.5043 186.43 68.7455 188.215 60.0176" stroke={white ? "white" : "black"} strokeWidth="10" strokeMiterlimit="10"/>
-      <path d="M98.842 37.5615L76.6314 14.9518C76.2412 14.569 75.8151 14.2169 75.3698 13.8969C70.9518 10.6665 48.2872 -3.48163 22.3513 15.0626C22.3513 15.0626 1.44432 30.0334 5.53005 58.7954" stroke={white ? "white" : "black"} strokeWidth="10" strokeMiterlimit="10"/>
-      <path d="M64.0331 33.6563C63.675 33.2927 63.2964 32.9779 62.8831 32.6772C59.818 30.408 47.8499 22.5458 35.1527 33.4173C20.7648 45.7363 29.885 60.6655 29.885 60.6655C29.885 60.6655 36.7732 73.8435 50.2481 73.3088C50.2481 73.3088 58.11 73.9178 62.3971 69.5146L82.0403 50.483L64.0331 33.6563Z" stroke={white ? "white" : "black"} strokeWidth="10" strokeMiterlimit="10"/>
-      <path d="M157.264 34.028L153.267 29.0456C152.289 27.8172 152.436 26.196 153.61 25.2273L171.265 10.5469C172.323 9.68064 174.079 9.86666 174.945 10.9677L180.648 18.0767C181.517 19.1606 181.323 20.6136 180.182 21.4109L161.26 34.6319C160.052 35.4701 158.214 35.198 157.264 34.028Z" stroke={white ? "white" : "black"} strokeWidth="5" strokeMiterlimit="10"/>
-      <path d="M114.324 11.614L109.927 15.8166C108.85 16.8537 108.786 18.4023 109.773 19.4635L124.6 35.5303C125.49 36.4803 127.171 36.5247 128.126 35.5938L134.399 29.5975C135.355 28.6831 135.354 27.2875 134.376 26.392L118.171 11.5442C117.136 10.6018 115.367 10.6286 114.324 11.614Z" stroke={white ? "white" : "black"} strokeWidth="5" strokeMiterlimit="10"/>
-      <path d="M142.718 24.813L145.792 24.7246C146.589 24.71 147.323 24.0518 147.579 23.0997L155.469 5.73167C155.919 4.11302 155.004 2.48029 153.635 2.50019L134.58 2.61179C133.363 2.61419 132.551 4.24425 133.114 5.52823L140.854 23.4706C141.21 24.3187 141.92 24.8276 142.718 24.813Z" stroke={white ? "white" : "black"} strokeWidth="5" strokeMiterlimit="10"/>
+      <rect width="250" height="250" rx="66" fill="#6366F1"/>
+      <path d="M151.396 116.485L140.662 125.42L160.499 141.606C161.399 142.343 162.443 142.963 163.583 143.421C167.296 144.901 175.828 147.265 186.037 141.64C200.895 133.436 192.7 117.186 191.232 115.327" stroke="white" strokeWidth="10" strokeMiterlimit="10" strokeLinecap="round"/>
+      <path d="M136.147 103.885C138.293 102.147 138.623 98.9986 136.885 96.8528C135.147 94.7071 131.999 94.3767 129.853 96.1149L133 100L136.147 103.885ZM121 109.721L124.147 113.606L136.147 103.885L133 100L129.853 96.1149L117.853 105.835L121 109.721Z" fill="white"/>
+      <path d="M209.94 96.2754C217.285 107.02 218.855 119.015 216.271 131.778" stroke="white" strokeWidth="10" strokeMiterlimit="10"/>
+      <path d="M33.5862 130.54C33.5862 130.54 35.4098 144.501 47.3313 155.348C50.1856 157.954 59.882 166.312 74.766 167.314C94.6267 168.667 107.923 155.911 110.015 153.84L125.43 138.444L140.827 153.859C146.047 159.083 152.425 163.019 159.476 165.211C170.102 168.503 185.447 169.842 199.748 158.423C209.969 150.265 214.486 140.506 216.27 131.778" stroke="white" strokeWidth="10" strokeMiterlimit="10"/>
+      <path d="M126.898 109.322L104.687 86.7126C104.297 86.3297 103.871 85.9776 103.425 85.6577C99.0075 82.4272 76.3429 68.2791 50.407 86.8233C50.407 86.8233 29.5 101.794 33.5857 130.556" stroke="white" strokeWidth="10" strokeMiterlimit="10"/>
+      <path d="M92.0887 105.417C91.7307 105.053 91.352 104.739 90.9387 104.438C87.8737 102.169 75.9056 94.3066 63.2083 105.178C48.8205 117.497 57.9407 132.426 57.9407 132.426C57.9407 132.426 64.8289 145.604 78.3038 145.07C78.3038 145.07 86.1656 145.679 90.4528 141.275L110.096 122.244L92.0887 105.417Z" stroke="white" strokeWidth="10" strokeMiterlimit="10"/>
+      <path d="M185.32 105.789L181.323 100.806C180.345 99.5779 180.492 97.9567 181.665 96.9881L199.321 82.3077C200.378 81.4414 202.135 81.6274 203.001 82.7284L208.704 89.8374C209.572 90.9213 209.379 92.3743 208.237 93.1717L189.316 106.393C188.108 107.231 186.27 106.959 185.32 105.789Z" stroke="white" strokeWidth="5" strokeMiterlimit="10"/>
+      <path d="M142.379 83.3747L137.983 87.5774C136.906 88.6144 136.842 90.163 137.828 91.2243L152.656 107.291C153.545 108.241 155.227 108.285 156.182 107.355L162.454 101.358C163.41 100.444 163.41 99.0482 162.432 98.1527L146.227 83.305C145.192 82.3626 143.423 82.3893 142.379 83.3747Z" stroke="white" strokeWidth="5" strokeMiterlimit="10"/>
+      <path d="M170.773 96.5738L173.847 96.4853C174.645 96.4707 175.379 95.8126 175.635 94.8605L183.525 77.4924C183.975 75.8738 183.06 74.241 181.691 74.2609L162.636 74.3725C161.419 74.3749 160.607 76.005 161.17 77.289L168.91 95.2313C169.266 96.0795 169.976 96.5884 170.773 96.5738Z" stroke="white" strokeWidth="5" strokeMiterlimit="10"/>
     </svg>
   )
 
-  if (variant === 'icon') {
-    return <LogoSVG />
-  }
-
-  if (variant === 'square') {
-    return (
-      <div className={cn(
-        "bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg p-2",
-        className
-      )}>
-        <LogoSVG />
-      </div>
-    )
-  }
-
-  if (variant === 'full' || showText) {
-    return (
-      <div className="flex items-center space-x-2">
-        <LogoSVG />
-        {showText && (
-          <span className={cn(
-            "font-bold",
-            white ? "text-white" : "bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent",
-            textSizeClasses[size]
-          )}>
-            Itineramio
-          </span>
-        )}
-      </div>
-    )
-  }
-
-  return <LogoSVG />
+  // Default: show square logo + text
+  return (
+    <div className={cn("flex items-center gap-2", className)}>
+      <SquareLogo />
+      {showText && (
+        <span className={cn(
+          "font-semibold tracking-tight",
+          white ? "text-white" : "text-gray-900",
+          textSizeClasses[size]
+        )}>
+          Itineramio
+        </span>
+      )}
+    </div>
+  )
 }
