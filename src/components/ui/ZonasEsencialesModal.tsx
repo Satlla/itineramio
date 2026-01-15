@@ -4,6 +4,7 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from './Button'
 import { Home, Wifi, LogOut, Phone, X, Sparkles, Trash2, Key, MapPin, List, Car, Thermometer, Bus, Star } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface ZonasEsencialesModalProps {
   isOpen: boolean
@@ -29,18 +30,19 @@ const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = 
   trash: Trash2
 }
 
-const zonesInfo = [
-  { name: 'Check In', icon: 'key', description: 'Proceso de entrada' },
-  { name: 'WiFi', icon: 'wifi', description: 'Conexión a internet' },
-  { name: 'Check Out', icon: 'exit', description: 'Proceso de salida' },
-  { name: 'Cómo Llegar', icon: 'map-pin', description: 'Direcciones y ubicación' },
-  { name: 'Normas de la Casa', icon: 'list', description: 'Reglas y políticas' },
-  { name: 'Parking', icon: 'car', description: 'Información de aparcamiento' },
-  { name: 'Climatización', icon: 'thermometer', description: 'Aire y calefacción' },
-  { name: 'Emergencias', icon: 'phone', description: 'Teléfonos importantes' },
-  { name: 'Transporte', icon: 'bus', description: 'Metro y autobuses' },
-  { name: 'Recomendaciones', icon: 'star', description: 'Lugares de interés' },
-  { name: 'Basura', icon: 'trash', description: 'Reciclaje y residuos' }
+// Zone keys for translation lookup
+const zonesKeys = [
+  { nameKey: 'checkIn', descKey: 'checkInDesc', icon: 'key' },
+  { nameKey: 'wifi', descKey: 'wifiDesc', icon: 'wifi' },
+  { nameKey: 'checkOut', descKey: 'checkOutDesc', icon: 'exit' },
+  { nameKey: 'howToArrive', descKey: 'howToArriveDesc', icon: 'map-pin' },
+  { nameKey: 'houseRules', descKey: 'houseRulesDesc', icon: 'list' },
+  { nameKey: 'parking', descKey: 'parkingDesc', icon: 'car' },
+  { nameKey: 'climate', descKey: 'climateDesc', icon: 'thermometer' },
+  { nameKey: 'emergencies', descKey: 'emergenciesDesc', icon: 'phone' },
+  { nameKey: 'transport', descKey: 'transportDesc', icon: 'bus' },
+  { nameKey: 'recommendations', descKey: 'recommendationsDesc', icon: 'star' },
+  { nameKey: 'trash', descKey: 'trashDesc', icon: 'trash' }
 ]
 
 export function ZonasEsencialesModal({
@@ -52,6 +54,8 @@ export function ZonasEsencialesModal({
   currentZoneIndex = 0,
   totalZones = 11
 }: ZonasEsencialesModalProps) {
+  const { t } = useTranslation('zones')
+
   // Debug logging for mobile
   React.useEffect(() => {
     if (isOpen) {
@@ -108,11 +112,9 @@ export function ZonasEsencialesModal({
               <Sparkles className="w-8 h-8 text-violet-600" />
             </div>
             <h2 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900 mb-2">
-              ¡Hola {userName}! 👋
+              {t('essentialZonesModal.greeting', { userName })}
             </h2>
-            <p className="text-gray-600 text-lg">
-              Estamos creando tu <strong>manual digital inteligente</strong> con las zonas esenciales que todo huésped necesita
-            </p>
+            <p className="text-gray-600 text-lg" dangerouslySetInnerHTML={{ __html: t('essentialZonesModal.creatingManual') }} />
           </div>
 
           {/* Progress Bar */}
@@ -120,7 +122,7 @@ export function ZonasEsencialesModal({
             <div className="mb-6">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium text-gray-700">
-                  Creando zonas: {currentZoneIndex} de {totalZones}
+                  {t('essentialZonesModal.creatingZones', { current: currentZoneIndex, total: totalZones })}
                 </span>
                 <span className="text-sm font-semibold text-violet-600">
                   {Math.round((currentZoneIndex / totalZones) * 100)}%
@@ -140,17 +142,19 @@ export function ZonasEsencialesModal({
           {/* Zones Created - Responsive Grid */}
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <h3 className="font-semibold text-gray-900 mb-4 text-center">
-              🚀 Zonas esenciales que estamos creando:
+              {t('essentialZonesModal.essentialZonesTitle')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {zonesInfo.map((zone, index) => {
+              {zonesKeys.map((zone, index) => {
                 const IconComponent = iconMap[zone.icon]
                 const isCreated = isLoading && index < currentZoneIndex
                 const isCreating = isLoading && index === currentZoneIndex
+                const zoneName = t(`essentialZonesModal.zones.${zone.nameKey}`)
+                const zoneDesc = t(`essentialZonesModal.zones.${zone.descKey}`)
 
                 return (
                   <motion.div
-                    key={zone.name}
+                    key={zone.nameKey}
                     className={`flex items-center space-x-3 p-2 rounded-lg transition-all ${
                       isCreated
                         ? 'bg-green-50 border border-green-200'
@@ -186,12 +190,12 @@ export function ZonasEsencialesModal({
                       <div className={`font-medium text-sm truncate ${
                         isCreated ? 'text-green-900' : 'text-gray-900'
                       }`}>
-                        {zone.name}
+                        {zoneName}
                       </div>
                       <div className={`text-xs truncate ${
                         isCreated ? 'text-green-600' : 'text-gray-500'
                       }`}>
-                        {isCreating ? 'Creando...' : zone.description}
+                        {isCreating ? t('essentialZonesModal.creating') : zoneDesc}
                       </div>
                     </div>
                   </motion.div>
@@ -203,28 +207,28 @@ export function ZonasEsencialesModal({
           {/* Features Information */}
           <div className="mb-6">
             <h3 className="font-semibold text-gray-900 mb-4 text-center">
-              ¿Qué puedes hacer en cada zona?
+              {t('essentialZonesModal.whatCanYouDo')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Content Types */}
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h4 className="font-semibold text-green-800 mb-2">📝 Tipos de Contenido</h4>
+                <h4 className="font-semibold text-green-800 mb-2">{t('essentialZonesModal.contentTypes')}</h4>
                 <ul className="text-sm text-green-700 space-y-1">
-                  <li>• <strong>Texto</strong> con instrucciones paso a paso</li>
-                  <li>• <strong>Fotos</strong> para mostrar ubicaciones y dispositivos</li>
-                  <li>• <strong>Videos</strong> con explicaciones detalladas</li>
-                  <li>• <strong>Enlaces externos</strong> a recursos útiles</li>
+                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.contentText')}` }} />
+                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.contentPhotos')}` }} />
+                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.contentVideos')}` }} />
+                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.contentLinks')}` }} />
                 </ul>
               </div>
-              
+
               {/* Sharing Options */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 className="font-semibold text-blue-800 mb-2">🚀 Funcionalidades</h4>
+                <h4 className="font-semibold text-blue-800 mb-2">{t('essentialZonesModal.features')}</h4>
                 <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• <strong>Códigos QR</strong> únicos para cada zona</li>
-                  <li>• <strong>Enlaces públicos</strong> para compartir</li>
-                  <li>• <strong>Vista móvil</strong> optimizada para huéspedes</li>
-                  <li>• <strong>Traducciones</strong> automáticas disponibles</li>
+                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.featureQR')}` }} />
+                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.featureLinks')}` }} />
+                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.featureMobile')}` }} />
+                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.featureTranslations')}` }} />
                 </ul>
               </div>
             </div>
@@ -232,19 +236,19 @@ export function ZonasEsencialesModal({
 
           {/* Quick Start Info */}
           <div className="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-6">
-            <h4 className="font-semibold text-violet-800 mb-2">🎯 Pasos siguientes:</h4>
+            <h4 className="font-semibold text-violet-800 mb-2">{t('essentialZonesModal.nextSteps')}</h4>
             <div className="text-sm text-violet-700 grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="flex items-center space-x-2">
                 <span className="w-6 h-6 bg-violet-200 text-violet-800 rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                <span>Completa cada zona con información específica</span>
+                <span>{t('essentialZonesModal.step1')}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="w-6 h-6 bg-violet-200 text-violet-800 rounded-full flex items-center justify-center text-xs font-bold">2</span>
-                <span>Activa tu manual cuando esté listo</span>
+                <span>{t('essentialZonesModal.step2')}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="w-6 h-6 bg-violet-200 text-violet-800 rounded-full flex items-center justify-center text-xs font-bold">3</span>
-                <span>Comparte con tus huéspedes</span>
+                <span>{t('essentialZonesModal.step3')}</span>
               </div>
             </div>
           </div>
@@ -259,10 +263,10 @@ export function ZonasEsencialesModal({
               {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                  Creando zonas esenciales...
+                  {t('essentialZonesModal.creatingEssentialZones')}
                 </>
               ) : (
-                <>✨ ¡Perfecto! Empezar con mi manual</>
+                <>{t('essentialZonesModal.startManual')}</>
               )}
             </Button>
           </div>

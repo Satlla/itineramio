@@ -18,9 +18,9 @@ interface ExitIntentPopupProps {
 }
 
 // ONLY show popup on these landing pages (for non-customers)
+// NOTE: /main is the user dashboard - DO NOT include it here
 const ALLOWED_PAGES = [
   '/',
-  '/main',
   '/comparar',
   '/funcionalidades',
 ]
