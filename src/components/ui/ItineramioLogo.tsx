@@ -29,7 +29,7 @@ export function ItineramioLogo({
   className,
   size = 'md',
   variant = 'icon',
-  showText = true,
+  showText = false,
   white = false
 }: ItineramioLogoProps) {
   const squareSize = squareSizes[size]

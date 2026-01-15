@@ -21,10 +21,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Initialize Stripe
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2025-06-30.basil' as Stripe.LatestApiVersion
-    })
+    // Initialize Stripe (use SDK default API version)
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
     // Verify authentication
     const token = request.cookies.get('auth-token')?.value
