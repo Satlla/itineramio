@@ -10,6 +10,7 @@ import {
   Zap
 } from 'lucide-react'
 import Link from 'next/link'
+import { ItineramioLogo } from '../../../src/components/ui/ItineramioLogo'
 import { Button } from '../../../src/components/ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
@@ -67,10 +68,8 @@ function VerifyRequiredContent() {
               whileHover={{ scale: 1.05 }}
               className="flex items-center space-x-2"
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+              <ItineramioLogo size="md" gradient />
+              <span className="text-xl font-bold" style={{ color: '#484848' }}>
                 Itineramio
               </span>
             </motion.div>

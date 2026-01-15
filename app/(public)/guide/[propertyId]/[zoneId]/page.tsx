@@ -1201,7 +1201,7 @@ export default function ZoneGuidePage({
           className="text-center text-gray-500 text-xs sm:text-sm mt-6 sm:mt-8 px-4"
         >
           <p>
-            Powered by <ItineramioLogo size="sm" className="inline-block mx-1" /> Itineramio
+            Powered by <ItineramioLogo size="sm" gradient className="inline-block mx-1" /> Itineramio
           </p>
         </motion.div>
       </main>

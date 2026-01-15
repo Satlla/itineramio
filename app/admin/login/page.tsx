@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Shield, Lock, AlertCircle, Eye, EyeOff, Mail } from 'lucide-react'
+import { ItineramioLogo } from '../../../src/components/ui/ItineramioLogo'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -44,8 +45,8 @@ export default function AdminLoginPage() {
       <div className="max-w-md w-full">
         {/* Logo Section */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-600 rounded-full mb-4">
-            <Shield className="h-8 w-8 text-white" />
+          <div className="flex justify-center mb-4">
+            <ItineramioLogo size="xl" white />
           </div>
           <h1 className="text-3xl font-bold text-white">Panel Administrativo</h1>
           <p className="text-gray-400 mt-2">Itineramio Admin</p>

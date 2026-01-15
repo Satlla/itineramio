@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
+import { ItineramioLogo } from '../../../src/components/ui/ItineramioLogo'
 import { Button, Input } from '../../../src/components/ui'
 import { InlineSpinner } from '../../../src/components/ui/Spinner'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -210,10 +211,8 @@ export default function RegisterPage() {
               whileHover={{ scale: 1.05 }}
               className="flex items-center space-x-2"
             >
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-              </div>
-              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+              <ItineramioLogo size="md" gradient />
+              <span className="text-lg sm:text-xl font-bold" style={{ color: '#484848' }}>
                 Itineramio
               </span>
             </motion.div>
