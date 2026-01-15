@@ -40,14 +40,14 @@ export function ItineramioLogo({
     <svg
       width={squareSize}
       height={squareSize}
-      viewBox="0 0 100 100"
+      viewBox="0 0 220 220"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       {/* Purple rounded square background */}
-      <rect width="100" height="100" rx="22" fill="#6366F1"/>
-      {/* Isotipo centered - original viewBox 195x107, scaled and centered */}
-      <g transform="translate(8, 24) scale(0.43)">
+      <rect width="220" height="220" rx="44" fill="#6366F1"/>
+      {/* Isotipo in white - centered (original 195x107, offset to center) */}
+      <g transform="translate(12, 56)">
         <path d="M123.34 44.7245L112.607 53.6594L132.443 69.8455C133.344 70.5824 134.387 71.2027 135.527 71.6601C139.241 73.1402 147.773 75.5045 157.981 69.8791C172.84 61.6754 164.645 45.4257 163.177 43.566" stroke="white" strokeWidth="10" strokeMiterlimit="10" strokeLinecap="round"/>
         <path d="M108.092 32.1245C110.237 30.3864 110.568 27.2378 108.83 25.0921C107.091 22.9463 103.943 22.6159 101.797 24.3541L104.944 28.2393L108.092 32.1245ZM92.9446 37.9599L96.0918 41.8452L108.092 32.1245L104.944 28.2393L101.797 24.3541L89.7973 34.0747L92.9446 37.9599Z" fill="white"/>
         <path d="M181.884 24.5146C189.23 35.2595 190.799 47.2539 188.215 60.0171" stroke="white" strokeWidth="10" strokeMiterlimit="10"/>
