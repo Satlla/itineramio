@@ -24,7 +24,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      telemetry: false,
+      httpClient: Stripe.createFetchHttpClient()
+    })
 
     // Get raw body for signature verification
     const body = await request.text()

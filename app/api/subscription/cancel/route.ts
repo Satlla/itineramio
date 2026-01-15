@@ -47,7 +47,10 @@ export async function POST(request: NextRequest) {
     // Si tiene suscripción de Stripe, cancelarla también en Stripe
     if (subscription.stripeSubscriptionId && process.env.STRIPE_SECRET_KEY) {
       try {
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+          telemetry: false,
+          httpClient: Stripe.createFetchHttpClient()
+        })
 
         if (immediate) {
           // Cancelación inmediata

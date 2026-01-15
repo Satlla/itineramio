@@ -42,7 +42,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      telemetry: false,
+      httpClient: Stripe.createFetchHttpClient()
+    })
 
     // Verify authentication
     const token = request.cookies.get('auth-token')?.value

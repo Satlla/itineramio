@@ -21,8 +21,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Initialize Stripe (use SDK default API version)
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+    // Initialize Stripe with minimal config
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      telemetry: false,
+      httpClient: Stripe.createFetchHttpClient()
+    })
 
     // Verify authentication
     const token = request.cookies.get('auth-token')?.value

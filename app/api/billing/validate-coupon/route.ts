@@ -3,7 +3,10 @@ import { prisma } from '../../../../src/lib/prisma'
 import { verifyToken } from '../../../../src/lib/auth'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  telemetry: false,
+  httpClient: Stripe.createFetchHttpClient()
+})
 
 export async function POST(request: NextRequest) {
   try {

@@ -1,6 +1,9 @@
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  telemetry: false,
+  httpClient: Stripe.createFetchHttpClient()
+})
 
 export interface CouponStatus {
   code: string
