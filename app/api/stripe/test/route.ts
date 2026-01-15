@@ -1,39 +1,46 @@
 import { NextResponse } from 'next/server'
-import Stripe from 'stripe'
 
 export async function GET() {
   try {
     const secretKey = process.env.STRIPE_SECRET_KEY
 
-    // Check if key exists
     if (!secretKey) {
       return NextResponse.json({
         success: false,
-        error: 'STRIPE_SECRET_KEY not found in environment',
-        keyExists: false
+        error: 'STRIPE_SECRET_KEY not found'
       })
     }
 
-    // Check key format
-    const keyInfo = {
-      length: secretKey.length,
-      startsWithLive: secretKey.startsWith('sk_live_'),
-      startsWithTest: secretKey.startsWith('sk_test_'),
-      first20: secretKey.substring(0, 20) + '...',
-      hasWhitespace: /\s/.test(secretKey)
+    // Direct HTTP call to Stripe API (no SDK)
+    const response = await fetch('https://api.stripe.com/v1/balance', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${secretKey}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      return NextResponse.json({
+        success: false,
+        httpStatus: response.status,
+        stripeError: data,
+        keyInfo: {
+          length: secretKey.length,
+          first20: secretKey.substring(0, 20) + '...'
+        }
+      })
     }
-
-    // Try to connect to Stripe
-    const stripe = new Stripe(secretKey)
-
-    // Simple API call to test connection
-    const balance = await stripe.balance.retrieve()
 
     return NextResponse.json({
       success: true,
-      keyInfo,
-      balanceAvailable: balance.available.map(b => ({ amount: b.amount, currency: b.currency })),
-      message: 'Stripe connection successful!'
+      balance: data,
+      keyInfo: {
+        length: secretKey.length,
+        first20: secretKey.substring(0, 20) + '...'
+      }
     })
 
   } catch (error) {
@@ -41,12 +48,7 @@ export async function GET() {
     return NextResponse.json({
       success: false,
       error: err.message,
-      name: err.name,
-      keyInfo: {
-        exists: !!process.env.STRIPE_SECRET_KEY,
-        length: process.env.STRIPE_SECRET_KEY?.length || 0,
-        first20: process.env.STRIPE_SECRET_KEY?.substring(0, 20) + '...'
-      }
+      name: err.name
     }, { status: 500 })
   }
 }

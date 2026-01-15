@@ -1,25 +1,11 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background Circle -->
-  <circle cx="16" cy="16" r="16" fill="url(#gradient)"/>
-  
-  <!-- Property/Building Icon -->
-  <rect x="8" y="14" width="16" height="12" rx="2" fill="white" opacity="0.9"/>
-  <rect x="8" y="10" width="16" height="4" rx="2" fill="white"/>
-  
-  <!-- Guide Lines/Steps -->
-  <line x1="11" y1="17" x2="21" y2="17" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round"/>
-  <line x1="11" y1="20" x2="18" y2="20" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round"/>
-  <line x1="11" y1="23" x2="20" y2="23" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round"/>
-  
-  <!-- Step Numbers -->
-  <circle cx="11" cy="17" r="1.5" fill="#8B5CF6"/>
-  <circle cx="11" cy="20" r="1.5" fill="#8B5CF6"/>
-  <circle cx="11" cy="23" r="1.5" fill="#8B5CF6"/>
-  
-  <defs>
-    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#A855F7;stop-opacity:1" />
-    </linearGradient>
-  </defs>
+  <rect width="32" height="32" rx="7" fill="#6366F1"/>
+  <g transform="translate(2.5, 8.5) scale(0.138)">
+    <path d="M123.34 44.7245L112.607 53.6594L132.443 69.8455C133.344 70.5824 134.387 71.2027 135.527 71.6601C139.241 73.1402 147.773 75.5045 157.981 69.8791C172.84 61.6754 164.645 45.4257 163.177 43.566" stroke="white" stroke-width="12" stroke-miterlimit="10" stroke-linecap="round"/>
+    <path d="M108.092 32.1245C110.237 30.3864 110.568 27.2378 108.83 25.0921C107.091 22.9463 103.943 22.6159 101.797 24.3541L104.944 28.2393L108.092 32.1245ZM92.9446 37.9599L96.0918 41.8452L108.092 32.1245L104.944 28.2393L101.797 24.3541L89.7973 34.0747L92.9446 37.9599Z" fill="white"/>
+    <path d="M181.884 24.5146C189.23 35.2595 190.799 47.2539 188.215 60.0171" stroke="white" stroke-width="12" stroke-miterlimit="10"/>
+    <path d="M5.53057 58.7791C5.53057 58.7791 7.35412 72.7401 19.2757 83.5876C22.13 86.1931 31.8263 94.551 46.7103 95.5529C66.571 96.9067 79.8677 84.1505 81.9592 82.0792L97.3746 66.6829L112.771 82.0984C117.991 87.322 124.37 91.2585 131.42 93.4503C142.047 96.7418 157.391 98.0816 171.693 86.6627C181.913 78.5043 186.43 68.7455 188.215 60.0176" stroke="white" stroke-width="12" stroke-miterlimit="10"/>
+    <path d="M98.842 37.5615L76.6314 14.9518C76.2412 14.569 75.8151 14.2169 75.3698 13.8969C70.9518 10.6665 48.2872 -3.48163 22.3513 15.0626C22.3513 15.0626 1.44432 30.0334 5.53005 58.7954" stroke="white" stroke-width="12" stroke-miterlimit="10"/>
+    <path d="M64.0331 33.6563C63.675 33.2927 63.2964 32.9779 62.8831 32.6772C59.818 30.408 47.8499 22.5458 35.1527 33.4173C20.7648 45.7363 29.885 60.6655 29.885 60.6655C29.885 60.6655 36.7732 73.8435 50.2481 73.3088C50.2481 73.3088 58.11 73.9178 62.3971 69.5146L82.0403 50.483L64.0331 33.6563Z" stroke="white" stroke-width="12" stroke-miterlimit="10"/>
+  </g>
 </svg>
