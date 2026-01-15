@@ -258,9 +258,12 @@ export default function DashboardPage(): JSX.Element {
     loadDashboardData()
   }, [])
 
-  // Check for welcome parameter to show unified welcome modal (ONLY ONCE EVER)
+  // Show unified welcome modal for NEW users (no properties, hasn't seen onboarding)
   useEffect(() => {
     const checkOnboardingStatus = async () => {
+      // Wait for loading to complete
+      if (loading) return
+
       // ABSOLUTE GUARD: NEVER show if already seen - check localStorage FIRST
       if (typeof window !== 'undefined' && localStorage.getItem('hasSeenUnifiedWelcome') === 'true') {
         console.log('🚫 Unified welcome modal already seen (localStorage), not showing')
@@ -275,11 +278,12 @@ export default function DashboardPage(): JSX.Element {
       }
       hasCheckedWelcomeModal.current = true
 
-      // Only show if welcome=true AND user is loaded AND NOT SEEN BEFORE
+      // Show onboarding if: user has NO properties (new user) OR has ?welcome=true
       const welcome = searchParams.get('welcome')
-      console.log('🔍 Welcome param:', welcome, 'User:', !!user?.name)
+      const isNewUser = properties.length === 0
+      console.log('🔍 Welcome check - param:', welcome, 'isNewUser:', isNewUser, 'User:', !!user?.name)
 
-      if (welcome === 'true' && user?.name) {
+      if ((welcome === 'true' || isNewUser) && user?.name) {
         // Check database to see if user has completed onboarding
         try {
           const response = await fetch('/api/user/complete-onboarding', {
@@ -307,15 +311,17 @@ export default function DashboardPage(): JSX.Element {
         console.log('✅ Showing unified welcome modal for first time')
         setShowUnifiedWelcome(true)
 
-        // Clean up URL immediately
-        const url = new URL(window.location.href)
-        url.searchParams.delete('welcome')
-        window.history.replaceState({}, '', url.toString())
+        // Clean up URL if welcome param exists
+        if (welcome === 'true') {
+          const url = new URL(window.location.href)
+          url.searchParams.delete('welcome')
+          window.history.replaceState({}, '', url.toString())
+        }
       }
     }
 
     checkOnboardingStatus()
-  }, [searchParams, user])
+  }, [searchParams, user, loading, properties])
 
   // Check if should show first property notification/onboarding
   useEffect(() => {

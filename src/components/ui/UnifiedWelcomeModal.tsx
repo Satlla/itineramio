@@ -5,10 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Sparkles,
   Home,
-  Wifi,
-  QrCode,
-  Share2,
-  FolderOpen,
+  Globe,
+  MessageCircle,
+  Bell,
   ChevronRight,
   X,
   Check
@@ -28,70 +27,70 @@ const slides = [
     id: 'welcome',
     icon: Sparkles,
     title: '¡Bienvenido a Itineramio!',
-    subtitle: 'Tu plataforma de manuales digitales',
-    description: 'Crea experiencias inolvidables para tus huéspedes con manuales digitales interactivos.',
+    subtitle: 'Deja de repetir lo mismo a cada huésped',
+    description: 'Crea un manual digital con toda la información que tus huéspedes necesitan. WiFi, check-in, electrodomésticos... todo en un solo lugar.',
     gradient: 'from-violet-600 via-purple-600 to-fuchsia-600',
     iconColor: 'text-violet-500',
     features: [
-      { icon: '✨', text: 'Interfaz intuitiva y moderna' },
-      { icon: '⚡', text: 'Configuración en minutos' },
-      { icon: '📱', text: 'Optimizado para móvil' }
+      { icon: '🔁', text: 'Olvídate de repetir las mismas respuestas' },
+      { icon: '📱', text: 'Accesible desde cualquier móvil' },
+      { icon: '⚡', text: 'Configúralo en minutos' }
     ]
   },
   {
     id: 'zones',
-    icon: Wifi,
-    title: 'Zonas inteligentes',
-    subtitle: 'Pre-configuradas para ti',
-    description: 'Creamos automáticamente las zonas más comunes. Solo personaliza con tu información.',
+    icon: Home,
+    title: 'Zonas ilimitadas',
+    subtitle: 'WiFi, Check-in, Lavadora, Cocina...',
+    description: 'Crea todas las zonas que necesites con vídeos, imágenes o texto. Tus huéspedes tendrán toda la información organizada.',
     gradient: 'from-blue-600 via-cyan-600 to-teal-600',
     iconColor: 'text-blue-500',
     features: [
-      { icon: '🔐', text: 'WiFi y códigos de acceso' },
-      { icon: '🍳', text: 'Electrodomésticos' },
-      { icon: '🎬', text: 'Vídeos de check-in' }
+      { icon: '🎬', text: 'Añade vídeos explicativos' },
+      { icon: '📸', text: 'Sube imágenes paso a paso' },
+      { icon: '📝', text: 'Instrucciones detalladas' }
     ]
   },
   {
-    id: 'qr',
-    icon: QrCode,
-    title: 'Códigos QR',
-    subtitle: 'Acceso instantáneo',
-    description: 'Genera QR únicos para cada zona. Tus huéspedes solo tienen que escanear.',
+    id: 'multilang',
+    icon: Globe,
+    title: 'Manual en varios idiomas',
+    subtitle: 'Español, Inglés, Francés',
+    description: 'Tu manual se muestra automáticamente en el idioma del huésped. Llega a visitantes de todo el mundo.',
     gradient: 'from-emerald-600 via-green-600 to-lime-600',
     iconColor: 'text-emerald-500',
     features: [
-      { icon: '🔲', text: 'QR por zona o completo' },
-      { icon: '🖨️', text: 'Imprime fácilmente' },
-      { icon: '📊', text: 'Estadísticas de uso' }
+      { icon: '🇪🇸', text: 'Español' },
+      { icon: '🇬🇧', text: 'Inglés' },
+      { icon: '🇫🇷', text: 'Francés' }
     ]
   },
   {
-    id: 'share',
-    icon: Share2,
-    title: 'Comparte fácilmente',
-    subtitle: 'Integrado con todo',
-    description: 'Envía por WhatsApp, email o intégralo con Airbnb y Booking.',
+    id: 'whatsapp',
+    icon: MessageCircle,
+    title: 'WhatsApp a un click',
+    subtitle: 'Conexión directa con tus huéspedes',
+    description: 'Si tienen un problema, pueden contactarte por WhatsApp con un solo toque. Sin buscar números ni copiar enlaces.',
+    gradient: 'from-green-600 via-emerald-600 to-teal-600',
+    iconColor: 'text-green-500',
+    features: [
+      { icon: '💬', text: 'Botón directo a WhatsApp' },
+      { icon: '🚀', text: 'Respuesta inmediata' },
+      { icon: '✅', text: 'Menos llamadas, más soluciones' }
+    ]
+  },
+  {
+    id: 'announcements',
+    icon: Bell,
+    title: 'Avisos importantes',
+    subtitle: 'Lo primero que ven al entrar',
+    description: 'Añade avisos destacados para que tus huéspedes sepan lo esencial nada más aterrizar en tu manual.',
     gradient: 'from-amber-600 via-orange-600 to-red-600',
     iconColor: 'text-amber-500',
     features: [
-      { icon: '🔗', text: 'Enlace único' },
-      { icon: '✉️', text: 'Email y WhatsApp' },
-      { icon: '🤖', text: 'Integración OTAs' }
-    ]
-  },
-  {
-    id: 'manage',
-    icon: FolderOpen,
-    title: 'Gestiona múltiples',
-    subtitle: 'Todo en un lugar',
-    description: 'Perfecto para gestores y hoteleros. Organiza todas tus propiedades.',
-    gradient: 'from-pink-600 via-rose-600 to-red-600',
-    iconColor: 'text-pink-500',
-    features: [
-      { icon: '🏢', text: 'Conjuntos de propiedades' },
-      { icon: '📋', text: 'Panel centralizado' },
-      { icon: '⚡', text: 'Duplica contenido' }
+      { icon: '🔔', text: 'Avisos visibles al entrar' },
+      { icon: '⚠️', text: 'Información importante primero' },
+      { icon: '📌', text: 'Normas, horarios, contactos' }
     ]
   }
 ]

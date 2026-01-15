@@ -85,10 +85,12 @@ export default function PropertyPlanSelectorV3({
     return allPlans.find(plan => propertyCount <= plan.maxProperties) || allPlans[allPlans.length - 1]
   }, [propertyCount, allPlans])
 
-  // Check if this is the exact same plan + period as current
+  // Check if this is the exact same plan + period as current (only if user HAS an active subscription)
   const isCurrentPlanAndPeriod = useMemo(() => {
+    // If user doesn't have an active subscription, they can select any plan
+    if (!currentPlan?.hasActiveSubscription) return false
     return requiredPlan.code === currentPlan?.code && billingPeriod === getCurrentBillingPeriod()
-  }, [requiredPlan.code, currentPlan?.code, billingPeriod])
+  }, [requiredPlan.code, currentPlan?.code, currentPlan?.hasActiveSubscription, billingPeriod])
 
   // Calculate base price without IVA
   const calculatePriceWithoutIVA = (price: number) => {
