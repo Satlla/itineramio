@@ -13,17 +13,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const timeframe = searchParams.get('timeframe') || '30d';
     const metric = searchParams.get('metric') || 'all';
-
-    // Additional filter parameters
     const propertyId = searchParams.get('propertyId');
-    const zoneId = searchParams.get('zoneId');
-    const language = searchParams.get('language');
-    const customStartDate = searchParams.get('startDate');
-    const customEndDate = searchParams.get('endDate');
-    const minViews = searchParams.get('minViews');
-    const maxViews = searchParams.get('maxViews');
-    const sortBy = searchParams.get('sortBy') || 'views';
-    const sortOrder = searchParams.get('sortOrder') || 'desc';
 
     // Calculate date range
     const now = new Date();
@@ -31,7 +21,6 @@ export async function GET(request: NextRequest) {
     let previousStartDate: Date;
     let previousEndDate: Date;
 
-    // Calculate days for the timeframe
     let days = 30;
     switch (timeframe) {
       case '7d': days = 7; break;
@@ -40,13 +29,8 @@ export async function GET(request: NextRequest) {
       case '1y': days = 365; break;
     }
 
-    if (customStartDate) {
-      startDate = new Date(customStartDate);
-    } else {
-      startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-    }
-
-    let endDate: Date = customEndDate ? new Date(customEndDate) : now;
+    startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+    const endDate = now;
 
     // Calculate previous period for comparison
     const periodLength = endDate.getTime() - startDate.getTime();
@@ -57,7 +41,6 @@ export async function GET(request: NextRequest) {
 
     // ==================== OVERVIEW METRICS ====================
     if (metric === 'all' || metric === 'overview') {
-      // Current period totals
       const [
         totalUsers,
         totalProperties,
@@ -66,7 +49,12 @@ export async function GET(request: NextRequest) {
         activeUsers,
         publishedProperties,
         newUsersInPeriod,
-        newPropertiesInPeriod
+        newPropertiesInPeriod,
+        prevNewUsers,
+        prevNewProperties,
+        // Real views in period from ZoneView table
+        realViewsInPeriod,
+        prevRealViews
       ] = await Promise.all([
         prisma.user.count(),
         prisma.property.count(),
@@ -75,19 +63,13 @@ export async function GET(request: NextRequest) {
         prisma.user.count({ where: { isActive: true } }),
         prisma.property.count({ where: { isPublished: true } }),
         prisma.user.count({ where: { createdAt: { gte: startDate, lte: endDate } } }),
-        prisma.property.count({ where: { createdAt: { gte: startDate, lte: endDate } } })
-      ]);
-
-      // Previous period for comparison
-      const [
-        prevNewUsers,
-        prevNewProperties
-      ] = await Promise.all([
+        prisma.property.count({ where: { createdAt: { gte: startDate, lte: endDate } } }),
         prisma.user.count({ where: { createdAt: { gte: previousStartDate, lte: previousEndDate } } }),
-        prisma.property.count({ where: { createdAt: { gte: previousStartDate, lte: previousEndDate } } })
+        prisma.property.count({ where: { createdAt: { gte: previousStartDate, lte: previousEndDate } } }),
+        prisma.zoneView.count({ where: { viewedAt: { gte: startDate, lte: endDate } } }),
+        prisma.zoneView.count({ where: { viewedAt: { gte: previousStartDate, lte: previousEndDate } } })
       ]);
 
-      // Calculate percentage changes
       const userGrowthPercent = prevNewUsers > 0
         ? Math.round(((newUsersInPeriod - prevNewUsers) / prevNewUsers) * 100)
         : newUsersInPeriod > 0 ? 100 : 0;
@@ -96,11 +78,17 @@ export async function GET(request: NextRequest) {
         ? Math.round(((newPropertiesInPeriod - prevNewProperties) / prevNewProperties) * 100)
         : newPropertiesInPeriod > 0 ? 100 : 0;
 
+      const viewsGrowthPercent = prevRealViews > 0
+        ? Math.round(((realViewsInPeriod - prevRealViews) / prevRealViews) * 100)
+        : realViewsInPeriod > 0 ? 100 : 0;
+
       analytics.overview = {
         totalUsers,
         totalProperties,
         totalZones,
         totalViews: totalViewsAgg._sum.viewCount || 0,
+        viewsInPeriod: realViewsInPeriod,
+        viewsGrowthPercent,
         activeUsers,
         publishedProperties,
         newUsersInPeriod,
@@ -111,35 +99,29 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // ==================== ZONE VISITS ====================
+    // ==================== ZONE VISITS (REAL DATA from ZoneView table) ====================
     if (metric === 'all' || metric === 'visits') {
-      const zoneWhere: any = {};
+      const zoneViewWhere: any = {
+        viewedAt: { gte: startDate, lte: endDate }
+      };
+      if (propertyId) zoneViewWhere.propertyId = propertyId;
 
-      if (propertyId) zoneWhere.propertyId = propertyId;
-      if (zoneId) zoneWhere.id = zoneId;
-
-      if (minViews || maxViews) {
-        zoneWhere.viewCount = {};
-        if (minViews) zoneWhere.viewCount.gte = parseInt(minViews);
-        if (maxViews) zoneWhere.viewCount.lte = parseInt(maxViews);
-      }
-
-      const orderBy: any = {};
-      switch (sortBy) {
-        case 'views': orderBy.viewCount = sortOrder; break;
-        case 'date': orderBy.lastViewedAt = sortOrder; break;
-        case 'name': orderBy.name = sortOrder; break;
-        default: orderBy.viewCount = 'desc';
-      }
-
-      const [topZones, allZonesViews] = await Promise.all([
+      // Get REAL zone views from ZoneView table
+      const [zoneViews, topZones, prevZoneViewsCount] = await Promise.all([
+        prisma.zoneView.findMany({
+          where: zoneViewWhere,
+          select: {
+            viewedAt: true,
+            zoneId: true,
+            isHostView: true
+          }
+        }),
         prisma.zone.findMany({
           select: {
             id: true,
             name: true,
             viewCount: true,
             lastViewedAt: true,
-            createdAt: true,
             property: {
               select: {
                 id: true,
@@ -149,85 +131,99 @@ export async function GET(request: NextRequest) {
               }
             }
           },
-          where: zoneWhere,
-          orderBy,
+          where: propertyId ? { propertyId } : {},
+          orderBy: { viewCount: 'desc' },
           take: 20
         }),
-        prisma.zone.aggregate({
-          where: zoneWhere,
-          _sum: { viewCount: true },
-          _count: { id: true }
+        prisma.zoneView.count({
+          where: {
+            viewedAt: { gte: previousStartDate, lte: previousEndDate },
+            ...(propertyId ? { propertyId } : {})
+          }
         })
       ]);
 
-      // Generate daily data for chart (simulated based on zone data)
-      const dailyVisits: { date: string; visits: number }[] = [];
+      // Group views by day (REAL DATA)
+      const viewsByDate: { [key: string]: number } = {};
+      const guestViewsByDate: { [key: string]: number } = {};
+
+      zoneViews.forEach(view => {
+        const date = view.viewedAt.toISOString().split('T')[0];
+        viewsByDate[date] = (viewsByDate[date] || 0) + 1;
+        if (!view.isHostView) {
+          guestViewsByDate[date] = (guestViewsByDate[date] || 0) + 1;
+        }
+      });
+
+      // Fill in all days in the range
+      const dailyVisits: { date: string; visits: number; guestVisits: number }[] = [];
       const currentDate = new Date(startDate);
       while (currentDate <= endDate) {
         const dateStr = currentDate.toISOString().split('T')[0];
-        // Distribute views across days (simplified)
-        const baseVisits = Math.floor((allZonesViews._sum.viewCount || 0) / days);
-        const variance = Math.floor(baseVisits * 0.3 * (Math.random() - 0.5));
         dailyVisits.push({
           date: dateStr,
-          visits: Math.max(0, baseVisits + variance)
+          visits: viewsByDate[dateStr] || 0,
+          guestVisits: guestViewsByDate[dateStr] || 0
         });
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
+      // Format zone names (they're stored as JSON)
+      const formattedTopZones = topZones.map(zone => ({
+        id: zone.id,
+        name: typeof zone.name === 'object' ? (zone.name as any).es || (zone.name as any).en || 'Sin nombre' : zone.name,
+        viewCount: zone.viewCount || 0,
+        lastViewedAt: zone.lastViewedAt,
+        property: zone.property
+      }));
+
+      // Calculate growth
+      const visitsGrowthPercent = prevZoneViewsCount > 0
+        ? Math.round(((zoneViews.length - prevZoneViewsCount) / prevZoneViewsCount) * 100)
+        : zoneViews.length > 0 ? 100 : 0;
+
       analytics.visits = {
-        topZones,
+        topZones: formattedTopZones,
         dailyVisits,
-        totalVisits: allZonesViews._sum.viewCount || 0,
-        totalZonesWithViews: allZonesViews._count.id || 0
+        totalVisits: zoneViews.length,
+        guestVisits: zoneViews.filter(v => !v.isHostView).length,
+        hostVisits: zoneViews.filter(v => v.isHostView).length,
+        totalZonesWithViews: new Set(zoneViews.map(v => v.zoneId)).size,
+        growthPercent: visitsGrowthPercent,
+        dataSource: 'real' // Flag indicating this is real data
       };
     }
 
-    // ==================== CHATBOT/AI ANALYTICS ====================
+    // ==================== CHATBOT/AI ANALYTICS (REAL DATA from CerebellumQuery) ====================
     if (metric === 'all' || metric === 'chatbot') {
-      const chatbotWhere: any = {
-        action: 'chatbot_interaction',
-        createdAt: { gte: startDate, lte: endDate }
-      };
-
-      if (zoneId) chatbotWhere.targetId = zoneId;
-
-      const [chatbotLogs, prevChatbotCount] = await Promise.all([
-        prisma.adminActivityLog.findMany({
-          where: chatbotWhere,
+      // Get chatbot interactions from CerebellumQuery table (real AI assistant queries)
+      const [chatbotQueries, prevChatbotCount] = await Promise.all([
+        prisma.cerebellumQuery.findMany({
+          where: {
+            createdAt: { gte: startDate, lte: endDate }
+          },
           select: {
             createdAt: true,
-            metadata: true,
-            targetId: true
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 100
+            wasHelpful: true,
+            country: true,
+            language: true
+          }
         }),
-        prisma.adminActivityLog.count({
+        prisma.cerebellumQuery.count({
           where: {
-            action: 'chatbot_interaction',
             createdAt: { gte: previousStartDate, lte: previousEndDate }
           }
         })
       ]);
 
-      // Filter by language if specified
-      let filteredLogs = chatbotLogs;
-      if (language) {
-        filteredLogs = chatbotLogs.filter(log => {
-          const metadata = log.metadata as any;
-          return metadata?.language === language;
-        });
-      }
-
-      // Group by day
+      // Group by day (REAL DATA)
       const chatbotByDate: { [key: string]: number } = {};
-      filteredLogs.forEach(log => {
-        const date = new Date(log.createdAt).toISOString().split('T')[0];
+      chatbotQueries.forEach(query => {
+        const date = query.createdAt.toISOString().split('T')[0];
         chatbotByDate[date] = (chatbotByDate[date] || 0) + 1;
       });
 
-      // Fill in missing days
+      // Fill in all days
       const dailyChatbot: { date: string; interactions: number }[] = [];
       const currentDate = new Date(startDate);
       while (currentDate <= endDate) {
@@ -239,24 +235,29 @@ export async function GET(request: NextRequest) {
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
-      // Calculate growth
       const chatbotGrowthPercent = prevChatbotCount > 0
-        ? Math.round(((filteredLogs.length - prevChatbotCount) / prevChatbotCount) * 100)
-        : filteredLogs.length > 0 ? 100 : 0;
+        ? Math.round(((chatbotQueries.length - prevChatbotCount) / prevChatbotCount) * 100)
+        : chatbotQueries.length > 0 ? 100 : 0;
+
+      const helpfulCount = chatbotQueries.filter(q => q.wasHelpful === true).length;
+      const notHelpfulCount = chatbotQueries.filter(q => q.wasHelpful === false).length;
+      const ratedCount = helpfulCount + notHelpfulCount;
 
       analytics.chatbot = {
-        totalInteractions: filteredLogs.length,
+        totalInteractions: chatbotQueries.length,
         dailyUsage: dailyChatbot,
-        recentInteractions: filteredLogs.slice(0, 10),
+        recentInteractions: [],
         growthPercent: chatbotGrowthPercent,
-        avgPerDay: days > 0 ? Math.round(filteredLogs.length / days) : 0
+        avgPerDay: days > 0 ? Math.round(chatbotQueries.length / days) : 0,
+        helpfulRate: ratedCount > 0 ? Math.round((helpfulCount / ratedCount) * 100) : 0,
+        dataSource: 'real'
       };
     }
 
-    // ==================== USER ANALYTICS ====================
+    // ==================== USER ANALYTICS (REAL DATA) ====================
     if (metric === 'all' || metric === 'users') {
       const [
-        users,
+        usersInPeriod,
         totalActiveUsers,
         usersWithProperties,
         recentLogins
@@ -266,21 +267,15 @@ export async function GET(request: NextRequest) {
           select: { createdAt: true, isActive: true }
         }),
         prisma.user.count({ where: { isActive: true } }),
+        prisma.user.count({ where: { properties: { some: {} } } }),
         prisma.user.count({
-          where: {
-            properties: { some: {} }
-          }
-        }),
-        prisma.user.count({
-          where: {
-            lastLoginAt: { gte: startDate, lte: endDate }
-          }
+          where: { lastLoginAt: { gte: startDate, lte: endDate } }
         })
       ]);
 
-      // Group by day
+      // Group by day (REAL DATA)
       const usersByDate: { [key: string]: { new_users: number; active_users: number } } = {};
-      users.forEach(user => {
+      usersInPeriod.forEach(user => {
         const date = user.createdAt.toISOString().split('T')[0];
         if (!usersByDate[date]) {
           usersByDate[date] = { new_users: 0, active_users: 0 };
@@ -289,7 +284,7 @@ export async function GET(request: NextRequest) {
         if (user.isActive) usersByDate[date].active_users += 1;
       });
 
-      // Fill in missing days
+      // Fill in all days
       const userGrowth: { date: string; new_users: number; active_users: number }[] = [];
       const currentDate = new Date(startDate);
       while (currentDate <= endDate) {
@@ -302,26 +297,23 @@ export async function GET(request: NextRequest) {
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
-      // Calculate retention rate
       const totalUsers = await prisma.user.count();
       const retentionRate = totalUsers > 0 ? Math.round((totalActiveUsers / totalUsers) * 100) : 0;
 
       analytics.users = {
         growth: userGrowth,
-        newUsers: users.length,
+        newUsers: usersInPeriod.length,
         activeUsers: totalActiveUsers,
         usersWithProperties,
         recentLogins,
         retentionRate,
-        totalUsers
+        totalUsers,
+        dataSource: 'real'
       };
     }
 
     // ==================== PROPERTY ANALYTICS ====================
     if (metric === 'all' || metric === 'properties') {
-      const propertyWhere: any = {};
-      if (propertyId) propertyWhere.id = propertyId;
-
       const [properties, propertiesByCountry, propertiesByCity] = await Promise.all([
         prisma.property.findMany({
           select: {
@@ -335,7 +327,6 @@ export async function GET(request: NextRequest) {
               select: { viewCount: true, id: true }
             }
           },
-          where: propertyWhere,
           orderBy: { createdAt: 'desc' },
           take: 50
         }),
@@ -372,56 +363,48 @@ export async function GET(request: NextRequest) {
         publishedProperties: publishedCount,
         unpublishedProperties: properties.length - publishedCount,
         publishRate: properties.length > 0 ? Math.round((publishedCount / properties.length) * 100) : 0,
-        byCountry: propertiesByCountry.map(c => ({ country: c.country || 'Unknown', count: c._count.id })),
-        byCity: propertiesByCity.map(c => ({ city: c.city || 'Unknown', count: c._count.id }))
+        byCountry: propertiesByCountry.map(c => ({ country: c.country || 'Desconocido', count: c._count.id })),
+        byCity: propertiesByCity.map(c => ({ city: c.city || 'Desconocida', count: c._count.id }))
       };
     }
 
-    // ==================== SUBSCRIPTION/REVENUE ANALYTICS ====================
+    // ==================== SUBSCRIPTION ANALYTICS ====================
     if (metric === 'all' || metric === 'subscriptions') {
       try {
-        const [
-          activeSubscriptions,
-          subscriptionsByPlan,
-          recentSubscriptions
-        ] = await Promise.all([
-          prisma.subscription.count({
-            where: { status: 'active' }
-          }),
-          prisma.subscription.groupBy({
+        const [activeSubscriptions, subscriptionsByPlan, recentSubscriptions] = await Promise.all([
+          prisma.userSubscription.count({ where: { status: 'active' } }),
+          prisma.userSubscription.groupBy({
             by: ['planId'],
-            where: { status: 'active' },
+            where: { status: 'active', planId: { not: null } },
             _count: { id: true }
           }),
-          prisma.subscription.findMany({
+          prisma.userSubscription.findMany({
             where: { createdAt: { gte: startDate, lte: endDate } },
             select: {
               id: true,
               status: true,
               createdAt: true,
-              plan: { select: { name: true, price: true } }
+              plan: { select: { name: true, priceMonthly: true } }
             },
             orderBy: { createdAt: 'desc' },
             take: 20
           })
         ]);
 
-        // Get plan names
-        const planIds = subscriptionsByPlan.map(s => s.planId);
+        const planIds = subscriptionsByPlan.map(s => s.planId).filter(Boolean) as string[];
         const plans = await prisma.subscriptionPlan.findMany({
           where: { id: { in: planIds } },
-          select: { id: true, name: true, price: true }
+          select: { id: true, name: true, priceMonthly: true }
         });
 
         const planMap = new Map(plans.map(p => [p.id, p]));
         const subscriptionsByPlanWithNames = subscriptionsByPlan.map(s => ({
-          planId: s.planId,
-          planName: planMap.get(s.planId)?.name || 'Unknown',
-          price: planMap.get(s.planId)?.price || 0,
+          planId: s.planId || '',
+          planName: planMap.get(s.planId || '')?.name || 'Desconocido',
+          price: Number(planMap.get(s.planId || '')?.priceMonthly) || 0,
           count: s._count.id
         }));
 
-        // Calculate MRR (Monthly Recurring Revenue)
         const mrr = subscriptionsByPlanWithNames.reduce((total, plan) => {
           return total + (plan.price * plan.count);
         }, 0);
@@ -434,7 +417,6 @@ export async function GET(request: NextRequest) {
           newSubscriptionsInPeriod: recentSubscriptions.length
         };
       } catch {
-        // Subscription tables might not exist
         analytics.subscriptions = {
           activeSubscriptions: 0,
           byPlan: [],
@@ -445,22 +427,45 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // ==================== PERFORMANCE METRICS ====================
-    const performanceMetrics = {
-      totalZones: await prisma.zone.count(),
-      totalProperties: await prisma.property.count(),
-      totalUsers: await prisma.user.count(),
-      totalViews: await prisma.zone.aggregate({ _sum: { viewCount: true } }),
-      avgViewsPerZone: 0
-    };
+    // ==================== TRACKING EVENTS (REAL DATA) ====================
+    if (metric === 'all' || metric === 'events') {
+      try {
+        const [eventsByType, totalEventsInPeriod] = await Promise.all([
+          prisma.trackingEvent.groupBy({
+            by: ['type'],
+            where: { timestamp: { gte: startDate, lte: endDate } },
+            _count: { id: true },
+            orderBy: { _count: { id: 'desc' } }
+          }),
+          prisma.trackingEvent.count({
+            where: { timestamp: { gte: startDate, lte: endDate } }
+          })
+        ]);
 
-    if (performanceMetrics.totalZones > 0) {
-      performanceMetrics.avgViewsPerZone = Math.round(
-        (performanceMetrics.totalViews._sum.viewCount || 0) / performanceMetrics.totalZones
-      );
+        analytics.events = {
+          byType: eventsByType.map(e => ({ type: e.type, count: e._count.id })),
+          totalEvents: totalEventsInPeriod
+        };
+      } catch {
+        analytics.events = { byType: [], totalEvents: 0 };
+      }
     }
 
-    analytics.performance = performanceMetrics;
+    // ==================== PERFORMANCE METRICS ====================
+    const [totalZonesCount, totalPropsCount, totalUsersCount, totalViewsAggFinal] = await Promise.all([
+      prisma.zone.count(),
+      prisma.property.count(),
+      prisma.user.count(),
+      prisma.zone.aggregate({ _sum: { viewCount: true } })
+    ]);
+
+    analytics.performance = {
+      totalZones: totalZonesCount,
+      totalProperties: totalPropsCount,
+      totalUsers: totalUsersCount,
+      totalViews: { _sum: { viewCount: totalViewsAggFinal._sum.viewCount || 0 } },
+      avgViewsPerZone: totalZonesCount > 0 ? Math.round((totalViewsAggFinal._sum.viewCount || 0) / totalZonesCount) : 0
+    };
 
     return NextResponse.json({
       success: true,
@@ -470,6 +475,7 @@ export async function GET(request: NextRequest) {
         end: endDate.toISOString(),
         days
       },
+      dataSource: 'real', // All data is now from real database tables
       analytics
     });
 
@@ -483,77 +489,125 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST endpoint for tracking events
+// POST endpoint for tracking events (creates real records)
 export async function POST(request: NextRequest) {
   try {
     const { event, data } = await request.json();
 
     switch (event) {
       case 'zone_view':
-        if (data.zoneId) {
-          await prisma.zone.update({
-            where: { id: data.zoneId },
-            data: {
-              viewCount: { increment: 1 },
-              lastViewedAt: new Date()
-            }
-          });
+        if (data.zoneId && data.propertyId && data.hostId) {
+          await Promise.all([
+            // Update zone view count
+            prisma.zone.update({
+              where: { id: data.zoneId },
+              data: {
+                viewCount: { increment: 1 },
+                lastViewedAt: new Date()
+              }
+            }),
+            // Create detailed view record in ZoneView table
+            prisma.zoneView.create({
+              data: {
+                zoneId: data.zoneId,
+                propertyId: data.propertyId,
+                hostId: data.hostId,
+                visitorIp: data.visitorIp || 'unknown',
+                userAgent: data.userAgent,
+                referrer: data.referrer,
+                language: data.language || 'es',
+                isHostView: data.isHostView || false
+              }
+            }),
+            // Create tracking event
+            prisma.trackingEvent.create({
+              data: {
+                type: 'zone_view',
+                propertyId: data.propertyId,
+                zoneId: data.zoneId,
+                sessionId: data.sessionId,
+                userAgent: data.userAgent,
+                ipAddress: data.visitorIp,
+                metadata: data
+              }
+            })
+          ]);
         }
-        break;
-
-      case 'chatbot_interaction':
-        await prisma.adminActivityLog.create({
-          data: {
-            adminUserId: 'system',
-            action: 'chatbot_interaction',
-            targetType: 'chatbot',
-            targetId: data.zoneId || 'unknown',
-            description: `Chatbot interaction: ${data.type || 'message'}`,
-            metadata: {
-              userQuery: data.query,
-              response: data.response,
-              language: data.language,
-              timestamp: new Date().toISOString(),
-              ...data
-            }
-          }
-        });
         break;
 
       case 'property_view':
-        if (data.propertyId) {
-          await prisma.adminActivityLog.create({
-            data: {
-              adminUserId: 'system',
-              action: 'property_view',
-              targetType: 'property',
-              targetId: data.propertyId,
-              description: 'Property viewed',
-              metadata: {
-                timestamp: new Date().toISOString(),
-                ...data
+        if (data.propertyId && data.hostId) {
+          await Promise.all([
+            prisma.propertyView.create({
+              data: {
+                propertyId: data.propertyId,
+                hostId: data.hostId,
+                visitorIp: data.visitorIp || 'unknown',
+                userAgent: data.userAgent,
+                referrer: data.referrer,
+                language: data.language || 'es'
               }
+            }),
+            prisma.trackingEvent.create({
+              data: {
+                type: 'property_view',
+                propertyId: data.propertyId,
+                sessionId: data.sessionId,
+                userAgent: data.userAgent,
+                ipAddress: data.visitorIp,
+                metadata: data
+              }
+            })
+          ]);
+        }
+        break;
+
+      case 'step_view':
+        if (data.propertyId) {
+          await prisma.trackingEvent.create({
+            data: {
+              type: 'step_view',
+              propertyId: data.propertyId,
+              zoneId: data.zoneId,
+              stepId: data.stepId,
+              sessionId: data.sessionId,
+              userAgent: data.userAgent,
+              ipAddress: data.visitorIp,
+              duration: data.duration,
+              metadata: data
             }
           });
         }
         break;
 
-      case 'page_view':
-        await prisma.adminActivityLog.create({
-          data: {
-            adminUserId: 'system',
-            action: 'page_view',
-            targetType: 'page',
-            targetId: data.path || 'unknown',
-            description: `Page view: ${data.path}`,
-            metadata: {
-              timestamp: new Date().toISOString(),
-              userAgent: data.userAgent,
-              referrer: data.referrer,
-              ...data
+      case 'whatsapp_click':
+        if (data.propertyId) {
+          await prisma.trackingEvent.create({
+            data: {
+              type: 'whatsapp_click',
+              propertyId: data.propertyId,
+              zoneId: data.zoneId,
+              sessionId: data.sessionId,
+              metadata: data
             }
-          }
-        });
+          });
+        }
+        break;
+
+      case 'qr_scan':
+        if (data.propertyId) {
+          await prisma.trackingEvent.create({
+            data: {
+              type: 'qr_scan',
+              propertyId: data.propertyId,
+              zoneId: data.zoneId,
+              sessionId: data.sessionId,
+              userAgent: data.userAgent,
+              ipAddress: data.visitorIp,
+              metadata: data
+            }
+          });
+        }
         break;
     }
 
