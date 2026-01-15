@@ -169,14 +169,28 @@ export async function POST(request: NextRequest) {
     console.error('Error creating checkout session:', error)
 
     if (error instanceof Stripe.errors.StripeError) {
+      console.error('Stripe Error Details:', {
+        type: error.type,
+        code: error.code,
+        message: error.message,
+        param: error.param,
+        statusCode: error.statusCode
+      })
       return NextResponse.json(
-        { error: `Error de Stripe: ${error.message}` },
+        {
+          error: `Error de Stripe: ${error.message}`,
+          code: error.code,
+          type: error.type
+        },
         { status: 400 }
       )
     }
 
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('Non-Stripe error:', errorMessage)
+
     return NextResponse.json(
-      { error: 'Error al crear sesión de pago' },
+      { error: `Error al crear sesión de pago: ${errorMessage}` },
       { status: 500 }
     )
   }
