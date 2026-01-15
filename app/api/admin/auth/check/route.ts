@@ -19,13 +19,15 @@ export async function GET(request: NextRequest) {
         id: true,
         name: true,
         email: true,
-        role: true
+        role: true,
+        permissions: true,
+        isActive: true,
       }
     })
 
-    if (!admin) {
-      return NextResponse.json({ 
-        authenticated: false 
+    if (!admin || !admin.isActive) {
+      return NextResponse.json({
+        authenticated: false
       }, { status: 401 })
     }
 
@@ -35,7 +37,8 @@ export async function GET(request: NextRequest) {
         id: admin.id,
         name: admin.name,
         email: admin.email,
-        role: admin.role
+        role: admin.role,
+        permissions: admin.permissions || [],
       }
     })
 

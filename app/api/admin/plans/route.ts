@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../src/lib/prisma';
-import { requireAdminAuth } from '../../../../src/lib/admin-auth';
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../src/lib/admin-auth';
 
 export async function GET(request: NextRequest) {
   try {
@@ -86,19 +86,20 @@ export async function POST(request: NextRequest) {
     });
 
     // Log activity
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: authResult.adminId,
-        action: 'plan_created',
-        targetType: 'plan',
-        targetId: newPlan.id,
-        description: `Created plan ${name}`,
-        metadata: { 
-          priceMonthly: newPlan.priceMonthly,
-          aiMessages: newPlan.aiMessagesIncluded
-        }
-      }
-    });
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'plan_created',
+      targetType: 'plan',
+      targetId: newPlan.id,
+      description: `Created plan ${name}`,
+      metadata: {
+        priceMonthly: newPlan.priceMonthly,
+        aiMessages: newPlan.aiMessagesIncluded
+      },
+      ipAddress,
+      userAgent,
+    })
 
     return NextResponse.json({
       success: true,

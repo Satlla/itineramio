@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
-import { requireAdminAuth } from '../../../../../../src/lib/admin-auth'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../../src/lib/admin-auth'
 import { sendEmail, emailTemplates } from '../../../../../../src/lib/email-improved'
 
 export async function POST(
@@ -9,28 +9,10 @@ export async function POST(
 ) {
   const params = await context.params
   try {
-    // Require admin authentication (with fallback for testing)
-    let authResult = await requireAdminAuth(request)
+    // Require admin authentication
+    const authResult = await requireAdminAuth(request)
     if (authResult instanceof Response) {
-      // For testing purposes, create a fallback admin auth
-      console.log('⚠️ Admin auth failed, using fallback for testing')
-      const fallbackAdmin = await prisma.user.findFirst({
-        where: { isAdmin: true },
-        select: { id: true, email: true }
-      })
-      
-      if (!fallbackAdmin) {
-        return NextResponse.json({ 
-          error: 'No admin users found in system' 
-        }, { status: 401 })
-      }
-      
-      // Create fallback auth result
-      authResult = {
-        adminId: fallbackAdmin.id,
-        email: fallbackAdmin.email,
-        role: 'admin'
-      }
+      return authResult
     }
 
     const { months, reason } = await request.json()
@@ -116,36 +98,26 @@ export async function POST(
       // Don't fail the activation process if email fails
     }
 
-    // Log admin activity - use fallback admin if auth fails
+    // Log admin activity
     try {
-      let adminId = authResult.adminId
-      
-      // If no admin ID from auth, find any admin user as fallback
-      if (!adminId) {
-        const fallbackAdmin = await prisma.user.findFirst({
-          where: { isAdmin: true },
-          select: { id: true }
-        })
-        adminId = fallbackAdmin?.id || 'system'
-      }
-
-      await prisma.adminActivityLog.create({
-        data: {
-          adminUserId: adminId,
-          action: 'PROPERTY_ACTIVATED_MANUAL',
-          targetType: 'property',
-          targetId: property.id,
-          description: `Propiedad "${property.name}" activada manualmente para ${property.host.name}`,
-          metadata: {
-            propertyId: property.id,
-            propertyName: property.name,
-            userId: property.hostId,
-            userEmail: property.host.email,
-            months,
-            subscriptionEnd: subscriptionEnd.toISOString(),
-            reason: reason || null
-          }
-        }
+      const { ipAddress, userAgent } = getRequestInfo(request)
+      await createActivityLog({
+        adminId: authResult.adminId,
+        action: 'PROPERTY_ACTIVATED_MANUAL',
+        targetType: 'property',
+        targetId: property.id,
+        description: `Propiedad "${property.name}" activada manualmente para ${property.host.name}`,
+        metadata: {
+          propertyId: property.id,
+          propertyName: property.name,
+          userId: property.hostId,
+          userEmail: property.host.email,
+          months,
+          subscriptionEnd: subscriptionEnd.toISOString(),
+          reason: reason || null
+        },
+        ipAddress,
+        userAgent,
       })
     } catch (logError) {
       console.error('Error creating admin activity log:', logError)

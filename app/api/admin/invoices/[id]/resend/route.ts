@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
-import { requireAdminAuth } from '../../../../../../src/lib/admin-auth'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../../src/lib/admin-auth'
 import { sendEmail, emailTemplates } from '../../../../../../src/lib/email-improved'
 
 export async function POST(
@@ -63,19 +63,20 @@ export async function POST(
     }
 
     // Log admin activity
-    await prisma.adminActivityLog.create({
-      data: {
-        admin: {
-          connect: { id: authResult.adminId }
-        },
-        action: 'invoice_resent',
-        description: `Reenviada factura ${invoice.invoiceNumber} a ${invoice.user.email}`,
-        metadata: {
-          invoiceId: invoice.id,
-          invoiceNumber: invoice.invoiceNumber,
-          userEmail: invoice.user.email
-        }
-      }
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'invoice_resent',
+      targetType: 'invoice',
+      targetId: invoice.id,
+      description: `Reenviada factura ${invoice.invoiceNumber} a ${invoice.user.email}`,
+      metadata: {
+        invoiceId: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        userEmail: invoice.user.email
+      },
+      ipAddress,
+      userAgent,
     })
 
     return NextResponse.json({

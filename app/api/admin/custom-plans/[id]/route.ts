@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
-import { requireAdminAuth } from '../../../../../src/lib/admin-auth'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../src/lib/admin-auth'
 
 export async function PUT(
   request: NextRequest,
@@ -52,22 +52,22 @@ export async function PUT(
     })
 
     // Log admin activity
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: authResult.adminId,
-        action: 'CUSTOM_PLAN_UPDATED',
-        targetType: 'customPlan',
-        targetId: currentPlan.id,
-        description: `Plan personalizado "${name}" actualizado`,
-        metadata: {
-          planName: name,
-          changes: {
-            name: currentPlan.name !== name ? { from: currentPlan.name, to: name } : undefined,
-            pricePerProperty: Number(currentPlan.pricePerProperty) !== Number(pricePerProperty) ? { from: Number(currentPlan.pricePerProperty), to: Number(pricePerProperty) } : undefined,
-            // Add other significant changes if needed
-          }
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'CUSTOM_PLAN_UPDATED',
+      targetType: 'customPlan',
+      targetId: currentPlan.id,
+      description: `Plan personalizado "${name}" actualizado`,
+      metadata: {
+        planName: name,
+        changes: {
+          name: currentPlan.name !== name ? { from: currentPlan.name, to: name } : undefined,
+          pricePerProperty: Number(currentPlan.pricePerProperty) !== Number(pricePerProperty) ? { from: Number(currentPlan.pricePerProperty), to: Number(pricePerProperty) } : undefined,
         }
-      }
+      },
+      ipAddress,
+      userAgent,
     })
 
     return NextResponse.json({

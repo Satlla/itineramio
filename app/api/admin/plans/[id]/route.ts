@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../../src/lib/prisma';
-import { requireAdminAuth } from '../../../../../src/lib/admin-auth';
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../src/lib/admin-auth';
 
 export async function PATCH(
   request: NextRequest,
@@ -51,23 +51,24 @@ export async function PATCH(
     });
 
     // Log activity
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: authResult.adminId,
-        action: 'plan_updated',
-        targetType: 'plan',
-        targetId: planId,
-        description: `Updated plan ${name || existingPlan.name}`,
-        metadata: { 
-          changes: {
-            ...(name && name !== existingPlan.name && { name: { from: existingPlan.name, to: name } }),
-            ...(priceMonthly !== undefined && priceMonthly !== existingPlan.priceMonthly && { 
-              priceMonthly: { from: existingPlan.priceMonthly, to: priceMonthly } 
-            })
-          }
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'plan_updated',
+      targetType: 'plan',
+      targetId: planId,
+      description: `Updated plan ${name || existingPlan.name}`,
+      metadata: {
+        changes: {
+          ...(name && name !== existingPlan.name && { name: { from: existingPlan.name, to: name } }),
+          ...(priceMonthly !== undefined && priceMonthly !== existingPlan.priceMonthly && {
+            priceMonthly: { from: existingPlan.priceMonthly, to: priceMonthly }
+          })
         }
-      }
-    });
+      },
+      ipAddress,
+      userAgent,
+    })
 
     return NextResponse.json({
       success: true,
@@ -128,19 +129,20 @@ export async function DELETE(
     });
 
     // Log activity
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: authResult.adminId,
-        action: 'plan_deleted',
-        targetType: 'plan',
-        targetId: planId,
-        description: `Deleted plan ${plan.name}`,
-        metadata: { 
-          planName: plan.name,
-          priceMonthly: plan.priceMonthly
-        }
-      }
-    });
+    const { ipAddress: ipAddressDelete, userAgent: userAgentDelete } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'plan_deleted',
+      targetType: 'plan',
+      targetId: planId,
+      description: `Deleted plan ${plan.name}`,
+      metadata: {
+        planName: plan.name,
+        priceMonthly: plan.priceMonthly
+      },
+      ipAddress: ipAddressDelete,
+      userAgent: userAgentDelete,
+    })
 
     return NextResponse.json({
       success: true,

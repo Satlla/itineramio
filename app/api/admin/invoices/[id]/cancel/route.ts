@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../../../src/lib/prisma';
-import { requireAdminAuth } from '../../../../../../src/lib/admin-auth';
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../../src/lib/admin-auth';
 
 export async function POST(
   request: NextRequest,
@@ -57,28 +57,22 @@ export async function POST(
       }
     });
 
-    // Log activity - find an admin user for now
-    const adminUser = await prisma.user.findFirst({
-      where: { isAdmin: true },
-      select: { id: true }
-    });
-    
-    if (adminUser) {
-      await prisma.adminActivityLog.create({
-        data: {
-          adminUserId: adminUser.id,
-          action: 'invoice_cancelled',
-          targetType: 'invoice',
-          targetId: invoiceId,
-          description: `Cancelled invoice ${invoice.invoiceNumber}`,
-          metadata: { 
-            invoiceNumber: invoice.invoiceNumber,
-            amount: invoice.finalAmount.toNumber(),
-            userEmail: invoice.user.email
-          }
-        }
-      });
-    }
+    // Log activity
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'invoice_cancelled',
+      targetType: 'invoice',
+      targetId: invoiceId,
+      description: `Cancelled invoice ${invoice.invoiceNumber}`,
+      metadata: {
+        invoiceNumber: invoice.invoiceNumber,
+        amount: invoice.finalAmount.toNumber(),
+        userEmail: invoice.user.email
+      },
+      ipAddress,
+      userAgent,
+    })
 
     return NextResponse.json({
       success: true,

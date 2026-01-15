@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../../src/lib/prisma';
-import { requireAdminAuth } from '../../../../../src/lib/admin-auth';
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../src/lib/admin-auth';
 
 export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
@@ -73,32 +73,26 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
     });
 
     // Log activity
-    const adminUser = await prisma.user.findFirst({
-      where: { isAdmin: true },
-      select: { id: true }
-    });
-    
-    if (adminUser) {
-      await prisma.adminActivityLog.create({
-        data: {
-          adminUserId: adminUser.id,
-          action: 'pricing_tier_updated',
-          targetType: 'pricing_tier',
-          targetId: updatedTier.id,
-          description: `Updated pricing tier: ${minProperties}-${maxProperties || '∞'} properties at €${pricePerProperty}`,
-          metadata: { 
-            minProperties,
-            maxProperties,
-            pricePerProperty,
-            previousValues: {
-              minProperties: existingTier.minProperties,
-              maxProperties: existingTier.maxProperties,
-              pricePerProperty: Number(existingTier.pricePerProperty)
-            }
-          }
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'pricing_tier_updated',
+      targetType: 'pricing_tier',
+      targetId: updatedTier.id,
+      description: `Updated pricing tier: ${minProperties}-${maxProperties || '∞'} properties at €${pricePerProperty}`,
+      metadata: {
+        minProperties,
+        maxProperties,
+        pricePerProperty,
+        previousValues: {
+          minProperties: existingTier.minProperties,
+          maxProperties: existingTier.maxProperties,
+          pricePerProperty: Number(existingTier.pricePerProperty)
         }
-      });
-    }
+      },
+      ipAddress,
+      userAgent,
+    })
 
     return NextResponse.json({
       success: true,
@@ -152,27 +146,21 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
     });
 
     // Log activity
-    const adminUser = await prisma.user.findFirst({
-      where: { isAdmin: true },
-      select: { id: true }
-    });
-    
-    if (adminUser) {
-      await prisma.adminActivityLog.create({
-        data: {
-          adminUserId: adminUser.id,
-          action: 'pricing_tier_deleted',
-          targetType: 'pricing_tier',
-          targetId: deletedTier.id,
-          description: `Deleted pricing tier: ${existingTier.minProperties}-${existingTier.maxProperties || '∞'} properties`,
-          metadata: { 
-            minProperties: existingTier.minProperties,
-            maxProperties: existingTier.maxProperties,
-            pricePerProperty: Number(existingTier.pricePerProperty)
-          }
-        }
-      });
-    }
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'pricing_tier_deleted',
+      targetType: 'pricing_tier',
+      targetId: deletedTier.id,
+      description: `Deleted pricing tier: ${existingTier.minProperties}-${existingTier.maxProperties || '∞'} properties`,
+      metadata: {
+        minProperties: existingTier.minProperties,
+        maxProperties: existingTier.maxProperties,
+        pricePerProperty: Number(existingTier.pricePerProperty)
+      },
+      ipAddress,
+      userAgent,
+    })
 
     return NextResponse.json({
       success: true,

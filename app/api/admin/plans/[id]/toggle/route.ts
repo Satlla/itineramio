@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../../../src/lib/prisma';
-import { requireAdminAuth } from '../../../../../../src/lib/admin-auth';
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../../src/lib/admin-auth';
 
 export async function PATCH(
   request: NextRequest,
@@ -43,20 +43,21 @@ export async function PATCH(
     });
 
     // Log activity
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: authResult.adminId,
-        action: isActive ? 'plan_activated' : 'plan_deactivated',
-        targetType: 'plan',
-        targetId: planId,
-        description: `${isActive ? 'Activated' : 'Deactivated'} plan ${plan.name}`,
-        metadata: { 
-          previousStatus: plan.isActive,
-          newStatus: isActive,
-          planName: plan.name
-        }
-      }
-    });
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: isActive ? 'plan_activated' : 'plan_deactivated',
+      targetType: 'plan',
+      targetId: planId,
+      description: `${isActive ? 'Activated' : 'Deactivated'} plan ${plan.name}`,
+      metadata: {
+        previousStatus: plan.isActive,
+        newStatus: isActive,
+        planName: plan.name
+      },
+      ipAddress,
+      userAgent,
+    })
 
     return NextResponse.json({
       success: true,

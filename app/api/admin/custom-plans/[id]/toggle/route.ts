@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
-import { requireAdminAuth } from '../../../../../../src/lib/admin-auth'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../../src/lib/admin-auth'
 
 export async function PUT(
   request: NextRequest,
@@ -32,19 +32,20 @@ export async function PUT(
     })
 
     // Log admin activity
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: authResult.adminId,
-        action: isActive ? 'CUSTOM_PLAN_ACTIVATED' : 'CUSTOM_PLAN_DEACTIVATED',
-        targetType: 'customPlan',
-        targetId: customPlan.id,
-        description: `Plan personalizado "${customPlan.name}" ${isActive ? 'activado' : 'desactivado'}`,
-        metadata: {
-          planName: customPlan.name,
-          previousStatus: customPlan.isActive,
-          newStatus: isActive
-        }
-      }
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: isActive ? 'CUSTOM_PLAN_ACTIVATED' : 'CUSTOM_PLAN_DEACTIVATED',
+      targetType: 'customPlan',
+      targetId: customPlan.id,
+      description: `Plan personalizado "${customPlan.name}" ${isActive ? 'activado' : 'desactivado'}`,
+      metadata: {
+        planName: customPlan.name,
+        previousStatus: customPlan.isActive,
+        newStatus: isActive
+      },
+      ipAddress,
+      userAgent,
     })
 
     return NextResponse.json({

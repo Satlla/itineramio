@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../src/lib/prisma';
-import { requireAdminAuth } from '../../../../src/lib/admin-auth';
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../src/lib/admin-auth';
 
 export async function GET(request: NextRequest) {
   try {
@@ -89,27 +89,21 @@ export async function POST(request: NextRequest) {
     });
 
     // Log activity
-    const adminUser = await prisma.user.findFirst({
-      where: { isAdmin: true },
-      select: { id: true }
-    });
-    
-    if (adminUser) {
-      await prisma.adminActivityLog.create({
-        data: {
-          adminUserId: adminUser.id,
-          action: 'pricing_tier_created',
-          targetType: 'pricing_tier',
-          targetId: newTier.id,
-          description: `Created pricing tier: ${minProperties}-${maxProperties || '∞'} properties at €${pricePerProperty}`,
-          metadata: { 
-            minProperties,
-            maxProperties,
-            pricePerProperty
-          }
-        }
-      });
-    }
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'pricing_tier_created',
+      targetType: 'pricing_tier',
+      targetId: newTier.id,
+      description: `Created pricing tier: ${minProperties}-${maxProperties || '∞'} properties at €${pricePerProperty}`,
+      metadata: {
+        minProperties,
+        maxProperties,
+        pricePerProperty
+      },
+      ipAddress,
+      userAgent,
+    })
 
     return NextResponse.json({
       success: true,

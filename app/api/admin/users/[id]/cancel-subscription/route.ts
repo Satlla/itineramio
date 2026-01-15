@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
-import { verifyAdminToken } from '../../../../../../src/lib/admin-auth'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../../src/lib/admin-auth'
 
 /**
  * POST /api/admin/users/[id]/cancel-subscription
@@ -12,14 +12,9 @@ export async function POST(
 ) {
   try {
     // Verificar autenticación de admin
-    const adminToken = request.cookies.get('admin-token')?.value
-    if (!adminToken) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
-    const adminDecoded = verifyAdminToken(adminToken)
-    if (!adminDecoded) {
-      return NextResponse.json({ error: 'Token de admin inválido' }, { status: 401 })
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
     }
 
     const { id: userId } = await params
@@ -58,7 +53,7 @@ export async function POST(
 
     // Preparar información de cancelación
     const cancelationInfo = {
-      canceledBy: `admin:${adminDecoded.adminId}`,
+      canceledBy: `admin:${authResult.adminId}`,
       cancelReason: reason || 'Admin canceled',
       canceledAt: new Date().toISOString(),
       willCancelAt: immediate ? null : subscription.endDate?.toISOString()
@@ -80,21 +75,22 @@ export async function POST(
     })
 
     // Registrar actividad en admin log
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: adminDecoded.adminId,
-        action: 'SUBSCRIPTION_CANCELED',
-        targetType: 'subscription',
-        targetId: subscription.id,
-        description: `Admin canceló suscripción de ${subscription.user.name} (${subscription.user.email}). Plan: ${subscription.plan?.name || 'Custom'}. Motivo: ${reason || 'No especificado'}`,
-        metadata: {
-          subscriptionId: subscription.id,
-          userId,
-          planId: subscription.planId,
-          immediate,
-          reason
-        }
-      }
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'SUBSCRIPTION_CANCELED',
+      targetType: 'subscription',
+      targetId: subscription.id,
+      description: `Admin canceló suscripción de ${subscription.user.name} (${subscription.user.email}). Plan: ${subscription.plan?.name || 'Custom'}. Motivo: ${reason || 'No especificado'}`,
+      metadata: {
+        subscriptionId: subscription.id,
+        userId,
+        planId: subscription.planId,
+        immediate,
+        reason
+      },
+      ipAddress,
+      userAgent,
     })
 
     return NextResponse.json({

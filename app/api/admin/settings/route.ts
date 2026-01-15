@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../src/lib/prisma';
-import { requireAdminAuth } from '../../../../src/lib/admin-auth';
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../src/lib/admin-auth';
 
 export async function GET(request: NextRequest) {
   try {
@@ -157,27 +157,21 @@ export async function POST(request: NextRequest) {
 
     await Promise.all(updatePromises);
 
-    // Log activity - find an admin user for now
-    const adminUser = await prisma.user.findFirst({
-      where: { isAdmin: true },
-      select: { id: true }
-    });
-    
-    if (adminUser) {
-      await prisma.adminActivityLog.create({
-        data: {
-          adminUserId: adminUser.id,
-          action: 'system_settings_updated',
-          targetType: 'system',
-          targetId: 'settings',
-          description: 'Updated system settings',
-          metadata: { 
-            settingsCount: Object.keys(settings).length,
-            updatedKeys: Object.keys(settings)
-          }
-        }
-      });
-    }
+    // Log activity
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'system_settings_updated',
+      targetType: 'system',
+      targetId: 'settings',
+      description: 'Updated system settings',
+      metadata: {
+        settingsCount: Object.keys(settings).length,
+        updatedKeys: Object.keys(settings)
+      },
+      ipAddress,
+      userAgent,
+    })
 
     return NextResponse.json({
       success: true,

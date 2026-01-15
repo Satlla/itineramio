@@ -99,3 +99,97 @@ export async function verifyAdminAuth(request: NextRequest): Promise<VerifyAdmin
   }
   return { isAuthenticated: true, admin }
 }
+
+// Verificar si el admin tiene un permiso específico
+export async function requirePermission(
+  request: NextRequest,
+  permission: string
+): Promise<AdminJWTPayload | Response> {
+  const adminOrResponse = await requireAdminAuth(request)
+  if (adminOrResponse instanceof Response) {
+    return adminOrResponse
+  }
+
+  // SUPER_ADMIN tiene todos los permisos
+  if (adminOrResponse.role === 'SUPER_ADMIN') {
+    return adminOrResponse
+  }
+
+  // Obtener permisos del admin
+  const admin = await prisma.admin.findUnique({
+    where: { id: adminOrResponse.adminId },
+    select: { permissions: true, role: true }
+  })
+
+  if (!admin) {
+    return createAdminAuthResponse('Admin no encontrado', 404)
+  }
+
+  // SUPER_ADMIN tiene todos los permisos
+  if (admin.role === 'SUPER_ADMIN') {
+    return adminOrResponse
+  }
+
+  const permissions = (admin.permissions as string[]) || []
+  if (!permissions.includes(permission)) {
+    return createAdminAuthResponse(`Acceso denegado. Se requiere el permiso: ${permission}`, 403)
+  }
+
+  return adminOrResponse
+}
+
+// Obtener datos completos del admin (incluyendo permisos)
+export async function getAdminWithPermissions(adminId: string) {
+  return prisma.admin.findUnique({
+    where: { id: adminId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      permissions: true,
+      isActive: true,
+    }
+  })
+}
+
+// Helper para crear logs de actividad
+export interface ActivityLogData {
+  adminId: string
+  action: string
+  targetType?: string
+  targetId?: string
+  description?: string
+  metadata?: Record<string, unknown>
+  ipAddress?: string
+  userAgent?: string
+}
+
+export async function createActivityLog(data: ActivityLogData) {
+  try {
+    return await prisma.adminActivityLog.create({
+      data: {
+        adminId: data.adminId,
+        action: data.action,
+        targetType: data.targetType || null,
+        targetId: data.targetId || null,
+        description: data.description || null,
+        metadata: data.metadata || {},
+        ipAddress: data.ipAddress || null,
+        userAgent: data.userAgent || null,
+      }
+    })
+  } catch (error) {
+    console.error('Error creating activity log:', error)
+    return null
+  }
+}
+
+// Helper para extraer IP y User Agent del request
+export function getRequestInfo(request: NextRequest) {
+  const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0] ||
+                    request.headers.get('x-real-ip') ||
+                    'unknown'
+  const userAgent = request.headers.get('user-agent') || 'unknown'
+  return { ipAddress, userAgent }
+}

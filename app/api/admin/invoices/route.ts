@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../src/lib/prisma';
-import { requireAdminAuth } from '../../../../src/lib/admin-auth';
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../src/lib/admin-auth';
 
 // Generate invoice number format: INV-YYYY-XXXX
 async function generateInvoiceNumber() {
@@ -185,28 +185,22 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Log activity - find an admin user for now
-    const adminUser = await prisma.user.findFirst({
-      where: { isAdmin: true },
-      select: { id: true }
-    });
-    
-    if (adminUser) {
-      await prisma.adminActivityLog.create({
-        data: {
-          adminUserId: adminUser.id,
-          action: 'invoice_created',
-          targetType: 'invoice',
-          targetId: newInvoice.id,
-          description: `Created invoice ${invoiceNumber} for ${user.email}`,
-          metadata: { 
-            amount: finalAmount,
-            userId,
-            invoiceNumber
-          }
-        }
-      });
-    }
+    // Log activity
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'invoice_created',
+      targetType: 'invoice',
+      targetId: newInvoice.id,
+      description: `Created invoice ${invoiceNumber} for ${user.email}`,
+      metadata: {
+        amount: finalAmount,
+        userId,
+        invoiceNumber
+      },
+      ipAddress,
+      userAgent,
+    })
 
     return NextResponse.json({
       success: true,

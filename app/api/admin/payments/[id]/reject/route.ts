@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
-import { requireAdminAuth } from '../../../../../../src/lib/admin-auth'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../../src/lib/admin-auth'
 
 export async function POST(
   request: NextRequest,
@@ -65,19 +65,20 @@ export async function POST(
     })
 
     // Log admin activity
-    await prisma.adminActivityLog.create({
-      data: {
-        adminUserId: authResult.adminId,
-        action: 'PAYMENT_REJECTED',
-        targetType: 'invoice',
-        targetId: invoice.id,
-        description: `Pago rechazado para ${invoice.user.name} - €${invoice.finalAmount}`,
-        metadata: {
-          userId: invoice.userId,
-          amount: invoice.finalAmount,
-          rejectionReason: reason
-        }
-      }
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'PAYMENT_REJECTED',
+      targetType: 'invoice',
+      targetId: invoice.id,
+      description: `Pago rechazado para ${invoice.user.name} - €${invoice.finalAmount}`,
+      metadata: {
+        userId: invoice.userId,
+        amount: invoice.finalAmount,
+        rejectionReason: reason
+      },
+      ipAddress,
+      userAgent,
     })
 
     return NextResponse.json({

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../../../src/lib/prisma';
-import { requireAdminAuth } from '../../../../../../src/lib/admin-auth';
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../../src/lib/admin-auth';
 
 export async function PATCH(
   request: NextRequest,
@@ -52,28 +52,22 @@ export async function PATCH(
       }
     });
 
-    // Log activity - find an admin user for now
-    const adminUser = await prisma.user.findFirst({
-      where: { isAdmin: true },
-      select: { id: true }
-    });
-    
-    if (adminUser) {
-      await prisma.adminActivityLog.create({
-        data: {
-          adminUserId: adminUser.id,
-          action: isActive ? 'user_activated' : 'user_deactivated',
-          targetType: 'user',
-          targetId: userId,
-          description: `${isActive ? 'Activated' : 'Deactivated'} user ${user.email}`,
-          metadata: { 
-            previousStatus: user.isActive,
-            newStatus: isActive,
-            userEmail: user.email
-          }
-        }
-      });
-    }
+    // Log activity
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: isActive ? 'user_activated' : 'user_deactivated',
+      targetType: 'user',
+      targetId: userId,
+      description: `${isActive ? 'Activated' : 'Deactivated'} user ${user.email}`,
+      metadata: {
+        previousStatus: user.isActive,
+        newStatus: isActive,
+        userEmail: user.email
+      },
+      ipAddress,
+      userAgent,
+    })
 
     return NextResponse.json({
       success: true,

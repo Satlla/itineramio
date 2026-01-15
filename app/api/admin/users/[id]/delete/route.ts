@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
-import { requireAdminAuth } from '../../../../../../src/lib/admin-auth'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../../src/lib/admin-auth'
 
 export async function DELETE(
   request: NextRequest,
@@ -119,28 +119,22 @@ export async function DELETE(
     })
     
     // Log activity
-    const adminUser = await prisma.user.findFirst({
-      where: { isAdmin: true },
-      select: { id: true }
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'user_deleted',
+      targetType: 'user',
+      targetId: userId,
+      description: `Deleted user ${user.email}`,
+      metadata: {
+        userName: user.name,
+        userEmail: user.email,
+        propertiesDeleted: user._count.properties,
+        propertySetsDeleted: user._count.propertySets
+      },
+      ipAddress,
+      userAgent,
     })
-    
-    if (adminUser) {
-      await prisma.adminActivityLog.create({
-        data: {
-          adminUserId: adminUser.id,
-          action: 'user_deleted',
-          targetType: 'user',
-          targetId: userId,
-          description: `Deleted user ${user.email}`,
-          metadata: { 
-            userName: user.name,
-            userEmail: user.email,
-            propertiesDeleted: user._count.properties,
-            propertySetsDeleted: user._count.propertySets
-          }
-        }
-      })
-    }
     
     return NextResponse.json({
       success: true,

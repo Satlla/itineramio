@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
-import { getAdminUser } from '../../../../../../src/lib/admin-auth'
+import { getAdminUser, createActivityLog, getRequestInfo } from '../../../../../../src/lib/admin-auth'
 import { sendEmail, emailTemplates } from '../../../../../../src/lib/email-improved'
 import { calculateProration, type ProrationCalculation } from '../../../../../../src/lib/proration-service'
 
@@ -300,21 +300,22 @@ export async function POST(
 
     // Log admin activity (optional - don't fail if logging fails)
     try {
-      await prisma.adminActivityLog.create({
-        data: {
-          adminUserId: admin.adminId,
-          action: 'APPROVE_SUBSCRIPTION',
-          targetType: 'subscription_request',
-          targetId: id,
-          description: `Aprobó solicitud de suscripción para ${subscriptionRequest.user.name}`,
-          metadata: {
-            userId: subscriptionRequest.userId,
-            planName: subscriptionRequest.plan?.name,
-            totalAmount: Number(subscriptionRequest.totalAmount),
-            invoiceId: invoice.id,
-            subscriptionId: userSubscription.id
-          }
-        }
+      const { ipAddress, userAgent } = getRequestInfo(request)
+      await createActivityLog({
+        adminId: admin.adminId,
+        action: 'APPROVE_SUBSCRIPTION',
+        targetType: 'subscription_request',
+        targetId: id,
+        description: `Aprobó solicitud de suscripción para ${subscriptionRequest.user.name}`,
+        metadata: {
+          userId: subscriptionRequest.userId,
+          planName: subscriptionRequest.plan?.name,
+          totalAmount: Number(subscriptionRequest.totalAmount),
+          invoiceId: invoice.id,
+          subscriptionId: userSubscription.id
+        },
+        ipAddress,
+        userAgent,
       })
     } catch (logError) {
       console.warn('⚠️ Could not create admin activity log:', logError)

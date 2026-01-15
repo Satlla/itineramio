@@ -49,7 +49,6 @@ model User {
   username                String?                @unique
   academyProgress         AcademyProgress[]
   quizAttempts            QuizAttempt[]
-  adminLogs               AdminActivityLog[]
   referralTransactions    AffiliateTransaction[] @relation("AffiliateReferred")
   referredUsers           AffiliateTransaction[] @relation("AffiliateReferrer")
   billingInfo             BillingInfo?
@@ -562,16 +561,18 @@ model Invoice {
 
 model AdminActivityLog {
   id          String   @id @default(cuid())
-  adminUserId String   @map("admin_user_id")
+  adminId     String   @map("admin_id")
   action      String
   targetType  String?  @map("target_type")
   targetId    String?  @map("target_id")
   description String?
   metadata    Json?    @default("{}")
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
   createdAt   DateTime @default(now()) @map("created_at")
-  admin       User     @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+  admin       Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
-  @@index([adminUserId, createdAt])
+  @@index([adminId, createdAt])
   @@map("admin_activity_log")
 }
 
@@ -743,18 +744,20 @@ model ZoneView {
 }
 
 model Admin {
-  id          String          @id @default(cuid())
-  email       String          @unique
-  name        String
-  password    String
-  role        String          @default("ADMIN")
-  isActive    Boolean         @default(true)
-  lastLoginAt DateTime?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  auditLogs   AdminAuditLog[]
-  callLogs    CallLog[]
-  userNotes   UserNote[]
+  id           String             @id @default(cuid())
+  email        String             @unique
+  name         String
+  password     String
+  role         String             @default("ADMIN")
+  permissions  Json               @default("[]")
+  isActive     Boolean            @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  activityLogs AdminActivityLog[]
+  auditLogs    AdminAuditLog[]
+  callLogs     CallLog[]
+  userNotes    UserNote[]
 
   @@map("admins")
 }

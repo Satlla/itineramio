@@ -6,6 +6,7 @@ import Link from 'next/link'
 import {
   LogOut,
   Shield,
+  ShieldCheck,
   Users,
   Home,
   CreditCard,
@@ -28,17 +29,18 @@ import {
   UsersRound,
   GraduationCap,
   HelpCircle,
-  Video
+  Video,
+  UserCog
 } from 'lucide-react'
 
-// Navigation structure organized by function
+// Navigation structure organized by function with permissions
 const navigationSections = [
   {
     id: 'inicio',
     title: null, // No title for first section
     color: 'red',
     items: [
-      { name: 'Dashboard', href: '/admin', icon: Home },
+      { name: 'Dashboard', href: '/admin', icon: Home, permissions: ['dashboard.view'] },
     ]
   },
   {
@@ -46,9 +48,9 @@ const navigationSections = [
     title: 'Clientes',
     color: 'blue',
     items: [
-      { name: 'Usuarios', href: '/admin/users', icon: Users },
-      { name: 'Suscripciones', href: '/admin/subscription-requests', icon: Bell, badge: true },
-      { name: 'Propiedades', href: '/admin/properties', icon: Building2 },
+      { name: 'Usuarios', href: '/admin/users', icon: Users, permissions: ['users.view'] },
+      { name: 'Suscripciones', href: '/admin/subscription-requests', icon: Bell, badge: true, permissions: ['subscriptions.view'] },
+      { name: 'Propiedades', href: '/admin/properties', icon: Building2, permissions: ['properties.view'] },
     ]
   },
   {
@@ -56,9 +58,9 @@ const navigationSections = [
     title: 'Facturación',
     color: 'green',
     items: [
-      { name: 'Pagos', href: '/admin/payments', icon: DollarSign },
-      { name: 'Facturas', href: '/admin/billing', icon: CreditCard },
-      { name: 'Reportes', href: '/admin/reports', icon: FileText },
+      { name: 'Pagos', href: '/admin/payments', icon: DollarSign, permissions: ['payments.view'] },
+      { name: 'Facturas', href: '/admin/billing', icon: CreditCard, permissions: ['billing.view'] },
+      { name: 'Reportes', href: '/admin/reports', icon: FileText, permissions: ['billing.view'] },
     ]
   },
   {
@@ -66,10 +68,10 @@ const navigationSections = [
     title: 'Configuración',
     color: 'gray',
     items: [
-      { name: 'Planes', href: '/admin/plans', icon: Settings },
-      { name: 'Precios', href: '/admin/pricing', icon: TrendingUp },
-      { name: 'Cupones', href: '/admin/coupons', icon: Tag },
-      { name: 'Custom Plans', href: '/admin/custom-plans', icon: Star },
+      { name: 'Planes', href: '/admin/plans', icon: Settings, permissions: ['plans.view'] },
+      { name: 'Precios', href: '/admin/pricing', icon: TrendingUp, permissions: ['pricing.view'] },
+      { name: 'Cupones', href: '/admin/coupons', icon: Tag, permissions: ['coupons.view'] },
+      { name: 'Custom Plans', href: '/admin/custom-plans', icon: Star, permissions: ['plans.view'] },
     ]
   },
   {
@@ -78,13 +80,13 @@ const navigationSections = [
     color: 'violet',
     collapsible: true,
     items: [
-      { name: 'Leads Cualificados', href: '/admin/leads', icon: UsersRound, hot: true },
-      { name: 'Consultas', href: '/admin/consultas', icon: Video },
-      { name: 'Suscriptores', href: '/admin/marketing/leads', icon: Mail },
-      { name: 'Embudos', href: '/admin/funnels', icon: Megaphone },
-      { name: 'Blog', href: '/admin/blog', icon: FileText },
-      { name: 'FAQ', href: '/admin/faq', icon: HelpCircle },
-      { name: 'Host Profiles', href: '/admin/host-profiles', icon: UsersRound },
+      { name: 'Leads Cualificados', href: '/admin/leads', icon: UsersRound, hot: true, permissions: ['marketing.view'] },
+      { name: 'Consultas', href: '/admin/consultas', icon: Video, permissions: ['calendar.view'] },
+      { name: 'Suscriptores', href: '/admin/marketing/leads', icon: Mail, permissions: ['marketing.view'] },
+      { name: 'Embudos', href: '/admin/funnels', icon: Megaphone, permissions: ['marketing.view'] },
+      { name: 'Blog', href: '/admin/blog', icon: FileText, permissions: ['marketing.view'] },
+      { name: 'FAQ', href: '/admin/faq', icon: HelpCircle, permissions: ['marketing.view'] },
+      { name: 'Host Profiles', href: '/admin/host-profiles', icon: UsersRound, permissions: ['marketing.view'] },
     ]
   },
   {
@@ -93,9 +95,10 @@ const navigationSections = [
     color: 'slate',
     collapsible: true,
     items: [
-      { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-      { name: 'Audit Logs', href: '/admin/audit-logs', icon: Shield },
-      { name: 'Logs', href: '/admin/logs', icon: FileText },
+      { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, permissions: ['analytics.view'] },
+      { name: 'Administradores', href: '/admin/administrators', icon: UserCog, permissions: ['admins.view'] },
+      { name: 'Logs', href: '/admin/logs', icon: FileText, permissions: ['logs.view'] },
+      { name: 'Configuración', href: '/admin/settings', icon: Settings, permissions: ['settings.view'] },
     ]
   },
   {
@@ -104,9 +107,9 @@ const navigationSections = [
     color: 'purple',
     collapsible: true,
     items: [
-      { name: 'Leads', href: '/admin/academia/leads', icon: UsersRound },
-      { name: 'Quiz Leads', href: '/admin/academia/quiz-leads', icon: Mail },
-      { name: 'Usuarios', href: '/admin/academia/users', icon: Users },
+      { name: 'Leads', href: '/admin/academia/leads', icon: UsersRound, permissions: ['academia.view'] },
+      { name: 'Quiz Leads', href: '/admin/academia/quiz-leads', icon: Mail, permissions: ['academia.view'] },
+      { name: 'Usuarios', href: '/admin/academia/users', icon: Users, permissions: ['academia.view'] },
     ]
   },
 ]
@@ -125,6 +128,8 @@ export default function AdminLayout({
   const pathname = usePathname()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [adminName, setAdminName] = useState('')
+  const [adminRole, setAdminRole] = useState('')
+  const [adminPermissions, setAdminPermissions] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
@@ -229,11 +234,13 @@ export default function AdminLayout({
       const response = await fetch('/api/admin/auth/check', {
         credentials: 'include'
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         setIsAuthenticated(true)
         setAdminName(data.admin.name)
+        setAdminRole(data.admin.role || 'ADMIN')
+        setAdminPermissions(data.admin.permissions || [])
       } else {
         router.push('/admin/login')
       }
@@ -242,6 +249,24 @@ export default function AdminLayout({
     } finally {
       setLoading(false)
     }
+  }
+
+  // Check if admin has permission for an item
+  const hasPermission = (itemPermissions?: string[]) => {
+    // SUPER_ADMIN has access to everything
+    if (adminRole === 'SUPER_ADMIN') return true
+    // If no permissions required, allow access
+    if (!itemPermissions || itemPermissions.length === 0) return true
+    // Check if admin has any of the required permissions
+    return itemPermissions.some(p => adminPermissions.includes(p))
+  }
+
+  // Filter navigation items by permissions
+  const getFilteredSections = () => {
+    return navigationSections.map(section => ({
+      ...section,
+      items: section.items.filter((item: any) => hasPermission(item.permissions))
+    })).filter(section => section.items.length > 0)
   }
 
   const handleLogout = async () => {
@@ -339,7 +364,7 @@ export default function AdminLayout({
             />
             <nav className="fixed top-0 left-0 bottom-0 flex flex-col w-64 max-w-[80vw] bg-white shadow-xl pt-14 sm:pt-16 overflow-hidden">
               <div className="flex-1 px-3 py-4 overflow-y-auto">
-                {navigationSections.map((section, sectionIndex) => {
+                {getFilteredSections().map((section, sectionIndex) => {
                   const isCollapsible = section.collapsible
                   const isCollapsed = collapsedSections[section.id]
                   const colorClasses: Record<string, { bg: string; text: string; border: string; icon: string }> = {
@@ -431,7 +456,7 @@ export default function AdminLayout({
         {/* Desktop sidebar */}
         <nav className="hidden lg:block w-64 bg-white border-r border-gray-200 min-h-screen pt-4 sticky top-16">
           <div className="px-3 pb-4 overflow-y-auto max-h-[calc(100vh-4rem)]">
-            {navigationSections.map((section, sectionIndex) => {
+            {getFilteredSections().map((section, sectionIndex) => {
               const isCollapsible = section.collapsible
               const isCollapsed = collapsedSections[section.id]
               const colorClasses: Record<string, { bg: string; text: string; border: string; icon: string }> = {

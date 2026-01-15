@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
-import { requireAdminAuth } from '../../../../../../src/lib/admin-auth'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../../src/lib/admin-auth'
 import { sendEmail } from '../../../../../../src/lib/email'
 
 export async function POST(
@@ -219,30 +219,24 @@ export async function POST(
     }
     
     // Log activity
-    const adminUser = await prisma.user.findFirst({
-      where: { isAdmin: true },
-      select: { id: true }
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'user_plan_changed',
+      targetType: 'user',
+      targetId: params.id,
+      description: `Changed user plan to ${newPlan.name} (${periodLabel})`,
+      metadata: {
+        oldPlan: user.subscriptions[0]?.plan?.name || 'None',
+        newPlan: newPlan.name,
+        billingPeriod: periodLabel,
+        price: priceForPeriod,
+        markAsPaid,
+        emailSent: shouldSendEmail
+      },
+      ipAddress,
+      userAgent,
     })
-    
-    if (adminUser) {
-      await prisma.adminActivityLog.create({
-        data: {
-          adminUserId: adminUser.id,
-          action: 'user_plan_changed',
-          targetType: 'user',
-          targetId: params.id,
-          description: `Changed user plan to ${newPlan.name} (${periodLabel})`,
-          metadata: {
-            oldPlan: user.subscriptions[0]?.plan?.name || 'None',
-            newPlan: newPlan.name,
-            billingPeriod: periodLabel,
-            price: priceForPeriod,
-            markAsPaid,
-            emailSent: shouldSendEmail
-          }
-        }
-      })
-    }
     
     return NextResponse.json({
       success: true,

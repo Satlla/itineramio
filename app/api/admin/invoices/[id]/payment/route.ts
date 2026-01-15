@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../../../src/lib/prisma';
-import { requireAdminAuth } from '../../../../../../src/lib/admin-auth';
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../../src/lib/admin-auth';
 import { sendEmail, emailTemplates } from '../../../../../../src/lib/email';
 
 export async function POST(
@@ -111,30 +111,24 @@ export async function POST(
       // Don't fail the payment process if email fails
     }
 
-    // Log activity - find an admin user for now
-    const adminUser = await prisma.user.findFirst({
-      where: { isAdmin: true },
-      select: { id: true }
-    });
-    
-    if (adminUser) {
-      await prisma.adminActivityLog.create({
-        data: {
-          adminUserId: adminUser.id,
-          action: 'invoice_paid',
-          targetType: 'invoice',
-          targetId: invoiceId,
-          description: `Marked invoice ${invoice.invoiceNumber} as paid`,
-          metadata: { 
-            invoiceNumber: invoice.invoiceNumber,
-            amount: invoice.finalAmount.toNumber(),
-            paymentMethod,
-            paymentReference,
-            userEmail: invoice.user.email
-          }
-        }
-      });
-    }
+    // Log activity
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'invoice_paid',
+      targetType: 'invoice',
+      targetId: invoiceId,
+      description: `Marked invoice ${invoice.invoiceNumber} as paid`,
+      metadata: {
+        invoiceNumber: invoice.invoiceNumber,
+        amount: invoice.finalAmount.toNumber(),
+        paymentMethod,
+        paymentReference,
+        userEmail: invoice.user.email
+      },
+      ipAddress,
+      userAgent,
+    })
 
     return NextResponse.json({
       success: true,
