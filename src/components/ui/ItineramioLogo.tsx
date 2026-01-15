@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { cn } from '../../lib/utils'
 
 interface ItineramioLogoProps {
@@ -12,10 +13,10 @@ interface ItineramioLogoProps {
 }
 
 const sizeClasses = {
-  sm: 'w-6 h-6',
-  md: 'w-8 h-8',
-  lg: 'w-10 h-10',
-  xl: 'w-12 h-12'
+  sm: { width: 24, height: 13 },
+  md: { width: 32, height: 18 },
+  lg: { width: 48, height: 26 },
+  xl: { width: 64, height: 35 }
 }
 
 const textSizeClasses = {
@@ -25,45 +26,34 @@ const textSizeClasses = {
   xl: 'text-3xl'
 }
 
-export function ItineramioLogo({ 
+export function ItineramioLogo({
   className,
   size = 'md',
   variant = 'icon',
   showText = false,
   white = false
 }: ItineramioLogoProps) {
+  const dimensions = sizeClasses[size]
+
+  // New logo SVG component
   const LogoSVG = () => (
-    <svg 
-      viewBox="0 0 32 32" 
-      fill="none" 
+    <svg
+      width={dimensions.width}
+      height={dimensions.height}
+      viewBox="0 0 195 107"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={cn(sizeClasses[size], className)}
+      className={className}
     >
-      {/* Background Circle */}
-      <circle cx="16" cy="16" r="16" fill={white ? "white" : "url(#gradient)"}/>
-      
-      {/* Property/Building Icon */}
-      <rect x="8" y="14" width="16" height="12" rx="2" fill={white ? "#8B5CF6" : "white"} opacity="0.9"/>
-      <rect x="8" y="10" width="16" height="4" rx="2" fill={white ? "#8B5CF6" : "white"}/>
-      
-      {/* Guide Lines/Steps */}
-      <line x1="11" y1="17" x2="21" y2="17" stroke={white ? "#A855F7" : "#8B5CF6"} strokeWidth="1.5" strokeLinecap="round"/>
-      <line x1="11" y1="20" x2="18" y2="20" stroke={white ? "#A855F7" : "#8B5CF6"} strokeWidth="1.5" strokeLinecap="round"/>
-      <line x1="11" y1="23" x2="20" y2="23" stroke={white ? "#A855F7" : "#8B5CF6"} strokeWidth="1.5" strokeLinecap="round"/>
-      
-      {/* Step Numbers */}
-      <circle cx="11" cy="17" r="1.5" fill={white ? "#A855F7" : "#8B5CF6"}/>
-      <circle cx="11" cy="20" r="1.5" fill={white ? "#A855F7" : "#8B5CF6"}/>
-      <circle cx="11" cy="23" r="1.5" fill={white ? "#A855F7" : "#8B5CF6"}/>
-      
-      {!white && (
-        <defs>
-          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#8B5CF6"/>
-            <stop offset="100%" stopColor="#A855F7"/>
-          </linearGradient>
-        </defs>
-      )}
+      <path d="M123.34 44.7245L112.607 53.6594L132.443 69.8455C133.344 70.5824 134.387 71.2027 135.527 71.6601C139.241 73.1402 147.773 75.5045 157.981 69.8791C172.84 61.6754 164.645 45.4257 163.177 43.566" stroke={white ? "white" : "black"} strokeWidth="10" strokeMiterlimit="10" strokeLinecap="round"/>
+      <path d="M108.092 32.1245C110.237 30.3864 110.568 27.2378 108.83 25.0921C107.091 22.9463 103.943 22.6159 101.797 24.3541L104.944 28.2393L108.092 32.1245ZM92.9446 37.9599L96.0918 41.8452L108.092 32.1245L104.944 28.2393L101.797 24.3541L89.7973 34.0747L92.9446 37.9599Z" fill={white ? "white" : "black"}/>
+      <path d="M181.884 24.5146C189.23 35.2595 190.799 47.2539 188.215 60.0171" stroke={white ? "white" : "black"} strokeWidth="10" strokeMiterlimit="10"/>
+      <path d="M5.53057 58.7791C5.53057 58.7791 7.35412 72.7401 19.2757 83.5876C22.13 86.1931 31.8263 94.551 46.7103 95.5529C66.571 96.9067 79.8677 84.1505 81.9592 82.0792L97.3746 66.6829L112.771 82.0984C117.991 87.322 124.37 91.2585 131.42 93.4503C142.047 96.7418 157.391 98.0816 171.693 86.6627C181.913 78.5043 186.43 68.7455 188.215 60.0176" stroke={white ? "white" : "black"} strokeWidth="10" strokeMiterlimit="10"/>
+      <path d="M98.842 37.5615L76.6314 14.9518C76.2412 14.569 75.8151 14.2169 75.3698 13.8969C70.9518 10.6665 48.2872 -3.48163 22.3513 15.0626C22.3513 15.0626 1.44432 30.0334 5.53005 58.7954" stroke={white ? "white" : "black"} strokeWidth="10" strokeMiterlimit="10"/>
+      <path d="M64.0331 33.6563C63.675 33.2927 63.2964 32.9779 62.8831 32.6772C59.818 30.408 47.8499 22.5458 35.1527 33.4173C20.7648 45.7363 29.885 60.6655 29.885 60.6655C29.885 60.6655 36.7732 73.8435 50.2481 73.3088C50.2481 73.3088 58.11 73.9178 62.3971 69.5146L82.0403 50.483L64.0331 33.6563Z" stroke={white ? "white" : "black"} strokeWidth="10" strokeMiterlimit="10"/>
+      <path d="M157.264 34.028L153.267 29.0456C152.289 27.8172 152.436 26.196 153.61 25.2273L171.265 10.5469C172.323 9.68064 174.079 9.86666 174.945 10.9677L180.648 18.0767C181.517 19.1606 181.323 20.6136 180.182 21.4109L161.26 34.6319C160.052 35.4701 158.214 35.198 157.264 34.028Z" stroke={white ? "white" : "black"} strokeWidth="5" strokeMiterlimit="10"/>
+      <path d="M114.324 11.614L109.927 15.8166C108.85 16.8537 108.786 18.4023 109.773 19.4635L124.6 35.5303C125.49 36.4803 127.171 36.5247 128.126 35.5938L134.399 29.5975C135.355 28.6831 135.354 27.2875 134.376 26.392L118.171 11.5442C117.136 10.6018 115.367 10.6286 114.324 11.614Z" stroke={white ? "white" : "black"} strokeWidth="5" strokeMiterlimit="10"/>
+      <path d="M142.718 24.813L145.792 24.7246C146.589 24.71 147.323 24.0518 147.579 23.0997L155.469 5.73167C155.919 4.11302 155.004 2.48029 153.635 2.50019L134.58 2.61179C133.363 2.61419 132.551 4.24425 133.114 5.52823L140.854 23.4706C141.21 24.3187 141.92 24.8276 142.718 24.813Z" stroke={white ? "white" : "black"} strokeWidth="5" strokeMiterlimit="10"/>
     </svg>
   )
 
@@ -74,8 +64,8 @@ export function ItineramioLogo({
   if (variant === 'square') {
     return (
       <div className={cn(
-        "bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg",
-        sizeClasses[size]
+        "bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg p-2",
+        className
       )}>
         <LogoSVG />
       </div>
@@ -85,35 +75,7 @@ export function ItineramioLogo({
   if (variant === 'full' || showText) {
     return (
       <div className="flex items-center space-x-2">
-        {variant === 'full' ? (
-          <div className={cn(
-            "bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg",
-            sizeClasses[size]
-          )}>
-            <svg 
-              viewBox="0 0 32 32" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-              className={cn(sizeClasses[size === 'xl' ? 'lg' : size === 'lg' ? 'md' : 'sm'])}
-            >
-              {/* Property/Building Icon */}
-              <rect x="6" y="11" width="20" height="15" rx="2" fill="white" opacity="0.9"/>
-              <rect x="6" y="8" width="20" height="5" rx="2" fill="white"/>
-              
-              {/* Guide Lines/Steps */}
-              <line x1="9" y1="15" x2="23" y2="15" stroke="#A855F7" strokeWidth="1.5" strokeLinecap="round"/>
-              <line x1="9" y1="18" x2="19" y2="18" stroke="#A855F7" strokeWidth="1.5" strokeLinecap="round"/>
-              <line x1="9" y1="21" x2="21" y2="21" stroke="#A855F7" strokeWidth="1.5" strokeLinecap="round"/>
-              
-              {/* Step Numbers */}
-              <circle cx="9" cy="15" r="1.5" fill="#A855F7"/>
-              <circle cx="9" cy="18" r="1.5" fill="#A855F7"/>
-              <circle cx="9" cy="21" r="1.5" fill="#A855F7"/>
-            </svg>
-          </div>
-        ) : (
-          <LogoSVG />
-        )}
+        <LogoSVG />
         {showText && (
           <span className={cn(
             "font-bold",
