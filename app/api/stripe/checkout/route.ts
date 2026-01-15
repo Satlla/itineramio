@@ -77,7 +77,12 @@ export async function POST(request: NextRequest) {
     const fullPrice = calculatePrice(plan, period)
 
     // Use prorated amount if available, otherwise use full price
-    const priceToCharge = hasProration && proratedAmount ? proratedAmount : fullPrice
+    let priceToCharge = hasProration && proratedAmount ? proratedAmount : fullPrice
+
+    // Apply coupon discount if available
+    if (couponDiscountAmount && couponDiscountAmount > 0) {
+      priceToCharge = Math.max(0, priceToCharge - couponDiscountAmount)
+    }
 
     console.log('💰 Stripe Checkout - Price Calculation:', {
       planCode,
@@ -89,10 +94,10 @@ export async function POST(request: NextRequest) {
       fullPrice,
       hasProration,
       proratedAmount,
-      priceToCharge,
-      priceInCents: Math.round(priceToCharge * 100),
       couponCode: couponCode || null,
-      couponDiscountAmount: couponDiscountAmount || 0
+      couponDiscountAmount: couponDiscountAmount || 0,
+      priceToCharge,
+      priceInCents: Math.round(priceToCharge * 100)
     })
 
     // Calculate interval for Stripe

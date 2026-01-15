@@ -301,7 +301,11 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
   const discount = getDiscountPercentage(planDetails.billingPeriod)
   const basePrice = planDetails.monthlyPrice * months
   const discountAmount = basePrice * (discount / 100)
-  const finalPrice = planDetails.hasProration ? planDetails.proratedAmount || planDetails.price : planDetails.price
+
+  // Apply coupon discount to the final price (whether prorated or not)
+  const priceBeforeCoupon = planDetails.hasProration ? planDetails.proratedAmount || planDetails.price : planDetails.price
+  const couponDiscount = planDetails.couponDiscountAmount || 0
+  const finalPrice = Math.max(0, priceBeforeCoupon - couponDiscount)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -331,6 +335,12 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
               {months > 1 && (
                 <p className="text-sm text-gray-600 mt-2">
                   Equivalente a €{(finalPrice / months).toFixed(2)}/mes
+                </p>
+              )}
+              {/* Show coupon discount if applied */}
+              {couponDiscount > 0 && (
+                <p className="text-sm text-green-600 font-medium mt-2">
+                  ✨ Cupón aplicado: -€{couponDiscount.toFixed(2)}
                 </p>
               )}
             </div>
