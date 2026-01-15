@@ -1034,8 +1034,8 @@ export default function PropertyGuidePage() {
               </div>
             </div>
 
-            {/* Description */}
-            <div className={`py-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            {/* Description - Hidden on mobile to reduce scroll */}
+            <div className={`hidden md:block py-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
               <p className={`leading-relaxed ${darkMode ? 'text-gray-300' : 'text-[#484848]'}`}>
                 {getPropertyText(property.description, property.descriptionTranslations, language, t('accommodationWelcome', language))}
               </p>
