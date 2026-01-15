@@ -56,8 +56,8 @@ export function Navbar({ transparent = false }: NavbarProps) {
               whileHover={{ scale: 1.05 }}
             >
               <Link href="/" className="flex items-center space-x-2">
-                <ItineramioLogo variant="icon" size="md" />
-                <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                <ItineramioLogo size="md" gradient />
+                <span className="text-xl font-bold" style={{ color: '#484848' }}>
                   Itineramio
                 </span>
               </Link>
@@ -220,8 +220,8 @@ export function Navbar({ transparent = false }: NavbarProps) {
             >
               <div className="flex items-center justify-between p-6 border-b">
                 <div className="flex items-center space-x-2">
-                  <ItineramioLogo variant="icon" size="md" />
-                  <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                  <ItineramioLogo size="md" />
+                  <span className="text-xl font-bold" style={{ color: '#484848' }}>
                     Itineramio
                   </span>
                 </div>

@@ -29,8 +29,8 @@ export function Footer() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <ItineramioLogo variant="square" size="lg" />
-              <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+              <ItineramioLogo size="lg" />
+              <span className="text-2xl font-bold" style={{ color: '#484848' }}>
                 Itineramio
               </span>
             </motion.div>
