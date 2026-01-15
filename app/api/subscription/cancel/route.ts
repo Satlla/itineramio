@@ -47,9 +47,7 @@ export async function POST(request: NextRequest) {
     // Si tiene suscripción de Stripe, cancelarla también en Stripe
     if (subscription.stripeSubscriptionId && process.env.STRIPE_SECRET_KEY) {
       try {
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-          apiVersion: '2025-06-30.basil' as Stripe.LatestApiVersion
-        })
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
         if (immediate) {
           // Cancelación inmediata

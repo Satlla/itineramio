@@ -24,9 +24,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2025-06-30.basil' as Stripe.LatestApiVersion
-    })
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
     // Get raw body for signature verification
     const body = await request.text()
