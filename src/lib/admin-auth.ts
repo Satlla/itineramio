@@ -83,6 +83,9 @@ export async function validateAdminPassword(password: string, hashedPassword: st
   return bcrypt.compare(password, hashedPassword)
 }
 
+// Alias for backwards compatibility
+export const verifyAdminPassword = validateAdminPassword
+
 export async function hashAdminPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 10)
 }
