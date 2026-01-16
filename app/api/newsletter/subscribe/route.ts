@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
-import { enrollSubscriberInSequences } from '../../../../src/lib/email-sequences'
+import { sendEmail } from '../../../../src/lib/email-improved'
+import { randomBytes } from 'crypto'
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,119 +27,84 @@ export async function POST(request: NextRequest) {
     if (existing) {
       // Si ya está suscrito y activo
       if (existing.status === 'active') {
-        // Merge new tags with existing tags
-        const existingTags = existing.tags || []
-        const newTags = tags.filter((t: string) => !existingTags.includes(t))
-
-        if (newTags.length > 0 || (source !== 'unknown' && source !== existing.source)) {
-          // Update with new tags and track new source
-          await prisma.emailSubscriber.update({
-            where: { email: normalizedEmail },
-            data: {
-              tags: [...existingTags, ...newTags],
-              // Keep original source but add new one to tags for tracking
-              ...(source !== 'unknown' && source !== existing.source && {
-                tags: [...existingTags, ...newTags, `from_${source}`]
-              })
-            }
-          })
-          console.log(`📝 Updated subscriber tags: ${normalizedEmail} added ${newTags.join(', ')} from ${source}`)
-        }
-
         return NextResponse.json(
           { message: 'Ya estás suscrito', alreadySubscribed: true },
           { status: 200 }
         )
       }
 
-      // Si estaba unsubscribed, reactivar
-      if (existing.status === 'unsubscribed') {
+      // Si está pendiente, reenviar email de confirmación
+      if (existing.status === 'pending') {
+        const token = randomBytes(32).toString('hex')
         await prisma.emailSubscriber.update({
           where: { email: normalizedEmail },
           data: {
-            status: 'active',
-            unsubscribedAt: null,
-            source,
-            tags
+            sourceMetadata: {
+              confirmationToken: token,
+              tokenCreatedAt: new Date().toISOString()
+            }
           }
         })
+
+        await sendConfirmationEmail(normalizedEmail, token)
 
         return NextResponse.json({
           success: true,
-          message: '¡Bienvenido de vuelta! Suscripción reactivada'
+          message: 'Te hemos reenviado el email de confirmación'
+        })
+      }
+
+      // Si estaba unsubscribed, crear nuevo token y reactivar proceso
+      if (existing.status === 'unsubscribed') {
+        const token = randomBytes(32).toString('hex')
+        await prisma.emailSubscriber.update({
+          where: { email: normalizedEmail },
+          data: {
+            status: 'pending',
+            unsubscribedAt: null,
+            source,
+            tags,
+            sourceMetadata: {
+              confirmationToken: token,
+              tokenCreatedAt: new Date().toISOString()
+            }
+          }
+        })
+
+        await sendConfirmationEmail(normalizedEmail, token)
+
+        return NextResponse.json({
+          success: true,
+          message: '¡Revisa tu email para confirmar la suscripción!'
         })
       }
     }
 
-    // Crear nuevo suscriptor
-    const newSubscriber = await prisma.emailSubscriber.create({
+    // Generar token de confirmación
+    const confirmationToken = randomBytes(32).toString('hex')
+
+    // Crear nuevo suscriptor con status pending
+    await prisma.emailSubscriber.create({
       data: {
         email: normalizedEmail,
-        status: 'active',
+        status: 'pending',
         source,
         tags,
-        sequenceStartedAt: new Date(), // Para secuencias de email automatizadas
-        sequenceStatus: 'active',
-        nivelSequenceStatus: tags.some((t: string) => t.startsWith('nivel_')) ? 'pending' : 'none'
+        sourceMetadata: {
+          confirmationToken,
+          tokenCreatedAt: new Date().toISOString()
+        }
       }
     })
 
-    console.log(`✅ New newsletter subscriber: ${normalizedEmail} (source: ${source})`)
+    console.log(`📧 New newsletter subscription pending: ${normalizedEmail} (source: ${source})`)
 
-    // También crear Lead para que aparezca en /admin/leads
-    try {
-      const existingLead = await prisma.lead.findFirst({
-        where: { email: normalizedEmail }
-      })
-
-      if (!existingLead) {
-        await prisma.lead.create({
-          data: {
-            email: normalizedEmail,
-            name: 'Suscriptor Newsletter',
-            source: source || 'newsletter',
-            metadata: {
-              newsletterSubscribed: true,
-              tags,
-              subscribedAt: new Date().toISOString()
-            }
-          }
-        })
-        console.log(`📝 Lead created for newsletter subscriber: ${normalizedEmail}`)
-      } else {
-        // Actualizar lead existente con info de newsletter
-        const existingMetadata = existingLead.metadata as Record<string, unknown> || {}
-        await prisma.lead.update({
-          where: { id: existingLead.id },
-          data: {
-            metadata: {
-              ...existingMetadata,
-              newsletterSubscribed: true,
-              newsletterSource: source,
-              newsletterTags: tags,
-              newsletterSubscribedAt: new Date().toISOString()
-            }
-          }
-        })
-      }
-    } catch (leadError) {
-      console.error('Error creating lead for newsletter subscriber:', leadError)
-      // No fallar la operación principal
-    }
-
-    // Enrollar automáticamente en secuencias según el source
-    await enrollSubscriberInSequences(
-      newSubscriber.id,
-      'SUBSCRIBER_CREATED',
-      {
-        source,
-        tags
-      }
-    )
+    // Enviar email de confirmación
+    await sendConfirmationEmail(normalizedEmail, confirmationToken)
 
     return NextResponse.json({
       success: true,
-      message: '¡Genial! Revisa tu email para confirmar la suscripción'
+      message: '¡Revisa tu email para confirmar la suscripción!'
     })
   } catch (error) {
     console.error('Newsletter subscription error:', error)
@@ -147,6 +113,71 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+async function sendConfirmationEmail(email: string, token: string) {
+  const confirmUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/newsletter/confirm?token=${token}`
+
+  await sendEmail({
+    to: email,
+    subject: 'Confirma tu suscripción - Itineramio',
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); padding: 32px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">Itineramio</h1>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px 32px;">
+              <h2 style="margin: 0 0 16px 0; color: #1f2937; font-size: 22px; font-weight: 600;">Confirma tu suscripción</h2>
+              <p style="margin: 0 0 24px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                Has solicitado recibir alertas sobre cambios en la normativa de alquiler vacacional. Haz clic en el botón para confirmar:
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding: 8px 0 32px 0;">
+                    <a href="${confirmUrl}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 10px; font-weight: 600; font-size: 16px;">
+                      Confirmar suscripción
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 0; color: #9ca3af; font-size: 14px; line-height: 1.5;">
+                Si no solicitaste esta suscripción, puedes ignorar este email.
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f9fafb; padding: 24px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+                © 2026 Itineramio · Tu manual digital de alquiler vacacional
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `
+  })
+
+  console.log(`✉️ Confirmation email sent to: ${email}`)
 }
 
 // Endpoint para unsubscribe
