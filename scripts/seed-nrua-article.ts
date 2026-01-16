@@ -258,19 +258,63 @@ const nruaArticle = {
 </div>
 </div>
 
-<h2 class="section-title">Dudas habituales</h2>
+<h2 class="section-title">Preguntas frecuentes sobre la Orden VAU/1560/2025</h2>
 
-<h3 class="subsection-title">¿Puedo encargar la gestión a un tercero?</h3>
-<p>Sí, puedes autorizar a tu gestor administrativo, property manager o cualquier persona de confianza para que realice la presentación en tu nombre.</p>
+<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+<h3 class="subsection-title" itemprop="name">¿Cuándo entra en vigor la Orden VAU/1560/2025?</h3>
+<div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+<p itemprop="text">La Orden VAU/1560/2025 entró en vigor en enero de 2026. La primera declaración debe presentarse en febrero de 2026 con los datos de estancias del año anterior.</p>
+</div>
+</div>
 
-<h3 class="subsection-title">¿Qué ocurre si me equivoco en algún dato?</h3>
-<p>Los errores aislados no suelen tener consecuencias graves. No obstante, si se detectan discrepancias sistemáticas, el Registro podría solicitar documentación acreditativa adicional.</p>
+<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+<h3 class="subsection-title" itemprop="name">¿Puedo encargar la gestión del modelo informativo a un tercero?</h3>
+<div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+<p itemprop="text">Sí, puedes autorizar a tu gestor administrativo, property manager o cualquier persona de confianza para que realice la presentación del modelo informativo NRUA en tu nombre.</p>
+</div>
+</div>
 
-<h3 class="subsection-title">¿Sustituye a las obligaciones fiscales?</h3>
-<p>En absoluto. Tus obligaciones tributarias (IRPF, modelo 179, etc.) se mantienen íntegramente. Esta declaración tiene carácter informativo, no fiscal.</p>
+<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+<h3 class="subsection-title" itemprop="name">¿Qué pasa si me equivoco al rellenar la declaración NRUA?</h3>
+<div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+<p itemprop="text">Los errores aislados en el modelo informativo no suelen tener consecuencias graves. No obstante, si se detectan discrepancias sistemáticas, el Registro de la Propiedad podría solicitar documentación acreditativa adicional.</p>
+</div>
+</div>
 
-<h3 class="subsection-title">¿Y si gestiono varios apartamentos?</h3>
-<p>Deberás presentar una declaración independiente por cada inmueble que tenga asignado un número NRUA.</p>
+<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+<h3 class="subsection-title" itemprop="name">¿La Orden VAU/1560/2025 sustituye mis obligaciones fiscales?</h3>
+<div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+<p itemprop="text">En absoluto. Tus obligaciones tributarias (IRPF, modelo 179, etc.) se mantienen íntegramente. La declaración establecida por la Orden VAU/1560/2025 tiene carácter exclusivamente informativo, no fiscal.</p>
+</div>
+</div>
+
+<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+<h3 class="subsection-title" itemprop="name">¿Debo presentar una declaración por cada apartamento?</h3>
+<div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+<p itemprop="text">Sí, según la Orden VAU/1560/2025 deberás presentar una declaración independiente por cada inmueble que tenga asignado un número NRUA activo.</p>
+</div>
+</div>
+
+<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+<h3 class="subsection-title" itemprop="name">¿Cuánto cuesta tramitar el NRUA?</h3>
+<div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+<p itemprop="text">La tasa por obtener el número NRUA es de aproximadamente 27 euros por inmueble. Se tramita a través de la Ventanilla Única Digital del Colegio de Registradores.</p>
+</div>
+</div>
+
+<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+<h3 class="subsection-title" itemprop="name">¿Qué relación tiene el modelo NRUA con SES.HOSPEDAJES?</h3>
+<div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+<p itemprop="text">Son obligaciones completamente independientes. SES.HOSPEDAJES es el sistema de registro de viajeros ante las Fuerzas de Seguridad (datos identificativos en 24h). El modelo informativo NRUA según la Orden VAU/1560/2025 es una declaración anual estadística ante el Registro de la Propiedad.</p>
+</div>
+</div>
+
+<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+<h3 class="subsection-title" itemprop="name">¿Necesito certificado digital para presentar la declaración?</h3>
+<div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+<p itemprop="text">Para la presentación telemática sí necesitas identificación electrónica: certificado digital o sistema Cl@ve. Alternativamente, puedes presentar la declaración de forma presencial en tu Registro de la Propiedad.</p>
+</div>
+</div>
 
 <h2 class="section-title">Puntos clave</h2>
 
@@ -297,11 +341,11 @@ const nruaArticle = {
   coverImage: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&h=630&fit=crop&q=80',
   coverImageAlt: 'Documentos y calculadora sobre escritorio de madera',
   category: 'NORMATIVA',
-  tags: ['NRUA', 'declaración anual', 'alquiler vacacional', 'obligaciones 2026', 'registro propiedades'],
+  tags: ['NRUA', 'Orden VAU/1560/2025', 'modelo informativo', 'alquiler vacacional', 'declaración anual 2026'],
   featured: true,
-  metaTitle: 'Declaración Anual NRUA 2026: Guía Completa Para Propietarios',
-  metaDescription: 'Todo sobre la nueva declaración anual NRUA que deben presentar los propietarios de alquiler vacacional en febrero de 2026. Plazos, requisitos y cómo prepararte.',
-  keywords: ['declaración NRUA', 'obligaciones NRUA 2026', 'alquiler vacacional normativa', 'registro alquiler turístico', 'modelo informativo alojamiento'],
+  metaTitle: 'Modelo Informativo NRUA y Orden VAU/1560/2025: Guía 2026',
+  metaDescription: 'Guía completa sobre la Orden VAU/1560/2025 y el modelo informativo NRUA. Plazos febrero 2026, requisitos, FAQs y cómo presentar la declaración anual.',
+  keywords: ['Orden VAU/1560/2025', 'modelo informativo NRUA', 'declaración anual NRUA 2026', 'RD 1312/2024', 'alquiler vacacional normativa', 'registro NRUA obligatorio'],
   authorName: 'Equipo Itineramio',
   status: 'PUBLISHED',
   publishedAt: yesterday
