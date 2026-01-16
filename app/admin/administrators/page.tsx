@@ -96,6 +96,8 @@ export default function AdministratorsPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [confirmAdminPassword, setConfirmAdminPassword] = useState('')
 
   // Form state
   const [formData, setFormData] = useState({
@@ -148,6 +150,7 @@ export default function AdministratorsPage() {
       permissions: ['dashboard.view', 'users.view', 'properties.view', 'logs.view'],
       isActive: true,
     })
+    setConfirmAdminPassword('')
     setError('')
     setShowModal(true)
   }
@@ -169,6 +172,15 @@ export default function AdministratorsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    // Si se está creando un SUPER_ADMIN, requerir confirmación de contraseña
+    if (formData.role === 'SUPER_ADMIN' && !editingAdmin) {
+      if (!confirmAdminPassword) {
+        setError('Debes confirmar con tu contraseña para crear un Super Admin')
+        return
+      }
+    }
+
     setSaving(true)
 
     try {
@@ -190,6 +202,11 @@ export default function AdministratorsPage() {
         body.password = formData.password
       }
 
+      // Añadir contraseña de confirmación para crear Super Admin
+      if (formData.role === 'SUPER_ADMIN' && confirmAdminPassword) {
+        body.confirmPassword = confirmAdminPassword
+      }
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
@@ -201,6 +218,7 @@ export default function AdministratorsPage() {
 
       if (data.success) {
         setShowModal(false)
+        setConfirmAdminPassword('')
         fetchAdministrators()
       } else {
         setError(data.error || 'Error al guardar')
@@ -581,6 +599,40 @@ export default function AdministratorsPage() {
                           : 'Admin tiene acceso limitado según los permisos asignados'}
                       </p>
                     </div>
+
+                    {/* Confirmación de contraseña para crear Super Admin */}
+                    {formData.role === 'SUPER_ADMIN' && !editingAdmin && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          <Shield className="h-5 w-5 text-amber-600 mt-0.5" />
+                          <div className="flex-1">
+                            <h4 className="text-sm font-medium text-amber-800">
+                              Confirmación de seguridad requerida
+                            </h4>
+                            <p className="text-xs text-amber-700 mt-1 mb-3">
+                              Para crear un Super Admin, debes confirmar con tu contraseña actual
+                            </p>
+                            <div className="relative">
+                              <input
+                                type={showConfirmPassword ? 'text' : 'password'}
+                                required
+                                value={confirmAdminPassword}
+                                onChange={(e) => setConfirmAdminPassword(e.target.value)}
+                                className="w-full px-3 py-2 pr-10 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
+                                placeholder="Tu contraseña actual"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-amber-500 hover:text-amber-700"
+                              >
+                                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Estado */}
                     <div className="flex items-center">

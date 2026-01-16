@@ -3,6 +3,7 @@ import { prisma } from '../../../../src/lib/prisma'
 import {
   requireSuperAdmin,
   hashAdminPassword,
+  verifyAdminPassword,
   createActivityLog,
   getRequestInfo
 } from '../../../../src/lib/admin-auth'
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
       return authResult
     }
 
-    const { email, name, password, role, permissions } = await request.json()
+    const { email, name, password, role, permissions, confirmPassword } = await request.json()
 
     // Validaciones
     if (!email || !name || !password) {
@@ -98,6 +99,40 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    // Validar rol
+    const validRoles = ['ADMIN', 'SUPER_ADMIN']
+    const adminRole = validRoles.includes(role) ? role : 'ADMIN'
+
+    // Si se crea un SUPER_ADMIN, verificar contraseña de confirmación
+    if (adminRole === 'SUPER_ADMIN') {
+      if (!confirmPassword) {
+        return NextResponse.json({
+          success: false,
+          error: 'Se requiere confirmación de contraseña para crear un Super Admin'
+        }, { status: 400 })
+      }
+
+      // Obtener admin actual y verificar su contraseña
+      const currentAdmin = await prisma.admin.findUnique({
+        where: { id: authResult.adminId }
+      })
+
+      if (!currentAdmin) {
+        return NextResponse.json({
+          success: false,
+          error: 'Admin actual no encontrado'
+        }, { status: 400 })
+      }
+
+      const isPasswordValid = await verifyAdminPassword(confirmPassword, currentAdmin.password)
+      if (!isPasswordValid) {
+        return NextResponse.json({
+          success: false,
+          error: 'Contraseña de confirmación incorrecta'
+        }, { status: 401 })
+      }
+    }
+
     // Verificar email único
     const existingAdmin = await prisma.admin.findUnique({
       where: { email }
@@ -109,10 +144,6 @@ export async function POST(request: NextRequest) {
         error: 'Ya existe un administrador con este email'
       }, { status: 400 })
     }
-
-    // Validar rol
-    const validRoles = ['ADMIN', 'SUPER_ADMIN']
-    const adminRole = validRoles.includes(role) ? role : 'ADMIN'
 
     // Validar permisos
     let adminPermissions = permissions || DEFAULT_ADMIN_PERMISSIONS

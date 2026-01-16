@@ -96,7 +96,7 @@ const navigationSections = [
     collapsible: true,
     items: [
       { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, permissions: ['analytics.view'] },
-      { name: 'Administradores', href: '/admin/administrators', icon: UserCog, permissions: ['admins.view'] },
+      { name: 'Usuarios Sistema', href: '/admin/administrators', icon: UserCog, permissions: ['admins.view'] },
       { name: 'Logs', href: '/admin/logs', icon: FileText, permissions: ['logs.view'] },
       { name: 'Configuración', href: '/admin/settings', icon: Settings, permissions: ['settings.view'] },
     ]
