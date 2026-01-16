@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { verifyAdminToken } from '@/lib/admin-auth'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '@/lib/admin-auth'
 
 /**
  * POST /api/admin/subscriptions/[id]/extend
@@ -11,9 +11,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const adminUser = await verifyAdminToken(request)
-    if (!adminUser) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
     }
 
     const { id } = await params
@@ -63,6 +63,19 @@ export async function POST(
         status: 'ACTIVE',
         subscription: subscription.plan?.name?.toUpperCase() || 'ACTIVE'
       }
+    })
+
+    // Log the activity
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'subscription_extended',
+      targetType: 'subscription',
+      targetId: id,
+      description: `Suscripción extendida ${days} días: ${subscription.user?.email}`,
+      metadata: { days, reason, previousEndDate: currentEndDate, newEndDate, userId: subscription.userId },
+      ipAddress,
+      userAgent
     })
 
     console.log(`✅ Subscription ${id} extended by ${days} days until ${newEndDate.toISOString()}`)

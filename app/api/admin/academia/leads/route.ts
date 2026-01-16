@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../src/lib/admin-auth'
 
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
+
     // Get all academia-related leads from EmailSubscriber
     const leads = await prisma.emailSubscriber.findMany({
       where: {
@@ -38,6 +44,11 @@ export async function GET(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
+
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
 
@@ -48,8 +59,26 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
+    // Get lead info before deletion
+    const lead = await prisma.emailSubscriber.findUnique({
+      where: { id },
+      select: { email: true }
+    })
+
     await prisma.emailSubscriber.delete({
       where: { id }
+    })
+
+    // Log the activity
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'academia_lead_deleted',
+      targetType: 'email_subscriber',
+      targetId: id,
+      description: `Lead academia eliminado: ${lead?.email || 'Unknown'}`,
+      ipAddress,
+      userAgent
     })
 
     return NextResponse.json({ success: true })

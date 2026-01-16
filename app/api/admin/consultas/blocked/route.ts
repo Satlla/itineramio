@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '@/lib/admin-auth'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
+
     // Get blocked slots from today onwards
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -23,6 +29,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
+
     const body = await request.json()
 
     const { date, time, reason } = body
@@ -38,6 +49,19 @@ export async function POST(request: NextRequest) {
         time: time || null,
         reason: reason || null
       }
+    })
+
+    // Log the activity
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'blocked_slot_created',
+      targetType: 'blocked_slot',
+      targetId: blockedSlot.id,
+      description: `Slot bloqueado: ${date}${time ? ` a las ${time}` : ' (día completo)'}`,
+      metadata: { date, time, reason },
+      ipAddress,
+      userAgent
     })
 
     return NextResponse.json({ blockedSlot })

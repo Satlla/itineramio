@@ -1,23 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
-import { cookies } from 'next/headers'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../../src/lib/admin-auth'
 
 // GET - Get single blog post
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Check admin authentication
-    const cookieStore = cookies()
-    const adminToken = cookieStore.get('admin-token')
-
-    if (!adminToken) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    const authResult = await requireAdminAuth(req)
+    if (authResult instanceof Response) {
+      return authResult
     }
 
+    const { id } = await params
+
     const post = await prisma.blogPost.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!post) {
@@ -40,22 +39,20 @@ export async function GET(
 // PUT - Update blog post
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Check admin authentication
-    const cookieStore = cookies()
-    const adminToken = cookieStore.get('admin-token')
-
-    if (!adminToken) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    const authResult = await requireAdminAuth(req)
+    if (authResult instanceof Response) {
+      return authResult
     }
 
+    const { id } = await params
     const body = await req.json()
 
     // Check if post exists
     const existingPost = await prisma.blogPost.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existingPost) {
@@ -93,7 +90,7 @@ export async function PUT(
     }
 
     const post = await prisma.blogPost.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(body.slug && { slug: body.slug }),
         ...(body.title && { title: body.title }),
@@ -119,6 +116,19 @@ export async function PUT(
       }
     })
 
+    // Log the activity
+    const { ipAddress, userAgent } = getRequestInfo(req)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'blog_post_updated',
+      targetType: 'blog_post',
+      targetId: id,
+      description: `Artículo actualizado: ${post.title}`,
+      metadata: { changes: Object.keys(body) },
+      ipAddress,
+      userAgent
+    })
+
     return NextResponse.json({ post })
   } catch (error) {
     console.error('Error updating blog post:', error)
@@ -132,20 +142,19 @@ export async function PUT(
 // DELETE - Delete blog post
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Check admin authentication
-    const cookieStore = cookies()
-    const adminToken = cookieStore.get('admin-token')
-
-    if (!adminToken) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    const authResult = await requireAdminAuth(req)
+    if (authResult instanceof Response) {
+      return authResult
     }
+
+    const { id } = await params
 
     // Check if post exists
     const existingPost = await prisma.blogPost.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existingPost) {
@@ -156,7 +165,20 @@ export async function DELETE(
     }
 
     await prisma.blogPost.delete({
-      where: { id: params.id }
+      where: { id }
+    })
+
+    // Log the activity
+    const { ipAddress, userAgent } = getRequestInfo(req)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'blog_post_deleted',
+      targetType: 'blog_post',
+      targetId: id,
+      description: `Artículo eliminado: ${existingPost.title}`,
+      metadata: { deletedPost: { slug: existingPost.slug, title: existingPost.title } },
+      ipAddress,
+      userAgent
     })
 
     return NextResponse.json({ success: true })

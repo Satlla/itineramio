@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAdminAuth } from '@/lib/admin-auth'
 
 /**
  * GET /api/admin/marketing/health
@@ -10,8 +11,13 @@ import { prisma } from '@/lib/prisma'
  * - Sequence health
  * - Alerts
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
+
     const now = new Date()
     const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000)
     const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)

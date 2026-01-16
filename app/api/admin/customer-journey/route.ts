@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAdminAuth } from '@/lib/admin-auth'
 
 /**
  * Endpoint para ver el journey completo de un cliente desde que hace el test
@@ -8,6 +9,11 @@ import { prisma } from '@/lib/prisma'
  */
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
+
     const searchParams = request.nextUrl.searchParams
     const email = searchParams.get('email')
 
@@ -61,7 +67,14 @@ export async function GET(request: NextRequest) {
     })
 
     // Calcular progreso del embudo
-    let funnelProgress = {
+    const funnelProgress: {
+      stage: string
+      percentage: number
+      emailsSent: number
+      emailsOpened: number
+      emailsClicked: number
+      conversionStage: string
+    } = {
       stage: 'unknown',
       percentage: 0,
       emailsSent: 0,
@@ -113,7 +126,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Timeline de eventos
-    const timeline: any[] = []
+    const timeline: Array<{
+      type: string
+      date: Date
+      data: Record<string, unknown>
+    }> = []
 
     // Eventos de tests
     tests.forEach(test => {
@@ -204,7 +221,7 @@ export async function GET(request: NextRequest) {
         testsCount: tests.length,
         isSubscriber: !!subscriber,
         isUser: !!user,
-        isPaidCustomer: user?.subscriptionStatus === 'active',
+        isPaidCustomer: (user as { subscriptionStatus?: string })?.subscriptionStatus === 'active',
       },
       latestTest: tests[0] || null,
       subscriber: subscriber ? {
@@ -219,8 +236,8 @@ export async function GET(request: NextRequest) {
         engagementScore: subscriber.engagementScore,
         currentJourneyStage: subscriber.currentJourneyStage,
         tags: subscriber.tags,
-        openRate: subscriber.emailsSent > 0 ? (subscriber.emailsOpened / subscriber.emailsSent) * 100 : 0,
-        clickRate: subscriber.emailsSent > 0 ? (subscriber.emailsClicked / subscriber.emailsSent) * 100 : 0,
+        openRate: subscriber.emailsSent > 0 ? ((subscriber.emailsOpened || 0) / subscriber.emailsSent) * 100 : 0,
+        clickRate: subscriber.emailsSent > 0 ? ((subscriber.emailsClicked || 0) / subscriber.emailsSent) * 100 : 0,
       } : null,
       user: user || null,
       funnelProgress,

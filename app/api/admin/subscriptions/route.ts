@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { verifyAdminToken } from '@/lib/admin-auth'
+import { requireAdminAuth } from '@/lib/admin-auth'
 
 /**
  * GET /api/admin/subscriptions
@@ -8,9 +8,9 @@ import { verifyAdminToken } from '@/lib/admin-auth'
  */
 export async function GET(request: NextRequest) {
   try {
-    const adminUser = await verifyAdminToken(request)
-    if (!adminUser) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
     }
 
     const subscriptions = await prisma.userSubscription.findMany({

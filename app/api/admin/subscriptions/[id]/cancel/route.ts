@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { prisma } from '@/lib/prisma'
-import { verifyAdminToken } from '@/lib/admin-auth'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '@/lib/admin-auth'
 
 /**
  * POST /api/admin/subscriptions/[id]/cancel
@@ -12,9 +12,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const adminUser = await verifyAdminToken(request)
-    if (!adminUser) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
     }
 
     const { id } = await params
@@ -62,7 +62,7 @@ export async function POST(
     }
 
     // Update in database
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       status: immediate ? 'CANCELED' : 'ACTIVE',
       cancelAtPeriodEnd: !immediate,
       canceledAt: new Date(),
@@ -86,6 +86,19 @@ export async function POST(
         data: { subscription: 'CANCELED' }
       })
     }
+
+    // Log the activity
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'subscription_canceled',
+      targetType: 'subscription',
+      targetId: id,
+      description: `Suscripción cancelada: ${subscription.user?.email} - ${subscription.plan?.name}`,
+      metadata: { reason, immediate, userId: subscription.userId },
+      ipAddress,
+      userAgent
+    })
 
     return NextResponse.json({
       success: true,

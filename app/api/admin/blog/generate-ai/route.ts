@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '@/lib/admin-auth'
 
 export async function POST(req: NextRequest) {
   try {
-    // Check admin authentication
-    const cookieStore = cookies()
-    const adminToken = cookieStore.get('admin-token')
-
-    if (!adminToken) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    const authResult = await requireAdminAuth(req)
+    if (authResult instanceof Response) {
+      return authResult
     }
 
     const { topic, category = 'GUIAS' } = await req.json()
@@ -22,6 +19,18 @@ export async function POST(req: NextRequest) {
 
     // Generate content using AI prompt
     const generatedContent = await generateBlogContent(topic, category)
+
+    // Log the activity
+    const { ipAddress, userAgent } = getRequestInfo(req)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'blog_ai_generated',
+      targetType: 'blog_post',
+      description: `Contenido AI generado para: ${topic}`,
+      metadata: { topic, category },
+      ipAddress,
+      userAgent
+    })
 
     return NextResponse.json({
       success: true,

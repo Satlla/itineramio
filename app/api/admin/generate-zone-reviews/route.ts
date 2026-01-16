@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
-import { requireAuth } from '../../../../src/lib/auth'
+import { requireSuperAdmin, createActivityLog, getRequestInfo } from '../../../../src/lib/admin-auth'
 
 // POST /api/admin/generate-zone-reviews - Generate fake reviews for testing
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const authResult = await requireAuth(request)
+    // Only SUPER_ADMIN can generate test data
+    const authResult = await requireSuperAdmin(request)
     if (authResult instanceof Response) {
       return authResult
     }
-    
+
     // Get all active properties with zones
     const properties = await prisma.property.findMany({
       where: {
@@ -65,11 +65,11 @@ export async function POST(request: NextRequest) {
       for (const zone of property.zones) {
         // Generate 2-4 reviews per zone
         const reviewCount = Math.floor(Math.random() * 3) + 2
-        
+
         for (let i = 0; i < reviewCount; i++) {
           const reviewData = sampleReviews[Math.floor(Math.random() * sampleReviews.length)]
           const rating = Math.floor(Math.random() * 2) + 4 // 4 or 5 stars
-          
+
           // Create zone rating (private feedback)
           zoneRatings.push({
             zoneId: zone.id,
@@ -86,7 +86,6 @@ export async function POST(request: NextRequest) {
           })
 
           // Create review (can be public)
-          const isPublic = Math.random() > 0.3 // 70% chance of being public
           reviews.push({
             propertyId: property.id,
             zoneId: zone.id,
@@ -100,7 +99,7 @@ export async function POST(request: NextRequest) {
           })
 
           // Create notification for host
-          const zoneName = typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'
+          const zoneName = typeof zone.name === 'string' ? zone.name : (zone.name as Record<string, string>)?.es || 'Zona'
           notifications.push({
             userId: property.hostId,
             type: 'evaluation',
@@ -145,7 +144,7 @@ export async function POST(request: NextRequest) {
 
         if (allRatings.length > 0) {
           const avgRating = allRatings.reduce((sum, r) => sum + r.overallRating, 0) / allRatings.length
-          
+
           await prisma.zone.update({
             where: { id: zone.id },
             data: { avgRating }
@@ -165,7 +164,7 @@ export async function POST(request: NextRequest) {
 
       if (allPropertyZoneRatings.length > 0) {
         const propertyAvgRating = allPropertyZoneRatings.reduce((sum, r) => sum + r.overallRating, 0) / allPropertyZoneRatings.length
-        
+
         await prisma.propertyAnalytics.upsert({
           where: { propertyId: property.id },
           create: {
@@ -180,6 +179,23 @@ export async function POST(request: NextRequest) {
         })
       }
     }
+
+    // Log the activity
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'test_data_generated',
+      targetType: 'zone_reviews',
+      description: `Datos de prueba generados: ${createdReviews.count} reviews`,
+      metadata: {
+        propertiesProcessed: properties.length,
+        zoneRatingsCreated: createdZoneRatings.count,
+        reviewsCreated: createdReviews.count,
+        notificationsCreated: createdNotifications.count
+      },
+      ipAddress,
+      userAgent
+    })
 
     return NextResponse.json({
       success: true,

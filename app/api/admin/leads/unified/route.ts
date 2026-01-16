@@ -1,8 +1,14 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getAllUnifiedLeads } from '@/lib/unified-lead'
+import { requireAdminAuth } from '@/lib/admin-auth'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
+
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') as 'cold' | 'warm' | 'hot' | null
     const hasQuiz = searchParams.get('hasQuiz') === 'true'

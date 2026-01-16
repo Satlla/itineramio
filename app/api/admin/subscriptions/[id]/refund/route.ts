@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { prisma } from '@/lib/prisma'
-import { verifyAdminToken } from '@/lib/admin-auth'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '@/lib/admin-auth'
 
 /**
  * POST /api/admin/subscriptions/[id]/refund
@@ -12,9 +12,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const adminUser = await verifyAdminToken(request)
-    if (!adminUser) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
     }
 
     const { id } = await params
@@ -99,6 +99,19 @@ export async function POST(
     await prisma.user.update({
       where: { id: subscription.userId },
       data: { subscription: 'CANCELED' }
+    })
+
+    // Log the activity
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'subscription_refunded',
+      targetType: 'subscription',
+      targetId: id,
+      description: `Reembolso procesado: €${(refundAmount / 100).toFixed(2)} - ${subscription.user?.email}`,
+      metadata: { refundId: refund.id, amount: refundAmount / 100, reason, userId: subscription.userId },
+      ipAddress,
+      userAgent
     })
 
     console.log(`✅ Refund processed: ${refund.id} for subscription ${id}`)

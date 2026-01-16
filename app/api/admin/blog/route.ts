@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
-import { cookies } from 'next/headers'
+import { requireAdminAuth, createActivityLog, getRequestInfo } from '../../../../src/lib/admin-auth'
 
 // GET - List all blog posts
 export async function GET(req: NextRequest) {
   try {
-    // Check admin authentication
-    const cookieStore = cookies()
-    const adminToken = cookieStore.get('admin-token')
-
-    if (!adminToken) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    const authResult = await requireAdminAuth(req)
+    if (authResult instanceof Response) {
+      return authResult
     }
 
     const posts = await prisma.blogPost.findMany({
@@ -33,12 +30,9 @@ export async function GET(req: NextRequest) {
 // POST - Create new blog post
 export async function POST(req: NextRequest) {
   try {
-    // Check admin authentication
-    const cookieStore = cookies()
-    const adminToken = cookieStore.get('admin-token')
-
-    if (!adminToken) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    const authResult = await requireAdminAuth(req)
+    if (authResult instanceof Response) {
+      return authResult
     }
 
     const body = await req.json()
@@ -84,6 +78,19 @@ export async function POST(req: NextRequest) {
         authorName: body.authorName || 'Equipo Itineramio',
         readTime
       }
+    })
+
+    // Log the activity
+    const { ipAddress, userAgent } = getRequestInfo(req)
+    await createActivityLog({
+      adminId: authResult.adminId,
+      action: 'blog_post_created',
+      targetType: 'blog_post',
+      targetId: post.id,
+      description: `Artículo creado: ${post.title}`,
+      metadata: { slug: post.slug, status: post.status },
+      ipAddress,
+      userAgent
     })
 
     return NextResponse.json({ post }, { status: 201 })
