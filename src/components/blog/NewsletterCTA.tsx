@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, CheckCircle, Rocket, Gift, ArrowRight } from 'lucide-react'
+import { Mail, CheckCircle, Rocket, Gift, ArrowRight, Bell, Shield } from 'lucide-react'
 import { trackNewsletterSubscribed, trackGenerateLead } from '@/lib/analytics'
 import { fbEvents } from '@/components/analytics/FacebookPixel'
 
 interface NewsletterCTAProps {
-  variant?: 'inline' | 'box' | 'trial'
+  variant?: 'inline' | 'box' | 'trial' | 'normativa'
   title?: string
   description?: string
   placeholder?: string
@@ -129,6 +129,93 @@ export function NewsletterCTA({
             <span className="text-sm text-white/80">
               ✨ Sin tarjeta · 500+ anfitriones ya lo usan
             </span>
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
+
+  // Variant: Normativa (Para artículos de normativa - captura leads interesados en regulación)
+  if (variant === 'normativa') {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="my-10 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden"
+      >
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-violet-500/10 rounded-full blur-3xl" />
+
+        <div className="relative">
+          <div className="flex items-start gap-4 mb-6">
+            <div className="w-14 h-14 bg-amber-500/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <Bell className="w-7 h-7 text-amber-400" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-1">
+                {title || 'Recibe alertas de cambios en la normativa'}
+              </h3>
+              <p className="text-slate-400 text-sm">
+                {description || 'Te avisamos cuando haya novedades importantes que afecten a tu alquiler vacacional.'}
+              </p>
+            </div>
+          </div>
+
+          {status === 'success' ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center gap-3 bg-green-500/20 text-green-300 px-5 py-4 rounded-xl"
+            >
+              <CheckCircle className="w-6 h-6" />
+              <div>
+                <span className="font-semibold block">¡Suscripción confirmada!</span>
+                <span className="text-sm text-green-400">Te avisaremos de cualquier cambio normativo importante.</span>
+              </div>
+            </motion.div>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={placeholder}
+                  disabled={status === 'loading'}
+                  className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={status === 'loading'}
+                className="px-6 py-4 bg-amber-500 text-slate-900 font-bold rounded-xl hover:bg-amber-400 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 whitespace-nowrap"
+              >
+                {status === 'loading' ? (
+                  <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Bell className="w-5 h-5" />
+                    {buttonText || 'Activar alertas'}
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+
+          {message && status === 'error' && (
+            <p className="mt-3 text-sm text-red-400">{message}</p>
+          )}
+
+          <div className="mt-5 flex items-center gap-4 text-xs text-slate-500">
+            <span className="flex items-center gap-1">
+              <Shield className="w-3.5 h-3.5" />
+              Sin spam
+            </span>
+            <span>Solo novedades importantes</span>
+            <span>Baja cuando quieras</span>
           </div>
         </div>
       </motion.div>

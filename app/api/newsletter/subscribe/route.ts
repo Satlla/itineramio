@@ -85,6 +85,47 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ New newsletter subscriber: ${normalizedEmail} (source: ${source})`)
 
+    // También crear Lead para que aparezca en /admin/leads
+    try {
+      const existingLead = await prisma.lead.findFirst({
+        where: { email: normalizedEmail }
+      })
+
+      if (!existingLead) {
+        await prisma.lead.create({
+          data: {
+            email: normalizedEmail,
+            name: 'Suscriptor Newsletter',
+            source: source || 'newsletter',
+            metadata: {
+              newsletterSubscribed: true,
+              tags,
+              subscribedAt: new Date().toISOString()
+            }
+          }
+        })
+        console.log(`📝 Lead created for newsletter subscriber: ${normalizedEmail}`)
+      } else {
+        // Actualizar lead existente con info de newsletter
+        const existingMetadata = existingLead.metadata as Record<string, unknown> || {}
+        await prisma.lead.update({
+          where: { id: existingLead.id },
+          data: {
+            metadata: {
+              ...existingMetadata,
+              newsletterSubscribed: true,
+              newsletterSource: source,
+              newsletterTags: tags,
+              newsletterSubscribedAt: new Date().toISOString()
+            }
+          }
+        })
+      }
+    } catch (leadError) {
+      console.error('Error creating lead for newsletter subscriber:', leadError)
+      // No fallar la operación principal
+    }
+
     // Enrollar automáticamente en secuencias según el source
     await enrollSubscriberInSequences(
       newSubscriber.id,

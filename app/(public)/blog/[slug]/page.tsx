@@ -6,6 +6,7 @@ import { Calendar, Clock, ArrowLeft, Share2, Eye, Tag } from 'lucide-react'
 import { ShareButtons } from '../../../../src/components/blog/ShareButtons'
 import { BlogComments } from '../../../../src/components/blog/BlogComments'
 import { LikeButton } from '../../../../src/components/blog/LikeButton'
+import { NewsletterCTA } from '../../../../src/components/blog/NewsletterCTA'
 import { prisma } from '../../../../src/lib/prisma'
 import { markdownToHtml } from '../../../../src/lib/markdown'
 import ReadingProgress from './ReadingProgress'
@@ -681,6 +682,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 : markdownToHtml(post.content)
             }}
           />
+
+          {/* Newsletter CTA for NORMATIVA category */}
+          {post.category === 'NORMATIVA' && (
+            <div id="newsletter-cta">
+              <NewsletterCTA
+                variant="normativa"
+                source="blog-normativa"
+              />
+            </div>
+          )}
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
