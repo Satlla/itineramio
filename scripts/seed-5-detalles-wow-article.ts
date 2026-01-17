@@ -77,6 +77,8 @@ const article = {
 
 <p>Diseñalo una vez en Canva, imprímelo en A3 y enmárcalo. O hazlo en formato postal para que se lo lleven.</p>
 
+<img src="/blog/detalles-wow/map.png" alt="Mapa secreto del barrio con recomendaciones locales" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
+
 <p><strong>Por qué funciona:</strong> Les das acceso a tu vida local. Eso no está en ninguna app. Eso no se compra. Y eso se cuenta.</p>
 
 <h2 class="section-title">3. Bienvenida personalizada según el viaje</h2>
