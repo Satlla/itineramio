@@ -57,50 +57,23 @@ export async function GET(request: NextRequest) {
       where.funnelTheme = theme
     }
 
-    // Try to get leads with funnel fields, fallback to basic fields
-    let leads
-    try {
-      leads = await prisma.lead.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        take: 100,
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          source: true,
-          funnelTheme: true,
-          funnelStartedAt: true,
-          funnelCurrentDay: true,
-          createdAt: true
-        }
-      })
-    } catch {
-      // Fallback if funnel fields don't exist yet
-      const basicLeads = await prisma.lead.findMany({
-        where: search ? {
-          OR: [
-            { email: { contains: search, mode: 'insensitive' } },
-            { name: { contains: search, mode: 'insensitive' } }
-          ]
-        } : {},
-        orderBy: { createdAt: 'desc' },
-        take: 100,
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          source: true,
-          createdAt: true
-        }
-      })
-      leads = basicLeads.map(lead => ({
-        ...lead,
-        funnelTheme: null,
-        funnelStartedAt: null,
-        funnelCurrentDay: null
-      }))
-    }
+    // Get leads with all fields
+    const leads = await prisma.lead.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        source: true,
+        funnelTheme: true,
+        funnelStartedAt: true,
+        funnelCurrentDay: true,
+        propertyCount: true,
+        createdAt: true
+      }
+    })
 
     return NextResponse.json({
       success: true,

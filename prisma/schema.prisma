@@ -1045,6 +1045,8 @@ model Lead {
   funnelTheme      String?                @map("funnel_theme")
   funnelStartedAt  DateTime?              @map("funnel_started_at")
   funnelCurrentDay Int?                   @default(0) @map("funnel_current_day")
+  // Property count: "1-5", "6-10", "10+", "20+"
+  propertyCount    String?                @map("property_count")
 
   @@index([email])
   @@index([source])

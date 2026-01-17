@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     const body = await request.json()
-    const { name, email, theme } = body
+    const { name, email, theme, propertyCount } = body
 
     if (!email || !theme) {
       return NextResponse.json(
@@ -36,33 +36,17 @@ export async function POST(request: NextRequest) {
     const leadMagnet = LEAD_MAGNETS_BY_THEME[theme as FunnelTheme]
 
     if (existingLead) {
-      // Update existing lead with funnel theme - try with funnel fields, fallback to basic
-      let updatedLead
-      try {
-        updatedLead = await prisma.lead.update({
-          where: { id: existingLead.id },
-          data: {
-            name: name || existingLead.name,
-            funnelTheme: theme,
-            funnelCurrentDay: 0,
-            funnelStartedAt: null
-          }
-        })
-      } catch {
-        // Fallback if funnel fields don't exist yet
-        updatedLead = await prisma.lead.update({
-          where: { id: existingLead.id },
-          data: {
-            name: name || existingLead.name,
-            metadata: {
-              ...(existingLead.metadata as object || {}),
-              funnelTheme: theme,
-              funnelCurrentDay: 0,
-              funnelStartedAt: null
-            }
-          }
-        })
-      }
+      // Update existing lead with funnel theme
+      const updatedLead = await prisma.lead.update({
+        where: { id: existingLead.id },
+        data: {
+          name: name || existingLead.name,
+          funnelTheme: theme,
+          funnelCurrentDay: 0,
+          funnelStartedAt: null,
+          propertyCount: propertyCount || existingLead.propertyCount
+        }
+      })
 
       return NextResponse.json({
         success: true,
@@ -71,40 +55,22 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Create new lead - try with funnel fields, fallback to basic
-    let newLead
-    try {
-      newLead = await prisma.lead.create({
-        data: {
-          name: name || 'Sin nombre',
-          email: email.toLowerCase(),
-          source: `admin-manual-${theme}`,
-          funnelTheme: theme,
-          funnelCurrentDay: 0,
-          metadata: {
-            addedBy: 'admin',
-            leadMagnet: leadMagnet.name,
-            addedAt: new Date().toISOString()
-          }
+    // Create new lead
+    const newLead = await prisma.lead.create({
+      data: {
+        name: name || 'Sin nombre',
+        email: email.toLowerCase(),
+        source: `admin-manual-${theme}`,
+        funnelTheme: theme,
+        funnelCurrentDay: 0,
+        propertyCount: propertyCount || null,
+        metadata: {
+          addedBy: 'admin',
+          leadMagnet: leadMagnet.name,
+          addedAt: new Date().toISOString()
         }
-      })
-    } catch {
-      // Fallback if funnel fields don't exist yet
-      newLead = await prisma.lead.create({
-        data: {
-          name: name || 'Sin nombre',
-          email: email.toLowerCase(),
-          source: `admin-manual-${theme}`,
-          metadata: {
-            addedBy: 'admin',
-            leadMagnet: leadMagnet.name,
-            addedAt: new Date().toISOString(),
-            funnelTheme: theme,
-            funnelCurrentDay: 0
-          }
-        }
-      })
-    }
+      }
+    })
 
     // Also add to EmailSubscriber for email sending
     await prisma.emailSubscriber.upsert({
