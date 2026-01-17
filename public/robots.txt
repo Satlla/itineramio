@@ -18,6 +18,13 @@ Disallow: /properties/
 Disallow: /property-sets/
 Disallow: /subscriptions/
 Disallow: /checkout/
+Disallow: /calendar
+Disallow: /property-management
+Disallow: /main
+Disallow: /notifications
+Disallow: /media-library
+Disallow: /pricing-v2
+Disallow: /subscription-success
 Disallow: /_next/data/
 Disallow: /_next/image
 Disallow: /static/
