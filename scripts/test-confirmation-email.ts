@@ -27,7 +27,7 @@ async function sendTestEmail() {
   const { data, error } = await resend.emails.send({
     from: 'Itineramio <hola@itineramio.com>',
     to: testEmail,
-    subject: '[PREVIEW v5] Confirma tu suscripción - Itineramio',
+    subject: '[PREVIEW v6] Confirma tu suscripción - Itineramio',
     html: `
 <!DOCTYPE html>
 <html lang="es">
@@ -42,7 +42,7 @@ async function sendTestEmail() {
   <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f8fafc;">
     <tr>
       <td align="center" style="padding: 48px 20px;">
-        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 480px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 520px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
           <!-- Header -->
           <tr>
             <td style="padding: 32px 40px; text-align: center; border-bottom: 1px solid #f1f5f9;">
@@ -60,9 +60,62 @@ async function sendTestEmail() {
           </tr>
           <!-- Content -->
           <tr>
-            <td style="padding: 40px 40px 32px 40px; text-align: center;">
+            <td style="padding: 40px 40px 24px 40px; text-align: center;">
               <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: #0f172a; line-height: 1.3;">Confirma tu suscripción</h1>
-              <p style="margin: 0 0 32px 0; font-size: 15px; color: #64748b; line-height: 1.6;">Haz clic en el botón para confirmar tu email y empezar a recibir contenido exclusivo.</p>
+              <p style="margin: 0; font-size: 15px; color: #64748b; line-height: 1.6;">Haz clic en el botón para confirmar tu email y empezar a recibir contenido exclusivo para tu alquiler vacacional.</p>
+            </td>
+          </tr>
+          <!-- What you'll receive -->
+          <tr>
+            <td style="padding: 0 40px 32px 40px;">
+              <p style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: #0f172a;">¿Qué vas a recibir?</p>
+              <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                <tr>
+                  <td style="padding: 8px 0;">
+                    <table cellpadding="0" cellspacing="0" role="presentation">
+                      <tr>
+                        <td style="width: 24px; vertical-align: top; padding-top: 2px;"><span style="color: #7c3aed;">✓</span></td>
+                        <td style="padding-left: 8px; font-size: 14px; color: #475569; line-height: 1.5;">Plantillas descargables para gestionar tu alojamiento</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0;">
+                    <table cellpadding="0" cellspacing="0" role="presentation">
+                      <tr>
+                        <td style="width: 24px; vertical-align: top; padding-top: 2px;"><span style="color: #7c3aed;">✓</span></td>
+                        <td style="padding-left: 8px; font-size: 14px; color: #475569; line-height: 1.5;">Recomendaciones para mejorar tu Airbnb y conseguir más reservas</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0;">
+                    <table cellpadding="0" cellspacing="0" role="presentation">
+                      <tr>
+                        <td style="width: 24px; vertical-align: top; padding-top: 2px;"><span style="color: #7c3aed;">✓</span></td>
+                        <td style="padding-left: 8px; font-size: 14px; color: #475569; line-height: 1.5;">Guías de normativa actualizadas para cumplir la ley</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0;">
+                    <table cellpadding="0" cellspacing="0" role="presentation">
+                      <tr>
+                        <td style="width: 24px; vertical-align: top; padding-top: 2px;"><span style="color: #7c3aed;">✓</span></td>
+                        <td style="padding-left: 8px; font-size: 14px; color: #475569; line-height: 1.5;">Estrategias probadas para conseguir mejores evaluaciones</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- CTA Button -->
+          <tr>
+            <td style="padding: 0 40px 40px 40px; text-align: center;">
               <table cellpadding="0" cellspacing="0" role="presentation" style="margin: 0 auto;">
                 <tr>
                   <td style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-radius: 12px;">
@@ -74,17 +127,7 @@ async function sendTestEmail() {
           </tr>
           <!-- Footer -->
           <tr>
-            <td style="padding: 24px 40px; text-align: center; border-top: 1px solid #f1f5f9;">
-              <table cellpadding="0" cellspacing="0" role="presentation" style="margin: 0 auto 12px auto;">
-                <tr>
-                  <td style="vertical-align: middle;">
-                    <img src="${isotipoUrl}" alt="Itineramio" width="28" height="15" style="display: block; height: 15px; width: auto;" />
-                  </td>
-                  <td style="vertical-align: middle; padding-left: 6px;">
-                    <span style="font-size: 14px; font-weight: 600; color: #0f172a;">Itineramio</span>
-                  </td>
-                </tr>
-              </table>
+            <td style="padding: 20px 40px; text-align: center; border-top: 1px solid #f1f5f9;">
               <p style="margin: 0; font-size: 12px; color: #94a3b8;">
                 <a href="${unsubscribeUrl}" style="color: #64748b; text-decoration: underline;">Darme de baja</a>
               </p>
