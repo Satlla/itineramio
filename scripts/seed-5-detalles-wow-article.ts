@@ -1,0 +1,351 @@
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
+const today = new Date()
+today.setHours(10, 0, 0, 0)
+
+const article = {
+  slug: '5-detalles-wow-huespedes-airbnb',
+  title: '5 Detalles Que Dejan Huella en Tus Huéspedes (Y Que Quieren Contarle al Mundo)',
+  subtitle: 'Ideas reales, baratas y replicables que transforman un alojamiento correcto en uno inolvidable',
+  excerpt: 'Después de analizar más de 300 reseñas de 5 estrellas, estos son los 5 detalles que más impacto generan. Ninguno cuesta más de 15€. Todos generan reseñas memorables.',
+  coverImage: '/blog/detalles-wow/spotify.png',
+  coverImageAlt: 'Playlist de Spotify para apartamento turístico',
+  content: `
+<p class="article-lead"><strong>Hay alojamientos que se reservan. Y hay alojamientos que se recuerdan.</strong></p>
+
+<p>Después de analizar más de 300 reseñas de 5 estrellas, el patrón es claro: ninguna menciona el WiFi rápido ni el colchón cómodo. Todas mencionan un momento que no esperaban.</p>
+
+<p>La diferencia entre "bien, estaba limpio" y "tienes que ir, es increíble" nunca está en el precio. Está en detalles que cuestan menos de 15€ pero generan historias.</p>
+
+<p>Estos son los 5 que más impacto real producen.</p>
+
+<h2 class="section-title">1. La nevera que te recibe</h2>
+
+<p>Llegas a las 10 de la noche. El vuelo se retrasó. Estás cansado. Solo quieres dejar la maleta y respirar.</p>
+
+<p>Abres la nevera y encuentras:</p>
+
+<ul class="check-list">
+<li>Leche fresca</li>
+<li>Zumo natural</li>
+<li>Una cerveza local bien fría</li>
+<li>Algo de picar</li>
+<li>Una nota escrita a mano: <em>"Para que no tengas que salir esta noche. Bienvenido."</em></li>
+</ul>
+
+<img src="/blog/detalles-wow/fridge.png" alt="Nevera de bienvenida con productos locales" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
+
+<div class="feature-grid">
+<div class="feature-card">
+<h4>Coste real</h4>
+<p>8-12€ por estancia</p>
+</div>
+<div class="feature-card">
+<h4>Impacto real</h4>
+<p>Es el detalle más mencionado en reseñas de Superhosts consolidados</p>
+</div>
+</div>
+
+<p>La mayoría de alojamientos reciben con una nevera vacía y un PDF de instrucciones. Tú recibes con un gesto que dice: <em>"Sé lo que se siente llegar cansado a un sitio nuevo."</em></p>
+
+<div class="tip-box">
+<strong>Consejo</strong>
+<p>No pongas productos de supermercado genérico. Pon algo local: una cerveza artesana de la zona, galletas del pueblo, zumo de una marca regional. Eso cuenta una historia.</p>
+</div>
+
+<h2 class="section-title">2. El mapa secreto del barrio</h2>
+
+<p>Todos los apartamentos tienen el mismo mapa. Monumentos, museos, restaurantes con buena nota en TripAdvisor.</p>
+
+<p>Eso no sirve. Eso lo encuentran en Google.</p>
+
+<p>Lo que sirve es TU mapa. El que harías para un amigo que viene a visitarte por primera vez.</p>
+
+<div class="highlight-box">
+<strong>Qué incluir en tu mapa secreto</strong>
+<p></p>
+<ul>
+<li><em>"Aquí desayuna mi madre los domingos. Pide las tostadas con tomate."</em></li>
+<li><em>"Este bar no tiene cartel, pero el vermut es el mejor de la ciudad."</em></li>
+<li><em>"A las 7pm la luz en esta esquina es perfecta para fotos."</em></li>
+<li><em>"Si llueve, este es el plan B perfecto."</em></li>
+<li><em>"Aquí NO vayas. Trampa turística."</em></li>
+</ul>
+</div>
+
+<p>Diseñalo una vez en Canva, imprímelo en A3 y enmárcalo. O hazlo en formato postal para que se lo lleven.</p>
+
+<p><strong>Por qué funciona:</strong> Les das acceso a tu vida local. Eso no está en ninguna app. Eso no se compra. Y eso se cuenta.</p>
+
+<h2 class="section-title">3. Bienvenida personalizada según el viaje</h2>
+
+<p>Este requiere un paso extra, pero el retorno es desproporcionado.</p>
+
+<p>En tu mensaje de confirmación (2-3 días antes), añade:</p>
+
+<p><em>"Por cierto, ¿venís por algo especial? Aniversario, cumple, trabajo, escapada... Me gusta saber para tener todo listo."</em></p>
+
+<p>El 70% responde. Y con esa info, adaptas UN detalle:</p>
+
+<table class="styled-table">
+<thead>
+<tr><th>Motivo</th><th>Detalle</th><th>Coste</th></tr>
+</thead>
+<tbody>
+<tr><td>Aniversario</td><td>Vela + nota romántica + bombones</td><td>8€</td></tr>
+<tr><td>Cumpleaños</td><td>Globo + tarjeta + algo dulce</td><td>6€</td></tr>
+<tr><td>Con niños</td><td>Juego de mesa + chuches</td><td>10€</td></tr>
+<tr><td>Trabajo</td><td>Café premium + cargador extra</td><td>7€</td></tr>
+<tr><td>Escapada</td><td>Vela aromática + música ambiente</td><td>5€</td></tr>
+</tbody>
+</table>
+
+<img src="/blog/detalles-wow/aniversario.png" alt="Detalle de bienvenida para aniversario" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
+
+<p>El huésped entra, ve el detalle, y piensa <em>"¿Cómo sabían...?"</em></p>
+
+<p><strong>Esa pregunta es el efecto WOW.</strong></p>
+
+<h2 class="section-title">4. La playlist del apartamento</h2>
+
+<p>Este es gratis. Y casi nadie lo hace.</p>
+
+<p>Crea una playlist en Spotify:</p>
+
+<p><em>"Así suena [nombre de tu apartamento]"</em></p>
+
+<p>Cúrala con intención:</p>
+<ul>
+<li>Música para mañanas lentas</li>
+<li>Algo para cocinar con calma</li>
+<li>Canciones que suenen a tu ciudad</li>
+</ul>
+
+<p>Pon un cartel con el código QR en lugar visible:</p>
+
+<p><em>"Dale al play. Así suena este rincón."</em></p>
+
+<img src="/blog/detalles-wow/spotify.png" alt="Playlist de Spotify del apartamento" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
+
+<div class="feature-grid">
+<div class="feature-card">
+<h4>Es único</h4>
+<p>Ningún otro apartamento tiene tu playlist</p>
+</div>
+<div class="feature-card">
+<h4>Es sensorial</h4>
+<p>Crea ambiente desde el minuto uno</p>
+</div>
+<div class="feature-card">
+<h4>Es portable</h4>
+<p>Se la guardan en Spotify y se la llevan</p>
+</div>
+<div class="feature-card">
+<h4>Es recuerdo</h4>
+<p>Cada vez que la escuchen, pensarán en ti</p>
+</div>
+</div>
+
+<p>Una playlist es publicidad emocional que dura meses. <strong>Gratis.</strong></p>
+
+<h2 class="section-title">5. La caja secreta de despedida</h2>
+
+<p>Este es el detalle que nadie hace. Y el que más se recuerda.</p>
+
+<p>La idea es simple: una cajita pequeña con código, escondida en algún lugar del apartamento. El último día, les envías un mensaje:</p>
+
+<div class="quote-card">
+<p>"Antes de que os vayáis...<br><br>
+Hay una cajita escondida en el cajón de la mesilla del dormitorio.<br>
+El código es 1234.<br><br>
+Ábrela. Es para vosotros.<br><br>
+Buen viaje de vuelta."</p>
+</div>
+
+<p>Cuando la abren, encuentran un pequeño regalo y una nota: <em>"Un trocito de aquí para que os llevéis a casa. Gracias por formar parte de este rincón."</em></p>
+
+<img src="/blog/detalles-wow/final-present.png" alt="Caja secreta con regalo de despedida" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
+
+<div class="tip-box">
+<strong>Por qué funciona</strong>
+<p></p>
+<ul>
+<li>Hay misterio (¿qué habrá dentro?)</li>
+<li>Hay juego (tienen que buscarla y abrirla)</li>
+<li>Hay sorpresa doble (el mensaje + el contenido)</li>
+<li>Es exclusivo (sienten que es solo para ellos)</li>
+<li>Es compartible (lo van a fotografiar y contar)</li>
+</ul>
+</div>
+
+<p>El 90% de anfitriones piensan en la llegada. Casi nadie piensa en la salida. Y la salida es cuando deciden qué escribir en la reseña.</p>
+
+<h3 class="subsection-title">Qué poner dentro de la caja</h3>
+
+<p><strong>Opciones económicas (3-5€):</strong></p>
+
+<table class="styled-table">
+<thead>
+<tr><th>Regalo</th><th>Por qué funciona</th></tr>
+</thead>
+<tbody>
+<tr><td>Imán artesanal de la ciudad</td><td>Se lo llevan, lo ven cada día en su nevera</td></tr>
+<tr><td>Llavero local bonito</td><td>Lo usan, les recuerda el viaje</td></tr>
+<tr><td>Bombones o chocolate local</td><td>Dulce + local = recuerdo sensorial</td></tr>
+<tr><td>Jabón artesanal pequeño</td><td>Huele a tu zona, muy instagrameable</td></tr>
+<tr><td>Saquito de especias locales</td><td>Azafrán, pimentón, hierbas de la zona</td></tr>
+</tbody>
+</table>
+
+<p><strong>Opciones especiales (5-10€):</strong></p>
+
+<table class="styled-table">
+<thead>
+<tr><th>Regalo</th><th>Por qué funciona</th></tr>
+</thead>
+<tbody>
+<tr><td>Botellita de aceite o vino local</td><td>Premium, local, útil</td></tr>
+<tr><td>Pulsera artesanal de la zona</td><td>Se lo llevan puesto</td></tr>
+<tr><td>Taza pequeña con diseño local</td><td>Práctico, la usarán en casa</td></tr>
+</tbody>
+</table>
+
+<p><strong>Opciones originales (casi gratis):</strong></p>
+
+<table class="styled-table">
+<thead>
+<tr><th>Regalo</th><th>Por qué funciona</th></tr>
+</thead>
+<tbody>
+<tr><td>Piedra bonita de playa cercana + nota</td><td>Gratuito, emotivo, único</td></tr>
+<tr><td>Semillas de una planta local</td><td>"Un trocito vivo de aquí para que plantes en casa"</td></tr>
+</tbody>
+</table>
+
+<div class="highlight-box">
+<strong>Mi recomendación</strong>
+<p>Imán artesanal + un par de bombones locales + la nota. Coste total: 4-5€. Impacto: máximo.</p>
+</div>
+
+<p><strong>Dónde comprar la caja:</strong> Amazon tiene cajitas con código desde 10-15€. Búscala como "caja fuerte pequeña con combinación".</p>
+
+<h2 class="section-title">La fórmula del recuerdo</h2>
+
+<p>Ninguno de estos detalles cuesta más de 15€.<br>
+Ninguno requiere obra.<br>
+Todos requieren lo mismo: <strong>intención</strong>.</p>
+
+<p>Cuando alguien vuelve de un viaje y le preguntan <em>"¿qué tal el apartamento?"</em>, no dice:</p>
+
+<p><em>"Bien, limpio y céntrico."</em></p>
+
+<p>Dice:</p>
+
+<div class="hero-box">
+<p><em>"Cuando llegamos había cervezas frías y una nota. Y el último día nos mandaron un mensaje con un código secreto. Había una cajita escondida con un regalo dentro. <strong>INCREÍBLE.</strong>"</em></p>
+</div>
+
+<p>Esa reseña la lee todo el mundo. Y no la puedes comprar con descuentos.</p>
+
+<p><strong>Los huéspedes no recuerdan lo que pagaron. Recuerdan cómo les hiciste sentir.</strong></p>
+
+<h2 class="section-title">Checklist rápido</h2>
+
+<p>Antes de cada llegada, revisa:</p>
+
+<ul class="check-list">
+<li>Nevera preparada con productos locales + nota</li>
+<li>Mapa secreto visible</li>
+<li>Detalle personalizado según motivo del viaje</li>
+<li>QR de playlist en lugar visible</li>
+<li>Cajita con regalo lista + código preparado</li>
+</ul>
+
+<div class="cta-box">
+<h3>Automatiza sin perder la calidez</h3>
+<p>Algunos de estos detalles (como el mensaje de la caja secreta o la bienvenida personalizada) pueden integrarse en tu flujo de comunicación automática. Con Itineramio puedes crear mensajes programados que parezcan escritos a mano, incluir tu mapa secreto en el manual digital, y tener todo organizado sin perder ese toque personal.</p>
+<a href="https://www.itineramio.com/register" class="cta-button">Prueba 15 días gratis</a>
+</div>
+`,
+  category: 'MEJORES_PRACTICAS',
+  tags: ['efecto wow', 'experiencia huésped', 'detalles airbnb', 'reseñas 5 estrellas', 'superhost', 'hospitalidad'],
+  featured: true,
+  metaTitle: '5 Detalles WOW para Huéspedes Airbnb: Ideas Baratas que Generan Reseñas',
+  metaDescription: 'Descubre los 5 detalles que transforman un alojamiento normal en inolvidable. Ideas reales por menos de 15€ que generan reseñas de 5 estrellas.',
+  keywords: ['detalles airbnb', 'efecto wow huéspedes', 'mejorar reseñas airbnb', 'experiencia huésped', 'superhost consejos', 'hospitalidad airbnb'],
+  authorName: 'Equipo Itineramio',
+  status: 'PUBLISHED',
+  publishedAt: today
+}
+
+async function main() {
+  console.log('🚀 Creando artículo: 5 Detalles WOW...')
+
+  const existingPost = await prisma.blogPost.findUnique({
+    where: { slug: article.slug }
+  })
+
+  let post
+
+  if (existingPost) {
+    post = await prisma.blogPost.update({
+      where: { slug: article.slug },
+      data: {
+        title: article.title,
+        subtitle: article.subtitle,
+        excerpt: article.excerpt,
+        coverImage: article.coverImage,
+        coverImageAlt: article.coverImageAlt,
+        content: article.content,
+        category: article.category as any,
+        tags: article.tags,
+        featured: article.featured,
+        metaTitle: article.metaTitle,
+        metaDescription: article.metaDescription,
+        keywords: article.keywords,
+        authorName: article.authorName,
+        status: article.status as any,
+        publishedAt: article.publishedAt,
+        readTime: Math.ceil(article.content.split(/\s+/).length / 200)
+      }
+    })
+    console.log('✅ Artículo actualizado')
+  } else {
+    post = await prisma.blogPost.create({
+      data: {
+        slug: article.slug,
+        title: article.title,
+        subtitle: article.subtitle,
+        excerpt: article.excerpt,
+        coverImage: article.coverImage,
+        coverImageAlt: article.coverImageAlt,
+        content: article.content,
+        category: article.category as any,
+        tags: article.tags,
+        featured: article.featured,
+        metaTitle: article.metaTitle,
+        metaDescription: article.metaDescription,
+        keywords: article.keywords,
+        authorId: 'admin',
+        authorName: article.authorName,
+        status: article.status as any,
+        publishedAt: article.publishedAt,
+        readTime: Math.ceil(article.content.split(/\s+/).length / 200),
+        views: 0,
+        likes: 0
+      }
+    })
+    console.log('✅ Artículo creado')
+  }
+
+  console.log(`\n📝 Artículo publicado:`)
+  console.log(`   URL: https://www.itineramio.com/blog/${article.slug}`)
+  console.log(`   Título: ${article.title}`)
+  console.log(`   Categoría: ${article.category}`)
+}
+
+main()
+  .catch(console.error)
+  .finally(() => prisma.$disconnect())
