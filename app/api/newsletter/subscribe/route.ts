@@ -117,58 +117,194 @@ export async function POST(request: NextRequest) {
 
 async function sendConfirmationEmail(email: string, token: string) {
   const confirmUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/newsletter/confirm?token=${token}`
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
 
   await sendEmail({
     to: email,
-    subject: 'Confirma tu suscripción - Itineramio',
+    subject: '¡Solo falta un clic! Confirma tu suscripción',
     html: `
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <title>Confirma tu suscripción - Itineramio</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 40px 20px;">
+<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f3f4f6;">
     <tr>
-      <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <!-- Header -->
+      <td align="center" style="padding: 40px 16px;">
+
+        <!-- Main Container -->
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 560px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);">
+
+          <!-- Header with Logo -->
           <tr>
-            <td style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); padding: 32px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">Itineramio</h1>
+            <td style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 32px 40px; text-align: center;">
+              <img src="${baseUrl}/logo-light.svg" alt="Itineramio" width="180" height="40" style="display: block; margin: 0 auto; max-width: 180px; height: auto;" />
             </td>
           </tr>
-          <!-- Content -->
+
+          <!-- Hero Section -->
           <tr>
-            <td style="padding: 40px 32px;">
-              <h2 style="margin: 0 0 16px 0; color: #1f2937; font-size: 22px; font-weight: 600;">Confirma tu suscripción</h2>
-              <p style="margin: 0 0 24px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
-                Has solicitado recibir alertas sobre cambios en la normativa de alquiler vacacional. Haz clic en el botón para confirmar:
-              </p>
-              <table width="100%" cellpadding="0" cellspacing="0">
+            <td style="padding: 48px 40px 32px 40px; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px;">Bienvenido/a</p>
+              <h1 style="margin: 0 0 16px 0; font-size: 28px; font-weight: 700; color: #111827; line-height: 1.3;">Estás a un clic de unirte a la comunidad</h1>
+              <p style="margin: 0; font-size: 16px; color: #6b7280; line-height: 1.6;">Confirma tu email para empezar a recibir contenido exclusivo para profesionalizar tu alquiler vacacional.</p>
+            </td>
+          </tr>
+
+          <!-- CTA Button -->
+          <tr>
+            <td style="padding: 0 40px 40px 40px; text-align: center;">
+              <table cellpadding="0" cellspacing="0" role="presentation" style="margin: 0 auto;">
                 <tr>
-                  <td align="center" style="padding: 8px 0 32px 0;">
-                    <a href="${confirmUrl}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 10px; font-weight: 600; font-size: 16px;">
-                      Confirmar suscripción
-                    </a>
+                  <td style="background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%); border-radius: 12px;">
+                    <a href="${confirmUrl}" target="_blank" style="display: inline-block; padding: 18px 48px; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none;">Confirmar mi suscripción →</a>
                   </td>
                 </tr>
               </table>
-              <p style="margin: 0; color: #9ca3af; font-size: 14px; line-height: 1.5;">
-                Si no solicitaste esta suscripción, puedes ignorar este email.
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="padding: 0 40px;">
+              <div style="height: 1px; background-color: #e5e7eb;"></div>
+            </td>
+          </tr>
+
+          <!-- What You'll Get -->
+          <tr>
+            <td style="padding: 40px;">
+              <h2 style="margin: 0 0 24px 0; font-size: 18px; font-weight: 600; color: #111827;">¿Qué vas a recibir?</h2>
+              <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                <tr>
+                  <td style="padding: 12px 0; vertical-align: top;">
+                    <table cellpadding="0" cellspacing="0" role="presentation">
+                      <tr>
+                        <td style="width: 28px; vertical-align: top;">
+                          <span style="display: inline-block; width: 20px; height: 20px; background-color: #dcfce7; border-radius: 50%; text-align: center; line-height: 20px; font-size: 12px;">✓</span>
+                        </td>
+                        <td style="padding-left: 12px;">
+                          <p style="margin: 0; font-size: 15px; color: #374151; line-height: 1.5;"><strong>Alertas de normativa</strong> — Cambios en NRUA, licencias y obligaciones legales</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; vertical-align: top;">
+                    <table cellpadding="0" cellspacing="0" role="presentation">
+                      <tr>
+                        <td style="width: 28px; vertical-align: top;">
+                          <span style="display: inline-block; width: 20px; height: 20px; background-color: #dcfce7; border-radius: 50%; text-align: center; line-height: 20px; font-size: 12px;">✓</span>
+                        </td>
+                        <td style="padding-left: 12px;">
+                          <p style="margin: 0; font-size: 15px; color: #374151; line-height: 1.5;"><strong>Guías prácticas</strong> — Estrategias probadas para mejorar tus reseñas</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; vertical-align: top;">
+                    <table cellpadding="0" cellspacing="0" role="presentation">
+                      <tr>
+                        <td style="width: 28px; vertical-align: top;">
+                          <span style="display: inline-block; width: 20px; height: 20px; background-color: #dcfce7; border-radius: 50%; text-align: center; line-height: 20px; font-size: 12px;">✓</span>
+                        </td>
+                        <td style="padding-left: 12px;">
+                          <p style="margin: 0; font-size: 15px; color: #374151; line-height: 1.5;"><strong>Plantillas y recursos</strong> — Herramientas listas para usar en tu negocio</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Gift Section -->
+          <tr>
+            <td style="padding: 0 40px 40px 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border-radius: 12px; border: 1px solid #e9d5ff;">
+                <tr>
+                  <td style="padding: 24px;">
+                    <table cellpadding="0" cellspacing="0" role="presentation">
+                      <tr>
+                        <td style="width: 48px; vertical-align: top;">
+                          <span style="display: inline-block; font-size: 32px;">🎁</span>
+                        </td>
+                        <td style="padding-left: 16px;">
+                          <p style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.3px;">Regalo de bienvenida</p>
+                          <p style="margin: 0 0 8px 0; font-size: 17px; font-weight: 600; color: #111827;">Checklist de Limpieza Profesional</p>
+                          <p style="margin: 0; font-size: 14px; color: #6b7280; line-height: 1.5;">Al confirmar, recibirás acceso a nuestra checklist de 47 puntos que usan los mejores anfitriones para garantizar 5 estrellas.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Social Proof / Testimonial -->
+          <tr>
+            <td style="padding: 0 40px 40px 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f9fafb; border-radius: 12px;">
+                <tr>
+                  <td style="padding: 24px;">
+                    <p style="margin: 0 0 16px 0; font-size: 15px; color: #374151; line-height: 1.6; font-style: italic;">"Desde que sigo a Itineramio mis reseñas han mejorado muchísimo. Sus guías de normativa me han ahorrado más de un susto con las nuevas leyes."</p>
+                    <table cellpadding="0" cellspacing="0" role="presentation">
+                      <tr>
+                        <td>
+                          <p style="margin: 0; font-size: 14px; font-weight: 600; color: #111827;">María García</p>
+                          <p style="margin: 2px 0 0 0; font-size: 13px; color: #6b7280;">Superhost · 3 propiedades en Valencia</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Secondary CTA -->
+          <tr>
+            <td style="padding: 0 40px 48px 40px; text-align: center;">
+              <a href="${confirmUrl}" target="_blank" style="display: inline-block; padding: 16px 40px; font-size: 15px; font-weight: 600; color: #7c3aed; text-decoration: none; border: 2px solid #7c3aed; border-radius: 10px;">Sí, quiero unirme →</a>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #0f172a; padding: 32px 40px; text-align: center;">
+              <img src="${baseUrl}/isotipo-itineramio.svg" alt="Itineramio" width="32" height="32" style="display: block; margin: 0 auto 16px auto;" />
+              <p style="margin: 0 0 8px 0; font-size: 13px; color: #94a3b8;">Únete a +500 anfitriones que ya profesionalizan su negocio</p>
+              <p style="margin: 0 0 16px 0; font-size: 12px; color: #64748b;">1 email/semana · Sin spam · Baja cuando quieras</p>
+              <p style="margin: 0; font-size: 11px; color: #475569;">
+                © 2026 Itineramio · <a href="${baseUrl}/legal/privacy" style="color: #94a3b8; text-decoration: underline;">Privacidad</a>
               </p>
             </td>
           </tr>
-          <!-- Footer -->
+
+        </table>
+
+        <!-- Fallback text -->
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 560px;">
           <tr>
-            <td style="background-color: #f9fafb; padding: 24px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0; color: #9ca3af; font-size: 12px;">
-                © 2026 Itineramio · Tu manual digital de alquiler vacacional
+            <td style="padding: 24px 16px; text-align: center;">
+              <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.5;">
+                ¿No funciona el botón? Copia y pega este enlace en tu navegador:<br>
+                <a href="${confirmUrl}" style="color: #7c3aed; word-break: break-all;">${confirmUrl}</a>
               </p>
             </td>
           </tr>
         </table>
+
       </td>
     </tr>
   </table>
