@@ -683,15 +683,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             }}
           />
 
-          {/* Newsletter CTA for NORMATIVA category */}
-          {post.category === 'NORMATIVA' && (
-            <div id="newsletter-cta">
-              <NewsletterCTA
-                variant="normativa"
-                source="blog-normativa"
-              />
-            </div>
-          )}
+          {/* Newsletter CTA - Captura de leads por embudo/categoría */}
+          <div id="newsletter-cta">
+            <NewsletterCTA
+              variant={post.category.toLowerCase() as any}
+              source={`blog-${post.category.toLowerCase()}`}
+            />
+          </div>
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
