@@ -1,51 +1,56 @@
+'use client'
+
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 import { POLICY_VERSION, POLICY_LAST_UPDATE, LEGAL_CONTACT } from '@/config/policies'
 
 export default function BillingPage() {
+  const { t } = useTranslation('legal')
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm p-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold text-gray-900">Términos de Facturación y Pagos</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{t('billing.title')}</h1>
             <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-              Versión {POLICY_VERSION}
+              {t('common.version')} {POLICY_VERSION}
             </span>
           </div>
           <p className="text-sm text-gray-600">
-            Última actualización: {POLICY_LAST_UPDATE}
+            {t('common.lastUpdate')}: {POLICY_LAST_UPDATE}
           </p>
         </div>
 
         {/* Executive Summary */}
         <div className="mb-8 p-6 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
-          <h2 className="text-lg font-semibold text-blue-900 mb-3">Resumen Ejecutivo</h2>
+          <h2 className="text-lg font-semibold text-blue-900 mb-3">{t('common.executiveSummary')}</h2>
           <ul className="space-y-2 text-blue-800">
-            <li>• Ofrecemos período de evaluación de 15 días para probar el servicio</li>
-            <li>• Las suscripciones se facturan mensual o semestralmente por adelantado</li>
-            <li>• Puede cancelar en cualquier momento, sin penalizaciones</li>
-            <li>• Los cambios de plan se aplican con prorrateo automático</li>
-            <li>• Pagos procesados de forma segura a través de Stripe</li>
+            <li>• {t('billing.summary.item1')}</li>
+            <li>• {t('billing.summary.item2')}</li>
+            <li>• {t('billing.summary.item3')}</li>
+            <li>• {t('billing.summary.item4')}</li>
+            <li>• {t('billing.summary.item5')}</li>
           </ul>
         </div>
 
         {/* Table of Contents */}
         <nav className="mb-8 p-6 bg-gray-50 rounded-lg">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Índice de Contenidos</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('common.tableOfContents')}</h2>
           <ul className="space-y-2">
-            <li><a href="#periodo-prueba" className="text-blue-600 hover:underline">1. Período de Evaluación</a></li>
-            <li><a href="#planes" className="text-blue-600 hover:underline">2. Planes y Precios</a></li>
-            <li><a href="#facturacion" className="text-blue-600 hover:underline">3. Ciclo de Facturación</a></li>
-            <li><a href="#métodos-pago" className="text-blue-600 hover:underline">4. Métodos de Pago</a></li>
-            <li><a href="#renovacion" className="text-blue-600 hover:underline">5. Renovación Automática</a></li>
-            <li><a href="#cambios-plan" className="text-blue-600 hover:underline">6. Cambios de Plan</a></li>
-            <li><a href="#cancelacion" className="text-blue-600 hover:underline">7. Cancelación</a></li>
-            <li><a href="#reembolsos" className="text-blue-600 hover:underline">8. Política de Reembolsos</a></li>
-            <li><a href="#impuestos" className="text-blue-600 hover:underline">9. Impuestos y Facturación</a></li>
-            <li><a href="#fallos-pago" className="text-blue-600 hover:underline">10. Fallos de Pago</a></li>
-            <li><a href="#cambios-precios" className="text-blue-600 hover:underline">11. Cambios en los Precios</a></li>
-            <li><a href="#contacto" className="text-blue-600 hover:underline">12. Contacto</a></li>
+            <li><a href="#periodo-prueba" className="text-blue-600 hover:underline">{t('billing.toc.trialPeriod')}</a></li>
+            <li><a href="#planes" className="text-blue-600 hover:underline">{t('billing.toc.plans')}</a></li>
+            <li><a href="#facturacion" className="text-blue-600 hover:underline">{t('billing.toc.billing')}</a></li>
+            <li><a href="#metodos-pago" className="text-blue-600 hover:underline">{t('billing.toc.paymentMethods')}</a></li>
+            <li><a href="#renovacion" className="text-blue-600 hover:underline">{t('billing.toc.renewal')}</a></li>
+            <li><a href="#cambios-plan" className="text-blue-600 hover:underline">{t('billing.toc.planChanges')}</a></li>
+            <li><a href="#cancelacion" className="text-blue-600 hover:underline">{t('billing.toc.cancellation')}</a></li>
+            <li><a href="#reembolsos" className="text-blue-600 hover:underline">{t('billing.toc.refunds')}</a></li>
+            <li><a href="#impuestos" className="text-blue-600 hover:underline">{t('billing.toc.taxes')}</a></li>
+            <li><a href="#fallos-pago" className="text-blue-600 hover:underline">{t('billing.toc.paymentFailures')}</a></li>
+            <li><a href="#cambios-precios" className="text-blue-600 hover:underline">{t('billing.toc.priceChanges')}</a></li>
+            <li><a href="#contacto" className="text-blue-600 hover:underline">{t('billing.toc.contact')}</a></li>
           </ul>
         </nav>
 
@@ -53,379 +58,359 @@ export default function BillingPage() {
         <div className="prose prose-blue max-w-none space-y-8">
 
           <section id="periodo-prueba">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Período de Evaluación</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('billing.section1.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Ofrecemos un <strong>período de evaluación de 15 días</strong> para que pueda probar Itineramio sin compromiso
-              y decidir si el servicio se ajusta a sus necesidades.
+              {t('billing.section1.description')}
             </p>
 
             <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
-              <h3 className="font-semibold text-gray-900 mb-2">Características del período de evaluación:</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">{t('billing.section1.features.title')}</h3>
               <ul className="list-disc list-inside space-y-2 text-gray-700 text-sm">
-                <li>Acceso completo a todas las funcionalidades de su plan</li>
-                <li>Sin necesidad de tarjeta de crédito para comenzar</li>
-                <li>Sin cargos durante los primeros 15 días</li>
-                <li>Puede cancelar en cualquier momento sin costes</li>
-                <li>Al finalizar, puede contratar el plan que mejor se adapte a sus necesidades</li>
+                <li>{t('billing.section1.features.item1')}</li>
+                <li>{t('billing.section1.features.item2')}</li>
+                <li>{t('billing.section1.features.item3')}</li>
+                <li>{t('billing.section1.features.item4')}</li>
+                <li>{t('billing.section1.features.item5')}</li>
               </ul>
             </div>
 
             <p className="text-gray-700 text-sm">
-              <strong>Importante:</strong> Una vez finalizado el período de evaluación, deberá contratar una suscripción
-              para continuar utilizando el servicio. Sus datos y propiedades permanecerán guardados durante 30 días
-              después del fin del período de evaluación.
+              <strong>{t('billing.section1.important')}</strong>
             </p>
           </section>
 
           <section id="planes">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Planes y Precios</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('billing.section2.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Ofrecemos diferentes planes adaptados al número de propiedades que gestiona:
+              {t('billing.section2.description')}
             </p>
 
             <div className="grid md:grid-cols-2 gap-4 mb-6">
               <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-bold text-gray-900">BASIC</h3>
-                  <span className="text-2xl font-bold text-blue-600">€9</span>
+                  <h3 className="text-xl font-bold text-gray-900">{t('billing.section2.basic.name')}</h3>
+                  <span className="text-2xl font-bold text-blue-600">{t('billing.section2.basic.price')}</span>
                 </div>
-                <p className="text-sm text-gray-600 mb-3">Hasta 2 propiedades</p>
+                <p className="text-sm text-gray-600 mb-3">{t('billing.section2.basic.properties')}</p>
                 <ul className="space-y-1 text-sm text-gray-700">
-                  <li>✓ Manuales digitales ilimitados</li>
-                  <li>✓ Códigos QR únicos</li>
-                  <li>✓ Soporte multiidioma</li>
-                  <li>✓ Analytics básicas</li>
+                  <li>✓ {t('billing.section2.basic.feature1')}</li>
+                  <li>✓ {t('billing.section2.basic.feature2')}</li>
+                  <li>✓ {t('billing.section2.basic.feature3')}</li>
+                  <li>✓ {t('billing.section2.basic.feature4')}</li>
                 </ul>
               </div>
 
               <div className="border border-blue-200 rounded-lg p-4 bg-blue-50 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-bold text-gray-900">HOST</h3>
-                  <span className="text-2xl font-bold text-blue-600">€29</span>
+                  <h3 className="text-xl font-bold text-gray-900">{t('billing.section2.host.name')}</h3>
+                  <span className="text-2xl font-bold text-blue-600">{t('billing.section2.host.price')}</span>
                 </div>
-                <p className="text-sm text-gray-600 mb-3">Hasta 10 propiedades</p>
+                <p className="text-sm text-gray-600 mb-3">{t('billing.section2.host.properties')}</p>
                 <ul className="space-y-1 text-sm text-gray-700">
-                  <li>✓ Todo lo del plan BASIC</li>
-                  <li>✓ Analytics avanzadas</li>
-                  <li>✓ Evaluaciones de huéspedes</li>
-                  <li>✓ Conjuntos de propiedades</li>
+                  <li>✓ {t('billing.section2.host.feature1')}</li>
+                  <li>✓ {t('billing.section2.host.feature2')}</li>
+                  <li>✓ {t('billing.section2.host.feature3')}</li>
+                  <li>✓ {t('billing.section2.host.feature4')}</li>
                 </ul>
               </div>
 
               <div className="border border-purple-200 rounded-lg p-4 bg-purple-50 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-bold text-gray-900">SUPERHOST</h3>
-                  <span className="text-2xl font-bold text-purple-600">€69</span>
+                  <h3 className="text-xl font-bold text-gray-900">{t('billing.section2.superhost.name')}</h3>
+                  <span className="text-2xl font-bold text-purple-600">{t('billing.section2.superhost.price')}</span>
                 </div>
-                <p className="text-sm text-gray-600 mb-3">Hasta 25 propiedades</p>
+                <p className="text-sm text-gray-600 mb-3">{t('billing.section2.superhost.properties')}</p>
                 <ul className="space-y-1 text-sm text-gray-700">
-                  <li>✓ Todo lo del plan HOST</li>
-                  <li>✓ Duplicación de propiedades</li>
-                  <li>✓ Gestión de equipos</li>
-                  <li>✓ Soporte prioritario</li>
+                  <li>✓ {t('billing.section2.superhost.feature1')}</li>
+                  <li>✓ {t('billing.section2.superhost.feature2')}</li>
+                  <li>✓ {t('billing.section2.superhost.feature3')}</li>
+                  <li>✓ {t('billing.section2.superhost.feature4')}</li>
                 </ul>
               </div>
 
               <div className="border border-indigo-200 rounded-lg p-4 bg-indigo-50 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-bold text-gray-900">BUSINESS</h3>
-                  <span className="text-2xl font-bold text-indigo-600">€99</span>
+                  <h3 className="text-xl font-bold text-gray-900">{t('billing.section2.business.name')}</h3>
+                  <span className="text-2xl font-bold text-indigo-600">{t('billing.section2.business.price')}</span>
                 </div>
-                <p className="text-sm text-gray-600 mb-3">Hasta 50 propiedades</p>
+                <p className="text-sm text-gray-600 mb-3">{t('billing.section2.business.properties')}</p>
                 <ul className="space-y-1 text-sm text-gray-700">
-                  <li>✓ Todo lo del plan SUPERHOST</li>
-                  <li>✓ Propiedades ilimitadas</li>
-                  <li>✓ API de integración</li>
-                  <li>✓ Soporte dedicado</li>
+                  <li>✓ {t('billing.section2.business.feature1')}</li>
+                  <li>✓ {t('billing.section2.business.feature2')}</li>
+                  <li>✓ {t('billing.section2.business.feature3')}</li>
+                  <li>✓ {t('billing.section2.business.feature4')}</li>
                 </ul>
               </div>
             </div>
 
             <p className="text-sm text-gray-600 italic">
-              Todos los precios están en Euros (€) e incluyen IVA. Los precios pueden variar según su ubicación geográfica
-              debido a impuestos locales aplicables.
+              {t('billing.section2.note')}
             </p>
           </section>
 
           <section id="facturacion">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Ciclo de Facturación</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('billing.section3.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Ofrecemos dos opciones de facturación para su comodidad:
+              {t('billing.section3.description')}
             </p>
 
             <div className="space-y-4 mb-4">
               <div className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-2">📅 Facturación Mensual</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">{t('billing.section3.monthly.title')}</h3>
                 <p className="text-sm text-gray-700">
-                  Se le facturará el importe completo de su plan cada mes. El cargo se realiza el mismo día del mes
-                  en que contrató la suscripción (ej: si contrata el 15, se factura cada día 15).
+                  {t('billing.section3.monthly.description')}
                 </p>
               </div>
 
               <div className="bg-green-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-2">💰 Facturación Semestral (6 meses)</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">{t('billing.section3.semiannual.title')}</h3>
                 <p className="text-sm text-gray-700 mb-2">
-                  Ahorre hasta un 15% pagando por adelantado cada 6 meses. El cargo se realiza cada seis meses
-                  desde la fecha de contratación.
+                  {t('billing.section3.semiannual.description')}
                 </p>
                 <p className="text-xs text-gray-600">
-                  Ejemplo: Plan HOST mensual €29/mes = €174 semestral. Con descuento semestral (10%): €156.60 (ahorro de €17.40).
+                  {t('billing.section3.semiannual.example')}
                 </p>
               </div>
             </div>
 
             <p className="text-gray-700 text-sm">
-              La facturación se realiza siempre <strong>por adelantado</strong> al inicio de cada período.
-              Recibirá un email con la factura después de cada cargo exitoso.
+              {t('billing.section3.advance')}
             </p>
           </section>
 
-          <section id="métodos-pago">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Métodos de Pago</h2>
+          <section id="metodos-pago">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('billing.section4.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Aceptamos los siguientes métodos de pago a través de nuestra plataforma segura Stripe:
+              {t('billing.section4.description')}
             </p>
 
             <div className="grid md:grid-cols-2 gap-4 mb-4">
               <div className="border border-gray-200 p-4 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-2">💳 Tarjetas de Crédito/Débito</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">{t('billing.section4.cards.title')}</h3>
                 <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• Visa</li>
-                  <li>• Mastercard</li>
-                  <li>• American Express</li>
-                  <li>• Discover</li>
+                  <li>• {t('billing.section4.cards.visa')}</li>
+                  <li>• {t('billing.section4.cards.mastercard')}</li>
+                  <li>• {t('billing.section4.cards.amex')}</li>
+                  <li>• {t('billing.section4.cards.discover')}</li>
                 </ul>
               </div>
 
               <div className="border border-gray-200 p-4 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-2">🏦 Otros Métodos</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">{t('billing.section4.other.title')}</h3>
                 <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• SEPA Direct Debit (domiciliación bancaria)</li>
-                  <li>• Bizum (próximamente)</li>
-                  <li>• Transferencia bancaria (planes anuales)</li>
+                  <li>• {t('billing.section4.other.sepa')}</li>
+                  <li>• {t('billing.section4.other.bizum')}</li>
+                  <li>• {t('billing.section4.other.transfer')}</li>
                 </ul>
               </div>
             </div>
 
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
               <p className="text-sm text-gray-700">
-                <strong>🔒 Seguridad:</strong> Todos los pagos son procesados de forma segura por Stripe, certificado PCI DSS Level 1.
-                No almacenamos información de tarjetas de crédito en nuestros servidores. Stripe utiliza cifrado SSL/TLS
-                y tokenización para proteger sus datos de pago.
+                {t('billing.section4.security')}
               </p>
             </div>
           </section>
 
           <section id="renovacion">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Renovación Automática</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('billing.section5.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Su suscripción se renueva automáticamente al final de cada período de facturación para garantizar
-              un servicio ininterrumpido.
+              {t('billing.section5.description')}
             </p>
 
             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
-              <h3 className="font-semibold text-gray-900 mb-2">Cómo funciona la renovación automática:</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">{t('billing.section5.howItWorks.title')}</h3>
               <ul className="space-y-2 text-sm text-gray-700">
-                <li>1. <strong>7 días antes</strong> del fin de su período, le enviamos un recordatorio por email</li>
-                <li>2. <strong>El día de renovación</strong>, se carga automáticamente el importe del siguiente período</li>
-                <li>3. <strong>Tras el pago exitoso</strong>, recibe la factura y confirmación por email</li>
-                <li>4. Su suscripción continúa sin interrupciones</li>
+                <li>1. <strong>{t('billing.section5.howItWorks.step1')}</strong></li>
+                <li>2. <strong>{t('billing.section5.howItWorks.step2')}</strong></li>
+                <li>3. <strong>{t('billing.section5.howItWorks.step3')}</strong></li>
+                <li>4. <strong>{t('billing.section5.howItWorks.step4')}</strong></li>
               </ul>
             </div>
 
             <p className="text-gray-700">
-              Puede <strong>desactivar la renovación automática</strong> en cualquier momento desde la configuración
-              de su cuenta. Al desactivarla, su suscripción finalizará al término del período actual y no se realizarán
-              más cargos.
+              {t('billing.section5.disable')}
             </p>
           </section>
 
           <section id="cambios-plan">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Cambios de Plan</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('billing.section6.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Puede cambiar su plan en cualquier momento según sus necesidades. Los cambios se aplican con prorrateo
-              automático para que solo pague por lo que usa.
+              {t('billing.section6.description')}
             </p>
 
             <div className="space-y-4 mb-4">
               <div className="bg-green-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-2">⬆️ Upgrade (Mejorar Plan)</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">{t('billing.section6.upgrade.title')}</h3>
                 <p className="text-sm text-gray-700 mb-2">
-                  Al mejorar a un plan superior:
+                  {t('billing.section6.upgrade.description')}
                 </p>
                 <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• El cambio es <strong>inmediato</strong></li>
-                  <li>• Se calcula el crédito del tiempo no usado de su plan actual</li>
-                  <li>• Se aplica ese crédito al coste del nuevo plan</li>
-                  <li>• Solo paga la diferencia prorrateada hasta el final de su período de facturación</li>
+                  <li>• {t('billing.section6.upgrade.item1')}</li>
+                  <li>• {t('billing.section6.upgrade.item2')}</li>
+                  <li>• {t('billing.section6.upgrade.item3')}</li>
+                  <li>• {t('billing.section6.upgrade.item4')}</li>
                 </ul>
                 <p className="text-xs text-gray-600 mt-2">
-                  Ejemplo: Si está en BASIC (€9/mes) y pasa a HOST (€29/mes) a mitad de mes, se le cargará aproximadamente
-                  €10 (diferencia de €20 prorrateada a 15 días).
+                  {t('billing.section6.upgrade.example')}
                 </p>
               </div>
 
               <div className="bg-orange-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-2">⬇️ Downgrade (Reducir Plan)</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">{t('billing.section6.downgrade.title')}</h3>
                 <p className="text-sm text-gray-700 mb-2">
-                  Al cambiar a un plan inferior:
+                  {t('billing.section6.downgrade.description')}
                 </p>
                 <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• El cambio es efectivo al <strong>final de su período actual</strong></li>
-                  <li>• Mantiene acceso a las funcionalidades del plan superior hasta el fin del período</li>
-                  <li>• A partir del siguiente período, se factura el nuevo plan más económico</li>
-                  <li>• No hay cargos adicionales ni penalizaciones</li>
+                  <li>• {t('billing.section6.downgrade.item1')}</li>
+                  <li>• {t('billing.section6.downgrade.item2')}</li>
+                  <li>• {t('billing.section6.downgrade.item3')}</li>
+                  <li>• {t('billing.section6.downgrade.item4')}</li>
                 </ul>
                 <p className="text-xs text-gray-600 mt-2">
-                  Nota: Si tiene más propiedades que el límite del plan inferior, deberá reducir el número de propiedades
-                  activas antes de que el cambio sea efectivo.
+                  {t('billing.section6.downgrade.note')}
                 </p>
               </div>
             </div>
           </section>
 
           <section id="cancelacion">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Cancelación</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('billing.section7.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Puede cancelar su suscripción en cualquier momento sin penalizaciones ni cargos adicionales.
+              {t('billing.section7.description')}
             </p>
 
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-              <h3 className="font-semibold text-gray-900 mb-2">Proceso de cancelación:</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">{t('billing.section7.process.title')}</h3>
               <ol className="space-y-2 text-sm text-gray-700">
-                <li>1. Vaya a <strong>Configuración de Cuenta → Suscripción</strong></li>
-                <li>2. Haga clic en <strong>"Cancelar Suscripción"</strong></li>
-                <li>3. Confirme la cancelación</li>
-                <li>4. Recibirá un email de confirmación</li>
+                <li>{t('billing.section7.process.step1')}</li>
+                <li>{t('billing.section7.process.step2')}</li>
+                <li>{t('billing.section7.process.step3')}</li>
+                <li>{t('billing.section7.process.step4')}</li>
               </ol>
             </div>
 
             <div className="space-y-3 text-gray-700 text-sm">
               <p>
-                <strong>Efectos de la cancelación:</strong>
+                <strong>{t('billing.section7.effects.title')}</strong>
               </p>
               <ul className="list-disc list-inside space-y-1">
-                <li>Su suscripción permanece activa hasta el final del período de facturación actual</li>
-                <li>No se realizan más cargos después de la cancelación</li>
-                <li>Conserva acceso a todas las funcionalidades hasta el fin del período pagado</li>
-                <li>Sus datos y propiedades se mantienen durante 90 días tras la cancelación</li>
-                <li>Puede reactivar su suscripción en cualquier momento dentro de esos 90 días</li>
+                <li>{t('billing.section7.effects.item1')}</li>
+                <li>{t('billing.section7.effects.item2')}</li>
+                <li>{t('billing.section7.effects.item3')}</li>
+                <li>{t('billing.section7.effects.item4')}</li>
+                <li>{t('billing.section7.effects.item5')}</li>
               </ul>
             </div>
 
             <p className="text-gray-700 mt-4">
-              Transcurridos 90 días desde la cancelación sin reactivación, sus propiedades pasarán a estado inactivo.
-              Los datos se conservarán según nuestra{' '}
+              {t('billing.section7.afterPeriod')}{' '}
               <Link href="/legal/privacy" className="text-blue-600 hover:underline">
-                Política de Privacidad
+                {t('links.privacyPolicy')}
               </Link>.
             </p>
           </section>
 
           <section id="reembolsos">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Política de Reembolsos</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('billing.section8.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Los pagos de suscripción son <strong>no reembolsables</strong> excepto en las siguientes circunstancias:
+              {t('billing.section8.description')}
             </p>
 
             <div className="space-y-3 mb-4">
               <div className="border-l-4 border-green-500 bg-green-50 p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">✓ Cargos Duplicados</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">✓ {t('billing.section8.duplicateCharges.title')}</h3>
                 <p className="text-sm text-gray-700">
-                  Si se le carga dos veces por error, reembolsamos inmediatamente el cargo duplicado.
+                  {t('billing.section8.duplicateCharges.description')}
                 </p>
               </div>
 
               <div className="border-l-4 border-green-500 bg-green-50 p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">✓ Error Técnico de Facturación</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">✓ {t('billing.section8.technicalError.title')}</h3>
                 <p className="text-sm text-gray-700">
-                  Si un error técnico causa un cargo incorrecto, se reembolsa el importe erróneo en un plazo de 5-7 días laborables.
+                  {t('billing.section8.technicalError.description')}
                 </p>
               </div>
 
               <div className="border-l-4 border-green-500 bg-green-50 p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">✓ Servicio No Disponible</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">✓ {t('billing.section8.serviceUnavailable.title')}</h3>
                 <p className="text-sm text-gray-700">
-                  Si el servicio está inaccesible durante más de 72 horas por problemas técnicos de nuestra parte,
-                  puede solicitar reembolso prorrateado del tiempo de inactividad.
+                  {t('billing.section8.serviceUnavailable.description')}
                 </p>
               </div>
             </div>
 
             <div className="bg-red-50 border-l-4 border-red-500 p-4">
-              <h3 className="font-semibold text-gray-900 mb-2">✗ No se reembolsa en estos casos:</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">✗ {t('billing.section8.noRefund.title')}</h3>
               <ul className="text-sm text-gray-700 space-y-1">
-                <li>• Cancelación voluntaria antes del fin del período</li>
-                <li>• Cambio de opinión o insatisfacción con el servicio</li>
-                <li>• No uso del servicio durante el período de facturación</li>
-                <li>• Suspensión por violación de los términos de uso</li>
+                <li>• {t('billing.section8.noRefund.item1')}</li>
+                <li>• {t('billing.section8.noRefund.item2')}</li>
+                <li>• {t('billing.section8.noRefund.item3')}</li>
+                <li>• {t('billing.section8.noRefund.item4')}</li>
               </ul>
             </div>
 
             <p className="text-gray-700 text-sm mt-4">
-              Para solicitar un reembolso justificado, contacte con {LEGAL_CONTACT.email} indicando su ID de transacción
-              y motivo. Procesamos solicitudes en un plazo máximo de 10 días laborables.
+              {t('billing.section8.request', { email: LEGAL_CONTACT.email })}
             </p>
           </section>
 
           <section id="impuestos">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Impuestos y Facturación</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('billing.section9.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Cumplimos con todas las obligaciones fiscales y de facturación aplicables en España y la Unión Europea.
+              {t('billing.section9.description')}
             </p>
 
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <h3 className="font-semibold text-gray-900 mb-2">IVA (Impuesto sobre el Valor Añadido):</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">{t('billing.section9.vat.title')}</h3>
               <ul className="space-y-2 text-sm text-gray-700">
                 <li>
-                  <strong>Clientes en España:</strong> Se aplica el IVA vigente (actualmente 21%)
+                  <strong>{t('billing.section9.vat.spain')}</strong>
                 </li>
                 <li>
-                  <strong>Clientes B2B en la UE:</strong> IVA aplicable según el mecanismo de inversión del sujeto pasivo
-                  (proporcione NIF-IVA válido)
+                  <strong>{t('billing.section9.vat.euB2B')}</strong>
                 </li>
                 <li>
-                  <strong>Clientes B2C en la UE:</strong> IVA del país de destino según normativa comunitaria
+                  <strong>{t('billing.section9.vat.euB2C')}</strong>
                 </li>
                 <li>
-                  <strong>Clientes fuera de la UE:</strong> Sin IVA (0%)
+                  <strong>{t('billing.section9.vat.nonEU')}</strong>
                 </li>
               </ul>
             </div>
 
             <div className="bg-blue-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-gray-900 mb-2">Facturas Electrónicas:</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">{t('billing.section9.invoices.title')}</h3>
               <p className="text-sm text-gray-700 mb-2">
-                Emitimos facturas electrónicas conformes con la normativa española (Ley 25/2013). Todas las facturas incluyen:
+                {t('billing.section9.invoices.description')}
               </p>
               <ul className="text-sm text-gray-700 space-y-1">
-                <li>• Número de factura único y correlativo</li>
-                <li>• Fecha de emisión y período facturado</li>
-                <li>• Datos fiscales completos (emisor y cliente)</li>
-                <li>• Detalle de servicios prestados</li>
-                <li>• Base imponible, IVA aplicado y total</li>
+                <li>• {t('billing.section9.invoices.item1')}</li>
+                <li>• {t('billing.section9.invoices.item2')}</li>
+                <li>• {t('billing.section9.invoices.item3')}</li>
+                <li>• {t('billing.section9.invoices.item4')}</li>
+                <li>• {t('billing.section9.invoices.item5')}</li>
               </ul>
             </div>
 
             <p className="text-gray-700 text-sm mt-4">
-              Puede descargar todas sus facturas en cualquier momento desde <strong>Cuenta → Facturación → Historial</strong>.
-              Las facturas se conservan durante 10 años según requisitos legales.
+              {t('billing.section9.download')}
             </p>
           </section>
 
           <section id="fallos-pago">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Fallos de Pago</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('billing.section10.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Si un pago falla por fondos insuficientes, tarjeta expirada u otro motivo, seguimos este proceso:
+              {t('billing.section10.description')}
             </p>
 
             <div className="space-y-3">
               <div className="flex items-start gap-3">
                 <span className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-semibold">1</span>
                 <div>
-                  <h4 className="font-semibold text-gray-900">Notificación Inmediata</h4>
+                  <h4 className="font-semibold text-gray-900">{t('billing.section10.step1.title')}</h4>
                   <p className="text-sm text-gray-700">
-                    Le enviamos un email informándole del fallo de pago y solicitando que actualice su método de pago.
+                    {t('billing.section10.step1.description')}
                   </p>
                 </div>
               </div>
@@ -433,9 +418,9 @@ export default function BillingPage() {
               <div className="flex items-start gap-3">
                 <span className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-semibold">2</span>
                 <div>
-                  <h4 className="font-semibold text-gray-900">Período de Gracia (3 días)</h4>
+                  <h4 className="font-semibold text-gray-900">{t('billing.section10.step2.title')}</h4>
                   <p className="text-sm text-gray-700">
-                    Su servicio permanece activo durante 3 días para darle tiempo a resolver el problema.
+                    {t('billing.section10.step2.description')}
                   </p>
                 </div>
               </div>
@@ -443,9 +428,9 @@ export default function BillingPage() {
               <div className="flex items-start gap-3">
                 <span className="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-semibold">3</span>
                 <div>
-                  <h4 className="font-semibold text-gray-900">Reintento Automático</h4>
+                  <h4 className="font-semibold text-gray-900">{t('billing.section10.step3.title')}</h4>
                   <p className="text-sm text-gray-700">
-                    Intentamos cobrar nuevamente a los 3 días. Si falla de nuevo, enviamos otro recordatorio.
+                    {t('billing.section10.step3.description')}
                   </p>
                 </div>
               </div>
@@ -453,9 +438,9 @@ export default function BillingPage() {
               <div className="flex items-start gap-3">
                 <span className="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-semibold">4</span>
                 <div>
-                  <h4 className="font-semibold text-gray-900">Segundo Reintento (7 días)</h4>
+                  <h4 className="font-semibold text-gray-900">{t('billing.section10.step4.title')}</h4>
                   <p className="text-sm text-gray-700">
-                    Último intento de cobro a los 7 días. Si falla, su cuenta pasa a estado "Suspendida".
+                    {t('billing.section10.step4.description')}
                   </p>
                 </div>
               </div>
@@ -463,10 +448,9 @@ export default function BillingPage() {
               <div className="flex items-start gap-3">
                 <span className="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-semibold">5</span>
                 <div>
-                  <h4 className="font-semibold text-gray-900">Suspensión (después de 7 días)</h4>
+                  <h4 className="font-semibold text-gray-900">{t('billing.section10.step5.title')}</h4>
                   <p className="text-sm text-gray-700">
-                    Si no recibimos el pago, su cuenta se suspende temporalmente. Puede reactivarla actualizando
-                    su método de pago y saldando la deuda pendiente.
+                    {t('billing.section10.step5.description')}
                   </p>
                 </div>
               </div>
@@ -474,50 +458,49 @@ export default function BillingPage() {
 
             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mt-4">
               <p className="text-sm text-gray-700">
-                <strong>Importante:</strong> Durante la suspensión, sus propiedades no estarán accesibles para los huéspedes.
-                Reactivar su suscripción restaura el acceso inmediatamente.
+                <strong>{t('billing.section10.important')}</strong>
               </p>
             </div>
           </section>
 
           <section id="cambios-precios">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Cambios en los Precios</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('billing.section11.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Nos reservamos el derecho de modificar nuestros precios, pero siempre con transparencia y respeto a nuestros clientes:
+              {t('billing.section11.description')}
             </p>
 
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-              <h3 className="font-semibold text-gray-900 mb-2">Garantías ante cambios de precio:</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">{t('billing.section11.guarantees.title')}</h3>
               <ul className="space-y-2 text-sm text-gray-700">
                 <li>
-                  • <strong>Notificación con 30 días de antelación:</strong> Le avisaremos por email al menos un mes antes
+                  • <strong>{t('billing.section11.guarantees.item1')}</strong>
                 </li>
                 <li>
-                  • <strong>Grandfathering:</strong> Los clientes existentes mantienen su precio durante al menos 6 meses
+                  • <strong>{t('billing.section11.guarantees.item2')}</strong>
                 </li>
                 <li>
-                  • <strong>Derecho de cancelación:</strong> Puede cancelar sin penalización si no está de acuerdo
+                  • <strong>{t('billing.section11.guarantees.item3')}</strong>
                 </li>
                 <li>
-                  • <strong>Claridad:</strong> Explicaremos claramente los motivos del cambio de precio
+                  • <strong>{t('billing.section11.guarantees.item4')}</strong>
                 </li>
               </ul>
             </div>
 
             <p className="text-gray-700">
-              Su aceptación continuada del servicio después de la notificación constituirá su aceptación del nuevo precio.
+              {t('billing.section11.acceptance')}
             </p>
           </section>
 
           <section id="contacto">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">12. Contacto</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('billing.section12.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Para consultas sobre facturación, pagos o suscripciones, puede contactarnos en:
+              {t('billing.section12.description')}
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-gray-700 mb-2"><strong>Email de facturación:</strong> {LEGAL_CONTACT.email}</p>
-              <p className="text-gray-700 mb-2"><strong>Email general:</strong> {LEGAL_CONTACT.email}</p>
-              <p className="text-gray-700"><strong>Horario de atención:</strong> Lunes a Viernes, 9:00 - 18:00 (CET)</p>
+              <p className="text-gray-700 mb-2"><strong>{t('billing.section12.billingEmail')}:</strong> {LEGAL_CONTACT.email}</p>
+              <p className="text-gray-700 mb-2"><strong>{t('billing.section12.generalEmail')}:</strong> {LEGAL_CONTACT.email}</p>
+              <p className="text-gray-700"><strong>{t('billing.section12.hours')}</strong></p>
             </div>
           </section>
 
@@ -525,22 +508,22 @@ export default function BillingPage() {
 
         {/* Footer Links */}
         <div className="mt-12 pt-8 border-t border-gray-200">
-          <p className="text-sm text-gray-600 mb-4">Otras políticas legales:</p>
+          <p className="text-sm text-gray-600 mb-4">{t('common.otherPolicies')}:</p>
           <div className="flex flex-wrap gap-4">
             <Link href="/legal/terms" className="text-blue-600 hover:underline text-sm">
-              Términos y Condiciones
+              {t('links.termsAndConditions')}
             </Link>
             <Link href="/legal/privacy" className="text-blue-600 hover:underline text-sm">
-              Política de Privacidad
+              {t('links.privacyPolicy')}
             </Link>
             <Link href="/legal/cookies" className="text-blue-600 hover:underline text-sm">
-              Política de Cookies
+              {t('links.cookiesPolicy')}
             </Link>
             <Link href="/legal/legal-notice" className="text-blue-600 hover:underline text-sm">
-              Aviso Legal
+              {t('links.legalNotice')}
             </Link>
             <Link href="/legal/dpa" className="text-blue-600 hover:underline text-sm">
-              DPA
+              {t('links.dpa')}
             </Link>
           </div>
         </div>
@@ -551,7 +534,7 @@ export default function BillingPage() {
             href="/"
             className="inline-flex items-center text-blue-600 hover:underline"
           >
-            ← Volver al inicio
+            {t('common.backToHome')}
           </Link>
         </div>
       </div>

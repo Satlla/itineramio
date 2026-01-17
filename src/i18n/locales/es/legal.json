@@ -87,6 +87,14 @@
         "taxId": "NIF/CIF (para facturación española)",
         "transactions": "Historial de transacciones",
         "note": "Nota: Los datos de pago son procesados directamente por Stripe y no los almacenamos en nuestros servidores."
+      },
+      "chatbotData": {
+        "title": "2.5 Datos del Asistente Virtual (Chatbot)",
+        "description": "Cuando los huéspedes utilizan el asistente virtual de los manuales digitales:",
+        "queries": "Consultas y preguntas realizadas al chatbot",
+        "context": "Contexto de la conversación para proporcionar respuestas relevantes",
+        "language": "Idioma preferido del usuario",
+        "note": "Nota: Las consultas al chatbot se procesan en tiempo real a través de Anthropic (Claude AI) y no se almacenan permanentemente. Solo guardamos métricas agregadas y anónimas para mejorar el servicio."
       }
     },
     "section3": {
@@ -167,6 +175,11 @@
         "name": "Vercel",
         "description": "Hosting y despliegue de la aplicación",
         "policy": "Política: vercel.com/legal/privacy-policy"
+      },
+      "anthropic": {
+        "name": "Anthropic",
+        "description": "Procesamiento de IA para el asistente virtual (chatbot) de los manuales digitales",
+        "policy": "Política: anthropic.com/privacy"
       },
       "important": "Importante: Todos nuestros proveedores de servicios estan sujetos a acuerdos de procesamiento de datos (DPA) que garantizan el cumplimiento del RGPD y la protección de sus datos personales."
     },
@@ -801,6 +814,10 @@
         "service": "Hosting e infraestructura",
         "location": "Global (UE prioritaria)"
       },
+      "anthropic": {
+        "service": "Asistente virtual con IA (chatbot)",
+        "location": "USA (DPF)"
+      },
       "guarantees": {
         "title": "Garantias de los Subencargados:",
         "item1": "Todos los Subencargados han firmado acuerdos de procesamiento de datos conformes al RGPD",
@@ -875,6 +892,11 @@
         "title": "Resend Inc. (USA)",
         "legalBasis": "Base legal: Cláusulas Contractuales Tipo (SCC) de la Comision Europea",
         "description": "Hemos firmado las SCC estandar aprobadas por la Comision Europea con Resend para garantizar un nivel adecuado de protección de datos."
+      },
+      "anthropic": {
+        "title": "Anthropic PBC (USA)",
+        "legalBasis": "Base legal: Cláusulas Contractuales Tipo (SCC) de la Comision Europea",
+        "description": "Anthropic proporciona el servicio de IA para el asistente virtual (chatbot) de los manuales digitales. Las consultas de los huespedes se procesan de forma anonimizada y no se almacenan permanentemente en los servidores de Anthropic."
       },
       "requestCopy": "El Cliente puede solicitar una copia de las garantias implementadas para transferencias internacionales contactando con"
     },
@@ -1085,7 +1107,7 @@
       "other": {
         "title": "Otros Metodos",
         "sepa": "SEPA Direct Debit (domiciliacion bancaria)",
-        "bizum": "Bizum (proximamente)",
+        "bizum": "Bizum",
         "transfer": "Transferencia bancaria (planes anuales)"
       },
       "security": "Seguridad: Todos los pagos son procesados de forma segura por Stripe, certificado PCI DSS Level 1. No almacenamos información de tarjetas de crédito en nuestros servidores. Stripe utiliza cifrado SSL/TLS y tokenizacion para proteger sus datos de pago."
@@ -1259,7 +1281,7 @@
       "title": "1. Datos Identificativos",
       "description": "En cumplimiento de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Informacion y de Comercio Electronico (LSSI-CE), se informa de los datos identificativos del titular del sitio web:",
       "companyName": "Denominacion social",
-      "taxId": "CIF",
+      "taxId": "NIF",
       "address": "Domicilio social",
       "email": "Email",
       "website": "Sitio web"

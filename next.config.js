@@ -82,6 +82,17 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
+      // Additional blog redirects for URLs Google found
+      {
+        source: '/blog/como-optimizar-precio-apartamento-turistico-2026',
+        destination: '/blog',
+        permanent: true,
+      },
+      {
+        source: '/blog/10-trucos-marketing-aumentar-reservas',
+        destination: '/blog/categoria/marketing',
+        permanent: true,
+      },
     ]
   },
   // Strategic caching headers

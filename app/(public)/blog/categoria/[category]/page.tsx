@@ -91,14 +91,20 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     }
   }
 
+  const canonicalUrl = `https://www.itineramio.com/blog/categoria/${categorySlug}`
+
   return {
     title: category.title,
     description: category.description,
     keywords: category.keywords,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: category.title,
       description: category.description,
-      type: 'website'
+      type: 'website',
+      url: canonicalUrl,
     }
   }
 }

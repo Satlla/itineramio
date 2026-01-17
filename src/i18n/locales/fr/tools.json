@@ -145,7 +145,8 @@
     "card": {
       "network": "Réseau :",
       "password": "Mot de passe :",
-      "defaultNetwork": "Votre_Réseau_WiFi"
+      "defaultNetwork": "Votre_Réseau_WiFi",
+      "scanToConnect": "Scannez pour vous connecter"
     },
     "howToConnect": {
       "title": "Comment se connecter :",

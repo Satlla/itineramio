@@ -16,6 +16,7 @@ interface TrialStatus {
 interface TrialTopBarProps {
   trialStatus: TrialStatus | null
   hasActiveSubscription?: boolean | null
+  onClose?: () => void
 }
 
 interface TimeRemaining {
@@ -28,7 +29,8 @@ interface TimeRemaining {
 
 export const TrialTopBar: React.FC<TrialTopBarProps> = ({
   trialStatus,
-  hasActiveSubscription = false
+  hasActiveSubscription = false,
+  onClose
 }) => {
   const router = useRouter()
   const [isVisible, setIsVisible] = useState(true)
@@ -185,7 +187,10 @@ export const TrialTopBar: React.FC<TrialTopBarProps> = ({
             </button>
 
             <button
-              onClick={() => setIsVisible(false)}
+              onClick={() => {
+                setIsVisible(false)
+                onClose?.()
+              }}
               className="text-gray-400 hover:text-white transition-colors hidden sm:block"
               aria-label="Cerrar barra"
             >

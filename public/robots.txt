@@ -5,6 +5,9 @@
 User-agent: *
 Allow: /
 
+# Allow Next.js static assets (CSS, JS) - needed for rendering
+Allow: /_next/static/
+
 # Disallow admin and private routes
 Disallow: /admin/
 Disallow: /admin-*
@@ -15,7 +18,8 @@ Disallow: /properties/
 Disallow: /property-sets/
 Disallow: /subscriptions/
 Disallow: /checkout/
-Disallow: /_next/
+Disallow: /_next/data/
+Disallow: /_next/image
 Disallow: /static/
 
 # Disallow test and debug pages
@@ -44,6 +48,7 @@ Allow: /academia/
 Allow: /faq
 Allow: /comparar/
 Allow: /casos-de-exito/
+Allow: /legal/
 
 # Sitemap location
 Sitemap: https://www.itineramio.com/sitemap.xml

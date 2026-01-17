@@ -118,8 +118,19 @@ export default function PrivacyPage() {
               <li>{t('privacy.section2.billingData.taxId')}</li>
               <li>{t('privacy.section2.billingData.transactions')}</li>
             </ul>
-            <p className="text-sm text-gray-600 italic">
+            <p className="text-sm text-gray-600 italic mb-4">
               {t('privacy.section2.billingData.note')}
+            </p>
+
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">{t('privacy.section2.chatbotData.title')}</h3>
+            <p className="text-gray-700 mb-2">{t('privacy.section2.chatbotData.description')}</p>
+            <ul className="list-disc list-inside space-y-2 text-gray-700 mb-4">
+              <li>{t('privacy.section2.chatbotData.queries')}</li>
+              <li>{t('privacy.section2.chatbotData.context')}</li>
+              <li>{t('privacy.section2.chatbotData.language')}</li>
+            </ul>
+            <p className="text-sm text-gray-600 italic">
+              {t('privacy.section2.chatbotData.note')}
             </p>
           </section>
 
@@ -249,6 +260,12 @@ export default function PrivacyPage() {
                 <h4 className="font-semibold text-gray-900">{t('privacy.section5.vercel.name')}</h4>
                 <p className="text-sm text-gray-600">{t('privacy.section5.vercel.description')}</p>
                 <p className="text-xs text-gray-500">{t('privacy.section5.vercel.policy')}</p>
+              </div>
+
+              <div className="border-l-4 border-orange-500 pl-4">
+                <h4 className="font-semibold text-gray-900">{t('privacy.section5.anthropic.name')}</h4>
+                <p className="text-sm text-gray-600">{t('privacy.section5.anthropic.description')}</p>
+                <p className="text-xs text-gray-500">{t('privacy.section5.anthropic.policy')}</p>
               </div>
             </div>
 

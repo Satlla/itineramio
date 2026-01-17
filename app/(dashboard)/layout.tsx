@@ -27,6 +27,7 @@ export default function DashboardLayout({
   const [subscriptionNotification, setSubscriptionNotification] = useState<NotificationData | null>(null)
   const [trialStatus, setTrialStatus] = useState<any>(null)
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean | null>(null)
+  const [isTrialBarDismissed, setIsTrialBarDismissed] = useState(false)
   const hasCheckedRef = useRef(false)
   const modalClosedRef = useRef(false)
 
@@ -89,7 +90,8 @@ export default function DashboardLayout({
   // Determinar si el TrialTopBar está visible
   const isTrialBarVisible = hasActiveSubscription !== null &&
                             hasActiveSubscription !== true &&
-                            (trialStatus !== null)
+                            trialStatus !== null &&
+                            !isTrialBarDismissed
 
   return (
     <OnboardingProvider>
@@ -101,6 +103,7 @@ export default function DashboardLayout({
         <TrialTopBar
           trialStatus={trialStatus}
           hasActiveSubscription={hasActiveSubscription}
+          onClose={() => setIsTrialBarDismissed(true)}
         />
 
         <DashboardNavbar

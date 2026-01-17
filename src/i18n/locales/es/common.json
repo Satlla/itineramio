@@ -119,7 +119,7 @@
     "sort": "Ordenar",
     "selectOption": "Selecciona una opción"
   },
-  "válidation": {
+  "validation": {
     "required": "Este campo es obligatorio",
     "email": "Email inválido",
     "minLength": "Mínimo {{min}} caracteres",
@@ -134,7 +134,7 @@
     "notFound": "No encontrado",
     "unauthorized": "No autorizado",
     "forbidden": "Acceso denegado",
-    "válidationError": "Error de válidación",
+    "validationError": "Error de validación",
     "fileTooBig": "El archivo es demasiado grande",
     "invalidFormat": "Formato no válido"
   },

@@ -451,9 +451,13 @@ export default function RegisterPage() {
                     <Link href="/legal/terms" target="_blank" className="text-violet-600 hover:underline font-medium">
                       {t('register.termsLink')}
                     </Link>
-                    {' '}{t('register.andThe')}{' '}
+                    {', '}{t('register.andThe')}{' '}
                     <Link href="/legal/privacy" target="_blank" className="text-violet-600 hover:underline font-medium">
                       {t('register.privacyLink')}
+                    </Link>
+                    {' '}{t('register.andThe')}{' '}
+                    <Link href="/legal/cookies" target="_blank" className="text-violet-600 hover:underline font-medium">
+                      {t('register.cookiesLink')}
                     </Link>
                   </span>
                 </label>

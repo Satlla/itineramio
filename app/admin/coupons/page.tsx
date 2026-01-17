@@ -79,6 +79,8 @@ export default function CouponsAdminPage() {
   const [creating, setCreating] = useState(false)
   const [createSuccess, setCreateSuccess] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
+  const [deletingCoupon, setDeletingCoupon] = useState<Coupon | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchCoupons()
@@ -106,16 +108,51 @@ export default function CouponsAdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: newStatus })
       })
-      
+
       if (response.ok) {
-        setCoupons(coupons.map(coupon => 
-          coupon.id === couponId 
+        setCoupons(coupons.map(coupon =>
+          coupon.id === couponId
             ? { ...coupon, isActive: newStatus }
             : coupon
         ))
       }
     } catch (error) {
       console.error('Error toggling coupon:', error)
+    }
+  }
+
+  const handleDeleteCoupon = async () => {
+    if (!deletingCoupon) return
+
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/admin/coupons/${deletingCoupon.id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        if (data.softDeleted) {
+          // Update the coupon to inactive instead of removing
+          setCoupons(coupons.map(coupon =>
+            coupon.id === deletingCoupon.id
+              ? { ...coupon, isActive: false }
+              : coupon
+          ))
+        } else {
+          // Remove the coupon from the list
+          setCoupons(coupons.filter(coupon => coupon.id !== deletingCoupon.id))
+        }
+        setDeletingCoupon(null)
+      } else {
+        console.error('Error deleting coupon:', data.error)
+      }
+    } catch (error) {
+      console.error('Error deleting coupon:', error)
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -366,7 +403,12 @@ export default function CouponsAdminPage() {
                         <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
 
-                      <Button variant="outline" size="sm" className="text-red-600 p-1.5 sm:p-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 p-1.5 sm:p-2"
+                        onClick={() => setDeletingCoupon(coupon)}
+                      >
                         <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                     </div>
@@ -473,7 +515,7 @@ export default function CouponsAdminPage() {
                       {[
                         { value: 'PERCENTAGE', label: 'Porcentaje', icon: '%' },
                         { value: 'FIXED_AMOUNT', label: 'Cantidad', icon: '€' },
-                        { value: 'FREE_MONTHS', label: 'Meses', icon: '📅' }
+                        { value: 'FREE_MONTHS', label: 'Meses', icon: 'M' }
                       ].map((type) => (
                         <button
                           key={type.value}
@@ -643,6 +685,70 @@ export default function CouponsAdminPage() {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deletingCoupon && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            <div className="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4 rounded-t-xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Trash2 className="w-5 h-5" />
+                  Eliminar Cupon
+                </h3>
+                <button
+                  onClick={() => setDeletingCoupon(null)}
+                  className="text-white/80 hover:text-white transition-colors"
+                  disabled={deleting}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              <p className="text-gray-700 mb-4">
+                Estas seguro de que quieres eliminar el cupon <span className="font-semibold">{deletingCoupon.code}</span>?
+              </p>
+
+              {deletingCoupon.usedCount > 0 && (
+                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm">
+                  Este cupon ha sido usado {deletingCoupon.usedCount} veces. Se desactivara en lugar de eliminarse para mantener el historial.
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeletingCoupon(null)}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteCoupon}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {deleting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Eliminando...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      Eliminar
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
