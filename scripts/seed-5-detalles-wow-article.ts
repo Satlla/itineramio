@@ -15,9 +15,11 @@ const article = {
   content: `
 <p class="article-lead"><strong>Hay alojamientos que se reservan. Y hay alojamientos que se recuerdan.</strong></p>
 
-<p>Después de analizar más de 300 reseñas de 5 estrellas, el patrón es claro: ninguna menciona el WiFi rápido ni el colchón cómodo. Todas mencionan un momento que no esperaban.</p>
+<p>Después de analizar cientos de reseñas de 5 estrellas, el patrón es claro: sí, la gente menciona el WiFi y el colchón. Pero eso no es lo que convence a quien lee.</p>
 
-<p>La diferencia entre "bien, estaba limpio" y "tienes que ir, es increíble" nunca está en el precio. Está en detalles que cuestan menos de 15€ pero generan historias.</p>
+<p>Lo que inclina la balanza es el comentario inesperado. El que te pilla desprevenido. <em>"Un lugar pintoresco, parece que estés en un cuento"</em>. Ese tipo de frase convierte.</p>
+
+<p>La diferencia entre "bien, estaba limpio" y "tienes que ir, es increíble" nunca está en el precio. Está en detalles que cuestan menos de 15€ pero generan historias que la gente quiere contar.</p>
 
 <p>Estos son los 8 que más impacto real producen.</p>
 
