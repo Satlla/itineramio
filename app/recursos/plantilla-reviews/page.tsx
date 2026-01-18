@@ -185,7 +185,8 @@ export default function PlantillaReviewsPage() {
     teléfono: '',
     email: '',
     idioma: 'es',
-    prioridades: [] as string[]
+    prioridades: [] as string[],
+    website: '' // Honeypot field - bots fill this, humans don't see it
   })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -293,6 +294,20 @@ export default function PlantillaReviewsPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Honeypot field - invisible to humans, bots fill it */}
+                <div className="absolute -left-[9999px]" aria-hidden="true">
+                  <label htmlFor="website">Website</label>
+                  <input
+                    type="text"
+                    id="website"
+                    name="website"
+                    value={formData.website}
+                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <User className="w-4 h-4 inline mr-2" />

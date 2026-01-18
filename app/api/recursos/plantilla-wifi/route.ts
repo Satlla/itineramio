@@ -56,8 +56,7 @@ export async function POST(request: NextRequest) {
           name: nombre,
           source: 'plantilla-wifi',
           status: 'active',
-          tags: ['plantilla-wifi', 'recurso-gratuito'],
-          archetype: 'SISTEMATICO'
+          tags: ['plantilla-wifi', 'recurso-gratuito']
         },
         update: {
           tags: {
@@ -71,7 +70,7 @@ export async function POST(request: NextRequest) {
 
       // Enroll in nurturing sequences
       await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
-        archetype: subscriber.archetype || 'SISTEMATICO',
+        archetype: subscriber.archetype || undefined,
         source: 'plantilla-wifi',
         tags: ['plantilla-wifi', 'recurso-gratuito']
       })

@@ -239,8 +239,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     console.log('[plantilla-reviews] Received body:', JSON.stringify(body))
 
-    const { nombre, teléfono, email, idioma = 'es', prioridades = [] } = body
+    const { nombre, teléfono, email, idioma = 'es', prioridades = [], website } = body
     console.log('[plantilla-reviews] Destructured:', { nombre, teléfono, email, idioma, hasTelefono: !!teléfono })
+
+    // Honeypot check - if filled, it's a bot. Return success but do nothing.
+    if (website) {
+      console.log('[plantilla-reviews] Honeypot triggered - bot detected:', email)
+      return NextResponse.json({ success: true, honeypot: true })
+    }
 
     if (!nombre || !teléfono || !email) {
       console.log('[plantilla-reviews] Validation failed - missing fields')
@@ -295,8 +301,7 @@ export async function POST(request: NextRequest) {
           name: nombre,
           source: 'tool_plantilla-reviews',
           status: 'active',
-          tags: baseTags,
-          archetype: 'SISTEMATICO' // Default archetype for reviews template users
+          tags: baseTags
         },
         update: {
           // Add new tags
@@ -311,7 +316,7 @@ export async function POST(request: NextRequest) {
 
       // Enroll in nurturing sequences
       await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
-        archetype: subscriber.archetype || 'SISTEMATICO',
+        archetype: subscriber.archetype || undefined,
         source: 'tool_plantilla-reviews',
         tags: ['tool_plantilla-reviews', 'recurso-gratuito']
       })

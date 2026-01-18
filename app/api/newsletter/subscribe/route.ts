@@ -6,7 +6,7 @@ import { randomBytes } from 'crypto'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, source = 'unknown', tags = [] } = body
+    const { name, email, source = 'unknown', tags = [] } = body
 
     // Validar email
     if (!email || !email.includes('@')) {
@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
           data: {
             status: 'pending',
             unsubscribedAt: null,
+            name: name || existing.name,
             source,
             tags,
             sourceMetadata: {
@@ -87,6 +88,7 @@ export async function POST(request: NextRequest) {
     await prisma.emailSubscriber.create({
       data: {
         email: normalizedEmail,
+        name: name || null,
         status: 'pending',
         source,
         tags,
