@@ -30,10 +30,9 @@ const article = {
 <p>Abres la nevera y encuentras:</p>
 
 <ul class="check-list">
-<li>Leche fresca</li>
+<li>Agua fresca y algún refresco</li>
 <li>Zumo natural</li>
-<li>Una cerveza local bien fría</li>
-<li>Algo de picar</li>
+<li>Algo de picar (snacks locales envasados)</li>
 <li>Una nota escrita a mano: <em>"Para que no tengas que salir esta noche. Bienvenido."</em></li>
 </ul>
 
@@ -54,7 +53,18 @@ const article = {
 
 <div class="tip-box">
 <strong>Consejo</strong>
-<p>No pongas productos de supermercado genérico. Pon algo local: una cerveza artesana de la zona, galletas del pueblo, zumo de una marca regional. Eso cuenta una historia.</p>
+<p>No pongas productos de supermercado genérico. Pon algo local: galletas del pueblo, zumo de una marca regional, un snack típico de la zona. Eso cuenta una historia.</p>
+</div>
+
+<div class="highlight-box" style="border-left: 4px solid #f59e0b;">
+<strong>⚠️ Importante: seguridad alimentaria</strong>
+<p></p>
+<ul>
+<li><strong>Alcohol:</strong> Hay culturas y religiones que no consumen alcohol. Ofrece siempre alternativas sin alcohol (zumos, refrescos, agua con gas).</li>
+<li><strong>Productos envasados:</strong> Usa siempre productos con envase original y trazabilidad. Si haces un bizcocho casero y el huésped tiene una reacción, podrías tener problemas legales serios.</li>
+<li><strong>Alérgenos:</strong> Evita frutos secos, gluten o lácteos sin etiquetar. Los productos industriales tienen la info de alérgenos; los caseros no.</li>
+</ul>
+<p>La intención es genial, pero protégete: <strong>siempre productos cerrados y etiquetados</strong>.</p>
 </div>
 
 <h2 class="section-title">2. El mapa secreto del barrio</h2>
