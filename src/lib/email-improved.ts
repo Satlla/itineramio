@@ -183,7 +183,7 @@ export const emailTemplates = {
         <!-- Footer -->
         <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 13px;">
           <p style="margin: 5px 0;">Si no te registraste en Itineramio, puedes ignorar este correo.</p>
-          <p style="margin: 15px 0 5px 0;">© 2024 Itineramio. Todos los derechos reservados.</p>
+          <p style="margin: 15px 0 5px 0;">© 2026 Itineramio. Todos los derechos reservados.</p>
         </div>
       </div>
     </body>
@@ -358,7 +358,7 @@ export const emailTemplates = {
       
       <div style="text-align: center; color: #94a3b8; font-size: 14px;">
         <p>¡Disfruta creando manuales increíbles para tus huéspedes!</p>
-        <p>© 2024 Itineramio. Todos los derechos reservados.</p>
+        <p>© 2026 Itineramio. Todos los derechos reservados.</p>
       </div>
     </body>
     </html>
@@ -418,7 +418,7 @@ export const emailTemplates = {
       
       <div style="text-align: center; color: #94a3b8; font-size: 14px;">
         <p>Si tienes alguna pregunta, no dudes en contactarnos</p>
-        <p>© 2024 Itineramio. Todos los derechos reservados.</p>
+        <p>© 2026 Itineramio. Todos los derechos reservados.</p>
       </div>
     </body>
     </html>
@@ -484,7 +484,7 @@ export const emailTemplates = {
       
       <div style="text-align: center; color: #94a3b8; font-size: 14px;">
         <p>¡Aprovecha al máximo tu nuevo plan!</p>
-        <p>© 2024 Itineramio. Todos los derechos reservados.</p>
+        <p>© 2026 Itineramio. Todos los derechos reservados.</p>
       </div>
     </body>
     </html>
@@ -582,7 +582,7 @@ export const emailTemplates = {
       
       <div style="text-align: center; color: #94a3b8; font-size: 14px;">
         <p>Si tienes alguna pregunta sobre esta factura, no dudes en contactarnos</p>
-        <p>© 2024 Itineramio. Todos los derechos reservados.</p>
+        <p>© 2026 Itineramio. Todos los derechos reservados.</p>
       </div>
     </body>
     </html>
@@ -659,7 +659,7 @@ export const emailTemplates = {
       
       <div style="text-align: center; color: #94a3b8; font-size: 14px;">
         <p>Gracias por confiar en Itineramio</p>
-        <p>© 2024 Itineramio. Todos los derechos reservados.</p>
+        <p>© 2026 Itineramio. Todos los derechos reservados.</p>
       </div>
     </body>
     </html>
@@ -743,7 +743,7 @@ export const emailTemplates = {
       <div style="text-align: center; color: #94a3b8; font-size: 14px;">
         <p>Si necesitas contactar con el cliente:</p>
         <p>📧 Email: <a href="mailto:\${params.userEmail}">\${params.userEmail}</a></p>
-        <p style="margin-top: 15px;">© 2024 Itineramio. Todos los derechos reservados.</p>
+        <p style="margin-top: 15px;">© 2026 Itineramio. Todos los derechos reservados.</p>
       </div>
     </body>
     </html>
@@ -860,7 +860,7 @@ ${params.prorationBreakdown}
         <p style="color: #717171; font-size: 13px; margin: 0 0 8px 0;">
           ¿Tienes preguntas? Contáctanos en <a href="mailto:hola@itineramio.com" style="color: #222222; text-decoration: underline;">hola@itineramio.com</a>
         </p>
-        <p style="color: #b0b0b0; font-size: 12px; margin: 8px 0 0 0;">© 2024 Itineramio. Todos los derechos reservados.</p>
+        <p style="color: #b0b0b0; font-size: 12px; margin: 8px 0 0 0;">© 2026 Itineramio. Todos los derechos reservados.</p>
       </div>
     </body>
     </html>
@@ -934,7 +934,7 @@ ${params.prorationBreakdown}
       
       <div style="text-align: center; color: #94a3b8; font-size: 14px;">
         <p>Estamos aquí para ayudarte. Contacta con nuestro equipo en <a href="mailto:\${params.supportEmail}">\${params.supportEmail}</a></p>
-        <p style="margin-top: 15px;">© 2024 Itineramio. Todos los derechos reservados.</p>
+        <p style="margin-top: 15px;">© 2026 Itineramio. Todos los derechos reservados.</p>
       </div>
     </body>
     </html>
@@ -1016,7 +1016,7 @@ ${params.prorationBreakdown}
       
       <div style="text-align: center; color: #94a3b8; font-size: 14px;">
         <p>Si tienes alguna pregunta, contáctanos en <a href="mailto:${params.supportEmail}">${params.supportEmail}</a></p>
-        <p style="margin-top: 15px;">© 2024 Itineramio. Todos los derechos reservados.</p>
+        <p style="margin-top: 15px;">© 2026 Itineramio. Todos los derechos reservados.</p>
       </div>
     </body>
     </html>
@@ -1073,7 +1073,7 @@ ${params.prorationBreakdown}
         
         <!-- Footer -->
         <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 13px;">
-          <p style="margin: 15px 0 5px 0;">© 2024 Itineramio. Todos los derechos reservados.</p>
+          <p style="margin: 15px 0 5px 0;">© 2026 Itineramio. Todos los derechos reservados.</p>
         </div>
       </div>
     </body>

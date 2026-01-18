@@ -102,7 +102,7 @@ export const emailTemplates = {
         <p>Este enlace expirará en 24 horas por seguridad.</p>
         <p>Si no te registraste en Itineramio, puedes ignorar este correo.</p>
         <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-        <p>© 2024 Itineramio. Todos los derechos reservados.</p>
+        <p>© 2026 Itineramio. Todos los derechos reservados.</p>
       </div>
     </body>
     </html>
@@ -148,7 +148,7 @@ export const emailTemplates = {
       
       <div style="text-align: center; color: #94a3b8; font-size: 14px;">
         <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
-        <p>© 2024 Itineramio. Todos los derechos reservados.</p>
+        <p>© 2026 Itineramio. Todos los derechos reservados.</p>
       </div>
     </body>
     </html>
