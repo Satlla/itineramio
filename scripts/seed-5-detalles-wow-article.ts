@@ -7,9 +7,9 @@ today.setHours(10, 0, 0, 0)
 
 const article = {
   slug: '5-detalles-wow-huespedes-airbnb',
-  title: '5 Detalles Que Dejan Huella en Tus Huéspedes (Y Que Quieren Contarle al Mundo)',
+  title: '8 Detalles Que Dejan Huella en Tus Huéspedes (Y Que Quieren Contarle al Mundo)',
   subtitle: 'Ideas reales, baratas y replicables que transforman un alojamiento correcto en uno inolvidable',
-  excerpt: 'Después de analizar más de 300 reseñas de 5 estrellas, estos son los 5 detalles que más impacto generan. Ninguno cuesta más de 15€. Todos generan reseñas memorables.',
+  excerpt: 'Después de analizar más de 300 reseñas de 5 estrellas, estos son los 8 detalles que más impacto generan. Ninguno cuesta más de 15€. Todos generan reseñas memorables.',
   coverImage: '/blog/detalles-wow/spotify.png',
   coverImageAlt: 'Playlist de Spotify para apartamento turístico',
   content: `
@@ -19,7 +19,7 @@ const article = {
 
 <p>La diferencia entre "bien, estaba limpio" y "tienes que ir, es increíble" nunca está en el precio. Está en detalles que cuestan menos de 15€ pero generan historias.</p>
 
-<p>Estos son los 5 que más impacto real producen.</p>
+<p>Estos son los 8 que más impacto real producen.</p>
 
 <h2 class="section-title">1. La nevera que te recibe</h2>
 
@@ -233,6 +233,108 @@ Buen viaje de vuelta."</p>
 
 <p><strong>Dónde comprar la caja:</strong> Amazon tiene cajitas con código desde 10-15€. Búscala como "caja fuerte pequeña con combinación".</p>
 
+<h2 class="section-title">6. El rincón instagrameable</h2>
+
+<p>Todo el mundo que viaja quiere una cosa: <strong>fotos para sus redes</strong>. Es un hecho.</p>
+
+<p>¿Y si les facilitas el trabajo? Crea un rincón en tu alojamiento pensado específicamente para que se hagan una foto memorable.</p>
+
+<p>No necesitas mucho:</p>
+
+<ul class="check-list">
+<li>Una pared con un color llamativo o papel pintado bonito</li>
+<li>Un neón con una frase (los hay desde 30€)</li>
+<li>Unas plantas, una butaca molona, buena luz</li>
+<li>Un cartel con el nombre de tu ciudad o tu apartamento</li>
+</ul>
+
+<img src="/blog/detalles-wow/alicante-vibes.png" alt="Rincón instagrameable en apartamento turístico" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
+
+<div class="highlight-box">
+<strong>El truco que nadie hace</strong>
+<p>Pon un pequeño cartel con tu cuenta de Instagram: <em>"Etiquétanos en @tu_apartamento y comparte tu experiencia"</em>. Cada foto que suban es publicidad gratuita. Y si les reposteas, se sienten especiales.</p>
+</div>
+
+<p>No subestimes esto: hay gente que elige alojamientos literalmente porque tienen un rincón fotogénico. Mira los más guardados en Instagram de tu zona.</p>
+
+<div class="feature-grid">
+<div class="feature-card">
+<h4>Coste</h4>
+<p>30-80€ una sola vez</p>
+</div>
+<div class="feature-card">
+<h4>Retorno</h4>
+<p>Marketing orgánico infinito</p>
+</div>
+</div>
+
+<h2 class="section-title">7. El mapa instagrameable de tu ciudad</h2>
+
+<p>Ya tienes tu mapa secreto del barrio (punto 2). Ahora añade uno más: <strong>el mapa de los spots más fotogénicos de tu zona</strong>.</p>
+
+<p>Piénsalo: tus huéspedes van a buscar en Instagram "mejores fotos en [tu ciudad]" de todas formas. ¿Por qué no dárselo ya hecho?</p>
+
+<p>Crea un mapa visual con:</p>
+
+<ul class="check-list">
+<li>Los rincones más instagrameables de tu ciudad</li>
+<li>El mejor momento del día para ir (luz)</li>
+<li>Indicaciones para llegar</li>
+<li>Ejemplos de cómo quedan las fotos</li>
+</ul>
+
+<img src="/blog/detalles-wow/mapa-instagrameable.png" alt="Mapa de lugares instagrameables de la ciudad" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
+
+<div class="tip-box">
+<strong>Ideas de spots</strong>
+<p>La típica foto en la Torre de Pisa no te la vamos a contar. Pero seguro que en tu zona hay decenas de rincones increíbles que solo los locales conocen: una escalera con azulejos, un mirador escondido, un café con una fachada preciosa, un callejón con buganvillas...</p>
+</div>
+
+<p>Este mapa es oro. Lo van a fotografiar, lo van a seguir, y van a pensar: <em>"Este anfitrión sabe de qué va esto."</em></p>
+
+<h2 class="section-title">8. El Guest Book</h2>
+
+<p>Un clásico que funciona siempre: <strong>un libro donde los huéspedes dejan mensajes para los que vendrán después</strong>.</p>
+
+<p>Parece simple. Pero cuando lo lees, es mágico.</p>
+
+<p>Qué escriben:</p>
+
+<ul>
+<li><em>"John estuvo aquí. Gracias por todo, volveremos."</em></li>
+<li><em>"Tip: el bar de la esquina tiene los mejores gin-tonics."</em></li>
+<li><em>"Si llueve, id al museo X. Es gratis los domingos."</em></li>
+<li><em>"María y Luis, luna de miel 2024 ❤️"</em></li>
+<li><em>"A veces la vida te regala rincones así. Disfrutadlo."</em></li>
+</ul>
+
+<img src="/blog/detalles-wow/guest-book.png" alt="Libro de huéspedes con mensajes" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
+
+<div class="highlight-box">
+<strong>Por qué funciona</strong>
+<p></p>
+<ul>
+<li>Crea conexión entre huéspedes que nunca se conocerán</li>
+<li>Los nuevos leen las experiencias de otros (prueba social)</li>
+<li>A la gente le encanta dejar su huella</li>
+<li>Hay mensajes que te sacarán una sonrisa</li>
+<li>Es contenido genuino que puedes compartir (con permiso)</li>
+</ul>
+</div>
+
+<p>Pon el libro en un lugar visible con un bolígrafo bonito y una nota: <em>"Deja algo para quien venga después de ti."</em></p>
+
+<div class="feature-grid">
+<div class="feature-card">
+<h4>Coste</h4>
+<p>10-20€ (libreta bonita)</p>
+</div>
+<div class="feature-card">
+<h4>Impacto</h4>
+<p>Experiencia emocional única</p>
+</div>
+</div>
+
 <h2 class="section-title">La fórmula del recuerdo</h2>
 
 <p>Ninguno de estos detalles cuesta más de 15€.<br>
@@ -263,6 +365,9 @@ Todos requieren lo mismo: <strong>intención</strong>.</p>
 <li>Detalle personalizado según motivo del viaje</li>
 <li>QR de playlist en lugar visible</li>
 <li>Cajita con regalo lista + código preparado</li>
+<li>Rincón instagrameable listo (buena luz)</li>
+<li>Mapa instagrameable de la ciudad disponible</li>
+<li>Guest book con bolígrafo a la vista</li>
 </ul>
 
 <div class="cta-box">
@@ -274,9 +379,9 @@ Todos requieren lo mismo: <strong>intención</strong>.</p>
   category: 'MEJORES_PRACTICAS',
   tags: ['efecto wow', 'experiencia huésped', 'detalles airbnb', 'reseñas 5 estrellas', 'superhost', 'hospitalidad'],
   featured: true,
-  metaTitle: '5 Detalles WOW para Huéspedes Airbnb: Ideas Baratas que Generan Reseñas',
-  metaDescription: 'Descubre los 5 detalles que transforman un alojamiento normal en inolvidable. Ideas reales por menos de 15€ que generan reseñas de 5 estrellas.',
-  keywords: ['detalles airbnb', 'efecto wow huéspedes', 'mejorar reseñas airbnb', 'experiencia huésped', 'superhost consejos', 'hospitalidad airbnb'],
+  metaTitle: '8 Detalles WOW para Huéspedes Airbnb: Ideas Baratas que Generan Reseñas',
+  metaDescription: 'Descubre los 8 detalles que transforman un alojamiento normal en inolvidable. Ideas reales por menos de 15€ que generan reseñas de 5 estrellas.',
+  keywords: ['detalles airbnb', 'efecto wow huéspedes', 'mejorar reseñas airbnb', 'experiencia huésped', 'superhost consejos', 'hospitalidad airbnb', 'rincón instagrameable', 'guest book airbnb'],
   authorName: 'Equipo Itineramio',
   status: 'PUBLISHED',
   publishedAt: today
