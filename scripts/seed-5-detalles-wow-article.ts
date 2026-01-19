@@ -24,12 +24,10 @@ const article = {
 <div class="highlight-box" style="border-left: 4px solid #8B5CF6;">
 <strong>Este artículo NO es para todos los alojamientos</strong>
 <p>Vamos a ser honestos desde el principio. Los detalles que vas a leer requieren:</p>
-<ul>
-<li><strong>Un alojamiento único</strong>, no un apartamento convencional</li>
-<li><strong>Margen suficiente</strong> para invertir en la experiencia</li>
-<li><strong>Huéspedes que valoren</strong> este tipo de detalles</li>
-<li><strong>Tu disposición</strong> a hacerlo con gusto, no como obligación</li>
-</ul>
+<p>• <strong>Un alojamiento único</strong> — no un apartamento convencional<br>
+• <strong>Margen suficiente</strong> — para invertir en la experiencia<br>
+• <strong>Huéspedes que valoren</strong> — este tipo de detalles<br>
+• <strong>Tu disposición</strong> — a hacerlo con gusto, no como obligación</p>
 <p>Si tu modelo es maximizar ocupación con un loft en el centro, donde una reserva solapa a la otra, este artículo no es para ti. Ese modelo tiene sus propias reglas: pelearás con huéspedes que quieren entrar a las 8 de la mañana porque su vuelo llegó temprano, o que quieren salir a las 20:00 porque su vuelo es tarde. Y está bien, es otro enfoque.</p>
 <p><strong>Pero si tu alojamiento está preparado para ofrecer experiencias premium, sigue leyendo.</strong></p>
 </div>
