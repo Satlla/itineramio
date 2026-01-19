@@ -541,18 +541,23 @@ export default function AnalyticsPage() {
             {(data?.visits?.topZones?.length || 0) > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  data={data?.visits?.topZones?.slice(0, 8).map(zone => ({
-                    name: zone.name.length > 20 ? zone.name.substring(0, 20) + '...' : zone.name,
-                    visitas: zone.viewCount || 0,
-                    fullName: zone.name,
-                    property: zone.property?.name
-                  }))}
+                  data={data?.visits?.topZones?.slice(0, 8).map(zone => {
+                    const propName = zone.property?.name || 'Sin propiedad'
+                    const shortProp = propName.length > 12 ? propName.substring(0, 12) + '..' : propName
+                    const displayName = `${zone.name} (${shortProp})`
+                    return {
+                      name: displayName.length > 28 ? displayName.substring(0, 28) + '...' : displayName,
+                      visitas: zone.viewCount || 0,
+                      fullName: `${zone.name} — ${propName}`,
+                      property: propName
+                    }
+                  })}
                   layout="vertical"
                   margin={{ left: 10, right: 20 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
                   <XAxis type="number" tick={{ fontSize: 11 }} stroke="#9ca3af" />
-                  <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} stroke="#9ca3af" width={120} />
+                  <YAxis dataKey="name" type="category" tick={{ fontSize: 9 }} stroke="#9ca3af" width={160} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
                     formatter={(value: any) => [value, 'Visitas']}
