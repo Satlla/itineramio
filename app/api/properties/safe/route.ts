@@ -208,48 +208,7 @@ export async function POST(request: NextRequest) {
     ` as any[]
 
     console.log('✅ SAFE POST - Property created successfully:', propertyId)
-
-    // Auto-create essential zones for the property (same as /api/properties/route.ts)
-    try {
-      const zonasEsenciales = [
-        { name: 'Check In', description: 'Proceso de entrada al apartamento', icon: 'key' },
-        { name: 'WiFi', description: 'Información de conexión a internet', icon: 'wifi' },
-        { name: 'Check Out', description: 'Instrucciones para la salida', icon: 'exit' },
-        { name: 'Cómo Llegar', description: 'Direcciones desde aeropuerto, estación y ubicación exacta', icon: 'map-pin' },
-        { name: 'Normas de la Casa', description: 'Reglas y políticas del apartamento', icon: 'list' },
-        { name: 'Parking', description: 'Información sobre aparcamiento', icon: 'car' },
-        { name: 'Climatización', description: 'Aire acondicionado y calefacción', icon: 'thermometer' },
-        { name: 'Teléfonos de Emergencia', description: 'Contactos importantes y anfitrión', icon: 'phone' },
-        { name: 'Transporte Público', description: 'Metro, autobús y opciones de movilidad', icon: 'bus' },
-        { name: 'Recomendaciones', description: 'Restaurantes, tiendas y lugares de interés', icon: 'star' },
-        { name: 'Basura y Reciclaje', description: 'Cómo y dónde desechar la basura', icon: 'trash' }
-      ]
-
-      for (let i = 0; i < zonasEsenciales.length; i++) {
-        const zone = zonasEsenciales[i]
-        const zoneId = `zone-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 10)}`
-        const zoneSlug = `${generateSimpleSlug(zone.name)}-${Date.now()}-${i}`
-        const qrCode = `qr_${Date.now()}_${Math.random().toString(36).substring(2, 12)}`
-        const accessCode = `ac_${Date.now()}_${Math.random().toString(36).substring(2, 12)}`
-        const zoneName = JSON.stringify({ es: zone.name })
-        const zoneDescription = JSON.stringify({ es: zone.description })
-
-        await prisma.$executeRaw`
-          INSERT INTO zones (
-            id, "propertyId", name, description, slug, icon, color, status,
-            "qrCode", "accessCode", "isPublished", "order", "createdAt", "updatedAt"
-          ) VALUES (
-            ${zoneId}, ${propertyId}, ${zoneName}::jsonb, ${zoneDescription}::jsonb,
-            ${zoneSlug}, ${zone.icon}, 'bg-gray-100', 'ACTIVE',
-            ${qrCode}, ${accessCode}, false, ${i}, NOW(), NOW()
-          )
-        `
-      }
-      console.log('✅ SAFE POST - Essential zones created for property:', propertyId)
-    } catch (zoneError) {
-      console.error('❌ SAFE POST - Warning: Failed to auto-create zones:', zoneError)
-      // Don't fail the property creation if zone creation fails
-    }
+    // Note: Zones are created by the frontend using crearZonasEsenciales() with full templates
 
     return NextResponse.json({
       success: true,
