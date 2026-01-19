@@ -28,22 +28,22 @@ export function verifyToken(token: string): JWTPayload {
 
 export async function getAuthUser(request: NextRequest): Promise<JWTPayload | null> {
   try {
-    // Try Authorization header first
-    const authHeader = request.headers.get('authorization')
-    if (authHeader?.startsWith('Bearer ')) {
-      const token = authHeader.substring(7)
-      console.log('🔑 Attempting to verify Bearer token')
-      const decoded = verifyToken(token)
-      console.log('✅ Bearer token verified successfully')
-      return decoded
-    }
-
-    // Fall back to cookie
+    // Try cookie first (more reliable, set by server)
     const cookieToken = request.cookies.get('auth-token')?.value
     if (cookieToken) {
       console.log('🍪 Attempting to verify cookie token')
       const decoded = verifyToken(cookieToken)
       console.log('✅ Cookie token verified successfully')
+      return decoded
+    }
+
+    // Fall back to Authorization header (for PWA localStorage persistence)
+    const authHeader = request.headers.get('authorization')
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7)
+      console.log('🔑 Attempting to verify Bearer token (localStorage fallback)')
+      const decoded = verifyToken(token)
+      console.log('✅ Bearer token verified successfully')
       return decoded
     }
 

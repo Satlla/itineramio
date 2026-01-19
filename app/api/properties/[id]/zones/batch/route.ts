@@ -61,9 +61,8 @@ export async function POST(
     // Validate request data
     const validatedData = batchZoneSchema.parse(body)
     
-    // Get user from auth
-    const authHeader = request.headers.get('authorization')
-    const token = authHeader?.replace('Bearer ', '') || request.cookies.get('auth-token')?.value
+    // Get user from auth (cookie first, then Authorization header for PWA)
+    const token = request.cookies.get('auth-token')?.value || request.headers.get('authorization')?.replace('Bearer ', '')
     
     if (!token) {
       return NextResponse.json({

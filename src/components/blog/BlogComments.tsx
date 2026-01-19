@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { MessageCircle, Send, Reply, User, Clock, Loader2, CheckCircle, Heart, Mail, Shield } from 'lucide-react'
+import { MessageCircle, Send, Reply, User, Clock, Loader2, CheckCircle, Mail, Shield } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
 
@@ -471,12 +471,6 @@ export function BlogComments({ slug }: BlogCommentsProps) {
                         <Reply className="w-4 h-4" />
                         Responder
                       </button>
-                      {comment.likes > 0 && (
-                        <span className="text-sm text-gray-400 flex items-center gap-1">
-                          <Heart className="w-4 h-4" />
-                          {comment.likes}
-                        </span>
-                      )}
                     </div>
                   </div>
                 </div>
