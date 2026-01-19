@@ -185,7 +185,9 @@ export async function crearZonasEsenciales(
     console.log('🏠 Creando zonas esenciales básicas para:', propertyId)
 
     // First, get existing zones to avoid duplicates
-    const existingResponse = await fetch(`/api/properties/${propertyId}/zones`)
+    const existingResponse = await fetch(`/api/properties/${propertyId}/zones`, {
+      credentials: 'include'
+    })
     const existingResult = await existingResponse.json()
     const existingZoneNames = existingResult.success ?
       existingResult.data.map((zone: any) => {
@@ -215,6 +217,7 @@ export async function crearZonasEsenciales(
       console.log(`🚀 Creating zone "${zoneName}" via BATCH API`, contentTemplate ? `with ${contentTemplate.steps.length} template steps` : 'without template')
       const response = await fetch(`/api/properties/${propertyId}/zones/batch`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           zones: [{
@@ -266,16 +269,19 @@ export async function crearZonasEsenciales(
 export async function borrarTodasLasZonas(propertyId: string): Promise<boolean> {
   try {
     // Obtener todas las zonas
-    const response = await fetch(`/api/properties/${propertyId}/zones`)
+    const response = await fetch(`/api/properties/${propertyId}/zones`, {
+      credentials: 'include'
+    })
     if (!response.ok) return false
-    
+
     const result = await response.json()
     if (!result.success || !result.data) return false
-    
+
     // Borrar cada zona
     for (const zone of result.data) {
       await fetch(`/api/properties/${propertyId}/zones/${zone.id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
       })
       console.log(`🗑️ Zona "${zone.name}" eliminada`)
     }
