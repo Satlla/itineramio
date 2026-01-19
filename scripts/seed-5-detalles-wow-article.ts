@@ -7,11 +7,11 @@ today.setHours(10, 0, 0, 0)
 
 const article = {
   slug: '5-detalles-wow-huespedes-airbnb',
-  title: '8 Detalles Que Dejan Huella en Tus Huéspedes (Y Que Quieren Contarle al Mundo)',
-  subtitle: 'Ideas reales, baratas y replicables que transforman un alojamiento correcto en uno inolvidable',
-  excerpt: 'Después de analizar más de 300 reseñas de 5 estrellas, estos son los 8 detalles que más impacto generan. Ninguno cuesta más de 15€. Todos generan reseñas memorables.',
-  coverImage: '/blog/detalles-wow/spotify.png',
-  coverImageAlt: 'Playlist de Spotify para apartamento turístico',
+  title: '5 Detalles Que Dejan Huella en Tus Huéspedes (Y Que Quieren Contarle al Mundo)',
+  subtitle: 'Ideas reales y replicables para alojamientos que quieren destacar de verdad',
+  excerpt: 'No todos los alojamientos están preparados para esto. Si el tuyo sí, estos 5 detalles transformarán las reseñas de tus huéspedes.',
+  coverImage: '/blog/detalles-wow/fridge.png',
+  coverImageAlt: 'Nevera de bienvenida con productos locales',
   content: `
 <p class="article-lead"><strong>Hay alojamientos que se reservan. Y hay alojamientos que se recuerdan.</strong></p>
 
@@ -19,9 +19,43 @@ const article = {
 
 <p>Lo que inclina la balanza es el comentario inesperado. El que te pilla desprevenido. <em>"Un lugar pintoresco, parece que estés en un cuento"</em>. Ese tipo de frase convierte.</p>
 
-<p>La diferencia entre "bien, estaba limpio" y "tienes que ir, es increíble" nunca está en el precio. Está en detalles que cuestan menos de 15€ pero generan historias que la gente quiere contar.</p>
+<h2 class="section-title">Antes de seguir: ¿es tu alojamiento el adecuado?</h2>
 
-<p>Estos son los 8 que más impacto real producen.</p>
+<div class="highlight-box" style="border-left: 4px solid #8B5CF6;">
+<strong>Este artículo NO es para todos los alojamientos</strong>
+<p>Vamos a ser honestos desde el principio. Los detalles que vas a leer requieren:</p>
+<ul>
+<li><strong>Un alojamiento único</strong>, no un apartamento convencional</li>
+<li><strong>Margen suficiente</strong> para invertir en la experiencia</li>
+<li><strong>Huéspedes que valoren</strong> este tipo de detalles</li>
+<li><strong>Tu disposición</strong> a hacerlo con gusto, no como obligación</li>
+</ul>
+<p>Si tu modelo es maximizar ocupación con un loft en el centro, donde una reserva solapa a la otra, este artículo no es para ti. Ese modelo tiene sus propias reglas: pelearás con huéspedes que quieren entrar a las 8 de la mañana porque su vuelo llegó temprano, o que quieren salir a las 20:00 porque su vuelo es tarde. Y está bien, es otro enfoque.</p>
+<p><strong>Pero si tu alojamiento está preparado para ofrecer experiencias premium, sigue leyendo.</strong></p>
+</div>
+
+<h3 class="subsection-title">Nuestra filosofía en alojamientos premium</h3>
+
+<p>En algunos de nuestros alojamientos, tomamos una decisión que no nos hemos arrepentido: <strong>bloqueamos el día antes y el día después de cada reserva</strong>.</p>
+
+<p>¿Por qué?</p>
+
+<ul class="check-list">
+<li>Si el huésped rompe algo, tenemos tiempo de repararlo sin prisas</li>
+<li>Si hay alguna mejora o revisión pendiente, tenemos margen</li>
+<li>El apartamento siempre está impecable, sin carreras de última hora</li>
+<li>Si el huésped llega antes, le dejamos entrar sin coste adicional</li>
+<li>Si necesita salir más tarde, tampoco le cobramos</li>
+</ul>
+
+<p>Sacrificamos rentabilidad a cambio de que <strong>el cliente siempre esté satisfecho</strong>. Y funciona: las reseñas lo reflejan.</p>
+
+<p>Repito: esto es para alojamientos que lo requieren y lo pueden sostener. No es una regla universal.</p>
+
+<div class="tip-box">
+<strong>Nota</strong>
+<p>Si gestionas muchas propiedades, algunos de estos detalles se pueden sistematizar o automatizar. Eso lo trataremos en otro artículo específico para gestoras.</p>
+</div>
 
 <h2 class="section-title">1. La nevera que te recibe</h2>
 
@@ -38,17 +72,6 @@ const article = {
 
 <img src="/blog/detalles-wow/fridge.png" alt="Nevera de bienvenida con productos locales" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
 
-<div class="feature-grid">
-<div class="feature-card">
-<h4>Coste real</h4>
-<p>8-12€ por estancia</p>
-</div>
-<div class="feature-card">
-<h4>Impacto real</h4>
-<p>Es el detalle más mencionado en reseñas de Superhosts consolidados</p>
-</div>
-</div>
-
 <p>La mayoría de alojamientos reciben con una nevera vacía y un PDF de instrucciones. Tú recibes con un gesto que dice: <em>"Sé lo que se siente llegar cansado a un sitio nuevo."</em></p>
 
 <div class="tip-box">
@@ -58,13 +81,12 @@ const article = {
 
 <div class="highlight-box" style="border-left: 4px solid #f59e0b;">
 <strong>⚠️ Importante: seguridad alimentaria</strong>
-<p></p>
 <ul>
-<li><strong>Alcohol:</strong> Hay culturas y religiones que no consumen alcohol. Ofrece siempre alternativas sin alcohol (zumos, refrescos, agua con gas).</li>
+<li><strong>Alcohol:</strong> Hay culturas y religiones que no consumen alcohol. Ofrece siempre alternativas sin alcohol.</li>
 <li><strong>Productos envasados:</strong> Usa siempre productos con envase original y trazabilidad. Si haces un bizcocho casero y el huésped tiene una reacción, podrías tener problemas legales serios.</li>
 <li><strong>Alérgenos:</strong> Evita frutos secos, gluten o lácteos sin etiquetar. Los productos industriales tienen la info de alérgenos; los caseros no.</li>
 </ul>
-<p>La intención es genial, pero protégete: <strong>siempre productos cerrados y etiquetados</strong>.</p>
+<p><strong>Siempre productos cerrados y etiquetados.</strong></p>
 </div>
 
 <h2 class="section-title">2. El mapa secreto del barrio</h2>
@@ -77,7 +99,6 @@ const article = {
 
 <div class="highlight-box">
 <strong>Qué incluir en tu mapa secreto</strong>
-<p></p>
 <ul>
 <li><em>"Aquí desayuna mi madre los domingos. Pide las tostadas con tomate."</em></li>
 <li><em>"Este bar no tiene cartel, pero el vermut es el mejor de la ciudad."</em></li>
@@ -93,36 +114,7 @@ const article = {
 
 <p><strong>Por qué funciona:</strong> Les das acceso a tu vida local. Eso no está en ninguna app. Eso no se compra. Y eso se cuenta.</p>
 
-<h2 class="section-title">3. Bienvenida personalizada según el viaje</h2>
-
-<p>Este requiere un paso extra, pero el retorno es desproporcionado.</p>
-
-<p>En tu mensaje de confirmación (2-3 días antes), añade:</p>
-
-<p><em>"Por cierto, ¿venís por algo especial? Aniversario, cumple, trabajo, escapada... Me gusta saber para tener todo listo."</em></p>
-
-<p>El 70% responde. Y con esa info, adaptas UN detalle:</p>
-
-<table class="styled-table">
-<thead>
-<tr><th>Motivo</th><th>Detalle</th><th>Coste</th></tr>
-</thead>
-<tbody>
-<tr><td>Aniversario</td><td>Vela + nota romántica + bombones</td><td>8€</td></tr>
-<tr><td>Cumpleaños</td><td>Globo + tarjeta + algo dulce</td><td>6€</td></tr>
-<tr><td>Con niños</td><td>Juego de mesa + chuches</td><td>10€</td></tr>
-<tr><td>Trabajo</td><td>Café premium + cargador extra</td><td>7€</td></tr>
-<tr><td>Escapada</td><td>Vela aromática + música ambiente</td><td>5€</td></tr>
-</tbody>
-</table>
-
-<img src="/blog/detalles-wow/aniversario.png" alt="Detalle de bienvenida para aniversario" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
-
-<p>El huésped entra, ve el detalle, y piensa <em>"¿Cómo sabían...?"</em></p>
-
-<p><strong>Esa pregunta es el efecto WOW.</strong></p>
-
-<h2 class="section-title">4. La playlist del apartamento</h2>
+<h2 class="section-title">3. La playlist del apartamento</h2>
 
 <p>Este es gratis. Y casi nadie lo hace.</p>
 
@@ -164,88 +156,7 @@ const article = {
 
 <p>Una playlist es publicidad emocional que dura meses. <strong>Gratis.</strong></p>
 
-<h2 class="section-title">5. La caja secreta de despedida</h2>
-
-<p>Este es el detalle que nadie hace. Y el que más se recuerda.</p>
-
-<p>La idea es simple: una cajita pequeña con código, escondida en algún lugar del apartamento. El último día, les envías un mensaje:</p>
-
-<div class="quote-card">
-<p>"Antes de que os vayáis...<br><br>
-Hay una cajita escondida en el cajón de la mesilla del dormitorio.<br>
-El código es 1234.<br><br>
-Ábrela. Es para vosotros.<br><br>
-Buen viaje de vuelta."</p>
-</div>
-
-<p>Cuando la abren, encuentran un pequeño regalo y una nota: <em>"Un trocito de aquí para que os llevéis a casa. Gracias por formar parte de este rincón."</em></p>
-
-<img src="/blog/detalles-wow/final-present.png" alt="Caja secreta con regalo de despedida" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
-
-<div class="tip-box">
-<strong>Por qué funciona</strong>
-<p></p>
-<ul>
-<li>Hay misterio (¿qué habrá dentro?)</li>
-<li>Hay juego (tienen que buscarla y abrirla)</li>
-<li>Hay sorpresa doble (el mensaje + el contenido)</li>
-<li>Es exclusivo (sienten que es solo para ellos)</li>
-<li>Es compartible (lo van a fotografiar y contar)</li>
-</ul>
-</div>
-
-<p>El 90% de anfitriones piensan en la llegada. Casi nadie piensa en la salida. Y la salida es cuando deciden qué escribir en la reseña.</p>
-
-<h3 class="subsection-title">Qué poner dentro de la caja</h3>
-
-<p><strong>Opciones económicas (3-5€):</strong></p>
-
-<table class="styled-table">
-<thead>
-<tr><th>Regalo</th><th>Por qué funciona</th></tr>
-</thead>
-<tbody>
-<tr><td>Imán artesanal de la ciudad</td><td>Se lo llevan, lo ven cada día en su nevera</td></tr>
-<tr><td>Llavero local bonito</td><td>Lo usan, les recuerda el viaje</td></tr>
-<tr><td>Bombones o chocolate local</td><td>Dulce + local = recuerdo sensorial</td></tr>
-<tr><td>Jabón artesanal pequeño</td><td>Huele a tu zona, muy instagrameable</td></tr>
-<tr><td>Saquito de especias locales</td><td>Azafrán, pimentón, hierbas de la zona</td></tr>
-</tbody>
-</table>
-
-<p><strong>Opciones especiales (5-10€):</strong></p>
-
-<table class="styled-table">
-<thead>
-<tr><th>Regalo</th><th>Por qué funciona</th></tr>
-</thead>
-<tbody>
-<tr><td>Botellita de aceite o vino local</td><td>Premium, local, útil</td></tr>
-<tr><td>Pulsera artesanal de la zona</td><td>Se lo llevan puesto</td></tr>
-<tr><td>Taza pequeña con diseño local</td><td>Práctico, la usarán en casa</td></tr>
-</tbody>
-</table>
-
-<p><strong>Opciones originales (casi gratis):</strong></p>
-
-<table class="styled-table">
-<thead>
-<tr><th>Regalo</th><th>Por qué funciona</th></tr>
-</thead>
-<tbody>
-<tr><td>Piedra bonita de playa cercana + nota</td><td>Gratuito, emotivo, único</td></tr>
-<tr><td>Semillas de una planta local</td><td>"Un trocito vivo de aquí para que plantes en casa"</td></tr>
-</tbody>
-</table>
-
-<div class="highlight-box">
-<strong>Mi recomendación</strong>
-<p>Imán artesanal + un par de bombones locales + la nota. Coste total: 4-5€. Impacto: máximo.</p>
-</div>
-
-<p><strong>Dónde comprar la caja:</strong> Amazon tiene cajitas con código desde 10-15€. Búscala como "caja fuerte pequeña con combinación".</p>
-
-<h2 class="section-title">6. El rincón instagrameable</h2>
+<h2 class="section-title">4. El rincón instagrameable</h2>
 
 <p>Todo el mundo que viaja quiere una cosa: <strong>fotos para sus redes</strong>. Es un hecho.</p>
 
@@ -269,101 +180,55 @@ Buen viaje de vuelta."</p>
 
 <p>No subestimes esto: hay gente que elige alojamientos literalmente porque tienen un rincón fotogénico. Mira los más guardados en Instagram de tu zona.</p>
 
-<div class="feature-grid">
-<div class="feature-card">
-<h4>Coste</h4>
-<p>30-80€ una sola vez</p>
-</div>
-<div class="feature-card">
-<h4>Retorno</h4>
-<p>Marketing orgánico infinito</p>
-</div>
-</div>
+<h2 class="section-title">5. El Guest Book: consejos de huésped a huésped</h2>
 
-<h2 class="section-title">7. El mapa instagrameable de tu ciudad</h2>
+<p><strong>Un libro donde los huéspedes dejan consejos y recomendaciones para los que vendrán después.</strong></p>
 
-<p>Ya tienes tu mapa secreto del barrio (punto 2). Ahora añade uno más: <strong>el mapa de los spots más fotogénicos de tu zona</strong>.</p>
+<p>No es solo un libro de firmas. Es una guía viva de tu ciudad, escrita por quienes la han vivido.</p>
 
-<p>Piénsalo: tus huéspedes van a buscar en Instagram "mejores fotos en [tu ciudad]" de todas formas. ¿Por qué no dárselo ya hecho?</p>
+<p>La idea es que unos huéspedes le cuenten a otros qué es lo mejor de la ciudad y cómo disfrutarla al máximo.</p>
 
-<p>Crea un mapa visual con:</p>
+<img src="/blog/detalles-wow/guest-book.png" alt="Libro de huéspedes con consejos" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
 
-<ul class="check-list">
-<li>Los rincones más instagrameables de tu ciudad</li>
-<li>El mejor momento del día para ir (luz)</li>
-<li>Indicaciones para llegar</li>
-<li>Ejemplos de cómo quedan las fotos</li>
-</ul>
+<h3 class="subsection-title">Cómo empezar tu Guest Book</h3>
 
-<img src="/blog/detalles-wow/mapa-instagrameable.png" alt="Mapa de lugares instagrameables de la ciudad" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
+<p>Para que los huéspedes entiendan la dinámica, escribe tú los primeros comentarios a modo de ejemplo:</p>
 
-<div class="tip-box">
-<strong>Ideas de spots</strong>
-<p>La típica foto en la Torre de Pisa no te la vamos a contar. Pero seguro que en tu zona hay decenas de rincones increíbles que solo los locales conocen: una escalera con azulejos, un mirador escondido, un café con una fachada preciosa, un callejón con buganvillas...</p>
+<div class="quote-card">
+<p><strong>🌅 Ana y Pedro, Madrid - Marzo 2024</strong><br>
+<em>"No os perdáis la puesta de sol desde el Mirador de San Nicolás. Llegad media hora antes para pillar buen sitio. ¡Mágico!"</em></p>
 </div>
 
-<p>Este mapa es oro. Lo van a fotografiar, lo van a seguir, y van a pensar: <em>"Este anfitrión sabe de qué va esto."</em></p>
+<div class="quote-card">
+<p><strong>🍦 Marco, Italia - Abril 2024</strong><br>
+<em>"Los helados de Livanti son los mejores de la ciudad. Probad el de pistacho. De nada."</em></p>
+</div>
 
-<h2 class="section-title">8. El Guest Book</h2>
+<div class="quote-card">
+<p><strong>☔ Sophie, Francia - Mayo 2024</strong><br>
+<em>"Si llueve, id al Mercado de San Miguel. Tapas increíbles y techo para refugiarse. Perfecto para mañanas grises."</em></p>
+</div>
 
-<p>Un clásico que funciona siempre: <strong>un libro donde los huéspedes dejan mensajes para los que vendrán después</strong>.</p>
-
-<p>Parece simple. Pero cuando lo lees, es mágico.</p>
-
-<p>Qué escriben:</p>
-
-<ul>
-<li><em>"John estuvo aquí. Gracias por todo, volveremos."</em></li>
-<li><em>"Tip: el bar de la esquina tiene los mejores gin-tonics."</em></li>
-<li><em>"Si llueve, id al museo X. Es gratis los domingos."</em></li>
-<li><em>"María y Luis, luna de miel 2024 ❤️"</em></li>
-<li><em>"A veces la vida te regala rincones así. Disfrutadlo."</em></li>
-</ul>
-
-<img src="/blog/detalles-wow/guest-book.png" alt="Libro de huéspedes con mensajes" style="width: 100%; border-radius: 16px; margin: 2rem 0;" />
+<div class="quote-card">
+<p><strong>🍷 Carlos y Lucía, Barcelona - Junio 2024</strong><br>
+<em>"El bar sin nombre de la calle X tiene el mejor vermut. Preguntad por Juan, el dueño. Contadle que venís del apartamento."</em></p>
+</div>
 
 <div class="highlight-box">
-<strong>Por qué funciona</strong>
-<p></p>
-<ul>
-<li>Crea conexión entre huéspedes que nunca se conocerán</li>
-<li>Los nuevos leen las experiencias de otros (prueba social)</li>
-<li>A la gente le encanta dejar su huella</li>
-<li>Hay mensajes que te sacarán una sonrisa</li>
-<li>Es contenido genuino que puedes compartir (con permiso)</li>
-</ul>
+<strong>Pon el libro con esta nota:</strong>
+<p><em>"Este libro lo escriben los huéspedes para los huéspedes. Deja tu mejor consejo, tu rincón favorito o tu descubrimiento. El siguiente viajero te lo agradecerá."</em></p>
 </div>
 
-<p>Pon el libro en un lugar visible con un bolígrafo bonito y una nota: <em>"Deja algo para quien venga después de ti."</em></p>
-
-<div class="feature-grid">
-<div class="feature-card">
-<h4>Coste</h4>
-<p>10-20€ (libreta bonita)</p>
-</div>
-<div class="feature-card">
-<h4>Impacto</h4>
-<p>Experiencia emocional única</p>
-</div>
+<div class="tip-box">
+<strong>Importante</strong>
+<p>El Guest Book requiere el tipo de huésped adecuado. Si tu alojamiento atrae a gente que valora estas experiencias, funcionará de maravilla. Si no, podrían llevarse el boli, dejar comentarios inapropiados o simplemente ignorarlo. Conoce a tu público.</p>
 </div>
 
-<h2 class="section-title">La fórmula del recuerdo</h2>
+<h2 class="section-title">El último recuerdo es el que queda</h2>
 
-<p>Ninguno de estos detalles cuesta más de 15€.<br>
-Ninguno requiere obra.<br>
-Todos requieren lo mismo: <strong>intención</strong>.</p>
+<p>La experiencia completa de un huésped es una media de toda su estancia. Pero el último recuerdo tiene un peso especial: es lo que cuentan cuando vuelven a casa.</p>
 
-<p>Cuando alguien vuelve de un viaje y le preguntan <em>"¿qué tal el apartamento?"</em>, no dice:</p>
-
-<p><em>"Bien, limpio y céntrico."</em></p>
-
-<p>Dice:</p>
-
-<div class="hero-box">
-<p><em>"Cuando llegamos había cervezas frías y una nota. Y el último día nos mandaron un mensaje con un código secreto. Había una cajita escondida con un regalo dentro. <strong>INCREÍBLE.</strong>"</em></p>
-</div>
-
-<p>Esa reseña la lee todo el mundo. Y no la puedes comprar con descuentos.</p>
+<p>Si les dejas hacer el check-out un poco más tarde sin cobrar, si tienen un detalle inesperado al final, si se van con la sensación de que les trataste bien hasta el último momento... las 5 estrellas están a la vuelta de la esquina.</p>
 
 <p><strong>Los huéspedes no recuerdan lo que pagaron. Recuerdan cómo les hiciste sentir.</strong></p>
 
@@ -374,26 +239,23 @@ Todos requieren lo mismo: <strong>intención</strong>.</p>
 <ul class="check-list">
 <li>Nevera preparada con productos locales + nota</li>
 <li>Mapa secreto visible</li>
-<li>Detalle personalizado según motivo del viaje</li>
 <li>QR de playlist en lugar visible</li>
-<li>Cajita con regalo lista + código preparado</li>
 <li>Rincón instagrameable listo (buena luz)</li>
-<li>Mapa instagrameable de la ciudad disponible</li>
-<li>Guest book con bolígrafo a la vista</li>
+<li>Guest book con bolígrafo y nota explicativa</li>
 </ul>
 
 <div class="cta-box">
-<h3>Automatiza sin perder la calidez</h3>
-<p>Algunos de estos detalles (como el mensaje de la caja secreta o la bienvenida personalizada) pueden integrarse en tu flujo de comunicación automática. Con Itineramio puedes crear mensajes programados que parezcan escritos a mano, incluir tu mapa secreto en el manual digital, y tener todo organizado sin perder ese toque personal.</p>
+<h3>Organiza todo en un solo lugar</h3>
+<p>Con Itineramio puedes crear un manual digital con tu mapa secreto, tu playlist, las instrucciones del apartamento y todo lo que tus huéspedes necesitan. Accesible desde el móvil, sin descargas, actualizable en cualquier momento.</p>
 <a href="https://www.itineramio.com/register" class="cta-button">Prueba 15 días gratis</a>
 </div>
 `,
   category: 'MEJORES_PRACTICAS',
-  tags: ['efecto wow', 'experiencia huésped', 'detalles airbnb', 'reseñas 5 estrellas', 'superhost', 'hospitalidad'],
+  tags: ['efecto wow', 'experiencia huésped', 'detalles airbnb', 'reseñas 5 estrellas', 'superhost', 'hospitalidad', 'alojamiento premium'],
   featured: true,
-  metaTitle: '8 Detalles WOW para Huéspedes Airbnb: Ideas Baratas que Generan Reseñas',
-  metaDescription: 'Descubre los 8 detalles que transforman un alojamiento normal en inolvidable. Ideas reales por menos de 15€ que generan reseñas de 5 estrellas.',
-  keywords: ['detalles airbnb', 'efecto wow huéspedes', 'mejorar reseñas airbnb', 'experiencia huésped', 'superhost consejos', 'hospitalidad airbnb', 'rincón instagrameable', 'guest book airbnb'],
+  metaTitle: '5 Detalles WOW para Huéspedes Airbnb: Ideas que Generan Reseñas Memorables',
+  metaDescription: 'Descubre los 5 detalles que transforman un alojamiento único en inolvidable. Ideas reales para anfitriones que quieren destacar con experiencias premium.',
+  keywords: ['detalles airbnb', 'efecto wow huéspedes', 'mejorar reseñas airbnb', 'experiencia huésped', 'superhost consejos', 'hospitalidad airbnb', 'alojamiento premium', 'guest book airbnb'],
   authorName: 'Equipo Itineramio',
   status: 'PUBLISHED',
   publishedAt: today
