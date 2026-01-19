@@ -209,14 +209,20 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ SAFE POST - Property created successfully:', propertyId)
 
-    // Auto-create essential zones for the property
+    // Auto-create essential zones for the property (same as /api/properties/route.ts)
     try {
       const zonasEsenciales = [
-        { name: 'Entrada y bienvenida', description: 'Información de check-in y primeros pasos', icon: 'door' },
-        { name: 'Cocina', description: 'Electrodomésticos y utensilios disponibles', icon: 'utensils' },
-        { name: 'WiFi y conectividad', description: 'Conexión a internet y dispositivos', icon: 'wifi' },
-        { name: 'Normas de la casa', description: 'Reglas importantes para tu estancia', icon: 'clipboard' },
-        { name: 'Emergencias y contacto', description: 'Números útiles y contacto del anfitrión', icon: 'phone' }
+        { name: 'Check In', description: 'Proceso de entrada al apartamento', icon: 'key' },
+        { name: 'WiFi', description: 'Información de conexión a internet', icon: 'wifi' },
+        { name: 'Check Out', description: 'Instrucciones para la salida', icon: 'exit' },
+        { name: 'Cómo Llegar', description: 'Direcciones desde aeropuerto, estación y ubicación exacta', icon: 'map-pin' },
+        { name: 'Normas de la Casa', description: 'Reglas y políticas del apartamento', icon: 'list' },
+        { name: 'Parking', description: 'Información sobre aparcamiento', icon: 'car' },
+        { name: 'Climatización', description: 'Aire acondicionado y calefacción', icon: 'thermometer' },
+        { name: 'Teléfonos de Emergencia', description: 'Contactos importantes y anfitrión', icon: 'phone' },
+        { name: 'Transporte Público', description: 'Metro, autobús y opciones de movilidad', icon: 'bus' },
+        { name: 'Recomendaciones', description: 'Restaurantes, tiendas y lugares de interés', icon: 'star' },
+        { name: 'Basura y Reciclaje', description: 'Cómo y dónde desechar la basura', icon: 'trash' }
       ]
 
       for (let i = 0; i < zonasEsenciales.length; i++) {
