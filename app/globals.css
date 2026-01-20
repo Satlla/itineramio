@@ -69,22 +69,71 @@ body {
   top: calc(48px + max(env(safe-area-inset-top, 0px), 47px));
 }
 
-/* Main content padding when trial bar is NOT visible (navbar height 64px) */
+/* Main content padding when trial bar is NOT visible */
+/* Mobile: navbar h-12 (48px), Desktop: h-16 (64px) */
 .pwa-main-content {
-  padding-top: calc(64px + env(safe-area-inset-top, 0px));
+  padding-top: calc(48px + env(safe-area-inset-top, 0px));
+}
+
+@media (min-width: 640px) {
+  .pwa-main-content {
+    padding-top: calc(56px + env(safe-area-inset-top, 0px));
+  }
+}
+
+@media (min-width: 768px) {
+  .pwa-main-content {
+    padding-top: calc(64px + env(safe-area-inset-top, 0px));
+  }
 }
 
 .pwa-standalone .pwa-main-content {
-  padding-top: calc(64px + max(env(safe-area-inset-top, 0px), 47px));
+  padding-top: calc(48px + max(env(safe-area-inset-top, 0px), 47px));
 }
 
-/* Main content padding when trial bar IS visible (navbar 64px + trial bar 48px) */
+@media (min-width: 640px) {
+  .pwa-standalone .pwa-main-content {
+    padding-top: calc(56px + max(env(safe-area-inset-top, 0px), 47px));
+  }
+}
+
+@media (min-width: 768px) {
+  .pwa-standalone .pwa-main-content {
+    padding-top: calc(64px + max(env(safe-area-inset-top, 0px), 47px));
+  }
+}
+
+/* Main content padding when trial bar IS visible (navbar + trial bar 48px) */
 .pwa-main-content-with-trial {
-  padding-top: calc(112px + env(safe-area-inset-top, 0px));
+  padding-top: calc(96px + env(safe-area-inset-top, 0px));
+}
+
+@media (min-width: 640px) {
+  .pwa-main-content-with-trial {
+    padding-top: calc(104px + env(safe-area-inset-top, 0px));
+  }
+}
+
+@media (min-width: 768px) {
+  .pwa-main-content-with-trial {
+    padding-top: calc(112px + env(safe-area-inset-top, 0px));
+  }
 }
 
 .pwa-standalone .pwa-main-content-with-trial {
-  padding-top: calc(112px + max(env(safe-area-inset-top, 0px), 47px));
+  padding-top: calc(96px + max(env(safe-area-inset-top, 0px), 47px));
+}
+
+@media (min-width: 640px) {
+  .pwa-standalone .pwa-main-content-with-trial {
+    padding-top: calc(104px + max(env(safe-area-inset-top, 0px), 47px));
+  }
+}
+
+@media (min-width: 768px) {
+  .pwa-standalone .pwa-main-content-with-trial {
+    padding-top: calc(112px + max(env(safe-area-inset-top, 0px), 47px));
+  }
 }
 
 /* Generic sticky header for public pages - position at top:0 with padding for safe-area */

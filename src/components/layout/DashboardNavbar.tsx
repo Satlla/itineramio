@@ -118,11 +118,11 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
-        <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-10">
           <div className="flex items-center justify-between h-12 sm:h-14 md:h-16">
             {/* Logo */}
             <motion.div
-              className="flex items-center space-x-1 sm:space-x-2"
+              className="flex items-center space-x-1 sm:space-x-2 ml-1 sm:ml-0"
               whileHover={{ scale: 1.05 }}
             >
               <Link href="/main" className="flex items-center space-x-2">
