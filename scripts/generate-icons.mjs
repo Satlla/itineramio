@@ -11,18 +11,17 @@ const sizes = [72, 96, 128, 144, 152, 192, 384, 512]
 // Fondo degradado rosa/magenta con isotipo blanco (estilo Instagram)
 const svgContent = `<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#F43F5E"/>
-      <stop offset="50%" stop-color="#EC4899"/>
-      <stop offset="100%" stop-color="#F472B6"/>
+    <linearGradient id="bg-gradient" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B9D"/>
+      <stop offset="100%" stop-color="#F43F5E"/>
     </linearGradient>
   </defs>
 
   <!-- Fondo circular con degradado -->
   <circle cx="256" cy="256" r="256" fill="url(#bg-gradient)"/>
 
-  <!-- Isotipo centrado en blanco -->
-  <g transform="translate(100, 165) scale(1.6)">
+  <!-- Isotipo centrado en blanco - más pequeño y centrado -->
+  <g transform="translate(131, 195) scale(1.3)">
     <path d="M123.34 44.7245L112.607 53.6594L132.443 69.8455C133.344 70.5824 134.387 71.2027 135.527 71.6601C139.241 73.1402 147.773 75.5045 157.981 69.8791C172.84 61.6754 164.645 45.4257 163.177 43.566" stroke="white" stroke-width="10" stroke-miterlimit="10" stroke-linecap="round"/>
     <path d="M108.092 32.1245C110.237 30.3864 110.568 27.2378 108.83 25.0921C107.091 22.9463 103.943 22.6159 101.797 24.3541L104.944 28.2393L108.092 32.1245ZM92.9446 37.9599L96.0918 41.8452L108.092 32.1245L104.944 28.2393L101.797 24.3541L89.7973 34.0747L92.9446 37.9599Z" fill="white"/>
     <path d="M181.884 24.5146C189.23 35.2595 190.799 47.2539 188.215 60.0171" stroke="white" stroke-width="10" stroke-miterlimit="10"/>
