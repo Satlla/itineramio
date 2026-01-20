@@ -148,7 +148,7 @@ export default async function BlogPage({
     likes: true
   }
 
-  // Fetch hero article (most recent featured or published) - only if no search
+  // Fetch hero article first (needed to exclude from articles list)
   const heroArticle = searchQuery
     ? null
     : await prisma.blogPost.findFirst({
@@ -157,36 +157,37 @@ export default async function BlogPage({
         select: listSelectFields
       })
 
-  // Fetch other articles - MORE for abundance
-  const articles = await prisma.blogPost.findMany({
-    where: {
-      status: 'PUBLISHED',
-      id: heroArticle ? { not: heroArticle.id } : undefined,
-      ...searchFilter
-    },
-    orderBy: { publishedAt: 'desc' },
-    take: searchQuery ? 50 : 20, // More results for search
-    select: listSelectFields
-  })
-
-  // Fetch popular articles (by views)
-  const popularArticles = await prisma.blogPost.findMany({
-    where: { status: 'PUBLISHED' },
-    orderBy: { views: 'desc' },
-    take: 8, // Increased from 5
-    select: listSelectFields
-  })
-
-  // Fetch trending (recent popular)
-  const trendingArticles = await prisma.blogPost.findMany({
-    where: {
-      status: 'PUBLISHED',
-      publishedAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } // Last 30 days
-    },
-    orderBy: { views: 'desc' },
-    take: 6,
-    select: listSelectFields
-  })
+  // Run remaining queries in parallel for better performance
+  const [articles, popularArticles, trendingArticles] = await Promise.all([
+    // Fetch other articles
+    prisma.blogPost.findMany({
+      where: {
+        status: 'PUBLISHED',
+        id: heroArticle ? { not: heroArticle.id } : undefined,
+        ...searchFilter
+      },
+      orderBy: { publishedAt: 'desc' },
+      take: searchQuery ? 50 : 20,
+      select: listSelectFields
+    }),
+    // Fetch popular articles (by views)
+    prisma.blogPost.findMany({
+      where: { status: 'PUBLISHED' },
+      orderBy: { views: 'desc' },
+      take: 8,
+      select: listSelectFields
+    }),
+    // Fetch trending (recent popular)
+    prisma.blogPost.findMany({
+      where: {
+        status: 'PUBLISHED',
+        publishedAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+      },
+      orderBy: { views: 'desc' },
+      take: 6,
+      select: listSelectFields
+    })
+  ])
 
   // Get unique categories from articles
   const categories = Array.from(new Set([
