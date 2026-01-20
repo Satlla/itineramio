@@ -7,7 +7,6 @@ import { ShareButtons } from '../../../../src/components/blog/ShareButtons'
 import { BlogComments } from '../../../../src/components/blog/BlogComments'
 import { LikeButton } from '../../../../src/components/blog/LikeButton'
 import { NewsletterCTA } from '../../../../src/components/blog/NewsletterCTA'
-import { ItineramioLogo } from '../../../../src/components/ui/ItineramioLogo'
 import { prisma } from '../../../../src/lib/prisma'
 import { markdownToHtml } from '../../../../src/lib/markdown'
 import ReadingProgress from './ReadingProgress'
@@ -273,7 +272,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-2">
-              <ItineramioLogo size="md" gradient />
+              <Image src="/logo.png" alt="Itineramio" width={32} height={32} />
               <span className="text-xl font-bold" style={{ color: '#484848' }}>
                 Itineramio
               </span>
