@@ -4,7 +4,11 @@ import { z } from 'zod'
 import { createHash } from 'crypto'
 import { prisma } from '../../../src/lib/prisma'
 
-const JWT_SECRET = 'itineramio-secret-key-2024'
+const JWT_SECRET = process.env.JWT_SECRET
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is not set')
+}
 
 // Schema for creating media library entry
 const createMediaSchema = z.object({

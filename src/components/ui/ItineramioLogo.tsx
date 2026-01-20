@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useId } from 'react'
 import { cn } from '../../lib/utils'
 
 interface ItineramioLogoProps {
@@ -35,7 +35,8 @@ export function ItineramioLogo({
   gradient = false
 }: ItineramioLogoProps) {
   const squareSize = squareSizes[size]
-  const gradientId = `logo-gradient-${Math.random().toString(36).substr(2, 9)}`
+  const uniqueId = useId()
+  const gradientId = `logo-gradient-${uniqueId.replace(/:/g, '')}`
 
   // Isotipo - negro, blanco o degradado
   const Isotipo = () => {

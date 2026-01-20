@@ -3,11 +3,17 @@ import { prisma } from '../../../../src/lib/prisma'
 import { signToken } from '../../../../src/lib/auth'
 import * as jwt from 'jsonwebtoken'
 
+const JWT_SECRET = process.env.JWT_SECRET
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is not set')
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Get the current token
     const currentToken = request.cookies.get('auth-token')?.value
-    
+
     if (!currentToken) {
       return NextResponse.json({
         success: false,
@@ -15,15 +21,16 @@ export async function POST(request: NextRequest) {
       }, { status: 401 })
     }
 
-    // Decode without verification to get user info
+    // Verify token signature (allow expired tokens for refresh)
     let decoded: any
     try {
-      decoded = jwt.decode(currentToken)
+      decoded = jwt.verify(currentToken, JWT_SECRET, { ignoreExpiration: true })
     } catch (error) {
+      // Token signature invalid - reject
       return NextResponse.json({
         success: false,
-        error: 'Invalid token format'
-      }, { status: 400 })
+        error: 'Invalid token signature'
+      }, { status: 401 })
     }
 
     if (!decoded || !decoded.userId) {

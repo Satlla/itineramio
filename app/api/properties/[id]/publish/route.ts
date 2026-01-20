@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../../../../../src/lib/prisma'
 
-const JWT_SECRET = 'itineramio-secret-key-2024'
+const JWT_SECRET = process.env.JWT_SECRET
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is not set')
+}
 
 export async function POST(
   request: NextRequest,
