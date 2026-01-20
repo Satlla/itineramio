@@ -200,9 +200,9 @@ export default async function BlogPage({
       {/* Unified Navigation */}
       <Navbar />
 
-      {/* Hero Section with Magazine Style */}
+      {/* Hero Section with Magazine Style - Hidden on mobile, shown on desktop */}
       {heroArticle && (
-        <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 border-b border-gray-200">
+        <section className="hidden lg:block relative overflow-hidden bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 border-b border-gray-200">
           <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
             <div className="flex items-center space-x-2 mb-6">
@@ -315,6 +315,7 @@ export default async function BlogPage({
         popularArticles={popularArticles}
         trendingArticles={trendingArticles}
         totalArticles={articles.length + (heroArticle ? 1 : 0)}
+        heroArticle={heroArticle}
       />
 
       {/* Footer CTA */}

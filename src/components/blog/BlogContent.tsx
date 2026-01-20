@@ -102,6 +102,21 @@ interface SidebarArticle {
   views: number
 }
 
+interface HeroArticle {
+  id: string
+  slug: string
+  title: string
+  subtitle: string | null
+  excerpt: string
+  category: string
+  coverImage: string | null
+  coverImageAlt: string | null
+  authorName: string
+  authorImage: string | null
+  publishedAt: Date | null
+  readTime: number
+}
+
 interface BlogContentProps {
   articles: BlogPost[]
   categories: string[]
@@ -109,6 +124,7 @@ interface BlogContentProps {
   popularArticles?: SidebarArticle[]
   trendingArticles?: SidebarArticle[]
   totalArticles?: number
+  heroArticle?: HeroArticle | null
 }
 
 export default function BlogContent({
@@ -117,7 +133,8 @@ export default function BlogContent({
   searchQuery = '',
   popularArticles = [],
   trendingArticles = [],
-  totalArticles = 0
+  totalArticles = 0,
+  heroArticle = null
 }: BlogContentProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
@@ -180,6 +197,60 @@ export default function BlogContent({
           </div>
         </div>
       </section>
+
+      {/* Mobile Hero Article - Only shown on mobile, after the search */}
+      {heroArticle && !searchQuery && (
+        <section className="lg:hidden bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 border-b border-gray-200">
+          <div className="px-4 py-8">
+            <div className="flex items-center space-x-2 mb-4">
+              <span className="text-xs font-bold text-orange-600 uppercase tracking-wide">Destacado</span>
+            </div>
+
+            <Link href={`/blog/${heroArticle.slug}`} className="group block">
+              {/* Image */}
+              <div className="relative aspect-[16/9] rounded-xl overflow-hidden shadow-lg mb-4">
+                {heroArticle.coverImage ? (
+                  <Image
+                    src={heroArticle.coverImage}
+                    alt={heroArticle.coverImageAlt || heroArticle.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    priority
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-violet-400 via-purple-400 to-pink-400" />
+                )}
+              </div>
+
+              {/* Content */}
+              <div className="space-y-3">
+                {(() => {
+                  const config = categoryConfig[heroArticle.category]
+                  return (
+                    <span className="inline-block px-2.5 py-1 bg-white/90 text-gray-900 text-xs font-bold uppercase tracking-wide rounded-lg shadow-sm">
+                      {config?.name || heroArticle.category}
+                    </span>
+                  )
+                })()}
+
+                <h2 className="text-xl font-bold text-gray-900 leading-tight group-hover:text-violet-600 transition-colors">
+                  {heroArticle.title}
+                </h2>
+
+                <p className="text-sm text-gray-600 line-clamp-2">
+                  {heroArticle.excerpt}
+                </p>
+
+                <div className="flex items-center space-x-3 text-xs text-gray-500 pt-2">
+                  <span>{heroArticle.authorName}</span>
+                  <span>•</span>
+                  <span>{heroArticle.readTime} min lectura</span>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Category Filter */}
       <CategoryFilter
