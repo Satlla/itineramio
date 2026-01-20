@@ -204,7 +204,7 @@ export default async function BlogPage({
       {heroArticle && (
         <section className="hidden lg:block relative overflow-hidden bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 border-b border-gray-200">
           <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 lg:pt-28 lg:pb-20">
             <div className="flex items-center space-x-2 mb-6">
               <Flame className="w-5 h-5 text-orange-500" />
               <span className="text-sm font-bold text-orange-600 uppercase tracking-wide">Destacado</span>
