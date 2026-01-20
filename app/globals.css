@@ -87,13 +87,14 @@ body {
   padding-top: calc(112px + max(env(safe-area-inset-top, 0px), 47px));
 }
 
-/* Generic sticky header for public pages */
+/* Generic sticky header for public pages - position at top:0 with padding for safe-area */
 .pwa-sticky-header {
-  top: env(safe-area-inset-top, 0px);
+  top: 0;
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .pwa-standalone .pwa-sticky-header {
-  top: max(env(safe-area-inset-top, 0px), 47px);
+  padding-top: max(env(safe-area-inset-top, 0px), 47px);
 }
 
 /* For quiz viewer main content (96px header height) */
