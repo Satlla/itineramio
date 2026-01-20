@@ -47,7 +47,8 @@ export default function RegisterPage() {
     email: '',
     phone: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    website: '' // Honeypot field - bots fill this, humans don't see it
   })
 
   const [errors, setErrors] = useState({
@@ -142,7 +143,8 @@ export default function RegisterPage() {
           acceptTerms,
           marketingConsent,
           registrationLanguage: navigator.language || 'es',
-          ...(referralCode && { referralCode })
+          ...(referralCode && { referralCode }),
+          _hp: formData.website // Honeypot field
         }),
       })
       
@@ -430,6 +432,20 @@ export default function RegisterPage() {
                 {errors.confirmPassword && (
                   <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
                 )}
+              </div>
+
+              {/* Honeypot field - invisible to humans, bots fill it */}
+              <div style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
+                <label htmlFor="website">Website</label>
+                <input
+                  type="text"
+                  id="website"
+                  name="website"
+                  value={formData.website}
+                  onChange={handleInputChange}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
               </div>
 
               {/* Terms & Privacy (Mandatory) */}

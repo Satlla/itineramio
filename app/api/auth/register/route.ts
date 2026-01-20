@@ -25,12 +25,68 @@ const registerSchema = z.object({
   path: ["confirmPassword"],
 })
 
+// Simple in-memory rate limiting (resets on server restart)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour
+const MAX_REGISTRATIONS_PER_IP = 3
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now()
+  const record = rateLimitMap.get(ip)
+
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW })
+    return true
+  }
+
+  if (record.count >= MAX_REGISTRATIONS_PER_IP) {
+    return false
+  }
+
+  record.count++
+  return true
+}
+
 export async function POST(request: NextRequest) {
   try {
     console.log('🚀 REGISTER ENDPOINT - Starting registration')
     const body = await request.json()
     console.log('📝 Registration data received:', { email: body.email, name: body.name })
-    
+
+    // 🛡️ HONEYPOT CHECK - bots fill hidden fields, humans don't
+    if (body._hp || body.website) {
+      console.log('🤖 BOT DETECTED - Honeypot field filled:', { _hp: body._hp, website: body.website })
+      // Return fake success to not alert the bot
+      return NextResponse.json({
+        success: true,
+        message: 'Registration successful'
+      }, { status: 201 })
+    }
+
+    // 🛡️ RATE LIMITING - max 3 registrations per IP per hour
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+               request.headers.get('x-real-ip') ||
+               'unknown'
+
+    if (!checkRateLimit(ip)) {
+      console.log('🚫 RATE LIMITED - Too many registrations from IP:', ip)
+      return NextResponse.json({
+        error: 'Demasiados intentos de registro. Inténtalo de nuevo en una hora.'
+      }, { status: 429 })
+    }
+
+    // 🛡️ BOT PATTERN DETECTION - random character names
+    const nameHasRandomPattern = /^[A-Za-z]{15,}$/.test(body.name) ||
+                                  /^[A-Z][a-z]+[A-Z][a-z]+[A-Z]/.test(body.name) ||
+                                  body.name.length > 30
+    if (nameHasRandomPattern) {
+      console.log('🤖 BOT DETECTED - Suspicious name pattern:', body.name)
+      return NextResponse.json({
+        success: true,
+        message: 'Registration successful'
+      }, { status: 201 })
+    }
+
     // Validate input
     const validatedData = registerSchema.parse(body)
     console.log('✅ Data validated successfully')
