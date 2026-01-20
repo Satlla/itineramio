@@ -397,7 +397,7 @@ export default function CalculadoraRentabilidad() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky z-40 pwa-sticky-header">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href="/hub" className="flex items-center text-gray-600 hover:text-violet-600 transition-colors">

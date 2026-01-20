@@ -16,6 +16,7 @@ import { ConditionalTracking } from '../src/components/analytics/ConditionalTrac
 import { CookieBanner } from '../src/components/ui/CookieBanner'
 import { LoadingProvider } from '../src/components/providers/LoadingProvider'
 import { ExitIntentPopup } from '../src/components/marketing/ExitIntentPopup'
+import { PWASafeArea } from '../src/components/pwa/PWASafeArea'
 import NextTopLoader from 'nextjs-toploader'
 
 // Validate environment variables on startup
@@ -223,6 +224,9 @@ export default function RootLayout({
         {/* Facebook Pixel and GTM are loaded via ConditionalTracking after cookie consent */}
       </head>
       <body className={`${inter.className} antialiased`}>
+        {/* PWA Safe Area Handler - adds pwa-standalone class when in PWA mode */}
+        <PWASafeArea />
+
         {/* Global Top Loading Bar */}
         <NextTopLoader
           color="#8B5CF6"

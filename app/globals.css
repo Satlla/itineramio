@@ -14,6 +14,97 @@ body {
   position: relative;
 }
 
+/* PWA Safe Area - Para elementos fixed/sticky */
+:root {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* PWA standalone mode - JavaScript detection adds .pwa-standalone class */
+.pwa-standalone {
+  --safe-area-top: max(env(safe-area-inset-top, 0px), 47px);
+}
+
+/* Also support CSS media query for display-mode */
+@media all and (display-mode: standalone) {
+  :root {
+    --safe-area-top: max(env(safe-area-inset-top, 0px), 47px);
+  }
+}
+
+/* Clase utilitaria para safe-area-top */
+.safe-area-top {
+  padding-top: var(--safe-area-top) !important;
+}
+
+/* Para elementos fixed que necesitan empezar debajo del notch */
+.fixed-safe-top {
+  top: var(--safe-area-top) !important;
+}
+
+/* PWA standalone: add padding to fixed top bar */
+.pwa-fixed-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.pwa-standalone .pwa-fixed-top {
+  padding-top: max(env(safe-area-inset-top, 0px), 47px);
+}
+
+/* For the main navbar position when trial bar is NOT visible */
+.pwa-nav-top {
+  top: env(safe-area-inset-top, 0px);
+}
+
+.pwa-standalone .pwa-nav-top {
+  top: max(env(safe-area-inset-top, 0px), 47px);
+}
+
+/* For the main navbar position when trial bar IS visible (48px bar height) */
+.pwa-nav-with-trial {
+  top: calc(48px + env(safe-area-inset-top, 0px));
+}
+
+.pwa-standalone .pwa-nav-with-trial {
+  top: calc(48px + max(env(safe-area-inset-top, 0px), 47px));
+}
+
+/* Main content padding when trial bar is NOT visible (navbar height 64px) */
+.pwa-main-content {
+  padding-top: calc(64px + env(safe-area-inset-top, 0px));
+}
+
+.pwa-standalone .pwa-main-content {
+  padding-top: calc(64px + max(env(safe-area-inset-top, 0px), 47px));
+}
+
+/* Main content padding when trial bar IS visible (navbar 64px + trial bar 48px) */
+.pwa-main-content-with-trial {
+  padding-top: calc(112px + env(safe-area-inset-top, 0px));
+}
+
+.pwa-standalone .pwa-main-content-with-trial {
+  padding-top: calc(112px + max(env(safe-area-inset-top, 0px), 47px));
+}
+
+/* Generic sticky header for public pages */
+.pwa-sticky-header {
+  top: env(safe-area-inset-top, 0px);
+}
+
+.pwa-standalone .pwa-sticky-header {
+  top: max(env(safe-area-inset-top, 0px), 47px);
+}
+
+/* For quiz viewer main content (96px header height) */
+.pwa-quiz-content {
+  padding-top: calc(96px + env(safe-area-inset-top, 0px));
+}
+
+.pwa-standalone .pwa-quiz-content {
+  padding-top: calc(96px + max(env(safe-area-inset-top, 0px), 47px));
+}
+
 /* Prevent horizontal scroll on mobile */
 .antialiased {
   width: 100%;

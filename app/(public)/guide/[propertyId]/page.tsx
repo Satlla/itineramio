@@ -878,7 +878,7 @@ export default function PropertyGuidePage() {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Airbnb-style Minimal Header */}
-      <header className={`sticky top-0 z-50 backdrop-blur-sm border-b transition-colors duration-300 ${
+      <header className={`sticky z-50 backdrop-blur-sm border-b transition-colors duration-300 pwa-sticky-header ${
         darkMode ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-100'
       }`}>
         <div className="max-w-6xl mx-auto px-6 sm:px-8">

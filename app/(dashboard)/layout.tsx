@@ -115,7 +115,7 @@ export default function DashboardLayout({
           isTrialBarVisible={isTrialBarVisible}
         />
 
-        <main className={`transition-all duration-300 ${isTrialBarVisible ? "pt-[112px]" : "pt-16"}`}>
+        <main className={`transition-all duration-300 ${isTrialBarVisible ? 'pwa-main-content-with-trial' : 'pwa-main-content'}`}>
           {children}
         </main>
 

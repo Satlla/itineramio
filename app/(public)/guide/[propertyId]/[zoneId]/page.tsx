@@ -827,7 +827,7 @@ export default function ZoneGuidePage({
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky z-40 pwa-sticky-header">
         <div className="max-w-3xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           {/* First row - Back button and controls */}
           <div className="flex items-center justify-between mb-2 sm:mb-3">

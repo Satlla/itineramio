@@ -143,7 +143,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-40 backdrop-blur-sm bg-white/90">
+      <header className="border-b border-gray-200 bg-white sticky z-40 backdrop-blur-sm bg-white/90 pwa-sticky-header">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <Link href="/blog" className="text-3xl font-serif font-bold text-gray-900">

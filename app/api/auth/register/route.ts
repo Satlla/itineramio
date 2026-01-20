@@ -124,12 +124,7 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(validatedData.password, 12)
 
-    // Capture IP address from headers
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-               request.headers.get('x-real-ip') ||
-               'unknown'
-
-    // Capture User-Agent
+    // Capture User-Agent (IP already captured above for rate limiting)
     const userAgent = request.headers.get('user-agent') || 'unknown'
 
     // Create policy acceptance metadata

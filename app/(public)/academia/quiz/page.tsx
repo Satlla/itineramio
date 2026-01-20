@@ -254,7 +254,7 @@ export default function QuizPage() {
 
       {/* Header - Only show when quiz has started */}
       {quizStarted && (
-        <div className="bg-white/10 backdrop-blur-xl border-b border-white/20 sticky top-0 z-10">
+        <div className="bg-white/10 backdrop-blur-xl border-b border-white/20 sticky z-10 pwa-sticky-header">
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
               <div>

@@ -130,11 +130,7 @@ export const TrialTopBar: React.FC<TrialTopBarProps> = ({
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-[60] bg-[#24292f] border-b border-gray-800 text-white"
-      style={{
-        paddingTop: 'env(safe-area-inset-top)',
-        height: 'calc(48px + env(safe-area-inset-top))'
-      }}
+      className="fixed top-0 left-0 right-0 z-[60] bg-[#24292f] border-b border-gray-800 text-white pwa-fixed-top"
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 h-[48px]">
         <div className="flex items-center justify-center sm:justify-between h-full gap-4">

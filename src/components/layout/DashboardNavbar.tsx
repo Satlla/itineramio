@@ -113,12 +113,7 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
           scrolled
             ? 'bg-white border-b border-neutral-200/50 shadow-lg'
             : 'bg-white border-b border-neutral-100'
-        }`}
-        style={{
-          top: isTrialBarVisible
-            ? 'calc(48px + env(safe-area-inset-top, 0px))'
-            : 'env(safe-area-inset-top, 0px)'
-        }}
+        } ${isTrialBarVisible ? 'pwa-nav-with-trial' : 'pwa-nav-top'}`}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}

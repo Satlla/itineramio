@@ -268,7 +268,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       />
 
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-40 backdrop-blur-sm bg-white/90">
+      <header className="border-b border-gray-200 bg-white sticky z-40 backdrop-blur-sm bg-white/90 pwa-sticky-header">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-2">
