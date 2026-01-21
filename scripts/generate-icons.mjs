@@ -17,8 +17,8 @@ const svgContent = `<svg width="512" height="512" viewBox="0 0 512 512" fill="no
     </linearGradient>
   </defs>
 
-  <!-- Fondo circular con degradado -->
-  <circle cx="256" cy="256" r="256" fill="url(#bg-gradient)"/>
+  <!-- Fondo cuadrado completo con degradado -->
+  <rect width="512" height="512" fill="url(#bg-gradient)"/>
 
   <!-- Isotipo centrado en blanco - más pequeño y centrado -->
   <g transform="translate(131, 195) scale(1.3)">
