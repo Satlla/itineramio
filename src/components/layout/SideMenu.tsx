@@ -16,7 +16,8 @@ import {
   Home,
   Bell,
   Receipt,
-  Layers
+  Layers,
+  Image
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
@@ -52,7 +53,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
   const menuItems: MenuItem[] = [
     {
       icon: <Home className="w-5 h-5" />,
-      label: "Mis Propiedades",
+      label: "Propiedades",
       href: "/properties",
       description: "Gestionar tus propiedades",
       mobileOnly: true
@@ -63,6 +64,12 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
       href: "/properties?tab=sets",
       description: "Agrupar propiedades similares",
       mobileOnly: true
+    },
+    {
+      icon: <Image className="w-5 h-5" />,
+      label: "Biblioteca de Medios",
+      href: "/media-library",
+      description: "Gestionar imágenes y archivos"
     },
     {
       icon: <User className="w-5 h-5" />,
