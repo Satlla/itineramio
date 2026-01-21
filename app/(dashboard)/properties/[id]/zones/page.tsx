@@ -50,6 +50,7 @@ import { crearZonasEsenciales, borrarTodasLasZonas } from '../../../../../src/ut
 import { createBatchZones } from '../../../../../src/utils/createBatchZones'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
 import { CopyZoneToPropertyModal } from '../../../../../src/components/ui/CopyZoneToPropertyModal'
+import ZoneQRDesigner from '../../../../../src/components/zones/ZoneQRDesigner'
 import { EvaluationsModal } from '../../../../../src/components/ui/EvaluationsModal'
 import { PropertySetUpdateModal } from '../../../../../src/components/ui/PropertySetUpdateModal'
 import { LanguageCompletionModal } from '../../../../../src/components/ui/LanguageCompletionModal'
@@ -120,6 +121,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showIconSelector, setShowIconSelector] = useState(false)
   const [showQRModal, setShowQRModal] = useState(false)
   const [selectedZoneForQR, setSelectedZoneForQR] = useState<Zone | null>(null)
+  const [showQRDesigner, setShowQRDesigner] = useState(false)
   const [showPropertyQRModal, setShowPropertyQRModal] = useState(false)
   const [showElementSelector, setShowElementSelector] = useState(false)
   const [showInspirationModal, setShowInspirationModal] = useState(false)
@@ -3503,17 +3505,45 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   size="lg"
                   showTitle={false}
                 />
-                
+
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <p className="text-sm text-gray-600 text-center">
                     {t('zones.qrScanMessage')}
                   </p>
+
+                  {/* Button to open the QR Designer */}
+                  <Button
+                    onClick={() => {
+                      setShowQRModal(false)
+                      setShowQRDesigner(true)
+                    }}
+                    className="w-full mt-4 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white"
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Personalizar diseño para imprimir
+                  </Button>
                 </div>
               </div>
             </div>
           </div>
         )}
       </AnimatePresence>
+
+      {/* Zone QR Designer Modal */}
+      {selectedZoneForQR && (
+        <ZoneQRDesigner
+          isOpen={showQRDesigner}
+          onClose={() => {
+            setShowQRDesigner(false)
+            setSelectedZoneForQR(null)
+          }}
+          propertyId={id}
+          propertyName={propertyName}
+          zoneId={selectedZoneForQR.id}
+          zoneName={getZoneText(selectedZoneForQR.name)}
+          zoneSlug={selectedZoneForQR.slug}
+        />
+      )}
 
       {/* Element Selector Modal */}
       <AnimatePresence>
