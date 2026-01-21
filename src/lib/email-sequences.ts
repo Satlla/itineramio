@@ -175,8 +175,9 @@ async function getEmailTemplate(templateName: string): Promise<React.FC<any> | n
       case 'reservas-day4-caso-maria':
         return (await import('../emails/templates/reservas/reservas-day4-caso-maria')).default
       // Universal Funnel templates
-      case 'funnel-day0-welcome':
-        return (await import('../emails/templates/funnel/day0-welcome')).default
+      // DISABLED: funnel-day0-welcome - email de bienvenida "Soy Alejandro fundador..." desactivado
+      // case 'funnel-day0-welcome':
+      //   return (await import('../emails/templates/funnel/day0-welcome')).default
       case 'funnel-day2-pain-point':
         return (await import('../emails/templates/funnel/day2-pain-point')).default
       case 'funnel-day3-test-cta':
