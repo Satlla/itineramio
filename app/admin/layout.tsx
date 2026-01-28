@@ -30,7 +30,8 @@ import {
   GraduationCap,
   HelpCircle,
   Video,
-  UserCog
+  UserCog,
+  Layers
 } from 'lucide-react'
 
 // Navigation structure organized by function with permissions
@@ -68,6 +69,7 @@ const navigationSections = [
     title: 'Configuración',
     color: 'gray',
     items: [
+      { name: 'Módulos', href: '/admin/modules', icon: Layers, permissions: ['plans.view'] },
       { name: 'Planes', href: '/admin/plans', icon: Settings, permissions: ['plans.view'] },
       { name: 'Precios', href: '/admin/pricing', icon: TrendingUp, permissions: ['pricing.view'] },
       { name: 'Cupones', href: '/admin/coupons', icon: Tag, permissions: ['coupons.view'] },
