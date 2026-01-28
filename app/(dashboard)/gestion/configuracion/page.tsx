@@ -68,6 +68,8 @@ export default function ConfiguracionPage() {
   // Edit state
   const [editingConfig, setEditingConfig] = useState<{
     propertyId: string
+    name: string
+    city: string
     profileImage: string
     ownerId: string
     incomeReceiver: 'OWNER' | 'MANAGER'
@@ -119,6 +121,8 @@ export default function ConfiguracionPage() {
     const config = property.billingConfig
     setEditingConfig({
       propertyId: property.id,
+      name: property.name || '',
+      city: property.city || '',
       profileImage: property.profileImage || '',
       ownerId: config?.ownerId || '',
       incomeReceiver: config?.incomeReceiver || 'OWNER',
@@ -190,6 +194,20 @@ export default function ConfiguracionPage() {
 
     setSaving(editingConfig.propertyId)
     try {
+      // Save property name/city first
+      if (editingConfig.name || editingConfig.city) {
+        await fetch(`/api/gestion/properties/${editingConfig.propertyId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            name: editingConfig.name,
+            city: editingConfig.city
+          })
+        })
+      }
+
+      // Save billing config
       const response = await fetch(`/api/gestion/properties/${editingConfig.propertyId}/billing-config`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -497,6 +515,34 @@ export default function ConfiguracionPage() {
                           {isExpanded && isEditing && (
                             <div className="border-t border-gray-200 p-4 bg-gray-50">
                               <div className="grid sm:grid-cols-2 gap-4">
+                                {/* Property Name */}
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Nombre del apartamento
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={editingConfig.name}
+                                    onChange={(e) => setEditingConfig(prev => prev ? { ...prev, name: e.target.value } : null)}
+                                    placeholder="Ej: Apartamento Centro"
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                  />
+                                </div>
+
+                                {/* City */}
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Ciudad
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={editingConfig.city}
+                                    onChange={(e) => setEditingConfig(prev => prev ? { ...prev, city: e.target.value } : null)}
+                                    placeholder="Ej: Madrid"
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                  />
+                                </div>
+
                                 {/* Owner Selection */}
                                 <div className="sm:col-span-2">
                                   <label className="block text-sm font-medium text-gray-700 mb-1">
