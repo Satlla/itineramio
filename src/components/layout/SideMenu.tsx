@@ -68,9 +68,9 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
     },
     {
       icon: <Briefcase className="w-5 h-5" />,
-      label: "Gestión",
+      label: "Facturamio",
       href: "/gestion",
-      description: "Facturación, gastos y rentabilidad",
+      description: "Facturación profesional para gestores",
       mobileOnly: true
     },
     {
