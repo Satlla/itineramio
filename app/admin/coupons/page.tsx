@@ -38,6 +38,7 @@ interface Coupon {
   isActive: boolean
   isPublic: boolean
   campaignSource: string | null
+  applicableModule: 'MANUALES' | 'GESTION' | null
   createdAt: string
 }
 
@@ -54,6 +55,7 @@ interface NewCoupon {
   validUntil: string
   isPublic: boolean
   campaignSource: string
+  applicableModule: 'MANUALES' | 'GESTION' | ''
 }
 
 const initialNewCoupon: NewCoupon = {
@@ -68,7 +70,8 @@ const initialNewCoupon: NewCoupon = {
   maxUsesPerUser: 1,
   validUntil: '',
   isPublic: false,
-  campaignSource: ''
+  campaignSource: '',
+  applicableModule: ''
 }
 
 export default function CouponsAdminPage() {
@@ -170,7 +173,8 @@ export default function CouponsAdminPage() {
           ...newCoupon,
           validUntil: newCoupon.validUntil || null,
           maxUses: newCoupon.maxUses || null,
-          campaignSource: newCoupon.campaignSource || null
+          campaignSource: newCoupon.campaignSource || null,
+          applicableModule: newCoupon.applicableModule || null
         })
       })
 
@@ -217,6 +221,22 @@ export default function CouponsAdminPage() {
         return 'Plan especial'
       default:
         return 'N/A'
+    }
+  }
+
+  const getModuleLabel = (module: 'MANUALES' | 'GESTION' | null) => {
+    switch (module) {
+      case 'MANUALES': return 'Manuales'
+      case 'GESTION': return 'Gestión'
+      default: return 'Todos'
+    }
+  }
+
+  const getModuleBadgeColor = (module: 'MANUALES' | 'GESTION' | null) => {
+    switch (module) {
+      case 'MANUALES': return 'bg-violet-100 text-violet-700'
+      case 'GESTION': return 'bg-emerald-100 text-emerald-700'
+      default: return 'bg-gray-100 text-gray-600'
     }
   }
 
@@ -348,6 +368,9 @@ export default function CouponsAdminPage() {
                         </span>
                         <span className="text-sm sm:text-base font-semibold text-blue-600">
                           {getCouponValue(coupon)}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getModuleBadgeColor(coupon.applicableModule)}`}>
+                          {getModuleLabel(coupon.applicableModule)}
                         </span>
                       </div>
 
@@ -635,6 +658,25 @@ export default function CouponsAdminPage() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
+                  </div>
+
+                  {/* Módulo aplicable */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Módulo aplicable
+                    </label>
+                    <select
+                      value={newCoupon.applicableModule}
+                      onChange={(e) => setNewCoupon({ ...newCoupon, applicableModule: e.target.value as any })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="">Todos los módulos</option>
+                      <option value="MANUALES">Solo Manuales Digitales</option>
+                      <option value="GESTION">Solo Gestión de Alquileres</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Deja vacío para que aplique a cualquier módulo
+                    </p>
                   </div>
 
                   {/* Público */}

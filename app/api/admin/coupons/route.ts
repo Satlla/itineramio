@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
       minAmount,
       minDuration,
       applicableToPlans = ['BASIC', 'HOST', 'SUPERHOST', 'BUSINESS'],
+      applicableModule = null, // null = todos, 'MANUALES' o 'GESTION'
       isPublic = false,
       campaignSource
     } = await request.json()
@@ -111,6 +112,7 @@ export async function POST(request: NextRequest) {
         minAmount: minAmount ? minAmount : null,
         minDuration,
         applicableToPlans,
+        applicableModule: applicableModule || null,
         isPublic,
         campaignSource,
         createdBy: authResult.adminId

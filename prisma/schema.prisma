@@ -887,6 +887,7 @@ model Coupon {
   minAmount         Decimal?
   minDuration       Int?
   applicableToPlans String[]
+  applicableModule  ModuleType? // null = todos, MANUALES o GESTION
   isActive          Boolean     @default(true)
   isPublic          Boolean     @default(false)
   campaignSource    String?
@@ -898,6 +899,7 @@ model Coupon {
   @@index([code])
   @@index([validFrom, validUntil])
   @@index([campaignSource])
+  @@index([applicableModule])
   @@map("coupons")
 }
 
