@@ -8,6 +8,12 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// Enum para tipos de módulos de la plataforma
+enum ModuleType {
+  MANUALES
+  GESTION
+}
+
 model User {
   id                      String                 @id @default(cuid())
   email                   String                 @unique
@@ -77,8 +83,46 @@ model User {
   moderatedComments       ZoneComment[]          @relation("CommentModerator")
   zoneViews               ZoneView[]             @relation("HostZoneViews")
   faqSubmissions          FaqSubmission[]
+  // Módulo de gestión de reservas y facturación
+  propertyOwners          PropertyOwner[]
+  managedReservations     Reservation[]
+  guests                  Guest[]
+  propertyExpenses        PropertyExpense[]
+  liquidations            Liquidation[]
+  invoiceConfig           UserInvoiceConfig?
+  clientInvoices          ClientInvoice[]
+  reservationImports      ReservationImport[]
+  gmailIntegration        GmailIntegration?
+  reservationPayments     ReservationPayment[]
+  importTemplates         ImportTemplate[]
+  // Módulos activos del usuario
+  modules                 UserModule[]
 
   @@map("users")
+}
+
+// Módulos activos por usuario (MANUALES y GESTION son independientes)
+model UserModule {
+  id                   String     @id @default(cuid())
+  userId               String
+  moduleType           ModuleType
+  status               String     @default("ACTIVE") // ACTIVE, CANCELED, TRIAL
+  isActive             Boolean    @default(true)
+  activatedAt          DateTime   @default(now())
+  expiresAt            DateTime?
+  canceledAt           DateTime?
+  stripeSubscriptionId String?    @unique
+  subscriptionPlanId   String? // Solo para MANUALES
+  trialEndsAt          DateTime?
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscriptionPlan SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+
+  @@unique([userId, moduleType])
+  @@index([userId, status])
+  @@map("user_modules")
 }
 
 model BillingInfo {
@@ -144,59 +188,61 @@ model PropertySet {
 }
 
 model Property {
-  id                  String             @id @default(cuid())
-  hostId              String
-  organizationId      String?
-  buildingId          String?
-  propertySetId       String?
-  name                String
-  nameTranslations    Json?              // {en: "...", fr: "..."}
-  description         String
-  descriptionTranslations Json?          // {en: "...", fr: "..."}
-  street              String
-  city                String
-  state               String
-  country             String
-  postalCode          String
-  type                String
-  bedrooms            Int
-  bathrooms           Int
-  maxGuests           Int
-  squareMeters        Int?
-  defaultLanguages    Json               @default("[\"es\", \"en\"]")
-  isPublished         Boolean            @default(false)
-  profileImage        String?
-  hostContactName     String
-  hostContactPhone    String
-  hostContactEmail    String
-  hostContactLanguage String             @default("es")
-  hostContactPhoto    String?
-  status              String             @default("DRAFT")
-  trialStartsAt       DateTime?
-  trialEndsAt         DateTime?
-  trialNotified3d     Boolean            @default(false)
-  trialNotified24h    Boolean            @default(false)
-  trialNotified6h     Boolean            @default(false)
-  trialNotified1h     Boolean            @default(false)
-  subscriptionEndsAt  DateTime?
-  lastPaymentDate     DateTime?
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-  publishedAt         DateTime?
-  slug                String?            @unique
-  propertyCode        String?            @unique
-  announcements       Announcement[]
-  buildings           buildings?         @relation(fields: [buildingId], references: [id])
-  host                User               @relation(fields: [hostId], references: [id], onDelete: Cascade)
-  organizations       organizations?     @relation(fields: [organizationId], references: [id])
-  propertySet         PropertySet?       @relation(fields: [propertySetId], references: [id])
-  analytics           PropertyAnalytics?
-  propertyRatings     PropertyRating[]
-  propertyViews       PropertyView[]
-  reviews             Review[]
-  trackingEvents      TrackingEvent[]
-  zoneViews           ZoneView[]         @relation("PropertyZoneViews")
-  zones               Zone[]
+  id                      String                 @id @default(cuid())
+  hostId                  String
+  organizationId          String?
+  buildingId              String?
+  propertySetId           String?
+  name                    String
+  nameTranslations        Json? // {en: "...", fr: "..."}
+  description             String
+  descriptionTranslations Json? // {en: "...", fr: "..."}
+  street                  String
+  city                    String
+  state                   String
+  country                 String
+  postalCode              String
+  type                    String
+  bedrooms                Int
+  bathrooms               Int
+  maxGuests               Int
+  squareMeters            Int?
+  defaultLanguages        Json                   @default("[\"es\", \"en\"]")
+  isPublished             Boolean                @default(false)
+  profileImage            String?
+  hostContactName         String
+  hostContactPhone        String
+  hostContactEmail        String
+  hostContactLanguage     String                 @default("es")
+  hostContactPhoto        String?
+  status                  String                 @default("DRAFT")
+  trialStartsAt           DateTime?
+  trialEndsAt             DateTime?
+  trialNotified3d         Boolean                @default(false)
+  trialNotified24h        Boolean                @default(false)
+  trialNotified6h         Boolean                @default(false)
+  trialNotified1h         Boolean                @default(false)
+  subscriptionEndsAt      DateTime?
+  lastPaymentDate         DateTime?
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  publishedAt             DateTime?
+  slug                    String?                @unique
+  propertyCode            String?                @unique
+  announcements           Announcement[]
+  buildings               buildings?             @relation(fields: [buildingId], references: [id])
+  host                    User                   @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  organizations           organizations?         @relation(fields: [organizationId], references: [id])
+  propertySet             PropertySet?           @relation(fields: [propertySetId], references: [id])
+  analytics               PropertyAnalytics?
+  propertyRatings         PropertyRating[]
+  propertyViews           PropertyView[]
+  reviews                 Review[]
+  trackingEvents          TrackingEvent[]
+  zoneViews               ZoneView[]             @relation("PropertyZoneViews")
+  zones                   Zone[]
+  billingConfig           PropertyBillingConfig?
+  clientInvoices          ClientInvoice[]
 
   @@index([slug])
   @@map("properties")
@@ -505,33 +551,34 @@ model SubscriptionPlan {
   updatedAt          DateTime              @updatedAt @map("updated_at")
   requests           SubscriptionRequest[] @relation("PlanRequests")
   subscriptions      UserSubscription[]
+  userModules        UserModule[]
 
   @@map("subscription_plans")
 }
 
 model UserSubscription {
-  id                 String            @id @default(cuid())
-  userId             String            @map("user_id")
-  planId             String?           @map("plan_id")
-  customPlanId       String?           @map("custom_plan_id")
-  status             String
-  customPrice        Decimal?          @map("custom_price")
-  discountPercentage Decimal?          @default(0) @map("discount_percentage")
-  discountReason     String?           @map("discount_reason")
-  startDate          DateTime          @map("start_date")
-  endDate            DateTime?         @map("end_date")
-  notes              String?
-  createdBy          String?           @map("created_by")
-  createdAt          DateTime          @default(now()) @map("created_at")
-  updatedAt          DateTime          @updatedAt @map("updated_at")
-  cancelAtPeriodEnd  Boolean           @default(false) @map("cancel_at_period_end")
-  cancelReason       String?           @map("cancel_reason")
-  canceledAt         DateTime?         @map("canceled_at")
-  stripeSubscriptionId String?         @unique @map("stripe_subscription_id")
-  invoices           Invoice[]
-  customPlan         CustomPlan?       @relation(fields: [customPlanId], references: [id])
-  plan               SubscriptionPlan? @relation(fields: [planId], references: [id])
-  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String            @id @default(cuid())
+  userId               String            @map("user_id")
+  planId               String?           @map("plan_id")
+  customPlanId         String?           @map("custom_plan_id")
+  status               String
+  customPrice          Decimal?          @map("custom_price")
+  discountPercentage   Decimal?          @default(0) @map("discount_percentage")
+  discountReason       String?           @map("discount_reason")
+  startDate            DateTime          @map("start_date")
+  endDate              DateTime?         @map("end_date")
+  notes                String?
+  createdBy            String?           @map("created_by")
+  createdAt            DateTime          @default(now()) @map("created_at")
+  updatedAt            DateTime          @updatedAt @map("updated_at")
+  cancelAtPeriodEnd    Boolean           @default(false) @map("cancel_at_period_end")
+  cancelReason         String?           @map("cancel_reason")
+  canceledAt           DateTime?         @map("canceled_at")
+  stripeSubscriptionId String?           @unique @map("stripe_subscription_id")
+  invoices             Invoice[]
+  customPlan           CustomPlan?       @relation(fields: [customPlanId], references: [id])
+  plan                 SubscriptionPlan? @relation(fields: [planId], references: [id])
+  user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_subscriptions")
 }
@@ -679,8 +726,8 @@ model Review {
 model Announcement {
   id         String    @id @default(cuid())
   propertyId String
-  title      Json      // Multi-language support: { es: "", en: "", fr: "" }
-  message    Json      // Multi-language support: { es: "", en: "", fr: "" }
+  title      Json // Multi-language support: { es: "", en: "", fr: "" }
+  message    Json // Multi-language support: { es: "", en: "", fr: "" }
   category   String
   priority   String    @default("NORMAL")
   isActive   Boolean   @default(true)
@@ -990,7 +1037,7 @@ model BlogPost {
   @@index([publishedAt])
   @@index([featured])
   @@index([status, category, publishedAt]) // Composite index for filtered blog queries
-  @@index([status, publishedAt])           // For listing all published posts by date
+  @@index([status, publishedAt]) // For listing all published posts by date
   @@map("blog_posts")
 }
 
@@ -1778,33 +1825,33 @@ model EmailSubscriber {
   // SOAP OPERA SEQUENCE (15 dias, 8 emails)
   // Secuencia principal de conversion
   // ========================================
-  soapOperaStatus     String    @default("pending") // pending, active, completed, paused
-  soapOperaStartedAt  DateTime?
+  soapOperaStatus    String    @default("pending") // pending, active, completed, paused
+  soapOperaStartedAt DateTime?
 
   // Segmentacion
-  nivel               String?   // principiante, intermedio, avanzado, profesional
-  perfilInteres       String?   // automatizador, experienciador, optimizador, liberador
-  quizScore           Int?
+  nivel         String? // principiante, intermedio, avanzado, profesional
+  perfilInteres String? // automatizador, experienciador, optimizador, liberador
+  quizScore     Int?
 
   // Emails de la secuencia (dias alternos: 1, 3, 5, 7, 9, 11, 13, 15)
-  soapEmail1SentAt    DateTime? // Dia 1: Bienvenida + Historia
-  soapEmail2SentAt    DateTime? // Dia 3: El Problema
-  soapEmail3SentAt    DateTime? // Dia 5: La Revelacion
-  soapEmail4SentAt    DateTime? // Dia 7: Caso de Exito
-  soapEmail5SentAt    DateTime? // Dia 9: El Metodo
-  soapEmail6SentAt    DateTime? // Dia 11: Objeciones
-  soapEmail7SentAt    DateTime? // Dia 13: Urgencia
-  soapEmail8SentAt    DateTime? // Dia 15: Ultima Oportunidad
+  soapEmail1SentAt DateTime? // Dia 1: Bienvenida + Historia
+  soapEmail2SentAt DateTime? // Dia 3: El Problema
+  soapEmail3SentAt DateTime? // Dia 5: La Revelacion
+  soapEmail4SentAt DateTime? // Dia 7: Caso de Exito
+  soapEmail5SentAt DateTime? // Dia 9: El Metodo
+  soapEmail6SentAt DateTime? // Dia 11: Objeciones
+  soapEmail7SentAt DateTime? // Dia 13: Urgencia
+  soapEmail8SentAt DateTime? // Dia 15: Ultima Oportunidad
 
   // Tracking de comportamiento
-  lastOpenedAt        DateTime?
-  lastClickedAt       DateTime?
-  totalOpens          Int       @default(0)
-  totalClicks         Int       @default(0)
+  lastOpenedAt  DateTime?
+  lastClickedAt DateTime?
+  totalOpens    Int       @default(0)
+  totalClicks   Int       @default(0)
 
   // Conversion tracking
-  trialStartedAt      DateTime?
-  convertedAt         DateTime?
+  trialStartedAt DateTime?
+  convertedAt    DateTime?
 
   @@index([email])
   @@index([archetype])
@@ -2034,21 +2081,21 @@ enum EmailTrigger {
 
 // FAQ Submissions - user questions
 model FaqSubmission {
-  id          String   @id @default(cuid())
-  question    String   @db.Text
+  id          String              @id @default(cuid())
+  question    String              @db.Text
   email       String?
   userId      String?
   status      FaqSubmissionStatus @default(PENDING)
-  answer      String?  @db.Text
+  answer      String?             @db.Text
   category    String?
-  isPublished Boolean  @default(false)
-  publishedId String?  // ID in help-content if published
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isPublished Boolean             @default(false)
+  publishedId String? // ID in help-content if published
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
   answeredAt  DateTime?
   answeredBy  String?
 
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([status])
   @@index([createdAt])
@@ -2067,10 +2114,10 @@ enum FaqSubmissionStatus {
 model EmailLog {
   id        String   @id @default(cuid())
   userId    String
-  type      String   // REACTIVATION_3D, REACTIVATION_7D, REACTIVATION_14D, etc.
+  type      String // REACTIVATION_3D, REACTIVATION_7D, REACTIVATION_14D, etc.
   email     String
   subject   String?
-  resendId  String?  // Resend email ID for tracking
+  resendId  String? // Resend email ID for tracking
   status    String   @default("SENT") // SENT, DELIVERED, OPENED, CLICKED, etc.
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2082,22 +2129,22 @@ model EmailLog {
 
 // Consultation Booking - video call scheduling
 model ConsultationBooking {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   email         String
   name          String
-  properties    String   // 1, 2-3, 4-5, 6-10, 10+
-  challenge     String?  @db.Text
+  properties    String // 1, 2-3, 4-5, 6-10, 10+
+  challenge     String?   @db.Text
   scheduledDate DateTime
-  status        String   @default("scheduled") // scheduled, completed, cancelled, no_show
-  source        String   @default("direct")
+  status        String    @default("scheduled") // scheduled, completed, cancelled, no_show
+  source        String    @default("direct")
   meetLink      String?
-  notes         String?  @db.Text
-  adminNotes    String?  @db.Text // Private notes for admin
+  notes         String?   @db.Text
+  adminNotes    String?   @db.Text // Private notes for admin
   metadata      Json?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   completedAt   DateTime?
-  leadId        String?  // Link to unified lead
+  leadId        String? // Link to unified lead
 
   @@index([email])
   @@index([scheduledDate])
@@ -2109,11 +2156,845 @@ model ConsultationBooking {
 model BlockedSlot {
   id        String   @id @default(cuid())
   date      DateTime @db.Date // The date to block
-  time      String?  // Specific time to block (e.g., "10:00"), null = whole day
-  reason    String?  // Optional reason for blocking
+  time      String? // Specific time to block (e.g., "10:00"), null = whole day
+  reason    String? // Optional reason for blocking
   createdAt DateTime @default(now())
 
   @@unique([date, time])
   @@index([date])
   @@map("blocked_slots")
+}
+
+// ==========================================
+// MÓDULO DE GESTIÓN DE RESERVAS Y FACTURACIÓN
+// ==========================================
+
+// Propietarios de propiedades gestionadas
+model PropertyOwner {
+  id     String @id @default(cuid())
+  userId String // Usuario gestor que lo administra
+
+  // Tipo de cliente
+  type OwnerType @default(PERSONA_FISICA)
+
+  // Tipo de documento a generar
+  // INVOICE = Factura con número fiscal
+  // SERVICE_NOTE = Nota de servicios (sin número fiscal)
+  // NONE = Solo tracking, no genera documento
+  documentType DocumentType @default(INVOICE)
+
+  // Datos fiscales - Persona Física
+  firstName String? // Nombre
+  lastName  String? // Apellidos
+  nif       String? // NIF (8 dígitos + letra) o NIE (X/Y/Z + 7 dígitos + letra)
+
+  // Datos fiscales - Empresa
+  companyName String? // Razón social
+  cif         String? // CIF (letra + 7 dígitos + control)
+
+  // Dirección fiscal
+  address    String
+  city       String
+  postalCode String
+  country    String @default("España")
+
+  // Contacto y pago
+  email String
+  phone String?
+  iban  String?
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  user           User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingConfigs PropertyBillingConfig[]
+  liquidations   Liquidation[]
+  clientInvoices ClientInvoice[]
+
+  @@index([userId])
+  @@index([email])
+  @@map("property_owners")
+}
+
+enum OwnerType {
+  PERSONA_FISICA
+  EMPRESA
+}
+
+enum DocumentType {
+  INVOICE // Factura con número fiscal correlativo
+  SERVICE_NOTE // Nota de servicios (sin número fiscal, solo referencia interna)
+  NONE // Solo tracking interno, no genera documento
+}
+
+// Configuración de facturación por propiedad
+model PropertyBillingConfig {
+  id         String  @id @default(cuid())
+  propertyId String  @unique
+  ownerId    String? // Propietario (null si es propiedad propia)
+
+  // Nombres de la propiedad en plataformas (para matching automático)
+  // Soporta múltiples aliases por plataforma
+  airbnbNames  String[] @default([]) // Nombres tal como aparecen en Airbnb
+  bookingNames String[] @default([]) // Nombres tal como aparecen en Booking
+  vrboNames    String[] @default([]) // Nombres en VRBO/HomeAway
+
+  // ¿Quién recibe el dinero de las reservas?
+  incomeReceiver IncomeReceiver @default(OWNER)
+
+  // Comisión de gestión
+  commissionType  CommissionType @default(PERCENTAGE)
+  commissionValue Decimal        @default(0) // 20 = 20%
+  commissionVat   Decimal        @default(21) // 21% IVA
+
+  // Limpieza
+  cleaningType         CleaningType         @default(FIXED_PER_RESERVATION)
+  cleaningValue        Decimal              @default(0)
+  cleaningVatIncluded  Boolean              @default(true)
+  cleaningFeeRecipient CleaningFeeRecipient @default(MANAGER) // Quién recibe la limpieza
+  cleaningFeeSplitPct  Decimal? // Si es SPLIT, % para el gestor
+
+  // Cargo fijo mensual (opcional)
+  monthlyFee        Decimal @default(0)
+  monthlyFeeVat     Decimal @default(21)
+  monthlyFeeConcept String?
+
+  // Fiscalidad por defecto
+  defaultVatRate       Decimal @default(21) // IVA por defecto (21% o 10%)
+  defaultRetentionRate Decimal @default(0) // Retención IRPF si aplica
+
+  // Preferencias de factura
+  invoiceDetailLevel InvoiceDetailLevel @default(DETAILED)
+  singleConceptText  String? // Texto personalizado si invoiceDetailLevel=SUMMARY (ej: "Gestión apartamento turístico")
+
+  // Sync
+  icalUrl      String? // URL del calendario iCal
+  lastIcalSync DateTime?
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  property     Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  owner        PropertyOwner?    @relation(fields: [ownerId], references: [id])
+  reservations Reservation[]
+  expenses     PropertyExpense[]
+
+  @@index([ownerId])
+  @@map("property_billing_configs")
+}
+
+enum IncomeReceiver {
+  OWNER // Propietario recibe dinero → Gestor factura servicios
+  MANAGER // Gestor recibe dinero → Gestor transfiere al propietario
+}
+
+enum CommissionType {
+  PERCENTAGE // Porcentaje del total
+  FIXED_PER_RESERVATION // Cantidad fija por reserva
+  FIXED_MONTHLY // Cantidad fija mensual
+  NONE // Sin comisión
+}
+
+enum CleaningType {
+  FIXED_PER_RESERVATION // Cantidad fija por reserva
+  PER_NIGHT // Por noche
+  NONE // Sin limpieza
+}
+
+enum CleaningFeeRecipient {
+  OWNER // La limpieza va al propietario
+  MANAGER // La limpieza va al gestor
+  SPLIT // Se reparte según cleaningFeeSplitPct
+}
+
+enum InvoiceDetailLevel {
+  DETAILED // Con fechas de cada reserva
+  SUMMARY // Solo totales agrupados
+}
+
+// Reservas importadas (de Airbnb, Booking, etc.)
+// ========================================
+// HUÉSPEDES (CRM)
+// ========================================
+model Guest {
+  id     String @id @default(cuid())
+  userId String // Usuario gestor (cada gestor tiene sus huéspedes)
+
+  // Datos de contacto
+  email   String? // Email principal (puede ser null si no se tiene)
+  name    String // Nombre completo
+  phone   String?
+  country String?
+
+  // Notas y observaciones
+  notes String? @db.Text // Observaciones internas sobre el huésped
+
+  // Estadísticas (se actualizan automáticamente)
+  totalStays  Int       @default(0) // Número total de estancias
+  totalSpent  Decimal   @default(0) // Total gastado
+  firstStayAt DateTime? // Fecha de primera estancia
+  lastStayAt  DateTime? // Fecha de última estancia
+  averageStay Float     @default(0) // Promedio de noches por estancia
+
+  // Tags/etiquetas para segmentar
+  tags String[] @default([])
+
+  // Preferencias conocidas
+  preferences Json? // {earlyCheckIn: true, extraBed: false, etc.}
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reservations Reservation[]
+
+  @@unique([userId, email]) // Email único por gestor (permite null)
+  @@index([userId])
+  @@index([email])
+  @@index([name])
+  @@map("guests")
+}
+
+model Reservation {
+  id              String @id @default(cuid())
+  userId          String // Usuario gestor
+  billingConfigId String // Configuración de la propiedad
+
+  // Identificación
+  platform         ReservationPlatform
+  confirmationCode String
+
+  // Huésped (nuevo: referencia a Guest)
+  guestId String?
+
+  // Huésped (legacy: campos directos para compatibilidad)
+  guestName    String
+  guestCountry String?
+  guestEmail   String?
+  guestPhone   String?
+  travelers    Json? // {adults: 2, children: 1, babies: 0}
+
+  // Fechas
+  checkIn      DateTime
+  checkInTime  String?
+  checkOut     DateTime
+  checkOutTime String?
+  nights       Int
+
+  // Importes
+  roomTotal       Decimal // Precio alojamiento
+  cleaningFee     Decimal @default(0)
+  guestServiceFee Decimal @default(0) // Comisión que paga el huésped a la plataforma
+  hostServiceFee  Decimal @default(0) // Comisión que la plataforma te cobra
+  hostEarnings    Decimal // Lo que recibes
+  currency        String  @default("EUR")
+
+  // Tipo
+  type                 ReservationType @default(BOOKING)
+  relatedReservationId String? // Para cancelaciones/modificaciones
+
+  // Estado
+  status ReservationStatus @default(CONFIRMED)
+
+  // Notas
+  guestMessage  String?
+  internalNotes String?
+
+  // Fuente del import
+  importSource      String? // EMAIL, MANUAL, ICAL, CSV
+  importBatchId     String? // ID del batch de importación para rollback
+  sourceListingName String? // Nombre original del alojamiento en el CSV (para separar por propiedad más adelante)
+  rawEmailData      String? // Email original para debug
+
+  // Unidad (para pensiones/hoteles con múltiples habitaciones)
+  unit String? // "Suite Postiguet", "Habitación 101", etc.
+
+  // Liquidación
+  liquidationId String?
+
+  // === CAMPOS DE FACTURACIÓN ===
+  // Cálculos de reparto (auto-calculados al importar)
+  ownerAmount    Decimal? // Lo que corresponde al propietario
+  managerAmount  Decimal? // Comisión del gestor
+  cleaningAmount Decimal? // Importe limpieza (puede ir a gestor o propietario)
+
+  // Facturación
+  invoiced      Boolean @default(false) // ¿Ya está facturada?
+  invoiceItemId String? // Línea de factura asociada
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingConfig       PropertyBillingConfig @relation(fields: [billingConfigId], references: [id])
+  guest               Guest?                @relation(fields: [guestId], references: [id])
+  liquidation         Liquidation?          @relation(fields: [liquidationId], references: [id])
+  relatedReservation  Reservation?          @relation("ReservationRelation", fields: [relatedReservationId], references: [id])
+  relatedReservations Reservation[]         @relation("ReservationRelation")
+  invoiceItem         ClientInvoiceItem?    @relation(fields: [invoiceItemId], references: [id])
+  payments            ReservationPayment[]
+
+  @@unique([billingConfigId, platform, confirmationCode])
+  @@index([userId])
+  @@index([billingConfigId])
+  @@index([guestId])
+  @@index([checkIn])
+  @@index([checkOut])
+  @@index([status])
+  @@index([liquidationId])
+  @@index([invoiced])
+  @@index([importBatchId])
+  @@map("reservations")
+}
+
+enum ReservationPlatform {
+  AIRBNB
+  BOOKING
+  VRBO
+  DIRECT
+  OTHER
+}
+
+enum ReservationType {
+  BOOKING // Reserva normal
+  CANCELLATION // Cancelación
+  MODIFICATION // Modificación
+  REFUND // Reembolso
+}
+
+enum ReservationStatus {
+  PENDING // Pendiente de confirmación
+  CONFIRMED // Confirmada
+  CANCELLED // Cancelada
+  COMPLETED // Completada (check-out realizado)
+  NO_SHOW // No se presentó
+}
+
+// Pagos asociados a reservas (payouts, refunds, resoluciones)
+model ReservationPayment {
+  id            String @id @default(cuid())
+  reservationId String
+  userId        String
+
+  // Datos del pago
+  paymentDate DateTime
+  amount      Decimal // Puede ser negativo (refund)
+  currency    String   @default("EUR")
+
+  // Clasificación
+  paymentType PaymentType
+  category    PaymentCategory?
+  description String?
+
+  // Fuente
+  source       PaymentSource @default(EMAIL)
+  emailId      String? // Si viene de email sincronizado
+  rawEmailData String? // Datos del email para debug
+
+  // Decisión de facturación (configurable por usuario)
+  billingAction BillingAction @default(NORMAL)
+
+  // Vinculación a factura
+  invoiceId     String?
+  invoiceLineId String?
+
+  // Control
+  autoDetected Boolean @default(true)
+  userReviewed Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  reservation Reservation    @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoice     ClientInvoice? @relation(fields: [invoiceId], references: [id])
+
+  @@index([reservationId])
+  @@index([userId])
+  @@index([paymentDate])
+  @@index([billingAction])
+  @@map("reservation_payments")
+}
+
+enum PaymentType {
+  PAYOUT // Pago normal de reserva
+  REFUND // Reembolso/devolución
+  RESOLUTION // Centro de resoluciones
+  ADJUSTMENT // Ajuste de Airbnb
+  MANUAL // Entrada manual
+}
+
+enum PaymentCategory {
+  ACCOMMODATION // Alojamiento
+  CLEANING // Limpieza extra
+  DAMAGE // Daños
+  COMPENSATION // Compensación
+  OTHER // Otros
+}
+
+enum PaymentSource {
+  EMAIL // Sincronizado de email
+  MANUAL // Entrada manual
+  CSV // Importado de CSV
+  API // API externa
+}
+
+enum BillingAction {
+  NORMAL // Incluir con comisión normal
+  PASSTHROUGH // Pasar al propietario sin comisión
+  MANAGER_KEEPS // 100% para el gestor
+  EXCLUDE // No incluir en factura
+}
+
+// Gastos por propiedad
+model PropertyExpense {
+  id              String @id @default(cuid())
+  userId          String
+  billingConfigId String
+
+  date      DateTime
+  concept   String
+  category  ExpenseCategory
+  amount    Decimal
+  vatAmount Decimal         @default(0)
+
+  // Factura adjunta
+  invoiceUrl    String?
+  invoiceNumber String?
+  supplierName  String?
+  supplierNif   String?
+
+  // ¿Repercutir al propietario?
+  chargeToOwner Boolean @default(true)
+
+  // Liquidación
+  liquidationId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingConfig PropertyBillingConfig @relation(fields: [billingConfigId], references: [id])
+  liquidation   Liquidation?          @relation(fields: [liquidationId], references: [id])
+
+  @@index([userId])
+  @@index([billingConfigId])
+  @@index([date])
+  @@index([liquidationId])
+  @@map("property_expenses")
+}
+
+enum ExpenseCategory {
+  MAINTENANCE // Mantenimiento
+  SUPPLIES // Suministros (luz, agua, gas)
+  REPAIR // Reparaciones
+  CLEANING // Material de limpieza
+  FURNITURE // Mobiliario
+  TAXES // Impuestos
+  INSURANCE // Seguros
+  OTHER // Otros
+}
+
+// Liquidaciones mensuales
+model Liquidation {
+  id      String @id @default(cuid())
+  userId  String
+  ownerId String
+
+  // Período
+  year  Int
+  month Int
+
+  // Totales calculados
+  totalIncome        Decimal // Total reservas
+  totalCommission    Decimal // Total comisión
+  totalCommissionVat Decimal // IVA de comisión
+  totalRetention     Decimal @default(0) // Retención IRPF (15% sobre comisión si persona física)
+  totalCleaning      Decimal // Total limpiezas
+  totalExpenses      Decimal // Total gastos
+  totalAmount        Decimal // Resultado final (a pagar o a transferir)
+
+  // Documento
+  status LiquidationStatus @default(DRAFT)
+  pdfUrl String?
+
+  // Factura
+  invoiceNumber String?
+  invoiceDate   DateTime?
+  invoiceSeries String?
+
+  // Pago
+  paidAt           DateTime?
+  paymentMethod    String?
+  paymentReference String?
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  owner        PropertyOwner     @relation(fields: [ownerId], references: [id])
+  reservations Reservation[]
+  expenses     PropertyExpense[]
+
+  @@unique([userId, ownerId, year, month])
+  @@index([userId])
+  @@index([ownerId])
+  @@index([status])
+  @@map("liquidations")
+}
+
+enum LiquidationStatus {
+  DRAFT // Borrador
+  PENDING // Pendiente de pago
+  PAID // Pagada
+  CANCELLED // Anulada
+}
+
+// Configuración de facturación del gestor
+model UserInvoiceConfig {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  // Datos fiscales del gestor
+  businessName String
+  nif          String
+  address      String
+  city         String
+  postalCode   String
+  country      String @default("España")
+
+  // Contacto
+  email String?
+  phone String?
+
+  // Personalización
+  logoUrl     String?
+  footerNotes String?
+
+  // Email inbound para reservas
+  inboundEmailToken String @unique @default(cuid())
+
+  // Métodos de cobro
+  paymentMethods       Json? // [{type, enabled, details}]
+  defaultPaymentMethod String? // PaymentMethodType value
+
+  // Datos bancarios
+  bankName String?
+  iban     String?
+  bic      String?
+
+  // Otros métodos de pago
+  bizumPhone  String?
+  paypalEmail String?
+
+  // Onboarding tracking
+  onboardingSkippedAt      DateTime?
+  onboardingCompletedAt    DateTime?
+  onboardingReminderSentAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoiceSeries InvoiceSeries[]
+
+  @@map("user_invoice_configs")
+}
+
+// Series de facturación (para numeración personalizada)
+model InvoiceSeries {
+  id              String @id @default(cuid())
+  invoiceConfigId String
+
+  name   String // "Facturas 2025", "Serie A", etc.
+  prefix String // "A", "B", "2025-"
+  year   Int
+  type   SeriesType @default(STANDARD) // STANDARD o RECTIFYING
+
+  currentNumber Int     @default(0)
+  resetYearly   Boolean @default(true) // Reiniciar numeración cada año
+  lastResetYear Int? // Último año en que se reinició
+
+  isDefault Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  invoiceConfig UserInvoiceConfig @relation(fields: [invoiceConfigId], references: [id], onDelete: Cascade)
+  invoices      ClientInvoice[]
+
+  @@unique([invoiceConfigId, prefix, year])
+  @@map("invoice_series")
+}
+
+// Facturas a clientes (propietarios)
+model ClientInvoice {
+  id         String  @id @default(cuid())
+  userId     String
+  ownerId    String
+  seriesId   String
+  propertyId String? // Propiedad asociada (para facturas por propiedad/mes)
+
+  // Período de facturación
+  periodMonth Int? // 1-12
+  periodYear  Int? // 2026
+
+  // Numeración (null hasta que se emita)
+  number     Int? // Número secuencial dentro de la serie
+  fullNumber String? // "A-2025-00001"
+
+  // Fechas
+  issueDate DateTime
+  dueDate   DateTime?
+  issuedAt  DateTime? // Momento exacto de emisión (cuando se asigna número)
+
+  // Totales
+  subtotal        Decimal
+  totalVat        Decimal
+  retentionRate   Decimal @default(0) // Porcentaje de retención IRPF (0, 7, 15, 19)
+  retentionAmount Decimal @default(0) // Importe de retención
+  total           Decimal
+
+  // Estado e inmutabilidad
+  status   ClientInvoiceStatus @default(DRAFT)
+  isLocked Boolean             @default(false) // true después de emitir
+
+  // Rectificativa
+  isRectifying     Boolean         @default(false)
+  rectifyingType   RectifyingType? // SUBSTITUTION o DIFFERENCE
+  rectifiesId      String? // Factura original que rectifica
+  rectifyingReason String?
+  originalTotal    Decimal? // Total original (para rectificativas por diferencias)
+
+  // Método de cobro usado
+  paymentMethodUsed String? // PaymentMethodType value
+
+  // PDF
+  pdfUrl String?
+
+  // Acceso público (para envío por email)
+  publicToken  String?   @unique // Token único para ver factura sin login
+  sentAt       DateTime? // Cuándo se envió por email
+  sentTo       String? // Email al que se envió
+  emailSubject String? // Asunto del email
+  emailBody    String? // Cuerpo del email
+
+  // Notas
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  owner       PropertyOwner        @relation(fields: [ownerId], references: [id])
+  series      InvoiceSeries        @relation(fields: [seriesId], references: [id])
+  property    Property?            @relation(fields: [propertyId], references: [id])
+  rectifies   ClientInvoice?       @relation("InvoiceRectification", fields: [rectifiesId], references: [id])
+  rectifiedBy ClientInvoice[]      @relation("InvoiceRectification")
+  items       ClientInvoiceItem[]
+  payments    ReservationPayment[] // Pagos incluidos en esta factura
+
+  @@unique([seriesId, number])
+  @@index([userId])
+  @@index([ownerId])
+  @@index([propertyId])
+  @@index([status])
+  @@index([issueDate])
+  @@index([ownerId, issueDate])
+  @@map("client_invoices")
+}
+
+enum ClientInvoiceStatus {
+  DRAFT // Borrador editable
+  PROFORMA // Presupuesto/proforma (sin validez fiscal)
+  ISSUED // Emitida con número fiscal
+  SENT // Enviada al cliente
+  PAID // Pagada
+  OVERDUE // Vencida
+}
+
+// Tipo de factura rectificativa
+enum RectifyingType {
+  SUBSTITUTION // Anula y reemplaza completamente
+  DIFFERENCE // Solo ajusta importes
+}
+
+// Tipo de serie de facturación
+enum SeriesType {
+  STANDARD // Facturas normales (F, A)
+  RECTIFYING // Facturas rectificativas (R, FR)
+}
+
+// Métodos de pago
+enum PaymentMethodType {
+  TRANSFER // Transferencia bancaria
+  DIRECT_DEBIT // Domiciliación SEPA
+  CASH // Efectivo
+  CARD // Tarjeta
+  BIZUM // Bizum
+  PAYPAL // PayPal
+}
+
+// Líneas de factura
+model ClientInvoiceItem {
+  id        String @id @default(cuid())
+  invoiceId String
+
+  concept       String
+  description   String? // Descripción adicional debajo del concepto
+  quantity      Decimal @default(1)
+  unitPrice     Decimal
+  vatRate       Decimal @default(21)
+  retentionRate Decimal @default(0) // IRPF retention percentage per line
+  total         Decimal
+
+  // Vinculación con reserva (opcional)
+  reservationId String?
+  periodStart   DateTime? // Fecha inicio del período (para líneas agrupadas)
+  periodEnd     DateTime? // Fecha fin del período
+
+  // Orden de visualización
+  order Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  // Relaciones
+  invoice      ClientInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  reservations Reservation[] // Reservas vinculadas a esta línea
+
+  @@index([invoiceId])
+  @@index([reservationId])
+  @@map("client_invoice_items")
+}
+
+// Log de importaciones de reservas (Airbnb CSV, etc.)
+model ReservationImport {
+  id            String   @id @default(cuid())
+  userId        String
+  fileName      String
+  source        String   @default("AIRBNB") // AIRBNB, BOOKING, MANUAL
+  importDate    DateTime @default(now())
+  totalRows     Int
+  importedCount Int      @default(0)
+  skippedCount  Int      @default(0)
+  errorCount    Int      @default(0)
+  errors        Json? // [{row, error}]
+  propertyId    String? // Propiedad asociada (opcional)
+  importBatchId String?  @unique // ID del batch para vincular con reservas importadas
+  listingsFound Json? // Lista de nombres de alojamiento encontrados en el CSV
+
+  createdAt DateTime @default(now())
+
+  // Relaciones
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([importDate])
+  @@index([importBatchId])
+  @@map("reservation_imports")
+}
+
+// Plantillas de importación guardadas por usuario
+model ImportTemplate {
+  id     String @id @default(cuid())
+  userId String
+  name   String
+
+  // Mapeo de columnas (índices en el CSV)
+  guestNameColumn        Int
+  checkInColumn          Int
+  checkOutColumn         Int
+  amountColumn           Int // hostEarnings o roomTotal según amountType
+  confirmationCodeColumn Int?
+  nightsColumn           Int?
+  cleaningFeeColumn      Int?
+  commissionColumn       Int?
+  statusColumn           Int?
+
+  // Configuración de parsing
+  dateFormat   String @default("DD/MM/YYYY") // DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD, DD-MM-YYYY
+  numberFormat String @default("EU") // EU: 1.234,56 | US: 1,234.56
+  amountType   String @default("NET") // NET: hostEarnings | GROSS: roomTotal
+  platform     String @default("OTHER") // AIRBNB, BOOKING, VRBO, DIRECT, OTHER
+
+  // Headers originales (para reconocimiento futuro)
+  originalHeaders Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("import_templates")
+}
+
+// ==========================================
+// GMAIL INTEGRATION - Auto-import reservations
+// ==========================================
+
+model GmailIntegration {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  email        String // Gmail account email
+  accessToken  String    @db.Text
+  refreshToken String    @db.Text
+  tokenExpiry  DateTime
+  isActive     Boolean   @default(true)
+  lastSyncAt   DateTime?
+  syncErrors   Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  syncedEmails GmailSyncedEmail[]
+
+  @@map("gmail_integrations")
+}
+
+model GmailSyncedEmail {
+  id                 String   @id @default(cuid())
+  gmailIntegrationId String
+  messageId          String // Gmail message ID (para evitar duplicados)
+  threadId           String?
+  subject            String?
+  fromEmail          String
+  receivedAt         DateTime
+  emailType          String // RESERVATION_CONFIRMED, PAYOUT_SENT, etc.
+
+  // Datos extraídos
+  parsedData Json? // {confirmationCode, guestName, checkIn, etc.}
+
+  // Estado
+  status        String  @default("PENDING") // PENDING, PROCESSED, SKIPPED, ERROR
+  errorMessage  String?
+  reservationId String? // Si se creó una reserva
+
+  createdAt DateTime @default(now())
+
+  // Relaciones
+  gmailIntegration GmailIntegration @relation(fields: [gmailIntegrationId], references: [id], onDelete: Cascade)
+
+  @@unique([gmailIntegrationId, messageId])
+  @@index([gmailIntegrationId, status])
+  @@index([receivedAt])
+  @@map("gmail_synced_emails")
 }
