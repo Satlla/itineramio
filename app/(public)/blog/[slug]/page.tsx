@@ -12,6 +12,7 @@ import { markdownToHtml } from '../../../../src/lib/markdown'
 import ReadingProgress from './ReadingProgress'
 import BlogArticleTracker from './BlogArticleTracker'
 import RelatedArticlesCarousel from '../../../../src/components/blog/RelatedArticlesCarousel'
+import BlogContentWithQuiz from './BlogContentWithQuiz'
 
 // ISR: Revalidate every hour (3600 seconds) for better performance
 // Pages are cached and served statically, regenerated in background when stale
@@ -657,7 +658,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         {/* Article Content */}
         <div className="max-w-3xl mx-auto px-6">
-          <div
+          <BlogContentWithQuiz
+            slug={post.slug}
+            content={
+              post.content.trim().startsWith('<') || post.content.includes('style=')
+                ? post.content
+                : markdownToHtml(post.content)
+            }
             className="prose prose-xl max-w-none
               prose-headings:font-serif prose-headings:font-bold prose-headings:text-gray-900 prose-headings:scroll-mt-24
               prose-h2:text-3xl prose-h2:mt-16 prose-h2:mb-8 prose-h2:leading-tight prose-h2:pb-3 prose-h2:border-b prose-h2:border-gray-200
@@ -679,11 +686,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               prose-thead:bg-gray-100
               prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-3 prose-th:font-semibold prose-th:text-sm prose-th:whitespace-nowrap
               prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-3 prose-td:text-sm"
-            dangerouslySetInnerHTML={{
-              __html: post.content.trim().startsWith('<') || post.content.includes('style=')
-                ? post.content
-                : markdownToHtml(post.content)
-            }}
           />
 
           {/* Newsletter CTA - Captura de leads por embudo/categoría */}

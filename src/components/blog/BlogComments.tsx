@@ -53,9 +53,15 @@ export function BlogComments({ slug }: BlogCommentsProps) {
   const [replyHoneypot, setReplyHoneypot] = useState('')
   const [replyCaptchaAnswer, setReplyCaptchaAnswer] = useState('')
 
-  // Captcha state
-  const [captcha, setCaptcha] = useState(() => generateCaptcha())
-  const [replyCaptcha, setReplyCaptcha] = useState(() => generateCaptcha())
+  // Captcha state - initialize as null to avoid hydration mismatch
+  const [captcha, setCaptcha] = useState<{ question: string; answer: number } | null>(null)
+  const [replyCaptcha, setReplyCaptcha] = useState<{ question: string; answer: number } | null>(null)
+
+  // Generate captcha on client-side only to avoid hydration issues
+  useEffect(() => {
+    setCaptcha(generateCaptcha())
+    setReplyCaptcha(generateCaptcha())
+  }, [])
 
   // Check for verification success in URL
   useEffect(() => {
@@ -95,7 +101,7 @@ export function BlogComments({ slug }: BlogCommentsProps) {
       return
     }
 
-    if (!captchaAnswer.trim()) {
+    if (!captchaAnswer.trim() || !captcha) {
       setError('Por favor, resuelve la operacion matematica')
       return
     }
@@ -167,7 +173,7 @@ export function BlogComments({ slug }: BlogCommentsProps) {
       return
     }
 
-    if (!replyCaptchaAnswer.trim()) {
+    if (!replyCaptchaAnswer.trim() || !replyCaptcha) {
       setError('Por favor, resuelve la operacion matematica')
       return
     }
@@ -375,7 +381,7 @@ export function BlogComments({ slug }: BlogCommentsProps) {
             </label>
             <div className="flex items-center gap-3">
               <span className="text-lg font-mono bg-gray-100 px-4 py-2 rounded-lg text-gray-800">
-                {captcha.question}
+                {captcha?.question || 'Cargando...'}
               </span>
               <input
                 id="captcha"
@@ -554,7 +560,7 @@ export function BlogComments({ slug }: BlogCommentsProps) {
                           </label>
                           <div className="flex items-center gap-3">
                             <span className="text-base font-mono bg-gray-100 px-3 py-1 rounded text-gray-800">
-                              {replyCaptcha.question}
+                              {replyCaptcha?.question || 'Cargando...'}
                             </span>
                             <input
                               type="number"

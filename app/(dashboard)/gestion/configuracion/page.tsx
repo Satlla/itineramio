@@ -3,17 +3,18 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Settings,
+  Home,
   User,
   Plus,
   Edit2,
   Percent,
-  Home,
   Check,
   AlertCircle,
   ChevronDown,
   ChevronUp,
-  Camera
+  Camera,
+  Trash2,
+  X
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
@@ -21,6 +22,31 @@ import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLo
 import { DashboardFooter } from '../../../../src/components/layout/DashboardFooter'
 
 interface Owner {
+  id: string
+  name: string
+}
+
+interface BillingUnit {
+  id: string
+  name: string
+  city: string | null
+  imageUrl: string | null
+  ownerId: string | null
+  owner: Owner | null
+  commissionType: string
+  commissionValue: number
+  cleaningValue: number
+  airbnbNames: string[]
+  bookingNames: string[]
+  vrboNames: string[]
+  reservationsCount: number
+  expensesCount: number
+  invoicesCount: number
+  isActive: boolean
+  createdAt: string
+}
+
+interface OwnerFull {
   id: string
   type: 'PERSONA_FISICA' | 'EMPRESA'
   firstName?: string
@@ -31,63 +57,57 @@ interface Owner {
   email: string
 }
 
-interface Property {
-  id: string
+interface EditForm {
+  id: string | null // null = nuevo
   name: string
   city: string
-  profileImage?: string
-  billingConfig?: {
-    id: string
-    ownerId?: string
-    owner?: Owner
-    airbnbName?: string
-    bookingName?: string
-    incomeReceiver: 'OWNER' | 'MANAGER'
-    commissionType: string
-    commissionValue: number
-    commissionVat: number
-    cleaningType: string
-    cleaningValue: number
-    cleaningFeeRecipient: 'OWNER' | 'MANAGER' | 'SPLIT'
-    cleaningFeeSplitPct?: number
-    monthlyFee: number
-    defaultVatRate: number
-    defaultRetentionRate: number
-    invoiceDetailLevel: 'DETAILED' | 'SUMMARY'
-  }
+  imageUrl: string
+  ownerId: string
+  incomeReceiver: 'OWNER' | 'MANAGER'
+  commissionType: string
+  commissionValue: string
+  commissionVat: string
+  cleaningType: string
+  cleaningValue: string
+  cleaningFeeRecipient: 'OWNER' | 'MANAGER' | 'SPLIT'
+  cleaningFeeSplitPct: string
+  monthlyFee: string
+  monthlyFeeVat: string
+  defaultVatRate: string
+  defaultRetentionRate: string
+  invoiceDetailLevel: 'DETAILED' | 'SUMMARY'
 }
 
-export default function ConfiguracionPage() {
-  const [loading, setLoading] = useState(true)
-  const [properties, setProperties] = useState<Property[]>([])
-  const [owners, setOwners] = useState<Owner[]>([])
-  const [expandedProperty, setExpandedProperty] = useState<string | null>(null)
-  const [saving, setSaving] = useState<string | null>(null)
-  const [uploadingImage, setUploadingImage] = useState<string | null>(null)
+const emptyForm: EditForm = {
+  id: null,
+  name: '',
+  city: '',
+  imageUrl: '',
+  ownerId: '',
+  incomeReceiver: 'OWNER',
+  commissionType: 'PERCENTAGE',
+  commissionValue: '15',
+  commissionVat: '21',
+  cleaningType: 'FIXED_PER_RESERVATION',
+  cleaningValue: '0',
+  cleaningFeeRecipient: 'MANAGER',
+  cleaningFeeSplitPct: '',
+  monthlyFee: '0',
+  monthlyFeeVat: '21',
+  defaultVatRate: '21',
+  defaultRetentionRate: '0',
+  invoiceDetailLevel: 'DETAILED'
+}
 
-  // Edit state
-  const [editingConfig, setEditingConfig] = useState<{
-    propertyId: string
-    name: string
-    city: string
-    profileImage: string
-    ownerId: string
-    incomeReceiver: 'OWNER' | 'MANAGER'
-    commissionType: string
-    commissionValue: string
-    commissionVat: string
-    cleaningType: string
-    cleaningValue: string
-    cleaningFeeRecipient: 'OWNER' | 'MANAGER' | 'SPLIT'
-    cleaningFeeSplitPct: string
-    monthlyFee: string
-    monthlyFeeVat: string
-    monthlyFeeConcept: string
-    // Tax rates
-    defaultVatRate: string
-    defaultRetentionRate: string
-    invoiceDetailLevel: 'DETAILED' | 'SUMMARY'
-  } | null>(null)
+export default function ApartamentosPage() {
+  const [loading, setLoading] = useState(true)
+  const [billingUnits, setBillingUnits] = useState<BillingUnit[]>([])
+  const [owners, setOwners] = useState<OwnerFull[]>([])
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState<EditForm | null>(null)
+  const [showNewForm, setShowNewForm] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -96,14 +116,14 @@ export default function ConfiguracionPage() {
   const fetchData = async () => {
     try {
       setLoading(true)
-      const [propertiesRes, ownersRes] = await Promise.all([
-        fetch('/api/gestion/properties-config', { credentials: 'include' }),
+      const [unitsRes, ownersRes] = await Promise.all([
+        fetch('/api/gestion/billing-units', { credentials: 'include' }),
         fetch('/api/gestion/owners', { credentials: 'include' })
       ])
 
-      if (propertiesRes.ok) {
-        const data = await propertiesRes.json()
-        setProperties(data.properties || [])
+      if (unitsRes.ok) {
+        const data = await unitsRes.json()
+        setBillingUnits(data.billingUnits || [])
       }
 
       if (ownersRes.ok) {
@@ -117,151 +137,135 @@ export default function ConfiguracionPage() {
     }
   }
 
-  const startEditing = (property: Property) => {
-    const config = property.billingConfig
-    setEditingConfig({
-      propertyId: property.id,
-      name: property.name || '',
-      city: property.city || '',
-      profileImage: property.profileImage || '',
-      ownerId: config?.ownerId || '',
-      incomeReceiver: config?.incomeReceiver || 'OWNER',
-      commissionType: config?.commissionType || 'PERCENTAGE',
-      commissionValue: config?.commissionValue?.toString() || '15',
-      commissionVat: config?.commissionVat?.toString() || '21',
-      cleaningType: config?.cleaningType || 'FIXED_PER_RESERVATION',
-      cleaningValue: config?.cleaningValue?.toString() || '0',
-      cleaningFeeRecipient: config?.cleaningFeeRecipient || 'MANAGER',
-      cleaningFeeSplitPct: config?.cleaningFeeSplitPct?.toString() || '',
-      monthlyFee: config?.monthlyFee?.toString() || '0',
+  const startEditing = (unit: BillingUnit) => {
+    setEditForm({
+      id: unit.id,
+      name: unit.name || '',
+      city: unit.city || '',
+      imageUrl: unit.imageUrl || '',
+      ownerId: unit.ownerId || '',
+      incomeReceiver: 'OWNER',
+      commissionType: unit.commissionType || 'PERCENTAGE',
+      commissionValue: unit.commissionValue?.toString() || '15',
+      commissionVat: '21',
+      cleaningType: 'FIXED_PER_RESERVATION',
+      cleaningValue: unit.cleaningValue?.toString() || '0',
+      cleaningFeeRecipient: 'MANAGER',
+      cleaningFeeSplitPct: '',
+      monthlyFee: '0',
       monthlyFeeVat: '21',
-      monthlyFeeConcept: '',
-      defaultVatRate: config?.defaultVatRate?.toString() || '21',
-      defaultRetentionRate: config?.defaultRetentionRate?.toString() || '0',
-      invoiceDetailLevel: config?.invoiceDetailLevel || 'DETAILED'
+      defaultVatRate: '21',
+      defaultRetentionRate: '0',
+      invoiceDetailLevel: 'DETAILED'
     })
-    setExpandedProperty(property.id)
+    setExpandedId(unit.id)
+    setShowNewForm(false)
+  }
+
+  const startNew = () => {
+    setEditForm({ ...emptyForm })
+    setShowNewForm(true)
+    setExpandedId(null)
   }
 
   const cancelEditing = () => {
-    setEditingConfig(null)
+    setEditForm(null)
+    setShowNewForm(false)
   }
 
-  const handleImageUpload = async (propertyId: string, file: File) => {
-    setUploadingImage(propertyId)
+  const saveUnit = async () => {
+    if (!editForm) return
+
+    setSaving(true)
     try {
-      // Upload file first
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('variant', 'property')
-
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
-        credentials: 'include',
-        body: formData
-      })
-
-      if (!uploadRes.ok) {
-        throw new Error('Error uploading file')
+      const payload = {
+        name: editForm.name.trim(),
+        city: editForm.city.trim() || null,
+        imageUrl: editForm.imageUrl || null,
+        ownerId: editForm.ownerId || null,
+        incomeReceiver: editForm.incomeReceiver,
+        commissionType: editForm.commissionType,
+        commissionValue: parseFloat(editForm.commissionValue) || 0,
+        commissionVat: parseFloat(editForm.commissionVat) || 21,
+        cleaningType: editForm.cleaningType,
+        cleaningValue: parseFloat(editForm.cleaningValue) || 0,
+        cleaningFeeRecipient: editForm.cleaningFeeRecipient,
+        cleaningFeeSplitPct: editForm.cleaningFeeSplitPct ? parseFloat(editForm.cleaningFeeSplitPct) : null,
+        monthlyFee: parseFloat(editForm.monthlyFee) || 0,
+        monthlyFeeVat: parseFloat(editForm.monthlyFeeVat) || 21,
+        defaultVatRate: parseFloat(editForm.defaultVatRate) || 21,
+        defaultRetentionRate: parseFloat(editForm.defaultRetentionRate) || 0,
+        invoiceDetailLevel: editForm.invoiceDetailLevel
       }
 
-      const uploadData = await uploadRes.json()
-      const imageUrl = uploadData.url
+      const isNew = !editForm.id
+      const url = isNew
+        ? '/api/gestion/billing-units'
+        : `/api/gestion/billing-units/${editForm.id}`
 
-      // Update property with new image
-      const response = await fetch(`/api/gestion/properties/${propertyId}/image`, {
-        method: 'PUT',
+      const response = await fetch(url, {
+        method: isNew ? 'POST' : 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ profileImage: imageUrl })
+        body: JSON.stringify(payload)
       })
 
       if (response.ok) {
-        if (editingConfig?.propertyId === propertyId) {
-          setEditingConfig(prev => prev ? { ...prev, profileImage: imageUrl } : null)
-        }
+        setEditForm(null)
+        setShowNewForm(false)
         fetchData()
+      } else {
+        const data = await response.json()
+        alert(data.error || 'Error al guardar')
       }
     } catch (error) {
-      console.error('Error uploading image:', error)
+      console.error('Error saving:', error)
+      alert('Error al guardar')
     } finally {
-      setUploadingImage(null)
+      setSaving(false)
     }
   }
 
-  const saveConfig = async () => {
-    if (!editingConfig) return
+  const deleteUnit = async (id: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar este apartamento?')) return
 
-    setSaving(editingConfig.propertyId)
+    setDeleting(id)
     try {
-      // Save property name/city first
-      if (editingConfig.name || editingConfig.city) {
-        await fetch(`/api/gestion/properties/${editingConfig.propertyId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            name: editingConfig.name,
-            city: editingConfig.city
-          })
-        })
-      }
-
-      // Save billing config
-      const response = await fetch(`/api/gestion/properties/${editingConfig.propertyId}/billing-config`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          ownerId: editingConfig.ownerId || null,
-          incomeReceiver: editingConfig.incomeReceiver,
-          commissionType: editingConfig.commissionType,
-          commissionValue: parseFloat(editingConfig.commissionValue) || 0,
-          commissionVat: parseFloat(editingConfig.commissionVat) || 21,
-          cleaningType: editingConfig.cleaningType,
-          cleaningValue: parseFloat(editingConfig.cleaningValue) || 0,
-          cleaningFeeRecipient: editingConfig.cleaningFeeRecipient,
-          cleaningFeeSplitPct: editingConfig.cleaningFeeSplitPct ? parseFloat(editingConfig.cleaningFeeSplitPct) : null,
-          monthlyFee: parseFloat(editingConfig.monthlyFee) || 0,
-          monthlyFeeVat: parseFloat(editingConfig.monthlyFeeVat) || 21,
-          monthlyFeeConcept: editingConfig.monthlyFeeConcept || null,
-          defaultVatRate: parseFloat(editingConfig.defaultVatRate) || 21,
-          defaultRetentionRate: parseFloat(editingConfig.defaultRetentionRate) || 0,
-          invoiceDetailLevel: editingConfig.invoiceDetailLevel
-        })
+      const response = await fetch(`/api/gestion/billing-units/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
       })
 
       if (response.ok) {
-        setEditingConfig(null)
         fetchData()
+      } else {
+        const data = await response.json()
+        alert(data.error || 'Error al eliminar')
       }
     } catch (error) {
-      console.error('Error saving config:', error)
+      console.error('Error deleting:', error)
     } finally {
-      setSaving(null)
+      setDeleting(null)
     }
   }
 
-  const getOwnerName = (owner?: Owner) => {
+  const getOwnerName = (owner?: OwnerFull) => {
     if (!owner) return 'Sin asignar'
     if (owner.type === 'EMPRESA') return owner.companyName || 'Empresa'
     return `${owner.firstName || ''} ${owner.lastName || ''}`.trim() || 'Persona física'
   }
 
-  const configuredCount = properties.filter(p => p.billingConfig?.ownerId).length
+  const configuredCount = billingUnits.filter(u => u.ownerId).length
 
-  const getPropertyStatus = (property: Property) => {
-    if (!property.billingConfig) {
-      return { status: 'pending', label: 'Sin configurar', color: 'bg-red-100 text-red-700' }
-    }
-    if (!property.billingConfig.ownerId) {
+  const getUnitStatus = (unit: BillingUnit) => {
+    if (!unit.ownerId) {
       return { status: 'incomplete', label: 'Sin propietario', color: 'bg-yellow-100 text-yellow-700' }
     }
-    return { status: 'complete', label: 'Configurada', color: 'bg-green-100 text-green-700' }
+    return { status: 'complete', label: 'Configurado', color: 'bg-green-100 text-green-700' }
   }
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando configuración..." type="general" />
+    return <AnimatedLoadingSpinner text="Cargando apartamentos..." type="general" />
   }
 
   return (
@@ -281,27 +285,29 @@ export default function ConfiguracionPage() {
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">Apartamentos</h1>
                   <p className="text-sm text-gray-600">
-                    Asigna propietarios y configura comisiones
+                    Gestiona tus apartamentos y configura comisiones
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                {properties.length > 0 && (
-                  <Badge className={configuredCount === properties.length ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}>
-                    {configuredCount === properties.length ? (
-                      <><Check className="w-3 h-3 mr-1" /> Todas configuradas</>
+                {billingUnits.length > 0 && (
+                  <Badge className={configuredCount === billingUnits.length ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}>
+                    {configuredCount === billingUnits.length ? (
+                      <><Check className="w-3 h-3 mr-1" /> Todos configurados</>
                     ) : (
-                      <>{configuredCount}/{properties.length} configuradas</>
+                      <>{configuredCount}/{billingUnits.length} configurados</>
                     )}
                   </Badge>
                 )}
-                <Link href="/properties/new">
-                  <Button variant="outline" size="sm">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Nuevo apartamento
-                  </Button>
-                </Link>
+                <Button
+                  onClick={startNew}
+                  className="bg-violet-600 hover:bg-violet-700"
+                  disabled={showNewForm}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nuevo apartamento
+                </Button>
                 <Link href="/gestion/clientes">
                   <Button variant="outline" size="sm">
                     <User className="w-4 h-4 mr-2" />
@@ -327,7 +333,7 @@ export default function ConfiguracionPage() {
                     <div>
                       <p className="font-medium text-blue-800">Primero crea tus propietarios</p>
                       <p className="text-sm text-blue-700 mt-1">
-                        Antes de configurar las propiedades, debes crear los propietarios en la sección de Propietarios.
+                        Antes de configurar los apartamentos, debes crear los propietarios.
                       </p>
                       <Link href="/gestion/clientes">
                         <Button size="sm" className="mt-3 bg-blue-600 hover:bg-blue-700">
@@ -342,97 +348,78 @@ export default function ConfiguracionPage() {
             </motion.div>
           )}
 
-          {/* Status Summary - Show when there are unconfigured properties */}
-          {owners.length > 0 && properties.length > 0 && configuredCount < properties.length && (
+          {/* New Apartment Form */}
+          {showNewForm && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
               className="mb-6"
             >
-              <Card className="border-yellow-200 bg-yellow-50">
+              <Card className="border-2 border-violet-300">
                 <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="font-medium text-yellow-800">
-                        {properties.length - configuredCount} {properties.length - configuredCount === 1 ? 'propiedad necesita' : 'propiedades necesitan'} propietario
-                      </p>
-                      <p className="text-sm text-yellow-700 mt-1">
-                        Para poder generar facturas, cada propiedad debe tener un propietario asignado.
-                      </p>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {properties
-                          .filter(p => !p.billingConfig?.ownerId)
-                          .map(p => (
-                            <button
-                              key={p.id}
-                              onClick={() => startEditing(p)}
-                              className="inline-flex items-center gap-1 px-2 py-1 bg-white border border-yellow-300 rounded text-sm text-yellow-800 hover:bg-yellow-100 transition-colors"
-                            >
-                              <Home className="w-3 h-3" />
-                              {p.name}
-                            </button>
-                          ))
-                        }
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                      <Plus className="w-5 h-5 text-violet-600" />
+                      Nuevo apartamento
+                    </h3>
+                    <button onClick={cancelEditing} className="text-gray-400 hover:text-gray-600">
+                      <X className="w-5 h-5" />
+                    </button>
                   </div>
+                  {renderForm()}
                 </CardContent>
               </Card>
             </motion.div>
           )}
 
-          {/* Properties List */}
+          {/* Apartments List */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            {properties.length === 0 ? (
+            {billingUnits.length === 0 && !showNewForm ? (
               <Card>
                 <CardContent className="p-8 text-center">
                   <Home className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                   <p className="text-gray-700 font-medium mb-2">No tienes apartamentos</p>
                   <p className="text-sm text-gray-500 mb-4">
-                    Crea tu primer apartamento para poder configurar la facturación y gestionar reservas.
+                    Crea tu primer apartamento para empezar a gestionar reservas y facturación.
                   </p>
-                  <Link href="/properties/new">
-                    <Button className="bg-violet-600 hover:bg-violet-700">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Crear apartamento
-                    </Button>
-                  </Link>
+                  <Button onClick={startNew} className="bg-violet-600 hover:bg-violet-700">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Crear apartamento
+                  </Button>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-4">
-                {properties.map((property, index) => {
-                  const isEditing = editingConfig?.propertyId === property.id
-                  const isExpanded = expandedProperty === property.id
-                  const propertyStatus = getPropertyStatus(property)
+                {billingUnits.map((unit, index) => {
+                  const isEditing = editForm?.id === unit.id
+                  const isExpanded = expandedId === unit.id
+                  const unitStatus = getUnitStatus(unit)
 
                   return (
                     <motion.div
-                      key={property.id}
+                      key={unit.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
                     >
-                      <Card className={`${propertyStatus.status === 'complete' ? 'border-l-4 border-l-green-500' : propertyStatus.status === 'incomplete' ? 'border-l-4 border-l-yellow-400' : 'border-l-4 border-l-red-400'}`}>
+                      <Card className={`${unitStatus.status === 'complete' ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-yellow-400'}`}>
                         <CardContent className="p-0">
-                          {/* Property Header */}
+                          {/* Unit Header */}
                           <div
                             className="p-4 flex items-center justify-between cursor-pointer"
-                            onClick={() => setExpandedProperty(isExpanded ? null : property.id)}
+                            onClick={() => setExpandedId(isExpanded ? null : unit.id)}
                           >
                             <div className="flex items-center gap-4">
-                              {/* Property Image with Upload */}
-                              <div className="relative group">
-                                {property.profileImage ? (
+                              {/* Image */}
+                              <div className="relative">
+                                {unit.imageUrl ? (
                                   <img
-                                    src={property.profileImage}
-                                    alt={property.name}
+                                    src={unit.imageUrl}
+                                    alt={unit.name}
                                     className="w-14 h-14 object-cover rounded-lg"
                                   />
                                 ) : (
@@ -440,53 +427,34 @@ export default function ConfiguracionPage() {
                                     <Home className="w-6 h-6 text-gray-400" />
                                   </div>
                                 )}
-                                {/* Upload overlay */}
-                                <label
-                                  className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <input
-                                    type="file"
-                                    accept="image/jpeg,image/jpg,image/png,image/webp"
-                                    className="hidden"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0]
-                                      if (file) handleImageUpload(property.id, file)
-                                    }}
-                                    disabled={uploadingImage === property.id}
-                                  />
-                                  {uploadingImage === property.id ? (
-                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                  ) : (
-                                    <Camera className="w-5 h-5 text-white" />
-                                  )}
-                                </label>
                               </div>
                               <div>
-                                <h3 className="font-semibold text-gray-900">{property.name}</h3>
-                                <p className="text-sm text-gray-500">{property.city}</p>
+                                <h3 className="font-semibold text-gray-900">{unit.name}</h3>
+                                <p className="text-sm text-gray-500">{unit.city || 'Sin ciudad'}</p>
                                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                  {/* Status badge */}
-                                  <Badge className={`${propertyStatus.color} text-xs`}>
-                                    {propertyStatus.status === 'complete' ? (
+                                  <Badge className={`${unitStatus.color} text-xs`}>
+                                    {unitStatus.status === 'complete' ? (
                                       <Check className="w-3 h-3 mr-1" />
                                     ) : (
                                       <AlertCircle className="w-3 h-3 mr-1" />
                                     )}
-                                    {propertyStatus.label}
+                                    {unitStatus.label}
                                   </Badge>
-                                  {/* Owner name if configured */}
-                                  {property.billingConfig?.ownerId && (
+                                  {unit.owner && (
                                     <Badge className="bg-gray-100 text-gray-700 text-xs">
                                       <User className="w-3 h-3 mr-1" />
-                                      {getOwnerName(property.billingConfig?.owner)}
+                                      {unit.owner.name}
                                     </Badge>
                                   )}
-                                  {/* Commission if configured */}
-                                  {property.billingConfig && property.billingConfig.commissionValue > 0 && (
+                                  {unit.commissionValue > 0 && (
                                     <Badge className="bg-violet-100 text-violet-700 text-xs">
                                       <Percent className="w-3 h-3 mr-1" />
-                                      {property.billingConfig.commissionValue}%
+                                      {unit.commissionValue}%
+                                    </Badge>
+                                  )}
+                                  {unit.reservationsCount > 0 && (
+                                    <Badge className="bg-blue-100 text-blue-700 text-xs">
+                                      {unit.reservationsCount} reservas
                                     </Badge>
                                   )}
                                 </div>
@@ -494,14 +462,31 @@ export default function ConfiguracionPage() {
                             </div>
                             <div className="flex items-center gap-2">
                               {!isEditing && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={(e) => { e.stopPropagation(); startEditing(property) }}
-                                >
-                                  <Edit2 className="w-4 h-4 mr-1" />
-                                  Configurar
-                                </Button>
+                                <>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={(e) => { e.stopPropagation(); startEditing(unit) }}
+                                  >
+                                    <Edit2 className="w-4 h-4 mr-1" />
+                                    Editar
+                                  </Button>
+                                  {unit.invoicesCount === 0 && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={(e) => { e.stopPropagation(); deleteUnit(unit.id) }}
+                                      disabled={deleting === unit.id}
+                                      className="text-red-600 hover:text-red-700 hover:border-red-300"
+                                    >
+                                      {deleting === unit.id ? (
+                                        <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                                      ) : (
+                                        <Trash2 className="w-4 h-4" />
+                                      )}
+                                    </Button>
+                                  )}
+                                </>
                               )}
                               {isExpanded ? (
                                 <ChevronUp className="w-5 h-5 text-gray-400" />
@@ -511,297 +496,52 @@ export default function ConfiguracionPage() {
                             </div>
                           </div>
 
-                          {/* Expanded Config Form */}
+                          {/* Expanded Edit Form */}
                           {isExpanded && isEditing && (
                             <div className="border-t border-gray-200 p-4 bg-gray-50">
-                              <div className="grid sm:grid-cols-2 gap-4">
-                                {/* Property Name */}
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Nombre del apartamento
-                                  </label>
-                                  <input
-                                    type="text"
-                                    value={editingConfig.name}
-                                    onChange={(e) => setEditingConfig(prev => prev ? { ...prev, name: e.target.value } : null)}
-                                    placeholder="Ej: Apartamento Centro"
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                  />
-                                </div>
-
-                                {/* City */}
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Ciudad
-                                  </label>
-                                  <input
-                                    type="text"
-                                    value={editingConfig.city}
-                                    onChange={(e) => setEditingConfig(prev => prev ? { ...prev, city: e.target.value } : null)}
-                                    placeholder="Ej: Madrid"
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                  />
-                                </div>
-
-                                {/* Owner Selection */}
-                                <div className="sm:col-span-2">
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Propietario
-                                  </label>
-                                  <select
-                                    value={editingConfig.ownerId}
-                                    onChange={(e) => setEditingConfig(prev => prev ? { ...prev, ownerId: e.target.value } : null)}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                  >
-                                    <option value="">Sin propietario (propiedad propia)</option>
-                                    {owners.map(owner => (
-                                      <option key={owner.id} value={owner.id}>
-                                        {getOwnerName(owner)} - {owner.type === 'EMPRESA' ? owner.cif : owner.nif}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
-
-                                {/* Income Receiver */}
-                                <div className="sm:col-span-2">
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    ¿Quién cobra las reservas?
-                                  </label>
-                                  <div className="flex gap-4">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                      <input
-                                        type="radio"
-                                        checked={editingConfig.incomeReceiver === 'OWNER'}
-                                        onChange={() => setEditingConfig(prev => prev ? { ...prev, incomeReceiver: 'OWNER' } : null)}
-                                        className="text-violet-600 focus:ring-violet-500"
-                                      />
-                                      <span className="text-sm">Propietario (tú facturas servicios)</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                      <input
-                                        type="radio"
-                                        checked={editingConfig.incomeReceiver === 'MANAGER'}
-                                        onChange={() => setEditingConfig(prev => prev ? { ...prev, incomeReceiver: 'MANAGER' } : null)}
-                                        className="text-violet-600 focus:ring-violet-500"
-                                      />
-                                      <span className="text-sm">Gestor (tú transfieres al propietario)</span>
-                                    </label>
-                                  </div>
-                                </div>
-
-                                {/* Commission */}
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Tipo de comisión
-                                  </label>
-                                  <select
-                                    value={editingConfig.commissionType}
-                                    onChange={(e) => setEditingConfig(prev => prev ? { ...prev, commissionType: e.target.value } : null)}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                  >
-                                    <option value="PERCENTAGE">Porcentaje</option>
-                                    <option value="FIXED_PER_RESERVATION">Fijo por reserva</option>
-                                    <option value="FIXED_MONTHLY">Fijo mensual</option>
-                                    <option value="NONE">Sin comisión</option>
-                                  </select>
-                                </div>
-
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    {editingConfig.commissionType === 'PERCENTAGE' ? 'Porcentaje (%)' : 'Importe (€)'}
-                                  </label>
-                                  <input
-                                    type="number"
-                                    step="0.01"
-                                    value={editingConfig.commissionValue}
-                                    onChange={(e) => setEditingConfig(prev => prev ? { ...prev, commissionValue: e.target.value } : null)}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                  />
-                                </div>
-
-                                {/* Cleaning */}
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Limpieza
-                                  </label>
-                                  <select
-                                    value={editingConfig.cleaningType}
-                                    onChange={(e) => setEditingConfig(prev => prev ? { ...prev, cleaningType: e.target.value } : null)}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                  >
-                                    <option value="FIXED_PER_RESERVATION">Fijo por reserva</option>
-                                    <option value="PER_NIGHT">Por noche</option>
-                                    <option value="NONE">Sin limpieza</option>
-                                  </select>
-                                </div>
-
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Importe limpieza (€)
-                                  </label>
-                                  <input
-                                    type="number"
-                                    step="0.01"
-                                    value={editingConfig.cleaningValue}
-                                    onChange={(e) => setEditingConfig(prev => prev ? { ...prev, cleaningValue: e.target.value } : null)}
-                                    disabled={editingConfig.cleaningType === 'NONE'}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:bg-gray-100"
-                                  />
-                                </div>
-
-                                {/* Cleaning Fee Recipient */}
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    ¿Quién recibe la limpieza?
-                                  </label>
-                                  <select
-                                    value={editingConfig.cleaningFeeRecipient}
-                                    onChange={(e) => setEditingConfig(prev => prev ? { ...prev, cleaningFeeRecipient: e.target.value as 'OWNER' | 'MANAGER' | 'SPLIT' } : null)}
-                                    disabled={editingConfig.cleaningType === 'NONE'}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:bg-gray-100"
-                                  >
-                                    <option value="MANAGER">Gestor (yo)</option>
-                                    <option value="OWNER">Propietario</option>
-                                    <option value="SPLIT">Repartir</option>
-                                  </select>
-                                </div>
-
-                                {editingConfig.cleaningFeeRecipient === 'SPLIT' && (
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                      % limpieza para gestor
-                                    </label>
-                                    <input
-                                      type="number"
-                                      step="1"
-                                      min="0"
-                                      max="100"
-                                      value={editingConfig.cleaningFeeSplitPct}
-                                      onChange={(e) => setEditingConfig(prev => prev ? { ...prev, cleaningFeeSplitPct: e.target.value } : null)}
-                                      placeholder="50"
-                                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                    />
-                                  </div>
-                                )}
-
-                                {/* Monthly Fee */}
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Cuota mensual (€)
-                                  </label>
-                                  <input
-                                    type="number"
-                                    step="0.01"
-                                    value={editingConfig.monthlyFee}
-                                    onChange={(e) => setEditingConfig(prev => prev ? { ...prev, monthlyFee: e.target.value } : null)}
-                                    placeholder="0.00"
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    IVA comisión (%)
-                                  </label>
-                                  <input
-                                    type="number"
-                                    step="0.01"
-                                    value={editingConfig.commissionVat}
-                                    onChange={(e) => setEditingConfig(prev => prev ? { ...prev, commissionVat: e.target.value } : null)}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                  />
-                                </div>
-
-                                {/* Tax Rates */}
-                                <div className="sm:col-span-2 border-t border-gray-200 pt-4 mt-2">
-                                  <p className="text-sm font-medium text-gray-700 mb-3">Fiscalidad por defecto</p>
-                                  <div className="grid sm:grid-cols-3 gap-4">
-                                    <div>
-                                      <label className="block text-sm text-gray-600 mb-1">
-                                        IVA por defecto (%)
-                                      </label>
-                                      <select
-                                        value={editingConfig.defaultVatRate}
-                                        onChange={(e) => setEditingConfig(prev => prev ? { ...prev, defaultVatRate: e.target.value } : null)}
-                                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                      >
-                                        <option value="21">21% (General)</option>
-                                        <option value="10">10% (Reducido)</option>
-                                        <option value="0">0% (Exento)</option>
-                                      </select>
-                                    </div>
-
-                                    <div>
-                                      <label className="block text-sm text-gray-600 mb-1">
-                                        Detalle en factura
-                                      </label>
-                                      <select
-                                        value={editingConfig.invoiceDetailLevel}
-                                        onChange={(e) => setEditingConfig(prev => prev ? { ...prev, invoiceDetailLevel: e.target.value as 'DETAILED' | 'SUMMARY' } : null)}
-                                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                      >
-                                        <option value="DETAILED">Detallado (una línea por reserva)</option>
-                                        <option value="SUMMARY">Resumido (total del periodo)</option>
-                                      </select>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Actions */}
-                              <div className="flex justify-end gap-3 mt-6">
-                                <Button
-                                  variant="outline"
-                                  onClick={cancelEditing}
-                                  disabled={saving === property.id}
-                                >
-                                  Cancelar
-                                </Button>
-                                <Button
-                                  onClick={saveConfig}
-                                  disabled={saving === property.id}
-                                  className="bg-violet-600 hover:bg-violet-700"
-                                >
-                                  {saving === property.id ? (
-                                    'Guardando...'
-                                  ) : (
-                                    <>
-                                      <Check className="w-4 h-4 mr-2" />
-                                      Guardar
-                                    </>
-                                  )}
-                                </Button>
-                              </div>
+                              {renderForm()}
                             </div>
                           )}
 
                           {/* Expanded Info (not editing) */}
-                          {isExpanded && !isEditing && property.billingConfig && (
+                          {isExpanded && !isEditing && (
                             <div className="border-t border-gray-200 p-4 bg-gray-50">
-                              <div className="grid sm:grid-cols-3 gap-4 text-sm">
-                                <div>
-                                  <p className="text-gray-500">Modelo de cobro</p>
-                                  <p className="font-medium">
-                                    {property.billingConfig.incomeReceiver === 'OWNER'
-                                      ? 'Propietario cobra'
-                                      : 'Gestor cobra'}
-                                  </p>
-                                </div>
+                              <div className="grid sm:grid-cols-4 gap-4 text-sm">
                                 <div>
                                   <p className="text-gray-500">Comisión</p>
-                                  <p className="font-medium">
-                                    {property.billingConfig.commissionValue}% + {property.billingConfig.commissionVat}% IVA
-                                  </p>
+                                  <p className="font-medium">{unit.commissionValue}%</p>
                                 </div>
                                 <div>
                                   <p className="text-gray-500">Limpieza</p>
-                                  <p className="font-medium">
-                                    {property.billingConfig.cleaningType === 'NONE'
-                                      ? 'Sin limpieza'
-                                      : `${property.billingConfig.cleaningValue}€`}
-                                  </p>
+                                  <p className="font-medium">{unit.cleaningValue}€</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-500">Reservas</p>
+                                  <p className="font-medium">{unit.reservationsCount}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-500">Facturas</p>
+                                  <p className="font-medium">{unit.invoicesCount}</p>
                                 </div>
                               </div>
+                              {/* Platform names */}
+                              {(unit.airbnbNames.length > 0 || unit.bookingNames.length > 0) && (
+                                <div className="mt-4 pt-4 border-t border-gray-200">
+                                  <p className="text-sm text-gray-500 mb-2">Nombres en plataformas (para matching):</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {unit.airbnbNames.map((name, i) => (
+                                      <Badge key={`airbnb-${i}`} className="bg-red-100 text-red-700 text-xs">
+                                        Airbnb: {name}
+                                      </Badge>
+                                    ))}
+                                    {unit.bookingNames.map((name, i) => (
+                                      <Badge key={`booking-${i}`} className="bg-blue-100 text-blue-700 text-xs">
+                                        Booking: {name}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           )}
                         </CardContent>
@@ -818,4 +558,205 @@ export default function ConfiguracionPage() {
       <DashboardFooter />
     </div>
   )
+
+  function renderForm() {
+    if (!editForm) return null
+
+    return (
+      <div className="space-y-4">
+        <div className="grid sm:grid-cols-2 gap-4">
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nombre del apartamento *
+            </label>
+            <input
+              type="text"
+              value={editForm.name}
+              onChange={(e) => setEditForm(prev => prev ? { ...prev, name: e.target.value } : null)}
+              placeholder="Ej: Apartamento Centro"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            />
+          </div>
+
+          {/* City */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Ciudad
+            </label>
+            <input
+              type="text"
+              value={editForm.city}
+              onChange={(e) => setEditForm(prev => prev ? { ...prev, city: e.target.value } : null)}
+              placeholder="Ej: Madrid"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            />
+          </div>
+
+          {/* Owner */}
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Propietario
+            </label>
+            <select
+              value={editForm.ownerId}
+              onChange={(e) => setEditForm(prev => prev ? { ...prev, ownerId: e.target.value } : null)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            >
+              <option value="">Sin propietario (propiedad propia)</option>
+              {owners.map(owner => (
+                <option key={owner.id} value={owner.id}>
+                  {getOwnerName(owner)} - {owner.type === 'EMPRESA' ? owner.cif : owner.nif}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Income Receiver */}
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              ¿Quién cobra las reservas?
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  checked={editForm.incomeReceiver === 'OWNER'}
+                  onChange={() => setEditForm(prev => prev ? { ...prev, incomeReceiver: 'OWNER' } : null)}
+                  className="text-violet-600 focus:ring-violet-500"
+                />
+                <span className="text-sm">Propietario (tú facturas servicios)</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  checked={editForm.incomeReceiver === 'MANAGER'}
+                  onChange={() => setEditForm(prev => prev ? { ...prev, incomeReceiver: 'MANAGER' } : null)}
+                  className="text-violet-600 focus:ring-violet-500"
+                />
+                <span className="text-sm">Gestor (tú transfieres al propietario)</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Commission */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tipo de comisión
+            </label>
+            <select
+              value={editForm.commissionType}
+              onChange={(e) => setEditForm(prev => prev ? { ...prev, commissionType: e.target.value } : null)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            >
+              <option value="PERCENTAGE">Porcentaje</option>
+              <option value="FIXED_PER_RESERVATION">Fijo por reserva</option>
+              <option value="FIXED_MONTHLY">Fijo mensual</option>
+              <option value="NONE">Sin comisión</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {editForm.commissionType === 'PERCENTAGE' ? 'Porcentaje (%)' : 'Importe (€)'}
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={editForm.commissionValue}
+              onChange={(e) => setEditForm(prev => prev ? { ...prev, commissionValue: e.target.value } : null)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            />
+          </div>
+
+          {/* Cleaning */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Limpieza
+            </label>
+            <select
+              value={editForm.cleaningType}
+              onChange={(e) => setEditForm(prev => prev ? { ...prev, cleaningType: e.target.value } : null)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            >
+              <option value="FIXED_PER_RESERVATION">Fijo por reserva</option>
+              <option value="PER_NIGHT">Por noche</option>
+              <option value="NONE">Sin limpieza</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Importe limpieza (€)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={editForm.cleaningValue}
+              onChange={(e) => setEditForm(prev => prev ? { ...prev, cleaningValue: e.target.value } : null)}
+              disabled={editForm.cleaningType === 'NONE'}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:bg-gray-100"
+            />
+          </div>
+
+          {/* Cleaning Fee Recipient */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              ¿Quién recibe la limpieza?
+            </label>
+            <select
+              value={editForm.cleaningFeeRecipient}
+              onChange={(e) => setEditForm(prev => prev ? { ...prev, cleaningFeeRecipient: e.target.value as 'OWNER' | 'MANAGER' | 'SPLIT' } : null)}
+              disabled={editForm.cleaningType === 'NONE'}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:bg-gray-100"
+            >
+              <option value="MANAGER">Gestor (yo)</option>
+              <option value="OWNER">Propietario</option>
+              <option value="SPLIT">Repartir</option>
+            </select>
+          </div>
+
+          {/* Monthly Fee */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Cuota mensual (€)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={editForm.monthlyFee}
+              onChange={(e) => setEditForm(prev => prev ? { ...prev, monthlyFee: e.target.value } : null)}
+              placeholder="0.00"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            />
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <Button
+            variant="outline"
+            onClick={cancelEditing}
+            disabled={saving}
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={saveUnit}
+            disabled={saving || !editForm.name.trim()}
+            className="bg-violet-600 hover:bg-violet-700"
+          >
+            {saving ? (
+              'Guardando...'
+            ) : (
+              <>
+                <Check className="w-4 h-4 mr-2" />
+                {editForm.id ? 'Guardar cambios' : 'Crear apartamento'}
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    )
+  }
 }

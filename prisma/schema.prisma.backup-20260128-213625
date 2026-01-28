@@ -96,7 +96,6 @@ model User {
   gmailIntegration        GmailIntegration?
   reservationPayments     ReservationPayment[]
   importTemplates         ImportTemplate[]
-  billingUnits            BillingUnit[]
   // Módulos activos del usuario
   modules                 UserModule[]
 
@@ -115,7 +114,6 @@ model UserModule {
   canceledAt           DateTime?
   stripeSubscriptionId String?    @unique
   subscriptionPlanId   String? // Solo para MANUALES
-  trialStartedAt       DateTime?  // Cuando comenzó el trial
   trialEndsAt          DateTime?
   createdAt            DateTime   @default(now())
   updatedAt            DateTime   @updatedAt
@@ -2215,7 +2213,6 @@ model PropertyOwner {
   // Relaciones
   user           User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   billingConfigs PropertyBillingConfig[]
-  billingUnits   BillingUnit[]
   liquidations   Liquidation[]
   clientInvoices ClientInvoice[]
 
@@ -2322,76 +2319,6 @@ enum InvoiceDetailLevel {
   SUMMARY // Solo totales agrupados
 }
 
-// ========================================
-// BILLING UNIT (Apartamento independiente para Gestión)
-// ========================================
-// Unidad de facturación independiente del módulo Manuales.
-// No requiere una Property asociada.
-model BillingUnit {
-  id     String @id @default(cuid())
-  userId String // Usuario gestor propietario
-
-  // Datos básicos del apartamento
-  name     String  // Nombre del apartamento
-  city     String? // Ciudad
-  imageUrl String? // Imagen del apartamento
-
-  // Propietario (null si es propiedad propia del gestor)
-  ownerId String?
-
-  // Nombres en plataformas (para matching automático de reservas)
-  airbnbNames  String[] @default([])
-  bookingNames String[] @default([])
-  vrboNames    String[] @default([])
-
-  // ¿Quién recibe el dinero de las reservas?
-  incomeReceiver IncomeReceiver @default(OWNER)
-
-  // Comisión de gestión
-  commissionType  CommissionType @default(PERCENTAGE)
-  commissionValue Decimal        @default(0)
-  commissionVat   Decimal        @default(21)
-
-  // Limpieza
-  cleaningType         CleaningType         @default(FIXED_PER_RESERVATION)
-  cleaningValue        Decimal              @default(0)
-  cleaningVatIncluded  Boolean              @default(true)
-  cleaningFeeRecipient CleaningFeeRecipient @default(MANAGER)
-  cleaningFeeSplitPct  Decimal?
-
-  // Cargo fijo mensual (opcional)
-  monthlyFee        Decimal @default(0)
-  monthlyFeeVat     Decimal @default(21)
-  monthlyFeeConcept String?
-
-  // Fiscalidad por defecto
-  defaultVatRate       Decimal @default(21)
-  defaultRetentionRate Decimal @default(0)
-
-  // Preferencias de factura
-  invoiceDetailLevel InvoiceDetailLevel @default(DETAILED)
-  singleConceptText  String?
-
-  // Sync con calendario iCal
-  icalUrl      String?
-  lastIcalSync DateTime?
-
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relaciones
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  owner        PropertyOwner? @relation(fields: [ownerId], references: [id])
-  reservations Reservation[]
-  expenses     PropertyExpense[]
-  invoices     ClientInvoice[]
-
-  @@index([userId])
-  @@index([ownerId])
-  @@map("billing_units")
-}
-
 // Reservas importadas (de Airbnb, Booking, etc.)
 // ========================================
 // HUÉSPEDES (CRM)
@@ -2437,10 +2364,9 @@ model Guest {
 }
 
 model Reservation {
-  id              String  @id @default(cuid())
-  userId          String  // Usuario gestor
-  billingConfigId String? // (Legacy) Configuración de la propiedad
-  billingUnitId   String? // (Nuevo) Unidad de facturación independiente
+  id              String @id @default(cuid())
+  userId          String // Usuario gestor
+  billingConfigId String // Configuración de la propiedad
 
   // Identificación
   platform         ReservationPlatform
@@ -2508,14 +2434,13 @@ model Reservation {
   updatedAt DateTime @updatedAt
 
   // Relaciones
-  user                User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  billingConfig       PropertyBillingConfig? @relation(fields: [billingConfigId], references: [id])
-  billingUnit         BillingUnit?           @relation(fields: [billingUnitId], references: [id])
-  guest               Guest?                 @relation(fields: [guestId], references: [id])
-  liquidation         Liquidation?           @relation(fields: [liquidationId], references: [id])
-  relatedReservation  Reservation?           @relation("ReservationRelation", fields: [relatedReservationId], references: [id])
-  relatedReservations Reservation[]          @relation("ReservationRelation")
-  invoiceItem         ClientInvoiceItem?     @relation(fields: [invoiceItemId], references: [id])
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingConfig       PropertyBillingConfig @relation(fields: [billingConfigId], references: [id])
+  guest               Guest?                @relation(fields: [guestId], references: [id])
+  liquidation         Liquidation?          @relation(fields: [liquidationId], references: [id])
+  relatedReservation  Reservation?          @relation("ReservationRelation", fields: [relatedReservationId], references: [id])
+  relatedReservations Reservation[]         @relation("ReservationRelation")
+  invoiceItem         ClientInvoiceItem?    @relation(fields: [invoiceItemId], references: [id])
   payments            ReservationPayment[]
 
   @@unique([billingConfigId, platform, confirmationCode])
@@ -2633,10 +2558,9 @@ enum BillingAction {
 
 // Gastos por propiedad
 model PropertyExpense {
-  id              String  @id @default(cuid())
+  id              String @id @default(cuid())
   userId          String
-  billingConfigId String? // (Legacy)
-  billingUnitId   String? // (Nuevo)
+  billingConfigId String
 
   date      DateTime
   concept   String
@@ -2660,14 +2584,12 @@ model PropertyExpense {
   updatedAt DateTime @updatedAt
 
   // Relaciones
-  user          User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  billingConfig PropertyBillingConfig? @relation(fields: [billingConfigId], references: [id])
-  billingUnit   BillingUnit?           @relation(fields: [billingUnitId], references: [id])
-  liquidation   Liquidation?           @relation(fields: [liquidationId], references: [id])
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingConfig PropertyBillingConfig @relation(fields: [billingConfigId], references: [id])
+  liquidation   Liquidation?          @relation(fields: [liquidationId], references: [id])
 
   @@index([userId])
   @@index([billingConfigId])
-  @@index([billingUnitId])
   @@index([date])
   @@index([liquidationId])
   @@map("property_expenses")
@@ -2823,12 +2745,11 @@ model InvoiceSeries {
 
 // Facturas a clientes (propietarios)
 model ClientInvoice {
-  id            String  @id @default(cuid())
-  userId        String
-  ownerId       String
-  seriesId      String
-  propertyId    String? // (Legacy) Propiedad asociada
-  billingUnitId String? // (Nuevo) Unidad de facturación
+  id         String  @id @default(cuid())
+  userId     String
+  ownerId    String
+  seriesId   String
+  propertyId String? // Propiedad asociada (para facturas por propiedad/mes)
 
   // Período de facturación
   periodMonth Int? // 1-12
@@ -2885,7 +2806,6 @@ model ClientInvoice {
   owner       PropertyOwner        @relation(fields: [ownerId], references: [id])
   series      InvoiceSeries        @relation(fields: [seriesId], references: [id])
   property    Property?            @relation(fields: [propertyId], references: [id])
-  billingUnit BillingUnit?         @relation(fields: [billingUnitId], references: [id])
   rectifies   ClientInvoice?       @relation("InvoiceRectification", fields: [rectifiesId], references: [id])
   rectifiedBy ClientInvoice[]      @relation("InvoiceRectification")
   items       ClientInvoiceItem[]
@@ -2895,7 +2815,6 @@ model ClientInvoice {
   @@index([userId])
   @@index([ownerId])
   @@index([propertyId])
-  @@index([billingUnitId])
   @@index([status])
   @@index([issueDate])
   @@index([ownerId, issueDate])
