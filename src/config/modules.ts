@@ -11,7 +11,7 @@
  * Última actualización: 28/01/2026
  */
 
-export type ModuleCode = 'MANUALES' | 'GESTION'
+export type ModuleCode = 'MANUALES' | 'FACTURAMIO'
 
 export type ModuleStatus = 'ACTIVE' | 'CANCELED' | 'TRIAL' | 'EXPIRED'
 
@@ -25,6 +25,7 @@ export interface Module {
   priceYearly: number | null       // -20% si aplica
   icon: string
   color: string
+  trialDays?: number              // días de prueba gratis
   features: string[]
   ctaText: string
   activationUrl: string
@@ -54,16 +55,17 @@ export const MODULES: Record<ModuleCode, Module> = {
     ctaText: 'Activar Manuales',
     activationUrl: '/account/plans'
   },
-  GESTION: {
-    code: 'GESTION',
-    name: 'Gestión de Alquileres',
-    description: 'Gestiona propietarios, importa reservas desde Airbnb y genera facturas y liquidaciones automáticamente.',
-    shortDescription: 'Facturación y propietarios',
+  FACTURAMIO: {
+    code: 'FACTURAMIO',
+    name: 'Facturamio',
+    description: 'Factura como un profesional. Importa reservas, genera facturas y liquidaciones para tus propietarios automáticamente.',
+    shortDescription: 'Facturación profesional',
     basePriceMonthly: 8,      // €8/mes tarifa plana accesible
     priceSemestral: 43.2,     // 8 * 6 * 0.9 = 43.2
     priceYearly: 76.8,        // 8 * 12 * 0.8 = 76.8
-    icon: 'Briefcase',
+    icon: 'Receipt',
     color: '#10B981', // emerald-500
+    trialDays: 14,            // 14 días de prueba gratis
     features: [
       'Gestión de propietarios',
       'Importación de reservas',
@@ -72,8 +74,8 @@ export const MODULES: Record<ModuleCode, Module> = {
       'Control de gastos',
       'Informes de rentabilidad'
     ],
-    ctaText: 'Activar Gestión',
-    activationUrl: '/account/modules/gestion'
+    ctaText: 'Probar 14 días gratis',
+    activationUrl: '/account/modules/facturamio'
   }
 }
 

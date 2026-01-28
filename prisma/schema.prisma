@@ -11,7 +11,8 @@ datasource db {
 // Enum para tipos de módulos de la plataforma
 enum ModuleType {
   MANUALES
-  GESTION
+  GESTION      // @deprecated - usar FACTURAMIO
+  FACTURAMIO   // Nuevo nombre para el módulo de facturación
 }
 
 model User {

@@ -80,12 +80,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verificar módulo aplicable
-    if (coupon.applicableModule && moduleType && coupon.applicableModule !== moduleType) {
-      return NextResponse.json(
-        { success: false, error: `Este cupón solo es válido para el módulo ${coupon.applicableModule === 'MANUALES' ? 'Manuales Digitales' : 'Gestión de Alquileres'}` },
-        { status: 400 }
-      )
+    // Verificar módulo aplicable (FACTURAMIO también acepta cupones de GESTION para compatibilidad)
+    if (coupon.applicableModule && moduleType) {
+      const moduleMatches = coupon.applicableModule === moduleType ||
+        (moduleType === 'FACTURAMIO' && coupon.applicableModule === 'GESTION')
+
+      if (!moduleMatches) {
+        const moduleNames: Record<string, string> = {
+          'MANUALES': 'Manuales Digitales',
+          'GESTION': 'Facturamio',
+          'FACTURAMIO': 'Facturamio'
+        }
+        return NextResponse.json(
+          { success: false, error: `Este cupón solo es válido para ${moduleNames[coupon.applicableModule] || coupon.applicableModule}` },
+          { status: 400 }
+        )
+      }
     }
 
     // Calcular descuento

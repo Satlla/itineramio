@@ -189,7 +189,10 @@ export function useManualesAccess() {
 /**
  * Hook para verificar acceso al módulo GESTION
  */
-export function useGestionAccess() {
+/**
+ * Hook para verificar acceso al módulo FACTURAMIO (antes GESTION)
+ */
+export function useFacturamioAccess() {
   const [access, setAccess] = useState<GestionAccess | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -199,7 +202,7 @@ export function useGestionAccess() {
     setError(null)
 
     try {
-      const response = await fetch('/api/modules/access?module=GESTION', {
+      const response = await fetch('/api/modules/access?module=FACTURAMIO', {
         credentials: 'include',
         cache: 'no-store'
       })
@@ -212,7 +215,7 @@ export function useGestionAccess() {
         setError(result.error || 'Error al verificar acceso')
       }
     } catch (err) {
-      console.error('Error fetching GESTION access:', err)
+      console.error('Error fetching FACTURAMIO access:', err)
       setError('Error de conexión')
     } finally {
       setIsLoading(false)
@@ -229,6 +232,14 @@ export function useGestionAccess() {
     error,
     access,
     isTrialActive: access?.isTrialActive ?? false,
+    trialEndsAt: access?.trialEndsAt ?? null,
     refetch: fetchAccess
   }
+}
+
+/**
+ * @deprecated Use useFacturamioAccess instead
+ */
+export function useGestionAccess() {
+  return useFacturamioAccess()
 }

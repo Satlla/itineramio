@@ -111,16 +111,68 @@ export async function POST(request: NextRequest) {
 async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.Session) {
   const userId = session.metadata?.userId
   const planCode = session.metadata?.planCode
+  const moduleCode = session.metadata?.moduleCode
+  const isModuleSubscription = session.metadata?.isModuleSubscription === 'true'
   const billingPeriod = session.metadata?.billingPeriod
   const couponCode = session.metadata?.couponCode
   const couponDiscountAmount = session.metadata?.couponDiscountAmount
 
+  // Handle module subscription (FACTURAMIO, etc.)
+  if (isModuleSubscription && moduleCode && userId) {
+    console.log('📦 Module subscription checkout:', {
+      userId,
+      moduleCode,
+      billingPeriod,
+      couponCode: couponCode || 'none'
+    })
+
+    const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
+
+    // Create or update UserModule
+    await prisma.userModule.upsert({
+      where: {
+        userId_moduleType: {
+          userId,
+          moduleType: moduleCode as 'MANUALES' | 'GESTION' | 'FACTURAMIO'
+        }
+      },
+      create: {
+        userId,
+        moduleType: moduleCode as 'MANUALES' | 'GESTION' | 'FACTURAMIO',
+        status: 'ACTIVE',
+        isActive: true,
+        activatedAt: new Date(),
+        stripeSubscriptionId: subscription.id,
+        expiresAt: new Date(subscription.current_period_end * 1000)
+      },
+      update: {
+        status: 'ACTIVE',
+        isActive: true,
+        activatedAt: new Date(),
+        stripeSubscriptionId: subscription.id,
+        expiresAt: new Date(subscription.current_period_end * 1000),
+        trialEndsAt: null, // Clear trial if paying
+        canceledAt: null
+      }
+    })
+
+    console.log(`✅ Module ${moduleCode} activated for user ${userId}`)
+
+    // Record coupon if used
+    if (couponCode && couponCode.trim() !== '') {
+      await recordCouponUsage(couponCode, userId, session.id, couponDiscountAmount, session.amount_total)
+    }
+
+    return
+  }
+
+  // Handle plan subscription (BASIC, HOST, etc.) - legacy flow
   if (!userId || !planCode) {
     console.error('Missing metadata in checkout session')
     return
   }
 
-  console.log('📦 Checkout metadata:', {
+  console.log('📦 Plan subscription checkout:', {
     userId,
     planCode,
     billingPeriod,
@@ -182,41 +234,50 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
 
   // Record coupon usage if a coupon was applied
   if (couponCode && couponCode.trim() !== '') {
-    try {
-      console.log(`🎟️ Recording coupon usage: ${couponCode}`)
+    await recordCouponUsage(couponCode, userId, session.id, couponDiscountAmount, session.amount_total)
+  }
+}
 
-      // Find the coupon in our database
-      const coupon = await prisma.coupon.findUnique({
-        where: { code: couponCode.toUpperCase() }
+/**
+ * Helper to record coupon usage
+ */
+async function recordCouponUsage(
+  couponCode: string,
+  userId: string,
+  sessionId: string,
+  discountAmount?: string | null,
+  amountTotal?: number | null
+) {
+  try {
+    console.log(`🎟️ Recording coupon usage: ${couponCode}`)
+
+    const coupon = await prisma.coupon.findUnique({
+      where: { code: couponCode.toUpperCase() }
+    })
+
+    if (coupon) {
+      await prisma.couponUse.create({
+        data: {
+          couponId: coupon.id,
+          userId,
+          orderId: sessionId,
+          discountApplied: discountAmount ? parseFloat(discountAmount) : 0,
+          originalAmount: amountTotal ? amountTotal / 100 : 0,
+          finalAmount: amountTotal ? amountTotal / 100 : 0
+        }
       })
 
-      if (coupon) {
-        // Create coupon use record
-        await prisma.couponUse.create({
-          data: {
-            couponId: coupon.id,
-            userId: userId,
-            orderId: session.id, // Use checkout session ID as reference
-            discountApplied: couponDiscountAmount ? parseFloat(couponDiscountAmount) : 0,
-            originalAmount: session.amount_total ? session.amount_total / 100 : 0,
-            finalAmount: session.amount_total ? session.amount_total / 100 : 0
-          }
-        })
+      await prisma.coupon.update({
+        where: { id: coupon.id },
+        data: { usedCount: { increment: 1 } }
+      })
 
-        // Update coupon usage count
-        await prisma.coupon.update({
-          where: { id: coupon.id },
-          data: { usedCount: { increment: 1 } }
-        })
-
-        console.log(`✅ Coupon usage recorded: ${couponCode} for user ${userId}`)
-      } else {
-        console.log(`⚠️ Coupon not found in database: ${couponCode}`)
-      }
-    } catch (couponError) {
-      console.error('Error recording coupon usage:', couponError)
-      // Don't fail the whole checkout if coupon recording fails
+      console.log(`✅ Coupon usage recorded: ${couponCode} for user ${userId}`)
+    } else {
+      console.log(`⚠️ Coupon not found in database: ${couponCode}`)
     }
+  } catch (couponError) {
+    console.error('Error recording coupon usage:', couponError)
   }
 }
 

@@ -22,7 +22,7 @@ import { toast } from 'react-hot-toast'
 
 interface UserModule {
   id: string
-  moduleType: 'MANUALES' | 'GESTION'
+  moduleType: 'MANUALES' | 'GESTION' | 'FACTURAMIO'
   status: string
   isActive: boolean
   activatedAt: string
@@ -42,7 +42,7 @@ interface UserWithModules {
   createdAt: string
   trialEndsAt: string | null
   manualesModule: UserModule | null
-  gestionModule: UserModule | null
+  gestionModule: UserModule | null // Includes both GESTION and FACTURAMIO
   _count: {
     properties: number
   }
@@ -52,14 +52,14 @@ interface ActivateModalData {
   userId: string
   userName: string
   userEmail: string
-  moduleType: 'MANUALES' | 'GESTION'
+  moduleType: 'MANUALES' | 'FACTURAMIO'
 }
 
 export default function AdminModulesPage() {
   const [users, setUsers] = useState<UserWithModules[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [moduleFilter, setModuleFilter] = useState<'ALL' | 'MANUALES' | 'GESTION'>('ALL')
+  const [moduleFilter, setModuleFilter] = useState<'ALL' | 'MANUALES' | 'FACTURAMIO'>('ALL')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [activateModal, setActivateModal] = useState<ActivateModalData | null>(null)
@@ -243,7 +243,7 @@ export default function AdminModulesPage() {
           >
             <option value="ALL">Todos</option>
             <option value="MANUALES">Con Manuales</option>
-            <option value="GESTION">Con Gestión</option>
+            <option value="FACTURAMIO">Con Facturamio</option>
           </select>
         </div>
       </div>
@@ -272,7 +272,7 @@ export default function AdminModulesPage() {
               <p className="text-2xl font-bold text-gray-900">
                 {users.filter(u => u.gestionModule?.isActive).length}
               </p>
-              <p className="text-sm text-gray-500">Gestión activos</p>
+              <p className="text-sm text-gray-500">Facturamio activos</p>
             </div>
           </div>
         </div>
@@ -332,7 +332,7 @@ export default function AdminModulesPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center gap-1">
                       <Briefcase className="w-4 h-4 text-emerald-500" />
-                      Gestión
+                      Facturamio
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -401,19 +401,19 @@ export default function AdminModulesPage() {
                               userId: user.id,
                               userName: user.name,
                               userEmail: user.email,
-                              moduleType: 'GESTION'
+                              moduleType: 'FACTURAMIO'
                             })}
                             className="px-2 py-1 text-xs font-medium text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
                           >
-                            +Gestión
+                            +Facturamio
                           </button>
                         )}
                         {user.gestionModule?.isActive && (
                           <button
-                            onClick={() => handleDeactivateModule(user.id, 'GESTION', user.name)}
+                            onClick={() => handleDeactivateModule(user.id, user.gestionModule?.moduleType || 'FACTURAMIO', user.name)}
                             className="px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 rounded transition-colors"
                           >
-                            -Gestión
+                            -Facturamio
                           </button>
                         )}
                       </div>
@@ -456,7 +456,7 @@ export default function AdminModulesPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
             <h3 className="text-xl font-bold text-gray-900 mb-2">
-              Activar {activateModal.moduleType === 'MANUALES' ? 'Manuales' : 'Gestión'}
+              Activar {activateModal.moduleType === 'MANUALES' ? 'Manuales' : 'Facturamio'}
             </h3>
             <p className="text-gray-600 mb-6">
               Para <strong>{activateModal.userName}</strong> ({activateModal.userEmail})

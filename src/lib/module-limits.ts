@@ -1,7 +1,7 @@
 /**
  * SERVICIO DE LÍMITES DE MÓDULOS
  *
- * Valida el acceso a los módulos MANUALES y GESTION.
+ * Valida el acceso a los módulos MANUALES y FACTURAMIO.
  * Mantiene compatibilidad con el sistema de suscripciones existente.
  *
  * Prioridad de verificación:
@@ -16,7 +16,7 @@ import {
   type ModuleCode,
   type ModuleAccess,
   type ManualesAccess,
-  type GestionAccess,
+  type GestionAccess as FacturamioAccess,
   type ModuleStatus,
   MODULES,
   createDeniedAccess,
@@ -143,23 +143,21 @@ export class ModuleLimitsService {
   }
 
   /**
-   * Obtener acceso al módulo GESTION
+   * Obtener acceso al módulo FACTURAMIO
    * Tarifa plana sin límite de propiedades
    */
-  async getGestionAccess(userId: string): Promise<GestionAccess> {
-    // 1. Buscar UserModule GESTION activo
-    const userModule = await prisma.userModule.findUnique({
+  async getFacturamioAccess(userId: string): Promise<FacturamioAccess> {
+    // 1. Buscar UserModule FACTURAMIO activo (o legacy GESTION)
+    const userModule = await prisma.userModule.findFirst({
       where: {
-        userId_moduleType: {
-          userId,
-          moduleType: 'GESTION'
-        }
+        userId,
+        moduleType: { in: ['FACTURAMIO', 'GESTION'] }
       }
     })
 
     if (userModule && userModule.isActive && userModule.status !== 'CANCELED') {
       return {
-        ...createGrantedAccess('GESTION', userModule.status as ModuleStatus, {
+        ...createGrantedAccess('FACTURAMIO', userModule.status as ModuleStatus, {
           trialEndsAt: userModule.trialEndsAt,
           expiresAt: userModule.expiresAt
         }),
@@ -169,7 +167,7 @@ export class ModuleLimitsService {
 
     // 2. Sin acceso
     return {
-      ...createDeniedAccess('GESTION'),
+      ...createDeniedAccess('FACTURAMIO'),
       unlimitedProperties: true
     }
   }
@@ -179,14 +177,14 @@ export class ModuleLimitsService {
    */
   async getAllModulesAccess(userId: string): Promise<{
     manuales: ManualesAccess
-    gestion: GestionAccess
+    facturamio: FacturamioAccess
   }> {
-    const [manuales, gestion] = await Promise.all([
+    const [manuales, facturamio] = await Promise.all([
       this.getManualesAccess(userId),
-      this.getGestionAccess(userId)
+      this.getFacturamioAccess(userId)
     ])
 
-    return { manuales, gestion }
+    return { manuales, facturamio }
   }
 
   /**
@@ -197,7 +195,7 @@ export class ModuleLimitsService {
       const access = await this.getManualesAccess(userId)
       return access.hasAccess
     } else {
-      const access = await this.getGestionAccess(userId)
+      const access = await this.getFacturamioAccess(userId)
       return access.hasAccess
     }
   }
@@ -287,7 +285,7 @@ export async function getModuleAccess(userId: string, moduleCode: ModuleCode): P
   if (moduleCode === 'MANUALES') {
     return moduleLimitsService.getManualesAccess(userId)
   }
-  return moduleLimitsService.getGestionAccess(userId)
+  return moduleLimitsService.getFacturamioAccess(userId)
 }
 
 /**

@@ -20,6 +20,8 @@ import {
 import { OnboardingProgress } from '@/components/gestion/OnboardingProgress'
 import { ModuleGate } from '@/components/modules'
 
+// FACTURAMIO es el nuevo nombre del módulo de facturación (antes GESTION)
+
 interface NavItem {
   href: string
   label: string
@@ -195,7 +197,7 @@ export default function GestionLayout({
   // Si es fullscreen, mostrar solo el children sin sidebar
   if (isFullscreen) {
     return (
-      <ModuleGate module="GESTION" overlayClassName="min-h-screen">
+      <ModuleGate module="FACTURAMIO" overlayClassName="min-h-screen">
         <div className="min-h-screen bg-gray-100">
           {children}
         </div>
@@ -204,7 +206,7 @@ export default function GestionLayout({
   }
 
   return (
-    <ModuleGate module="GESTION" overlayClassName="min-h-screen">
+    <ModuleGate module="FACTURAMIO" overlayClassName="min-h-screen">
     <div className="min-h-screen bg-gray-50">
       {/* Mobile Top Navigation */}
       <div className="lg:hidden bg-white border-b border-gray-200 sticky top-0 z-30">
