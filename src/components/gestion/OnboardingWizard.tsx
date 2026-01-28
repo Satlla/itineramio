@@ -462,11 +462,11 @@ export function OnboardingWizard({ onComplete, onDismiss }: OnboardingWizardProp
             />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Bienvenido a Itineramio Management
+            Bienvenido a Facturamio
           </h2>
           <p className="text-gray-600 max-w-md mx-auto mb-6">
-            Este módulo está diseñado para <strong>gestores de apartamentos turísticos</strong>.
-            Te ayudará a facturar a tus propietarios, gestionar comisiones y llevar la contabilidad de cada propiedad.
+            El módulo de <strong>facturación profesional</strong> de Itineramio.
+            Gestiona propietarios, importa reservas y genera facturas y liquidaciones automáticamente.
           </p>
           <div className="bg-violet-50 rounded-xl p-4 max-w-sm mx-auto mb-4">
             <p className="text-sm text-violet-700">

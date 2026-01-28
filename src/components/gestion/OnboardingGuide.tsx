@@ -53,9 +53,9 @@ export function OnboardingGuide({ onComplete, onDismiss, currentProgress, isFirs
   const steps: Step[] = [
     {
       id: 'welcome',
-      title: '¡Bienvenido a Itineramio Management!',
+      title: '¡Bienvenido a Facturamio!',
       icon: Sparkles,
-      description: 'Tu herramienta para gestionar apartamentos turísticos. Factura a tus propietarios, controla comisiones y lleva la contabilidad de cada propiedad.',
+      description: 'El módulo de facturación profesional de Itineramio. Gestiona propietarios, importa reservas y genera facturas y liquidaciones automáticamente.',
       tips: [
         'Todo lo que configures aquí aparecerá en tus facturas',
         'Podrás gestionar múltiples propietarios y propiedades'
