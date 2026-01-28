@@ -259,9 +259,9 @@ export default function ConfiguracionPage() {
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-3">
-                <Settings className="h-7 w-7 text-violet-600" />
+                <Home className="h-7 w-7 text-violet-600" />
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Configuración</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">Apartamentos</h1>
                   <p className="text-sm text-gray-600">
                     Asigna propietarios y configura comisiones
                   </p>
@@ -278,10 +278,16 @@ export default function ConfiguracionPage() {
                     )}
                   </Badge>
                 )}
+                <Link href="/properties/new">
+                  <Button variant="outline" size="sm">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nuevo apartamento
+                  </Button>
+                </Link>
                 <Link href="/gestion/clientes">
                   <Button variant="outline" size="sm">
                     <User className="w-4 h-4 mr-2" />
-                    Gestionar propietarios
+                    Propietarios
                   </Button>
                 </Link>
               </div>
@@ -369,14 +375,14 @@ export default function ConfiguracionPage() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <Home className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                  <p className="text-gray-700 font-medium mb-2">No hay propiedades</p>
+                  <p className="text-gray-700 font-medium mb-2">No tienes apartamentos</p>
                   <p className="text-sm text-gray-500 mb-4">
-                    Para configurar facturación, primero debes tener propiedades creadas en tu cuenta.
+                    Crea tu primer apartamento para poder configurar la facturación y gestionar reservas.
                   </p>
                   <Link href="/properties/new">
                     <Button className="bg-violet-600 hover:bg-violet-700">
                       <Plus className="w-4 h-4 mr-2" />
-                      Crear primera propiedad
+                      Crear apartamento
                     </Button>
                   </Link>
                 </CardContent>
