@@ -25,4 +25,5 @@ BACKUPS/
 *.enc
 *.dump
 *.sql
+!prisma/migrations/**/*.sql
 .env*
