@@ -24,7 +24,7 @@ export async function sendEmail({
 }: SendEmailParams) {
   try {
     // Render the email template
-    const html = render(template)
+    const html = await render(template)
 
     // Send email via Resend
     const { data, error } = await resend.emails.send({

@@ -3,9 +3,9 @@ import { NextRequest } from 'next/server'
 import { prisma } from './prisma'
 import { getAdminUser } from './admin-auth'
 
-const JWT_SECRET = process.env.JWT_SECRET
+const JWT_SECRET = process.env.JWT_SECRET!
 
-if (!JWT_SECRET) {
+if (!process.env.JWT_SECRET) {
   throw new Error('CRITICAL: JWT_SECRET environment variable is not set. Application cannot start securely.')
 }
 
@@ -31,9 +31,7 @@ export async function getAuthUser(request: NextRequest): Promise<JWTPayload | nu
     // Try cookie first (more reliable, set by server)
     const cookieToken = request.cookies.get('auth-token')?.value
     if (cookieToken) {
-      console.log('🍪 Attempting to verify cookie token')
       const decoded = verifyToken(cookieToken)
-      console.log('✅ Cookie token verified successfully')
       return decoded
     }
 
@@ -41,16 +39,13 @@ export async function getAuthUser(request: NextRequest): Promise<JWTPayload | nu
     const authHeader = request.headers.get('authorization')
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.substring(7)
-      console.log('🔑 Attempting to verify Bearer token (localStorage fallback)')
       const decoded = verifyToken(token)
-      console.log('✅ Bearer token verified successfully')
       return decoded
     }
 
-    console.log('❌ No valid authentication token found')
     return null
   } catch (error) {
-    console.error('❌ Auth token verification failed:', error instanceof Error ? error.message : error)
+    // Token verification failed (expired, invalid, etc.)
     return null
   }
 }

@@ -22,19 +22,20 @@ import { DashboardFooter } from '../../../../src/components/layout/DashboardFoot
 
 interface Client {
   id: string
-  name: string
-  email?: string
-  phone?: string
   type: 'EMPRESA' | 'PERSONA_FISICA'
+  firstName?: string
+  lastName?: string
+  companyName?: string
+  email: string
+  phone?: string
   nif?: string
   cif?: string
-  address?: string
-  city?: string
-  _count?: {
-    billingConfigs: number
-    liquidations: number
-    clientInvoices: number
-  }
+  iban?: string
+  address: string
+  city: string
+  postalCode: string
+  country: string
+  propertiesCount?: number
 }
 
 export default function ClientesPage() {
@@ -42,18 +43,21 @@ export default function ClientesPage() {
   const [clients, setClients] = useState<Client[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string>('all')
-  const [showNewModal, setShowNewModal] = useState(false)
+  const [showModal, setShowModal] = useState(false)
+  const [editingClient, setEditingClient] = useState<Client | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
 
   // Form state
   const [newClient, setNewClient] = useState({
     type: 'PERSONA_FISICA' as 'EMPRESA' | 'PERSONA_FISICA',
-    nombreCompleto: '',
-    razonSocial: '',
+    firstName: '',
+    lastName: '',
+    companyName: '',
     email: '',
     phone: '',
     nif: '',
     cif: '',
+    iban: '',
     address: '',
     city: '',
     postalCode: '',
@@ -69,7 +73,7 @@ export default function ClientesPage() {
   const fetchClients = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/owners', { credentials: 'include' })
+      const response = await fetch('/api/gestion/owners', { credentials: 'include' })
 
       if (response.ok) {
         const data = await response.json()
@@ -80,6 +84,13 @@ export default function ClientesPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const getClientName = (client: Client): string => {
+    if (client.type === 'EMPRESA') {
+      return client.companyName || 'Empresa'
+    }
+    return `${client.firstName || ''} ${client.lastName || ''}`.trim() || 'Propietario'
   }
 
   const validateNIF = (nif: string): boolean => {
@@ -95,19 +106,28 @@ export default function ClientesPage() {
     return cifRegex.test(cif)
   }
 
+  const validateIBAN = (iban: string): boolean => {
+    if (!iban) return true
+    // Remove spaces and convert to uppercase
+    const cleanIban = iban.replace(/\s/g, '').toUpperCase()
+    // Spanish IBAN: ES + 2 digits + 20 digits
+    const ibanRegex = /^ES\d{22}$/
+    return ibanRegex.test(cleanIban)
+  }
+
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {}
 
     if (newClient.type === 'PERSONA_FISICA') {
-      if (!newClient.nombreCompleto.trim()) {
-        errors.nombreCompleto = 'El nombre es requerido'
+      if (!newClient.firstName.trim() || !newClient.lastName.trim()) {
+        errors.firstName = 'Nombre y apellidos son requeridos'
       }
       if (newClient.nif && !validateNIF(newClient.nif)) {
         errors.nif = 'NIF/NIE no válido'
       }
     } else {
-      if (!newClient.razonSocial.trim()) {
-        errors.razonSocial = 'La razón social es requerida'
+      if (!newClient.companyName.trim()) {
+        errors.companyName = 'La razón social es requerida'
       }
       if (newClient.cif && !validateCIF(newClient.cif)) {
         errors.cif = 'CIF no válido'
@@ -120,11 +140,27 @@ export default function ClientesPage() {
       errors.email = 'Email no válido'
     }
 
+    if (!newClient.address.trim()) {
+      errors.address = 'La dirección es requerida'
+    }
+
+    if (!newClient.city.trim()) {
+      errors.city = 'La ciudad es requerida'
+    }
+
+    if (!newClient.postalCode.trim()) {
+      errors.postalCode = 'El código postal es requerido'
+    }
+
+    if (newClient.iban && !validateIBAN(newClient.iban)) {
+      errors.iban = 'IBAN no válido (formato: ES00 0000 0000 0000 0000 0000)'
+    }
+
     setFormErrors(errors)
     return Object.keys(errors).length === 0
   }
 
-  const handleCreateClient = async () => {
+  const handleSaveClient = async () => {
     if (!validateForm()) return
 
     try {
@@ -133,18 +169,23 @@ export default function ClientesPage() {
         type: newClient.type,
         email: newClient.email,
         phone: newClient.phone || undefined,
-        address: newClient.address || undefined,
-        city: newClient.city || undefined,
-        postalCode: newClient.postalCode || undefined,
+        iban: newClient.iban ? newClient.iban.replace(/\s/g, '').toUpperCase() : undefined,
+        address: newClient.address,
+        city: newClient.city,
+        postalCode: newClient.postalCode,
         country: newClient.country,
         ...(newClient.type === 'PERSONA_FISICA'
-          ? { nombreCompleto: newClient.nombreCompleto, nif: newClient.nif || undefined }
-          : { razonSocial: newClient.razonSocial, cif: newClient.cif || undefined }
+          ? { firstName: newClient.firstName, lastName: newClient.lastName, nif: newClient.nif || undefined }
+          : { companyName: newClient.companyName, cif: newClient.cif || undefined }
         )
       }
 
-      const response = await fetch('/api/owners', {
-        method: 'POST',
+      const url = editingClient
+        ? `/api/gestion/owners/${editingClient.id}`
+        : '/api/gestion/owners'
+
+      const response = await fetch(url, {
+        method: editingClient ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(payload)
@@ -152,37 +193,57 @@ export default function ClientesPage() {
 
       if (response.ok) {
         const data = await response.json()
-        setClients([...clients, data.owner])
+        if (editingClient) {
+          setClients(clients.map(c => c.id === editingClient.id ? data.owner : c))
+        } else {
+          setClients([...clients, data.owner])
+        }
         resetForm()
-        setShowNewModal(false)
+        setShowModal(false)
       } else {
         const data = await response.json()
-        setFormErrors({ general: data.error || 'Error al crear cliente' })
+        setFormErrors({ general: data.error || (editingClient ? 'Error al actualizar propietario' : 'Error al crear propietario') })
       }
     } catch (error) {
-      console.error('Error creating client:', error)
+      console.error('Error saving client:', error)
       setFormErrors({ general: 'Error de conexión' })
     } finally {
       setSaving(false)
     }
   }
 
+  const handleEditClient = (client: Client) => {
+    setEditingClient(client)
+    setNewClient({
+      type: client.type,
+      firstName: client.firstName || '',
+      lastName: client.lastName || '',
+      companyName: client.companyName || '',
+      email: client.email || '',
+      phone: client.phone || '',
+      nif: client.nif || '',
+      cif: client.cif || '',
+      iban: client.iban || '',
+      address: client.address || '',
+      city: client.city || '',
+      postalCode: client.postalCode || '',
+      country: client.country || 'España'
+    })
+    setShowModal(true)
+  }
+
   const handleDeleteClient = async (clientId: string) => {
     const client = clients.find(c => c.id === clientId)
-    const hasRelations = (client?._count?.billingConfigs || 0) > 0 ||
-      (client?._count?.liquidations || 0) > 0 ||
-      (client?._count?.clientInvoices || 0) > 0
-
-    if (hasRelations) {
-      alert('No se puede eliminar un cliente con propiedades, liquidaciones o facturas asociadas')
+    if ((client?.propertiesCount || 0) > 0) {
+      alert('No se puede eliminar un propietario con propiedades asignadas')
       return
     }
 
-    if (!confirm('¿Eliminar este cliente?')) return
+    if (!confirm('¿Eliminar este propietario?')) return
 
     try {
       setDeleting(clientId)
-      const response = await fetch(`/api/owners/${clientId}`, {
+      const response = await fetch(`/api/gestion/owners/${clientId}`, {
         method: 'DELETE',
         credentials: 'include'
       })
@@ -201,14 +262,17 @@ export default function ClientesPage() {
   }
 
   const resetForm = () => {
+    setEditingClient(null)
     setNewClient({
       type: 'PERSONA_FISICA',
-      nombreCompleto: '',
-      razonSocial: '',
+      firstName: '',
+      lastName: '',
+      companyName: '',
       email: '',
       phone: '',
       nif: '',
       cif: '',
+      iban: '',
       address: '',
       city: '',
       postalCode: '',
@@ -218,8 +282,9 @@ export default function ClientesPage() {
   }
 
   const filteredClients = clients.filter(client => {
+    const clientName = getClientName(client).toLowerCase()
     const matchesSearch = searchTerm === '' ||
-      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      clientName.includes(searchTerm.toLowerCase()) ||
       client.email?.toLowerCase().includes(searchTerm.toLowerCase())
 
     const matchesType = filterType === 'all' || client.type === filterType
@@ -228,7 +293,7 @@ export default function ClientesPage() {
   })
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando clientes..." type="general" />
+    return <AnimatedLoadingSpinner text="Cargando propietarios..." type="general" />
   }
 
   return (
@@ -246,19 +311,19 @@ export default function ClientesPage() {
               <div className="flex items-center space-x-3">
                 <Users className="h-7 w-7 text-violet-600" />
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Clientes</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">Propietarios</h1>
                   <p className="text-sm text-gray-600">
-                    Propietarios y clientes para facturación
+                    Gestiona los propietarios de tus apartamentos
                   </p>
                 </div>
               </div>
 
               <Button
-                onClick={() => setShowNewModal(true)}
+                onClick={() => { resetForm(); setShowModal(true) }}
                 className="bg-violet-600 hover:bg-violet-700"
               >
                 <Plus className="w-4 h-4 mr-1" />
-                Nuevo cliente
+                Nuevo propietario
               </Button>
             </div>
           </motion.div>
@@ -304,24 +369,60 @@ export default function ClientesPage() {
           >
             {filteredClients.length === 0 ? (
               <Card>
-                <CardContent className="p-8 text-center">
-                  <Users className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                <CardContent className="p-8">
                   {searchTerm || filterType !== 'all' ? (
-                    <p className="text-gray-500">No se encontraron clientes</p>
+                    <div className="text-center">
+                      <Users className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                      <p className="text-gray-500">No se encontraron propietarios</p>
+                    </div>
                   ) : (
-                    <>
-                      <p className="text-gray-700 font-medium mb-2">No tienes clientes</p>
-                      <p className="text-sm text-gray-500 mb-4">
-                        Crea tu primer cliente para empezar a facturar
-                      </p>
-                      <Button
-                        onClick={() => setShowNewModal(true)}
-                        className="bg-violet-600 hover:bg-violet-700"
-                      >
-                        <Plus className="w-4 h-4 mr-1" />
-                        Crear cliente
-                      </Button>
-                    </>
+                    <div className="max-w-md mx-auto">
+                      <div className="text-center mb-6">
+                        <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <Users className="h-8 w-8 text-violet-600" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                          Crea tu primer propietario
+                        </h3>
+                        <p className="text-gray-600">
+                          Los propietarios son los dueños de los apartamentos que gestionas.
+                          Necesitas crear al menos uno para poder asignarlo a tus propiedades y generar facturas.
+                        </p>
+                      </div>
+
+                      {/* Steps */}
+                      <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                        <p className="text-sm font-medium text-gray-700 mb-3">Flujo de facturación:</p>
+                        <div className="space-y-2 text-sm text-gray-600">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center text-xs font-medium">1</span>
+                            <span>Crear propietario <span className="text-violet-600 font-medium">(estás aquí)</span></span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 bg-gray-300 text-white rounded-full flex items-center justify-center text-xs font-medium">2</span>
+                            <span>Asignar propietario a propiedades</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 bg-gray-300 text-white rounded-full flex items-center justify-center text-xs font-medium">3</span>
+                            <span>Importar reservas</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 bg-gray-300 text-white rounded-full flex items-center justify-center text-xs font-medium">4</span>
+                            <span>Generar facturas</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-center">
+                        <Button
+                          onClick={() => { resetForm(); setShowModal(true) }}
+                          className="bg-violet-600 hover:bg-violet-700"
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Crear propietario
+                        </Button>
+                      </div>
+                    </div>
                   )}
                 </CardContent>
               </Card>
@@ -344,13 +445,13 @@ export default function ClientesPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <h3 className="font-semibold text-gray-900 truncate">
-                                {client.name}
+                                {getClientName(client)}
                               </h3>
                               <Badge className="text-xs" variant="secondary">
                                 {client.type === 'EMPRESA' ? 'Empresa' : 'Persona'}
                               </Badge>
                             </div>
-                            <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                            <div className="flex items-center gap-4 mt-1 text-sm text-gray-500 flex-wrap">
                               {client.email && (
                                 <span className="flex items-center">
                                   <Mail className="w-3 h-3 mr-1" />
@@ -363,6 +464,9 @@ export default function ClientesPage() {
                               {client.type === 'PERSONA_FISICA' && client.nif && (
                                 <span>NIF: {client.nif}</span>
                               )}
+                              {client.iban && (
+                                <span className="font-mono text-xs">IBAN: ...{client.iban.slice(-4)}</span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -370,17 +474,21 @@ export default function ClientesPage() {
                         <div className="flex items-center gap-3">
                           <div className="text-right text-sm">
                             <div className="text-gray-500">
-                              {client._count?.billingConfigs || 0} propiedades
-                            </div>
-                            <div className="text-gray-400 text-xs">
-                              {client._count?.clientInvoices || 0} facturas
+                              {client.propertiesCount || 0} propiedades
                             </div>
                           </div>
+                          <button
+                            onClick={() => handleEditClient(client)}
+                            className="p-2 text-gray-400 hover:text-violet-600 transition-colors"
+                            title="Editar propietario"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
                           <button
                             onClick={() => handleDeleteClient(client.id)}
                             disabled={deleting === client.id}
                             className="p-2 text-gray-400 hover:text-red-500 disabled:opacity-50 transition-colors"
-                            title="Eliminar cliente"
+                            title="Eliminar propietario"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -395,8 +503,8 @@ export default function ClientesPage() {
         </div>
       </main>
 
-      {/* New Client Modal */}
-      {showNewModal && (
+      {/* Client Modal (New/Edit) */}
+      {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -404,7 +512,7 @@ export default function ClientesPage() {
             className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto"
           >
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Nuevo Cliente
+              {editingClient ? 'Editar Propietario' : 'Nuevo Propietario'}
             </h3>
 
             {formErrors.general && (
@@ -445,30 +553,42 @@ export default function ClientesPage() {
                 </div>
               </div>
 
-              {/* Name/RazonSocial */}
+              {/* Name/CompanyName */}
               {newClient.type === 'PERSONA_FISICA' ? (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo *</label>
-                  <input
-                    type="text"
-                    value={newClient.nombreCompleto}
-                    onChange={(e) => setNewClient({ ...newClient, nombreCompleto: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.nombreCompleto ? 'border-red-300' : 'border-gray-300'}`}
-                    placeholder="Juan García López"
-                  />
-                  {formErrors.nombreCompleto && <p className="mt-1 text-xs text-red-500">{formErrors.nombreCompleto}</p>}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                    <input
+                      type="text"
+                      value={newClient.firstName}
+                      onChange={(e) => setNewClient({ ...newClient, firstName: e.target.value })}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.firstName ? 'border-red-300' : 'border-gray-300'}`}
+                      placeholder="Juan"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Apellidos *</label>
+                    <input
+                      type="text"
+                      value={newClient.lastName}
+                      onChange={(e) => setNewClient({ ...newClient, lastName: e.target.value })}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.firstName ? 'border-red-300' : 'border-gray-300'}`}
+                      placeholder="García López"
+                    />
+                  </div>
+                  {formErrors.firstName && <p className="col-span-2 text-xs text-red-500">{formErrors.firstName}</p>}
                 </div>
               ) : (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Razón social *</label>
                   <input
                     type="text"
-                    value={newClient.razonSocial}
-                    onChange={(e) => setNewClient({ ...newClient, razonSocial: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.razonSocial ? 'border-red-300' : 'border-gray-300'}`}
+                    value={newClient.companyName}
+                    onChange={(e) => setNewClient({ ...newClient, companyName: e.target.value })}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.companyName ? 'border-red-300' : 'border-gray-300'}`}
                     placeholder="Mi Empresa S.L."
                   />
-                  {formErrors.razonSocial && <p className="mt-1 text-xs text-red-500">{formErrors.razonSocial}</p>}
+                  {formErrors.companyName && <p className="mt-1 text-xs text-red-500">{formErrors.companyName}</p>}
                 </div>
               )}
 
@@ -526,39 +646,63 @@ export default function ClientesPage() {
                 />
               </div>
 
+              {/* IBAN */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  IBAN <span className="text-gray-400 font-normal">(para transferencias)</span>
+                </label>
+                <input
+                  type="text"
+                  value={newClient.iban}
+                  onChange={(e) => {
+                    // Format IBAN with spaces every 4 characters
+                    const value = e.target.value.replace(/\s/g, '').toUpperCase()
+                    const formatted = value.replace(/(.{4})/g, '$1 ').trim()
+                    setNewClient({ ...newClient, iban: formatted })
+                  }}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 font-mono ${formErrors.iban ? 'border-red-300' : 'border-gray-300'}`}
+                  placeholder="ES00 0000 0000 0000 0000 0000"
+                  maxLength={29}
+                />
+                {formErrors.iban && <p className="mt-1 text-xs text-red-500">{formErrors.iban}</p>}
+              </div>
+
               {/* Address */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Dirección *</label>
                 <input
                   type="text"
                   value={newClient.address}
                   onChange={(e) => setNewClient({ ...newClient, address: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.address ? 'border-red-300' : 'border-gray-300'}`}
                   placeholder="Calle, número, piso..."
                 />
+                {formErrors.address && <p className="mt-1 text-xs text-red-500">{formErrors.address}</p>}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad *</label>
                   <input
                     type="text"
                     value={newClient.city}
                     onChange={(e) => setNewClient({ ...newClient, city: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.city ? 'border-red-300' : 'border-gray-300'}`}
                     placeholder="Madrid"
                   />
+                  {formErrors.city && <p className="mt-1 text-xs text-red-500">{formErrors.city}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">C.P.</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">C.P. *</label>
                   <input
                     type="text"
                     value={newClient.postalCode}
                     onChange={(e) => setNewClient({ ...newClient, postalCode: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.postalCode ? 'border-red-300' : 'border-gray-300'}`}
                     placeholder="28001"
-                    maxLength={5}
+                    maxLength={10}
                   />
+                  {formErrors.postalCode && <p className="mt-1 text-xs text-red-500">{formErrors.postalCode}</p>}
                 </div>
               </div>
             </div>
@@ -567,18 +711,18 @@ export default function ClientesPage() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setShowNewModal(false)
+                  setShowModal(false)
                   resetForm()
                 }}
               >
                 Cancelar
               </Button>
               <Button
-                onClick={handleCreateClient}
+                onClick={handleSaveClient}
                 disabled={saving}
                 className="bg-violet-600 hover:bg-violet-700"
               >
-                {saving ? 'Guardando...' : 'Crear cliente'}
+                {saving ? 'Guardando...' : editingClient ? 'Guardar cambios' : 'Crear propietario'}
               </Button>
             </div>
           </motion.div>

@@ -362,77 +362,77 @@ const comments = [
   {
     authorName: 'María García',
     authorEmail: 'maria.g.propietaria@gmail.com',
-    content: 'Muy útil esta información. Tengo dos apartamentos con NRUA y no tenía ni idea de que había que hacer una declaración anual. ¿Sabéis si el formato XBRL es complicado de generar o hay alguna herramienta que lo haga automáticamente?',
+    content: 'Muy útil esta información sobre la declaración anual. Tengo dos apartamentos con NRUA desde julio y no sabía que había que presentar esto en febrero. Una pregunta: ¿el modelo se presenta por cada inmueble o se puede hacer uno conjunto para todos?',
     createdAt: generateCommentDate(3),
     likes: 4
   },
   {
     authorName: 'Carlos Ruiz',
     authorEmail: 'cruiz.host@outlook.com',
-    content: 'Gracias por el artículo, está todo muy bien explicado. Una duda: si tengo reservas tanto de Airbnb como directas por teléfono, ¿solo declaro las de Airbnb entonces?',
+    content: 'Por fin alguien que lo explica claro. Tengo reservas de Airbnb y también algunas directas que me llegan por WhatsApp. Según el artículo, las de WhatsApp no las declaro, ¿no? Solo las que vienen por plataformas digitales.',
     createdAt: generateCommentDate(4),
     likes: 2
   },
   {
     authorName: 'Laura Martínez',
     authorEmail: 'lmartinez.bcn@gmail.com',
-    content: 'Llevaba tiempo buscando información clara sobre esto. En mi comunidad de vecinos hay mucha confusión con el tema del NRUA y ahora con esta declaración nueva. Voy a compartir el artículo en nuestro grupo.',
+    content: 'Gracias por aclarar que esto es diferente al parte de viajeros de la policía. Había gente en mi grupo de hosts que pensaba que era lo mismo. Esto del NRUA va al Registro de la Propiedad, no a las Fuerzas de Seguridad. Comparto!',
     createdAt: generateCommentDate(5),
     likes: 7
   },
   {
     authorName: 'Pedro Navarro',
     authorEmail: 'pnavarro.sevilla@yahoo.es',
-    content: 'Menos mal que lo explicáis así de claro. Con tanta normativa nueva uno ya no sabe a qué atenerse. Lo de febrero 2026 me pilla justo, tendré que ponerme las pilas con el registro de mis reservas de este año.',
+    content: 'Me queda la duda del "motivo del viaje". La mayoría de mis huéspedes vienen de turismo, pero algunos dicen que es por trabajo. ¿Cómo lo verifico? ¿O simplemente pongo lo que me digan?',
     createdAt: generateCommentDate(8),
     likes: 5
   },
   {
     authorName: 'Ana Belén Torres',
     authorEmail: 'abelen.apt.costa@gmail.com',
-    content: 'Pregunta: ¿qué pasa con las reservas de diciembre que se extienden hasta enero? ¿Se declaran en febrero 2026 o en febrero 2027?',
+    content: 'Pregunta importante: tengo una reserva que empezó el 28 de diciembre de 2025 y termina el 3 de enero de 2026. ¿La declaro entera en febrero 2026 o se divide entre los dos años?',
     createdAt: generateCommentDate(10),
     likes: 8
   },
   {
     authorName: 'Javier Sánchez',
     authorEmail: 'j.sanchez.propiedades@gmail.com',
-    content: 'Llevamos años con el registro de viajeros y ahora esto. No me quejo porque entiendo que hace falta control, pero espero que al menos el proceso sea sencillo. Gracias por la info.',
+    content: 'Entre el SES.HOSPEDAJES para la policía, el modelo 179 de Hacienda y ahora esto del NRUA... menudo lío. Menos mal que cada uno tiene su momento y no se solapan. Febrero para el NRUA, anotado.',
     createdAt: generateCommentDate(12),
     likes: 3
   },
   {
     authorName: 'Roberto Vega',
     authorEmail: 'rvega.madrid@hotmail.com',
-    content: 'He leído que en algunos países europeos ya llevan tiempo con sistemas similares. ¿Sabéis si España ha tomado algún modelo de referencia o es algo completamente nuevo?',
+    content: 'Lo del Reglamento UE 2024/1028 me interesa. ¿Esto significa que todos los países de la UE van a tener un sistema similar de registro? Sería útil para los que gestionamos propiedades en varios países.',
     createdAt: generateCommentDate(15),
     likes: 2
   },
   {
     authorName: 'Cristina López',
     authorEmail: 'clopez.apt.malaga@gmail.com',
-    content: 'Qué bien explicada la diferencia con SES.HOSPEDAJES. Confieso que al principio pensé que era lo mismo y que me iban a duplicar el trabajo. Ahora lo tengo claro.',
+    content: 'La parte de "sin actividad también hay que declarar" es clave. Mi apartamento de Málaga lo tuve cerrado varios meses por reformas, pero como tengo el NRUA activo, tengo que presentar igualmente. Buen apunte.',
     createdAt: generateCommentDate(18),
     likes: 4
   },
   {
     authorName: 'Fernando Díaz',
     authorEmail: 'fdiaz.turismo@gmail.com',
-    content: 'Mi gestoría todavía no me ha dicho nada de esto. Les voy a pasar el enlace porque creo que ni ellos están al tanto. Gracias por adelantaros a la información.',
+    content: 'Mi gestor aún no me ha comentado nada de esta declaración. Le paso el artículo porque según esto el plazo es febrero y ya estamos casi. Los 27€ del NRUA ya los pagué, pero no sabía que había obligaciones anuales.',
     createdAt: generateCommentDate(20),
     likes: 5
   },
   {
     authorName: 'Marta Jiménez',
     authorEmail: 'mjimenez.valencia@outlook.es',
-    content: 'Una cosa que no me queda clara: si mi piso está en una zona donde el ayuntamiento tiene sus propias regulaciones, ¿esta declaración es adicional a todo lo municipal o sustituye algo?',
+    content: 'En Valencia tenemos la licencia VT además del NRUA. ¿Esta declaración anual sustituye algún trámite autonómico o es adicional a todo lo de la Generalitat? Es que ya perdemos la cuenta de tantos papeles...',
     createdAt: generateCommentDate(22),
     likes: 3
   },
   {
     authorName: 'Ignacio Herrera',
     authorEmail: 'i.herrera.apt@gmail.com',
-    content: 'Artículo guardado en favoritos. Tengo un par de propiedades y este tipo de información práctica vale oro. Esperando que saquéis más contenido sobre normativa cuando se vayan aclarando los detalles.',
+    content: 'Muy buen artículo. Lo que más me preocupa es lo de perder el NRUA si no presento la declaración. Sin NRUA no puedes anunciarte en Airbnb ni Booking, así que básicamente te quedas fuera del mercado. Hay que tomárselo en serio.',
     createdAt: generateCommentDate(26),
     likes: 6
   }

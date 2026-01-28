@@ -17,7 +17,8 @@ import {
   Bell,
   Receipt,
   Layers,
-  Image
+  Image,
+  Briefcase
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
@@ -63,6 +64,13 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
       label: "Conjuntos",
       href: "/properties?tab=sets",
       description: "Agrupar propiedades similares",
+      mobileOnly: true
+    },
+    {
+      icon: <Briefcase className="w-5 h-5" />,
+      label: "Gestión",
+      href: "/gestion",
+      description: "Facturación, gastos y rentabilidad",
       mobileOnly: true
     },
     {

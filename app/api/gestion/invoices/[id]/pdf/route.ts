@@ -1,0 +1,169 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { requireAuth } from '@/lib/auth'
+import { generateClientInvoiceHTML, ClientInvoiceData } from '@/lib/invoice-generator-client'
+
+/**
+ * GET /api/gestion/invoices/[id]/pdf
+ * Genera PDF de factura estilo Holded
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const authResult = await requireAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
+    const userId = authResult.userId
+
+    const { id } = await params
+
+    // Obtener factura con relaciones
+    const invoice = await prisma.clientInvoice.findFirst({
+      where: {
+        id,
+        userId,
+      },
+      include: {
+        owner: true,
+        items: {
+          orderBy: { order: 'asc' }
+        },
+        series: true,
+        rectifies: {
+          select: {
+            id: true,
+            fullNumber: true,
+            issueDate: true,
+            total: true,
+          },
+        },
+      },
+    })
+
+    if (!invoice) {
+      return NextResponse.json(
+        { error: 'Factura no encontrada' },
+        { status: 404 }
+      )
+    }
+
+    // Obtener config del gestor
+    const config = await prisma.userInvoiceConfig.findUnique({
+      where: { userId },
+    })
+
+    if (!config) {
+      return NextResponse.json(
+        { error: 'Configure los datos de facturación primero' },
+        { status: 400 }
+      )
+    }
+
+    // Nombre y NIF del propietario según tipo
+    const ownerName = invoice.owner.type === 'EMPRESA'
+      ? invoice.owner.companyName || 'Empresa'
+      : `${invoice.owner.firstName || ''} ${invoice.owner.lastName || ''}`.trim() || 'Cliente'
+
+    const ownerNif = invoice.owner.type === 'EMPRESA'
+      ? invoice.owner.cif || ''
+      : invoice.owner.nif || ''
+
+    // Tipo de factura
+    const invoiceType = invoice.isRectifying ? 'RECTIFYING' : 'STANDARD'
+
+    // Construir items en el nuevo formato
+    const items = invoice.items.map((item) => {
+      const quantity = Number(item.quantity)
+      const unitPrice = Number(item.unitPrice)
+      const vatRate = Number(item.vatRate)
+      const subtotal = quantity * unitPrice
+      const vatAmount = subtotal * (vatRate / 100)
+      const total = subtotal + vatAmount
+
+      return {
+        concept: item.concept,
+        description: item.description || undefined,
+        quantity,
+        unitPrice,
+        vatRate,
+        retentionRate: Number(item.retentionRate) || 0,
+        subtotal,
+        total,
+      }
+    })
+
+    // Construir datos para el HTML
+    const invoiceData: ClientInvoiceData = {
+      fullNumber: invoice.fullNumber || undefined,
+      status: invoice.status,
+      type: invoiceType as 'STANDARD' | 'RECTIFYING',
+      issueDate: invoice.issueDate,
+      dueDate: invoice.dueDate || undefined,
+
+      // Info rectificativa
+      rectifyingType: invoice.rectifyingType as 'SUBSTITUTION' | 'DIFFERENCE' | undefined,
+      rectifyingReason: invoice.rectifyingReason || undefined,
+      originalInvoice: invoice.rectifies
+        ? {
+            fullNumber: invoice.rectifies.fullNumber || 'N/A',
+            issueDate: invoice.rectifies.issueDate,
+            total: Number(invoice.rectifies.total) || undefined,
+          }
+        : undefined,
+
+      // Emisor (gestor)
+      issuer: {
+        businessName: config.businessName,
+        nif: config.nif,
+        address: config.address,
+        city: config.city,
+        postalCode: config.postalCode,
+        country: config.country,
+        email: config.email || undefined,
+        phone: config.phone || undefined,
+        logoUrl: config.logoUrl || undefined,
+      },
+
+      // Receptor (propietario)
+      recipient: {
+        name: ownerName,
+        nif: ownerNif,
+        address: invoice.owner.address || undefined,
+        city: invoice.owner.city || undefined,
+        postalCode: invoice.owner.postalCode || undefined,
+        country: invoice.owner.country || undefined,
+      },
+
+      // Items
+      items,
+
+      // Totales
+      subtotal: Number(invoice.subtotal),
+      vatAmount: Number(invoice.totalVat),
+      retentionAmount: Number(invoice.retentionAmount) || 0,
+      total: Number(invoice.total),
+
+      // Pago - IBAN del gestor
+      iban: config.iban || undefined,
+    }
+
+    // Generar HTML
+    const html = generateClientInvoiceHTML(invoiceData)
+
+    return new NextResponse(html, {
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Content-Disposition': `inline; filename="factura-${invoice.fullNumber || invoice.id}.html"`,
+      },
+    })
+  } catch (error) {
+    console.error('Error generating invoice PDF:', error)
+    return NextResponse.json(
+      { error: 'Error al generar el PDF' },
+      { status: 500 }
+    )
+  }
+}

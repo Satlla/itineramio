@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { formatCurrency } from '@/lib/format'
 import { motion } from 'framer-motion'
 import {
   Building2,
@@ -99,10 +100,10 @@ export default function FacturacionPage() {
                 <Building2 className="h-7 w-7 text-violet-600" />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
-                    Facturación por Propiedad
+                    Facturación
                   </h1>
                   <p className="text-sm text-gray-600">
-                    Gestiona liquidaciones y facturas de cada propiedad
+                    Cierre mensual por propiedad
                   </p>
                 </div>
               </div>
@@ -134,7 +135,7 @@ export default function FacturacionPage() {
                   <div className="text-center">
                     <p className="text-xs sm:text-sm text-gray-600">Ingresos {selectedYear}</p>
                     <p className="text-lg sm:text-2xl font-bold text-green-600">
-                      {totals.totalIncome.toLocaleString('es-ES')}€
+                      {formatCurrency(totals.totalIncome)}
                     </p>
                   </div>
                 </CardContent>
@@ -185,95 +186,120 @@ export default function FacturacionPage() {
               </Card>
             ) : (
               <div className="space-y-4">
-                {properties.map((property, index) => (
-                  <motion.div
-                    key={property.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                  >
-                    <Link href={`/gestion/facturacion/${property.id}`}>
-                      <Card className="hover:shadow-lg transition-all cursor-pointer border-l-4 border-l-violet-500">
-                        <CardContent className="p-4 sm:p-5">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                            {/* Property Info */}
-                            <div className="flex items-center gap-4 flex-1">
-                              {property.imageUrl ? (
-                                <img
-                                  src={property.imageUrl}
-                                  alt={property.name}
-                                  className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg"
-                                />
-                              ) : (
-                                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg flex items-center justify-center">
-                                  <Home className="w-8 h-8 text-gray-400" />
+                {properties.map((property, index) => {
+                  const hasOwner = !!property.owner
+
+                  const cardContent = (
+                    <Card className={`transition-all ${hasOwner ? 'hover:shadow-lg cursor-pointer border-l-4 border-l-violet-500' : 'border-l-4 border-l-yellow-400 opacity-80'}`}>
+                      <CardContent className="p-4 sm:p-5">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                          {/* Property Info */}
+                          <div className="flex items-center gap-4 flex-1">
+                            {property.imageUrl ? (
+                              <img
+                                src={property.imageUrl}
+                                alt={property.name}
+                                className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg"
+                              />
+                            ) : (
+                              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <Home className="w-8 h-8 text-gray-400" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 truncate">
+                                {property.name}
+                              </h3>
+                              <p className="text-sm text-gray-500">{property.city}</p>
+                              {property.owner && (
+                                <div className="flex items-center gap-1 mt-1">
+                                  <User className="w-3 h-3 text-gray-400" />
+                                  <span className="text-xs text-gray-500">
+                                    {property.owner.name}
+                                  </span>
                                 </div>
                               )}
-                              <div className="flex-1 min-w-0">
-                                <h3 className="font-semibold text-gray-900 truncate">
-                                  {property.name}
-                                </h3>
-                                <p className="text-sm text-gray-500">{property.city}</p>
-                                {property.owner && (
-                                  <div className="flex items-center gap-1 mt-1">
-                                    <User className="w-3 h-3 text-gray-400" />
-                                    <span className="text-xs text-gray-500">
-                                      {property.owner.name}
-                                    </span>
-                                  </div>
-                                )}
-                                {!property.owner && (
-                                  <Badge className="bg-yellow-100 text-yellow-700 text-xs mt-1">
+                              {!property.owner && (
+                                <div className="mt-2 flex items-center gap-2 flex-wrap">
+                                  <Badge className="bg-yellow-100 text-yellow-700 text-xs">
                                     <AlertCircle className="w-3 h-3 mr-1" />
-                                    Sin propietario asignado
+                                    Sin propietario
                                   </Badge>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Stats */}
-                            <div className="grid grid-cols-4 gap-4 sm:gap-6 text-center">
-                              <div>
-                                <p className="text-xs text-gray-500 mb-1">Ingresos</p>
-                                <p className="font-semibold text-green-600">
-                                  {property.stats.totalIncome.toLocaleString('es-ES')}€
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-gray-500 mb-1">Ocupación</p>
-                                <p className="font-semibold text-violet-600">
-                                  {property.stats.occupancyRate.toFixed(0)}%
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-gray-500 mb-1">€/noche</p>
-                                <p className="font-semibold text-gray-900">
-                                  {property.stats.averageNightPrice.toFixed(0)}€
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-gray-500 mb-1">Reservas</p>
-                                <p className="font-semibold text-gray-900">
-                                  {property.stats.totalReservations}
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Pending Badge & Arrow */}
-                            <div className="flex items-center gap-3">
-                              {property.stats.pendingLiquidations > 0 && (
-                                <Badge className="bg-orange-100 text-orange-700">
-                                  {property.stats.pendingLiquidations} pendientes
-                                </Badge>
+                                  <Link
+                                    href="/gestion/configuracion"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="text-xs text-violet-600 hover:text-violet-800 font-medium underline"
+                                  >
+                                    Asignar propietario
+                                  </Link>
+                                </div>
                               )}
-                              <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  </motion.div>
-                ))}
+
+                          {/* Stats */}
+                          <div className="grid grid-cols-4 gap-4 sm:gap-6 text-center">
+                            <div>
+                              <p className="text-xs text-gray-500 mb-1">Ingresos</p>
+                              <p className="font-semibold text-green-600">
+                                {formatCurrency(property.stats.totalIncome)}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500 mb-1">Ocupación</p>
+                              <p className="font-semibold text-violet-600">
+                                {property.stats.occupancyRate.toFixed(0)}%
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500 mb-1">€/noche</p>
+                              <p className="font-semibold text-gray-900">
+                                {property.stats.averageNightPrice.toFixed(0)}€
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500 mb-1">Reservas</p>
+                              <p className="font-semibold text-gray-900">
+                                {property.stats.totalReservations}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Pending Badge & Arrow */}
+                          <div className="flex items-center gap-3">
+                            {hasOwner && property.stats.pendingLiquidations > 0 && (
+                              <Badge className="bg-orange-100 text-orange-700">
+                                {property.stats.pendingLiquidations} pendientes
+                              </Badge>
+                            )}
+                            {hasOwner ? (
+                              <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                            ) : (
+                              <div className="w-5 h-5" /> /* Spacer */
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+
+                  return (
+                    <motion.div
+                      key={property.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                    >
+                      {hasOwner ? (
+                        <Link href={`/gestion/facturacion/${property.id}`}>
+                          {cardContent}
+                        </Link>
+                      ) : (
+                        cardContent
+                      )}
+                    </motion.div>
+                  )
+                })}
               </div>
             )}
           </motion.div>

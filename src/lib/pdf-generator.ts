@@ -12,11 +12,11 @@ export interface PDFOptions {
   pagebreak?: { mode: string[] }
 }
 
-const defaultOptions: PDFOptions = {
+const defaultOptions = {
   margin: 10,
-  image: { type: 'jpeg', quality: 0.98 },
+  image: { type: 'jpeg' as const, quality: 0.98 },
   html2canvas: { scale: 2, useCORS: true, logging: false },
-  jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+  jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const },
   pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
 }
 
@@ -34,8 +34,9 @@ export async function generatePDF(
     filename
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await html2pdf()
-    .set(mergedOptions)
+    .set(mergedOptions as any)
     .from(element)
     .save()
 }
@@ -51,8 +52,9 @@ export async function generatePDFBlob(
     ...options
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return await html2pdf()
-    .set(mergedOptions)
+    .set(mergedOptions as any)
     .from(element)
     .outputPdf('blob')
 }

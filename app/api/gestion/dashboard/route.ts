@@ -22,9 +22,16 @@ export async function GET(request: NextRequest) {
       totalProperties,
       totalOwners,
       totalInvoices,
-      pendingInvoices
+      pendingInvoices,
+      userInvoiceConfig,
+      configuredPropertiesCount,
+      liquidationsCount,
+      unliquidatedReservationsCount,
+      draftInvoicesCount,
+      unpaidInvoicesCount,
+      totalExpenses
     ] = await Promise.all([
-      prisma.property.count({ where: { userId } }),
+      prisma.property.count({ where: { hostId: userId } }),
       prisma.propertyOwner.count({ where: { userId } }),
       prisma.clientInvoice.count({
         where: {
@@ -39,10 +46,53 @@ export async function GET(request: NextRequest) {
           userId,
           status: { in: ['DRAFT', 'ISSUED', 'SENT'] }
         }
+      }),
+      // Onboarding: Check if user has configured their company
+      prisma.userInvoiceConfig.findUnique({
+        where: { userId },
+        select: { businessName: true, nif: true }
+      }),
+      // Onboarding: Check properties with owner assigned
+      prisma.propertyBillingConfig.count({
+        where: {
+          property: { hostId: userId },
+          ownerId: { not: null }
+        }
+      }),
+      // Onboarding: Check if user has any liquidations
+      prisma.liquidation.count({
+        where: { userId }
+      }),
+      // Pending actions: Reservations without liquidation (completed/confirmed only)
+      prisma.reservation.count({
+        where: {
+          billingConfig: { property: { hostId: userId } },
+          liquidationId: null,
+          status: { in: ['CONFIRMED', 'COMPLETED'] },
+          checkOut: { lt: new Date() } // Only past reservations
+        }
+      }),
+      // Pending actions: Draft invoices
+      prisma.clientInvoice.count({
+        where: {
+          userId,
+          status: 'DRAFT'
+        }
+      }),
+      // Pending actions: Unpaid invoices (sent but not paid)
+      prisma.clientInvoice.count({
+        where: {
+          userId,
+          status: 'SENT'
+        }
+      }),
+      // Total expenses
+      prisma.propertyExpense.count({
+        where: { userId }
       })
     ])
 
-    // Get yearly income from reservations
+    // Get yearly income from reservations with financial breakdown
     const yearlyReservations = await prisma.reservation.aggregate({
       where: {
         userId,
@@ -54,11 +104,15 @@ export async function GET(request: NextRequest) {
       },
       _sum: {
         hostEarnings: true,
-        roomTotal: true
-      }
+        roomTotal: true,
+        ownerAmount: true,
+        managerAmount: true,
+        cleaningAmount: true
+      },
+      _count: true
     })
 
-    // Get monthly income
+    // Get monthly income with financial breakdown
     const monthlyReservations = await prisma.reservation.aggregate({
       where: {
         userId,
@@ -70,7 +124,20 @@ export async function GET(request: NextRequest) {
       },
       _sum: {
         hostEarnings: true,
-        roomTotal: true
+        roomTotal: true,
+        ownerAmount: true,
+        managerAmount: true,
+        cleaningAmount: true
+      },
+      _count: true
+    })
+
+    // Get pending to invoice count
+    const pendingToInvoice = await prisma.reservation.count({
+      where: {
+        userId,
+        invoiced: false,
+        status: { not: 'CANCELLED' }
       }
     })
 
@@ -78,10 +145,18 @@ export async function GET(request: NextRequest) {
     const yearlyIncome = Number(yearlyReservations._sum.hostEarnings || yearlyReservations._sum.roomTotal || 0)
     const monthlyIncome = Number(monthlyReservations._sum.hostEarnings || monthlyReservations._sum.roomTotal || 0)
 
+    // Use calculated manager amounts if available, otherwise estimate from commission
+    const yearlyManagerAmount = Number(yearlyReservations._sum.managerAmount) || 0
+    const monthlyManagerAmount = Number(monthlyReservations._sum.managerAmount) || 0
+    const yearlyOwnerAmount = Number(yearlyReservations._sum.ownerAmount) || 0
+    const monthlyOwnerAmount = Number(monthlyReservations._sum.ownerAmount) || 0
+    const yearlyCleaningAmount = Number(yearlyReservations._sum.cleaningAmount) || 0
+    const monthlyCleaningAmount = Number(monthlyReservations._sum.cleaningAmount) || 0
+
     // Get average commission rate from billing configs
     const billingConfigs = await prisma.propertyBillingConfig.findMany({
       where: {
-        property: { userId }
+        property: { hostId: userId }
       },
       select: {
         commissionValue: true
@@ -92,18 +167,16 @@ export async function GET(request: NextRequest) {
       ? billingConfigs.reduce((sum, c) => sum + Number(c.commissionValue), 0) / billingConfigs.length
       : 15 // Default 15%
 
-    const yearlyCommission = (yearlyIncome * avgCommission) / 100
-    const monthlyCommission = (monthlyIncome * avgCommission) / 100
+    // Calculate commission using manager amounts if available, otherwise estimate
+    const yearlyCommission = yearlyManagerAmount > 0 ? yearlyManagerAmount : (yearlyIncome * avgCommission) / 100
+    const monthlyCommission = monthlyManagerAmount > 0 ? monthlyManagerAmount : (monthlyIncome * avgCommission) / 100
 
-    // Count pending liquidations (months with reservations but no liquidation)
-    // Simplified: count properties with billing config but check if they have reservations
-    const propertiesWithReservations = await prisma.property.findMany({
+    // Count pending liquidations
+    const propertiesWithConfig = await prisma.propertyBillingConfig.findMany({
       where: {
-        userId,
-        billingConfig: { isNot: null }
+        property: { hostId: userId }
       },
-      select: {
-        id: true,
+      include: {
         reservations: {
           where: {
             checkIn: {
@@ -126,9 +199,9 @@ export async function GET(request: NextRequest) {
 
     // Count months with reservations that don't have liquidations
     let pendingLiquidations = 0
-    propertiesWithReservations.forEach(property => {
+    propertiesWithConfig.forEach(config => {
       const monthsWithReservations = new Set(
-        property.reservations.map(r => new Date(r.checkIn).getMonth() + 1)
+        config.reservations.map(r => new Date(r.checkIn).getMonth() + 1)
       )
       monthsWithReservations.forEach(month => {
         if (!liquidatedMonths.has(month) && month <= currentMonth) {
@@ -147,6 +220,13 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Onboarding status
+    const companyConfigured = !!(userInvoiceConfig?.businessName && userInvoiceConfig?.nif)
+    const hasClients = totalOwners > 0
+    const hasConfiguredProperties = configuredPropertiesCount > 0
+    const hasLiquidations = liquidationsCount > 0
+    const allComplete = companyConfigured && hasClients && hasConfiguredProperties && hasLiquidations
+
     return NextResponse.json({
       success: true,
       stats: {
@@ -154,12 +234,33 @@ export async function GET(request: NextRequest) {
         totalOwners,
         totalInvoices,
         pendingInvoices,
+        pendingToInvoice,
         yearlyIncome: Math.round(yearlyIncome * 100) / 100,
         yearlyCommission: Math.round(yearlyCommission * 100) / 100,
+        yearlyOwnerAmount: Math.round(yearlyOwnerAmount * 100) / 100,
+        yearlyCleaningAmount: Math.round(yearlyCleaningAmount * 100) / 100,
+        yearlyReservations: yearlyReservations._count,
         monthlyIncome: Math.round(monthlyIncome * 100) / 100,
         monthlyCommission: Math.round(monthlyCommission * 100) / 100,
+        monthlyOwnerAmount: Math.round(monthlyOwnerAmount * 100) / 100,
+        monthlyCleaningAmount: Math.round(monthlyCleaningAmount * 100) / 100,
+        monthlyReservations: monthlyReservations._count,
         pendingLiquidations,
-        recentReservations
+        recentReservations,
+        avgCommission: Math.round(avgCommission * 10) / 10,
+        totalExpenses
+      },
+      onboarding: {
+        companyConfigured,
+        hasClients,
+        hasConfiguredProperties,
+        hasLiquidations,
+        allComplete
+      },
+      pendingActions: {
+        unliquidatedReservations: unliquidatedReservationsCount,
+        draftInvoices: draftInvoicesCount,
+        unpaidInvoices: unpaidInvoicesCount
       }
     })
   } catch (error) {

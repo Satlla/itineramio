@@ -32,6 +32,7 @@ interface InvoiceData {
   }
   companySettings: {
     companyName?: string
+    companyTradeName?: string
     companyEmail?: string
     companyPhone?: string
     companyAddress?: string

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { formatCurrency } from '@/lib/format'
 import { motion } from 'framer-motion'
 import {
   Building2,
@@ -70,6 +71,7 @@ interface YearData {
     income: number
     nights: number
     commission: number
+    expenses: number
     occupancyRate: number
     averageNightPrice: number
   }
@@ -102,7 +104,6 @@ export default function PropertyFacturacionPage() {
   const [yearData, setYearData] = useState<YearData[]>([])
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [expandedYears, setExpandedYears] = useState<number[]>([new Date().getFullYear()])
-  const [creatingLiquidation, setCreatingLiquidation] = useState<string | null>(null)
 
   useEffect(() => {
     fetchPropertyData()
@@ -135,42 +136,6 @@ export default function PropertyFacturacionPage() {
         ? prev.filter(y => y !== year)
         : [...prev, year]
     )
-  }
-
-  const handleCreateLiquidation = async (year: number, month: number) => {
-    if (!property?.owner) {
-      alert('Esta propiedad no tiene un propietario asignado')
-      return
-    }
-
-    try {
-      setCreatingLiquidation(`${year}-${month}`)
-      const response = await fetch('/api/liquidations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          ownerId: property.owner.id,
-          propertyId,
-          year,
-          month
-        })
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        // Navigate to liquidation detail
-        router.push(`/gestion/liquidaciones/${data.liquidation.id}`)
-      } else {
-        const error = await response.json()
-        alert(error.error || 'Error al crear la liquidación')
-      }
-    } catch (error) {
-      console.error('Error creating liquidation:', error)
-      alert('Error al crear la liquidación')
-    } finally {
-      setCreatingLiquidation(null)
-    }
   }
 
   if (loading) {
@@ -273,7 +238,7 @@ export default function PropertyFacturacionPage() {
                   <div className="text-center">
                     <p className="text-xs sm:text-sm text-gray-600">Ingresos {selectedYear}</p>
                     <p className="text-lg sm:text-2xl font-bold text-green-600">
-                      {currentYearData.totals.income.toLocaleString('es-ES')}€
+                      {formatCurrency(currentYearData.totals.income)}
                     </p>
                   </div>
                 </CardContent>
@@ -339,8 +304,13 @@ export default function PropertyFacturacionPage() {
                         <div className="flex items-center gap-4 text-sm text-gray-500">
                           <span>{year.totals.reservations} reservas</span>
                           <span className="text-green-600 font-medium">
-                            {year.totals.income.toLocaleString('es-ES')}€
+                            {formatCurrency(year.totals.income)}
                           </span>
+                          {year.totals.expenses > 0 && (
+                            <span className="text-red-500 font-medium">
+                              -{formatCurrency(year.totals.expenses)}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <ChevronDown
@@ -354,9 +324,10 @@ export default function PropertyFacturacionPage() {
                     {expandedYears.includes(year.year) && (
                       <div className="border-t border-gray-200">
                         {year.months.map(month => (
-                          <div
+                          <Link
                             key={month.month}
-                            className="p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50"
+                            href={`/gestion/facturacion/${propertyId}/${year.year}/${month.month}`}
+                            className="block p-4 border-b border-gray-100 last:border-b-0 hover:bg-violet-50 transition-colors cursor-pointer"
                           >
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                               <div className="flex items-center gap-4">
@@ -373,8 +344,13 @@ export default function PropertyFacturacionPage() {
                                     {month.nights} noches
                                   </span>
                                   <span className="text-green-600 font-medium">
-                                    {month.income.toLocaleString('es-ES')}€
+                                    {formatCurrency(month.income)}
                                   </span>
+                                  {month.expenses > 0 && (
+                                    <span className="text-red-500 font-medium">
+                                      -{formatCurrency(month.expenses)}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
 
@@ -389,35 +365,18 @@ export default function PropertyFacturacionPage() {
                                         {month.liquidation.invoiceNumber}
                                       </span>
                                     )}
-                                    <Link href={`/gestion/liquidaciones/${month.liquidation.id}`}>
-                                      <Button size="sm" variant="outline">
-                                        Ver liquidación
-                                        <ChevronRight className="w-4 h-4 ml-1" />
-                                      </Button>
-                                    </Link>
                                   </>
-                                ) : month.reservations > 0 ? (
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handleCreateLiquidation(year.year, month.month)}
-                                    disabled={creatingLiquidation === `${year.year}-${month.month}` || !property.owner}
-                                    className="bg-violet-600 hover:bg-violet-700"
-                                  >
-                                    {creatingLiquidation === `${year.year}-${month.month}` ? (
-                                      'Creando...'
-                                    ) : (
-                                      <>
-                                        <Plus className="w-4 h-4 mr-1" />
-                                        Crear liquidación
-                                      </>
-                                    )}
-                                  </Button>
+                                ) : (month.reservations > 0 || month.expenses > 0) ? (
+                                  <Badge className="bg-violet-100 text-violet-700">
+                                    Pendiente
+                                  </Badge>
                                 ) : (
-                                  <span className="text-sm text-gray-400">Sin reservas</span>
+                                  <span className="text-sm text-gray-400">Sin actividad</span>
                                 )}
+                                <ChevronRight className="w-4 h-4 text-gray-400" />
                               </div>
                             </div>
-                          </div>
+                          </Link>
                         ))}
                       </div>
                     )}

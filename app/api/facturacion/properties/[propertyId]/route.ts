@@ -26,15 +26,39 @@ export async function GET(
 
     // Get property with billing config
     const property = await prisma.property.findFirst({
-      where: { id: propertyId, userId },
+      where: { id: propertyId, hostId: userId },
       include: {
         billingConfig: {
           include: {
             owner: {
               select: {
                 id: true,
-                name: true,
+                type: true,
+                firstName: true,
+                lastName: true,
+                companyName: true,
                 email: true
+              }
+            },
+            reservations: {
+              where: {
+                status: { in: ['CONFIRMED', 'COMPLETED'] }
+              },
+              select: {
+                id: true,
+                checkIn: true,
+                nights: true,
+                hostEarnings: true,
+                roomTotal: true,
+                cleaningFee: true
+              },
+              orderBy: { checkIn: 'desc' }
+            },
+            expenses: {
+              select: {
+                id: true,
+                amount: true,
+                date: true
               }
             }
           }
@@ -49,30 +73,12 @@ export async function GET(
       )
     }
 
-    // Get all reservations for this property, grouped by year
-    const reservations = await prisma.reservation.findMany({
-      where: {
-        propertyId,
-        status: { in: ['CONFIRMED', 'COMPLETED'] }
-      },
-      select: {
-        id: true,
-        checkIn: true,
-        nights: true,
-        hostEarnings: true,
-        roomTotal: true,
-        cleaningFee: true
-      },
-      orderBy: { checkIn: 'desc' }
-    })
-
-    // Get all liquidations for this property
-    const liquidations = await prisma.liquidation.findMany({
+    // Get all liquidations for this owner
+    const ownerId = property.billingConfig?.ownerId
+    const liquidations = ownerId ? await prisma.liquidation.findMany({
       where: {
         userId,
-        reservations: {
-          some: { propertyId }
-        }
+        ownerId
       },
       select: {
         id: true,
@@ -82,17 +88,10 @@ export async function GET(
         invoiceNumber: true,
         totalAmount: true
       }
-    })
+    }) : []
 
-    // Get expenses for this property
-    const expenses = await prisma.expense.findMany({
-      where: { billingConfigId: property.billingConfig?.id },
-      select: {
-        id: true,
-        amount: true,
-        date: true
-      }
-    })
+    const reservations = property.billingConfig?.reservations || []
+    const expenses = property.billingConfig?.expenses || []
 
     // Group reservations by year and month
     const yearMap = new Map<number, Map<number, { reservations: number; income: number; nights: number; cleaning: number }>>()
@@ -122,9 +121,22 @@ export async function GET(
     const expenseMap = new Map<string, number>()
     expenses.forEach(expense => {
       const date = new Date(expense.date)
-      const key = `${date.getFullYear()}-${date.getMonth() + 1}`
+      const year = date.getFullYear()
+      const month = date.getMonth() + 1
+      const key = `${year}-${month}`
       expenseMap.set(key, (expenseMap.get(key) || 0) + Number(expense.amount))
+
+      // Also add year to yearMap if not exists (so years with only expenses show up)
+      if (!yearMap.has(year)) {
+        yearMap.set(year, new Map())
+      }
     })
+
+    // Also add current year if not present (so users can always access current month)
+    const currentYear = new Date().getFullYear()
+    if (!yearMap.has(currentYear)) {
+      yearMap.set(currentYear, new Map())
+    }
 
     // Build year data structure
     const years = Array.from(yearMap.entries())
@@ -166,8 +178,9 @@ export async function GET(
           reservations: acc.reservations + m.reservations,
           income: acc.income + m.income,
           nights: acc.nights + m.nights,
-          commission: acc.commission + m.commission
-        }), { reservations: 0, income: 0, nights: 0, commission: 0 })
+          commission: acc.commission + m.commission,
+          expenses: acc.expenses + m.expenses
+        }), { reservations: 0, income: 0, nights: 0, commission: 0, expenses: 0 })
 
         // Calculate occupancy (assuming 365 days per year)
         const daysInYear = year === new Date().getFullYear()
@@ -186,14 +199,27 @@ export async function GET(
         }
       })
 
+    // Get owner name
+    const owner = property.billingConfig?.owner
+    let ownerData = null
+    if (owner) {
+      ownerData = {
+        id: owner.id,
+        name: owner.type === 'EMPRESA'
+          ? owner.companyName
+          : `${owner.firstName || ''} ${owner.lastName || ''}`.trim(),
+        email: owner.email
+      }
+    }
+
     return NextResponse.json({
       success: true,
       property: {
         id: property.id,
         name: property.name,
         city: property.city || '',
-        imageUrl: property.mainImage || property.images?.[0] || null,
-        owner: property.billingConfig?.owner || null,
+        imageUrl: property.profileImage || null,
+        owner: ownerData,
         billingConfig: property.billingConfig ? {
           commissionType: property.billingConfig.commissionType,
           commissionValue: Number(property.billingConfig.commissionValue),

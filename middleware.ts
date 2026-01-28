@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const protectedRoutes: string[] = [
   '/main',
-  '/properties', 
+  '/properties',
   '/property-sets',
   '/analytics',
   '/account',
-  '/media-library'
+  '/media-library',
+  '/gestion'
   // Note: /admin removed - handled separately
 ]
 

@@ -95,6 +95,6 @@ export default function ToolChecklistDay5Offer({ name, email }: ToolChecklistDay
   )
 }
 
-export function getSubject(): string {
+export function getSubject(_couponsRemaining?: number): string {
   return 'Último email (+ código 20%)'
 }

@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import { render } from '@react-email/render'
-import type { ReactElement } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 // Lazy initialization to avoid build errors when RESEND_API_KEY is not set
 let _resend: Resend | null = null
@@ -68,18 +68,18 @@ export async function sendEmail({
 }: {
   to: string | string[]
   subject: string
-  react: ReactElement
+  react: ReactElement | ReactNode
   tags?: string[]
 }) {
   try {
-    const html = await render(react)
+    const html = await render(react as ReactElement)
 
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
-      reply_to: REPLY_TO_EMAIL,
+      replyTo: REPLY_TO_EMAIL,
       tags: tags.map((tag, index) => ({ name: `tag_${index}`, value: tag })),
     })
 
@@ -340,7 +340,7 @@ export async function sendDay3MistakesEmail({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'sequence', value: 'day3' }, { name: 'archetype', value: archetype.toLowerCase() }],
   })
 
@@ -504,7 +504,7 @@ export async function sendDay7CaseStudyEmail({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'sequence', value: 'day7' }, { name: 'archetype', value: archetype.toLowerCase() }],
   })
 
@@ -644,7 +644,7 @@ export async function sendDay10TrialEmail({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'sequence', value: 'day10' }, { name: 'type', value: 'trial' }, { name: 'archetype', value: archetype.toLowerCase() }],
   })
 
@@ -787,7 +787,7 @@ export async function sendDay14UrgencyEmail({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'sequence', value: 'day14' }, { name: 'type', value: 'urgency' }, { name: 'archetype', value: archetype.toLowerCase() }],
   })
 
@@ -942,7 +942,7 @@ export async function sendTrialWarning3DaysEmail({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'type', value: 'trial_warning' }, { name: 'days', value: '3' }],
   })
 
@@ -1026,7 +1026,7 @@ export async function sendTrialWarning1DayEmail({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'type', value: 'trial_warning' }, { name: 'days', value: '1' }, { name: 'urgent', value: 'true' }],
   })
 
@@ -1113,7 +1113,7 @@ export async function sendTrialExpiredEmail({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'type', value: 'trial_expired' }],
   })
 
@@ -1351,7 +1351,7 @@ export async function sendSoapOperaEmail1({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'sequence', value: 'soap_opera' }, { name: 'email', value: '1' }, { name: 'nivel', value: nivel }],
   })
 
@@ -1476,7 +1476,7 @@ export async function sendSoapOperaEmail2({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'sequence', value: 'soap_opera' }, { name: 'email', value: '2' }, { name: 'nivel', value: nivel }],
   })
 
@@ -1612,7 +1612,7 @@ export async function sendSoapOperaEmail3({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'sequence', value: 'soap_opera' }, { name: 'email', value: '3' }, { name: 'nivel', value: nivel }],
   })
 
@@ -1769,7 +1769,7 @@ export async function sendSoapOperaEmail4({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'sequence', value: 'soap_opera' }, { name: 'email', value: '4' }, { name: 'nivel', value: nivel }],
   })
 
@@ -1913,7 +1913,7 @@ export async function sendSoapOperaEmail5({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'sequence', value: 'soap_opera' }, { name: 'email', value: '5' }, { name: 'nivel', value: nivel }],
   })
 
@@ -2035,7 +2035,7 @@ export async function sendSoapOperaEmail6({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'sequence', value: 'soap_opera' }, { name: 'email', value: '6' }, { name: 'nivel', value: nivel }],
   })
 
@@ -2152,7 +2152,7 @@ export async function sendSoapOperaEmail7({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'sequence', value: 'soap_opera' }, { name: 'email', value: '7' }, { name: 'nivel', value: nivel }],
   })
 
@@ -2246,7 +2246,7 @@ export async function sendSoapOperaEmail8({
         </div>
       </div>
     `,
-    reply_to: REPLY_TO_EMAIL,
+    replyTo: REPLY_TO_EMAIL,
     tags: [{ name: 'sequence', value: 'soap_opera' }, { name: 'email', value: '8' }, { name: 'nivel', value: nivel }],
   })
 
@@ -2305,7 +2305,7 @@ export async function sendPricingAnalysisEmail({
       to: email,
       subject: `Tu analisis de precios - ${recommendedPrice} EUR/noche recomendado`,
       html,
-      reply_to: REPLY_TO_EMAIL,
+      replyTo: REPLY_TO_EMAIL,
       attachments: [
         {
           filename: `analisis-precios-itineramio.pdf`,
@@ -2327,6 +2327,107 @@ export async function sendPricingAnalysisEmail({
     return { success: true, data }
   } catch (error) {
     console.error('Error rendering or sending pricing analysis email:', error)
+    return { success: false, error }
+  }
+}
+
+/**
+ * Envía email de recordatorio de onboarding de gestión
+ */
+export async function sendOnboardingReminderEmail({
+  to,
+  userName,
+}: {
+  to: string
+  userName: string
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itineram.io'
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Completa la configuración de tu gestión</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <tr>
+      <td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">
+          Itineram.io
+        </h1>
+        <p style="color: #e9d5ff; margin: 10px 0 0; font-size: 14px;">
+          Gestión de apartamentos turísticos
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 40px 30px;">
+        <h2 style="color: #1f2937; margin: 0 0 20px; font-size: 22px; font-weight: 600;">
+          Hola ${userName} 👋
+        </h2>
+        <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
+          Vimos que empezaste a configurar tu módulo de <strong>Gestión</strong> pero no lo completaste.
+        </p>
+        <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
+          Solo te llevará <strong>5 minutos</strong> configurar todo lo necesario para empezar a:
+        </p>
+        <ul style="color: #4b5563; font-size: 16px; line-height: 1.8; margin: 0 0 30px; padding-left: 20px;">
+          <li>Facturar a tus propietarios automáticamente</li>
+          <li>Gestionar comisiones y gastos</li>
+          <li>Generar liquidaciones mensuales</li>
+          <li>Llevar un control financiero completo</li>
+        </ul>
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td align="center">
+              <a href="${appUrl}/gestion" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                Completar configuración
+              </a>
+            </td>
+          </tr>
+        </table>
+        <p style="color: #9ca3af; font-size: 14px; line-height: 1.6; margin: 30px 0 0; text-align: center;">
+          ¿Tienes dudas? Responde a este email y te ayudaremos.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 20px 30px; background-color: #f9fafb; text-align: center; border-top: 1px solid #e5e7eb;">
+        <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+          Itineram.io - La plataforma para gestores de alquiler vacacional
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [to],
+      subject: '¿Completamos la configuración de tu gestión? 🏠',
+      html,
+      replyTo: REPLY_TO_EMAIL,
+      tags: [
+        { name: 'type', value: 'onboarding_reminder' },
+        { name: 'module', value: 'gestion' },
+      ],
+    })
+
+    if (error) {
+      console.error('Error sending onboarding reminder email:', error)
+      return { success: false, error }
+    }
+
+    console.log(`[Email Sent] Onboarding reminder to ${to}`)
+    return { success: true, data }
+  } catch (error) {
+    console.error('Error sending onboarding reminder email:', error)
     return { success: false, error }
   }
 }

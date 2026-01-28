@@ -5,6 +5,7 @@
  */
 
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 
 // Types for the unified lead structure
 export interface LeadCompleted {
@@ -159,9 +160,10 @@ export async function findOrCreateLead(email: string, source: string): Promise<{
 
   const newLead = await prisma.lead.create({
     data: {
+      name: normalizedEmail.split('@')[0], // Default name from email
       email: normalizedEmail,
       source,
-      metadata
+      metadata: metadata as unknown as Prisma.InputJsonValue
     }
   })
 
@@ -208,7 +210,7 @@ export async function updateLeadWithCalculator(
 
   await prisma.lead.update({
     where: { id: lead.id },
-    data: { metadata }
+    data: { metadata: metadata as unknown as Prisma.InputJsonValue }
   })
 }
 
@@ -257,7 +259,7 @@ export async function updateLeadWithPlantillasForm(
 
   await prisma.lead.update({
     where: { id: lead.id },
-    data: { metadata }
+    data: { metadata: metadata as unknown as Prisma.InputJsonValue }
   })
 
   return {
@@ -312,7 +314,7 @@ export async function updateLeadWithQuiz(
 
   await prisma.lead.update({
     where: { id: lead.id },
-    data: { metadata }
+    data: { metadata: metadata as unknown as Prisma.InputJsonValue }
   })
 
   return {
@@ -342,7 +344,7 @@ export async function updateLeadWithVideoCall(email: string): Promise<void> {
 
   await prisma.lead.update({
     where: { id: lead.id },
-    data: { metadata }
+    data: { metadata: metadata as unknown as Prisma.InputJsonValue }
   })
 }
 

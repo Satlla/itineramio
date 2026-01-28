@@ -1,11 +1,12 @@
 import * as jwt from 'jsonwebtoken'
 import { NextRequest } from 'next/server'
 import { prisma } from './prisma'
+import { Prisma } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
-const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET
+const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET!
 
-if (!ADMIN_JWT_SECRET) {
+if (!process.env.ADMIN_JWT_SECRET) {
   throw new Error('CRITICAL: ADMIN_JWT_SECRET environment variable is not set. Application cannot start securely.')
 }
 
@@ -27,23 +28,17 @@ export function verifyAdminToken(token: string): AdminJWTPayload {
 
 export async function getAdminUser(request: NextRequest): Promise<AdminJWTPayload | null> {
   try {
-    console.log('🔍 All cookies:', request.cookies.toString())
-    
     // Check for admin-token cookie
     const adminToken = request.cookies.get('admin-token')?.value
-    console.log('🔐 Admin token found:', !!adminToken)
-    
+
     if (adminToken) {
-      console.log('🔐 Attempting to verify admin token')
       const decoded = verifyAdminToken(adminToken)
-      console.log('✅ Admin token verified successfully for:', decoded.email)
       return decoded
     }
 
-    console.log('❌ No admin authentication token found')
     return null
   } catch (error) {
-    console.error('❌ Admin token verification failed:', error instanceof Error ? error.message : error)
+    // Admin token verification failed (expired, invalid, etc.)
     return null
   }
 }
@@ -177,7 +172,7 @@ export async function createActivityLog(data: ActivityLogData) {
         targetType: data.targetType || null,
         targetId: data.targetId || null,
         description: data.description || null,
-        metadata: data.metadata || {},
+        metadata: (data.metadata || {}) as Prisma.InputJsonValue,
         ipAddress: data.ipAddress || null,
         userAgent: data.userAgent || null,
       }
