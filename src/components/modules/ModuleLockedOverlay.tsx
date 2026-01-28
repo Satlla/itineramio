@@ -12,9 +12,10 @@ interface ModuleLockedOverlayProps {
   className?: string
 }
 
-const moduleIcons: Record<ModuleCode, React.ComponentType<{ className?: string }>> = {
+const moduleIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   MANUALES: BookOpen,
-  GESTION: Briefcase
+  FACTURAMIO: Briefcase,
+  GESTION: Briefcase  // Legacy support
 }
 
 export function ModuleLockedOverlay({
