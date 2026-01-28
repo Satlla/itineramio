@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
@@ -18,10 +18,12 @@ import {
   X,
   Loader2,
   Clock,
-  Gift
+  Gift,
+  AlertTriangle
 } from 'lucide-react'
 import { MODULES } from '@/config/modules'
 import { toast } from 'react-hot-toast'
+import { useGestionAccess } from '@/hooks/useModuleAccess'
 
 type BillingPeriod = 'MONTHLY' | 'SEMESTRAL' | 'YEARLY'
 
@@ -79,6 +81,20 @@ export default function GestionModulePage() {
   const [selectedPeriod, setSelectedPeriod] = useState<BillingPeriod>('YEARLY')
   const [loading, setLoading] = useState(false)
   const [trialLoading, setTrialLoading] = useState(false)
+
+  // Check current module access
+  const { hasAccess, isLoading: accessLoading, access, trialEndsAt } = useGestionAccess()
+
+  // If user already has active access, redirect to /gestion
+  useEffect(() => {
+    if (!accessLoading && hasAccess) {
+      router.replace('/gestion')
+    }
+  }, [accessLoading, hasAccess, router])
+
+  // Determine if trial was already used (expired)
+  const trialExpired = !hasAccess && trialEndsAt && new Date(trialEndsAt) < new Date()
+  const canStartTrial = !hasAccess && !trialEndsAt
 
   // Coupon state
   const [couponCode, setCouponCode] = useState('')
@@ -262,37 +278,63 @@ export default function GestionModulePage() {
           </p>
         </div>
 
-        {/* Trial CTA - Destacado */}
-        <div className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl p-6 md:p-8 text-white text-center mb-8 shadow-lg">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <Gift className="w-6 h-6" />
-            <span className="text-lg font-semibold">Prueba gratis {trialDays} días</span>
+        {/* Loading state */}
+        {accessLoading && (
+          <div className="bg-gray-100 rounded-2xl p-8 text-center mb-8">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto text-gray-400" />
+            <p className="text-gray-500 mt-2">Cargando...</p>
           </div>
-          <p className="text-emerald-100 mb-6">
-            Sin tarjeta de crédito. Cancela cuando quieras.
-          </p>
-          <button
-            onClick={handleStartTrial}
-            disabled={trialLoading}
-            className="px-8 py-4 bg-white text-emerald-600 font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {trialLoading ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Activando...
-              </span>
-            ) : (
-              `Empezar prueba gratuita`
-            )}
-          </button>
-        </div>
+        )}
 
-        {/* Divider */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className="flex-1 h-px bg-gray-200" />
-          <span className="text-gray-500 text-sm">o suscríbete directamente</span>
-          <div className="flex-1 h-px bg-gray-200" />
-        </div>
+        {/* Trial Expired Banner */}
+        {!accessLoading && trialExpired && (
+          <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-6 md:p-8 text-white text-center mb-8 shadow-lg">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <AlertTriangle className="w-6 h-6" />
+              <span className="text-lg font-semibold">Tu prueba gratuita ha expirado</span>
+            </div>
+            <p className="text-amber-100 mb-4">
+              Tu período de prueba terminó el {new Date(trialEndsAt!).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}.
+              Suscríbete para seguir usando Gestión.
+            </p>
+          </div>
+        )}
+
+        {/* Trial CTA - Only show if trial not used */}
+        {!accessLoading && canStartTrial && (
+          <div className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl p-6 md:p-8 text-white text-center mb-8 shadow-lg">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Gift className="w-6 h-6" />
+              <span className="text-lg font-semibold">Prueba gratis {trialDays} días</span>
+            </div>
+            <p className="text-emerald-100 mb-6">
+              Sin tarjeta de crédito. Cancela cuando quieras.
+            </p>
+            <button
+              onClick={handleStartTrial}
+              disabled={trialLoading}
+              className="px-8 py-4 bg-white text-emerald-600 font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {trialLoading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Activando...
+                </span>
+              ) : (
+                `Empezar prueba gratuita`
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Divider - only show when trial option is available */}
+        {!accessLoading && canStartTrial && (
+          <div className="flex items-center gap-4 mb-8">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-gray-500 text-sm">o suscríbete directamente</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+        )}
 
         {/* Pricing Card */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mb-12">
