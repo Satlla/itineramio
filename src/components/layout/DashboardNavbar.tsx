@@ -160,7 +160,7 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
                 href="/gestion"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Facturamio
+                Gestión
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
             </div>

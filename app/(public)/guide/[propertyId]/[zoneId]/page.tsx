@@ -200,6 +200,8 @@ const translations = {
     loading: 'Cargando instrucciones de la zona...',
     zoneNotFound: 'Zona no encontrada',
     zoneNotFoundDesc: 'La zona que buscas no existe o no está disponible.',
+    zoneBlocked: 'Manual no disponible',
+    zoneBlockedDesc: 'Este manual no está disponible actualmente. Por favor, contacta con el anfitrión para más información.',
     backToProperty: 'Volver a la propiedad',
     noSteps: 'Sin instrucciones',
     noStepsDesc: 'Esta zona aún no tiene instrucciones configuradas.',
@@ -239,6 +241,8 @@ const translations = {
     loading: 'Loading zone instructions...',
     zoneNotFound: 'Zone not found',
     zoneNotFoundDesc: 'The zone you are looking for does not exist or is not available.',
+    zoneBlocked: 'Manual not available',
+    zoneBlockedDesc: 'This manual is not currently available. Please contact the host for more information.',
     backToProperty: 'Back to property',
     noSteps: 'No instructions',
     noStepsDesc: 'This zone does not have instructions configured yet.',
@@ -277,6 +281,8 @@ const translations = {
   fr: {
     loading: 'Chargement des instructions de la zone...',
     zoneNotFound: 'Zone non trouvée',
+    zoneBlocked: 'Manuel non disponible',
+    zoneBlockedDesc: 'Ce manuel n\'est pas disponible actuellement. Veuillez contacter l\'hôte pour plus d\'informations.',
     zoneNotFoundDesc: 'La zone que vous recherchez n\'existe pas ou n\'est pas disponible.',
     backToProperty: 'Retour à la propriété',
     noSteps: 'Aucune instruction',
@@ -433,6 +439,7 @@ export default function ZoneGuidePage({
   const [zone, setZone] = useState<Zone | null>(null)
   const [property, setProperty] = useState<Property | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isBlocked, setIsBlocked] = useState(false)
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set())
   const [viewedSteps, setViewedSteps] = useState<Set<string>>(new Set())
   const [showRatingModal, setShowRatingModal] = useState(false)
@@ -555,13 +562,30 @@ export default function ZoneGuidePage({
         propertyResponse.json()
       ])
       
+      // Check if blocked (host doesn't have MANUALES module)
+      if (zoneResponse.status === 403 && zoneResult.blocked) {
+        setIsBlocked(true)
+        setZone(null)
+        setProperty(null)
+        return
+      }
+
+      if (propertyResponse.status === 403 && propertyResult.blocked) {
+        setIsBlocked(true)
+        setZone(null)
+        setProperty(null)
+        return
+      }
+
       if (!zoneResponse.ok) {
         throw new Error(zoneResult.error || 'Zona no encontrada')
       }
-      
+
       if (!propertyResponse.ok) {
         throw new Error(propertyResult.error || 'Propiedad no encontrada')
       }
+
+      setIsBlocked(false)
       
       // Zone data already includes steps from the API
       const zoneWithSteps = {
@@ -764,6 +788,27 @@ export default function ZoneGuidePage({
 
   if (loading) {
     return <AnimatedLoadingSpinner text={t('loading', language)} type="zones" />
+  }
+
+  // Manual bloqueado porque el host no tiene módulo MANUALES activo
+  if (isBlocked) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="text-center max-w-md mx-auto">
+          <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Shield className="w-10 h-10 text-amber-600" />
+          </div>
+          <h1 className="text-xl font-semibold text-gray-900 mb-2">{t('zoneBlocked', language)}</h1>
+          <p className="text-gray-600 mb-4">{t('zoneBlockedDesc', language)}</p>
+          <Link href={`/guide/${propertyId}`}>
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              {t('backToProperty', language)}
+            </Button>
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   if (!zone || !property) {

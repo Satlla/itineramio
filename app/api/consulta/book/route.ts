@@ -3,7 +3,14 @@ import { prisma } from '@/lib/prisma'
 import { Resend } from 'resend'
 import { updateLeadWithVideoCall } from '@/lib/unified-lead'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization to avoid build errors when RESEND_API_KEY is not set
+let _resend: Resend | null = null
+function getResend(): Resend {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY || '')
+  }
+  return _resend
+}
 
 interface BookingRequest {
   name: string
@@ -130,7 +137,7 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation email to user
     try {
-      await resend.emails.send({
+      await getResend().emails.send({
         from: 'Álex de Itineramio <alex@itineramio.com>',
         to: [normalizedEmail],
         subject: `✅ Llamada confirmada: ${dateFormatted} a las ${body.selectedTime}h`,
@@ -219,7 +226,7 @@ export async function POST(request: NextRequest) {
 
     // Send notification to admins
     try {
-      await resend.emails.send({
+      await getResend().emails.send({
         from: 'Itineramio <notificaciones@itineramio.com>',
         to: ['hola@itineramio.com', 'alejandrosatlla@gmail.com'],
         subject: `🎯 Nueva consultoría: ${body.name} (${body.properties})`,

@@ -6,6 +6,7 @@ import { requireAuth } from '../../../src/lib/auth'
 import { emailNotificationService } from '../../../src/lib/email-notifications'
 import { planLimitsService } from '../../../src/lib/plan-limits'
 import { generatePropertyNumber, extractNumberFromReference } from '../../../src/lib/property-number-generator'
+import { autoActivateManualesTrial } from '../../../src/lib/auto-activate-trial'
 
 // Tiempo de respuesta estimado por tipo de zona (en minutos)
 // Basado en cuánto tiempo tarda un anfitrión en explicar cada tema
@@ -390,10 +391,24 @@ export async function POST(request: NextRequest) {
       console.error('Error sending new property notification email:', error)
       // Don't fail the request if email fails
     }
-    
+
+    // Auto-activate MANUALES trial if this is the first property
+    let manualesTrialActivated = false
+    try {
+      const trialResult = await autoActivateManualesTrial(userId)
+      manualesTrialActivated = trialResult.activated
+      if (trialResult.activated) {
+        console.log('🎉 MANUALES trial auto-activated for new user:', userId)
+      }
+    } catch (trialError) {
+      console.error('Error auto-activating MANUALES trial:', trialError)
+      // Don't fail the request if trial activation fails
+    }
+
     return NextResponse.json({
       success: true,
       data: property,
+      manualesTrialActivated,
       subscription: {
         needsTrial,
         isFirstProperty: activePropertiesCount === 0,

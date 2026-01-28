@@ -1,7 +1,7 @@
 /**
  * SERVICIO DE LÍMITES DE MÓDULOS
  *
- * Valida el acceso a los módulos MANUALES y FACTURAMIO.
+ * Valida el acceso a los módulos MANUALES y GESTION.
  * Mantiene compatibilidad con el sistema de suscripciones existente.
  *
  * Prioridad de verificación:
@@ -16,7 +16,7 @@ import {
   type ModuleCode,
   type ModuleAccess,
   type ManualesAccess,
-  type GestionAccess as FacturamioAccess,
+  type GestionAccess,
   type ModuleStatus,
   MODULES,
   createDeniedAccess,
@@ -49,6 +49,25 @@ export class ModuleLimitsService {
     if (userModule && userModule.isActive && userModule.status !== 'CANCELED') {
       const plan = userModule.subscriptionPlan
       const currentProperties = await this.countUserProperties(userId)
+
+      // Check if trial has expired
+      if (userModule.status === 'TRIAL' && userModule.trialEndsAt) {
+        const isTrialExpired = new Date(userModule.trialEndsAt) < new Date()
+        if (isTrialExpired) {
+          // Trial expired - user needs to subscribe
+          return {
+            ...createDeniedAccess('MANUALES'),
+            planCode: null,
+            planName: 'Período de prueba expirado',
+            maxProperties: 0,
+            currentProperties,
+            canAddProperty: false,
+            // Provide trial info for UI
+            isTrialActive: false,
+            trialEndsAt: userModule.trialEndsAt
+          } as ManualesAccess
+        }
+      }
 
       return {
         ...createGrantedAccess('MANUALES', userModule.status as ModuleStatus, {
@@ -143,21 +162,38 @@ export class ModuleLimitsService {
   }
 
   /**
-   * Obtener acceso al módulo FACTURAMIO
-   * Tarifa plana sin límite de propiedades
+   * Obtener acceso al módulo GESTION
+   * Tarifa plana sin límite de BillingUnits
    */
-  async getFacturamioAccess(userId: string): Promise<FacturamioAccess> {
-    // 1. Buscar UserModule FACTURAMIO activo (o legacy GESTION)
-    const userModule = await prisma.userModule.findFirst({
+  async getGestionAccess(userId: string): Promise<GestionAccess> {
+    // 1. Buscar UserModule GESTION activo
+    const userModule = await prisma.userModule.findUnique({
       where: {
-        userId,
-        moduleType: { in: ['FACTURAMIO', 'GESTION'] }
+        userId_moduleType: {
+          userId,
+          moduleType: 'GESTION'
+        }
       }
     })
 
     if (userModule && userModule.isActive && userModule.status !== 'CANCELED') {
+      // Check if trial has expired
+      if (userModule.status === 'TRIAL' && userModule.trialEndsAt) {
+        const isTrialExpired = new Date(userModule.trialEndsAt) < new Date()
+        if (isTrialExpired) {
+          // Trial expired - user needs to subscribe
+          return {
+            ...createDeniedAccess('GESTION'),
+            unlimitedProperties: true,
+            // Provide trial info for UI to show "trial expired" message
+            isTrialActive: false,
+            trialEndsAt: userModule.trialEndsAt
+          } as GestionAccess
+        }
+      }
+
       return {
-        ...createGrantedAccess('FACTURAMIO', userModule.status as ModuleStatus, {
+        ...createGrantedAccess('GESTION', userModule.status as ModuleStatus, {
           trialEndsAt: userModule.trialEndsAt,
           expiresAt: userModule.expiresAt
         }),
@@ -167,7 +203,7 @@ export class ModuleLimitsService {
 
     // 2. Sin acceso
     return {
-      ...createDeniedAccess('FACTURAMIO'),
+      ...createDeniedAccess('GESTION'),
       unlimitedProperties: true
     }
   }
@@ -177,14 +213,14 @@ export class ModuleLimitsService {
    */
   async getAllModulesAccess(userId: string): Promise<{
     manuales: ManualesAccess
-    facturamio: FacturamioAccess
+    gestion: GestionAccess
   }> {
-    const [manuales, facturamio] = await Promise.all([
+    const [manuales, gestion] = await Promise.all([
       this.getManualesAccess(userId),
-      this.getFacturamioAccess(userId)
+      this.getGestionAccess(userId)
     ])
 
-    return { manuales, facturamio }
+    return { manuales, gestion }
   }
 
   /**
@@ -195,7 +231,7 @@ export class ModuleLimitsService {
       const access = await this.getManualesAccess(userId)
       return access.hasAccess
     } else {
-      const access = await this.getFacturamioAccess(userId)
+      const access = await this.getGestionAccess(userId)
       return access.hasAccess
     }
   }
@@ -285,7 +321,7 @@ export async function getModuleAccess(userId: string, moduleCode: ModuleCode): P
   if (moduleCode === 'MANUALES') {
     return moduleLimitsService.getManualesAccess(userId)
   }
-  return moduleLimitsService.getFacturamioAccess(userId)
+  return moduleLimitsService.getGestionAccess(userId)
 }
 
 /**

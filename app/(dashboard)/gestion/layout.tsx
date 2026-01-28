@@ -20,7 +20,7 @@ import {
 import { OnboardingProgress } from '@/components/gestion/OnboardingProgress'
 import { ModuleGate } from '@/components/modules'
 
-// FACTURAMIO es el nuevo nombre del módulo de facturación (antes GESTION)
+// GESTION es el módulo de gestión económica de alquileres vacacionales
 
 interface NavItem {
   href: string
@@ -155,6 +155,36 @@ export default function GestionLayout({
   const [onboarding, setOnboarding] = useState<OnboardingStatus | null>(null)
   const [recentReservations, setRecentReservations] = useState(0)
 
+  // Auto-activate GESTION trial on first visit
+  useEffect(() => {
+    const autoActivateTrial = async () => {
+      try {
+        // Check if we've already tried to activate (avoid repeated calls)
+        const alreadyAttempted = sessionStorage.getItem('gestion-trial-attempted')
+        if (alreadyAttempted) return
+
+        sessionStorage.setItem('gestion-trial-attempted', 'true')
+
+        const response = await fetch('/api/modules/auto-activate-gestion', {
+          method: 'POST',
+          credentials: 'include'
+        })
+
+        if (response.ok) {
+          const result = await response.json()
+          if (result.activated) {
+            console.log('🎉 GESTION trial auto-activated')
+          }
+        }
+      } catch (error) {
+        // Silently ignore - trial activation is best-effort
+        console.error('Error auto-activating GESTION trial:', error)
+      }
+    }
+
+    autoActivateTrial()
+  }, []) // Run only once on mount
+
   useEffect(() => {
     // Fetch pending actions and onboarding status for badges and widget
     const fetchData = async () => {
@@ -197,7 +227,7 @@ export default function GestionLayout({
   // Si es fullscreen, mostrar solo el children sin sidebar
   if (isFullscreen) {
     return (
-      <ModuleGate module="FACTURAMIO" overlayClassName="min-h-screen">
+      <ModuleGate module="GESTION" overlayClassName="min-h-screen">
         <div className="min-h-screen bg-gray-100">
           {children}
         </div>
@@ -206,7 +236,7 @@ export default function GestionLayout({
   }
 
   return (
-    <ModuleGate module="FACTURAMIO" overlayClassName="min-h-screen">
+    <ModuleGate module="GESTION" overlayClassName="min-h-screen">
     <div className="min-h-screen bg-gray-50">
       {/* Mobile Top Navigation */}
       <div className="lg:hidden bg-white border-b border-gray-200 sticky top-0 z-30">

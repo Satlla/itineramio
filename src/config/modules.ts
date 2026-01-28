@@ -11,7 +11,7 @@
  * Última actualización: 28/01/2026
  */
 
-export type ModuleCode = 'MANUALES' | 'FACTURAMIO'
+export type ModuleCode = 'MANUALES' | 'GESTION'
 
 export type ModuleStatus = 'ACTIVE' | 'CANCELED' | 'TRIAL' | 'EXPIRED'
 
@@ -55,11 +55,11 @@ export const MODULES: Record<ModuleCode, Module> = {
     ctaText: 'Activar Manuales',
     activationUrl: '/account/plans'
   },
-  FACTURAMIO: {
-    code: 'FACTURAMIO',
-    name: 'Facturamio',
-    description: 'Factura como un profesional. Importa reservas, genera facturas y liquidaciones para tus propietarios automáticamente.',
-    shortDescription: 'Facturación profesional',
+  GESTION: {
+    code: 'GESTION',
+    name: 'Gestión',
+    description: 'Gestiona tus propiedades de forma profesional. Importa reservas, genera facturas y liquidaciones para tus propietarios automáticamente.',
+    shortDescription: 'Gestión económica',
     basePriceMonthly: 8,      // €8/mes tarifa plana accesible
     priceSemestral: 43.2,     // 8 * 6 * 0.9 = 43.2
     priceYearly: 76.8,        // 8 * 12 * 0.8 = 76.8
@@ -75,7 +75,7 @@ export const MODULES: Record<ModuleCode, Module> = {
       'Informes de rentabilidad'
     ],
     ctaText: 'Probar 14 días gratis',
-    activationUrl: '/account/modules/facturamio'
+    activationUrl: '/account/modules/gestion'
   }
 }
 
@@ -118,10 +118,10 @@ export interface ManualesAccess extends ModuleAccess {
 }
 
 /**
- * Interface para el acceso al módulo GESTION (sin límites)
+ * Interface para el acceso al módulo GESTION (sin límites de propiedades)
  */
 export interface GestionAccess extends ModuleAccess {
-  // GESTION no tiene límites de propiedades
+  // GESTION usa BillingUnits, sin límite de unidades
   unlimitedProperties: true
 }
 

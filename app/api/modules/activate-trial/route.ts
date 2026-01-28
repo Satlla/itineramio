@@ -16,7 +16,10 @@ export async function POST(request: NextRequest) {
 
     const { moduleCode, trialDays = 14 } = await request.json()
 
-    if (!moduleCode || !['MANUALES', 'FACTURAMIO'].includes(moduleCode)) {
+    // Normalize FACTURAMIO to GESTION for compatibility
+    const normalizedModuleCode = moduleCode === 'FACTURAMIO' ? 'GESTION' : moduleCode
+
+    if (!normalizedModuleCode || !['MANUALES', 'GESTION'].includes(normalizedModuleCode)) {
       return NextResponse.json(
         { success: false, error: 'Módulo no válido' },
         { status: 400 }
@@ -27,7 +30,7 @@ export async function POST(request: NextRequest) {
     const existingModule = await prisma.userModule.findFirst({
       where: {
         userId,
-        moduleType: moduleCode === 'FACTURAMIO' ? { in: ['FACTURAMIO', 'GESTION'] } : moduleCode
+        moduleType: normalizedModuleCode
       }
     })
 
@@ -57,26 +60,26 @@ export async function POST(request: NextRequest) {
       where: {
         userId_moduleType: {
           userId,
-          moduleType: moduleCode
+          moduleType: normalizedModuleCode
         }
       },
       create: {
         userId,
-        moduleType: moduleCode,
+        moduleType: normalizedModuleCode,
         status: 'TRIAL',
         isActive: true,
-        activatedAt: now,
+        trialStartedAt: now,
         trialEndsAt
       },
       update: {
         status: 'TRIAL',
         isActive: true,
-        activatedAt: now,
+        trialStartedAt: now,
         trialEndsAt
       }
     })
 
-    console.log(`✅ Trial activado: ${moduleCode} para usuario ${userId}, expira ${trialEndsAt.toISOString()}`)
+    console.log(`✅ Trial activado: ${normalizedModuleCode} para usuario ${userId}, expira ${trialEndsAt.toISOString()}`)
 
     return NextResponse.json({
       success: true,

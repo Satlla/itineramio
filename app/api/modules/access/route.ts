@@ -8,7 +8,7 @@ import { MODULES, type ModuleCode } from '@/config/modules'
  * Obtener el estado de acceso a los módulos del usuario
  *
  * Query params:
- * - module: 'MANUALES' | 'FACTURAMIO' | 'GESTION' (legacy) | undefined (si no se especifica, devuelve ambos)
+ * - module: 'MANUALES' | 'GESTION' | 'FACTURAMIO' (legacy) | undefined (si no se especifica, devuelve ambos)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const userId = authResult.userId
 
     const { searchParams } = new URL(request.url)
-    const moduleParam = searchParams.get('module')?.toUpperCase() as ModuleCode | 'GESTION' | undefined
+    const moduleParam = searchParams.get('module')?.toUpperCase() as ModuleCode | 'FACTURAMIO' | undefined
 
     // Si se especifica un módulo, devolver solo ese
     if (moduleParam) {
@@ -30,19 +30,19 @@ export async function GET(request: NextRequest) {
           module: MODULES.MANUALES,
           access
         })
-      } else if (moduleParam === 'FACTURAMIO' || moduleParam === 'GESTION') {
-        // GESTION es legacy, redirigir a FACTURAMIO
-        const access = await moduleLimitsService.getFacturamioAccess(userId)
+      } else if (moduleParam === 'GESTION' || moduleParam === 'FACTURAMIO') {
+        // FACTURAMIO es legacy, redirigir a GESTION
+        const access = await moduleLimitsService.getGestionAccess(userId)
         return NextResponse.json({
           success: true,
-          module: MODULES.FACTURAMIO,
+          module: MODULES.GESTION,
           access
         })
       }
     }
 
     // Devolver acceso a ambos módulos
-    const { manuales, facturamio } = await moduleLimitsService.getAllModulesAccess(userId)
+    const { manuales, gestion } = await moduleLimitsService.getAllModulesAccess(userId)
 
     return NextResponse.json({
       success: true,
@@ -51,14 +51,14 @@ export async function GET(request: NextRequest) {
           config: MODULES.MANUALES,
           access: manuales
         },
-        facturamio: {
-          config: MODULES.FACTURAMIO,
-          access: facturamio
+        gestion: {
+          config: MODULES.GESTION,
+          access: gestion
         },
         // Legacy alias
-        gestion: {
-          config: MODULES.FACTURAMIO,
-          access: facturamio
+        facturamio: {
+          config: MODULES.GESTION,
+          access: gestion
         }
       }
     })

@@ -80,19 +80,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verificar módulo aplicable (FACTURAMIO también acepta cupones de GESTION para compatibilidad)
-    if (coupon.applicableModule && moduleType) {
-      const moduleMatches = coupon.applicableModule === moduleType ||
-        (moduleType === 'FACTURAMIO' && coupon.applicableModule === 'GESTION')
+    // Verificar módulo aplicable
+    // Normalize FACTURAMIO to GESTION for compatibility with legacy data
+    const normalizedModuleType = moduleType === 'FACTURAMIO' ? 'GESTION' : moduleType
+    // Cast to string for comparison since legacy DB data might still contain FACTURAMIO
+    const applicableModuleStr = coupon.applicableModule as string | null
+    const normalizedApplicableModule = applicableModuleStr === 'FACTURAMIO' ? 'GESTION' : coupon.applicableModule
+
+    if (normalizedApplicableModule && normalizedModuleType) {
+      const moduleMatches = normalizedApplicableModule === normalizedModuleType
 
       if (!moduleMatches) {
         const moduleNames: Record<string, string> = {
           'MANUALES': 'Manuales Digitales',
-          'GESTION': 'Facturamio',
-          'FACTURAMIO': 'Facturamio'
+          'GESTION': 'Gestión'
         }
         return NextResponse.json(
-          { success: false, error: `Este cupón solo es válido para ${moduleNames[coupon.applicableModule] || coupon.applicableModule}` },
+          { success: false, error: `Este cupón solo es válido para ${moduleNames[normalizedApplicableModule] || normalizedApplicableModule}` },
           { status: 400 }
         )
       }

@@ -8,7 +8,14 @@ import {
   type FunnelTheme
 } from '@/data/funnels'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization to avoid build errors when RESEND_API_KEY is not set
+let _resend: Resend | null = null
+function getResend(): Resend {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY || '')
+  }
+  return _resend
+}
 
 // Email templates for each funnel
 function generateFunnelEmail(
@@ -196,7 +203,7 @@ export async function POST(request: NextRequest) {
     const leadMagnet = LEAD_MAGNETS_BY_THEME[theme as FunnelTheme]
 
     // Send email
-    const result = await resend.emails.send({
+    const result = await getResend().emails.send({
       from: 'Alejandro de Itineramio <hola@itineramio.com>',
       to: lead.email,
       subject: emailContent.subject,

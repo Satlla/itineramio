@@ -117,11 +117,14 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
   const couponCode = session.metadata?.couponCode
   const couponDiscountAmount = session.metadata?.couponDiscountAmount
 
-  // Handle module subscription (FACTURAMIO, etc.)
+  // Handle module subscription (GESTION, etc.)
   if (isModuleSubscription && moduleCode && userId) {
+    // Normalize FACTURAMIO to GESTION for backwards compatibility
+    const normalizedModuleCode = moduleCode === 'FACTURAMIO' ? 'GESTION' : moduleCode
+
     console.log('📦 Module subscription checkout:', {
       userId,
-      moduleCode,
+      moduleCode: normalizedModuleCode,
       billingPeriod,
       couponCode: couponCode || 'none'
     })
@@ -133,12 +136,12 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
       where: {
         userId_moduleType: {
           userId,
-          moduleType: moduleCode as 'MANUALES' | 'GESTION' | 'FACTURAMIO'
+          moduleType: normalizedModuleCode as 'MANUALES' | 'GESTION'
         }
       },
       create: {
         userId,
-        moduleType: moduleCode as 'MANUALES' | 'GESTION' | 'FACTURAMIO',
+        moduleType: normalizedModuleCode as 'MANUALES' | 'GESTION',
         status: 'ACTIVE',
         isActive: true,
         activatedAt: new Date(),
@@ -156,7 +159,7 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
       }
     })
 
-    console.log(`✅ Module ${moduleCode} activated for user ${userId}`)
+    console.log(`✅ Module ${normalizedModuleCode} activated for user ${userId}`)
 
     // Record coupon if used
     if (couponCode && couponCode.trim() !== '') {

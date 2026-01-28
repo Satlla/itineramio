@@ -114,6 +114,7 @@ model UserModule {
   canceledAt           DateTime?
   stripeSubscriptionId String?    @unique
   subscriptionPlanId   String? // Solo para MANUALES
+  trialStartedAt       DateTime?  // Cuando comenzó el trial
   trialEndsAt          DateTime?
   createdAt            DateTime   @default(now())
   updatedAt            DateTime   @updatedAt

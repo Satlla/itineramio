@@ -462,10 +462,10 @@ export function OnboardingWizard({ onComplete, onDismiss }: OnboardingWizardProp
             />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Bienvenido a Facturamio
+            Bienvenido a Itineramio Gestión
           </h2>
           <p className="text-gray-600 max-w-md mx-auto mb-6">
-            El módulo de <strong>facturación profesional</strong> de Itineramio.
+            El módulo de <strong>gestión económica</strong> de Itineramio.
             Gestiona propietarios, importa reservas y genera facturas y liquidaciones automáticamente.
           </p>
           <div className="bg-violet-50 rounded-xl p-4 max-w-sm mx-auto mb-4">

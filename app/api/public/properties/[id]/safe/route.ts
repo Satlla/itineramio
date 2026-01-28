@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
+import { checkHostManualesAccess, MANUAL_BLOCKED_MESSAGE } from '../../../../../../src/lib/public-module-check'
 
 export async function GET(
   request: NextRequest,
@@ -33,7 +34,21 @@ export async function GET(
         error: 'Propiedad no encontrada o no publicada'
       }, { status: 404 })
     }
-    
+
+    // Check if host has MANUALES module access
+    if (property.hostId) {
+      const moduleAccess = await checkHostManualesAccess(property.hostId)
+      if (!moduleAccess.hasAccess) {
+        console.log(`🚫 Manual blocked for property ${id} - host ${property.hostId} has no MANUALES access: ${moduleAccess.blockedReason}`)
+        return NextResponse.json({
+          success: false,
+          error: MANUAL_BLOCKED_MESSAGE.description,
+          code: MANUAL_BLOCKED_MESSAGE.code,
+          blocked: true
+        }, { status: 403 })
+      }
+    }
+
     // Get zones and steps safely using raw SQL
     const zones = await prisma.$queryRaw`
       SELECT 

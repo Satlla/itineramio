@@ -55,15 +55,16 @@ export async function POST(request: NextRequest) {
       amount // Pre-calculated amount with discounts
     } = body
 
-    // Validate module
-    if (!moduleCode || !['MANUALES', 'FACTURAMIO'].includes(moduleCode)) {
+    // Validate module (accept GESTION and FACTURAMIO as the same)
+    const normalizedModuleCode = moduleCode === 'FACTURAMIO' ? 'GESTION' : moduleCode
+    if (!normalizedModuleCode || !['MANUALES', 'GESTION'].includes(normalizedModuleCode)) {
       return NextResponse.json(
         { success: false, error: 'Módulo no válido' },
         { status: 400 }
       )
     }
 
-    const module = MODULES[moduleCode as keyof typeof MODULES]
+    const module = MODULES[normalizedModuleCode as keyof typeof MODULES]
     if (!module || module.basePriceMonthly === null) {
       return NextResponse.json(
         { success: false, error: 'Este módulo no tiene precio directo' },
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('💰 Module Checkout:', {
-      moduleCode,
+      moduleCode: normalizedModuleCode,
       moduleName: module.name,
       billingPeriod: period,
       priceToCharge,
@@ -135,7 +136,7 @@ export async function POST(request: NextRequest) {
         isModuleSubscription: 'true'
       },
       success_url: `${request.headers.get('origin')}/gestion?activated=true`,
-      cancel_url: `${request.headers.get('origin')}/account/modules/facturamio?cancelled=true`,
+      cancel_url: `${request.headers.get('origin')}/account/modules/gestion?cancelled=true`,
       locale: 'es',
       allow_promotion_codes: true
     })

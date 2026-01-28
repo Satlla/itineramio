@@ -14,8 +14,8 @@ interface ModuleLockedOverlayProps {
 
 const moduleIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   MANUALES: BookOpen,
-  FACTURAMIO: Briefcase,
-  GESTION: Briefcase  // Legacy support
+  GESTION: Briefcase,
+  FACTURAMIO: Briefcase  // Legacy support
 }
 
 export function ModuleLockedOverlay({

@@ -4,7 +4,14 @@ import { requireAuth } from '@/lib/auth'
 import { Resend } from 'resend'
 import crypto from 'crypto'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization to avoid build errors when RESEND_API_KEY is not set
+let _resend: Resend | null = null
+function getResend(): Resend {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY || '')
+  }
+  return _resend
+}
 
 /**
  * GET /api/gestion/invoices/[id]/send
@@ -235,7 +242,7 @@ export async function POST(
     `
 
     // Send email via Resend
-    const { error: sendError } = await resend.emails.send({
+    const { error: sendError } = await getResend().emails.send({
       from: `${businessName} <facturas@itineramio.com>`,
       replyTo: config.email || undefined,
       to: email,

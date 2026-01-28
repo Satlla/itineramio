@@ -148,6 +148,8 @@ const translations = {
     loading: 'Cargando manual de la propiedad...',
     manualNotFound: 'Manual no encontrado',
     manualNotFoundDesc: 'No pudimos encontrar el manual de esta propiedad. Es posible que el enlace sea incorrecto.',
+    manualBlocked: 'Manual no disponible',
+    manualBlockedDesc: 'Este manual no está disponible actualmente. Por favor, contacta con el anfitrión para más información.',
     back: 'Volver',
     aboutYourAccommodation: 'Sobre tu alojamiento',
     aboutYourApartment: 'Sobre tu apartamento', 
@@ -207,6 +209,8 @@ const translations = {
     loading: 'Loading property manual...',
     manualNotFound: 'Manual not found',
     manualNotFoundDesc: 'We could not find the manual for this property. The link may be incorrect.',
+    manualBlocked: 'Manual not available',
+    manualBlockedDesc: 'This manual is not currently available. Please contact the host for more information.',
     back: 'Back',
     aboutYourAccommodation: 'About your accommodation',
     aboutYourApartment: 'About your apartment',
@@ -266,6 +270,8 @@ const translations = {
     loading: 'Chargement du manuel de la propriété...',
     manualNotFound: 'Manuel non trouvé',
     manualNotFoundDesc: 'Nous n\'avons pas pu trouver le manuel de cette propriété. Le lien peut être incorrect.',
+    manualBlocked: 'Manuel non disponible',
+    manualBlockedDesc: 'Ce manuel n\'est pas disponible actuellement. Veuillez contacter l\'hôte pour plus d\'informations.',
     back: 'Retour',
     aboutYourAccommodation: 'À propos de votre hébergement',
     aboutYourApartment: 'À propos de votre appartement',
@@ -507,6 +513,7 @@ export default function PropertyGuidePage() {
   
   const [property, setProperty] = useState<Property | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isBlocked, setIsBlocked] = useState(false)
   const [showSuggestionBox, setShowSuggestionBox] = useState(false)
   const [suggestion, setSuggestion] = useState('')
   const [isSubmittingSuggestion, setIsSubmittingSuggestion] = useState(false)
@@ -626,9 +633,16 @@ export default function PropertyGuidePage() {
       }
       
       if (!response.ok) {
+        // Check if manual is blocked (host doesn't have MANUALES module)
+        if (response.status === 403 && result.blocked) {
+          setIsBlocked(true)
+          setProperty(null)
+          return
+        }
         throw new Error(result.error || 'Manual no encontrado')
       }
 
+      setIsBlocked(false)
       setProperty(result.data)
 
       // Track property view with the REAL property ID (not slug)
@@ -806,6 +820,28 @@ export default function PropertyGuidePage() {
 
   if (loading) {
     return <AnimatedLoadingSpinner text={t('loading', language)} type="properties" />
+  }
+
+  // Manual bloqueado porque el host no tiene módulo MANUALES activo
+  if (isBlocked) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="text-center max-w-md mx-auto">
+          <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Shield className="w-10 h-10 text-amber-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            {t('manualBlocked', language)}
+          </h1>
+          <p className="text-gray-600 mb-8 leading-relaxed">
+            {t('manualBlockedDesc', language)}
+          </p>
+          <Button onClick={() => router.back()} variant="outline">
+            {t('back', language)}
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   if (!property) {
