@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       unpaidInvoicesCount,
       totalExpenses
     ] = await Promise.all([
-      prisma.property.count({ where: { hostId: userId } }),
+      prisma.billingUnit.count({ where: { userId } }),
       prisma.propertyOwner.count({ where: { userId } }),
       prisma.clientInvoice.count({
         where: {
@@ -52,10 +52,10 @@ export async function GET(request: NextRequest) {
         where: { userId },
         select: { businessName: true, nif: true }
       }),
-      // Onboarding: Check properties with owner assigned
-      prisma.propertyBillingConfig.count({
+      // Onboarding: Check BillingUnits with owner assigned
+      prisma.billingUnit.count({
         where: {
-          property: { hostId: userId },
+          userId,
           ownerId: { not: null }
         }
       }),
@@ -66,7 +66,8 @@ export async function GET(request: NextRequest) {
       // Pending actions: Reservations without liquidation (completed/confirmed only)
       prisma.reservation.count({
         where: {
-          billingConfig: { property: { hostId: userId } },
+          userId,
+          billingUnitId: { not: null },
           liquidationId: null,
           status: { in: ['CONFIRMED', 'COMPLETED'] },
           checkOut: { lt: new Date() } // Only past reservations
@@ -153,29 +154,23 @@ export async function GET(request: NextRequest) {
     const yearlyCleaningAmount = Number(yearlyReservations._sum.cleaningAmount) || 0
     const monthlyCleaningAmount = Number(monthlyReservations._sum.cleaningAmount) || 0
 
-    // Get average commission rate from billing configs
-    const billingConfigs = await prisma.propertyBillingConfig.findMany({
-      where: {
-        property: { hostId: userId }
-      },
-      select: {
-        commissionValue: true
-      }
+    // Get average commission rate from billing units
+    const billingUnits = await prisma.billingUnit.findMany({
+      where: { userId },
+      select: { commissionValue: true }
     })
 
-    const avgCommission = billingConfigs.length > 0
-      ? billingConfigs.reduce((sum, c) => sum + Number(c.commissionValue), 0) / billingConfigs.length
+    const avgCommission = billingUnits.length > 0
+      ? billingUnits.reduce((sum, c) => sum + Number(c.commissionValue), 0) / billingUnits.length
       : 15 // Default 15%
 
     // Calculate commission using manager amounts if available, otherwise estimate
     const yearlyCommission = yearlyManagerAmount > 0 ? yearlyManagerAmount : (yearlyIncome * avgCommission) / 100
     const monthlyCommission = monthlyManagerAmount > 0 ? monthlyManagerAmount : (monthlyIncome * avgCommission) / 100
 
-    // Count pending liquidations
-    const propertiesWithConfig = await prisma.propertyBillingConfig.findMany({
-      where: {
-        property: { hostId: userId }
-      },
+    // Count pending liquidations using BillingUnits
+    const billingUnitsWithReservations = await prisma.billingUnit.findMany({
+      where: { userId },
       include: {
         reservations: {
           where: {
@@ -199,9 +194,9 @@ export async function GET(request: NextRequest) {
 
     // Count months with reservations that don't have liquidations
     let pendingLiquidations = 0
-    propertiesWithConfig.forEach(config => {
-      const monthsWithReservations = new Set(
-        config.reservations.map(r => new Date(r.checkIn).getMonth() + 1)
+    billingUnitsWithReservations.forEach(unit => {
+      const monthsWithReservations = new Set<number>(
+        unit.reservations.map(r => new Date(r.checkIn).getMonth() + 1)
       )
       monthsWithReservations.forEach(month => {
         if (!liquidatedMonths.has(month) && month <= currentMonth) {
