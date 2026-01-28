@@ -14,12 +14,25 @@ import {
   CalendarDays,
   Sparkles,
   Shield,
-  Zap
+  Zap,
+  Tag,
+  X,
+  Loader2
 } from 'lucide-react'
 import { MODULES } from '@/config/modules'
 import { toast } from 'react-hot-toast'
 
 type BillingPeriod = 'MONTHLY' | 'SEMESTRAL' | 'YEARLY'
+
+interface ValidatedCoupon {
+  id: string
+  code: string
+  name: string
+  type: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_MONTHS'
+  discountPercent: number | null
+  discountAmount: number | null
+  freeMonths: number | null
+}
 
 const BILLING_OPTIONS: Record<BillingPeriod, { label: string; months: number; discount: number; badge?: string }> = {
   MONTHLY: { label: 'Mensual', months: 1, discount: 0 },
@@ -66,6 +79,12 @@ export default function GestionModulePage() {
   const [loading, setLoading] = useState(false)
   const [showContactForm, setShowContactForm] = useState(false)
 
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('')
+  const [validatedCoupon, setValidatedCoupon] = useState<ValidatedCoupon | null>(null)
+  const [couponLoading, setCouponLoading] = useState(false)
+  const [couponError, setCouponError] = useState<string | null>(null)
+
   const module = MODULES.GESTION
   const basePrice = module.basePriceMonthly || 8
 
@@ -75,9 +94,76 @@ export default function GestionModulePage() {
     return total * (1 - discount / 100)
   }
 
+  const calculatePriceWithCoupon = (period: BillingPeriod): { original: number; final: number; savings: number } => {
+    const original = calculatePrice(period)
+
+    if (!validatedCoupon) {
+      return { original, final: original, savings: 0 }
+    }
+
+    let final = original
+
+    if (validatedCoupon.type === 'PERCENTAGE' && validatedCoupon.discountPercent) {
+      final = original * (1 - validatedCoupon.discountPercent / 100)
+    } else if (validatedCoupon.type === 'FIXED_AMOUNT' && validatedCoupon.discountAmount) {
+      final = Math.max(0, original - validatedCoupon.discountAmount)
+    } else if (validatedCoupon.type === 'FREE_MONTHS' && validatedCoupon.freeMonths) {
+      // Para meses gratis, el descuento se aplica como meses gratuitos
+      const monthlyPrice = original / BILLING_OPTIONS[period].months
+      final = Math.max(0, original - (monthlyPrice * validatedCoupon.freeMonths))
+    }
+
+    return { original, final, savings: original - final }
+  }
+
   const getPricePerMonth = (period: BillingPeriod): number => {
     const total = calculatePrice(period)
     return total / BILLING_OPTIONS[period].months
+  }
+
+  const validateCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError('Introduce un código de cupón')
+      return
+    }
+
+    setCouponLoading(true)
+    setCouponError(null)
+
+    try {
+      const response = await fetch('/api/modules/validate-coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: couponCode.trim(),
+          moduleType: 'GESTION',
+          amount: calculatePrice(selectedPeriod)
+        })
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setValidatedCoupon(result.coupon)
+        setCouponError(null)
+        toast.success(`¡Cupón "${result.coupon.name}" aplicado!`)
+      } else {
+        setCouponError(result.error || 'Cupón no válido')
+        setValidatedCoupon(null)
+      }
+    } catch (error) {
+      console.error('Error validating coupon:', error)
+      setCouponError('Error al validar el cupón')
+      setValidatedCoupon(null)
+    } finally {
+      setCouponLoading(false)
+    }
+  }
+
+  const removeCoupon = () => {
+    setValidatedCoupon(null)
+    setCouponCode('')
+    setCouponError(null)
   }
 
   const handleActivate = async () => {
@@ -178,19 +264,40 @@ export default function GestionModulePage() {
 
           {/* Price Display */}
           <div className="p-8 text-center">
-            <div className="flex items-baseline justify-center gap-2 mb-2">
-              <span className="text-5xl font-bold text-gray-900">
-                {calculatePrice(selectedPeriod).toFixed(2).replace('.', ',')}€
-              </span>
-              <span className="text-gray-500">
-                / {BILLING_OPTIONS[selectedPeriod].months === 1 ? 'mes' : `${BILLING_OPTIONS[selectedPeriod].months} meses`}
-              </span>
-            </div>
-            {selectedPeriod !== 'MONTHLY' && (
-              <p className="text-emerald-600 font-medium">
-                Solo {getPricePerMonth(selectedPeriod).toFixed(2).replace('.', ',')}€/mes
-              </p>
-            )}
+            {(() => {
+              const { original, final, savings } = calculatePriceWithCoupon(selectedPeriod)
+              const hasCoupon = validatedCoupon && savings > 0
+
+              return (
+                <>
+                  <div className="flex items-baseline justify-center gap-2 mb-2">
+                    {hasCoupon && (
+                      <span className="text-2xl text-gray-400 line-through">
+                        {original.toFixed(2).replace('.', ',')}€
+                      </span>
+                    )}
+                    <span className={`text-5xl font-bold ${hasCoupon ? 'text-emerald-600' : 'text-gray-900'}`}>
+                      {final.toFixed(2).replace('.', ',')}€
+                    </span>
+                    <span className="text-gray-500">
+                      / {BILLING_OPTIONS[selectedPeriod].months === 1 ? 'mes' : `${BILLING_OPTIONS[selectedPeriod].months} meses`}
+                    </span>
+                  </div>
+
+                  {hasCoupon && (
+                    <p className="text-emerald-600 font-semibold mb-2">
+                      ¡Ahorras {savings.toFixed(2).replace('.', ',')}€!
+                    </p>
+                  )}
+
+                  {selectedPeriod !== 'MONTHLY' && !hasCoupon && (
+                    <p className="text-emerald-600 font-medium">
+                      Solo {getPricePerMonth(selectedPeriod).toFixed(2).replace('.', ',')}€/mes
+                    </p>
+                  )}
+                </>
+              )
+            })()}
 
             {/* Benefits */}
             <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm text-gray-600">
@@ -206,6 +313,66 @@ export default function GestionModulePage() {
                 <Sparkles className="w-4 h-4 text-emerald-500" />
                 Soporte prioritario
               </div>
+            </div>
+
+            {/* Coupon Section */}
+            <div className="mt-6 pt-6 border-t border-gray-100">
+              {validatedCoupon ? (
+                <div className="flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-lg">
+                  <Tag className="w-4 h-4" />
+                  <span className="font-medium">
+                    Cupón aplicado: {validatedCoupon.name}
+                    {validatedCoupon.type === 'PERCENTAGE' && ` (-${validatedCoupon.discountPercent}%)`}
+                    {validatedCoupon.type === 'FIXED_AMOUNT' && ` (-${validatedCoupon.discountAmount}€)`}
+                    {validatedCoupon.type === 'FREE_MONTHS' && ` (${validatedCoupon.freeMonths} mes${validatedCoupon.freeMonths === 1 ? '' : 'es'} gratis)`}
+                  </span>
+                  <button
+                    onClick={removeCoupon}
+                    className="ml-2 p-1 hover:bg-emerald-100 rounded-full transition-colors"
+                    title="Quitar cupón"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="max-w-xs mx-auto">
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="Código de cupón"
+                        value={couponCode}
+                        onChange={(e) => {
+                          setCouponCode(e.target.value.toUpperCase())
+                          setCouponError(null)
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            validateCoupon()
+                          }
+                        }}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm uppercase"
+                      />
+                    </div>
+                    <button
+                      onClick={validateCoupon}
+                      disabled={couponLoading || !couponCode.trim()}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {couponLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        'Aplicar'
+                      )}
+                    </button>
+                  </div>
+                  {couponError && (
+                    <p className="mt-2 text-sm text-red-600">{couponError}</p>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* CTA Button */}
@@ -302,13 +469,25 @@ export default function GestionModulePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Plan seleccionado
                 </label>
-                <input
-                  type="text"
-                  readOnly
-                  value={`${BILLING_OPTIONS[selectedPeriod].label} - ${calculatePrice(selectedPeriod).toFixed(2)}€`}
-                  className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-600"
-                />
+                {(() => {
+                  const { original, final, savings } = calculatePriceWithCoupon(selectedPeriod)
+                  const hasCoupon = validatedCoupon && savings > 0
+                  return (
+                    <input
+                      type="text"
+                      readOnly
+                      value={hasCoupon
+                        ? `${BILLING_OPTIONS[selectedPeriod].label} - ${final.toFixed(2)}€ (con cupón ${validatedCoupon?.code})`
+                        : `${BILLING_OPTIONS[selectedPeriod].label} - ${original.toFixed(2)}€`
+                      }
+                      className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-600"
+                    />
+                  )
+                })()}
               </div>
+              {validatedCoupon && (
+                <input type="hidden" name="couponCode" value={validatedCoupon.code} />
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Mensaje (opcional)
