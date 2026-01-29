@@ -98,7 +98,12 @@ interface Reservation {
   status: 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'COMPLETED'
   importSource?: string
   internalNotes?: string
-  billingConfig: BillingConfig
+  billingConfig?: BillingConfig
+  billingUnit?: {
+    id: string
+    name: string
+    imageUrl?: string
+  }
   liquidation?: { id: string; status: string }
   guest?: Guest
 }
@@ -116,6 +121,17 @@ const STATUS_CONFIG = {
   PENDING: { label: 'Pendiente', color: 'bg-amber-100 text-amber-700', icon: Clock },
   CANCELLED: { label: 'Cancelada', color: 'bg-red-100 text-red-700', icon: XCircle },
   COMPLETED: { label: 'Completada', color: 'bg-violet-100 text-violet-700', icon: CheckCircle }
+}
+
+// Helper para obtener nombre e imagen de la propiedad/unidad
+function getPropertyInfo(r: Reservation) {
+  if (r.billingUnit) {
+    return { name: r.billingUnit.name, image: r.billingUnit.imageUrl }
+  }
+  if (r.billingConfig?.property) {
+    return { name: r.billingConfig.property.name, image: r.billingConfig.property.profileImage }
+  }
+  return { name: 'Sin asignar', image: null }
 }
 
 export default function ReservasPage() {
@@ -740,9 +756,10 @@ export default function ReservasPage() {
   const filteredReservations = reservations.filter(r => {
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
+      const propInfo = getPropertyInfo(r)
       return r.guestName.toLowerCase().includes(term) ||
         r.confirmationCode.toLowerCase().includes(term) ||
-        r.billingConfig.property.name.toLowerCase().includes(term)
+        propInfo.name.toLowerCase().includes(term)
     }
     return true
   })
@@ -1037,19 +1054,24 @@ export default function ReservasPage() {
                               <div className="hidden sm:flex items-center w-4" />
                             )}
                             {/* Property Image or Placeholder */}
-                            <div className="hidden sm:block w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl overflow-hidden flex-shrink-0">
-                              {reservation.billingConfig.property.profileImage ? (
-                                <img
-                                  src={reservation.billingConfig.property.profileImage}
-                                  alt={reservation.billingConfig.property.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <Home className="w-6 h-6 text-gray-400" />
+                            {(() => {
+                              const propInfo = getPropertyInfo(reservation)
+                              return (
+                                <div className="hidden sm:block w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl overflow-hidden flex-shrink-0">
+                                  {propInfo.image ? (
+                                    <img
+                                      src={propInfo.image}
+                                      alt={propInfo.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                      <Home className="w-6 h-6 text-gray-400" />
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
+                              )
+                            })()}
 
                             {/* Main Info */}
                             <div className="flex-1 min-w-0">
@@ -1079,7 +1101,7 @@ export default function ReservasPage() {
                               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
                                 <span className="flex items-center gap-1">
                                   <Home className="w-3.5 h-3.5" />
-                                  {reservation.billingConfig.property.name}
+                                  {getPropertyInfo(reservation).name}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-3.5 h-3.5" />
@@ -1504,25 +1526,30 @@ export default function ReservasPage() {
             >
               {/* Modal Header */}
               <div className="flex items-center justify-between p-5 border-b border-gray-100">
-                <div className="flex items-center gap-3">
-                  {selectedReservation.billingConfig.property.profileImage ? (
-                    <img
-                      src={selectedReservation.billingConfig.property.profileImage}
-                      alt=""
-                      className="w-12 h-12 rounded-xl object-cover"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center">
-                      <Home className="w-6 h-6 text-white" />
+                {(() => {
+                  const propInfo = getPropertyInfo(selectedReservation)
+                  return (
+                    <div className="flex items-center gap-3">
+                      {propInfo.image ? (
+                        <img
+                          src={propInfo.image}
+                          alt=""
+                          className="w-12 h-12 rounded-xl object-cover"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center">
+                          <Home className="w-6 h-6 text-white" />
+                        </div>
+                      )}
+                      <div>
+                        <h2 className="text-lg font-semibold text-gray-900">
+                          {editMode ? 'Editar reserva' : selectedReservation.guestName}
+                        </h2>
+                        <p className="text-sm text-gray-500">{propInfo.name}</p>
+                      </div>
                     </div>
-                  )}
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900">
-                      {editMode ? 'Editar reserva' : selectedReservation.guestName}
-                    </h2>
-                    <p className="text-sm text-gray-500">{selectedReservation.billingConfig.property.name}</p>
-                  </div>
-                </div>
+                  )
+                })()}
                 <button
                   onClick={() => { setSelectedReservation(null); cancelEdit(); }}
                   className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
