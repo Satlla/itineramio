@@ -681,9 +681,17 @@ function ImageUpload({
 
       if (res.ok) {
         const data = await res.json()
-        onUpload(data.url)
+        // Handle duplicate detection - use existing media URL
+        if (data.duplicate && data.existingMedia?.url) {
+          onUpload(data.existingMedia.url)
+        } else if (data.url) {
+          onUpload(data.url)
+        } else {
+          alert('Error: No se recibió URL de la imagen')
+        }
       } else {
-        alert('Error al subir la imagen')
+        const errorData = await res.json().catch(() => ({}))
+        alert(errorData.error || 'Error al subir la imagen')
       }
     } catch (error) {
       console.error('Upload error:', error)
