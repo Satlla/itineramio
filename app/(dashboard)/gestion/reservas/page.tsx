@@ -445,29 +445,10 @@ export default function ReservasPage() {
 
   const handleGuestNameChange = (value: string) => {
     setFormData({ ...formData, guestName: value })
-    setSelectedGuest(null)
-
-    // Debounced search
-    if (guestSearchTimeout.current) {
-      clearTimeout(guestSearchTimeout.current)
-    }
-    guestSearchTimeout.current = setTimeout(() => {
-      searchGuests(value)
-    }, 300)
   }
 
   const handleGuestEmailChange = (value: string) => {
     setFormData({ ...formData, guestEmail: value })
-
-    // Also search by email
-    if (guestSearchTimeout.current) {
-      clearTimeout(guestSearchTimeout.current)
-    }
-    guestSearchTimeout.current = setTimeout(() => {
-      if (value.includes('@')) {
-        searchGuests(value)
-      }
-    }, 300)
   }
 
   const selectGuest = (guest: Guest) => {
@@ -1286,52 +1267,10 @@ export default function ReservasPage() {
                         type="text"
                         value={formData.guestName}
                         onChange={(e) => handleGuestNameChange(e.target.value)}
-                        onFocus={() => guestSearchResults.length > 0 && setShowGuestDropdown(true)}
                         placeholder="Nombre completo del huésped"
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                         required
                       />
-                      {searchingGuest && (
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          <div className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
-                        </div>
-                      )}
-
-                      {/* Guest search dropdown */}
-                      {showGuestDropdown && guestSearchResults.length > 0 && (
-                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
-                          <div className="p-2 text-xs text-gray-500 border-b border-gray-100">
-                            Huéspedes encontrados
-                          </div>
-                          {guestSearchResults.map(guest => (
-                            <button
-                              key={guest.id}
-                              type="button"
-                              onClick={() => selectGuest(guest)}
-                              className="w-full px-3 py-2 text-left hover:bg-violet-50 flex items-center gap-3 transition-colors"
-                            >
-                              <div className="w-8 h-8 bg-violet-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                {guest.totalStays > 1 ? (
-                                  <Star className="w-4 h-4 text-amber-500" />
-                                ) : (
-                                  <User className="w-4 h-4 text-violet-600" />
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-gray-900 text-sm truncate">{guest.name}</p>
-                                <p className="text-xs text-gray-500 truncate">
-                                  {guest.email || 'Sin email'}
-                                  {guest.totalStays > 0 && (
-                                    <span className="text-amber-600 ml-2">
-                                      {guest.totalStays} {guest.totalStays === 1 ? 'estancia' : 'estancias'}
-                                    </span>
-                                  )}
-                                </p>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   </div>
 
