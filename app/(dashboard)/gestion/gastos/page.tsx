@@ -567,7 +567,7 @@ export default function GastosPage() {
                   </label>
                   <select
                     required
-                    value={formData.billingUnitId || formData.propertyId}
+                    value={formData.billingUnitId ? `unit:${formData.billingUnitId}` : formData.propertyId}
                     onChange={(e) => {
                       const value = e.target.value
                       // Si empieza con "unit:", es un BillingUnit

@@ -1168,7 +1168,7 @@ export default function ReservasPage() {
                     <div className="relative">
                       <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <select
-                        value={formData.billingUnitId || formData.billingConfigId}
+                        value={formData.billingUnitId ? `unit:${formData.billingUnitId}` : formData.billingConfigId}
                         onChange={(e) => {
                           const value = e.target.value
                           // Si empieza con "unit:", es un BillingUnit
