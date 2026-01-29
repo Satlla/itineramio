@@ -273,7 +273,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-2">
-              <Image src="/logo.png" alt="Itineramio" width={48} height={26} />
+              <Image src="/icon-192x192.png" alt="Itineramio" width={32} height={32} />
               <span className="text-xl font-bold" style={{ color: '#484848' }}>
                 Itineramio
               </span>
