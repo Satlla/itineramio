@@ -97,6 +97,7 @@ model User {
   reservationPayments     ReservationPayment[]
   importTemplates         ImportTemplate[]
   billingUnits            BillingUnit[]
+  billingUnitGroups       BillingUnitGroup[]
   // Módulos activos del usuario
   modules                 UserModule[]
 
@@ -2213,11 +2214,12 @@ model PropertyOwner {
   updatedAt DateTime @updatedAt
 
   // Relaciones
-  user           User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  billingConfigs PropertyBillingConfig[]
-  billingUnits   BillingUnit[]
-  liquidations   Liquidation[]
-  clientInvoices ClientInvoice[]
+  user              User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingConfigs    PropertyBillingConfig[]
+  billingUnits      BillingUnit[]
+  billingUnitGroups BillingUnitGroup[]
+  liquidations      Liquidation[]
+  clientInvoices    ClientInvoice[]
 
   @@index([userId])
   @@index([email])
@@ -2323,20 +2325,85 @@ enum InvoiceDetailLevel {
 }
 
 // ========================================
+// BILLING UNIT GROUP (Conjunto de apartamentos)
+// ========================================
+// Agrupa varios BillingUnits para facturación conjunta.
+// Todos los apartamentos del grupo comparten propietario y configuración.
+model BillingUnitGroup {
+  id     String @id @default(cuid())
+  userId String // Usuario gestor
+
+  // Datos del conjunto
+  name     String  // Nombre del conjunto (ej: "Apartamentos Juan García")
+  imageUrl String? // Imagen del conjunto
+
+  // Propietario del conjunto (todos los apartamentos heredan este propietario)
+  ownerId String
+
+  // Configuración compartida de facturación
+  incomeReceiver IncomeReceiver @default(OWNER)
+
+  // Comisión de gestión (compartida)
+  commissionType  CommissionType @default(PERCENTAGE)
+  commissionValue Decimal        @default(0)
+  commissionVat   Decimal        @default(21)
+
+  // Limpieza (compartida)
+  cleaningType         CleaningType         @default(FIXED_PER_RESERVATION)
+  cleaningValue        Decimal              @default(0)
+  cleaningVatIncluded  Boolean              @default(true)
+  cleaningFeeRecipient CleaningFeeRecipient @default(MANAGER)
+  cleaningFeeSplitPct  Decimal?
+
+  // Cargo fijo mensual (opcional, compartido)
+  monthlyFee        Decimal @default(0)
+  monthlyFeeVat     Decimal @default(21)
+  monthlyFeeConcept String?
+
+  // Fiscalidad por defecto (compartida)
+  defaultVatRate       Decimal @default(21)
+  defaultRetentionRate Decimal @default(0)
+
+  // Preferencias de factura (compartida)
+  invoiceDetailLevel InvoiceDetailLevel @default(DETAILED)
+  singleConceptText  String?
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  owner        PropertyOwner   @relation(fields: [ownerId], references: [id])
+  billingUnits BillingUnit[]   // Apartamentos del conjunto
+  invoices     ClientInvoice[] // Facturas del conjunto
+
+  @@index([userId])
+  @@index([ownerId])
+  @@map("billing_unit_groups")
+}
+
+// ========================================
 // BILLING UNIT (Apartamento independiente para Gestión)
 // ========================================
 // Unidad de facturación independiente del módulo Manuales.
 // No requiere una Property asociada.
+// Puede pertenecer a un grupo (conjunto) para facturación conjunta.
 model BillingUnit {
   id     String @id @default(cuid())
   userId String // Usuario gestor propietario
+
+  // Pertenencia a grupo (opcional)
+  // Si pertenece a un grupo, hereda propietario y configuración del grupo
+  groupId String?
 
   // Datos básicos del apartamento
   name     String  // Nombre del apartamento
   city     String? // Ciudad
   imageUrl String? // Imagen del apartamento
 
-  // Propietario (null si es propiedad propia del gestor)
+  // Propietario (null si pertenece a grupo o es propiedad propia)
+  // Si groupId != null, se usa el propietario del grupo
   ownerId String?
 
   // Nombres en plataformas (para matching automático de reservas)
@@ -2381,13 +2448,15 @@ model BillingUnit {
   updatedAt DateTime @updatedAt
 
   // Relaciones
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  owner        PropertyOwner? @relation(fields: [ownerId], references: [id])
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group        BillingUnitGroup? @relation(fields: [groupId], references: [id])
+  owner        PropertyOwner?    @relation(fields: [ownerId], references: [id])
   reservations Reservation[]
   expenses     PropertyExpense[]
   invoices     ClientInvoice[]
 
   @@index([userId])
+  @@index([groupId])
   @@index([ownerId])
   @@map("billing_units")
 }
@@ -2823,12 +2892,13 @@ model InvoiceSeries {
 
 // Facturas a clientes (propietarios)
 model ClientInvoice {
-  id            String  @id @default(cuid())
-  userId        String
-  ownerId       String
-  seriesId      String
-  propertyId    String? // (Legacy) Propiedad asociada
-  billingUnitId String? // (Nuevo) Unidad de facturación
+  id                 String  @id @default(cuid())
+  userId             String
+  ownerId            String
+  seriesId           String
+  propertyId         String? // (Legacy) Propiedad asociada
+  billingUnitId      String? // Unidad de facturación individual
+  billingUnitGroupId String? // Conjunto de apartamentos (factura conjunta)
 
   // Período de facturación
   periodMonth Int? // 1-12
@@ -2881,21 +2951,23 @@ model ClientInvoice {
   updatedAt DateTime @updatedAt
 
   // Relaciones
-  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  owner       PropertyOwner        @relation(fields: [ownerId], references: [id])
-  series      InvoiceSeries        @relation(fields: [seriesId], references: [id])
-  property    Property?            @relation(fields: [propertyId], references: [id])
-  billingUnit BillingUnit?         @relation(fields: [billingUnitId], references: [id])
-  rectifies   ClientInvoice?       @relation("InvoiceRectification", fields: [rectifiesId], references: [id])
-  rectifiedBy ClientInvoice[]      @relation("InvoiceRectification")
-  items       ClientInvoiceItem[]
-  payments    ReservationPayment[] // Pagos incluidos en esta factura
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  owner            PropertyOwner        @relation(fields: [ownerId], references: [id])
+  series           InvoiceSeries        @relation(fields: [seriesId], references: [id])
+  property         Property?            @relation(fields: [propertyId], references: [id])
+  billingUnit      BillingUnit?         @relation(fields: [billingUnitId], references: [id])
+  billingUnitGroup BillingUnitGroup?    @relation(fields: [billingUnitGroupId], references: [id])
+  rectifies        ClientInvoice?       @relation("InvoiceRectification", fields: [rectifiesId], references: [id])
+  rectifiedBy      ClientInvoice[]      @relation("InvoiceRectification")
+  items            ClientInvoiceItem[]
+  payments         ReservationPayment[] // Pagos incluidos en esta factura
 
   @@unique([seriesId, number])
   @@index([userId])
   @@index([ownerId])
   @@index([propertyId])
   @@index([billingUnitId])
+  @@index([billingUnitGroupId])
   @@index([status])
   @@index([issueDate])
   @@index([ownerId, issueDate])
