@@ -80,15 +80,10 @@ export default function GestionDashboardPage() {
   // Check if should show wizard after data loads
   useEffect(() => {
     if (!loading && onboarding) {
-      // Si no tiene NADA configurado, siempre mostrar wizard (no se puede saltar)
+      // Solo mostrar wizard si es PRIMERA VEZ (sin empresa, clientes ni propiedades)
+      // Si ya tiene los 3 primeros pasos, NO mostrar automáticamente
       const isFirstTime = !onboarding.companyConfigured && !onboarding.hasClients && !onboarding.hasConfiguredProperties
-      const dismissed = localStorage.getItem('gestion-onboarding-dismissed')
-
-      // Mostrar wizard si:
-      // 1. Es primera vez (sin empresa, clientes ni propiedades) - SIEMPRE
-      // 2. No está completo y no ha sido dismissed
-      const shouldShow = isFirstTime || (!onboarding.allComplete && dismissed !== 'true')
-      setShowWizard(shouldShow)
+      setShowWizard(isFirstTime)
     }
   }, [loading, onboarding])
 
