@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { formatCurrency } from '@/lib/format'
 import { motion } from 'framer-motion'
 import {
@@ -13,7 +13,8 @@ import {
   Home,
   User,
   BarChart3,
-  AlertCircle
+  AlertCircle,
+  Search
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
@@ -25,6 +26,7 @@ interface PropertyStats {
   name: string
   city: string
   imageUrl?: string
+  type?: 'property' | 'billingUnit'
   owner?: {
     id: string
     name: string
@@ -47,6 +49,7 @@ export default function FacturacionPage() {
   const [loading, setLoading] = useState(true)
   const [properties, setProperties] = useState<PropertyStats[]>([])
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
     fetchProperties()
@@ -73,8 +76,19 @@ export default function FacturacionPage() {
   const currentYear = new Date().getFullYear()
   const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i)
 
-  // Calculate totals
-  const totals = properties.reduce((acc, p) => ({
+  // Filter properties by search term
+  const filteredProperties = useMemo(() => {
+    if (!searchTerm) return properties
+    const term = searchTerm.toLowerCase()
+    return properties.filter(p =>
+      p.name.toLowerCase().includes(term) ||
+      p.city.toLowerCase().includes(term) ||
+      p.owner?.name?.toLowerCase().includes(term)
+    )
+  }, [properties, searchTerm])
+
+  // Calculate totals from filtered properties
+  const totals = filteredProperties.reduce((acc, p) => ({
     totalIncome: acc.totalIncome + p.stats.totalIncome,
     totalReservations: acc.totalReservations + p.stats.totalReservations,
     totalNights: acc.totalNights + p.stats.totalNights
@@ -109,6 +123,16 @@ export default function FacturacionPage() {
               </div>
 
               <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Buscar propiedad..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 w-48 sm:w-64"
+                  />
+                </div>
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(parseInt(e.target.value))}
@@ -123,7 +147,7 @@ export default function FacturacionPage() {
           </motion.div>
 
           {/* Totals */}
-          {properties.length > 0 && (
+          {filteredProperties.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -169,7 +193,7 @@ export default function FacturacionPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            {properties.length === 0 ? (
+            {filteredProperties.length === 0 && !searchTerm ? (
               <Card>
                 <CardContent className="p-8 text-center">
                   <Home className="h-12 w-12 mx-auto mb-3 text-gray-300" />
@@ -184,10 +208,24 @@ export default function FacturacionPage() {
                   </Link>
                 </CardContent>
               </Card>
+            ) : filteredProperties.length === 0 && searchTerm ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Search className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                  <p className="text-gray-700 font-medium mb-2">No se encontraron resultados</p>
+                  <p className="text-sm text-gray-500">
+                    No hay propiedades que coincidan con &quot;{searchTerm}&quot;
+                  </p>
+                </CardContent>
+              </Card>
             ) : (
               <div className="space-y-4">
-                {properties.map((property, index) => {
+                {filteredProperties.map((property, index) => {
                   const hasOwner = !!property.owner
+                  // Get the actual ID without the unit: prefix for the link
+                  const linkId = property.type === 'billingUnit'
+                    ? property.id.replace('unit:', '')
+                    : property.id
 
                   const cardContent = (
                     <Card className={`transition-all ${hasOwner ? 'hover:shadow-lg cursor-pointer border-l-4 border-l-violet-500' : 'border-l-4 border-l-yellow-400 opacity-80'}`}>
@@ -291,7 +329,7 @@ export default function FacturacionPage() {
                       transition={{ duration: 0.3, delay: index * 0.05 }}
                     >
                       {hasOwner ? (
-                        <Link href={`/gestion/facturacion/${property.id}`}>
+                        <Link href={`/gestion/facturacion/${linkId}${property.type === 'billingUnit' ? '?type=unit' : ''}`}>
                           {cardContent}
                         </Link>
                       ) : (

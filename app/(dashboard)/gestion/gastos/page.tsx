@@ -15,8 +15,10 @@ import {
   Upload,
   FileText,
   Euro,
-  AlertTriangle
+  AlertTriangle,
+  CheckCircle
 } from 'lucide-react'
+import Link from 'next/link'
 import { AnimatePresence } from 'framer-motion'
 import { formatCurrency } from '@/lib/format'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
@@ -79,6 +81,10 @@ export default function GastosPage() {
   const [deleting, setDeleting] = useState<string | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null)
+
+  // Success modal
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [successInfo, setSuccessInfo] = useState<{ concept: string; propertyName: string; date: string } | null>(null)
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('')
@@ -190,6 +196,21 @@ export default function GastosPage() {
       })
 
       if (response.ok) {
+        // Get property/unit name for success modal
+        const selectedUnit = billingUnits.find(u => u.id === formData.billingUnitId)
+        const selectedProp = properties.find(p => p.id === formData.propertyId)
+        const propertyName = selectedUnit?.name || selectedProp?.name || 'el apartamento'
+
+        // Only show success modal for new expenses (not edits)
+        if (!editingExpense) {
+          setSuccessInfo({
+            concept: formData.concept,
+            propertyName,
+            date: formData.date
+          })
+          setShowSuccessModal(true)
+        }
+
         setShowModal(false)
         resetForm()
         fetchData()
@@ -805,6 +826,61 @@ export default function GastosPage() {
                     {deleting === expenseToDelete.id ? 'Eliminando...' : 'Eliminar'}
                   </Button>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Success Modal after creating expense */}
+      <AnimatePresence>
+        {showSuccessModal && successInfo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setShowSuccessModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Gasto registrado
+                </h3>
+                <p className="text-gray-600">
+                  Se ha registrado <strong>{successInfo.concept}</strong> en <strong>{successInfo.propertyName}</strong>
+                </p>
+              </div>
+
+              <div className="bg-violet-50 rounded-xl p-4 mb-6">
+                <p className="text-sm text-violet-800">
+                  <span className="font-medium">Siguiente paso:</span> Para revisar todos los gastos y facturar al propietario, ve a <strong>Facturación → {successInfo.propertyName}</strong> y revisa el mes de {new Date(successInfo.date).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowSuccessModal(false)}
+                  className="flex-1"
+                >
+                  Añadir otro
+                </Button>
+                <Link href="/gestion/facturacion" className="flex-1">
+                  <Button className="w-full bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800">
+                    Ir a Facturación
+                  </Button>
+                </Link>
               </div>
             </motion.div>
           </motion.div>

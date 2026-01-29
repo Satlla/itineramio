@@ -182,6 +182,10 @@ export default function ReservasPage() {
   const [detectedPlatform, setDetectedPlatform] = useState<'AIRBNB' | 'BOOKING' | 'UNKNOWN'>('UNKNOWN')
   const [importPropertyId, setImportPropertyId] = useState('')
   const [replaceExisting, setReplaceExisting] = useState(false)
+
+  // Success modal
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [successInfo, setSuccessInfo] = useState<{ guestName: string; propertyName: string; checkIn: string } | null>(null)
   const [importResults, setImportResults] = useState<{
     imported: number
     skipped: number
@@ -310,9 +314,20 @@ export default function ReservasPage() {
       })
 
       if (response.ok) {
+        // Obtener nombre del apartamento
+        const selectedUnit = billingUnits.find(u => u.id === formData.billingUnitId)
+        const selectedProp = properties.find(p => p.billingConfigId === formData.billingConfigId)
+        const propertyName = selectedUnit?.name || selectedProp?.name || 'el apartamento'
+
+        setSuccessInfo({
+          guestName: formData.guestName,
+          propertyName,
+          checkIn: formData.checkIn
+        })
         setShowNewModal(false)
         resetForm()
         fetchReservations()
+        setShowSuccessModal(true)
       } else {
         const data = await response.json()
         alert(data.error || 'Error al crear la reserva')
@@ -2338,6 +2353,61 @@ export default function ReservasPage() {
                   </div>
                 </div>
               )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Success Modal after creating reservation */}
+      <AnimatePresence>
+        {showSuccessModal && successInfo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setShowSuccessModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Reserva creada
+                </h3>
+                <p className="text-gray-600">
+                  Se ha creado la reserva de <strong>{successInfo.guestName}</strong> en <strong>{successInfo.propertyName}</strong>
+                </p>
+              </div>
+
+              <div className="bg-violet-50 rounded-xl p-4 mb-6">
+                <p className="text-sm text-violet-800">
+                  <span className="font-medium">Siguiente paso:</span> Para revisar todas las reservas de este apartamento y generar facturas, ve a <strong>Facturación → {successInfo.propertyName}</strong> y revisa el mes de {new Date(successInfo.checkIn).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowSuccessModal(false)}
+                  className="flex-1"
+                >
+                  Añadir otra
+                </Button>
+                <Link href="/gestion/facturacion" className="flex-1">
+                  <Button className="w-full bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800">
+                    Ir a Facturación
+                  </Button>
+                </Link>
+              </div>
             </motion.div>
           </motion.div>
         )}
