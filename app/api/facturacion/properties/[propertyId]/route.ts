@@ -22,9 +22,13 @@ export async function GET(
     }
     const userId = authResult.userId
 
-    const { propertyId } = await params
+    const { propertyId: rawPropertyId } = await params
     const { searchParams } = new URL(request.url)
-    const isUnit = searchParams.get('type') === 'unit'
+
+    // Support both ?type=unit and unit: prefix in URL for backwards compatibility
+    const hasUnitPrefix = rawPropertyId.startsWith('unit:')
+    const isUnit = searchParams.get('type') === 'unit' || hasUnitPrefix
+    const propertyId = hasUnitPrefix ? rawPropertyId.replace('unit:', '') : rawPropertyId
 
     let propertyData: any = null
     let reservations: any[] = []
