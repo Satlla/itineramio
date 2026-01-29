@@ -16,21 +16,25 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const propertyId = searchParams.get('propertyId')
+    const billingUnitId = searchParams.get('billingUnitId')
     const category = searchParams.get('category')
     const month = searchParams.get('month') // Format: "2025-01"
 
-    // Build where clause
+    // Build where clause - soporta tanto BillingUnit como PropertyBillingConfig
     const where: any = {
       userId,
-      billingConfig: {
-        property: {
-          hostId: userId
-        }
-      }
+      OR: [
+        { billingUnitId: { not: null } },
+        { billingConfig: { property: { hostId: userId } } }
+      ]
     }
 
-    if (propertyId) {
-      where.billingConfig.propertyId = propertyId
+    if (billingUnitId) {
+      where.billingUnitId = billingUnitId
+      delete where.OR
+    } else if (propertyId) {
+      where.billingConfig = { propertyId }
+      delete where.OR
     }
 
     if (category) {
@@ -50,6 +54,12 @@ export async function GET(request: NextRequest) {
     const expenses = await prisma.propertyExpense.findMany({
       where,
       include: {
+        billingUnit: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
         billingConfig: {
           include: {
             property: {
@@ -81,10 +91,13 @@ export async function GET(request: NextRequest) {
       supplierName: expense.supplierName,
       invoiceNumber: expense.invoiceNumber,
       invoiceUrl: expense.invoiceUrl,
-      property: {
-        id: expense.billingConfig.property.id,
-        name: expense.billingConfig.property.name
-      },
+      // Usar billingUnit si existe, si no billingConfig
+      property: expense.billingUnit
+        ? { id: expense.billingUnit.id, name: expense.billingUnit.name }
+        : expense.billingConfig?.property
+          ? { id: expense.billingConfig.property.id, name: expense.billingConfig.property.name }
+          : { id: '', name: 'Sin asignar' },
+      billingUnitId: expense.billingUnitId,
       liquidation: expense.liquidation
     }))
 
@@ -113,6 +126,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const {
       propertyId,
+      billingUnitId, // Nuevo: unidad de facturación independiente
       date,
       concept,
       category,
@@ -123,10 +137,10 @@ export async function POST(request: NextRequest) {
       invoiceNumber
     } = body
 
-    // Validar campos obligatorios
-    if (!propertyId) {
+    // Validar campos obligatorios - requiere billingUnitId O propertyId
+    if (!propertyId && !billingUnitId) {
       return NextResponse.json(
-        { error: 'Debes seleccionar una propiedad' },
+        { error: 'Debes seleccionar un apartamento' },
         { status: 400 }
       )
     }
@@ -152,25 +166,45 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get billing config for property (with ownership check in WHERE)
-    const billingConfig = await prisma.propertyBillingConfig.findFirst({
-      where: {
-        propertyId,
-        property: { hostId: userId }
-      }
-    })
+    let finalBillingConfigId: string | null = null
+    let finalBillingUnitId: string | null = null
 
-    if (!billingConfig) {
-      return NextResponse.json(
-        { error: 'Propiedad no encontrada o no configurada' },
-        { status: 404 }
-      )
+    // NUEVO: Si viene billingUnitId, usar BillingUnit
+    if (billingUnitId) {
+      const billingUnit = await prisma.billingUnit.findFirst({
+        where: { id: billingUnitId, userId }
+      })
+      if (!billingUnit) {
+        return NextResponse.json(
+          { error: 'Apartamento no encontrado' },
+          { status: 404 }
+        )
+      }
+      finalBillingUnitId = billingUnit.id
+    }
+    // LEGACY: Si viene propertyId, usar PropertyBillingConfig
+    else if (propertyId) {
+      const billingConfig = await prisma.propertyBillingConfig.findFirst({
+        where: {
+          propertyId,
+          property: { hostId: userId }
+        }
+      })
+
+      if (!billingConfig) {
+        return NextResponse.json(
+          { error: 'Propiedad no encontrada o no configurada' },
+          { status: 404 }
+        )
+      }
+      finalBillingConfigId = billingConfig.id
     }
 
     const expense = await prisma.propertyExpense.create({
       data: {
         userId,
-        billingConfigId: billingConfig.id,
+        billingConfigId: finalBillingConfigId,
+        billingUnitId: finalBillingUnitId,
         date: new Date(date),
         concept,
         category,

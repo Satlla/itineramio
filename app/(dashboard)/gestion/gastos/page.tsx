@@ -29,6 +29,12 @@ interface Property {
   billingConfigId?: string
 }
 
+interface BillingUnit {
+  id: string
+  name: string
+  city: string | null
+}
+
 interface Expense {
   id: string
   date: string
@@ -44,6 +50,7 @@ interface Expense {
     id: string
     name: string
   }
+  billingUnitId?: string
   liquidation?: {
     id: string
     status: string
@@ -65,6 +72,7 @@ export default function GastosPage() {
   const [loading, setLoading] = useState(true)
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [properties, setProperties] = useState<Property[]>([])
+  const [billingUnits, setBillingUnits] = useState<BillingUnit[]>([])
   const [showModal, setShowModal] = useState(false)
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
   const [saving, setSaving] = useState(false)
@@ -81,6 +89,7 @@ export default function GastosPage() {
   // Form state
   const [formData, setFormData] = useState({
     propertyId: '',
+    billingUnitId: '', // Nuevo: apartamento de Gestión
     date: new Date().toISOString().split('T')[0],
     concept: '',
     category: 'OTHER',
@@ -117,6 +126,7 @@ export default function GastosPage() {
       if (propertiesRes.ok) {
         const data = await propertiesRes.json()
         setProperties(data.properties || [])
+        setBillingUnits(data.billingUnits || [])
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -131,9 +141,9 @@ export default function GastosPage() {
     e.preventDefault()
     setFormError(null)
 
-    // Validación frontend
-    if (!formData.propertyId) {
-      setFormError('Debes seleccionar una propiedad')
+    // Validación frontend - requiere billingUnitId O propertyId
+    if (!formData.propertyId && !formData.billingUnitId) {
+      setFormError('Debes seleccionar un apartamento')
       return
     }
 
@@ -152,11 +162,13 @@ export default function GastosPage() {
       return
     }
 
-    // Verificar que la propiedad tiene configuración
-    const selectedProp = properties.find(p => p.id === formData.propertyId)
-    if (selectedProp && !selectedProp.billingConfigId) {
-      setFormError('Esta propiedad no tiene configuración de facturación. Configúrala primero.')
-      return
+    // Verificar que la propiedad tiene configuración (solo si es legacy property)
+    if (formData.propertyId && !formData.billingUnitId) {
+      const selectedProp = properties.find(p => p.id === formData.propertyId)
+      if (selectedProp && !selectedProp.billingConfigId) {
+        setFormError('Esta propiedad no tiene configuración de facturación. Configúrala primero.')
+        return
+      }
     }
 
     setSaving(true)
@@ -551,26 +563,50 @@ export default function GastosPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Propiedad *
+                    Apartamento *
                   </label>
                   <select
                     required
-                    value={formData.propertyId}
-                    onChange={(e) => { setFormData(prev => ({ ...prev, propertyId: e.target.value })); setFormError(null) }}
+                    value={formData.billingUnitId || formData.propertyId}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      // Si empieza con "unit:", es un BillingUnit
+                      if (value.startsWith('unit:')) {
+                        setFormData(prev => ({ ...prev, billingUnitId: value.replace('unit:', ''), propertyId: '' }))
+                      } else {
+                        setFormData(prev => ({ ...prev, propertyId: value, billingUnitId: '' }))
+                      }
+                      setFormError(null)
+                    }}
                     className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500 ${
-                      !formData.propertyId && formError ? 'border-red-300' : 'border-gray-300'
+                      !formData.propertyId && !formData.billingUnitId && formError ? 'border-red-300' : 'border-gray-300'
                     }`}
                   >
-                    <option value="">Selecciona una propiedad</option>
-                    {properties.filter(p => p.billingConfigId).map(p => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
+                    <option value="">Selecciona un apartamento</option>
+                    {/* BillingUnits (módulo Gestión) */}
+                    {billingUnits.length > 0 && (
+                      <optgroup label="Apartamentos de Gestión">
+                        {billingUnits.map(u => (
+                          <option key={u.id} value={`unit:${u.id}`}>
+                            {u.name} {u.city && `(${u.city})`}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                    {/* Properties (módulo Manuales - legacy) */}
+                    {properties.filter(p => p.billingConfigId).length > 0 && (
+                      <optgroup label="Propiedades de Manuales">
+                        {properties.filter(p => p.billingConfigId).map(p => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
                   </select>
-                  {properties.filter(p => !p.billingConfigId).length > 0 && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {properties.filter(p => !p.billingConfigId).length} propiedad(es) sin configurar no aparecen
+                  {billingUnits.length === 0 && properties.filter(p => p.billingConfigId).length === 0 && (
+                    <p className="text-xs text-amber-600 mt-1">
+                      No tienes apartamentos configurados
                     </p>
                   )}
                 </div>
