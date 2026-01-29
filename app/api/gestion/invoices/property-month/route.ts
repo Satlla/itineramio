@@ -37,33 +37,82 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get property with billing config and owner
-    const property = await prisma.property.findFirst({
-      where: { id: propertyId, hostId: userId },
-      include: {
-        billingConfig: {
-          include: {
-            owner: true
+    const isUnit = searchParams.get('type') === 'unit'
+    let ownerId: string | null = null
+    let propertyName = ''
+    let propertyCity = ''
+    let billingConfig: any = null
+    let billingUnitId: string | null = null
+
+    if (isUnit) {
+      // Handle BillingUnit
+      const billingUnit = await prisma.billingUnit.findFirst({
+        where: { id: propertyId, userId },
+        include: {
+          owner: true
+        }
+      })
+
+      if (!billingUnit) {
+        return NextResponse.json(
+          { error: 'Apartamento no encontrado' },
+          { status: 404 }
+        )
+      }
+
+      if (!billingUnit.ownerId) {
+        return NextResponse.json(
+          { error: 'Este apartamento no tiene un propietario asignado. Configúralo primero.' },
+          { status: 400 }
+        )
+      }
+
+      ownerId = billingUnit.ownerId
+      propertyName = billingUnit.name
+      propertyCity = billingUnit.city || ''
+      billingUnitId = billingUnit.id
+      billingConfig = {
+        id: billingUnit.id,
+        commissionValue: billingUnit.commissionValue,
+        commissionVat: 21, // Default VAT
+        cleaningValue: billingUnit.cleaningValue,
+        cleaningVatIncluded: true,
+        invoiceDetailLevel: 'DETAILED',
+        singleConceptText: 'Gestión apartamento turístico',
+        owner: billingUnit.owner
+      }
+    } else {
+      // Handle legacy Property
+      const property = await prisma.property.findFirst({
+        where: { id: propertyId, hostId: userId },
+        include: {
+          billingConfig: {
+            include: {
+              owner: true
+            }
           }
         }
+      })
+
+      if (!property) {
+        return NextResponse.json(
+          { error: 'Propiedad no encontrada' },
+          { status: 404 }
+        )
       }
-    })
 
-    if (!property) {
-      return NextResponse.json(
-        { error: 'Propiedad no encontrada' },
-        { status: 404 }
-      )
+      if (!property.billingConfig?.ownerId) {
+        return NextResponse.json(
+          { error: 'Esta propiedad no tiene un propietario asignado. Configúralo primero en Configuración.' },
+          { status: 400 }
+        )
+      }
+
+      ownerId = property.billingConfig.ownerId
+      propertyName = property.name
+      propertyCity = property.city || ''
+      billingConfig = property.billingConfig
     }
-
-    if (!property.billingConfig?.ownerId) {
-      return NextResponse.json(
-        { error: 'Esta propiedad no tiene un propietario asignado. Configúralo primero en Configuración.' },
-        { status: 400 }
-      )
-    }
-
-    const ownerId = property.billingConfig.ownerId
 
     // Get or create invoice config
     const currentYear = new Date().getFullYear()
@@ -216,21 +265,29 @@ export async function GET(request: NextRequest) {
       const startDate = new Date(year, month - 1, 1)
       const endDate = new Date(year, month, 1)
 
-      const reservations = await prisma.reservation.findMany({
-        where: {
-          userId,
-          billingConfig: { propertyId },
-          checkIn: {
-            gte: startDate,
-            lt: endDate
-          },
-          status: { in: ['CONFIRMED', 'COMPLETED'] }
+      // Query reservations based on whether it's a BillingUnit or Property
+      const reservationWhere: any = {
+        userId,
+        checkIn: {
+          gte: startDate,
+          lt: endDate
         },
+        status: { in: ['CONFIRMED', 'COMPLETED'] }
+      }
+
+      if (billingUnitId) {
+        reservationWhere.billingUnitId = billingUnitId
+      } else {
+        reservationWhere.billingConfig = { propertyId }
+      }
+
+      const reservations = await prisma.reservation.findMany({
+        where: reservationWhere,
         orderBy: { checkIn: 'asc' }
       })
 
       // Calculate items based on reservations and billing config
-      const billingConfig = property.billingConfig
+      // billingConfig already set above based on property type
       const commissionPct = Number(billingConfig.commissionValue) / 100
       const commissionVat = Number(billingConfig.commissionVat)
       const cleaningVatIncluded = billingConfig.cleaningVatIncluded
@@ -347,19 +404,26 @@ export async function GET(request: NextRequest) {
 
       // Get expenses for this property/month (chargeToOwner = true, not yet invoiced)
       const lastDayOfMonth = new Date(year, month, 0) // Last day of the month
-      console.log('Searching expenses for billingConfigId:', billingConfig.id, 'from', startDate, 'to', lastDayOfMonth)
-      const propertyExpenses = await prisma.propertyExpense.findMany({
-        where: {
-          billingConfigId: billingConfig.id,
-          date: {
-            gte: startDate,
-            lte: lastDayOfMonth
-          },
-          chargeToOwner: true
+
+      // Query expenses based on whether it's a BillingUnit or Property
+      const expenseWhere: any = {
+        date: {
+          gte: startDate,
+          lte: lastDayOfMonth
         },
+        chargeToOwner: true
+      }
+
+      if (billingUnitId) {
+        expenseWhere.billingUnitId = billingUnitId
+      } else {
+        expenseWhere.billingConfigId = billingConfig.id
+      }
+
+      const propertyExpenses = await prisma.propertyExpense.findMany({
+        where: expenseWhere,
         orderBy: { date: 'asc' }
       })
-      console.log('Found expenses:', propertyExpenses.length, propertyExpenses.map(e => ({ concept: e.concept, date: e.date, amount: e.amount })))
 
       // Add expenses as invoice items
       propertyExpenses.forEach((expense) => {
@@ -520,12 +584,17 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Build property info for response (works for both Property and BillingUnit)
+    const propertyInfo = isUnit
+      ? { id: propertyId, name: propertyName, city: propertyCity }
+      : invoice.property
+
     return NextResponse.json({
       invoice: {
         id: invoice.id,
         number: invoice.number,
         fullNumber: invoice.fullNumber,
-        propertyId: invoice.propertyId,
+        propertyId: invoice.propertyId || propertyId,
         periodYear: invoice.periodYear,
         periodMonth: invoice.periodMonth,
         issueDate: invoice.issueDate.toISOString(),
@@ -540,7 +609,7 @@ export async function GET(request: NextRequest) {
         isLocked: invoice.isLocked,
         notes: invoice.notes,
         owner: invoice.owner,
-        property: invoice.property,
+        property: propertyInfo,
         series: invoice.series,
         items: invoice.items.map(i => ({
           id: i.id,
@@ -576,9 +645,10 @@ export async function GET(request: NextRequest) {
       isNew: !invoice.number, // If no number, it's a newly created draft
       // Invoice configuration options
       billingSettings: {
-        detailLevel: property.billingConfig?.invoiceDetailLevel || 'DETAILED',
-        singleConceptText: property.billingConfig?.singleConceptText || 'Gestión apartamento turístico'
-      }
+        detailLevel: billingConfig?.invoiceDetailLevel || 'DETAILED',
+        singleConceptText: billingConfig?.singleConceptText || 'Gestión apartamento turístico'
+      },
+      isUnit // Pass this so frontend knows it's a BillingUnit
     })
   } catch (error: any) {
     console.error('Error getting/creating property-month invoice:', error)

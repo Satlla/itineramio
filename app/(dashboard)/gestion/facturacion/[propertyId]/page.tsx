@@ -329,7 +329,7 @@ export default function PropertyFacturacionPage() {
                         {year.months.map(month => (
                           <Link
                             key={month.month}
-                            href={`/gestion/facturacion/${propertyId}/${year.year}/${month.month}`}
+                            href={`/gestion/facturacion/${propertyId}/${year.year}/${month.month}${isUnit ? '?type=unit' : ''}`}
                             className="block p-4 border-b border-gray-100 last:border-b-0 hover:bg-violet-50 transition-colors cursor-pointer"
                           >
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

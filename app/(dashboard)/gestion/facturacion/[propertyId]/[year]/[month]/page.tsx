@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronLeft,
@@ -130,9 +130,12 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: str
 export default function MonthInvoicePage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const propertyId = params.propertyId as string
   const year = parseInt(params.year as string)
   const month = parseInt(params.month as string)
+  const isUnit = searchParams.get('type') === 'unit'
+  const typeParam = isUnit ? '&type=unit' : ''
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -163,7 +166,7 @@ export default function MonthInvoicePage() {
 
   useEffect(() => {
     fetchInvoice()
-  }, [propertyId, year, month])
+  }, [propertyId, year, month, isUnit])
 
   const fetchInvoice = async () => {
     try {
@@ -171,7 +174,7 @@ export default function MonthInvoicePage() {
       setError(null)
 
       const response = await fetch(
-        `/api/gestion/invoices/property-month?propertyId=${propertyId}&year=${year}&month=${month}`,
+        `/api/gestion/invoices/property-month?propertyId=${propertyId}&year=${year}&month=${month}${typeParam}`,
         { credentials: 'include' }
       )
 
@@ -202,7 +205,7 @@ export default function MonthInvoicePage() {
     setActionLoading('regenerate')
     try {
       const response = await fetch(
-        `/api/gestion/invoices/property-month?propertyId=${propertyId}&year=${year}&month=${month}&detailLevel=${newDetailLevel}&regenerate=true`,
+        `/api/gestion/invoices/property-month?propertyId=${propertyId}&year=${year}&month=${month}&detailLevel=${newDetailLevel}&regenerate=true${typeParam}`,
         { credentials: 'include' }
       )
 
