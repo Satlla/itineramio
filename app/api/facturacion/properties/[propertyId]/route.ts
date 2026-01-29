@@ -9,7 +9,7 @@ const monthNames = [
 
 /**
  * GET /api/facturacion/properties/[propertyId]
- * Obtener detalle de una propiedad con años/meses de facturación
+ * Obtener detalle de una propiedad o BillingUnit con años/meses de facturación
  */
 export async function GET(
   request: NextRequest,
@@ -23,58 +23,164 @@ export async function GET(
     const userId = authResult.userId
 
     const { propertyId } = await params
+    const { searchParams } = new URL(request.url)
+    const isUnit = searchParams.get('type') === 'unit'
 
-    // Get property with billing config
-    const property = await prisma.property.findFirst({
-      where: { id: propertyId, hostId: userId },
-      include: {
+    let propertyData: any = null
+    let reservations: any[] = []
+    let expenses: any[] = []
+    let ownerId: string | null = null
+    let commissionValue = 0
+
+    if (isUnit) {
+      // Handle BillingUnit
+      const billingUnit = await prisma.billingUnit.findFirst({
+        where: { id: propertyId, userId },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              type: true,
+              firstName: true,
+              lastName: true,
+              companyName: true,
+              email: true
+            }
+          },
+          reservations: {
+            where: {
+              status: { in: ['CONFIRMED', 'COMPLETED'] }
+            },
+            select: {
+              id: true,
+              checkIn: true,
+              nights: true,
+              hostEarnings: true,
+              roomTotal: true,
+              cleaningFee: true
+            },
+            orderBy: { checkIn: 'desc' }
+          },
+          expenses: {
+            select: {
+              id: true,
+              amount: true,
+              date: true
+            }
+          }
+        }
+      })
+
+      if (!billingUnit) {
+        return NextResponse.json(
+          { error: 'Apartamento no encontrado' },
+          { status: 404 }
+        )
+      }
+
+      const owner = billingUnit.owner
+      propertyData = {
+        id: billingUnit.id,
+        name: billingUnit.name,
+        city: billingUnit.city || '',
+        imageUrl: billingUnit.imageUrl || null,
+        owner: owner ? {
+          id: owner.id,
+          name: owner.type === 'EMPRESA'
+            ? owner.companyName
+            : `${owner.firstName || ''} ${owner.lastName || ''}`.trim(),
+          email: owner.email
+        } : null,
         billingConfig: {
-          include: {
-            owner: {
-              select: {
-                id: true,
-                type: true,
-                firstName: true,
-                lastName: true,
-                companyName: true,
-                email: true
-              }
-            },
-            reservations: {
-              where: {
-                status: { in: ['CONFIRMED', 'COMPLETED'] }
+          commissionType: 'PERCENTAGE',
+          commissionValue: Number(billingUnit.commissionValue),
+          incomeReceiver: 'OWNER',
+          cleaningValue: Number(billingUnit.cleaningValue)
+        }
+      }
+
+      reservations = billingUnit.reservations || []
+      expenses = billingUnit.expenses || []
+      ownerId = billingUnit.ownerId
+      commissionValue = Number(billingUnit.commissionValue)
+    } else {
+      // Handle legacy Property
+      const property = await prisma.property.findFirst({
+        where: { id: propertyId, hostId: userId },
+        include: {
+          billingConfig: {
+            include: {
+              owner: {
+                select: {
+                  id: true,
+                  type: true,
+                  firstName: true,
+                  lastName: true,
+                  companyName: true,
+                  email: true
+                }
               },
-              select: {
-                id: true,
-                checkIn: true,
-                nights: true,
-                hostEarnings: true,
-                roomTotal: true,
-                cleaningFee: true
+              reservations: {
+                where: {
+                  status: { in: ['CONFIRMED', 'COMPLETED'] }
+                },
+                select: {
+                  id: true,
+                  checkIn: true,
+                  nights: true,
+                  hostEarnings: true,
+                  roomTotal: true,
+                  cleaningFee: true
+                },
+                orderBy: { checkIn: 'desc' }
               },
-              orderBy: { checkIn: 'desc' }
-            },
-            expenses: {
-              select: {
-                id: true,
-                amount: true,
-                date: true
+              expenses: {
+                select: {
+                  id: true,
+                  amount: true,
+                  date: true
+                }
               }
             }
           }
         }
-      }
-    })
+      })
 
-    if (!property) {
-      return NextResponse.json(
-        { error: 'Propiedad no encontrada' },
-        { status: 404 }
-      )
+      if (!property) {
+        return NextResponse.json(
+          { error: 'Propiedad no encontrada' },
+          { status: 404 }
+        )
+      }
+
+      const owner = property.billingConfig?.owner
+      propertyData = {
+        id: property.id,
+        name: property.name,
+        city: property.city || '',
+        imageUrl: property.profileImage || null,
+        owner: owner ? {
+          id: owner.id,
+          name: owner.type === 'EMPRESA'
+            ? owner.companyName
+            : `${owner.firstName || ''} ${owner.lastName || ''}`.trim(),
+          email: owner.email
+        } : null,
+        billingConfig: property.billingConfig ? {
+          commissionType: property.billingConfig.commissionType,
+          commissionValue: Number(property.billingConfig.commissionValue),
+          incomeReceiver: property.billingConfig.incomeReceiver,
+          cleaningValue: Number(property.billingConfig.cleaningValue)
+        } : null
+      }
+
+      reservations = property.billingConfig?.reservations || []
+      expenses = property.billingConfig?.expenses || []
+      ownerId = property.billingConfig?.ownerId || null
+      commissionValue = Number(property.billingConfig?.commissionValue || 0)
     }
 
     // Get all liquidations for this owner
-    const ownerId = property.billingConfig?.ownerId
     const liquidations = ownerId ? await prisma.liquidation.findMany({
       where: {
         userId,
@@ -89,9 +195,6 @@ export async function GET(
         totalAmount: true
       }
     }) : []
-
-    const reservations = property.billingConfig?.reservations || []
-    const expenses = property.billingConfig?.expenses || []
 
     // Group reservations by year and month
     const yearMap = new Map<number, Map<number, { reservations: number; income: number; nights: number; cleaning: number }>>()
@@ -152,8 +255,7 @@ export async function GET(
           const liquidation = liquidations.find(l => l.year === year && l.month === month)
 
           // Calculate commission based on billing config
-          const commissionRate = property.billingConfig?.commissionValue || 0
-          const commission = (monthData.income * Number(commissionRate)) / 100
+          const commission = (monthData.income * commissionValue) / 100
 
           return {
             month,
@@ -199,34 +301,9 @@ export async function GET(
         }
       })
 
-    // Get owner name
-    const owner = property.billingConfig?.owner
-    let ownerData = null
-    if (owner) {
-      ownerData = {
-        id: owner.id,
-        name: owner.type === 'EMPRESA'
-          ? owner.companyName
-          : `${owner.firstName || ''} ${owner.lastName || ''}`.trim(),
-        email: owner.email
-      }
-    }
-
     return NextResponse.json({
       success: true,
-      property: {
-        id: property.id,
-        name: property.name,
-        city: property.city || '',
-        imageUrl: property.profileImage || null,
-        owner: ownerData,
-        billingConfig: property.billingConfig ? {
-          commissionType: property.billingConfig.commissionType,
-          commissionValue: Number(property.billingConfig.commissionValue),
-          incomeReceiver: property.billingConfig.incomeReceiver,
-          cleaningValue: Number(property.billingConfig.cleaningValue)
-        } : null
-      },
+      property: propertyData,
       years
     })
   } catch (error) {

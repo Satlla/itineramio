@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { formatCurrency } from '@/lib/format'
 import { motion } from 'framer-motion'
 import {
@@ -97,7 +97,9 @@ const statusColors: Record<string, string> = {
 export default function PropertyFacturacionPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const propertyId = params.propertyId as string
+  const isUnit = searchParams.get('type') === 'unit'
 
   const [loading, setLoading] = useState(true)
   const [property, setProperty] = useState<PropertyDetail | null>(null)
@@ -107,12 +109,13 @@ export default function PropertyFacturacionPage() {
 
   useEffect(() => {
     fetchPropertyData()
-  }, [propertyId])
+  }, [propertyId, isUnit])
 
   const fetchPropertyData = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/facturacion/properties/${propertyId}`, {
+      const typeParam = isUnit ? '?type=unit' : ''
+      const response = await fetch(`/api/facturacion/properties/${propertyId}${typeParam}`, {
         credentials: 'include'
       })
 
