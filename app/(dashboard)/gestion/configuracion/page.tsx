@@ -1138,7 +1138,9 @@ function EditUnitModal({
     ownerId: '',
     groupId: '',
     commissionValue: '15',
-    cleaningValue: '0'
+    cleaningValue: '0',
+    airbnbNames: '',
+    bookingNames: ''
   })
   const [saving, setSaving] = useState(false)
 
@@ -1151,12 +1153,18 @@ function EditUnitModal({
         ownerId: unit.ownerId || '',
         groupId: unit.groupId || '',
         commissionValue: String(unit.commissionValue || 15),
-        cleaningValue: String(unit.cleaningValue || 0)
+        cleaningValue: String(unit.cleaningValue || 0),
+        airbnbNames: (unit.airbnbNames || []).join(', '),
+        bookingNames: (unit.bookingNames || []).join(', ')
       })
     }
   }, [unit])
 
   if (!unit) return null
+
+  const parseNames = (str: string): string[] => {
+    return str.split(',').map(s => s.trim()).filter(Boolean)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -1175,7 +1183,9 @@ function EditUnitModal({
           ownerId: form.groupId ? null : (form.ownerId || null),
           groupId: form.groupId || null,
           commissionValue: parseFloat(form.commissionValue) || 0,
-          cleaningValue: parseFloat(form.cleaningValue) || 0
+          cleaningValue: parseFloat(form.cleaningValue) || 0,
+          airbnbNames: parseNames(form.airbnbNames),
+          bookingNames: parseNames(form.bookingNames)
         })
       })
 
@@ -1281,6 +1291,42 @@ function EditUnitModal({
             </div>
           </>
         )}
+
+        {/* Nombres de plataformas para matching de reservas */}
+        <div className="border-t pt-4 mt-4">
+          <h4 className="text-sm font-medium text-gray-900 mb-3">Nombres en plataformas (para importar reservas)</h4>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nombres en Airbnb
+                <span className="text-gray-400 font-normal ml-1">(separados por coma)</span>
+              </label>
+              <input
+                type="text"
+                value={form.airbnbNames}
+                onChange={e => setForm(f => ({ ...f, airbnbNames: e.target.value }))}
+                placeholder="Casa Azul, Casa Azul Alicante"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nombres en Booking
+                <span className="text-gray-400 font-normal ml-1">(separados por coma)</span>
+              </label>
+              <input
+                type="text"
+                value={form.bookingNames}
+                onChange={e => setForm(f => ({ ...f, bookingNames: e.target.value }))}
+                placeholder="Casa Azul"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              />
+            </div>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            Estos nombres se usan para asignar automáticamente las reservas al importar CSV
+          </p>
+        </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t">
           <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
