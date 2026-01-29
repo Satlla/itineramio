@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     }
     const userId = authResult.userId
 
+    // Obtener Properties (legacy - módulo Manuales)
     const properties = await prisma.property.findMany({
       where: { hostId: userId },
       select: {
@@ -36,7 +37,45 @@ export async function GET(request: NextRequest) {
       billingConfigId: p.billingConfig?.id || null
     }))
 
-    return NextResponse.json({ properties: formattedProperties })
+    // Obtener BillingUnits (nuevo - módulo Gestión)
+    const billingUnits = await prisma.billingUnit.findMany({
+      where: { userId, isActive: true },
+      select: {
+        id: true,
+        name: true,
+        city: true,
+        imageUrl: true,
+        commissionValue: true,
+        cleaningValue: true,
+        owner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            companyName: true,
+            type: true
+          }
+        }
+      },
+      orderBy: { name: 'asc' }
+    })
+
+    const formattedBillingUnits = billingUnits.map(u => ({
+      id: u.id,
+      name: u.name,
+      city: u.city,
+      imageUrl: u.imageUrl,
+      commissionValue: Number(u.commissionValue),
+      cleaningValue: Number(u.cleaningValue),
+      ownerName: u.owner
+        ? (u.owner.type === 'EMPRESA' ? u.owner.companyName : `${u.owner.firstName} ${u.owner.lastName}`.trim())
+        : null
+    }))
+
+    return NextResponse.json({
+      properties: formattedProperties,
+      billingUnits: formattedBillingUnits
+    })
   } catch (error) {
     console.error('Error fetching properties:', error)
     return NextResponse.json(

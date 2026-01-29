@@ -49,6 +49,16 @@ interface Property {
   billingConfigId: string | null
 }
 
+interface BillingUnit {
+  id: string
+  name: string
+  city: string | null
+  imageUrl: string | null
+  commissionValue: number
+  cleaningValue: number
+  ownerName: string | null
+}
+
 interface BillingConfig {
   id: string
   commissionValue: number
@@ -112,6 +122,7 @@ export default function ReservasPage() {
   const [loading, setLoading] = useState(true)
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [properties, setProperties] = useState<Property[]>([])
+  const [billingUnits, setBillingUnits] = useState<BillingUnit[]>([])
   const [totals, setTotals] = useState({ count: 0, earnings: 0, nights: 0, confirmed: 0 })
 
   // Filters
@@ -165,6 +176,7 @@ export default function ReservasPage() {
   // Form state
   const [formData, setFormData] = useState({
     billingConfigId: '',
+    billingUnitId: '', // Nuevo: apartamento independiente de Gestión
     platform: 'AIRBNB',
     guestName: '',
     guestEmail: '',
@@ -210,6 +222,7 @@ export default function ReservasPage() {
       if (response.ok) {
         const data = await response.json()
         setProperties(data.properties || [])
+        setBillingUnits(data.billingUnits || [])
       }
     } catch (error) {
       console.error('Error fetching properties:', error)
@@ -261,7 +274,8 @@ export default function ReservasPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.billingConfigId || !formData.guestName || !formData.checkIn || !formData.checkOut || !formData.hostEarnings) {
+    // Requiere billingUnitId O billingConfigId
+    if ((!formData.billingConfigId && !formData.billingUnitId) || !formData.guestName || !formData.checkIn || !formData.checkOut || !formData.hostEarnings) {
       alert('Por favor completa todos los campos obligatorios')
       return
     }
@@ -1146,34 +1160,57 @@ export default function ReservasPage() {
               {/* Modal Body */}
               <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(90vh-180px)]">
                 <div className="p-5 space-y-5">
-                  {/* Property Selection */}
+                  {/* Property/Unit Selection */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Propiedad *
+                      Apartamento *
                     </label>
                     <div className="relative">
                       <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <select
-                        value={formData.billingConfigId}
-                        onChange={(e) => setFormData({ ...formData, billingConfigId: e.target.value })}
+                        value={formData.billingUnitId || formData.billingConfigId}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          // Si empieza con "unit:", es un BillingUnit
+                          if (value.startsWith('unit:')) {
+                            setFormData({ ...formData, billingUnitId: value.replace('unit:', ''), billingConfigId: '' })
+                          } else {
+                            setFormData({ ...formData, billingConfigId: value, billingUnitId: '' })
+                          }
+                        }}
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent appearance-none bg-white"
                         required
                       >
-                        <option value="">Selecciona una propiedad</option>
-                        {properties.map(p => (
-                          <option
-                            key={p.id}
-                            value={p.hasBillingConfig ? p.billingConfigId! : `new:${p.id}`}
-                          >
-                            {p.name} {!p.hasBillingConfig && '(nueva config)'}
-                          </option>
-                        ))}
+                        <option value="">Selecciona un apartamento</option>
+                        {/* BillingUnits (módulo Gestión) */}
+                        {billingUnits.length > 0 && (
+                          <optgroup label="Apartamentos de Gestión">
+                            {billingUnits.map(u => (
+                              <option key={u.id} value={`unit:${u.id}`}>
+                                {u.name} {u.city && `(${u.city})`}
+                              </option>
+                            ))}
+                          </optgroup>
+                        )}
+                        {/* Properties (módulo Manuales - legacy) */}
+                        {properties.length > 0 && (
+                          <optgroup label="Propiedades de Manuales">
+                            {properties.map(p => (
+                              <option
+                                key={p.id}
+                                value={p.hasBillingConfig ? p.billingConfigId! : `new:${p.id}`}
+                              >
+                                {p.name} {!p.hasBillingConfig && '(nueva config)'}
+                              </option>
+                            ))}
+                          </optgroup>
+                        )}
                       </select>
                       <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
-                    {properties.length === 0 && (
+                    {billingUnits.length === 0 && properties.length === 0 && (
                       <p className="mt-2 text-xs text-amber-600">
-                        No tienes propiedades. Crea una primero.
+                        No tienes apartamentos. <Link href="/gestion/configuracion" className="underline">Crea uno primero</Link>.
                       </p>
                     )}
                   </div>

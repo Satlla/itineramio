@@ -39,7 +39,11 @@ export async function GET(request: NextRequest) {
       where.platform = platform as any
     }
 
-    if (propertyId) {
+    // Filter by billingUnit (nuevo) o billingConfig (legacy)
+    const billingUnitId = searchParams.get('billingUnitId') || undefined
+    if (billingUnitId) {
+      where.billingUnitId = billingUnitId
+    } else if (propertyId) {
       where.billingConfig = {
         propertyId
       }
@@ -49,6 +53,15 @@ export async function GET(request: NextRequest) {
       where,
       orderBy: { checkIn: 'desc' },
       include: {
+        billingUnit: {
+          select: {
+            id: true,
+            name: true,
+            imageUrl: true,
+            commissionValue: true,
+            cleaningValue: true
+          }
+        },
         billingConfig: {
           select: {
             id: true,
@@ -119,6 +132,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const {
       billingConfigId,
+      billingUnitId, // Nuevo: unidad de facturación independiente
       platform,
       confirmationCode,
       guestName,
@@ -134,66 +148,90 @@ export async function POST(request: NextRequest) {
       internalNotes
     } = body
 
-    // Validate required fields
-    if (!billingConfigId || !guestName || !checkIn || !checkOut || hostEarnings === undefined) {
+    // Validate required fields - acepta billingUnitId O billingConfigId
+    if ((!billingConfigId && !billingUnitId) || !guestName || !checkIn || !checkOut || hostEarnings === undefined) {
       return NextResponse.json(
         { error: 'Faltan campos obligatorios' },
         { status: 400 }
       )
     }
 
-    let finalBillingConfigId = billingConfigId
-    let billingConfig
+    let finalBillingConfigId: string | null = null
+    let finalBillingUnitId: string | null = null
+    let commissionValue = 20 // default
+    let cleaningValue = 0
 
-    // Check if we need to create a new billing config (format: "new:propertyId")
-    if (billingConfigId.startsWith('new:')) {
-      const propertyId = billingConfigId.replace('new:', '')
-
-      // Verify property belongs to user
-      const property = await prisma.property.findFirst({
-        where: { id: propertyId, hostId: userId }
+    // NUEVO: Si viene billingUnitId, usar BillingUnit
+    if (billingUnitId) {
+      const billingUnit = await prisma.billingUnit.findFirst({
+        where: { id: billingUnitId, userId }
       })
-
-      if (!property) {
+      if (!billingUnit) {
         return NextResponse.json(
-          { error: 'Propiedad no encontrada' },
+          { error: 'Apartamento no encontrado' },
           { status: 404 }
         )
       }
+      finalBillingUnitId = billingUnit.id
+      commissionValue = Number(billingUnit.commissionValue)
+      cleaningValue = Number(billingUnit.cleaningValue)
+    }
+    // LEGACY: Si viene billingConfigId, usar PropertyBillingConfig
+    else if (billingConfigId) {
+      // Check if we need to create a new billing config (format: "new:propertyId")
+      if (billingConfigId.startsWith('new:')) {
+        const propertyId = billingConfigId.replace('new:', '')
 
-      // Create billing config with defaults
-      billingConfig = await prisma.propertyBillingConfig.create({
-        data: {
-          propertyId,
-          commissionType: 'PERCENTAGE',
-          commissionValue: 20, // 20% default
-          commissionVat: 21,
-          cleaningType: 'FIXED_PER_RESERVATION',
-          cleaningValue: 0,
-          cleaningVatIncluded: true,
-          cleaningFeeRecipient: 'MANAGER',
-          incomeReceiver: 'OWNER',
-          defaultVatRate: 21,
-          defaultRetentionRate: 0
-        }
-      })
-      finalBillingConfigId = billingConfig.id
-    } else {
-      // Verify billing config belongs to user
-      billingConfig = await prisma.propertyBillingConfig.findFirst({
-        where: {
-          id: billingConfigId,
-          property: { hostId: userId }
-        }
-      })
+        // Verify property belongs to user
+        const property = await prisma.property.findFirst({
+          where: { id: propertyId, hostId: userId }
+        })
 
-      if (!billingConfig) {
-        return NextResponse.json(
-          { error: 'Configuración de propiedad no encontrada' },
-          { status: 404 }
-        )
+        if (!property) {
+          return NextResponse.json(
+            { error: 'Propiedad no encontrada' },
+            { status: 404 }
+          )
+        }
+
+        // Create billing config with defaults
+        const billingConfig = await prisma.propertyBillingConfig.create({
+          data: {
+            propertyId,
+            commissionType: 'PERCENTAGE',
+            commissionValue: 20,
+            commissionVat: 21,
+            cleaningType: 'FIXED_PER_RESERVATION',
+            cleaningValue: 0,
+            cleaningVatIncluded: true,
+            cleaningFeeRecipient: 'MANAGER',
+            incomeReceiver: 'OWNER',
+            defaultVatRate: 21,
+            defaultRetentionRate: 0
+          }
+        })
+        finalBillingConfigId = billingConfig.id
+        commissionValue = Number(billingConfig.commissionValue)
+        cleaningValue = Number(billingConfig.cleaningValue)
+      } else {
+        // Verify billing config belongs to user
+        const billingConfig = await prisma.propertyBillingConfig.findFirst({
+          where: {
+            id: billingConfigId,
+            property: { hostId: userId }
+          }
+        })
+
+        if (!billingConfig) {
+          return NextResponse.json(
+            { error: 'Configuración de propiedad no encontrada' },
+            { status: 404 }
+          )
+        }
+        finalBillingConfigId = billingConfig.id
+        commissionValue = Number(billingConfig.commissionValue)
+        cleaningValue = Number(billingConfig.cleaningValue)
       }
-      finalBillingConfigId = billingConfig.id
     }
 
     // Calculate nights
@@ -211,14 +249,14 @@ export async function POST(request: NextRequest) {
     // Generate confirmation code if not provided
     const finalConfirmationCode = confirmationCode || `MAN-${Date.now().toString(36).toUpperCase()}`
 
-    // Calculate amounts based on billing config
+    // Calculate amounts
     const earnings = Number(hostEarnings)
-    const cleaning = cleaningFee !== undefined ? Number(cleaningFee) : Number(billingConfig.cleaningValue)
+    const cleaning = cleaningFee !== undefined ? Number(cleaningFee) : cleaningValue
     const serviceFee = hostServiceFee !== undefined ? Number(hostServiceFee) : 0
     const room = roomTotal !== undefined ? Number(roomTotal) : earnings + serviceFee - cleaning
 
     // Calculate owner/manager split
-    const commissionPct = Number(billingConfig.commissionValue) / 100
+    const commissionPct = commissionValue / 100
     const managerAmount = (earnings - cleaning) * commissionPct
     const ownerAmount = earnings - managerAmount
 
@@ -273,6 +311,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId,
         billingConfigId: finalBillingConfigId,
+        billingUnitId: finalBillingUnitId, // Nuevo: BillingUnit independiente
         guestId, // Link to guest
         platform: platform || 'OTHER',
         confirmationCode: finalConfirmationCode,
@@ -296,6 +335,13 @@ export async function POST(request: NextRequest) {
         cleaningAmount: cleaning
       },
       include: {
+        billingUnit: {
+          select: {
+            id: true,
+            name: true,
+            imageUrl: true
+          }
+        },
         billingConfig: {
           select: {
             property: {
