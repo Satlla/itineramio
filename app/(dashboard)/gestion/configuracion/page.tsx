@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import React, { useState, useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Home,
   User,
@@ -14,7 +14,11 @@ import {
   ChevronUp,
   Camera,
   Trash2,
-  X
+  X,
+  FolderOpen,
+  Building2,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
@@ -31,6 +35,7 @@ interface BillingUnit {
   name: string
   city: string | null
   imageUrl: string | null
+  groupId: string | null
   ownerId: string | null
   owner: Owner | null
   commissionType: string
@@ -43,7 +48,20 @@ interface BillingUnit {
   expensesCount: number
   invoicesCount: number
   isActive: boolean
-  createdAt: string
+}
+
+interface BillingUnitGroup {
+  id: string
+  name: string
+  imageUrl: string | null
+  ownerId: string
+  owner: Owner | null
+  billingUnits: { id: string; name: string; city: string | null; imageUrl: string | null }[]
+  unitsCount: number
+  invoicesCount: number
+  commissionType: string
+  commissionValue: number
+  isActive: boolean
 }
 
 interface OwnerFull {
@@ -57,57 +75,23 @@ interface OwnerFull {
   email: string
 }
 
-interface EditForm {
-  id: string | null // null = nuevo
-  name: string
-  city: string
-  imageUrl: string
-  ownerId: string
-  incomeReceiver: 'OWNER' | 'MANAGER'
-  commissionType: string
-  commissionValue: string
-  commissionVat: string
-  cleaningType: string
-  cleaningValue: string
-  cleaningFeeRecipient: 'OWNER' | 'MANAGER' | 'SPLIT'
-  cleaningFeeSplitPct: string
-  monthlyFee: string
-  monthlyFeeVat: string
-  defaultVatRate: string
-  defaultRetentionRate: string
-  invoiceDetailLevel: 'DETAILED' | 'SUMMARY'
-}
-
-const emptyForm: EditForm = {
-  id: null,
-  name: '',
-  city: '',
-  imageUrl: '',
-  ownerId: '',
-  incomeReceiver: 'OWNER',
-  commissionType: 'PERCENTAGE',
-  commissionValue: '15',
-  commissionVat: '21',
-  cleaningType: 'FIXED_PER_RESERVATION',
-  cleaningValue: '0',
-  cleaningFeeRecipient: 'MANAGER',
-  cleaningFeeSplitPct: '',
-  monthlyFee: '0',
-  monthlyFeeVat: '21',
-  defaultVatRate: '21',
-  defaultRetentionRate: '0',
-  invoiceDetailLevel: 'DETAILED'
-}
+type TabType = 'all' | 'groups' | 'standalone'
 
 export default function ApartamentosPage() {
   const [loading, setLoading] = useState(true)
   const [billingUnits, setBillingUnits] = useState<BillingUnit[]>([])
+  const [groups, setGroups] = useState<BillingUnitGroup[]>([])
   const [owners, setOwners] = useState<OwnerFull[]>([])
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<TabType>('all')
+
+  // Modals
+  const [showNewUnitModal, setShowNewUnitModal] = useState(false)
+  const [showNewGroupModal, setShowNewGroupModal] = useState(false)
+  const [editingUnit, setEditingUnit] = useState<BillingUnit | null>(null)
+  const [editingGroup, setEditingGroup] = useState<BillingUnitGroup | null>(null)
+
   const [saving, setSaving] = useState(false)
-  const [deleting, setDeleting] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState<EditForm | null>(null)
-  const [showNewForm, setShowNewForm] = useState(false)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -116,14 +100,20 @@ export default function ApartamentosPage() {
   const fetchData = async () => {
     try {
       setLoading(true)
-      const [unitsRes, ownersRes] = await Promise.all([
+      const [unitsRes, groupsRes, ownersRes] = await Promise.all([
         fetch('/api/gestion/billing-units', { credentials: 'include' }),
+        fetch('/api/gestion/billing-unit-groups', { credentials: 'include' }),
         fetch('/api/gestion/owners', { credentials: 'include' })
       ])
 
       if (unitsRes.ok) {
         const data = await unitsRes.json()
         setBillingUnits(data.billingUnits || [])
+      }
+
+      if (groupsRes.ok) {
+        const data = await groupsRes.json()
+        setGroups(data.groups || [])
       }
 
       if (ownersRes.ok) {
@@ -137,132 +127,20 @@ export default function ApartamentosPage() {
     }
   }
 
-  const startEditing = (unit: BillingUnit) => {
-    setEditForm({
-      id: unit.id,
-      name: unit.name || '',
-      city: unit.city || '',
-      imageUrl: unit.imageUrl || '',
-      ownerId: unit.ownerId || '',
-      incomeReceiver: 'OWNER',
-      commissionType: unit.commissionType || 'PERCENTAGE',
-      commissionValue: unit.commissionValue?.toString() || '15',
-      commissionVat: '21',
-      cleaningType: 'FIXED_PER_RESERVATION',
-      cleaningValue: unit.cleaningValue?.toString() || '0',
-      cleaningFeeRecipient: 'MANAGER',
-      cleaningFeeSplitPct: '',
-      monthlyFee: '0',
-      monthlyFeeVat: '21',
-      defaultVatRate: '21',
-      defaultRetentionRate: '0',
-      invoiceDetailLevel: 'DETAILED'
-    })
-    setExpandedId(unit.id)
-    setShowNewForm(false)
-  }
-
-  const startNew = () => {
-    setEditForm({ ...emptyForm })
-    setShowNewForm(true)
-    setExpandedId(null)
-  }
-
-  const cancelEditing = () => {
-    setEditForm(null)
-    setShowNewForm(false)
-  }
-
-  const saveUnit = async () => {
-    if (!editForm) return
-
-    setSaving(true)
-    try {
-      const payload = {
-        name: editForm.name.trim(),
-        city: editForm.city.trim() || null,
-        imageUrl: editForm.imageUrl || null,
-        ownerId: editForm.ownerId || null,
-        incomeReceiver: editForm.incomeReceiver,
-        commissionType: editForm.commissionType,
-        commissionValue: parseFloat(editForm.commissionValue) || 0,
-        commissionVat: parseFloat(editForm.commissionVat) || 21,
-        cleaningType: editForm.cleaningType,
-        cleaningValue: parseFloat(editForm.cleaningValue) || 0,
-        cleaningFeeRecipient: editForm.cleaningFeeRecipient,
-        cleaningFeeSplitPct: editForm.cleaningFeeSplitPct ? parseFloat(editForm.cleaningFeeSplitPct) : null,
-        monthlyFee: parseFloat(editForm.monthlyFee) || 0,
-        monthlyFeeVat: parseFloat(editForm.monthlyFeeVat) || 21,
-        defaultVatRate: parseFloat(editForm.defaultVatRate) || 21,
-        defaultRetentionRate: parseFloat(editForm.defaultRetentionRate) || 0,
-        invoiceDetailLevel: editForm.invoiceDetailLevel
-      }
-
-      const isNew = !editForm.id
-      const url = isNew
-        ? '/api/gestion/billing-units'
-        : `/api/gestion/billing-units/${editForm.id}`
-
-      const response = await fetch(url, {
-        method: isNew ? 'POST' : 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(payload)
-      })
-
-      if (response.ok) {
-        setEditForm(null)
-        setShowNewForm(false)
-        fetchData()
-      } else {
-        const data = await response.json()
-        alert(data.error || 'Error al guardar')
-      }
-    } catch (error) {
-      console.error('Error saving:', error)
-      alert('Error al guardar')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const deleteUnit = async (id: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este apartamento?')) return
-
-    setDeleting(id)
-    try {
-      const response = await fetch(`/api/gestion/billing-units/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      })
-
-      if (response.ok) {
-        fetchData()
-      } else {
-        const data = await response.json()
-        alert(data.error || 'Error al eliminar')
-      }
-    } catch (error) {
-      console.error('Error deleting:', error)
-    } finally {
-      setDeleting(null)
-    }
-  }
-
-  const getOwnerName = (owner?: OwnerFull) => {
+  const getOwnerName = (owner?: OwnerFull | Owner | null) => {
     if (!owner) return 'Sin asignar'
-    if (owner.type === 'EMPRESA') return owner.companyName || 'Empresa'
-    return `${owner.firstName || ''} ${owner.lastName || ''}`.trim() || 'Persona física'
-  }
-
-  const configuredCount = billingUnits.filter(u => u.ownerId).length
-
-  const getUnitStatus = (unit: BillingUnit) => {
-    if (!unit.ownerId) {
-      return { status: 'incomplete', label: 'Sin propietario', color: 'bg-yellow-100 text-yellow-700' }
+    if ('type' in owner) {
+      if (owner.type === 'EMPRESA') return owner.companyName || 'Empresa'
+      return `${owner.firstName || ''} ${owner.lastName || ''}`.trim() || 'Persona física'
     }
-    return { status: 'complete', label: 'Configurado', color: 'bg-green-100 text-green-700' }
+    return owner.name
   }
+
+  // Filtrar apartamentos según tab
+  const standaloneUnits = billingUnits.filter(u => !u.groupId)
+  const groupedUnits = billingUnits.filter(u => u.groupId)
+
+  const configuredCount = standaloneUnits.filter(u => u.ownerId).length + groups.length
 
   if (loading) {
     return <AnimatedLoadingSpinner text="Cargando apartamentos..." type="general" />
@@ -276,7 +154,6 @@ export default function ApartamentosPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
             className="mb-6"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -285,478 +162,1280 @@ export default function ApartamentosPage() {
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">Apartamentos</h1>
                   <p className="text-sm text-gray-600">
-                    Gestiona tus apartamentos y configura comisiones
+                    Gestiona apartamentos y conjuntos
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                {billingUnits.length > 0 && (
-                  <Badge className={configuredCount === billingUnits.length ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}>
-                    {configuredCount === billingUnits.length ? (
-                      <><Check className="w-3 h-3 mr-1" /> Todos configurados</>
-                    ) : (
-                      <>{configuredCount}/{billingUnits.length} configurados</>
-                    )}
-                  </Badge>
-                )}
+              <div className="flex items-center gap-2 flex-wrap">
                 <Button
-                  onClick={startNew}
+                  onClick={() => setShowNewGroupModal(true)}
+                  variant="outline"
+                  className="border-violet-300 text-violet-700 hover:bg-violet-50"
+                >
+                  <FolderOpen className="w-4 h-4 mr-2" />
+                  Nuevo conjunto
+                </Button>
+                <Button
+                  onClick={() => setShowNewUnitModal(true)}
                   className="bg-violet-600 hover:bg-violet-700"
-                  disabled={showNewForm}
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Nuevo apartamento
                 </Button>
-                <Link href="/gestion/clientes">
-                  <Button variant="outline" size="sm">
-                    <User className="w-4 h-4 mr-2" />
-                    Propietarios
-                  </Button>
-                </Link>
               </div>
             </div>
           </motion.div>
 
-          {/* Info Card - No owners */}
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <Card>
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-violet-600">{groups.length}</p>
+                <p className="text-sm text-gray-500">Conjuntos</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-blue-600">{standaloneUnits.length}</p>
+                <p className="text-sm text-gray-500">Individuales</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-green-600">{groupedUnits.length}</p>
+                <p className="text-sm text-gray-500">En conjuntos</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* No owners warning */}
           {owners.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="mb-6"
-            >
-              <Card className="border-blue-200 bg-blue-50">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-blue-800">Primero crea tus propietarios</p>
-                      <p className="text-sm text-blue-700 mt-1">
-                        Antes de configurar los apartamentos, debes crear los propietarios.
-                      </p>
-                      <Link href="/gestion/clientes">
-                        <Button size="sm" className="mt-3 bg-blue-600 hover:bg-blue-700">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Crear propietario
-                        </Button>
-                      </Link>
-                    </div>
+            <Card className="border-blue-200 bg-blue-50 mb-6">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-blue-800">Primero crea tus propietarios</p>
+                    <p className="text-sm text-blue-700 mt-1">
+                      Para crear conjuntos necesitas tener propietarios.
+                    </p>
+                    <Link href="/gestion/clientes">
+                      <Button size="sm" className="mt-3 bg-blue-600 hover:bg-blue-700">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Crear propietario
+                      </Button>
+                    </Link>
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+                </div>
+              </CardContent>
+            </Card>
           )}
 
-          {/* New Apartment Form */}
-          {showNewForm && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6"
-            >
-              <Card className="border-2 border-violet-300">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                      <Plus className="w-5 h-5 text-violet-600" />
-                      Nuevo apartamento
-                    </h3>
-                    <button onClick={cancelEditing} className="text-gray-400 hover:text-gray-600">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                  {renderForm()}
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
+          {/* Tabs */}
+          <div className="flex gap-2 mb-6 border-b border-gray-200">
+            {[
+              { key: 'all', label: 'Todo', count: groups.length + standaloneUnits.length },
+              { key: 'groups', label: 'Conjuntos', count: groups.length },
+              { key: 'standalone', label: 'Individuales', count: standaloneUnits.length }
+            ].map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key as TabType)}
+                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                  activeTab === tab.key
+                    ? 'border-violet-600 text-violet-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {tab.label}
+                <span className="ml-2 bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs">
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
 
-          {/* Apartments List */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            {billingUnits.length === 0 && !showNewForm ? (
+          {/* Content */}
+          <div className="space-y-6">
+            {/* Groups */}
+            {(activeTab === 'all' || activeTab === 'groups') && groups.length > 0 && (
+              <div>
+                {activeTab === 'all' && (
+                  <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <FolderOpen className="w-5 h-5 text-violet-600" />
+                    Conjuntos
+                  </h2>
+                )}
+                <div className="space-y-3">
+                  {groups.map((group) => (
+                    <GroupCard
+                      key={group.id}
+                      group={group}
+                      expanded={expandedId === `group-${group.id}`}
+                      onToggle={() => setExpandedId(expandedId === `group-${group.id}` ? null : `group-${group.id}`)}
+                      onEdit={() => setEditingGroup(group)}
+                      onRefresh={fetchData}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Standalone Units */}
+            {(activeTab === 'all' || activeTab === 'standalone') && standaloneUnits.length > 0 && (
+              <div>
+                {activeTab === 'all' && (
+                  <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <Building2 className="w-5 h-5 text-blue-600" />
+                    Apartamentos individuales
+                  </h2>
+                )}
+                <div className="space-y-3">
+                  {standaloneUnits.map((unit) => (
+                    <UnitCard
+                      key={unit.id}
+                      unit={unit}
+                      expanded={expandedId === `unit-${unit.id}`}
+                      onToggle={() => setExpandedId(expandedId === `unit-${unit.id}` ? null : `unit-${unit.id}`)}
+                      onEdit={() => setEditingUnit(unit)}
+                      onRefresh={fetchData}
+                      groups={groups}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {groups.length === 0 && standaloneUnits.length === 0 && (
               <Card>
                 <CardContent className="p-8 text-center">
                   <Home className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                   <p className="text-gray-700 font-medium mb-2">No tienes apartamentos</p>
                   <p className="text-sm text-gray-500 mb-4">
-                    Crea tu primer apartamento para empezar a gestionar reservas y facturación.
+                    Crea tu primer apartamento o conjunto para empezar.
                   </p>
-                  <Button onClick={startNew} className="bg-violet-600 hover:bg-violet-700">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Crear apartamento
-                  </Button>
+                  <div className="flex justify-center gap-3">
+                    <Button
+                      onClick={() => setShowNewGroupModal(true)}
+                      variant="outline"
+                    >
+                      <FolderOpen className="w-4 h-4 mr-2" />
+                      Crear conjunto
+                    </Button>
+                    <Button
+                      onClick={() => setShowNewUnitModal(true)}
+                      className="bg-violet-600 hover:bg-violet-700"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Crear apartamento
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
-            ) : (
-              <div className="space-y-4">
-                {billingUnits.map((unit, index) => {
-                  const isEditing = editForm?.id === unit.id
-                  const isExpanded = expandedId === unit.id
-                  const unitStatus = getUnitStatus(unit)
-
-                  return (
-                    <motion.div
-                      key={unit.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.05 }}
-                    >
-                      <Card className={`${unitStatus.status === 'complete' ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-yellow-400'}`}>
-                        <CardContent className="p-0">
-                          {/* Unit Header */}
-                          <div
-                            className="p-4 flex items-center justify-between cursor-pointer"
-                            onClick={() => setExpandedId(isExpanded ? null : unit.id)}
-                          >
-                            <div className="flex items-center gap-4">
-                              {/* Image */}
-                              <div className="relative">
-                                {unit.imageUrl ? (
-                                  <img
-                                    src={unit.imageUrl}
-                                    alt={unit.name}
-                                    className="w-14 h-14 object-cover rounded-lg"
-                                  />
-                                ) : (
-                                  <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center">
-                                    <Home className="w-6 h-6 text-gray-400" />
-                                  </div>
-                                )}
-                              </div>
-                              <div>
-                                <h3 className="font-semibold text-gray-900">{unit.name}</h3>
-                                <p className="text-sm text-gray-500">{unit.city || 'Sin ciudad'}</p>
-                                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                  <Badge className={`${unitStatus.color} text-xs`}>
-                                    {unitStatus.status === 'complete' ? (
-                                      <Check className="w-3 h-3 mr-1" />
-                                    ) : (
-                                      <AlertCircle className="w-3 h-3 mr-1" />
-                                    )}
-                                    {unitStatus.label}
-                                  </Badge>
-                                  {unit.owner && (
-                                    <Badge className="bg-gray-100 text-gray-700 text-xs">
-                                      <User className="w-3 h-3 mr-1" />
-                                      {unit.owner.name}
-                                    </Badge>
-                                  )}
-                                  {unit.commissionValue > 0 && (
-                                    <Badge className="bg-violet-100 text-violet-700 text-xs">
-                                      <Percent className="w-3 h-3 mr-1" />
-                                      {unit.commissionValue}%
-                                    </Badge>
-                                  )}
-                                  {unit.reservationsCount > 0 && (
-                                    <Badge className="bg-blue-100 text-blue-700 text-xs">
-                                      {unit.reservationsCount} reservas
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {!isEditing && (
-                                <>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={(e) => { e.stopPropagation(); startEditing(unit) }}
-                                  >
-                                    <Edit2 className="w-4 h-4 mr-1" />
-                                    Editar
-                                  </Button>
-                                  {unit.invoicesCount === 0 && (
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={(e) => { e.stopPropagation(); deleteUnit(unit.id) }}
-                                      disabled={deleting === unit.id}
-                                      className="text-red-600 hover:text-red-700 hover:border-red-300"
-                                    >
-                                      {deleting === unit.id ? (
-                                        <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                                      ) : (
-                                        <Trash2 className="w-4 h-4" />
-                                      )}
-                                    </Button>
-                                  )}
-                                </>
-                              )}
-                              {isExpanded ? (
-                                <ChevronUp className="w-5 h-5 text-gray-400" />
-                              ) : (
-                                <ChevronDown className="w-5 h-5 text-gray-400" />
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Expanded Edit Form */}
-                          {isExpanded && isEditing && (
-                            <div className="border-t border-gray-200 p-4 bg-gray-50">
-                              {renderForm()}
-                            </div>
-                          )}
-
-                          {/* Expanded Info (not editing) */}
-                          {isExpanded && !isEditing && (
-                            <div className="border-t border-gray-200 p-4 bg-gray-50">
-                              <div className="grid sm:grid-cols-4 gap-4 text-sm">
-                                <div>
-                                  <p className="text-gray-500">Comisión</p>
-                                  <p className="font-medium">{unit.commissionValue}%</p>
-                                </div>
-                                <div>
-                                  <p className="text-gray-500">Limpieza</p>
-                                  <p className="font-medium">{unit.cleaningValue}€</p>
-                                </div>
-                                <div>
-                                  <p className="text-gray-500">Reservas</p>
-                                  <p className="font-medium">{unit.reservationsCount}</p>
-                                </div>
-                                <div>
-                                  <p className="text-gray-500">Facturas</p>
-                                  <p className="font-medium">{unit.invoicesCount}</p>
-                                </div>
-                              </div>
-                              {/* Platform names */}
-                              {(unit.airbnbNames.length > 0 || unit.bookingNames.length > 0) && (
-                                <div className="mt-4 pt-4 border-t border-gray-200">
-                                  <p className="text-sm text-gray-500 mb-2">Nombres en plataformas (para matching):</p>
-                                  <div className="flex flex-wrap gap-2">
-                                    {unit.airbnbNames.map((name, i) => (
-                                      <Badge key={`airbnb-${i}`} className="bg-red-100 text-red-700 text-xs">
-                                        Airbnb: {name}
-                                      </Badge>
-                                    ))}
-                                    {unit.bookingNames.map((name, i) => (
-                                      <Badge key={`booking-${i}`} className="bg-blue-100 text-blue-700 text-xs">
-                                        Booking: {name}
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  )
-                })}
-              </div>
             )}
-          </motion.div>
+          </div>
         </div>
       </main>
 
       <DashboardFooter />
+
+      {/* Modals */}
+      <NewUnitModal
+        open={showNewUnitModal}
+        onClose={() => setShowNewUnitModal(false)}
+        owners={owners}
+        groups={groups}
+        onSuccess={() => { setShowNewUnitModal(false); fetchData() }}
+      />
+
+      <NewGroupModal
+        open={showNewGroupModal}
+        onClose={() => setShowNewGroupModal(false)}
+        owners={owners}
+        standaloneUnits={standaloneUnits}
+        onSuccess={() => { setShowNewGroupModal(false); fetchData() }}
+      />
+
+      <EditUnitModal
+        unit={editingUnit}
+        onClose={() => setEditingUnit(null)}
+        owners={owners}
+        groups={groups}
+        onSuccess={() => { setEditingUnit(null); fetchData() }}
+      />
+
+      <EditGroupModal
+        group={editingGroup}
+        onClose={() => setEditingGroup(null)}
+        owners={owners}
+        availableUnits={standaloneUnits}
+        onSuccess={() => { setEditingGroup(null); fetchData() }}
+      />
     </div>
   )
+}
 
-  function renderForm() {
-    if (!editForm) return null
+// ============================================
+// GROUP CARD
+// ============================================
+function GroupCard({
+  group,
+  expanded,
+  onToggle,
+  onEdit,
+  onRefresh
+}: {
+  group: BillingUnitGroup
+  expanded: boolean
+  onToggle: () => void
+  onEdit: () => void
+  onRefresh: () => void
+}) {
+  const [deleting, setDeleting] = useState(false)
 
-    return (
-      <div className="space-y-4">
-        <div className="grid sm:grid-cols-2 gap-4">
-          {/* Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre del apartamento *
-            </label>
-            <input
-              type="text"
-              value={editForm.name}
-              onChange={(e) => setEditForm(prev => prev ? { ...prev, name: e.target.value } : null)}
-              placeholder="Ej: Apartamento Centro"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-            />
-          </div>
+  const handleDelete = async () => {
+    if (!confirm('¿Eliminar este conjunto? Los apartamentos quedarán como individuales.')) return
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/gestion/billing-unit-groups/${group.id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      if (res.ok) onRefresh()
+      else alert('Error al eliminar')
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setDeleting(false)
+    }
+  }
 
-          {/* City */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ciudad
-            </label>
-            <input
-              type="text"
-              value={editForm.city}
-              onChange={(e) => setEditForm(prev => prev ? { ...prev, city: e.target.value } : null)}
-              placeholder="Ej: Madrid"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-            />
-          </div>
-
-          {/* Owner */}
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Propietario
-            </label>
-            <select
-              value={editForm.ownerId}
-              onChange={(e) => setEditForm(prev => prev ? { ...prev, ownerId: e.target.value } : null)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-            >
-              <option value="">Sin propietario (propiedad propia)</option>
-              {owners.map(owner => (
-                <option key={owner.id} value={owner.id}>
-                  {getOwnerName(owner)} - {owner.type === 'EMPRESA' ? owner.cif : owner.nif}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Income Receiver */}
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              ¿Quién cobra las reservas?
-            </label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  checked={editForm.incomeReceiver === 'OWNER'}
-                  onChange={() => setEditForm(prev => prev ? { ...prev, incomeReceiver: 'OWNER' } : null)}
-                  className="text-violet-600 focus:ring-violet-500"
-                />
-                <span className="text-sm">Propietario (tú facturas servicios)</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  checked={editForm.incomeReceiver === 'MANAGER'}
-                  onChange={() => setEditForm(prev => prev ? { ...prev, incomeReceiver: 'MANAGER' } : null)}
-                  className="text-violet-600 focus:ring-violet-500"
-                />
-                <span className="text-sm">Gestor (tú transfieres al propietario)</span>
-              </label>
+  return (
+    <Card className="border-l-4 border-l-violet-500">
+      <CardContent className="p-0">
+        <div
+          className="p-4 flex items-center justify-between cursor-pointer"
+          onClick={onToggle}
+        >
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              {group.imageUrl ? (
+                <img src={group.imageUrl} alt={group.name} className="w-14 h-14 object-cover rounded-lg" />
+              ) : (
+                <div className="w-14 h-14 bg-violet-100 rounded-lg flex items-center justify-center">
+                  <FolderOpen className="w-6 h-6 text-violet-500" />
+                </div>
+              )}
+              <span className="absolute -bottom-1 -right-1 bg-violet-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                {group.unitsCount}
+              </span>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">{group.name}</h3>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <Badge className="bg-violet-100 text-violet-700 text-xs">
+                  <FolderOpen className="w-3 h-3 mr-1" />
+                  Conjunto
+                </Badge>
+                {group.owner && (
+                  <Badge className="bg-gray-100 text-gray-700 text-xs">
+                    <User className="w-3 h-3 mr-1" />
+                    {group.owner.name}
+                  </Badge>
+                )}
+                {Number(group.commissionValue) > 0 && (
+                  <Badge className="bg-green-100 text-green-700 text-xs">
+                    <Percent className="w-3 h-3 mr-1" />
+                    {group.commissionValue}%
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
-
-          {/* Commission */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tipo de comisión
-            </label>
-            <select
-              value={editForm.commissionType}
-              onChange={(e) => setEditForm(prev => prev ? { ...prev, commissionType: e.target.value } : null)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-            >
-              <option value="PERCENTAGE">Porcentaje</option>
-              <option value="FIXED_PER_RESERVATION">Fijo por reserva</option>
-              <option value="FIXED_MONTHLY">Fijo mensual</option>
-              <option value="NONE">Sin comisión</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {editForm.commissionType === 'PERCENTAGE' ? 'Porcentaje (%)' : 'Importe (€)'}
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={editForm.commissionValue}
-              onChange={(e) => setEditForm(prev => prev ? { ...prev, commissionValue: e.target.value } : null)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-            />
-          </div>
-
-          {/* Cleaning */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Limpieza
-            </label>
-            <select
-              value={editForm.cleaningType}
-              onChange={(e) => setEditForm(prev => prev ? { ...prev, cleaningType: e.target.value } : null)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-            >
-              <option value="FIXED_PER_RESERVATION">Fijo por reserva</option>
-              <option value="PER_NIGHT">Por noche</option>
-              <option value="NONE">Sin limpieza</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Importe limpieza (€)
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={editForm.cleaningValue}
-              onChange={(e) => setEditForm(prev => prev ? { ...prev, cleaningValue: e.target.value } : null)}
-              disabled={editForm.cleaningType === 'NONE'}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:bg-gray-100"
-            />
-          </div>
-
-          {/* Cleaning Fee Recipient */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              ¿Quién recibe la limpieza?
-            </label>
-            <select
-              value={editForm.cleaningFeeRecipient}
-              onChange={(e) => setEditForm(prev => prev ? { ...prev, cleaningFeeRecipient: e.target.value as 'OWNER' | 'MANAGER' | 'SPLIT' } : null)}
-              disabled={editForm.cleaningType === 'NONE'}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:bg-gray-100"
-            >
-              <option value="MANAGER">Gestor (yo)</option>
-              <option value="OWNER">Propietario</option>
-              <option value="SPLIT">Repartir</option>
-            </select>
-          </div>
-
-          {/* Monthly Fee */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Cuota mensual (€)
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={editForm.monthlyFee}
-              onChange={(e) => setEditForm(prev => prev ? { ...prev, monthlyFee: e.target.value } : null)}
-              placeholder="0.00"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-            />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onEdit() }}>
+              <Edit2 className="w-4 h-4" />
+            </Button>
+            {group.invoicesCount === 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => { e.stopPropagation(); handleDelete() }}
+                disabled={deleting}
+                className="text-red-600 hover:border-red-300"
+              >
+                {deleting ? <span className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" /> : <Trash2 className="w-4 h-4" />}
+              </Button>
+            )}
+            {expanded ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="border-t border-gray-200 bg-gray-50"
+            >
+              <div className="p-4">
+                <p className="text-sm text-gray-500 mb-3">Apartamentos en este conjunto:</p>
+                {group.billingUnits.length === 0 ? (
+                  <p className="text-sm text-gray-400 italic">Sin apartamentos asignados</p>
+                ) : (
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {group.billingUnits.map(unit => (
+                      <div key={unit.id} className="flex items-center gap-2 bg-white p-2 rounded-lg border">
+                        {unit.imageUrl ? (
+                          <img src={unit.imageUrl} alt={unit.name} className="w-8 h-8 object-cover rounded" />
+                        ) : (
+                          <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+                            <Home className="w-4 h-4 text-gray-400" />
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-sm font-medium">{unit.name}</p>
+                          {unit.city && <p className="text-xs text-gray-500">{unit.city}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </CardContent>
+    </Card>
+  )
+}
+
+// ============================================
+// UNIT CARD
+// ============================================
+function UnitCard({
+  unit,
+  expanded,
+  onToggle,
+  onEdit,
+  onRefresh,
+  groups
+}: {
+  unit: BillingUnit
+  expanded: boolean
+  onToggle: () => void
+  onEdit: () => void
+  onRefresh: () => void
+  groups: BillingUnitGroup[]
+}) {
+  const [deleting, setDeleting] = useState(false)
+
+  const handleDelete = async () => {
+    if (!confirm('¿Eliminar este apartamento?')) return
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/gestion/billing-units/${unit.id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      if (res.ok) onRefresh()
+      else {
+        const data = await res.json()
+        alert(data.error || 'Error al eliminar')
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  const status = unit.ownerId
+    ? { color: 'bg-green-100 text-green-700', label: 'Configurado', icon: Check }
+    : { color: 'bg-yellow-100 text-yellow-700', label: 'Sin propietario', icon: AlertCircle }
+
+  return (
+    <Card className={unit.ownerId ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-yellow-400'}>
+      <CardContent className="p-0">
+        <div
+          className="p-4 flex items-center justify-between cursor-pointer"
+          onClick={onToggle}
+        >
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              {unit.imageUrl ? (
+                <img src={unit.imageUrl} alt={unit.name} className="w-14 h-14 object-cover rounded-lg" />
+              ) : (
+                <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Home className="w-6 h-6 text-gray-400" />
+                </div>
+              )}
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">{unit.name}</h3>
+              <p className="text-sm text-gray-500">{unit.city || 'Sin ciudad'}</p>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <Badge className={`${status.color} text-xs`}>
+                  <status.icon className="w-3 h-3 mr-1" />
+                  {status.label}
+                </Badge>
+                {unit.owner && (
+                  <Badge className="bg-gray-100 text-gray-700 text-xs">
+                    <User className="w-3 h-3 mr-1" />
+                    {unit.owner.name}
+                  </Badge>
+                )}
+                {unit.reservationsCount > 0 && (
+                  <Badge className="bg-blue-100 text-blue-700 text-xs">
+                    {unit.reservationsCount} reservas
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onEdit() }}>
+              <Edit2 className="w-4 h-4" />
+            </Button>
+            {unit.invoicesCount === 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => { e.stopPropagation(); handleDelete() }}
+                disabled={deleting}
+                className="text-red-600 hover:border-red-300"
+              >
+                {deleting ? <span className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" /> : <Trash2 className="w-4 h-4" />}
+              </Button>
+            )}
+            {expanded ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="border-t border-gray-200 bg-gray-50"
+            >
+              <div className="p-4 grid sm:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-500">Comisión</p>
+                  <p className="font-medium">{unit.commissionValue}%</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Limpieza</p>
+                  <p className="font-medium">{unit.cleaningValue}€</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Reservas</p>
+                  <p className="font-medium">{unit.reservationsCount}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Facturas</p>
+                  <p className="font-medium">{unit.invoicesCount}</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </CardContent>
+    </Card>
+  )
+}
+
+// ============================================
+// IMAGE UPLOAD COMPONENT
+// ============================================
+function ImageUpload({
+  currentUrl,
+  onUpload,
+  label = "Foto"
+}: {
+  currentUrl: string | null
+  onUpload: (url: string) => void
+  label?: string
+}) {
+  const [uploading, setUploading] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        onUpload(data.url)
+      } else {
+        alert('Error al subir la imagen')
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Error al subir la imagen')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <div className="flex items-center gap-3">
+        {currentUrl ? (
+          <img src={currentUrl} alt="Preview" className="w-16 h-16 object-cover rounded-lg" />
+        ) : (
+          <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
+            <ImageIcon className="w-6 h-6 text-gray-400" />
+          </div>
+        )}
+        <div>
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
           <Button
+            type="button"
             variant="outline"
-            onClick={cancelEditing}
-            disabled={saving}
+            size="sm"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
           >
-            Cancelar
-          </Button>
-          <Button
-            onClick={saveUnit}
-            disabled={saving || !editForm.name.trim()}
-            className="bg-violet-600 hover:bg-violet-700"
-          >
-            {saving ? (
-              'Guardando...'
+            {uploading ? (
+              <span className="w-4 h-4 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
-                <Check className="w-4 h-4 mr-2" />
-                {editForm.id ? 'Guardar cambios' : 'Crear apartamento'}
+                <Upload className="w-4 h-4 mr-1" />
+                {currentUrl ? 'Cambiar' : 'Subir'}
               </>
             )}
           </Button>
         </div>
       </div>
-    )
+    </div>
+  )
+}
+
+// ============================================
+// MODAL BASE
+// ============================================
+function Modal({
+  open,
+  onClose,
+  title,
+  children
+}: {
+  open: boolean
+  onClose: () => void
+  title: string
+  children: React.ReactNode
+}) {
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+      >
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">{title}</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="p-6">
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+// ============================================
+// NEW UNIT MODAL
+// ============================================
+function NewUnitModal({
+  open,
+  onClose,
+  owners,
+  groups,
+  onSuccess
+}: {
+  open: boolean
+  onClose: () => void
+  owners: OwnerFull[]
+  groups: BillingUnitGroup[]
+  onSuccess: () => void
+}) {
+  const [form, setForm] = useState({
+    name: '',
+    city: '',
+    imageUrl: '',
+    ownerId: '',
+    groupId: '',
+    commissionValue: '15',
+    cleaningValue: '0'
+  })
+  const [saving, setSaving] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.name.trim()) return
+
+    setSaving(true)
+    try {
+      const res = await fetch('/api/gestion/billing-units', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: form.name.trim(),
+          city: form.city.trim() || null,
+          imageUrl: form.imageUrl || null,
+          ownerId: form.groupId ? null : (form.ownerId || null),
+          groupId: form.groupId || null,
+          commissionValue: parseFloat(form.commissionValue) || 0,
+          cleaningValue: parseFloat(form.cleaningValue) || 0
+        })
+      })
+
+      if (res.ok) {
+        setForm({ name: '', city: '', imageUrl: '', ownerId: '', groupId: '', commissionValue: '15', cleaningValue: '0' })
+        onSuccess()
+      } else {
+        const data = await res.json()
+        alert(data.error || 'Error al crear')
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setSaving(false)
+    }
   }
+
+  return (
+    <Modal open={open} onClose={onClose} title="Nuevo apartamento">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <ImageUpload
+          currentUrl={form.imageUrl || null}
+          onUpload={(url) => setForm(f => ({ ...f, imageUrl: url }))}
+          label="Foto del apartamento"
+        />
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              placeholder="Apartamento Centro"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+            <input
+              type="text"
+              value={form.city}
+              onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
+              placeholder="Madrid"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            />
+          </div>
+        </div>
+
+        {groups.length > 0 && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Añadir a conjunto</label>
+            <select
+              value={form.groupId}
+              onChange={e => setForm(f => ({ ...f, groupId: e.target.value, ownerId: '' }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            >
+              <option value="">Individual (sin conjunto)</option>
+              {groups.map(g => (
+                <option key={g.id} value={g.id}>{g.name}</option>
+              ))}
+            </select>
+            {form.groupId && (
+              <p className="text-xs text-gray-500 mt-1">
+                Hereda propietario y configuración del conjunto
+              </p>
+            )}
+          </div>
+        )}
+
+        {!form.groupId && (
+          <>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Propietario</label>
+              <select
+                value={form.ownerId}
+                onChange={e => setForm(f => ({ ...f, ownerId: e.target.value }))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              >
+                <option value="">Sin propietario (propiedad propia)</option>
+                {owners.map(o => (
+                  <option key={o.id} value={o.id}>
+                    {o.type === 'EMPRESA' ? o.companyName : `${o.firstName} ${o.lastName}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Comisión %</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={form.commissionValue}
+                  onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Limpieza €</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={form.cleaningValue}
+                  onChange={e => setForm(f => ({ ...f, cleaningValue: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                />
+              </div>
+            </div>
+          </>
+        )}
+
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button type="submit" disabled={saving || !form.name.trim()} className="bg-violet-600 hover:bg-violet-700">
+            {saving ? 'Creando...' : 'Crear apartamento'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  )
+}
+
+// ============================================
+// NEW GROUP MODAL
+// ============================================
+function NewGroupModal({
+  open,
+  onClose,
+  owners,
+  standaloneUnits,
+  onSuccess
+}: {
+  open: boolean
+  onClose: () => void
+  owners: OwnerFull[]
+  standaloneUnits: BillingUnit[]
+  onSuccess: () => void
+}) {
+  const [form, setForm] = useState({
+    name: '',
+    imageUrl: '',
+    ownerId: '',
+    commissionValue: '15',
+    cleaningValue: '0',
+    selectedUnits: [] as string[]
+  })
+  const [saving, setSaving] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.name.trim() || !form.ownerId) return
+
+    setSaving(true)
+    try {
+      const res = await fetch('/api/gestion/billing-unit-groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: form.name.trim(),
+          imageUrl: form.imageUrl || null,
+          ownerId: form.ownerId,
+          commissionValue: parseFloat(form.commissionValue) || 0,
+          cleaningValue: parseFloat(form.cleaningValue) || 0,
+          billingUnitIds: form.selectedUnits
+        })
+      })
+
+      if (res.ok) {
+        setForm({ name: '', imageUrl: '', ownerId: '', commissionValue: '15', cleaningValue: '0', selectedUnits: [] })
+        onSuccess()
+      } else {
+        const data = await res.json()
+        alert(data.error || 'Error al crear')
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const toggleUnit = (id: string) => {
+    setForm(f => ({
+      ...f,
+      selectedUnits: f.selectedUnits.includes(id)
+        ? f.selectedUnits.filter(u => u !== id)
+        : [...f.selectedUnits, id]
+    }))
+  }
+
+  return (
+    <Modal open={open} onClose={onClose} title="Nuevo conjunto">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <ImageUpload
+          currentUrl={form.imageUrl || null}
+          onUpload={(url) => setForm(f => ({ ...f, imageUrl: url }))}
+          label="Foto del conjunto"
+        />
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del conjunto *</label>
+          <input
+            type="text"
+            value={form.name}
+            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            placeholder="Apartamentos Juan García"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Propietario *</label>
+          <select
+            value={form.ownerId}
+            onChange={e => setForm(f => ({ ...f, ownerId: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            required
+          >
+            <option value="">Selecciona propietario</option>
+            {owners.map(o => (
+              <option key={o.id} value={o.id}>
+                {o.type === 'EMPRESA' ? o.companyName : `${o.firstName} ${o.lastName}`}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Todos los apartamentos del conjunto facturan a este propietario
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Comisión %</label>
+            <input
+              type="number"
+              step="0.1"
+              value={form.commissionValue}
+              onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Limpieza €</label>
+            <input
+              type="number"
+              step="0.01"
+              value={form.cleaningValue}
+              onChange={e => setForm(f => ({ ...f, cleaningValue: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            />
+          </div>
+        </div>
+
+        {standaloneUnits.length > 0 && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Añadir apartamentos existentes
+            </label>
+            <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg">
+              {standaloneUnits.map(unit => (
+                <label
+                  key={unit.id}
+                  className="flex items-center gap-3 p-2 hover:bg-gray-50 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={form.selectedUnits.includes(unit.id)}
+                    onChange={() => toggleUnit(unit.id)}
+                    className="rounded text-violet-600 focus:ring-violet-500"
+                  />
+                  <span className="text-sm">{unit.name}</span>
+                  {unit.city && <span className="text-xs text-gray-400">({unit.city})</span>}
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button
+            type="submit"
+            disabled={saving || !form.name.trim() || !form.ownerId}
+            className="bg-violet-600 hover:bg-violet-700"
+          >
+            {saving ? 'Creando...' : 'Crear conjunto'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  )
+}
+
+// ============================================
+// EDIT UNIT MODAL
+// ============================================
+function EditUnitModal({
+  unit,
+  onClose,
+  owners,
+  groups,
+  onSuccess
+}: {
+  unit: BillingUnit | null
+  onClose: () => void
+  owners: OwnerFull[]
+  groups: BillingUnitGroup[]
+  onSuccess: () => void
+}) {
+  const [form, setForm] = useState({
+    name: '',
+    city: '',
+    imageUrl: '',
+    ownerId: '',
+    groupId: '',
+    commissionValue: '15',
+    cleaningValue: '0'
+  })
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    if (unit) {
+      setForm({
+        name: unit.name || '',
+        city: unit.city || '',
+        imageUrl: unit.imageUrl || '',
+        ownerId: unit.ownerId || '',
+        groupId: unit.groupId || '',
+        commissionValue: String(unit.commissionValue || 15),
+        cleaningValue: String(unit.cleaningValue || 0)
+      })
+    }
+  }, [unit])
+
+  if (!unit) return null
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.name.trim()) return
+
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/gestion/billing-units/${unit.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: form.name.trim(),
+          city: form.city.trim() || null,
+          imageUrl: form.imageUrl || null,
+          ownerId: form.groupId ? null : (form.ownerId || null),
+          groupId: form.groupId || null,
+          commissionValue: parseFloat(form.commissionValue) || 0,
+          cleaningValue: parseFloat(form.cleaningValue) || 0
+        })
+      })
+
+      if (res.ok) {
+        onSuccess()
+      } else {
+        const data = await res.json()
+        alert(data.error || 'Error al guardar')
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal open={!!unit} onClose={onClose} title="Editar apartamento">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <ImageUpload
+          currentUrl={form.imageUrl || null}
+          onUpload={(url) => setForm(f => ({ ...f, imageUrl: url }))}
+          label="Foto del apartamento"
+        />
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+            <input
+              type="text"
+              value={form.city}
+              onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            />
+          </div>
+        </div>
+
+        {groups.length > 0 && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Conjunto</label>
+            <select
+              value={form.groupId}
+              onChange={e => setForm(f => ({ ...f, groupId: e.target.value, ownerId: '' }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            >
+              <option value="">Individual (sin conjunto)</option>
+              {groups.map(g => (
+                <option key={g.id} value={g.id}>{g.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {!form.groupId && (
+          <>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Propietario</label>
+              <select
+                value={form.ownerId}
+                onChange={e => setForm(f => ({ ...f, ownerId: e.target.value }))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              >
+                <option value="">Sin propietario</option>
+                {owners.map(o => (
+                  <option key={o.id} value={o.id}>
+                    {o.type === 'EMPRESA' ? o.companyName : `${o.firstName} ${o.lastName}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Comisión %</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={form.commissionValue}
+                  onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Limpieza €</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={form.cleaningValue}
+                  onChange={e => setForm(f => ({ ...f, cleaningValue: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                />
+              </div>
+            </div>
+          </>
+        )}
+
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button type="submit" disabled={saving || !form.name.trim()} className="bg-violet-600 hover:bg-violet-700">
+            {saving ? 'Guardando...' : 'Guardar cambios'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  )
+}
+
+// ============================================
+// EDIT GROUP MODAL
+// ============================================
+function EditGroupModal({
+  group,
+  onClose,
+  owners,
+  availableUnits,
+  onSuccess
+}: {
+  group: BillingUnitGroup | null
+  onClose: () => void
+  owners: OwnerFull[]
+  availableUnits: BillingUnit[]
+  onSuccess: () => void
+}) {
+  const [form, setForm] = useState({
+    name: '',
+    imageUrl: '',
+    ownerId: '',
+    commissionValue: '15',
+    cleaningValue: '0'
+  })
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    if (group) {
+      setForm({
+        name: group.name || '',
+        imageUrl: group.imageUrl || '',
+        ownerId: group.ownerId || '',
+        commissionValue: String(group.commissionValue || 15),
+        cleaningValue: '0'
+      })
+    }
+  }, [group])
+
+  if (!group) return null
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.name.trim() || !form.ownerId) return
+
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/gestion/billing-unit-groups/${group.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: form.name.trim(),
+          imageUrl: form.imageUrl || null,
+          ownerId: form.ownerId,
+          commissionValue: parseFloat(form.commissionValue) || 0
+        })
+      })
+
+      if (res.ok) {
+        onSuccess()
+      } else {
+        const data = await res.json()
+        alert(data.error || 'Error al guardar')
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal open={!!group} onClose={onClose} title="Editar conjunto">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <ImageUpload
+          currentUrl={form.imageUrl || null}
+          onUpload={(url) => setForm(f => ({ ...f, imageUrl: url }))}
+          label="Foto del conjunto"
+        />
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+          <input
+            type="text"
+            value={form.name}
+            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Propietario *</label>
+          <select
+            value={form.ownerId}
+            onChange={e => setForm(f => ({ ...f, ownerId: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            required
+          >
+            <option value="">Selecciona propietario</option>
+            {owners.map(o => (
+              <option key={o.id} value={o.id}>
+                {o.type === 'EMPRESA' ? o.companyName : `${o.firstName} ${o.lastName}`}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Comisión %</label>
+          <input
+            type="number"
+            step="0.1"
+            value={form.commissionValue}
+            onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+          />
+        </div>
+
+        {/* Apartamentos actuales */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Apartamentos en el conjunto ({group.billingUnits.length})
+          </label>
+          {group.billingUnits.length > 0 ? (
+            <div className="border border-gray-200 rounded-lg divide-y">
+              {group.billingUnits.map(unit => (
+                <div key={unit.id} className="flex items-center justify-between p-2">
+                  <span className="text-sm">{unit.name}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-400 italic">Sin apartamentos</p>
+          )}
+        </div>
+
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button type="submit" disabled={saving || !form.name.trim() || !form.ownerId} className="bg-violet-600 hover:bg-violet-700">
+            {saving ? 'Guardando...' : 'Guardar cambios'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  )
 }
