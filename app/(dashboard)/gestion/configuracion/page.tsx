@@ -42,7 +42,9 @@ interface BillingUnit {
   owner: Owner | null
   commissionType: string
   commissionValue: number
+  commissionVat: number
   cleaningValue: number
+  cleaningVatIncluded: boolean
   airbnbNames: string[]
   bookingNames: string[]
   vrboNames: string[]
@@ -628,11 +630,11 @@ function UnitCard({
               <div className="p-4 grid sm:grid-cols-4 gap-4 text-sm">
                 <div>
                   <p className="text-gray-500">Comisión</p>
-                  <p className="font-medium">{unit.commissionValue}%</p>
+                  <p className="font-medium">{unit.commissionValue}% + {unit.commissionVat}% IVA</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Limpieza</p>
-                  <p className="font-medium">{unit.cleaningValue}€</p>
+                  <p className="font-medium">{unit.cleaningValue.toFixed(2)}€ {unit.cleaningVatIncluded ? '(IVA incl.)' : '(+ IVA)'}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Reservas</p>
@@ -807,7 +809,9 @@ function NewUnitModal({
     ownerId: '',
     groupId: '',
     commissionValue: '15',
+    commissionVat: '21',
     cleaningValue: '0',
+    cleaningVatIncluded: true,
     airbnbNames: '',
     bookingNames: '',
     vrboNames: ''
@@ -834,7 +838,9 @@ function NewUnitModal({
           ownerId: form.groupId ? null : (form.ownerId || null),
           groupId: form.groupId || null,
           commissionValue: parseFloat(form.commissionValue) || 0,
+          commissionVat: parseFloat(form.commissionVat) || 21,
           cleaningValue: parseFloat(form.cleaningValue) || 0,
+          cleaningVatIncluded: form.cleaningVatIncluded,
           airbnbNames: form.airbnbNames.split(',').map(n => n.trim()).filter(Boolean),
           bookingNames: form.bookingNames.split(',').map(n => n.trim()).filter(Boolean),
           vrboNames: form.vrboNames.split(',').map(n => n.trim()).filter(Boolean)
@@ -842,7 +848,7 @@ function NewUnitModal({
       })
 
       if (res.ok) {
-        setForm({ name: '', city: '', address: '', postalCode: '', imageUrl: '', ownerId: '', groupId: '', commissionValue: '15', cleaningValue: '0', airbnbNames: '', bookingNames: '', vrboNames: '' })
+        setForm({ name: '', city: '', address: '', postalCode: '', imageUrl: '', ownerId: '', groupId: '', commissionValue: '15', commissionVat: '21', cleaningValue: '0', cleaningVatIncluded: true, airbnbNames: '', bookingNames: '', vrboNames: '' })
         setShowPlatformNames(false)
         onSuccess()
       } else {
@@ -950,26 +956,65 @@ function NewUnitModal({
               </select>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="space-y-4">
+              {/* Comisión de gestión */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Comisión %</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={form.commissionValue}
-                  onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Comisión de gestión</label>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={form.commissionValue}
+                        onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-8 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">%</span>
+                    </div>
+                  </div>
+                  <span className="text-gray-400">+</span>
+                  <div className="w-24">
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="1"
+                        value={form.commissionVat}
+                        onChange={e => setForm(f => ({ ...f, commissionVat: e.target.value }))}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-12 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">% IVA</span>
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              {/* Tasa de limpieza */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Limpieza €</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={form.cleaningValue}
-                  onChange={e => setForm(f => ({ ...f, cleaningValue: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tasa de limpieza</label>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={form.cleaningValue}
+                        onChange={e => setForm(f => ({ ...f, cleaningValue: e.target.value }))}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-8 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">€</span>
+                    </div>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.cleaningVatIncluded}
+                      onChange={e => setForm(f => ({ ...f, cleaningVatIncluded: e.target.checked }))}
+                      className="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500"
+                    />
+                    <span className="text-sm text-gray-600">IVA incluido</span>
+                  </label>
+                </div>
               </div>
             </div>
           </>
@@ -1227,13 +1272,18 @@ function EditUnitModal({
   const [form, setForm] = useState({
     name: '',
     city: '',
+    address: '',
+    postalCode: '',
     imageUrl: '',
     ownerId: '',
     groupId: '',
     commissionValue: '15',
+    commissionVat: '21',
     cleaningValue: '0',
+    cleaningVatIncluded: true,
     airbnbNames: '',
-    bookingNames: ''
+    bookingNames: '',
+    vrboNames: ''
   })
   const [saving, setSaving] = useState(false)
 
@@ -1242,13 +1292,18 @@ function EditUnitModal({
       setForm({
         name: unit.name || '',
         city: unit.city || '',
+        address: unit.address || '',
+        postalCode: unit.postalCode || '',
         imageUrl: unit.imageUrl || '',
         ownerId: unit.ownerId || '',
         groupId: unit.groupId || '',
         commissionValue: String(unit.commissionValue || 15),
+        commissionVat: String(unit.commissionVat || 21),
         cleaningValue: String(unit.cleaningValue || 0),
+        cleaningVatIncluded: unit.cleaningVatIncluded ?? true,
         airbnbNames: (unit.airbnbNames || []).join(', '),
-        bookingNames: (unit.bookingNames || []).join(', ')
+        bookingNames: (unit.bookingNames || []).join(', '),
+        vrboNames: (unit.vrboNames || []).join(', ')
       })
     }
   }, [unit])
@@ -1272,13 +1327,18 @@ function EditUnitModal({
         body: JSON.stringify({
           name: form.name.trim(),
           city: form.city.trim() || null,
+          address: form.address.trim() || null,
+          postalCode: form.postalCode.trim() || null,
           imageUrl: form.imageUrl || null,
           ownerId: form.groupId ? null : (form.ownerId || null),
           groupId: form.groupId || null,
           commissionValue: parseFloat(form.commissionValue) || 0,
+          commissionVat: parseFloat(form.commissionVat) || 21,
           cleaningValue: parseFloat(form.cleaningValue) || 0,
+          cleaningVatIncluded: form.cleaningVatIncluded,
           airbnbNames: parseNames(form.airbnbNames),
-          bookingNames: parseNames(form.bookingNames)
+          bookingNames: parseNames(form.bookingNames),
+          vrboNames: parseNames(form.vrboNames)
         })
       })
 
@@ -1326,6 +1386,28 @@ function EditUnitModal({
           </div>
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+          <input
+            type="text"
+            value={form.address}
+            onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+            placeholder="Calle Gran Vía 45, 3º A"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+          />
+        </div>
+
+        <div className="w-32">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Código postal</label>
+          <input
+            type="text"
+            value={form.postalCode}
+            onChange={e => setForm(f => ({ ...f, postalCode: e.target.value }))}
+            placeholder="28013"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+          />
+        </div>
+
         {groups.length > 0 && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Conjunto</label>
@@ -1360,26 +1442,65 @@ function EditUnitModal({
               </select>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="space-y-4">
+              {/* Comisión de gestión */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Comisión %</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={form.commissionValue}
-                  onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Comisión de gestión</label>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={form.commissionValue}
+                        onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-8 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">%</span>
+                    </div>
+                  </div>
+                  <span className="text-gray-400">+</span>
+                  <div className="w-24">
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="1"
+                        value={form.commissionVat}
+                        onChange={e => setForm(f => ({ ...f, commissionVat: e.target.value }))}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-12 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">% IVA</span>
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              {/* Tasa de limpieza */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Limpieza €</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={form.cleaningValue}
-                  onChange={e => setForm(f => ({ ...f, cleaningValue: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tasa de limpieza</label>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={form.cleaningValue}
+                        onChange={e => setForm(f => ({ ...f, cleaningValue: e.target.value }))}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-8 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">€</span>
+                    </div>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.cleaningVatIncluded}
+                      onChange={e => setForm(f => ({ ...f, cleaningVatIncluded: e.target.checked }))}
+                      className="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500"
+                    />
+                    <span className="text-sm text-gray-600">IVA incluido</span>
+                  </label>
+                </div>
               </div>
             </div>
           </>
@@ -1411,6 +1532,19 @@ function EditUnitModal({
                 type="text"
                 value={form.bookingNames}
                 onChange={e => setForm(f => ({ ...f, bookingNames: e.target.value }))}
+                placeholder="Casa Azul"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nombres en Vrbo
+                <span className="text-gray-400 font-normal ml-1">(separados por coma)</span>
+              </label>
+              <input
+                type="text"
+                value={form.vrboNames}
+                onChange={e => setForm(f => ({ ...f, vrboNames: e.target.value }))}
                 placeholder="Casa Azul"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
               />

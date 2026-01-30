@@ -102,6 +102,8 @@ export async function PATCH(
     // Campos básicos
     if (body.name !== undefined) updateData.name = body.name.trim()
     if (body.city !== undefined) updateData.city = body.city?.trim() || null
+    if (body.address !== undefined) updateData.address = body.address?.trim() || null
+    if (body.postalCode !== undefined) updateData.postalCode = body.postalCode?.trim() || null
     if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl || null
     if (body.ownerId !== undefined) updateData.ownerId = body.ownerId || null
 
@@ -166,6 +168,8 @@ export async function PATCH(
         id: updated.id,
         name: updated.name,
         city: updated.city,
+        address: updated.address,
+        postalCode: updated.postalCode,
         imageUrl: updated.imageUrl,
         ownerId: updated.ownerId,
         owner: updated.owner ? {
@@ -175,8 +179,10 @@ export async function PATCH(
             : `${updated.owner.firstName} ${updated.owner.lastName}`.trim()
         } : null,
         commissionType: updated.commissionType,
-        commissionValue: updated.commissionValue,
-        cleaningValue: updated.cleaningValue,
+        commissionValue: Number(updated.commissionValue),
+        commissionVat: Number(updated.commissionVat),
+        cleaningValue: Number(updated.cleaningValue),
+        cleaningVatIncluded: updated.cleaningVatIncluded,
         airbnbNames: updated.airbnbNames,
         bookingNames: updated.bookingNames,
         vrboNames: updated.vrboNames,

@@ -55,8 +55,10 @@ export async function GET(request: NextRequest) {
         } : null,
         // Configuración básica
         commissionType: unit.commissionType,
-        commissionValue: unit.commissionValue,
-        cleaningValue: unit.cleaningValue,
+        commissionValue: Number(unit.commissionValue),
+        commissionVat: Number(unit.commissionVat),
+        cleaningValue: Number(unit.cleaningValue),
+        cleaningVatIncluded: unit.cleaningVatIncluded,
         // Matching
         airbnbNames: unit.airbnbNames,
         bookingNames: unit.bookingNames,
