@@ -225,13 +225,16 @@ export async function GET(request: NextRequest) {
             phone: true
           }
         },
-        property: {
-          select: {
-            id: true,
-            name: true,
-            city: true
+        // Only include property for legacy Properties, not BillingUnits
+        ...(isUnit ? {} : {
+          property: {
+            select: {
+              id: true,
+              name: true,
+              city: true
+            }
           }
-        },
+        }),
         series: {
           select: {
             id: true,
@@ -488,13 +491,16 @@ export async function GET(request: NextRequest) {
             phone: true
           }
         },
-        property: {
-          select: {
-            id: true,
-            name: true,
-            city: true
+        // Only include property for legacy Properties, not BillingUnits
+        ...(isUnit ? {} : {
+          property: {
+            select: {
+              id: true,
+              name: true,
+              city: true
+            }
           }
-        },
+        }),
         series: {
           select: {
             id: true,
