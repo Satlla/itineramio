@@ -199,14 +199,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Try to find existing draft invoice for this property/month
+    const invoiceWhereClause = isUnit
+      ? { userId, billingUnitId: propertyId, periodYear: year, periodMonth: month, status: 'DRAFT' as const }
+      : { userId, propertyId, periodYear: year, periodMonth: month, status: 'DRAFT' as const }
+
     let invoice = await prisma.clientInvoice.findFirst({
-      where: {
-        userId,
-        propertyId,
-        periodYear: year,
-        periodMonth: month,
-        status: 'DRAFT'
-      },
+      where: invoiceWhereClause,
       include: {
         owner: {
           select: {
@@ -225,16 +223,20 @@ export async function GET(request: NextRequest) {
             phone: true
           }
         },
-        // Only include property for legacy Properties, not BillingUnits
-        ...(isUnit ? {} : {
-          property: {
-            select: {
-              id: true,
-              name: true,
-              city: true
-            }
+        billingUnit: isUnit ? {
+          select: {
+            id: true,
+            name: true,
+            city: true
           }
-        }),
+        } : false,
+        property: !isUnit ? {
+          select: {
+            id: true,
+            name: true,
+            city: true
+          }
+        } : false,
         series: {
           select: {
             id: true,
@@ -491,16 +493,20 @@ export async function GET(request: NextRequest) {
             phone: true
           }
         },
-        // Only include property for legacy Properties, not BillingUnits
-        ...(isUnit ? {} : {
-          property: {
-            select: {
-              id: true,
-              name: true,
-              city: true
-            }
+        billingUnit: isUnit ? {
+          select: {
+            id: true,
+            name: true,
+            city: true
           }
-        }),
+        } : false,
+        property: !isUnit ? {
+          select: {
+            id: true,
+            name: true,
+            city: true
+          }
+        } : false,
         series: {
           select: {
             id: true,
@@ -545,38 +551,41 @@ export async function GET(request: NextRequest) {
         const numberResult = await getNextInvoiceNumber(seriesId)
 
         // Create new invoice with number assigned
+        // Use correct field based on whether it's a BillingUnit or legacy Property
+        const invoiceData = {
+          userId,
+          ownerId,
+          seriesId,
+          number: numberResult.number,
+          fullNumber: numberResult.fullNumber,
+          periodYear: year,
+          periodMonth: month,
+          issueDate: new Date(),
+          subtotal,
+          totalVat: totalVatAmount,
+          retentionRate: retentionRate,
+          retentionAmount: totalRetentionAmount,
+          total,
+          status: 'DRAFT' as const,
+          isLocked: false,
+          ...(isUnit ? { billingUnitId: propertyId } : { propertyId }),
+          items: {
+            create: items.map(item => ({
+              concept: item.concept,
+              description: item.description || null,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              vatRate: item.vatRate,
+              retentionRate: item.retentionRate,
+              total: item.total,
+              reservationId: item.reservationId || null,
+              order: item.order
+            }))
+          }
+        }
+
         invoice = await prisma.clientInvoice.create({
-          data: {
-            userId,
-            ownerId,
-            propertyId,
-            seriesId,
-            number: numberResult.number,
-            fullNumber: numberResult.fullNumber,
-            periodYear: year,
-            periodMonth: month,
-            issueDate: new Date(),
-            subtotal,
-            totalVat: totalVatAmount,
-            retentionRate: retentionRate,
-            retentionAmount: totalRetentionAmount,
-            total,
-            status: 'DRAFT',
-            isLocked: false,
-            items: {
-              create: items.map(item => ({
-                concept: item.concept,
-                description: item.description || null,
-                quantity: item.quantity,
-                unitPrice: item.unitPrice,
-                vatRate: item.vatRate,
-                retentionRate: item.retentionRate,
-                total: item.total,
-                reservationId: item.reservationId || null,
-                order: item.order
-              }))
-            }
-          },
+          data: invoiceData,
           include: invoiceInclude
         })
       }
@@ -592,7 +601,7 @@ export async function GET(request: NextRequest) {
 
     // Build property info for response (works for both Property and BillingUnit)
     const propertyInfo = isUnit
-      ? { id: propertyId, name: propertyName, city: propertyCity }
+      ? (invoice.billingUnit || { id: propertyId, name: propertyName, city: propertyCity })
       : invoice.property
 
     return NextResponse.json({
@@ -600,7 +609,7 @@ export async function GET(request: NextRequest) {
         id: invoice.id,
         number: invoice.number,
         fullNumber: invoice.fullNumber,
-        propertyId: invoice.propertyId || propertyId,
+        propertyId: isUnit ? (invoice.billingUnitId || propertyId) : (invoice.propertyId || propertyId),
         periodYear: invoice.periodYear,
         periodMonth: invoice.periodMonth,
         issueDate: invoice.issueDate.toISOString(),
