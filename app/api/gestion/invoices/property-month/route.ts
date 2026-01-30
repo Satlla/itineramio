@@ -74,11 +74,11 @@ export async function GET(request: NextRequest) {
       billingConfig = {
         id: billingUnit.id,
         commissionValue: billingUnit.commissionValue,
-        commissionVat: 21, // Default VAT
+        commissionVat: Number(billingUnit.commissionVat) || 21,
         cleaningValue: billingUnit.cleaningValue,
-        cleaningVatIncluded: true,
-        invoiceDetailLevel: 'DETAILED',
-        singleConceptText: 'Gestión apartamento turístico',
+        cleaningVatIncluded: billingUnit.cleaningVatIncluded ?? true,
+        invoiceDetailLevel: billingUnit.invoiceDetailLevel || 'DETAILED',
+        singleConceptText: billingUnit.singleConceptText || 'Gestión apartamento turístico',
         owner: billingUnit.owner
       }
     } else {

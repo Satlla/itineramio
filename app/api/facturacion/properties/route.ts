@@ -211,7 +211,7 @@ export async function GET(request: NextRequest) {
         } : null,
         billingConfig: {
           commissionValue: Number(unit.commissionValue),
-          incomeReceiver: 'OWNER' // BillingUnits default to OWNER
+          incomeReceiver: unit.incomeReceiver || 'OWNER'
         },
         stats: {
           totalReservations,

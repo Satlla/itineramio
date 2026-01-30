@@ -157,9 +157,9 @@ export default function ImportarReservasPage() {
     fetchHistory()
   }, [importResult])
 
-  // Analyze file when both file and property are selected
+  // Analyze file when file is uploaded (property selection is optional for initial analysis)
   useEffect(() => {
-    if (!file || !selectedPropertyId) {
+    if (!file) {
       setPreviewAnalysis(null)
       return
     }
@@ -169,7 +169,9 @@ export default function ImportarReservasPage() {
       try {
         const formData = new FormData()
         formData.append('file', file)
-        formData.append('propertyId', selectedPropertyId)
+        if (selectedPropertyId) {
+          formData.append('propertyId', selectedPropertyId)
+        }
 
         const res = await fetch('/api/gestion/reservations/import-preview', {
           method: 'POST',
@@ -181,6 +183,10 @@ export default function ImportarReservasPage() {
           setPreviewAnalysis(data.analysis)
           if (data.platform && data.platform !== 'UNKNOWN') {
             setDetectedPlatform(data.platform)
+          }
+          // Auto-select property if backend suggests one with high confidence
+          if (data.autoSelectedPropertyId && !selectedPropertyId) {
+            setSelectedPropertyId(data.autoSelectedPropertyId)
           }
         }
       } catch (error) {

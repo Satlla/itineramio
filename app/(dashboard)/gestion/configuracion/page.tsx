@@ -34,6 +34,8 @@ interface BillingUnit {
   id: string
   name: string
   city: string | null
+  address: string | null
+  postalCode: string | null
   imageUrl: string | null
   groupId: string | null
   ownerId: string | null
@@ -799,12 +801,18 @@ function NewUnitModal({
   const [form, setForm] = useState({
     name: '',
     city: '',
+    address: '',
+    postalCode: '',
     imageUrl: '',
     ownerId: '',
     groupId: '',
     commissionValue: '15',
-    cleaningValue: '0'
+    cleaningValue: '0',
+    airbnbNames: '',
+    bookingNames: '',
+    vrboNames: ''
   })
+  const [showPlatformNames, setShowPlatformNames] = useState(false)
   const [saving, setSaving] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -820,16 +828,22 @@ function NewUnitModal({
         body: JSON.stringify({
           name: form.name.trim(),
           city: form.city.trim() || null,
+          address: form.address.trim() || null,
+          postalCode: form.postalCode.trim() || null,
           imageUrl: form.imageUrl || null,
           ownerId: form.groupId ? null : (form.ownerId || null),
           groupId: form.groupId || null,
           commissionValue: parseFloat(form.commissionValue) || 0,
-          cleaningValue: parseFloat(form.cleaningValue) || 0
+          cleaningValue: parseFloat(form.cleaningValue) || 0,
+          airbnbNames: form.airbnbNames.split(',').map(n => n.trim()).filter(Boolean),
+          bookingNames: form.bookingNames.split(',').map(n => n.trim()).filter(Boolean),
+          vrboNames: form.vrboNames.split(',').map(n => n.trim()).filter(Boolean)
         })
       })
 
       if (res.ok) {
-        setForm({ name: '', city: '', imageUrl: '', ownerId: '', groupId: '', commissionValue: '15', cleaningValue: '0' })
+        setForm({ name: '', city: '', address: '', postalCode: '', imageUrl: '', ownerId: '', groupId: '', commissionValue: '15', cleaningValue: '0', airbnbNames: '', bookingNames: '', vrboNames: '' })
+        setShowPlatformNames(false)
         onSuccess()
       } else {
         const data = await res.json()
@@ -873,6 +887,28 @@ function NewUnitModal({
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+          <input
+            type="text"
+            value={form.address}
+            onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+            placeholder="Calle Gran Vía 45, 3º A"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+          />
+        </div>
+
+        <div className="w-32">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Código postal</label>
+          <input
+            type="text"
+            value={form.postalCode}
+            onChange={e => setForm(f => ({ ...f, postalCode: e.target.value }))}
+            placeholder="28013"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+          />
         </div>
 
         {groups.length > 0 && (
@@ -938,6 +974,55 @@ function NewUnitModal({
             </div>
           </>
         )}
+
+        {/* Nombres en plataformas (colapsable) */}
+        <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setShowPlatformNames(!showPlatformNames)}
+            className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors"
+          >
+            <span className="text-sm font-medium text-gray-700">Nombres en plataformas (para importación)</span>
+            <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showPlatformNames ? 'rotate-180' : ''}`} />
+          </button>
+          {showPlatformNames && (
+            <div className="p-4 space-y-3 border-t border-gray-200">
+              <p className="text-xs text-gray-500 mb-3">
+                Si el nombre en la plataforma es diferente al nombre interno, añádelo aquí para que las reservas importadas se asignen automáticamente.
+              </p>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Airbnb</label>
+                <input
+                  type="text"
+                  value={form.airbnbNames}
+                  onChange={e => setForm(f => ({ ...f, airbnbNames: e.target.value }))}
+                  placeholder="Nombre en Airbnb (separar con comas si hay varios)"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Booking.com</label>
+                <input
+                  type="text"
+                  value={form.bookingNames}
+                  onChange={e => setForm(f => ({ ...f, bookingNames: e.target.value }))}
+                  placeholder="Nombre en Booking (separar con comas si hay varios)"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Vrbo</label>
+                <input
+                  type="text"
+                  value={form.vrboNames}
+                  onChange={e => setForm(f => ({ ...f, vrboNames: e.target.value }))}
+                  placeholder="Nombre en Vrbo (separar con comas si hay varios)"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                />
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t">
           <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>

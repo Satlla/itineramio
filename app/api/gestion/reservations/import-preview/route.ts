@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import * as XLSX from 'xlsx'
+import { findBestMatch } from '@/lib/property-matcher'
 
 /**
  * POST /api/gestion/reservations/import-preview
@@ -93,6 +94,28 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Obtener BillingUnits del usuario para el matching automático
+    const billingUnits = await prisma.billingUnit.findMany({
+      where: { userId, isActive: true },
+      select: {
+        id: true,
+        name: true,
+        airbnbNames: true,
+        bookingNames: true,
+        vrboNames: true
+      }
+    })
+
+    // Convertir a formato para property-matcher
+    const propertyConfigs = billingUnits.map(unit => ({
+      id: unit.id,
+      propertyId: unit.id,
+      propertyName: unit.name,
+      airbnbNames: unit.airbnbNames,
+      bookingNames: unit.bookingNames,
+      vrboNames: unit.vrboNames
+    }))
+
     // Analizar filas del CSV
     const analysis = {
       totalRows: dataRows.length,
@@ -177,15 +200,30 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Convertir Map a array para JSON
-    const listingsArray = Array.from(analysis.listingsFound.entries()).map(([name, count]) => ({
-      name,
-      count
-    })).sort((a, b) => b.count - a.count)
+    // Convertir Map a array para JSON y hacer matching de propiedades
+    const platformForMatch = detectedPlatform === 'BOOKING' ? 'booking' : 'airbnb'
+    const listingsArray = Array.from(analysis.listingsFound.entries()).map(([name, count]) => {
+      // Intentar hacer match con una propiedad existente
+      const match = findBestMatch(name, propertyConfigs, platformForMatch as 'airbnb' | 'booking' | 'vrbo', 70)
+      return {
+        name,
+        count,
+        suggestedPropertyId: match?.propertyId || null,
+        suggestedPropertyName: match?.propertyName || null,
+        matchConfidence: match?.confidence || 0,
+        matchType: match?.matchType || null
+      }
+    }).sort((a, b) => b.count - a.count)
+
+    // Si hay un solo listing y tiene match con alta confianza, pre-seleccionar
+    const autoSelectedPropertyId = listingsArray.length === 1 && listingsArray[0].matchConfidence >= 90
+      ? listingsArray[0].suggestedPropertyId
+      : null
 
     return NextResponse.json({
       success: true,
       platform: detectedPlatform,
+      autoSelectedPropertyId,
       analysis: {
         totalRows: analysis.totalRows,
         validRows: analysis.validRows,

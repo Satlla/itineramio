@@ -92,9 +92,9 @@ export async function GET(
           email: owner.email
         } : null,
         billingConfig: {
-          commissionType: 'PERCENTAGE',
+          commissionType: billingUnit.commissionType || 'PERCENTAGE',
           commissionValue: Number(billingUnit.commissionValue),
-          incomeReceiver: 'OWNER',
+          incomeReceiver: billingUnit.incomeReceiver || 'OWNER',
           cleaningValue: Number(billingUnit.cleaningValue)
         }
       }

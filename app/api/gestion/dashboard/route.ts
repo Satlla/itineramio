@@ -185,25 +185,30 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Get existing liquidations for this year
+    // Get existing liquidations for this year (indexed by ownerId-month)
     const existingLiquidations = await prisma.liquidation.findMany({
       where: { userId, year: currentYear },
-      select: { month: true }
+      select: { month: true, ownerId: true }
     })
-    const liquidatedMonths = new Set(existingLiquidations.map(l => l.month))
+    const liquidatedOwnerMonths = new Set(
+      existingLiquidations.map(l => `${l.ownerId}-${l.month}`)
+    )
 
-    // Count months with reservations that don't have liquidations
-    let pendingLiquidations = 0
+    // Count unique owner-month pairs that need liquidation
+    const pendingOwnerMonths = new Set<string>()
     billingUnitsWithReservations.forEach(unit => {
+      if (!unit.ownerId) return // Skip units without owner
       const monthsWithReservations = new Set<number>(
         unit.reservations.map(r => new Date(r.checkIn).getMonth() + 1)
       )
       monthsWithReservations.forEach(month => {
-        if (!liquidatedMonths.has(month) && month <= currentMonth) {
-          pendingLiquidations++
+        const key = `${unit.ownerId}-${month}`
+        if (!liquidatedOwnerMonths.has(key) && month <= currentMonth) {
+          pendingOwnerMonths.add(key)
         }
       })
     })
+    const pendingLiquidations = pendingOwnerMonths.size
 
     // Recent reservations count
     const recentReservations = await prisma.reservation.count({

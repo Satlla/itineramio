@@ -2398,9 +2398,11 @@ model BillingUnit {
   groupId String?
 
   // Datos básicos del apartamento
-  name     String  // Nombre del apartamento
-  city     String? // Ciudad
-  imageUrl String? // Imagen del apartamento
+  name       String  // Nombre del apartamento
+  city       String? // Ciudad
+  address    String? // Dirección (calle y número)
+  postalCode String? // Código postal
+  imageUrl   String? // Imagen del apartamento
 
   // Propietario (null si pertenece a grupo o es propiedad propia)
   // Si groupId != null, se usa el propietario del grupo

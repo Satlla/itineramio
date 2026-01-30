@@ -43,6 +43,8 @@ export async function GET(request: NextRequest) {
         id: unit.id,
         name: unit.name,
         city: unit.city,
+        address: unit.address,
+        postalCode: unit.postalCode,
         imageUrl: unit.imageUrl,
         ownerId: unit.ownerId,
         owner: unit.owner ? {
@@ -93,6 +95,8 @@ export async function POST(request: NextRequest) {
     const {
       name,
       city,
+      address,
+      postalCode,
       imageUrl,
       ownerId,
       airbnbNames,
@@ -143,6 +147,8 @@ export async function POST(request: NextRequest) {
         userId,
         name: name.trim(),
         city: city?.trim() || null,
+        address: address?.trim() || null,
+        postalCode: postalCode?.trim() || null,
         imageUrl: imageUrl || null,
         ownerId: ownerId || null,
         airbnbNames: airbnbNames || [],
@@ -185,6 +191,8 @@ export async function POST(request: NextRequest) {
         id: billingUnit.id,
         name: billingUnit.name,
         city: billingUnit.city,
+        address: billingUnit.address,
+        postalCode: billingUnit.postalCode,
         imageUrl: billingUnit.imageUrl,
         ownerId: billingUnit.ownerId,
         owner: billingUnit.owner ? {
