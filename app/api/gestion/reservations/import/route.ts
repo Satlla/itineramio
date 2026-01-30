@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify property belongs to user and get billing config
+    // Verify property/billingUnit belongs to user and get billing config
     let billingConfig: {
       id: string
       commissionType: string
@@ -50,35 +50,63 @@ export async function POST(request: NextRequest) {
       cleaningFeeRecipient: string
       cleaningFeeSplitPct: any
     } | null = null
+    let billingUnitId: string | null = null
 
     if (propertyId) {
-      const property = await prisma.property.findFirst({
+      // Primero intentar como BillingUnit (apartamentos de Gestión)
+      const billingUnit = await prisma.billingUnit.findFirst({
         where: {
           id: propertyId,
-          hostId: userId
+          userId
         },
-        include: {
-          billingConfig: {
-            select: {
-              id: true,
-              commissionType: true,
-              commissionValue: true,
-              cleaningFeeRecipient: true,
-              cleaningFeeSplitPct: true
-            }
-          }
+        select: {
+          id: true,
+          commissionType: true,
+          commissionValue: true,
+          cleaningFeeRecipient: true,
+          cleaningFeeSplitPct: true
         }
       })
 
-      if (!property) {
-        return NextResponse.json(
-          { error: 'Propiedad no encontrada' },
-          { status: 404 }
-        )
-      }
+      if (billingUnit) {
+        billingUnitId = billingUnit.id
+        billingConfig = {
+          id: billingUnit.id,
+          commissionType: billingUnit.commissionType,
+          commissionValue: billingUnit.commissionValue,
+          cleaningFeeRecipient: billingUnit.cleaningFeeRecipient,
+          cleaningFeeSplitPct: billingUnit.cleaningFeeSplitPct
+        }
+      } else {
+        // Si no es BillingUnit, buscar como Property (legacy)
+        const property = await prisma.property.findFirst({
+          where: {
+            id: propertyId,
+            hostId: userId
+          },
+          include: {
+            billingConfig: {
+              select: {
+                id: true,
+                commissionType: true,
+                commissionValue: true,
+                cleaningFeeRecipient: true,
+                cleaningFeeSplitPct: true
+              }
+            }
+          }
+        })
 
-      if (property.billingConfig) {
-        billingConfig = property.billingConfig
+        if (!property) {
+          return NextResponse.json(
+            { error: 'Propiedad no encontrada' },
+            { status: 404 }
+          )
+        }
+
+        if (property.billingConfig) {
+          billingConfig = property.billingConfig
+        }
       }
     }
 
@@ -160,7 +188,8 @@ export async function POST(request: NextRequest) {
         await prisma.reservation.create({
           data: {
             userId,
-            billingConfigId: billingConfig.id,
+            billingConfigId: billingUnitId ? null : billingConfig.id,
+            billingUnitId: billingUnitId,
             platform: 'AIRBNB',
             confirmationCode: parsed.confirmationCode,
             guestName: parsed.guestName,

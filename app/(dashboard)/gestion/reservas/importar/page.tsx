@@ -111,14 +111,26 @@ export default function ImportarReservasPage() {
   const [previewAnalysis, setPreviewAnalysis] = useState<PreviewAnalysis | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
-  // Fetch properties
+  // Fetch properties and billing units
   useEffect(() => {
     async function fetchProperties() {
       try {
         const res = await fetch('/api/gestion/properties-simple')
         if (res.ok) {
           const data = await res.json()
-          setProperties(data.properties || [])
+          // Combinar Properties (legacy) y BillingUnits (nuevos apartamentos)
+          const legacyProps = (data.properties || []).map((p: any) => ({
+            ...p,
+            type: 'property'
+          }))
+          const billingUnits = (data.billingUnits || []).map((u: any) => ({
+            id: u.id,
+            name: u.name,
+            address: u.city || '',
+            hasBillingConfig: true, // BillingUnits siempre tienen config
+            type: 'billingUnit'
+          }))
+          setProperties([...legacyProps, ...billingUnits])
         }
       } catch (error) {
         console.error('Error fetching properties:', error)
