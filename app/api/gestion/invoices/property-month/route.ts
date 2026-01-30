@@ -24,23 +24,20 @@ export async function GET(request: NextRequest) {
     const userId = authResult.userId
 
     const { searchParams } = new URL(request.url)
-    const rawPropertyId = searchParams.get('propertyId')
+    const propertyId = searchParams.get('propertyId')
     const year = parseInt(searchParams.get('year') || '')
     const month = parseInt(searchParams.get('month') || '')
     const detailLevelParam = searchParams.get('detailLevel') as 'DETAILED' | 'SUMMARY' | null
     const regenerate = searchParams.get('regenerate') === 'true'
 
-    if (!rawPropertyId || !year || !month || month < 1 || month > 12) {
+    if (!propertyId || !year || !month || month < 1 || month > 12) {
       return NextResponse.json(
         { error: 'Parámetros inválidos: propertyId, year y month son requeridos' },
         { status: 400 }
       )
     }
 
-    // Support both ?type=unit and unit: prefix for backwards compatibility
-    const hasUnitPrefix = rawPropertyId.startsWith('unit:')
-    const isUnit = searchParams.get('type') === 'unit' || hasUnitPrefix
-    const propertyId = hasUnitPrefix ? rawPropertyId.replace('unit:', '') : rawPropertyId
+    const isUnit = searchParams.get('type') === 'unit'
     let ownerId: string | null = null
     let propertyName = ''
     let propertyCity = ''
