@@ -102,10 +102,10 @@ const navCategories: NavCategory[] = [
         description: 'Gestiona tus clientes'
       },
       {
-        href: '/gestion/configuracion',
+        href: '/gestion/apartamentos',
         label: 'Apartamentos',
         icon: <Home className="w-5 h-5" />,
-        description: 'Propiedades y comisiones'
+        description: 'Gestiona tus propiedades'
       },
       {
         href: '/gestion/perfil-gestor',

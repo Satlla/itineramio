@@ -69,11 +69,11 @@ export function OnboardingProgress({ progress }: OnboardingProgressProps) {
     },
     {
       id: 'property',
-      title: 'Configura propiedad',
-      shortTitle: 'Configuración',
+      title: 'Añade apartamento',
+      shortTitle: 'Apartamentos',
       icon: Home,
-      href: '/gestion/configuracion',
-      tip: 'Asigna cliente y define comisión',
+      href: '/gestion/apartamentos',
+      tip: 'Crea apartamentos con comisión',
       completed: progress.hasConfiguredProperties
     },
     {

@@ -1228,7 +1228,7 @@ export default function ReservasPage() {
                     </div>
                     {billingUnits.length === 0 && properties.length === 0 && (
                       <p className="mt-2 text-xs text-amber-600">
-                        No tienes apartamentos. <Link href="/gestion/configuracion" className="underline">Crea uno primero</Link>.
+                        No tienes apartamentos. <Link href="/gestion/apartamentos" className="underline">Crea uno primero</Link>.
                       </p>
                     )}
                   </div>

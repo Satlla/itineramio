@@ -201,9 +201,9 @@ export default function FacturacionPage() {
                   <p className="text-sm text-gray-500 mb-4">
                     Primero debes configurar tus propiedades con sus propietarios y comisiones.
                   </p>
-                  <Link href="/gestion/configuracion">
+                  <Link href="/gestion/apartamentos">
                     <Button className="bg-violet-600 hover:bg-violet-700">
-                      Ir a configuración
+                      Ir a Apartamentos
                     </Button>
                   </Link>
                 </CardContent>
@@ -264,7 +264,7 @@ export default function FacturacionPage() {
                                     Sin propietario
                                   </Badge>
                                   <Link
-                                    href="/gestion/configuracion"
+                                    href="/gestion/apartamentos"
                                     onClick={(e) => e.stopPropagation()}
                                     className="text-xs text-violet-600 hover:text-violet-800 font-medium underline"
                                   >

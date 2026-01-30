@@ -93,12 +93,12 @@ export function OnboardingGuide({ onComplete, onDismiss, currentProgress, isFirs
     },
     {
       id: 'property',
-      title: '3. Configura una propiedad',
+      title: '3. Añade un apartamento',
       icon: Home,
-      description: 'Asigna un propietario a cada propiedad y define las condiciones de gestión: comisión, limpieza, etc.',
+      description: 'Crea tus apartamentos con propietario, comisión y condiciones de limpieza.',
       action: {
-        label: 'Ir a Configuración',
-        href: '/gestion/configuracion'
+        label: 'Ir a Apartamentos',
+        href: '/gestion/apartamentos'
       },
       tips: [
         'Define el % de comisión que cobras por gestionar',

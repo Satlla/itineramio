@@ -140,10 +140,10 @@ export default function GestionDashboardPage() {
     },
     {
       id: 3,
-      title: 'Configura facturación',
-      description: 'Asigna propietario, comisión y limpieza a tus propiedades',
+      title: 'Añade apartamentos',
+      description: 'Crea tus apartamentos con propietario, comisión y limpieza',
       completed: onboarding?.hasConfiguredProperties ?? false,
-      href: '/gestion/configuracion'
+      href: '/gestion/apartamentos'
     },
     {
       id: 4,
@@ -186,10 +186,10 @@ export default function GestionDashboardPage() {
       color: 'bg-green-100 text-green-600'
     },
     {
-      href: '/gestion/configuracion',
+      href: '/gestion/apartamentos',
       icon: <Building2 className="w-6 h-6" />,
-      title: 'Configuración',
-      description: 'Propiedades y comisiones',
+      title: 'Apartamentos',
+      description: 'Gestiona tus propiedades',
       color: 'bg-orange-100 text-orange-600'
     }
   ]
