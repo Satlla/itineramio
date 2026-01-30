@@ -52,12 +52,9 @@ export async function GET(request: NextRequest) {
         where: { userId },
         select: { businessName: true, nif: true }
       }),
-      // Onboarding: Check BillingUnits with owner assigned
+      // Onboarding: Check if user has any BillingUnits (apartments)
       prisma.billingUnit.count({
-        where: {
-          userId,
-          ownerId: { not: null }
-        }
+        where: { userId }
       }),
       // Onboarding: Check if user has any liquidations
       prisma.liquidation.count({
