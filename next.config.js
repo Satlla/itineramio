@@ -28,6 +28,17 @@ const nextConfig = {
   // Redirects for legacy/short URLs and 404 fixes
   async redirects() {
     return [
+      // Gestion module renames
+      {
+        source: '/gestion/configuracion',
+        destination: '/gestion/apartamentos',
+        permanent: true,
+      },
+      {
+        source: '/gestion/configuracion/:path*',
+        destination: '/gestion/apartamentos/:path*',
+        permanent: true,
+      },
       // Legacy tool URLs
       {
         source: '/tools/:path*',
