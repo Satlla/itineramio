@@ -75,12 +75,16 @@ export async function POST(request: NextRequest) {
         confirmationCode: true,
         platform: true,
         billingConfigId: true,
+        billingUnitId: true,
         billingConfig: {
           select: {
             property: {
               select: { name: true }
             }
           }
+        },
+        billingUnit: {
+          select: { name: true }
         }
       }
     })
@@ -90,7 +94,7 @@ export async function POST(request: NextRequest) {
     for (const r of existingReservations) {
       const key = `${r.platform}:${r.confirmationCode}`
       existingByPlatform.set(key, {
-        propertyName: r.billingConfig?.property?.name || 'Desconocida'
+        propertyName: r.billingUnit?.name || r.billingConfig?.property?.name || 'Desconocida'
       })
     }
 
