@@ -23,5 +23,7 @@ export const POLICY_URLS = {
   cookies: '/legal/cookies',
   dpa: '/legal/dpa',
   billing: '/legal/billing',
-  legalNotice: '/legal/legal-notice'
+  legalNotice: '/legal/legal-notice',
+  sla: '/legal/sla',
+  dataDeletion: '/legal/data-deletion'
 }

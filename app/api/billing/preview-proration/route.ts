@@ -3,11 +3,14 @@ import { prisma } from '../../../../src/lib/prisma'
 import { verifyToken } from '../../../../src/lib/auth'
 import { calculateProration } from '../../../../src/lib/proration-service'
 import { getPlan } from '../../../../src/config/plans'
+import { paymentRateLimiter, getRateLimitKey } from '../../../../src/lib/rate-limit'
 
 /**
  * Vista previa del prorrateo antes de que el usuario confirme el cambio de plan
  * GET /api/billing/preview-proration?planCode=HOST&billingPeriod=ANNUAL
  * POST /api/billing/preview-proration (body: { targetPlanCode, targetBillingPeriod })
+ *
+ * Rate limited: 10 requests per minute per user
  */
 
 /**
@@ -24,6 +27,25 @@ export async function POST(request: NextRequest) {
     const decoded = verifyToken(token)
     if (!decoded) {
       return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
+    }
+
+    // Rate limiting: 10 requests per minute per user
+    const rateLimitKey = getRateLimitKey(request, decoded.userId, 'proration')
+    const rateLimitResult = paymentRateLimiter(rateLimitKey)
+
+    if (!rateLimitResult.allowed) {
+      console.log(`🚫 Rate limit exceeded for proration preview: ${rateLimitKey}`)
+      return NextResponse.json(
+        {
+          error: 'Demasiadas solicitudes. Por favor, espera un momento.'
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil(rateLimitResult.resetIn / 1000).toString()
+          }
+        }
+      )
     }
 
     // Obtener parámetros del body
@@ -78,6 +100,25 @@ export async function GET(request: NextRequest) {
     const decoded = verifyToken(token)
     if (!decoded) {
       return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
+    }
+
+    // Rate limiting: 10 requests per minute per user
+    const rateLimitKey = getRateLimitKey(request, decoded.userId, 'proration')
+    const rateLimitResult = paymentRateLimiter(rateLimitKey)
+
+    if (!rateLimitResult.allowed) {
+      console.log(`🚫 Rate limit exceeded for proration preview GET: ${rateLimitKey}`)
+      return NextResponse.json(
+        {
+          error: 'Demasiadas solicitudes. Por favor, espera un momento.'
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil(rateLimitResult.resetIn / 1000).toString()
+          }
+        }
+      )
     }
 
     // Obtener parámetros

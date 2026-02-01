@@ -4,7 +4,7 @@ import { requireAuth } from '@/lib/auth'
 
 /**
  * POST /api/gestion/reservations/bulk-delete
- * Delete reservations by month/property
+ * Delete reservations by month/property or billingUnit
  */
 export async function POST(request: NextRequest) {
   try {
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const userId = authResult.userId
 
     const body = await request.json()
-    const { propertyId, year, month, deleteAll } = body
+    const { propertyId, year, month, deleteAll, isUnit } = body
 
     if (!propertyId) {
       return NextResponse.json(
@@ -31,29 +31,42 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Bulk delete request:', { propertyId, deleteAll, userId })
+    console.log('Bulk delete request:', { propertyId, deleteAll, isUnit, userId })
 
-    // Get billing config for this property
-    const billingConfig = await prisma.propertyBillingConfig.findFirst({
-      where: {
-        propertyId,
-        property: { hostId: userId }
+    // Build where clause based on property type
+    let whereClause: any = { userId }
+
+    if (isUnit) {
+      // Handle BillingUnit (new model)
+      const billingUnit = await prisma.billingUnit.findFirst({
+        where: { id: propertyId, userId }
+      })
+
+      if (!billingUnit) {
+        return NextResponse.json(
+          { error: 'Apartamento no encontrado' },
+          { status: 404 }
+        )
       }
-    })
 
-    console.log('Found billingConfig:', billingConfig?.id || 'NOT FOUND')
+      whereClause.billingUnitId = billingUnit.id
+    } else {
+      // Handle legacy Property with BillingConfig
+      const billingConfig = await prisma.propertyBillingConfig.findFirst({
+        where: {
+          propertyId,
+          property: { hostId: userId }
+        }
+      })
 
-    if (!billingConfig) {
-      return NextResponse.json(
-        { error: 'Propiedad no encontrada' },
-        { status: 404 }
-      )
-    }
+      if (!billingConfig) {
+        return NextResponse.json(
+          { error: 'Propiedad no encontrada' },
+          { status: 404 }
+        )
+      }
 
-    // Build where clause based on deleteAll or month filter
-    const whereClause: any = {
-      billingConfigId: billingConfig.id,
-      userId
+      whereClause.billingConfigId = billingConfig.id
     }
 
     if (!deleteAll && year && month) {

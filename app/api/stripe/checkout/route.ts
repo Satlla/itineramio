@@ -3,12 +3,15 @@ import Stripe from 'stripe'
 import { verifyToken } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getPlan, calculatePrice, type PlanCode, type BillingPeriod } from '@/config/plans'
+import { paymentRateLimiter, getRateLimitKey } from '@/lib/rate-limit'
 
 /**
  * POST /api/stripe/checkout
  *
  * Creates a Stripe Checkout session for subscription payment.
  * Uses dynamic pricing based on plan and billing period.
+ *
+ * Rate limited: 10 requests per minute per user
  */
 export async function POST(request: NextRequest) {
   try {
@@ -36,6 +39,28 @@ export async function POST(request: NextRequest) {
     const decoded = verifyToken(token)
     if (!decoded) {
       return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
+    }
+
+    // Rate limiting: 10 requests per minute per user
+    const rateLimitKey = getRateLimitKey(request, decoded.userId, 'checkout')
+    const rateLimitResult = paymentRateLimiter(rateLimitKey)
+
+    if (!rateLimitResult.allowed) {
+      console.log(`🚫 Rate limit exceeded for checkout: ${rateLimitKey}`)
+      return NextResponse.json(
+        {
+          error: 'Demasiadas solicitudes. Por favor, espera un momento antes de intentarlo de nuevo.',
+          retryAfter: Math.ceil(rateLimitResult.resetIn / 1000)
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil(rateLimitResult.resetIn / 1000).toString(),
+            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+            'X-RateLimit-Remaining': rateLimitResult.remaining.toString()
+          }
+        }
+      )
     }
 
     // Get user

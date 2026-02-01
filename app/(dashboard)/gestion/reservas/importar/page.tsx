@@ -432,13 +432,15 @@ export default function ImportarReservasPage() {
     setMessage(null)
 
     try {
+      const selectedProperty = properties.find(p => p.id === selectedPropertyId)
       const response = await fetch('/api/gestion/reservations/bulk-delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           propertyId: selectedPropertyId,
           year: deleteYear,
-          month: deleteMonth
+          month: deleteMonth,
+          isUnit: selectedProperty?.type === 'billingUnit'
         })
       })
 

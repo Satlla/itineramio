@@ -35,6 +35,16 @@ export async function POST(request: NextRequest) {
 
     let event: Stripe.Event
 
+    // In production, webhook secret is REQUIRED
+    const isProduction = process.env.NODE_ENV === 'production'
+    if (isProduction && !process.env.STRIPE_WEBHOOK_SECRET) {
+      console.error('CRITICAL: STRIPE_WEBHOOK_SECRET not configured in production')
+      return NextResponse.json(
+        { error: 'Webhook secret not configured' },
+        { status: 500 }
+      )
+    }
+
     // Verify webhook signature if secret is configured
     if (process.env.STRIPE_WEBHOOK_SECRET && signature) {
       try {
@@ -47,6 +57,10 @@ export async function POST(request: NextRequest) {
         console.error('Webhook signature verification failed:', err)
         return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
       }
+    } else if (isProduction) {
+      // Should not reach here due to earlier check, but extra safety
+      console.error('CRITICAL: Attempting to process webhook without verification in production')
+      return NextResponse.json({ error: 'Webhook verification required' }, { status: 400 })
     } else {
       // For local development without webhook secret
       event = JSON.parse(body) as Stripe.Event

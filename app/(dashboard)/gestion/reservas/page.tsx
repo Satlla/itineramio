@@ -610,13 +610,15 @@ export default function ReservasPage() {
         console.log('Deleting existing reservations for property:', importPropertyId)
 
         // Delete reservations
+        const isUnit = billingUnits.some(u => u.id === importPropertyId)
         const deleteResponse = await fetch('/api/gestion/reservations/bulk-delete', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify({
             propertyId: importPropertyId,
-            deleteAll: true
+            deleteAll: true,
+            isUnit
           })
         })
         const deleteResult = await deleteResponse.json()

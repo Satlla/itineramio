@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import { verifyToken } from '../../../../src/lib/auth'
+import { couponRateLimiter, getRateLimitKey } from '../../../../src/lib/rate-limit'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -8,6 +9,12 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   httpClient: Stripe.createFetchHttpClient()
 })
 
+/**
+ * POST /api/billing/validate-coupon
+ *
+ * Validates a coupon code for a user.
+ * Rate limited: 20 requests per minute per user
+ */
 export async function POST(request: NextRequest) {
   try {
     const token = request.cookies.get('auth-token')?.value
@@ -19,6 +26,26 @@ export async function POST(request: NextRequest) {
     const decoded = verifyToken(token)
     if (!decoded?.userId) {
       return NextResponse.json({ valid: false, message: 'Token inválido' }, { status: 401 })
+    }
+
+    // Rate limiting: 20 requests per minute per user
+    const rateLimitKey = getRateLimitKey(request, decoded.userId, 'validate-coupon')
+    const rateLimitResult = couponRateLimiter(rateLimitKey)
+
+    if (!rateLimitResult.allowed) {
+      console.log(`🚫 Rate limit exceeded for coupon validation: ${rateLimitKey}`)
+      return NextResponse.json(
+        {
+          valid: false,
+          message: 'Demasiadas solicitudes. Por favor, espera un momento.'
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil(rateLimitResult.resetIn / 1000).toString()
+          }
+        }
+      )
     }
 
     const { code, planCode } = await request.json()

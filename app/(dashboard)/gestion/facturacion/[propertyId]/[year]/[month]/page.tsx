@@ -484,7 +484,8 @@ export default function MonthInvoicePage() {
         body: JSON.stringify({
           propertyId,
           year,
-          month
+          month,
+          isUnit
         })
       })
 
