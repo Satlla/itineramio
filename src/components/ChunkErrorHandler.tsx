@@ -5,10 +5,12 @@ import { useEffect } from 'react'
 export function ChunkErrorHandler() {
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
-      if (event.error?.name === 'ChunkLoadError' || 
+      if (event.error?.name === 'ChunkLoadError' ||
           event.error?.message?.includes('Loading chunk') ||
-          event.error?.message?.includes('Failed to fetch dynamically imported module')) {
-        console.log('⚠️ Chunk loading error detected, refreshing page...')
+          event.error?.message?.includes('Failed to fetch dynamically imported module') ||
+          event.error?.message?.includes('appendChild') ||
+          event.error?.message?.includes('Invalid or unexpected token')) {
+        console.log('⚠️ Chunk/script loading error detected, refreshing page...')
         
         // Clear any service worker cache
         if ('serviceWorker' in navigator) {
