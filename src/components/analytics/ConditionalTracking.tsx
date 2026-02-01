@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
 
+// Build timestamp: 1769980900 - forces cache invalidation
 const GTM_ID = 'GTM-PK5PTZS3'
 const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID
 
