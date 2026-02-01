@@ -6,12 +6,20 @@ import { useEffect, Suspense } from 'react'
 // Facebook Pixel ID - Set in environment variable
 const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID
 
+// Paths where tracking should be disabled
+const EXCLUDED_PATHS = ['/admin', '/api']
+
 // Track page views on SPA navigation
 function FacebookPixelPageView() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
   useEffect(() => {
+    // Skip tracking on excluded paths (admin, api)
+    if (EXCLUDED_PATHS.some(path => pathname?.startsWith(path))) {
+      return
+    }
+
     // Skip first render (initial PageView is fired in head script)
     if (typeof window !== 'undefined' && (window as any).fbq) {
       (window as any).fbq('track', 'PageView')

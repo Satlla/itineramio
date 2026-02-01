@@ -1,19 +1,100 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import Script from 'next/script'
+import { useEffect, useState, useCallback } from 'react'
+import { usePathname } from 'next/navigation'
 
 const GTM_ID = 'GTM-PK5PTZS3'
 const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID
+
+// Paths where tracking should be disabled
+const EXCLUDED_PATHS = ['/admin', '/api']
 
 /**
  * ConditionalTracking - Carga scripts de tracking SOLO si hay consentimiento
  *
  * Cumple con GDPR Art. 7 - No carga cookies de analytics/marketing sin consentimiento previo
+ *
+ * NOTA: Usamos inyección manual de scripts en lugar de next/script para evitar
+ * errores de "appendChild" que ocurren con scripts inline en algunos casos.
+ *
+ * EXCLUSIONES: No carga tracking en /admin ni /api para evitar errores
+ * y porque estas áreas no necesitan analytics.
  */
 export function ConditionalTracking() {
+  const pathname = usePathname()
   const [hasConsent, setHasConsent] = useState(false)
-  const [isLoaded, setIsLoaded] = useState(false)
+  const [scriptsLoaded, setScriptsLoaded] = useState(false)
+
+  // Check if current path should be excluded from tracking
+  const isExcludedPath = EXCLUDED_PATHS.some(path => pathname?.startsWith(path))
+
+  // Load GTM script manually to avoid Next.js Script issues
+  const loadGTM = useCallback(() => {
+    if (typeof window === 'undefined') return
+    if ((window as any).gtmLoaded) return
+
+    try {
+      (window as any).gtmLoaded = true;
+      (window as any).dataLayer = (window as any).dataLayer || [];
+      (window as any).dataLayer.push({
+        'gtm.start': new Date().getTime(),
+        event: 'gtm.js'
+      });
+
+      const script = document.createElement('script')
+      script.async = true
+      script.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`
+      script.onerror = () => {
+        console.warn('GTM script failed to load')
+      }
+      document.head.appendChild(script)
+    } catch (e) {
+      console.warn('Error loading GTM:', e)
+    }
+  }, [])
+
+  // Load FB Pixel script manually
+  const loadFBPixel = useCallback(() => {
+    if (typeof window === 'undefined' || !FB_PIXEL_ID) return
+    if ((window as any).fbq) return
+
+    try {
+      // Create FB Pixel queue function
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const fbq: any = function(...args: any[]) {
+        if (fbq.callMethod) {
+          fbq.callMethod.apply(fbq, args)
+        } else {
+          fbq.queue.push(args)
+        }
+      }
+      fbq.push = fbq
+      fbq.loaded = true
+      fbq.version = '2.0'
+      fbq.queue = []
+
+      ;(window as any).fbq = fbq
+      if (!(window as any)._fbq) (window as any)._fbq = fbq
+
+      const script = document.createElement('script')
+      script.async = true
+      script.src = 'https://connect.facebook.net/en_US/fbevents.js'
+      script.onerror = () => {
+        console.warn('FB Pixel script failed to load')
+      }
+      document.head.appendChild(script)
+
+      // Initialize after script element is added
+      setTimeout(() => {
+        if ((window as any).fbq) {
+          (window as any).fbq('init', FB_PIXEL_ID)
+          ;(window as any).fbq('track', 'PageView')
+        }
+      }, 100)
+    } catch (e) {
+      console.warn('Error loading FB Pixel:', e)
+    }
+  }, [])
 
   useEffect(() => {
     // Check initial consent
@@ -36,61 +117,34 @@ export function ConditionalTracking() {
     }
   }, [])
 
-  // Don't render scripts until we have consent
-  if (!hasConsent) {
+  // Load scripts when consent is given (and not on excluded paths)
+  useEffect(() => {
+    if (!hasConsent || scriptsLoaded || isExcludedPath) return
+
+    // Small delay to ensure page is fully loaded
+    const timer = setTimeout(() => {
+      loadGTM()
+      loadFBPixel()
+      setScriptsLoaded(true)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [hasConsent, scriptsLoaded, isExcludedPath, loadGTM, loadFBPixel])
+
+  // Don't render anything on excluded paths or if no consent
+  if (isExcludedPath || !hasConsent) {
     return null
   }
 
   return (
-    <>
-      {/* Google Tag Manager */}
-      <Script
-        id="gtm-script-conditional"
-        strategy="afterInteractive"
-        onLoad={() => setIsLoaded(true)}
-        dangerouslySetInnerHTML={{
-          __html: `
-            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','${GTM_ID}');
-          `,
-        }}
+    <noscript>
+      <iframe
+        src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+        height="0"
+        width="0"
+        style={{ display: 'none', visibility: 'hidden' }}
       />
-
-      {/* Facebook Pixel */}
-      {FB_PIXEL_ID && (
-        <Script
-          id="fb-pixel-conditional"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              !function(f,b,e,v,n,t,s)
-              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-              n.queue=[];t=b.createElement(e);t.async=!0;
-              t.src=v;s=b.getElementsByTagName(e)[0];
-              s.parentNode.insertBefore(t,s)}(window, document,'script',
-              'https://connect.facebook.net/en_US/fbevents.js');
-              fbq('init', '${FB_PIXEL_ID}');
-              fbq('track', 'PageView');
-            `,
-          }}
-        />
-      )}
-
-      {/* GTM NoScript fallback */}
-      <noscript>
-        <iframe
-          src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
-          height="0"
-          width="0"
-          style={{ display: 'none', visibility: 'hidden' }}
-        />
-      </noscript>
-    </>
+    </noscript>
   )
 }
 
