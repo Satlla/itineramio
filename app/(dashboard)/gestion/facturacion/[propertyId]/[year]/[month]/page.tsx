@@ -494,7 +494,7 @@ export default function MonthInvoicePage() {
       if (response.ok) {
         setShowResetConfirm(false)
         // Redirect back to property page
-        router.push(`/gestion/facturacion/${propertyId}`)
+        router.push(`/gestion/facturacion/${propertyId}${isUnit ? '?type=unit' : ''}`)
       } else {
         alert(data.error || 'Error al eliminar reservas')
       }
