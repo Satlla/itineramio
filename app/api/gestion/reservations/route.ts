@@ -31,12 +31,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    if (status) {
-      where.status = status as any
+    // Validar y filtrar por status
+    const validStatuses = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED', 'NO_SHOW']
+    if (status && validStatuses.includes(status)) {
+      where.status = status
     }
 
-    if (platform) {
-      where.platform = platform as any
+    // Validar y filtrar por platform
+    const validPlatforms = ['AIRBNB', 'BOOKING', 'VRBO', 'DIRECT', 'OTHER']
+    if (platform && validPlatforms.includes(platform)) {
+      where.platform = platform
     }
 
     // Filter by billingUnit (nuevo) o billingConfig (legacy)
@@ -156,6 +160,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate non-negative financial values
+    const earnings = Number(hostEarnings)
+    if (isNaN(earnings) || earnings < 0) {
+      return NextResponse.json(
+        { error: 'Los ingresos deben ser un número positivo' },
+        { status: 400 }
+      )
+    }
+    if (cleaningFee !== undefined && (isNaN(Number(cleaningFee)) || Number(cleaningFee) < 0)) {
+      return NextResponse.json(
+        { error: 'La tarifa de limpieza debe ser un número positivo' },
+        { status: 400 }
+      )
+    }
+    if (hostServiceFee !== undefined && (isNaN(Number(hostServiceFee)) || Number(hostServiceFee) < 0)) {
+      return NextResponse.json(
+        { error: 'La comisión de servicio debe ser un número positivo' },
+        { status: 400 }
+      )
+    }
+
     let finalBillingConfigId: string | null = null
     let finalBillingUnitId: string | null = null
     let commissionValue = 20 // default
@@ -249,8 +274,7 @@ export async function POST(request: NextRequest) {
     // Generate confirmation code if not provided
     const finalConfirmationCode = confirmationCode || `MAN-${Date.now().toString(36).toUpperCase()}`
 
-    // Calculate amounts
-    const earnings = Number(hostEarnings)
+    // Calculate amounts (earnings already validated above)
     const cleaning = cleaningFee !== undefined ? Number(cleaningFee) : cleaningValue
     const serviceFee = hostServiceFee !== undefined ? Number(hostServiceFee) : 0
     const room = roomTotal !== undefined ? Number(roomTotal) : earnings + serviceFee - cleaning
