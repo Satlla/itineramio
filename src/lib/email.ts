@@ -487,6 +487,63 @@ export const emailTemplates = {
     </html>
   `,
 
+  // Magic Link for Property Owner Portal
+  ownerPortalLink: (params: {
+    ownerName: string,
+    managerName: string,
+    portalUrl: string,
+    monthName: string,
+    year: number
+  }) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Tu resumen de ${params.monthName} ${params.year}</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #2563eb; margin: 0;">📊 Resumen Mensual</h1>
+        <p style="color: #666; margin: 5px 0;">${params.monthName} ${params.year}</p>
+      </div>
+
+      <div style="background: #f0f9ff; padding: 30px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #2563eb;">
+        <h2 style="color: #1e3a5f; margin-top: 0;">Hola ${params.ownerName},</h2>
+        <p style="color: #475569; font-size: 16px;">
+          ${params.managerName} te ha enviado el resumen de tus propiedades correspondiente a <strong>${params.monthName} ${params.year}</strong>.
+        </p>
+
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb;">
+          <p style="color: #1e3a5f; margin: 0; font-weight: 500;">
+            En tu portal podrás ver:
+          </p>
+          <ul style="color: #475569; margin: 10px 0; padding-left: 20px;">
+            <li>Detalle de todas las reservas del mes</li>
+            <li>Liquidación con ingresos y comisiones</li>
+            <li>Factura descargable en PDF</li>
+          </ul>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${params.portalUrl}"
+             style="background: #2563eb; color: white; padding: 14px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
+            Ver mi resumen
+          </a>
+        </div>
+
+        <p style="color: #94a3b8; font-size: 13px; text-align: center; margin-bottom: 0;">
+          Este enlace es personal y caduca en 7 días
+        </p>
+      </div>
+
+      <div style="text-align: center; color: #94a3b8; font-size: 13px;">
+        <p>Si tienes alguna duda, contacta directamente con ${params.managerName}</p>
+      </div>
+    </body>
+    </html>
+  `,
+
   // Plan change notification
   planChanged: (params: {
     userName: string,

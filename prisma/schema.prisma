@@ -2209,6 +2209,11 @@ model PropertyOwner {
   phone String?
   iban  String?
 
+  // Magic Link para acceso del propietario (sin login)
+  magicLinkToken       String?   @unique
+  magicLinkTokenExpiry DateTime?
+  magicLinkLastAccess  DateTime?
+
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
