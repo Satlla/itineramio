@@ -198,6 +198,42 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Check if there's already an ISSUED or PAID invoice for this owner + month + year
+    // This prevents duplicate invoices for the same period
+    const existingIssuedInvoice = await prisma.clientInvoice.findFirst({
+      where: {
+        userId,
+        ownerId,
+        periodYear: year,
+        periodMonth: month,
+        status: { in: ['ISSUED', 'PAID'] },
+        isRectifying: false // Don't count rectifying invoices as duplicates
+      },
+      select: {
+        id: true,
+        fullNumber: true,
+        status: true,
+        total: true,
+        issuedAt: true
+      }
+    })
+
+    if (existingIssuedInvoice) {
+      return NextResponse.json(
+        {
+          error: `Ya existe una factura emitida para este propietario en ${getMonthName(month)} ${year}`,
+          duplicateInvoice: {
+            id: existingIssuedInvoice.id,
+            fullNumber: existingIssuedInvoice.fullNumber,
+            status: existingIssuedInvoice.status,
+            total: Number(existingIssuedInvoice.total),
+            issuedAt: existingIssuedInvoice.issuedAt?.toISOString()
+          }
+        },
+        { status: 409 } // Conflict
+      )
+    }
+
     // Try to find existing draft invoice for this property/month
     const invoiceWhereClause = isUnit
       ? { userId, billingUnitId: propertyId, periodYear: year, periodMonth: month, status: 'DRAFT' as const }

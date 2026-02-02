@@ -233,6 +233,46 @@ export async function POST(
       )
     }
 
+    // Check for duplicate: if this invoice has a period, verify no other ISSUED/PAID invoice exists
+    // for the same owner + month + year
+    if (invoice.periodYear && invoice.periodMonth && invoice.ownerId) {
+      const existingIssuedInvoice = await prisma.clientInvoice.findFirst({
+        where: {
+          userId,
+          ownerId: invoice.ownerId,
+          periodYear: invoice.periodYear,
+          periodMonth: invoice.periodMonth,
+          status: { in: ['ISSUED', 'PAID'] },
+          isRectifying: false,
+          id: { not: id } // Exclude current invoice
+        },
+        select: {
+          id: true,
+          fullNumber: true,
+          status: true,
+          total: true,
+          issuedAt: true
+        }
+      })
+
+      if (existingIssuedInvoice) {
+        const monthNames = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+          'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        return NextResponse.json(
+          {
+            error: `Ya existe una factura emitida para este propietario en ${monthNames[invoice.periodMonth]} ${invoice.periodYear}: ${existingIssuedInvoice.fullNumber}`,
+            duplicateInvoice: {
+              id: existingIssuedInvoice.id,
+              fullNumber: existingIssuedInvoice.fullNumber,
+              status: existingIssuedInvoice.status,
+              total: Number(existingIssuedInvoice.total)
+            }
+          },
+          { status: 409 }
+        )
+      }
+    }
+
     let number: number | null = null
     let fullNumber: string
 
