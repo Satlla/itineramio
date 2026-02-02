@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
-import { getNextInvoiceNumber } from '@/lib/invoice-numbering'
 // Auto-creates config and series if needed - no external dependency
+// NOTE: Invoice numbers are NOT assigned to drafts - only when ISSUED (like Holded)
 
 /**
  * GET /api/gestion/invoices/property-month
@@ -583,17 +583,18 @@ export async function GET(request: NextRequest) {
           include: invoiceInclude
         })
       } else {
-        // Get next invoice number immediately
-        const numberResult = await getNextInvoiceNumber(seriesId)
+        // IMPORTANT: Don't assign invoice number to drafts
+        // Number is only assigned when the invoice is ISSUED (like Holded does)
+        // This prevents losing numbers when drafts are deleted or never issued
 
-        // Create new invoice with number assigned
+        // Create new invoice WITHOUT number (will be assigned on issue)
         // Use correct field based on whether it's a BillingUnit or legacy Property
         const invoiceData = {
           userId,
           ownerId,
           seriesId,
-          number: numberResult.number,
-          fullNumber: numberResult.fullNumber,
+          number: null, // Assigned on issue
+          fullNumber: null, // Assigned on issue
           periodYear: year,
           periodMonth: month,
           issueDate: new Date(),

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
-import { getOrCreateDefaultSeries, getNextInvoiceNumber } from '@/lib/invoice-numbering'
+import { getOrCreateDefaultSeries } from '@/lib/invoice-numbering'
 
 /**
  * GET /api/gestion/invoices
@@ -246,17 +246,18 @@ export async function POST(request: NextRequest) {
     const avgRetentionRate = subtotal > 0 ? (totalRetention / subtotal) * 100 : 0
     const total = subtotal + totalVat - totalRetention
 
-    // Get next invoice number immediately (even for drafts)
-    const numberResult = await getNextInvoiceNumber(finalSeriesId)
+    // IMPORTANT: Don't assign invoice number to drafts
+    // Number is only assigned when the invoice is ISSUED (like Holded does)
+    // This prevents losing numbers when drafts are deleted or never issued
 
-    // Create draft invoice with number assigned
+    // Create draft invoice WITHOUT number (will be assigned on issue)
     const invoice = await prisma.clientInvoice.create({
       data: {
         userId,
         ownerId,
         seriesId: finalSeriesId,
-        number: numberResult.number,
-        fullNumber: numberResult.fullNumber,
+        number: null, // Assigned on issue
+        fullNumber: null, // Assigned on issue
         issueDate: issueDate ? new Date(issueDate) : new Date(),
         dueDate: dueDate ? new Date(dueDate) : null,
         subtotal,
