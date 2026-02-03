@@ -48,89 +48,93 @@ export async function GET(
       )
     }
 
-    // Update last access timestamp
-    await prisma.propertyOwner.update({
-      where: { id: owner.id },
-      data: { magicLinkLastAccess: new Date() }
-    })
-
-    // Get owner's billing units
-    const billingUnits = await prisma.billingUnit.findMany({
-      where: {
-        ownerId: owner.id,
-        isActive: true
-      },
-      select: {
-        id: true,
-        name: true,
-        city: true
-      }
-    })
-
-    // Get reservations for the period
+    // Get date range for queries
     const startDate = new Date(year, month - 1, 1)
     const endDate = new Date(year, month, 0, 23, 59, 59)
 
-    const reservations = await prisma.reservation.findMany({
-      where: {
-        billingUnit: {
-          ownerId: owner.id
+    // Run all queries in PARALLEL for speed
+    const [, billingUnits, reservations, liquidation, invoices] = await Promise.all([
+      // Update last access (fire and forget style, but awaited for consistency)
+      prisma.propertyOwner.update({
+        where: { id: owner.id },
+        data: { magicLinkLastAccess: new Date() }
+      }),
+
+      // Get owner's billing units
+      prisma.billingUnit.findMany({
+        where: {
+          ownerId: owner.id,
+          isActive: true
         },
-        checkOut: {
-          gte: startDate,
-          lte: endDate
-        },
-        status: {
-          in: ['CONFIRMED', 'COMPLETED']
+        select: {
+          id: true,
+          name: true,
+          city: true
         }
-      },
-      include: {
-        billingUnit: {
-          select: {
-            id: true,
-            name: true
+      }),
+
+      // Get reservations for the period
+      prisma.reservation.findMany({
+        where: {
+          billingUnit: {
+            ownerId: owner.id
+          },
+          checkOut: {
+            gte: startDate,
+            lte: endDate
+          },
+          status: {
+            in: ['CONFIRMED', 'COMPLETED']
           }
-        }
-      },
-      orderBy: { checkIn: 'asc' }
-    })
-
-    // Get liquidation for the period if exists
-    const liquidation = await prisma.liquidation.findFirst({
-      where: {
-        ownerId: owner.id,
-        year,
-        month
-      }
-    })
-
-    // Get invoices for the period
-    const invoices = await prisma.clientInvoice.findMany({
-      where: {
-        ownerId: owner.id,
-        OR: [
-          { periodYear: year, periodMonth: month },
-          {
-            issueDate: {
-              gte: startDate,
-              lte: endDate
+        },
+        include: {
+          billingUnit: {
+            select: {
+              id: true,
+              name: true
             }
           }
-        ],
-        status: {
-          in: ['ISSUED', 'SENT', 'PAID']
+        },
+        orderBy: { checkIn: 'asc' }
+      }),
+
+      // Get liquidation for the period
+      prisma.liquidation.findFirst({
+        where: {
+          ownerId: owner.id,
+          year,
+          month
         }
-      },
-      select: {
-        id: true,
-        fullNumber: true,
-        issueDate: true,
-        total: true,
-        status: true,
-        publicToken: true
-      },
-      orderBy: { issueDate: 'desc' }
-    })
+      }),
+
+      // Get invoices for the period
+      prisma.clientInvoice.findMany({
+        where: {
+          ownerId: owner.id,
+          OR: [
+            { periodYear: year, periodMonth: month },
+            {
+              issueDate: {
+                gte: startDate,
+                lte: endDate
+              }
+            }
+          ],
+          status: {
+            in: ['ISSUED', 'SENT', 'PAID']
+          }
+        },
+        select: {
+          id: true,
+          fullNumber: true,
+          issueDate: true,
+          total: true,
+          status: true,
+          publicToken: true
+        },
+        orderBy: { issueDate: 'desc' }
+      })
+    ])
 
     // Calculate summary
     const totalIncome = reservations.reduce((sum, r) => sum + Number(r.roomTotal || 0), 0)
