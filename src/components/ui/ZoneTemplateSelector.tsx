@@ -271,13 +271,13 @@ export function ZoneTemplateSelector({ propertyId, onSelect, onClose, onCreateFr
                             <div className="text-2xl">{template.icon}</div>
                             <div className="flex-1">
                               <div className="flex items-center space-x-2">
-                                <CardTitle className="text-base">{template.name}</CardTitle>
+                                <CardTitle className="text-base">{typeof template.name === 'string' ? template.name : template.name?.es || ''}</CardTitle>
                                 {template.isOfficial && (
                                   <Crown className="w-4 h-4 text-yellow-500" />
                                 )}
                               </div>
                               <p className="text-sm text-gray-600 mt-1">
-                                {template.description}
+                                {typeof template.description === 'string' ? template.description : template.description?.es || ''}
                               </p>
                             </div>
                           </div>

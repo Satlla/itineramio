@@ -3734,8 +3734,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                         <div className="flex items-center gap-3">
                           <ZoneIconDisplay iconId={zone.icon} size="sm" />
                           <div>
-                            <h4 className="font-medium text-gray-900">{zone.name}</h4>
-                            <p className="text-sm text-gray-600">{zone.description}</p>
+                            <h4 className="font-medium text-gray-900">{typeof zone.name === 'string' ? zone.name : zone.name?.es || zone.name}</h4>
+                            <p className="text-sm text-gray-600">{typeof zone.description === 'string' ? zone.description : zone.description?.es || ''}</p>
                           </div>
                         </div>
                         <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
