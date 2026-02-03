@@ -122,12 +122,12 @@ export function ConditionalTracking() {
   useEffect(() => {
     if (!hasConsent || scriptsLoaded || isExcludedPath) return
 
-    // Small delay to ensure page is fully loaded
+    // Small delay to ensure page is fully loaded (reduced from 500ms for faster tracking)
     const timer = setTimeout(() => {
       loadGTM()
       loadFBPixel()
       setScriptsLoaded(true)
-    }, 500)
+    }, 200)
 
     return () => clearTimeout(timer)
   }, [hasConsent, scriptsLoaded, isExcludedPath, loadGTM, loadFBPixel])

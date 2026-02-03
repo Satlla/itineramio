@@ -95,19 +95,15 @@ export async function POST(
       }
     })
 
-    // Update zone's average rating
-    const allRatings = await prisma.zoneRating.findMany({
+    // Update zone's average rating using aggregate (efficient - no N+1)
+    const stats = await prisma.zoneRating.aggregate({
       where: { zoneId },
-      select: { overallRating: true }
+      _avg: { overallRating: true }
     })
-
-    const avgRating = allRatings.length > 0 
-      ? allRatings.reduce((sum, r) => sum + r.overallRating, 0) / allRatings.length 
-      : 0
 
     await prisma.zone.update({
       where: { id: zoneId },
-      data: { avgRating }
+      data: { avgRating: stats._avg.overallRating || 0 }
     })
 
     return NextResponse.json({
