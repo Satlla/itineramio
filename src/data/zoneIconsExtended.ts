@@ -74,6 +74,7 @@ import {
   Microwave,
   Snowflake,
   Wind,
+  Flame,
   LucideIcon
 } from 'lucide-react'
 
@@ -212,7 +213,7 @@ export const iconIdMapping: { [key: string]: LucideIcon } = {
   'coffee': Coffee,
   'oven': Microwave,
   'microwave': Microwave,
-  'cooktop': ChefHat,
+  'cooktop': Flame,
   'cooking': ChefHat,
   'wind': Wind,
   'rules': FileText,
@@ -372,6 +373,12 @@ export const commonZoneIcons: { [key: string]: LucideIcon } = {
   'food': Utensils,
   'restaurante': Utensils,
   'electrodomesticos': Microwave,
+  'vitroceramica': Flame,
+  'vitrocerámica': Flame,
+  'placa': Flame,
+  'fuegos': Flame,
+  'induccion': Flame,
+  'inducción': Flame,
   
   // Baño con icono específico  
   'bathroom': ShowerHead,

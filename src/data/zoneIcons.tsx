@@ -263,6 +263,13 @@ export const ZONE_ICONS: ZoneIcon[] = [
     category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
     color: 'text-orange-600'
   },
+  {
+    id: 'cooktop',
+    name: 'Vitrocerámica',
+    icon: Flame,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
 
   // Dormitorio
   {
