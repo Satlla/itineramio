@@ -371,8 +371,8 @@ export function ZoneTemplateSelector({ propertyId, onSelect, onClose, onCreateFr
                   <div className="flex items-center space-x-3 mb-3">
                     <div className="text-3xl">{previewTemplate.icon}</div>
                     <div>
-                      <h4 className="font-medium">{previewTemplate.name}</h4>
-                      <p className="text-sm text-gray-600">{previewTemplate.description}</p>
+                      <h4 className="font-medium">{getTextValue(previewTemplate.name, '')}</h4>
+                      <p className="text-sm text-gray-600">{getTextValue(previewTemplate.description, '')}</p>
                     </div>
                   </div>
 

@@ -1624,9 +1624,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         const zonesResponse = await fetch(`/api/properties/${id}/zones`)
         const zonesResult = await zonesResponse.json()
         if (zonesResult.success) {
-          const newZones = zonesResult.data
+          const newZones = transformZonesFromApi(zonesResult.data, id)
           setZones(newZones)
-          
+
           // Find the newly created zone and open step editor
           const newZone = newZones.find((zone: Zone) => zone.name === getZoneText(inspiration.name))
           if (newZone) {
@@ -1690,18 +1690,18 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         const zonesResponse = await fetch(`/api/properties/${id}/zones`)
         const zonesResult = await zonesResponse.json()
         if (zonesResult.success) {
-          const newZones = zonesResult.data
+          const newZones = transformZonesFromApi(zonesResult.data, id)
           setZones(newZones)
 
           // Find the newly created zone
-          const newZone = newZones.find((zone: Zone) => zone.name === template.name)
+          const newZone = newZones.find((zone: Zone) => zone.name === getZoneTemplateText(template.name))
           if (newZone) {
             // If template had content, show success message
             if (contentTemplate) {
               addNotification({
                 type: 'success',
                 title: 'Zona creada con contenido',
-                message: `"${template.name}" se ha creado con texto profesional en ES/EN/FR. ¡Solo edita con tus datos!`,
+                message: `"${getZoneTemplateText(template.name)}" se ha creado con texto profesional en ES/EN/FR. ¡Solo edita con tus datos!`,
                 read: false
               })
             }
@@ -3734,7 +3734,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                         <div className="flex items-center gap-3">
                           <ZoneIconDisplay iconId={zone.icon} size="sm" />
                           <div>
-                            <h4 className="font-medium text-gray-900">{typeof zone.name === 'string' ? zone.name : zone.name?.es || zone.name}</h4>
+                            <h4 className="font-medium text-gray-900">{typeof zone.name === 'string' ? zone.name : zone.name?.es || ''}</h4>
                             <p className="text-sm text-gray-600">{typeof zone.description === 'string' ? zone.description : zone.description?.es || ''}</p>
                           </div>
                         </div>
