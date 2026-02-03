@@ -63,7 +63,7 @@ export function QRCodeDisplay({
       const filename = zoneId
         ? `qr-${propertyId}-${zoneId}.png`
         : `qr-${propertyId}.png`
-      downloadQRCode(qrCode, filename)
+      await downloadQRCode(qrCode, filename)
 
       // Track QR download for analytics
       try {

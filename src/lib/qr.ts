@@ -107,16 +107,55 @@ export async function generateQRCodeSVG(
 
 /**
  * Download QR code as image file
+ * Works on both desktop and mobile devices
  * @param qrCodeDataURL - Base64 QR code data URL
  * @param filename - Filename for download
  */
-export function downloadQRCode(qrCodeDataURL: string, filename: string = 'qr-code.png') {
+export async function downloadQRCode(qrCodeDataURL: string, filename: string = 'qr-code.png') {
+  // Convert data URL to blob for better mobile support
+  const response = await fetch(qrCodeDataURL)
+  const blob = await response.blob()
+
+  // Check if we're on mobile and can use Web Share API
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
+  if (isMobile && navigator.share && navigator.canShare) {
+    // Try to share on mobile (allows saving to photos)
+    try {
+      const file = new File([blob], filename, { type: 'image/png' })
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'Código QR',
+          text: 'Guarda o comparte este código QR'
+        })
+        return
+      }
+    } catch (err) {
+      // If share fails or is cancelled, fall through to other methods
+      console.log('Share cancelled or failed, trying alternative method')
+    }
+  }
+
+  // Desktop or fallback: try standard download
+  const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
-  link.href = qrCodeDataURL
+  link.href = url
   link.download = filename
+
+  // For iOS Safari which doesn't support download attribute well
+  if (isMobile) {
+    // Open in new tab - user can long-press to save
+    link.target = '_blank'
+    link.rel = 'noopener noreferrer'
+  }
+
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
+
+  // Clean up the blob URL
+  setTimeout(() => URL.revokeObjectURL(url), 100)
 }
 
 /**
