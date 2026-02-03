@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft, BarChart3 } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft, BarChart3, Download } from 'lucide-react'
 import {
   DndContext,
   closestCenter,
@@ -3507,21 +3507,47 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 />
 
                 <div className="mt-4 pt-4 border-t border-gray-200">
-                  <p className="text-sm text-gray-600 text-center">
+                  <p className="text-sm text-gray-600 text-center mb-4">
                     {t('zones.qrScanMessage')}
                   </p>
 
-                  {/* Button to open the QR Designer */}
-                  <Button
-                    onClick={() => {
-                      setShowQRModal(false)
-                      setShowQRDesigner(true)
-                    }}
-                    className="w-full mt-4 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white"
-                  >
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Personalizar diseño para imprimir
-                  </Button>
+                  {/* Download and Designer buttons */}
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      onClick={() => {
+                        setShowQRModal(false)
+                        setShowQRDesigner(true)
+                      }}
+                      className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white"
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Personalizar diseño para imprimir
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        try {
+                          const QRCode = (await import('qrcode')).default
+                          const zoneUrl = `${window.location.origin}/guide/${id}/${selectedZoneForQR.id}`
+                          const qrDataUrl = await QRCode.toDataURL(zoneUrl, {
+                            width: 400,
+                            margin: 2,
+                            color: { dark: '#6366f1', light: '#ffffff' }
+                          })
+                          const link = document.createElement('a')
+                          link.download = `qr-${getZoneText(selectedZoneForQR.name)}.png`.toLowerCase().replace(/\s+/g, '-')
+                          link.href = qrDataUrl
+                          link.click()
+                        } catch (err) {
+                          console.error('Error downloading QR:', err)
+                        }
+                      }}
+                      className="w-full"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Descargar QR Simple
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
