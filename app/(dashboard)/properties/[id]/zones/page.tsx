@@ -3469,89 +3469,169 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
       <AnimatePresence>
         {showQRModal && selectedZoneForQR && (
-          <div
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
+            onClick={() => {
+              setShowQRModal(false)
+              setSelectedZoneForQR(null)
+            }}
           >
-            <div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-lg w-full max-w-md"
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white w-full sm:w-auto sm:min-w-[380px] sm:max-w-md sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-hidden"
             >
-              <div className="p-4 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">{t('zones.qrCodeTitle', { name: getZoneText(selectedZoneForQR.name) })}</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setShowQRModal(false)
-                      setSelectedZoneForQR(null)
-                    }}
-                  >
-                    ✕
-                  </Button>
+              {/* Header */}
+              <div className="sticky top-0 bg-white px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center">
+                    <QrCode className="w-4 h-4 text-violet-600" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 truncate max-w-[200px]">
+                    {getZoneText(selectedZoneForQR.name)}
+                  </h3>
                 </div>
+                <button
+                  onClick={() => {
+                    setShowQRModal(false)
+                    setSelectedZoneForQR(null)
+                  }}
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
               </div>
-              
-              <div className="p-4">
-                <QRCodeDisplay
-                  propertyId={id}
-                  zoneId={selectedZoneForQR.id}
-                  zoneName={getZoneText(selectedZoneForQR.name)}
-                  size="lg"
-                  showTitle={false}
-                />
 
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <p className="text-sm text-gray-600 text-center mb-4">
-                    {t('zones.qrScanMessage')}
+              {/* Content */}
+              <div className="p-4 overflow-y-auto">
+                {/* QR Code - Centered and responsive */}
+                <div className="flex justify-center mb-4">
+                  <QRCodeDisplay
+                    propertyId={id}
+                    zoneId={selectedZoneForQR.id}
+                    zoneName={getZoneText(selectedZoneForQR.name)}
+                    size="md"
+                    showTitle={false}
+                    showActions={false}
+                  />
+                </div>
+
+                {/* URL Display */}
+                <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                  <p className="text-xs text-gray-500 mb-1">URL de la zona:</p>
+                  <p className="text-sm font-mono text-gray-700 break-all">
+                    {`${typeof window !== 'undefined' ? window.location.origin : ''}/guide/${id}/${selectedZoneForQR.id}`}
                   </p>
+                </div>
 
-                  {/* Download and Designer buttons */}
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      onClick={() => {
-                        setShowQRModal(false)
-                        setShowQRDesigner(true)
-                      }}
-                      className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white"
-                    >
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Personalizar diseño para imprimir
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={async () => {
+                {/* Action buttons */}
+                <div className="space-y-2">
+                  {/* Download Button - Primary */}
+                  <Button
+                    onClick={async () => {
+                      try {
+                        const QRCode = (await import('qrcode')).default
+                        const zoneUrl = `${window.location.origin}/guide/${id}/${selectedZoneForQR.id}`
+                        const qrDataUrl = await QRCode.toDataURL(zoneUrl, {
+                          width: 600,
+                          margin: 2,
+                          color: { dark: '#6366f1', light: '#ffffff' }
+                        })
+
+                        // For mobile compatibility, create a temporary anchor with download attribute
+                        const link = document.createElement('a')
+                        link.href = qrDataUrl
+                        link.download = `qr-${getZoneText(selectedZoneForQR.name).toLowerCase().replace(/\s+/g, '-')}.png`
+                        document.body.appendChild(link)
+                        link.click()
+                        document.body.removeChild(link)
+                      } catch (err) {
+                        console.error('Error downloading QR:', err)
+                        // Fallback: open in new tab
                         try {
                           const QRCode = (await import('qrcode')).default
                           const zoneUrl = `${window.location.origin}/guide/${id}/${selectedZoneForQR.id}`
-                          const qrDataUrl = await QRCode.toDataURL(zoneUrl, {
-                            width: 400,
-                            margin: 2,
-                            color: { dark: '#6366f1', light: '#ffffff' }
+                          const qrDataUrl = await QRCode.toDataURL(zoneUrl, { width: 600 })
+                          window.open(qrDataUrl, '_blank')
+                        } catch (e) {
+                          alert('No se pudo descargar el QR. Intenta de nuevo.')
+                        }
+                      }
+                    }}
+                    className="w-full h-12 bg-violet-600 hover:bg-violet-700 text-white font-medium"
+                  >
+                    <Download className="h-5 w-5 mr-2" />
+                    Descargar QR
+                  </Button>
+
+                  {/* Copy URL Button */}
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      const url = `${window.location.origin}/guide/${id}/${selectedZoneForQR.id}`
+                      try {
+                        await navigator.clipboard.writeText(url)
+                        // Visual feedback
+                        const btn = document.activeElement as HTMLButtonElement
+                        if (btn) {
+                          const originalText = btn.innerHTML
+                          btn.innerHTML = '<svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>¡Copiado!'
+                          setTimeout(() => { btn.innerHTML = originalText }, 2000)
+                        }
+                      } catch (err) {
+                        console.error('Error copying URL:', err)
+                      }
+                    }}
+                    className="w-full h-12"
+                  >
+                    <Copy className="h-5 w-5 mr-2" />
+                    Copiar enlace
+                  </Button>
+
+                  {/* Share Button - Only on mobile */}
+                  {typeof navigator !== 'undefined' && navigator.share && (
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        const url = `${window.location.origin}/guide/${id}/${selectedZoneForQR.id}`
+                        try {
+                          await navigator.share({
+                            title: `${getZoneText(selectedZoneForQR.name)} - Itineramio`,
+                            url
                           })
-                          const link = document.createElement('a')
-                          link.download = `qr-${getZoneText(selectedZoneForQR.name)}.png`.toLowerCase().replace(/\s+/g, '-')
-                          link.href = qrDataUrl
-                          link.click()
                         } catch (err) {
-                          console.error('Error downloading QR:', err)
+                          console.error('Error sharing:', err)
                         }
                       }}
-                      className="w-full"
+                      className="w-full h-12"
                     >
-                      <Download className="h-4 w-4 mr-2" />
-                      Descargar QR Simple
+                      <Share2 className="h-5 w-5 mr-2" />
+                      Compartir
                     </Button>
-                  </div>
+                  )}
+
+                  {/* Design Button */}
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setShowQRModal(false)
+                      setShowQRDesigner(true)
+                    }}
+                    className="w-full h-12 text-violet-600 hover:text-violet-700 hover:bg-violet-50"
+                  >
+                    <Sparkles className="h-5 w-5 mr-2" />
+                    Personalizar diseño
+                  </Button>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
