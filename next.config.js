@@ -106,9 +106,38 @@ const nextConfig = {
       },
     ]
   },
-  // Strategic caching headers
+  // Strategic caching headers + Security headers
   async headers() {
+    // Security headers for all routes
+    const securityHeaders = [
+      {
+        key: 'X-DNS-Prefetch-Control',
+        value: 'on'
+      },
+      {
+        key: 'X-Frame-Options',
+        value: 'DENY'
+      },
+      {
+        key: 'X-Content-Type-Options',
+        value: 'nosniff'
+      },
+      {
+        key: 'Referrer-Policy',
+        value: 'strict-origin-when-cross-origin'
+      },
+      {
+        key: 'Permissions-Policy',
+        value: 'camera=(), microphone=(), geolocation=()'
+      }
+    ]
+
     return [
+      {
+        // Apply security headers to all routes
+        source: '/:path*',
+        headers: securityHeaders,
+      },
       {
         // Cache static assets aggressively
         source: '/uploads/:path*',
@@ -120,7 +149,7 @@ const nextConfig = {
         ],
       },
       {
-        // Cache API routes for a short time
+        // Cache API routes for a short time + no store for sensitive data
         source: '/api/:path*',
         headers: [
           {

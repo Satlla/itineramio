@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import * as XLSX from 'xlsx'
-import { findBestMatch } from '@/lib/property-matcher'
+import { findBestMatch, matchListingToBillingUnits, type BillingUnitConfig, type BillingUnitMatchResult } from '@/lib/property-matcher'
 
 /**
  * POST /api/gestion/reservations/import-preview
@@ -35,6 +35,15 @@ export async function POST(request: NextRequest) {
       // Archivo Excel
       const buffer = await file.arrayBuffer()
       const workbook = XLSX.read(buffer, { type: 'array' })
+
+      // Verificar que el archivo tiene al menos una hoja
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        return NextResponse.json(
+          { error: 'El archivo Excel está vacío o no tiene hojas' },
+          { status: 400 }
+        )
+      }
+
       const sheetName = workbook.SheetNames[0]
       const sheet = workbook.Sheets[sheetName]
 
@@ -48,7 +57,15 @@ export async function POST(request: NextRequest) {
       rows = jsonData.filter(row => row.some(cell => cell && String(cell).trim()))
     } else {
       // Archivo CSV
-      const content = await file.text()
+      let content: string
+      try {
+        content = await file.text()
+      } catch (e) {
+        return NextResponse.json(
+          { error: 'No se pudo leer el archivo. Puede estar corrupto.' },
+          { status: 400 }
+        )
+      }
       rows = parseCSV(content)
     }
 
@@ -204,30 +221,76 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Convertir Map a array para JSON y hacer matching de propiedades
-    const platformForMatch = detectedPlatform === 'BOOKING' ? 'booking' : 'airbnb'
+    // Convertir BillingUnits a formato para matching
+    const billingUnitConfigs: BillingUnitConfig[] = billingUnits.map(unit => ({
+      id: unit.id,
+      name: unit.name,
+      airbnbNames: unit.airbnbNames,
+      bookingNames: unit.bookingNames,
+      vrboNames: unit.vrboNames
+    }))
+
+    // Convertir Map a array para JSON y hacer matching de BillingUnits
+    const platformForMatch = (detectedPlatform === 'BOOKING' ? 'booking' : 'airbnb') as 'airbnb' | 'booking' | 'vrbo'
     const listingsArray = Array.from(analysis.listingsFound.entries()).map(([name, count]) => {
-      // Intentar hacer match con una propiedad existente
-      const match = findBestMatch(name, propertyConfigs, platformForMatch as 'airbnb' | 'booking' | 'vrbo', 70)
+      // Match con BillingUnits usando el nuevo sistema
+      const matches = matchListingToBillingUnits(name, billingUnitConfigs, platformForMatch, 50)
+      const bestMatch = matches.find(m => m.confidence >= 70) || null
+
+      // Also try legacy property matching for backwards compatibility
+      const legacyMatch = findBestMatch(name, propertyConfigs, platformForMatch, 70)
+
       return {
         name,
         count,
-        suggestedPropertyId: match?.propertyId || null,
-        suggestedPropertyName: match?.propertyName || null,
-        matchConfidence: match?.confidence || 0,
-        matchType: match?.matchType || null
+        // New BillingUnit matching
+        suggestedBillingUnitId: bestMatch?.billingUnitId || null,
+        suggestedBillingUnitName: bestMatch?.billingUnitName || null,
+        matchConfidence: bestMatch?.confidence || 0,
+        matchType: bestMatch?.matchType || null,
+        matchedName: bestMatch?.matchedName || null,
+        possibleMatches: matches.slice(0, 5).map(m => ({
+          billingUnitId: m.billingUnitId,
+          billingUnitName: m.billingUnitName,
+          confidence: m.confidence,
+          matchType: m.matchType,
+          matchedName: m.matchedName
+        })),
+        needsManualAssignment: !bestMatch || bestMatch.confidence < 90,
+        // Legacy property matching (backwards compatibility)
+        suggestedPropertyId: legacyMatch?.propertyId || null,
+        suggestedPropertyName: legacyMatch?.propertyName || null
       }
     }).sort((a, b) => b.count - a.count)
 
+    // Determine if smart import should be used (multiple listings detected)
+    const hasMultipleListings = listingsArray.length > 1
+    const allListingsMatched = listingsArray.every(l => l.suggestedBillingUnitId && l.matchConfidence >= 90)
+    const anyNeedsManualAssignment = listingsArray.some(l => l.needsManualAssignment)
+
     // Si hay un solo listing y tiene match con alta confianza, pre-seleccionar
     const autoSelectedPropertyId = listingsArray.length === 1 && listingsArray[0].matchConfidence >= 90
-      ? listingsArray[0].suggestedPropertyId
+      ? listingsArray[0].suggestedBillingUnitId || listingsArray[0].suggestedPropertyId
       : null
+
+    // Prepare available BillingUnits for dropdown selection
+    const availableBillingUnits = billingUnits.map(unit => ({
+      id: unit.id,
+      name: unit.name
+    }))
 
     return NextResponse.json({
       success: true,
       platform: detectedPlatform,
       autoSelectedPropertyId,
+      // New smart import data
+      smartImport: {
+        enabled: hasMultipleListings || anyNeedsManualAssignment,
+        hasMultipleListings,
+        allListingsMatched,
+        anyNeedsManualAssignment,
+        availableBillingUnits
+      },
       analysis: {
         totalRows: analysis.totalRows,
         validRows: analysis.validRows,

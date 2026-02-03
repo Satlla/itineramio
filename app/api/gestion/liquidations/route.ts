@@ -20,13 +20,23 @@ export async function GET(request: NextRequest) {
     const month = searchParams.get('month')
     const ownerId = searchParams.get('ownerId')
     const status = searchParams.get('status')
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100) // Max 100
 
     const where: any = { userId }
 
-    if (year) where.year = parseInt(year)
-    if (month) where.month = parseInt(month)
+    if (year) {
+      const yearNum = parseInt(year)
+      if (yearNum >= 2000 && yearNum <= 2100) {
+        where.year = yearNum
+      }
+    }
+    if (month) {
+      const monthNum = parseInt(month)
+      if (monthNum >= 1 && monthNum <= 12) {
+        where.month = monthNum
+      }
+    }
     if (ownerId) where.ownerId = ownerId
     if (status) where.status = status
 
@@ -120,6 +130,7 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/gestion/liquidations
  * Generar liquidación para un propietario y período
+ * Soporta modo GROUP (por conjunto) e INDIVIDUAL (por apartamentos)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -130,7 +141,18 @@ export async function POST(request: NextRequest) {
     const userId = authResult.userId
 
     const body = await request.json()
-    const { ownerId, propertyId, year, month, invoiceFormat, reservationIds } = body
+    const {
+      ownerId,
+      propertyId,
+      year,
+      month,
+      invoiceFormat,
+      reservationIds,
+      // New parameters for GROUP mode
+      mode, // 'GROUP' | 'INDIVIDUAL'
+      billingUnitGroupId, // If mode is GROUP
+      billingUnitIds // If mode is INDIVIDUAL (array of billing unit IDs)
+    } = body
 
     if (!ownerId || !year || !month) {
       return NextResponse.json(
@@ -140,20 +162,27 @@ export async function POST(request: NextRequest) {
     }
 
     // Store format metadata for invoice generation
-    const metadata = {
+    const metadata: any = {
       invoiceFormat: invoiceFormat || 'detailed', // 'detailed' or 'grouped'
       propertyId: propertyId || null,
-      reservationIds: reservationIds || null
+      reservationIds: reservationIds || null,
+      mode: mode || 'LEGACY',
+      billingUnitGroupId: billingUnitGroupId || null,
+      billingUnitIds: billingUnitIds || null
     }
 
     // Verificar que no exista liquidación duplicada
+    // For GROUP mode, check with billingUnitGroupId
+    // For INDIVIDUAL mode, check standard owner/year/month
+    const existingWhere: any = {
+      userId,
+      ownerId,
+      year: parseInt(year),
+      month: parseInt(month),
+    }
+
     const existing = await prisma.liquidation.findFirst({
-      where: {
-        userId,
-        ownerId,
-        year: parseInt(year),
-        month: parseInt(month),
-      },
+      where: existingWhere,
     })
 
     if (existing) {
@@ -175,73 +204,188 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Obtener las configuraciones de facturación del propietario
-    const billingConfigs = await prisma.propertyBillingConfig.findMany({
-      where: {
-        ownerId,
-        isActive: true,
-      },
-      include: {
-        property: {
-          select: { id: true, name: true },
-        },
-      },
-    })
-
-    if (billingConfigs.length === 0) {
-      return NextResponse.json(
-        { error: 'El propietario no tiene propiedades asignadas' },
-        { status: 400 }
-      )
-    }
-
     // Fechas del período
     const startDate = new Date(parseInt(year), parseInt(month) - 1, 1)
     const endDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59)
 
-    // Build reservation query
-    const reservationWhere: any = {
-      status: { in: ['COMPLETED', 'CONFIRMED'] },
-      liquidationId: null,
-    }
+    // Variables for billing configuration
+    let commissionType = 'PERCENTAGE'
+    let commissionValue = new Decimal(0)
+    let commissionVat = new Decimal(21)
+    let cleaningType = 'FIXED_PER_RESERVATION'
+    let cleaningValue = new Decimal(0)
+    let monthlyFee = new Decimal(0)
+    let monthlyFeeVat = new Decimal(21)
+    let useBillingUnits = false
+    let targetBillingUnitIds: string[] = []
 
-    // If specific reservationIds provided, use those
-    if (reservationIds && Array.isArray(reservationIds) && reservationIds.length > 0) {
-      reservationWhere.id = { in: reservationIds }
-    } else {
-      // Otherwise, filter by billing configs and date range
-      // If propertyId provided, filter to that property only
-      const configIds = propertyId
-        ? billingConfigs.filter(bc => bc.property.id === propertyId).map(bc => bc.id)
-        : billingConfigs.map(bc => bc.id)
+    // Handle GROUP mode
+    if (mode === 'GROUP' && billingUnitGroupId) {
+      const group = await prisma.billingUnitGroup.findFirst({
+        where: { id: billingUnitGroupId, userId },
+        include: {
+          billingUnits: { select: { id: true } }
+        }
+      })
 
-      reservationWhere.billingConfigId = { in: configIds }
-      reservationWhere.checkOut = {
-        gte: startDate,
-        lte: endDate,
+      if (!group) {
+        return NextResponse.json(
+          { error: 'Conjunto no encontrado' },
+          { status: 404 }
+        )
       }
+
+      // Use group's billing configuration
+      commissionType = group.commissionType
+      commissionValue = group.commissionValue
+      commissionVat = group.commissionVat
+      cleaningType = group.cleaningType
+      cleaningValue = group.cleaningValue
+      monthlyFee = group.monthlyFee
+      monthlyFeeVat = group.monthlyFeeVat
+
+      targetBillingUnitIds = group.billingUnits.map(u => u.id)
+      useBillingUnits = true
+    }
+    // Handle INDIVIDUAL mode with billing units
+    else if (mode === 'INDIVIDUAL' && billingUnitIds && billingUnitIds.length > 0) {
+      // Verify billing units belong to user and owner
+      const units = await prisma.billingUnit.findMany({
+        where: {
+          id: { in: billingUnitIds },
+          userId,
+          ownerId
+        }
+      })
+
+      if (units.length === 0) {
+        return NextResponse.json(
+          { error: 'No se encontraron apartamentos válidos' },
+          { status: 404 }
+        )
+      }
+
+      // Use first unit's configuration (or could average/aggregate)
+      const firstUnit = units[0]
+      commissionType = firstUnit.commissionType
+      commissionValue = firstUnit.commissionValue
+      commissionVat = firstUnit.commissionVat
+      cleaningType = firstUnit.cleaningType
+      cleaningValue = firstUnit.cleaningValue
+      monthlyFee = firstUnit.monthlyFee
+      monthlyFeeVat = firstUnit.monthlyFeeVat
+
+      targetBillingUnitIds = units.map(u => u.id)
+      useBillingUnits = true
     }
 
-    // Obtener reservas
-    const reservations = await prisma.reservation.findMany({
-      where: reservationWhere,
-      include: {
-        billingConfig: true,
-      },
-    })
+    // Get reservations based on mode
+    let reservations: any[] = []
+    let expenses: any[] = []
 
-    // Obtener gastos del período (repercutidos al propietario, sin liquidar)
-    const expenses = await prisma.propertyExpense.findMany({
-      where: {
-        billingConfigId: { in: billingConfigs.map((bc) => bc.id) },
-        date: {
+    if (useBillingUnits && targetBillingUnitIds.length > 0) {
+      // Get reservations from billing units
+      reservations = await prisma.reservation.findMany({
+        where: {
+          billingUnitId: { in: targetBillingUnitIds },
+          status: { in: ['COMPLETED', 'CONFIRMED'] },
+          liquidationId: null,
+          checkOut: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+        include: {
+          billingUnit: { select: { id: true, name: true } }
+        }
+      })
+
+      // Get expenses from billing units
+      expenses = await prisma.propertyExpense.findMany({
+        where: {
+          billingUnitId: { in: targetBillingUnitIds },
+          chargeToOwner: true,
+          liquidationId: null,
+          date: {
+            gte: startDate,
+            lte: endDate,
+          },
+        }
+      })
+    } else {
+      // Legacy mode: use PropertyBillingConfig
+      const billingConfigs = await prisma.propertyBillingConfig.findMany({
+        where: {
+          ownerId,
+          isActive: true,
+        },
+        include: {
+          property: {
+            select: { id: true, name: true },
+          },
+        },
+      })
+
+      if (billingConfigs.length === 0) {
+        return NextResponse.json(
+          { error: 'El propietario no tiene propiedades asignadas' },
+          { status: 400 }
+        )
+      }
+
+      // Build reservation query
+      const reservationWhere: any = {
+        status: { in: ['COMPLETED', 'CONFIRMED'] },
+        liquidationId: null,
+      }
+
+      // If specific reservationIds provided, use those
+      if (reservationIds && Array.isArray(reservationIds) && reservationIds.length > 0) {
+        reservationWhere.id = { in: reservationIds }
+      } else {
+        // Otherwise, filter by billing configs and date range
+        const configIds = propertyId
+          ? billingConfigs.filter(bc => bc.property.id === propertyId).map(bc => bc.id)
+          : billingConfigs.map(bc => bc.id)
+
+        reservationWhere.billingConfigId = { in: configIds }
+        reservationWhere.checkOut = {
           gte: startDate,
           lte: endDate,
+        }
+      }
+
+      reservations = await prisma.reservation.findMany({
+        where: reservationWhere,
+        include: {
+          billingConfig: true,
         },
-        chargeToOwner: true,
-        liquidationId: null,
-      },
-    })
+      })
+
+      expenses = await prisma.propertyExpense.findMany({
+        where: {
+          billingConfigId: { in: billingConfigs.map((bc) => bc.id) },
+          date: {
+            gte: startDate,
+            lte: endDate,
+          },
+          chargeToOwner: true,
+          liquidationId: null,
+        },
+      })
+
+      // Use first config for commission settings in legacy mode
+      if (billingConfigs.length > 0) {
+        const firstConfig = billingConfigs[0]
+        commissionType = firstConfig.commissionType
+        commissionValue = firstConfig.commissionValue
+        commissionVat = firstConfig.commissionVat
+        cleaningType = firstConfig.cleaningType
+        cleaningValue = firstConfig.cleaningValue
+        monthlyFee = firstConfig.monthlyFee
+        monthlyFeeVat = firstConfig.monthlyFeeVat
+      }
+    }
 
     // Calcular totales
     let totalIncome = new Decimal(0)
@@ -250,53 +394,55 @@ export async function POST(request: NextRequest) {
     let totalCleaning = new Decimal(0)
 
     for (const reservation of reservations) {
-      const config = reservation.billingConfig
       const hostEarnings = new Decimal(reservation.hostEarnings || 0)
-
       totalIncome = totalIncome.plus(hostEarnings)
+
+      // Get config from reservation (for legacy) or use group/unit config
+      let resCommissionType = commissionType
+      let resCommissionValue = commissionValue
+      let resCommissionVat = commissionVat
+      let resCleaningType = cleaningType
+      let resCleaningValue = cleaningValue
+
+      if (reservation.billingConfig) {
+        // Legacy mode with billingConfig
+        resCommissionType = reservation.billingConfig.commissionType
+        resCommissionValue = reservation.billingConfig.commissionValue
+        resCommissionVat = reservation.billingConfig.commissionVat
+        resCleaningType = reservation.billingConfig.cleaningType
+        resCleaningValue = reservation.billingConfig.cleaningValue
+      }
 
       // Calcular comisión según tipo
       let commission = new Decimal(0)
-      if (config.commissionType === 'PERCENTAGE') {
-        commission = hostEarnings.times(new Decimal(config.commissionValue || 0)).dividedBy(100)
-      } else if (config.commissionType === 'FIXED_PER_RESERVATION') {
-        commission = new Decimal(config.commissionValue || 0)
+      if (resCommissionType === 'PERCENTAGE') {
+        commission = hostEarnings.times(new Decimal(resCommissionValue || 0)).dividedBy(100)
+      } else if (resCommissionType === 'FIXED_PER_RESERVATION') {
+        commission = new Decimal(resCommissionValue || 0)
       }
-      // FIXED_MONTHLY se calcula después
 
       totalCommission = totalCommission.plus(commission)
 
       // Calcular IVA de comisión
-      const commissionVat = commission.times(new Decimal(config.commissionVat || 21)).dividedBy(100)
-      totalCommissionVat = totalCommissionVat.plus(commissionVat)
+      const commVat = commission.times(new Decimal(resCommissionVat || 21)).dividedBy(100)
+      totalCommissionVat = totalCommissionVat.plus(commVat)
 
       // Calcular limpieza
       let cleaning = new Decimal(0)
-      if (config.cleaningType === 'FIXED_PER_RESERVATION') {
-        cleaning = new Decimal(config.cleaningValue || 0)
-      } else if (config.cleaningType === 'PER_NIGHT') {
-        cleaning = new Decimal(config.cleaningValue || 0).times(reservation.nights || 1)
+      if (resCleaningType === 'FIXED_PER_RESERVATION') {
+        cleaning = new Decimal(resCleaningValue || 0)
+      } else if (resCleaningType === 'PER_NIGHT') {
+        cleaning = new Decimal(resCleaningValue || 0).times(reservation.nights || 1)
       }
       totalCleaning = totalCleaning.plus(cleaning)
     }
 
-    // Añadir comisiones mensuales fijas
-    for (const config of billingConfigs) {
-      if (config.commissionType === 'FIXED_MONTHLY') {
-        const monthlyCommission = new Decimal(config.commissionValue || 0)
-        totalCommission = totalCommission.plus(monthlyCommission)
-        const commissionVat = monthlyCommission.times(new Decimal(config.commissionVat || 21)).dividedBy(100)
-        totalCommissionVat = totalCommissionVat.plus(commissionVat)
-      }
-
-      // Añadir cuota mensual
-      if (config.monthlyFee) {
-        const fee = new Decimal(config.monthlyFee)
-        totalCommission = totalCommission.plus(fee)
-        if (config.monthlyFeeVat) {
-          const feeVat = fee.times(new Decimal(config.monthlyFeeVat)).dividedBy(100)
-          totalCommissionVat = totalCommissionVat.plus(feeVat)
-        }
+    // Añadir cuota mensual (for GROUP or unit-based)
+    if (monthlyFee && monthlyFee.greaterThan(0)) {
+      totalCommission = totalCommission.plus(monthlyFee)
+      if (monthlyFeeVat) {
+        const feeVat = monthlyFee.times(new Decimal(monthlyFeeVat)).dividedBy(100)
+        totalCommissionVat = totalCommissionVat.plus(feeVat)
       }
     }
 
@@ -308,19 +454,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Calcular retención IRPF (15% sobre comisión si el propietario es persona física)
-    // La retención IRPF la aplica el propietario al gestor sobre los servicios prestados
-    // El propietario retiene el 15% de la comisión y lo ingresa en Hacienda
     let totalRetention = new Decimal(0)
     if (owner.type === 'PERSONA_FISICA') {
       totalRetention = totalCommission.times(new Decimal(15)).dividedBy(100)
     }
 
     // Calcular total a pagar al propietario
-    // totalAmount = ingresos - comisión - IVA comisión - limpieza - gastos
-    // Nota: La retención NO afecta al totalAmount del propietario.
-    // La retención indica cuánto del pago al gestor va a Hacienda vs al gestor directo:
-    //   - Pago al gestor = comisión + IVA - retención
-    //   - Pago a Hacienda = retención
     const totalAmount = totalIncome
       .minus(totalCommission)
       .minus(totalCommissionVat)
@@ -342,7 +481,7 @@ export async function POST(request: NextRequest) {
         totalExpenses,
         totalAmount,
         status: 'DRAFT',
-        notes: JSON.stringify(metadata), // Store invoice format and other metadata
+        notes: JSON.stringify(metadata),
       },
     })
 

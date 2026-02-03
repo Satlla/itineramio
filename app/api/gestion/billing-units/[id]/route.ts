@@ -106,6 +106,7 @@ export async function PATCH(
     if (body.postalCode !== undefined) updateData.postalCode = body.postalCode?.trim() || null
     if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl || null
     if (body.ownerId !== undefined) updateData.ownerId = body.ownerId || null
+    if (body.groupId !== undefined) updateData.groupId = body.groupId || null
 
     // Matching
     if (body.airbnbNames !== undefined) updateData.airbnbNames = body.airbnbNames

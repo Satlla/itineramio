@@ -159,9 +159,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!amount || parseFloat(amount) <= 0) {
+    const parsedAmount = parseFloat(String(amount))
+    if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
       return NextResponse.json(
-        { error: 'El importe debe ser mayor que 0' },
+        { error: 'El importe debe ser un número mayor que 0' },
         { status: 400 }
       )
     }

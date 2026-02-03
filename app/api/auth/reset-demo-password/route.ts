@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { prisma } from '../../../../src/lib/prisma'
+import { requireAdminAuth } from '../../../../src/lib/admin-auth'
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔑 Resetting demo password...')
+    // Requiere autenticación de admin
+    const adminAuth = await requireAdminAuth(request)
+    if (adminAuth instanceof Response) {
+      return adminAuth
+    }
+
+    console.log('🔑 Resetting demo password by admin:', adminAuth.adminId)
     
     const hashedPassword = await bcrypt.hash('demo123', 10)
     

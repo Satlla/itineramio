@@ -18,7 +18,8 @@ import {
   FolderOpen,
   Building2,
   Upload,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Lightbulb
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
@@ -917,26 +918,38 @@ function NewUnitModal({
           />
         </div>
 
-        {groups.length > 0 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Añadir a conjunto</label>
-            <select
-              value={form.groupId}
-              onChange={e => setForm(f => ({ ...f, groupId: e.target.value, ownerId: '' }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-            >
-              <option value="">Individual (sin conjunto)</option>
-              {groups.map(g => (
-                <option key={g.id} value={g.id}>{g.name}</option>
-              ))}
-            </select>
-            {form.groupId && (
-              <p className="text-xs text-gray-500 mt-1">
-                Hereda propietario y configuración del conjunto
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            <FolderOpen className="w-4 h-4 inline mr-1" />
+            Añadir a conjunto
+          </label>
+          {groups.length > 0 ? (
+            <>
+              <select
+                value={form.groupId}
+                onChange={e => setForm(f => ({ ...f, groupId: e.target.value, ownerId: '' }))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              >
+                <option value="">Individual (sin conjunto)</option>
+                {groups.map(g => (
+                  <option key={g.id} value={g.id}>{g.name}</option>
+                ))}
+              </select>
+              {form.groupId && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Hereda propietario y configuración del conjunto
+                </p>
+              )}
+            </>
+          ) : (
+            <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3 border border-gray-200">
+              <p>No hay conjuntos creados todavía.</p>
+              <p className="mt-1 text-xs text-gray-400">
+                Los conjuntos permiten agrupar apartamentos de un mismo propietario para facturar todo junto.
               </p>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
         {!form.groupId && (
           <>
@@ -1152,6 +1165,24 @@ function NewGroupModal({
   return (
     <Modal open={open} onClose={onClose} title="Nuevo conjunto">
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Info box explicativo */}
+        <div className="bg-violet-50 border border-violet-200 rounded-lg p-4">
+          <div className="flex gap-3">
+            <Lightbulb className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-violet-800">
+              <p className="font-medium mb-1">¿Qué es un conjunto?</p>
+              <p className="text-violet-700">
+                Un conjunto agrupa varios apartamentos de un mismo propietario para facturar todo junto en una única liquidación mensual.
+              </p>
+              <ul className="mt-2 space-y-1 text-violet-700">
+                <li>• Una sola liquidación para todos los apartamentos</li>
+                <li>• Desglose por apartamento en el PDF</li>
+                <li>• Ahorra tiempo en la gestión mensual</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <ImageUpload
           currentUrl={form.imageUrl || null}
           onUpload={(url) => setForm(f => ({ ...f, imageUrl: url }))}
@@ -1408,21 +1439,38 @@ function EditUnitModal({
           />
         </div>
 
-        {groups.length > 0 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Conjunto</label>
-            <select
-              value={form.groupId}
-              onChange={e => setForm(f => ({ ...f, groupId: e.target.value, ownerId: '' }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-            >
-              <option value="">Individual (sin conjunto)</option>
-              {groups.map(g => (
-                <option key={g.id} value={g.id}>{g.name}</option>
-              ))}
-            </select>
-          </div>
-        )}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            <FolderOpen className="w-4 h-4 inline mr-1" />
+            Conjunto
+          </label>
+          {groups.length > 0 ? (
+            <>
+              <select
+                value={form.groupId}
+                onChange={e => setForm(f => ({ ...f, groupId: e.target.value, ownerId: '' }))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              >
+                <option value="">Individual (sin conjunto)</option>
+                {groups.map(g => (
+                  <option key={g.id} value={g.id}>{g.name}</option>
+                ))}
+              </select>
+              {form.groupId && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Hereda propietario y configuración del conjunto
+                </p>
+              )}
+            </>
+          ) : (
+            <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3 border border-gray-200">
+              <p>No hay conjuntos creados todavía.</p>
+              <p className="mt-1 text-xs text-gray-400">
+                Los conjuntos permiten agrupar apartamentos de un mismo propietario.
+              </p>
+            </div>
+          )}
+        </div>
 
         {!form.groupId && (
           <>

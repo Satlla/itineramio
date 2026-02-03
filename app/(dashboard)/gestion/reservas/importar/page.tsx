@@ -18,7 +18,8 @@ import {
   Calendar,
   Settings2
 } from 'lucide-react'
-import { SimpleColumnMapper, type SimpleMapping } from '@/components/gestion/reservas'
+import { SimpleColumnMapper, type SimpleMapping, ListingMapper, type ListingInfo, type ListingMapping, type BillingUnitOption } from '@/components/gestion/reservas'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 interface Property {
   id: string
@@ -55,6 +56,8 @@ interface ImportResult {
   errors: Array<{ row: number; error: string; data?: unknown }>
   importBatchId?: string
   listingsFound?: string[]
+  byBillingUnit?: Array<{ id: string; name: string; count: number }>
+  aliasesSaved?: Array<{ billingUnitId: string; billingUnitName: string; alias: string }>
 }
 
 interface PreviewAnalysis {
@@ -63,10 +66,18 @@ interface PreviewAnalysis {
   newReservations: number
   duplicates: number
   invalidRows: number
-  listingsFound: Array<{ name: string; count: number }>
+  listingsFound: ListingInfo[]
   dateRange: { min: string | null; max: string | null }
   duplicateDetails: Array<{ code: string; guestName: string; existsIn: string }>
   newDetails: Array<{ code: string; guestName: string; checkIn: string; amount: number; listing: string }>
+}
+
+interface SmartImportInfo {
+  enabled: boolean
+  hasMultipleListings: boolean
+  allListingsMatched: boolean
+  anyNeedsManualAssignment: boolean
+  availableBillingUnits: BillingUnitOption[]
 }
 
 interface ImportHistory {
@@ -110,6 +121,12 @@ export default function ImportarReservasPage() {
   // Preview analysis state
   const [previewAnalysis, setPreviewAnalysis] = useState<PreviewAnalysis | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+
+  // Smart import state
+  const [smartImportInfo, setSmartImportInfo] = useState<SmartImportInfo | null>(null)
+  const [listingMappings, setListingMappings] = useState<Record<string, ListingMapping>>({})
+  const [canConfirmSmartImport, setCanConfirmSmartImport] = useState(false)
+  const [useSmartImport, setUseSmartImport] = useState(false)
 
   // Fetch properties and billing units
   useEffect(() => {
@@ -161,6 +178,8 @@ export default function ImportarReservasPage() {
   useEffect(() => {
     if (!file) {
       setPreviewAnalysis(null)
+      setSmartImportInfo(null)
+      setUseSmartImport(false)
       return
     }
 
@@ -184,8 +203,18 @@ export default function ImportarReservasPage() {
           if (data.platform && data.platform !== 'UNKNOWN') {
             setDetectedPlatform(data.platform)
           }
-          // Auto-select property if backend suggests one with high confidence
-          if (data.autoSelectedPropertyId && !selectedPropertyId) {
+
+          // Handle smart import info
+          if (data.smartImport) {
+            setSmartImportInfo(data.smartImport)
+            // Auto-enable smart import when multiple listings detected or some need manual assignment
+            if (data.smartImport.hasMultipleListings || data.smartImport.anyNeedsManualAssignment) {
+              setUseSmartImport(true)
+            }
+          }
+
+          // Auto-select property if backend suggests one with high confidence (only for single listing)
+          if (data.autoSelectedPropertyId && !selectedPropertyId && !data.smartImport?.hasMultipleListings) {
             setSelectedPropertyId(data.autoSelectedPropertyId)
           }
         }
@@ -303,21 +332,33 @@ export default function ImportarReservasPage() {
   }
 
   const handleImport = async () => {
-    if (!file || !selectedPropertyId) {
-      setMessage({
-        type: 'error',
-        text: 'Selecciona una propiedad y sube un archivo CSV'
-      })
-      return
-    }
+    // Smart import mode: doesn't require single property selection
+    if (useSmartImport && smartImportInfo) {
+      if (!canConfirmSmartImport) {
+        setMessage({
+          type: 'error',
+          text: 'Asigna todos los alojamientos antes de importar'
+        })
+        return
+      }
+    } else {
+      // Standard import: requires property selection
+      if (!file || !selectedPropertyId) {
+        setMessage({
+          type: 'error',
+          text: 'Selecciona una propiedad y sube un archivo CSV'
+        })
+        return
+      }
 
-    const selectedProperty = properties.find(p => p.id === selectedPropertyId)
-    if (selectedProperty && !selectedProperty.hasBillingConfig) {
-      setMessage({
-        type: 'error',
-        text: 'La propiedad seleccionada no tiene configuración de facturación'
-      })
-      return
+      const selectedProperty = properties.find(p => p.id === selectedPropertyId)
+      if (selectedProperty && !selectedProperty.hasBillingConfig) {
+        setMessage({
+          type: 'error',
+          text: 'La propiedad seleccionada no tiene configuración de facturación'
+        })
+        return
+      }
     }
 
     setIsImporting(true)
@@ -333,8 +374,23 @@ export default function ImportarReservasPage() {
 
       let response: Response
 
-      // If we have simple mapping, use universal import
-      if (simpleMapping) {
+      // Smart import mode
+      if (useSmartImport && smartImportInfo && Object.keys(listingMappings).length > 0) {
+        response = await fetch('/api/gestion/reservations/import-smart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            rows: rawRows,
+            headers: rawHeaders,
+            platform: detectedPlatform,
+            skipDuplicates,
+            listingMappings,
+            defaultBillingUnitId: selectedPropertyId || undefined
+          })
+        })
+      }
+      // Simple mapping mode (universal import)
+      else if (simpleMapping) {
         response = await fetch('/api/gestion/reservations/import-universal', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -357,7 +413,7 @@ export default function ImportarReservasPage() {
           })
         })
       } else {
-        // Use standard import based on detected platform
+        // Standard import based on detected platform
         const formData = new FormData()
         formData.append('file', file)
         formData.append('propertyId', selectedPropertyId)
@@ -384,9 +440,21 @@ export default function ImportarReservasPage() {
       const data = await response.json()
       setImportResult(data.results)
 
+      // Build success message
+      let successMsg = `${data.results.importedCount} reservas importadas correctamente`
+      if (data.results.byBillingUnit && data.results.byBillingUnit.length > 1) {
+        const breakdown = data.results.byBillingUnit
+          .map((b: { name: string; count: number }) => `${b.name}: ${b.count}`)
+          .join(', ')
+        successMsg += ` (${breakdown})`
+      }
+      if (data.results.aliasesSaved && data.results.aliasesSaved.length > 0) {
+        successMsg += `. ${data.results.aliasesSaved.length} alias guardados para futuras importaciones.`
+      }
+
       setMessage({
         type: 'success',
-        text: `${data.results.importedCount} reservas importadas correctamente`
+        text: successMsg
       })
     } catch (error) {
       setMessage({
@@ -410,6 +478,10 @@ export default function ImportarReservasPage() {
     setRawRows([])
     setSimpleMapping(null)
     setPreviewAnalysis(null)
+    setSmartImportInfo(null)
+    setListingMappings({})
+    setCanConfirmSmartImport(false)
+    setUseSmartImport(false)
   }
 
   const handleBulkDelete = async () => {
@@ -496,6 +568,7 @@ export default function ImportarReservasPage() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Importar Reservas</h1>
@@ -530,10 +603,16 @@ export default function ImportarReservasPage() {
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Building2 className="h-5 w-5 text-violet-600" />
-                <h2 className="text-lg font-semibold">Seleccionar Propiedad</h2>
+                <h2 className="text-lg font-semibold">
+                  {useSmartImport ? 'Propiedad por Defecto' : 'Seleccionar Propiedad'}
+                  {useSmartImport && <span className="text-sm font-normal text-gray-500 ml-2">(opcional)</span>}
+                </h2>
               </div>
               <p className="text-sm text-gray-600 mb-4">
-                Las reservas se asociarán a esta propiedad
+                {useSmartImport
+                  ? 'Se usará para reservas sin asignación específica'
+                  : 'Las reservas se asociarán a esta propiedad'
+                }
               </p>
 
               <div className="relative">
@@ -834,8 +913,48 @@ export default function ImportarReservasPage() {
                   </div>
                 )}
 
-                {/* Listings found */}
-                {previewAnalysis.listingsFound.length > 0 && (
+                {/* Smart import mode toggle (when multiple listings detected) */}
+                {smartImportInfo && previewAnalysis.listingsFound.length > 1 && (
+                  <div className="mb-6 p-4 bg-violet-50 border border-violet-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-medium text-violet-900">
+                          Importación inteligente
+                        </h3>
+                        <p className="text-xs text-violet-700 mt-1">
+                          Se detectaron {previewAnalysis.listingsFound.length} alojamientos diferentes.
+                          {useSmartImport
+                            ? ' Asigna cada uno a su apartamento.'
+                            : ' Todos irán a la propiedad seleccionada.'}
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={useSmartImport}
+                          onChange={(e) => setUseSmartImport(e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {/* Smart Import: Listing Mapper */}
+                {useSmartImport && smartImportInfo && previewAnalysis.listingsFound.length > 0 && (
+                  <div className="mb-6">
+                    <ListingMapper
+                      listings={previewAnalysis.listingsFound}
+                      availableBillingUnits={smartImportInfo.availableBillingUnits}
+                      onMappingsChange={setListingMappings}
+                      onCanConfirm={setCanConfirmSmartImport}
+                    />
+                  </div>
+                )}
+
+                {/* Standard Import: Simple listings display */}
+                {!useSmartImport && previewAnalysis.listingsFound.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-sm font-medium text-gray-700 mb-2">
                       Alojamientos en el CSV ({previewAnalysis.listingsFound.length})
@@ -942,7 +1061,11 @@ export default function ImportarReservasPage() {
                   </div>
                   <Button
                     onClick={handleImport}
-                    disabled={isImporting || !selectedPropertyId || previewAnalysis.newReservations === 0}
+                    disabled={
+                      isImporting ||
+                      previewAnalysis.newReservations === 0 ||
+                      (useSmartImport ? !canConfirmSmartImport : !selectedPropertyId)
+                    }
                     className="bg-violet-600 hover:bg-violet-700 text-white"
                   >
                     {isImporting ? (
@@ -954,6 +1077,11 @@ export default function ImportarReservasPage() {
                       <>
                         <XCircle className="h-4 w-4 mr-2" />
                         Nada que importar
+                      </>
+                    ) : useSmartImport && !canConfirmSmartImport ? (
+                      <>
+                        <AlertTriangle className="h-4 w-4 mr-2" />
+                        Asigna todos los alojamientos
                       </>
                     ) : (
                       <>
@@ -982,8 +1110,8 @@ export default function ImportarReservasPage() {
             </Card>
           )}
 
-          {/* Needs property selection */}
-          {file && !selectedPropertyId && !isParsing && !showColumnMapper && (
+          {/* Needs property selection (only for standard import mode) */}
+          {file && !selectedPropertyId && !isParsing && !showColumnMapper && !useSmartImport && !previewAnalysis && (
             <Card>
               <CardContent className="p-6">
                 <div className="text-center py-8">
@@ -1040,12 +1168,45 @@ export default function ImportarReservasPage() {
                   </div>
                 )}
 
-                {/* Listings imported */}
-                {importResult.listingsFound && importResult.listingsFound.length > 0 && (
+                {/* Results by BillingUnit (smart import) */}
+                {importResult.byBillingUnit && importResult.byBillingUnit.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-600 mb-2">Reservas por apartamento:</p>
+                    <div className="space-y-1">
+                      {importResult.byBillingUnit.map((unit: { id: string; name: string; count: number }, i: number) => (
+                        <div key={unit.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                          <span className="text-sm font-medium text-gray-800">{unit.name}</span>
+                          <Badge className="bg-green-100 text-green-800 text-xs">
+                            {unit.count} reservas
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Aliases saved */}
+                {importResult.aliasesSaved && importResult.aliasesSaved.length > 0 && (
+                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-800 font-medium mb-2">
+                      Alias guardados para futuras importaciones:
+                    </p>
+                    <div className="space-y-1">
+                      {importResult.aliasesSaved.map((a: { billingUnitId: string; billingUnitName: string; alias: string }, i: number) => (
+                        <div key={i} className="text-xs text-blue-700">
+                          "{a.alias}" → {a.billingUnitName}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Listings imported (standard import) */}
+                {importResult.listingsFound && importResult.listingsFound.length > 0 && !importResult.byBillingUnit && (
                   <div className="mb-4">
                     <p className="text-sm text-gray-600 mb-2">Alojamientos importados:</p>
                     <div className="flex flex-wrap gap-1">
-                      {importResult.listingsFound.map((listing, i) => (
+                      {importResult.listingsFound.map((listing: string, i: number) => (
                         <Badge key={i} className="bg-violet-100 text-violet-800 text-xs">
                           {listing}
                         </Badge>
@@ -1167,6 +1328,7 @@ export default function ImportarReservasPage() {
         </div>
       </div>
     </div>
+    </ErrorBoundary>
   )
 }
 

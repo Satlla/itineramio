@@ -32,6 +32,9 @@ export async function GET(
                 },
               },
             },
+            billingUnit: {
+              select: { id: true, name: true }
+            },
           },
           orderBy: { checkIn: 'asc' },
         },
@@ -43,6 +46,9 @@ export async function GET(
                   select: { name: true },
                 },
               },
+            },
+            billingUnit: {
+              select: { id: true, name: true }
             },
           },
           orderBy: { date: 'asc' },
@@ -67,6 +73,33 @@ export async function GET(
         { error: 'Configure los datos de facturación primero' },
         { status: 400 }
       )
+    }
+
+    // Parse metadata from notes to check for group info
+    let metadata: any = {}
+    let groupName: string | undefined = undefined
+    let isGrouped = false
+
+    try {
+      if (liquidation.notes) {
+        metadata = JSON.parse(liquidation.notes)
+        if (metadata.billingUnitGroupId) {
+          // Get group name
+          const group = await prisma.billingUnitGroup.findUnique({
+            where: { id: metadata.billingUnitGroupId },
+            select: { name: true }
+          })
+          if (group) {
+            groupName = group.name
+            isGrouped = true
+          }
+        }
+        if (metadata.mode === 'GROUP') {
+          isGrouped = true
+        }
+      }
+    } catch (e) {
+      // Notes might not be JSON, that's OK
     }
 
     // Construir datos para el generador
@@ -120,7 +153,8 @@ export async function GET(
         nights: r.nights || 0,
         platform: r.platform || '',
         hostEarnings: Number(r.hostEarnings || 0),
-        property: r.billingConfig?.property?.name || 'N/A',
+        // Prefer billingUnit name over billingConfig property name
+        property: r.billingUnit?.name || r.billingConfig?.property?.name || 'N/A',
       })),
       expenses: liquidation.expenses.map((e) => ({
         date: e.date.toISOString(),
@@ -128,9 +162,12 @@ export async function GET(
         category: e.category,
         amount: Number(e.amount || 0),
         vatAmount: Number(e.vatAmount || 0),
-        property: e.billingConfig?.property?.name || 'N/A',
+        // Prefer billingUnit name over billingConfig property name
+        property: e.billingUnit?.name || e.billingConfig?.property?.name || 'N/A',
       })),
-      notes: liquidation.notes || undefined,
+      notes: undefined, // Don't include raw notes (contains metadata JSON)
+      groupName,
+      isGrouped,
     }
 
     const html = generateLiquidationHTML(data)

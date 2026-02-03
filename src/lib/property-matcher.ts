@@ -360,3 +360,190 @@ export function getMatchSuggestions(
     suggestions: matches.slice(0, 5)
   }
 }
+
+/**
+ * BillingUnit configuration for matching
+ */
+export interface BillingUnitConfig {
+  id: string
+  name: string
+  airbnbNames: string[]
+  bookingNames: string[]
+  vrboNames: string[]
+}
+
+/**
+ * Match result for BillingUnit matching
+ */
+export interface BillingUnitMatchResult {
+  billingUnitId: string
+  billingUnitName: string
+  confidence: number
+  matchType: 'exact' | 'alias' | 'partial' | 'fuzzy' | 'none'
+  matchedName?: string
+}
+
+/**
+ * Match a listing name against all BillingUnits
+ * Returns matches sorted by confidence
+ */
+export function matchListingToBillingUnits(
+  listingName: string,
+  billingUnits: BillingUnitConfig[],
+  platform: 'airbnb' | 'booking' | 'vrbo',
+  minConfidence: number = 0
+): BillingUnitMatchResult[] {
+  const normalizedListing = normalize(listingName)
+  const results: BillingUnitMatchResult[] = []
+
+  for (const unit of billingUnits) {
+    // Get platform-specific aliases
+    const aliases = platform === 'airbnb'
+      ? unit.airbnbNames
+      : platform === 'booking'
+        ? unit.bookingNames
+        : unit.vrboNames
+
+    // 1. Check exact match in aliases
+    const exactAlias = aliases.find(a => normalize(a) === normalizedListing)
+    if (exactAlias) {
+      results.push({
+        billingUnitId: unit.id,
+        billingUnitName: unit.name,
+        confidence: 100,
+        matchType: 'alias',
+        matchedName: exactAlias
+      })
+      continue
+    }
+
+    // 2. Check exact match with unit name
+    if (normalize(unit.name) === normalizedListing) {
+      results.push({
+        billingUnitId: unit.id,
+        billingUnitName: unit.name,
+        confidence: 100,
+        matchType: 'exact'
+      })
+      continue
+    }
+
+    // 3. Check partial match (one contains the other)
+    const allNames = [unit.name, ...aliases]
+    let bestPartialMatch = 0
+    let partialMatchedName = ''
+
+    for (const name of allNames) {
+      const normalizedName = normalize(name)
+      if (normalizedListing.includes(normalizedName) || normalizedName.includes(normalizedListing)) {
+        const matchScore = Math.round((Math.min(normalizedListing.length, normalizedName.length) /
+          Math.max(normalizedListing.length, normalizedName.length)) * 100)
+        if (matchScore > bestPartialMatch) {
+          bestPartialMatch = matchScore
+          partialMatchedName = name
+        }
+      }
+    }
+
+    if (bestPartialMatch >= 50) {
+      results.push({
+        billingUnitId: unit.id,
+        billingUnitName: unit.name,
+        confidence: Math.min(95, bestPartialMatch + 10), // Cap at 95% for partial
+        matchType: 'partial',
+        matchedName: partialMatchedName
+      })
+      continue
+    }
+
+    // 4. Check keyword match
+    let bestKeywordMatch = 0
+    for (const name of allNames) {
+      const kwMatch = keywordMatch(listingName, name)
+      if (kwMatch > bestKeywordMatch) {
+        bestKeywordMatch = kwMatch
+      }
+    }
+
+    if (bestKeywordMatch >= 60) {
+      results.push({
+        billingUnitId: unit.id,
+        billingUnitName: unit.name,
+        confidence: Math.min(90, bestKeywordMatch),
+        matchType: 'partial'
+      })
+      continue
+    }
+
+    // 5. Fuzzy match (similarity)
+    let bestFuzzyMatch = 0
+    for (const name of allNames) {
+      const sim = similarity(normalizedListing, normalize(name))
+      if (sim > bestFuzzyMatch) {
+        bestFuzzyMatch = sim
+      }
+    }
+
+    if (bestFuzzyMatch >= 50) {
+      results.push({
+        billingUnitId: unit.id,
+        billingUnitName: unit.name,
+        confidence: bestFuzzyMatch,
+        matchType: 'fuzzy'
+      })
+    }
+  }
+
+  // Sort by confidence descending and filter by minConfidence
+  return results
+    .filter(r => r.confidence >= minConfidence)
+    .sort((a, b) => b.confidence - a.confidence)
+}
+
+/**
+ * Find best BillingUnit match for a listing name
+ * Returns null if no confident match found
+ */
+export function findBestBillingUnitMatch(
+  listingName: string,
+  billingUnits: BillingUnitConfig[],
+  platform: 'airbnb' | 'booking' | 'vrbo',
+  minConfidence: number = 70
+): BillingUnitMatchResult | null {
+  const matches = matchListingToBillingUnits(listingName, billingUnits, platform, minConfidence)
+  return matches.length > 0 ? matches[0] : null
+}
+
+/**
+ * Match multiple listings to BillingUnits
+ * Returns a map of listing name -> match results
+ */
+export function matchMultipleListings(
+  listingNames: string[],
+  billingUnits: BillingUnitConfig[],
+  platform: 'airbnb' | 'booking' | 'vrbo',
+  minConfidence: number = 50
+): Map<string, {
+  bestMatch: BillingUnitMatchResult | null
+  allMatches: BillingUnitMatchResult[]
+  needsManualAssignment: boolean
+}> {
+  const results = new Map<string, {
+    bestMatch: BillingUnitMatchResult | null
+    allMatches: BillingUnitMatchResult[]
+    needsManualAssignment: boolean
+  }>()
+
+  for (const listingName of listingNames) {
+    const matches = matchListingToBillingUnits(listingName, billingUnits, platform, minConfidence)
+    const bestMatch = matches.find(m => m.confidence >= 70) || null
+
+    results.set(listingName, {
+      bestMatch,
+      allMatches: matches.slice(0, 5), // Top 5 suggestions
+      needsManualAssignment: !bestMatch || bestMatch.confidence < 90
+    })
+  }
+
+  return results
+}

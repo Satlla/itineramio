@@ -1,6 +1,7 @@
 /**
  * Liquidation PDF Generator
  * Genera HTML para liquidaciones mensuales a propietarios
+ * Soporta vista agrupada por apartamento para conjuntos (BillingUnitGroups)
  */
 
 interface ReservationItem {
@@ -21,6 +22,14 @@ interface ExpenseItem {
   amount: number
   vatAmount: number
   property: string
+}
+
+interface PropertyBreakdown {
+  property: string
+  reservations: ReservationItem[]
+  expenses: ExpenseItem[]
+  subtotalIncome: number
+  subtotalExpenses: number
 }
 
 interface LiquidationData {
@@ -75,6 +84,10 @@ interface LiquidationData {
 
   // Notas
   notes?: string
+
+  // Información de conjunto (si aplica)
+  groupName?: string // Nombre del BillingUnitGroup
+  isGrouped?: boolean // Si es liquidación de conjunto
 }
 
 const MONTHS = [
@@ -112,11 +125,146 @@ function formatIBAN(iban: string): string {
   return iban.replace(/(.{4})/g, '$1 ').trim()
 }
 
+/**
+ * Group reservations and expenses by property for breakdown view
+ */
+function groupByProperty(data: LiquidationData): PropertyBreakdown[] {
+  const propertyMap = new Map<string, PropertyBreakdown>()
+
+  // Group reservations
+  for (const res of data.reservations) {
+    const existing = propertyMap.get(res.property)
+    if (existing) {
+      existing.reservations.push(res)
+      existing.subtotalIncome += res.hostEarnings
+    } else {
+      propertyMap.set(res.property, {
+        property: res.property,
+        reservations: [res],
+        expenses: [],
+        subtotalIncome: res.hostEarnings,
+        subtotalExpenses: 0
+      })
+    }
+  }
+
+  // Group expenses
+  for (const exp of data.expenses) {
+    const existing = propertyMap.get(exp.property)
+    if (existing) {
+      existing.expenses.push(exp)
+      existing.subtotalExpenses += exp.amount + exp.vatAmount
+    } else {
+      propertyMap.set(exp.property, {
+        property: exp.property,
+        reservations: [],
+        expenses: [exp],
+        subtotalIncome: 0,
+        subtotalExpenses: exp.amount + exp.vatAmount
+      })
+    }
+  }
+
+  return Array.from(propertyMap.values())
+}
+
+/**
+ * Generate HTML section for a single property breakdown
+ */
+function generatePropertySection(breakdown: PropertyBreakdown, index: number): string {
+  const reservationRows = breakdown.reservations.map((r) => `
+    <tr>
+      <td>${r.confirmationCode}</td>
+      <td>${r.guestName}</td>
+      <td>${formatDate(r.checkIn)}</td>
+      <td>${formatDate(r.checkOut)}</td>
+      <td class="text-center">${r.nights}</td>
+      <td class="text-right">${formatCurrency(r.hostEarnings)}</td>
+    </tr>
+  `).join('')
+
+  const expenseRows = breakdown.expenses.map((e) => `
+    <tr>
+      <td>${formatDate(e.date)}</td>
+      <td>${e.concept}</td>
+      <td>${EXPENSE_CATEGORIES[e.category] || e.category}</td>
+      <td class="text-right">${formatCurrency(e.amount + e.vatAmount)}</td>
+    </tr>
+  `).join('')
+
+  return `
+    <div class="property-section ${index > 0 ? 'page-break-before' : ''}">
+      <div class="property-header">
+        <h3>${breakdown.property}</h3>
+      </div>
+
+      ${breakdown.reservations.length > 0 ? `
+      <div class="section">
+        <h4 class="section-subtitle">Reservas (${breakdown.reservations.length})</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Huésped</th>
+              <th>Entrada</th>
+              <th>Salida</th>
+              <th class="text-center">Noches</th>
+              <th class="text-right">Importe</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${reservationRows}
+          </tbody>
+          <tfoot>
+            <tr class="subtotal-row">
+              <td colspan="5" class="text-right"><strong>Subtotal reservas:</strong></td>
+              <td class="text-right"><strong>${formatCurrency(breakdown.subtotalIncome)}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      ` : ''}
+
+      ${breakdown.expenses.length > 0 ? `
+      <div class="section">
+        <h4 class="section-subtitle">Gastos (${breakdown.expenses.length})</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Concepto</th>
+              <th>Categoría</th>
+              <th class="text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${expenseRows}
+          </tbody>
+          <tfoot>
+            <tr class="subtotal-row">
+              <td colspan="3" class="text-right"><strong>Subtotal gastos:</strong></td>
+              <td class="text-right"><strong>${formatCurrency(breakdown.subtotalExpenses)}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      ` : ''}
+    </div>
+  `
+}
+
 export function generateLiquidationHTML(data: LiquidationData): string {
   const monthName = MONTHS[data.month - 1]
   const periodLabel = `${monthName} ${data.year}`
 
-  // Generar filas de reservas
+  // Check if we should use grouped view (multiple properties)
+  const uniqueProperties = new Set(data.reservations.map(r => r.property))
+  const useGroupedView = data.isGrouped || uniqueProperties.size > 1
+
+  // Generate property breakdowns for grouped view
+  const propertyBreakdowns = useGroupedView ? groupByProperty(data) : []
+
+  // Generar filas de reservas (for flat view)
   const reservationRows = data.reservations.map((r) => `
     <tr>
       <td>${r.property}</td>
@@ -129,7 +277,7 @@ export function generateLiquidationHTML(data: LiquidationData): string {
     </tr>
   `).join('')
 
-  // Generar filas de gastos
+  // Generar filas de gastos (for flat view)
   const expenseRows = data.expenses.map((e) => `
     <tr>
       <td>${e.property}</td>
@@ -146,6 +294,11 @@ export function generateLiquidationHTML(data: LiquidationData): string {
   const isPositive = data.totals.totalAmount >= 0
   const amountLabel = isPositive ? 'A transferir al propietario' : 'A pagar por el propietario'
   const amountClass = isPositive ? 'positive' : 'negative'
+
+  // Generate property sections for grouped view
+  const propertySectionsHTML = propertyBreakdowns.map((breakdown, index) =>
+    generatePropertySection(breakdown, index)
+  ).join('')
 
   return `
 <!DOCTYPE html>
@@ -415,6 +568,58 @@ export function generateLiquidationHTML(data: LiquidationData): string {
       color: #9ca3af;
     }
 
+    /* Property sections for grouped view */
+    .property-section {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px dashed #e5e7eb;
+    }
+
+    .property-section:last-child {
+      border-bottom: none;
+    }
+
+    .property-header {
+      background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+      color: white;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .property-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .section-subtitle {
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .subtotal-row td {
+      background: #f3f4f6;
+      border-top: 2px solid #e5e7eb;
+      padding: 10px;
+    }
+
+    /* Group badge */
+    .group-badge {
+      display: inline-block;
+      background: #ede9fe;
+      color: #7c3aed;
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 5px;
+    }
+
     @media print {
       body {
         print-color-adjust: exact;
@@ -423,6 +628,14 @@ export function generateLiquidationHTML(data: LiquidationData): string {
 
       .container {
         padding: 20px;
+      }
+
+      .page-break-before {
+        page-break-before: always;
+      }
+
+      .property-section {
+        page-break-inside: avoid;
       }
     }
   </style>
@@ -445,6 +658,7 @@ export function generateLiquidationHTML(data: LiquidationData): string {
       <div class="document-info">
         <div class="document-title">LIQUIDACIÓN</div>
         <div class="document-period">${periodLabel}</div>
+        ${data.groupName ? `<div class="group-badge">${data.groupName}</div>` : ''}
         <div class="document-date">Generada: ${formatDate(data.createdAt)}</div>
       </div>
     </div>
@@ -470,8 +684,16 @@ export function generateLiquidationHTML(data: LiquidationData): string {
       </div>
     </div>
 
-    <!-- Reservations -->
-    ${data.reservations.length > 0 ? `
+    <!-- Grouped View: Property Sections -->
+    ${useGroupedView && propertyBreakdowns.length > 0 ? `
+    <div class="section">
+      <h2 class="section-title">Desglose por Apartamento</h2>
+      ${propertySectionsHTML}
+    </div>
+    ` : ''}
+
+    <!-- Flat View: Reservations -->
+    ${!useGroupedView && data.reservations.length > 0 ? `
     <div class="section">
       <h2 class="section-title">Reservas del Período (${data.reservations.length})</h2>
       <table>
@@ -493,8 +715,8 @@ export function generateLiquidationHTML(data: LiquidationData): string {
     </div>
     ` : ''}
 
-    <!-- Expenses -->
-    ${data.expenses.length > 0 ? `
+    <!-- Flat View: Expenses -->
+    ${!useGroupedView && data.expenses.length > 0 ? `
     <div class="section">
       <h2 class="section-title">Gastos Repercutidos (${data.expenses.length})</h2>
       <table>
@@ -588,4 +810,4 @@ export function generateLiquidationHTML(data: LiquidationData): string {
   `
 }
 
-export type { LiquidationData, ReservationItem, ExpenseItem }
+export type { LiquidationData, ReservationItem, ExpenseItem, PropertyBreakdown }

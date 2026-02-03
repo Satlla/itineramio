@@ -67,6 +67,12 @@ const navCategories: NavCategory[] = [
         badgeKey: 'unliquidatedReservations'
       },
       {
+        href: '/gestion/liquidaciones',
+        label: 'Liquidaciones',
+        icon: <Receipt className="w-5 h-5" />,
+        description: 'Pagos a propietarios'
+      },
+      {
         href: '/gestion/facturacion',
         label: 'Facturación',
         icon: <Building2 className="w-5 h-5" />,
