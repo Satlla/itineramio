@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, Satisfy } from 'next/font/google'
 import './globals.css'
 
+// Force dynamic rendering for the entire app
+// Individual pages can opt-out with revalidate for ISR caching
 export const dynamic = 'force-dynamic'
 
 import { Providers } from './providers'

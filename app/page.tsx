@@ -274,6 +274,12 @@ export default function LandingPage() {
   // Check if user is authenticated
   useEffect(() => {
     const checkAuth = async () => {
+      // Only verify if there's a session cookie (optimization: skip API call for new visitors)
+      const hasSession = document.cookie.includes('session') ||
+                         document.cookie.includes('auth') ||
+                         document.cookie.includes('sb-')
+      if (!hasSession) return
+
       try {
         const response = await fetch('/api/auth/me')
         if (response.ok) {
@@ -637,6 +643,7 @@ export default function LandingPage() {
                   muted
                   loop
                   playsInline
+                  preload="none"
                   className="w-full h-full object-cover"
                 >
                   <source src="/videos/host-preocupado.mp4" type="video/mp4" />
@@ -721,6 +728,7 @@ export default function LandingPage() {
                       muted
                       loop
                       playsInline
+                      preload="none"
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     >
                       <source src="/videos/famili-check-in.mp4" type="video/mp4" />
@@ -766,6 +774,7 @@ export default function LandingPage() {
                     muted
                     loop
                     playsInline
+                    preload="none"
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   >
                     <source src="/videos/wifi.mp4" type="video/mp4" />
@@ -786,6 +795,7 @@ export default function LandingPage() {
                     muted
                     loop
                     playsInline
+                    preload="none"
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   >
                     <source src="/videos/washing-machine.mp4" type="video/mp4" />
@@ -830,6 +840,7 @@ export default function LandingPage() {
                     muted
                     loop
                     playsInline
+                    preload="none"
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   >
                     <source src="/videos/vitro.mp4" type="video/mp4" />
