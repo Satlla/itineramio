@@ -306,10 +306,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     return zones.find(z => getZoneText(z.name).toLowerCase() === templateName.toLowerCase())
   }
 
+  // Guard against duplicate fetches
+  const hasFetchedDataRef = useRef(false)
+  const isFetchingDataRef = useRef(false)
+
   // Fetch property name and zones
   useEffect(() => {
     if (!id) return
-    
+    // Guard against duplicate fetches (React StrictMode, etc.)
+    if (hasFetchedDataRef.current || isFetchingDataRef.current) return
+    isFetchingDataRef.current = true
+
     const fetchData = async () => {
       try {
         // Get auth headers for fetch requests
@@ -601,6 +608,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       } catch (error) {
         console.error('Error fetching data:', error)
         setIsLoadingZones(false)
+      } finally {
+        hasFetchedDataRef.current = true
+        isFetchingDataRef.current = false
       }
     }
 

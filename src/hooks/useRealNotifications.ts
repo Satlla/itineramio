@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 interface Notification {
   id: string
@@ -15,13 +15,21 @@ interface Notification {
 export function useRealNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
+  const hasFetchedRef = useRef(false)
+  const isFetchingRef = useRef(false)
 
   // Fetch notifications from API
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = useCallback(async (force = false) => {
+    // Guard against duplicate calls
+    if (isFetchingRef.current) return
+    if (hasFetchedRef.current && !force) return
+
+    isFetchingRef.current = true
+
     try {
       const response = await fetch('/api/notifications')
       const result = await response.json()
-      
+
       if (result.success) {
         // Convert string dates to Date objects
         const notificationsData = result.notifications || result.data || []
@@ -30,11 +38,13 @@ export function useRealNotifications() {
           createdAt: new Date(n.createdAt)
         }))
         setNotifications(notificationsWithDates)
+        hasFetchedRef.current = true
       }
     } catch (error) {
       console.error('Error fetching notifications:', error)
     } finally {
       setLoading(false)
+      isFetchingRef.current = false
     }
   }, [])
 
@@ -87,7 +97,7 @@ export function useRealNotifications() {
 
   // Refresh notifications (useful after actions that might create new ones)
   const refreshNotifications = useCallback(() => {
-    fetchNotifications()
+    fetchNotifications(true) // force=true to bypass guard
   }, [fetchNotifications])
 
   const unreadCount = notifications.filter(n => !n.read).length
