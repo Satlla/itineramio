@@ -95,6 +95,7 @@ export default function DashboardPage(): JSX.Element {
   const [trialStatus, setTrialStatus] = useState<any>(null)
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean | null>(null)
   const hasCheckedWelcomeModal = useRef(false)
+  const hasFetchedDashboardData = useRef(false)
   const [stats, setStats] = useState({
     totalProperties: 0,
     totalViews: 0,
@@ -204,11 +205,15 @@ export default function DashboardPage(): JSX.Element {
   }
 
   useEffect(() => {
+    // Prevent duplicate fetches from React strict mode or re-renders
+    if (hasFetchedDashboardData.current) return
+    hasFetchedDashboardData.current = true
+
     // Cargar datos con el nuevo endpoint optimizado
     const loadDashboardData = async () => {
       try {
         setLoading(true)
-        
+
         const response = await fetch('/api/dashboard/data', {
           credentials: 'include'
         })
