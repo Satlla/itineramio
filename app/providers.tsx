@@ -4,12 +4,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
 import { AuthProvider } from '../src/providers/AuthProvider'
 import { I18nProvider } from '../src/providers/I18nProvider'
+import dynamic from 'next/dynamic'
 
-// Only load ReactQueryDevtools in development
-const ReactQueryDevtools =
-  process.env.NODE_ENV === 'development'
-    ? require('@tanstack/react-query-devtools').ReactQueryDevtools
-    : () => null
+// Lazy load ReactQueryDevtools only in development
+const ReactQueryDevtools = dynamic(
+  () =>
+    import('@tanstack/react-query-devtools').then((mod) => mod.ReactQueryDevtools),
+  { ssr: false }
+)
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -35,7 +37,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           {children}
         </AuthProvider>
       </I18nProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {process.env.NODE_ENV === 'development' && (
+        <ReactQueryDevtools initialIsOpen={false} />
+      )}
     </QueryClientProvider>
   )
 }

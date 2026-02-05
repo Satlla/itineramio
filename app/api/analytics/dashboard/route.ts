@@ -16,29 +16,26 @@ export async function GET(request: NextRequest) {
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
     // RLS is handled at application level instead
 
-    // Get user's properties - try without zones first to isolate the issue
+    // Get user's properties with analytics and zones count in a SINGLE query
     let properties: any[] = []
-    
+
     try {
-      // First, get properties with analytics only
+      // Single query with _count to avoid N+1 problem
       const propsWithAnalytics = await prisma.property.findMany({
         where: { hostId: userId },
         include: {
-          analytics: true
+          analytics: true,
+          _count: {
+            select: { zones: true }
+          }
         }
       })
-      
-      // Then get zones count separately to avoid field issues
-      for (const prop of propsWithAnalytics) {
-        const zonesCount = await prisma.zone.count({
-          where: { propertyId: prop.id }
-        })
-        
-        properties.push({
-          ...prop,
-          zones: Array(zonesCount).fill({ _count: { ratings: 0, steps: 0 } })
-        })
-      }
+
+      // Map properties with zones array based on count
+      properties = propsWithAnalytics.map(prop => ({
+        ...prop,
+        zones: Array(prop._count.zones).fill({ _count: { ratings: 0, steps: 0 } })
+      }))
     } catch (error) {
       console.error('Error fetching properties with workaround:', error)
       // Fallback to basic query

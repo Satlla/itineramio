@@ -57,26 +57,36 @@ export async function GET(
       ORDER BY COALESCE(z."order", 0) ASC, z.id ASC
     ` as any[]
 
-    // Get steps for each zone using raw SQL
-    const zonesWithSteps = await Promise.all(
-      zones.map(async (zone: any) => {
-        const steps = await prisma.$queryRaw`
-          SELECT 
-            id, "zoneId", type, title, content, COALESCE("order", 0) as "order",
-            "isPublished", "createdAt", "updatedAt"
-          FROM steps
-          WHERE "zoneId" = ${zone.id}
-          ORDER BY COALESCE("order", 0) ASC, id ASC
-        ` as any[]
-        
-        return {
-          ...zone,
-          steps: steps
-        }
-      })
-    )
-    
-    console.log('🔍 Zones fetched:', zonesWithSteps.length)
+    // Get ALL steps for ALL zones in a SINGLE query (avoids N+1)
+    const zoneIds = zones.map((z: any) => z.id)
+
+    let allSteps: any[] = []
+    if (zoneIds.length > 0) {
+      allSteps = await prisma.$queryRaw`
+        SELECT
+          id, "zoneId", type, title, content, COALESCE("order", 0) as "order",
+          "isPublished", "createdAt", "updatedAt"
+        FROM steps
+        WHERE "zoneId" = ANY(${zoneIds})
+        ORDER BY COALESCE("order", 0) ASC, id ASC
+      ` as any[]
+    }
+
+    // Group steps by zoneId in memory (fast)
+    const stepsByZoneId = new Map<string, any[]>()
+    for (const step of allSteps) {
+      const zoneSteps = stepsByZoneId.get(step.zoneId) || []
+      zoneSteps.push(step)
+      stepsByZoneId.set(step.zoneId, zoneSteps)
+    }
+
+    // Combine zones with their steps
+    const zonesWithSteps = zones.map((zone: any) => ({
+      ...zone,
+      steps: stepsByZoneId.get(zone.id) || []
+    }))
+
+    console.log('🔍 Zones fetched:', zonesWithSteps.length, '| Steps fetched:', allSteps.length)
     
     return NextResponse.json({
       success: true,
