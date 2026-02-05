@@ -102,11 +102,29 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Prepare update data
-    const finalPhone = phone && typeof phone === 'string' ? phone.trim() : ''
-    const updateData: any = {
-      name: `${finalFirstName} ${finalLastName}`.trim(),
-      phone: finalPhone || null // Use null for empty phone
+    // Prepare update data - only include fields that were explicitly provided
+    const updateData: any = {}
+
+    // Check if this is a password-only change (no profile data provided)
+    const isPasswordOnlyChange = newPassword && !body.firstName && !body.lastName && !body.phone && profileImage === null
+
+    // Only update name and phone if this is NOT a password-only change
+    if (!isPasswordOnlyChange) {
+      // Use current user's name if not provided
+      const finalFirstName = firstName && typeof firstName === 'string' && firstName.trim() !== ''
+        ? firstName.trim()
+        : currentUser.name?.split(' ')[0] || 'Usuario'
+      const finalLastName = lastName && typeof lastName === 'string' && lastName.trim() !== ''
+        ? lastName.trim()
+        : currentUser.name?.split(' ').slice(1).join(' ') || ''
+
+      updateData.name = `${finalFirstName} ${finalLastName}`.trim()
+
+      // Only update phone if explicitly provided in the request
+      if (body.hasOwnProperty('phone')) {
+        const finalPhone = phone && typeof phone === 'string' ? phone.trim() : ''
+        updateData.phone = finalPhone || null
+      }
     }
 
     // Check if email is changing
@@ -146,8 +164,8 @@ export async function POST(request: NextRequest) {
       updateData.password = await bcrypt.hash(newPassword, 12)
     }
 
-    // Update profile image if provided
-    if (profileImage !== undefined) {
+    // Update profile image only if explicitly provided in the request
+    if (body.hasOwnProperty('profileImage')) {
       updateData.avatar = profileImage
     }
 
