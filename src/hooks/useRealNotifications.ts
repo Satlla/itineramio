@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react'
 
 interface Notification {
   id: string
@@ -12,46 +12,70 @@ interface Notification {
   createdAt: Date
 }
 
-export function useRealNotifications() {
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [loading, setLoading] = useState(true)
-  const hasFetchedRef = useRef(false)
-  const isFetchingRef = useRef(false)
+// Global singleton state to prevent duplicate fetches across component instances
+let globalNotifications: Notification[] = []
+let globalLoading = true
+let globalHasFetched = false
+let globalIsFetching = false
+let listeners: Set<() => void> = new Set()
 
-  // Fetch notifications from API
-  const fetchNotifications = useCallback(async (force = false) => {
-    // Guard against duplicate calls
-    if (isFetchingRef.current) return
-    if (hasFetchedRef.current && !force) return
+function subscribe(listener: () => void) {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
+}
 
-    isFetchingRef.current = true
+function getSnapshot() {
+  return { notifications: globalNotifications, loading: globalLoading }
+}
 
-    try {
-      const response = await fetch('/api/notifications')
-      const result = await response.json()
+function notifyListeners() {
+  listeners.forEach(listener => listener())
+}
 
-      if (result.success) {
-        // Convert string dates to Date objects
-        const notificationsData = result.notifications || result.data || []
-        const notificationsWithDates = notificationsData.map((n: any) => ({
-          ...n,
-          createdAt: new Date(n.createdAt)
-        }))
-        setNotifications(notificationsWithDates)
-        hasFetchedRef.current = true
-      }
-    } catch (error) {
-      console.error('Error fetching notifications:', error)
-    } finally {
-      setLoading(false)
-      isFetchingRef.current = false
+async function fetchNotificationsGlobal(force = false) {
+  // Guard against duplicate calls (global singleton)
+  if (globalIsFetching) return
+  if (globalHasFetched && !force) return
+
+  globalIsFetching = true
+
+  try {
+    const response = await fetch('/api/notifications')
+    const result = await response.json()
+
+    if (result.success) {
+      const notificationsData = result.notifications || result.data || []
+      globalNotifications = notificationsData.map((n: any) => ({
+        ...n,
+        createdAt: new Date(n.createdAt)
+      }))
+      globalHasFetched = true
     }
+  } catch (error) {
+    console.error('Error fetching notifications:', error)
+  } finally {
+    globalLoading = false
+    globalIsFetching = false
+    notifyListeners()
+  }
+}
+
+export function useRealNotifications() {
+  const [, forceUpdate] = useState({})
+
+  // Subscribe to global state changes
+  useEffect(() => {
+    const unsubscribe = subscribe(() => forceUpdate({}))
+    return unsubscribe
   }, [])
 
-  // Load notifications on mount
+  // Trigger fetch on mount (uses global guard)
   useEffect(() => {
-    fetchNotifications()
-  }, [fetchNotifications])
+    fetchNotificationsGlobal()
+  }, [])
+
+  const notifications = globalNotifications
+  const loading = globalLoading
 
   // Mark specific notifications as read
   const markAsRead = useCallback(async (notificationIds: string[]) => {
@@ -63,12 +87,11 @@ export function useRealNotifications() {
       })
 
       if (response.ok) {
-        // Update local state
-        setNotifications(prev => 
-          prev.map(n => 
-            notificationIds.includes(n.id) ? { ...n, read: true } : n
-          )
+        // Update global state
+        globalNotifications = globalNotifications.map(n =>
+          notificationIds.includes(n.id) ? { ...n, read: true } : n
         )
+        notifyListeners()
       }
     } catch (error) {
       console.error('Error marking notifications as read:', error)
@@ -85,10 +108,9 @@ export function useRealNotifications() {
       })
 
       if (response.ok) {
-        // Update local state
-        setNotifications(prev => 
-          prev.map(n => ({ ...n, read: true }))
-        )
+        // Update global state
+        globalNotifications = globalNotifications.map(n => ({ ...n, read: true }))
+        notifyListeners()
       }
     } catch (error) {
       console.error('Error marking all notifications as read:', error)
@@ -97,8 +119,8 @@ export function useRealNotifications() {
 
   // Refresh notifications (useful after actions that might create new ones)
   const refreshNotifications = useCallback(() => {
-    fetchNotifications(true) // force=true to bypass guard
-  }, [fetchNotifications])
+    fetchNotificationsGlobal(true) // force=true to bypass guard
+  }, [])
 
   const unreadCount = notifications.filter(n => !n.read).length
 
