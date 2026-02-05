@@ -112,10 +112,14 @@ export default function DashboardPage(): JSX.Element {
 
   // Real-time activity state - solo datos reales
   const [recentActivity, setRecentActivity] = useState<any[]>([])
+  const isFetchingRecentActivity = useRef(false)
 
-
-  // Fetch recent activity
+  // Fetch recent activity (with guard to prevent duplicate calls)
   const fetchRecentActivity = async () => {
+    // Prevent duplicate concurrent calls
+    if (isFetchingRecentActivity.current) return
+    isFetchingRecentActivity.current = true
+
     try {
       const response = await fetch('/api/dashboard/recent-activity', {
         credentials: 'include'
@@ -128,6 +132,8 @@ export default function DashboardPage(): JSX.Element {
       }
     } catch (error) {
       console.error('Error fetching recent activity:', error)
+    } finally {
+      isFetchingRecentActivity.current = false
     }
   }
 
@@ -368,14 +374,8 @@ export default function DashboardPage(): JSX.Element {
     setShowFirstPropertyNotification(false)
   }
 
-  // Refresh recent activity periodically to get new real data
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchRecentActivity()
-    }, 60000) // Refresh every 60 seconds instead of 30
-
-    return () => clearInterval(interval)
-  }, [])
+  // NOTE: Polling removed - recentActivity is already included in /api/dashboard/data
+  // If real-time updates are needed, consider using WebSockets instead
 
   const handlePropertyAction = (action: string, propertyIdOrObject: string | any) => {
     const propertyId = typeof propertyIdOrObject === 'string' ? propertyIdOrObject : propertyIdOrObject.id
