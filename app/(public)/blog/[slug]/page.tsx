@@ -104,8 +104,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound()
   }
 
-  // View count is now incremented via client-side API call (BlogArticleTracker)
-  // This allows the page to be cached and served faster
+  // Increment view count (in a real app, you'd want to track unique views properly)
+  await prisma.blogPost.update({
+    where: { id: post.id },
+    data: { views: { increment: 1 } }
+  })
 
   // Fields needed for related posts display (excludes heavy 'content' field)
   const relatedSelectFields = {
@@ -121,34 +124,35 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     views: true
   }
 
-  // Get related posts with variety (run both queries in parallel for better performance)
-  const [sameCategoryPosts, otherCategoryPosts] = await Promise.all([
-    // Same category posts
-    prisma.blogPost.findMany({
-      where: {
-        status: 'PUBLISHED',
-        category: post.category,
-        id: { not: post.id }
-      },
-      take: 6,
-      orderBy: { views: 'desc' },
-      select: relatedSelectFields
-    }),
-    // Posts from other categories for variety
-    prisma.blogPost.findMany({
-      where: {
-        status: 'PUBLISHED',
-        category: { not: post.category },
-        id: { not: post.id }
-      },
-      take: 6,
-      orderBy: [
-        { views: 'desc' },
-        { publishedAt: 'desc' }
-      ],
-      select: relatedSelectFields
-    })
-  ])
+  // Get related posts with variety:
+  // 1. First try same category
+  // 2. Then fill with other categories (educational mix)
+  // 3. Shuffle to make them change
+  const sameCategoryPosts = await prisma.blogPost.findMany({
+    where: {
+      status: 'PUBLISHED',
+      category: post.category,
+      id: { not: post.id }
+    },
+    take: 6,
+    orderBy: { views: 'desc' },
+    select: relatedSelectFields
+  })
+
+  // Get posts from other categories for variety
+  const otherCategoryPosts = await prisma.blogPost.findMany({
+    where: {
+      status: 'PUBLISHED',
+      category: { not: post.category },
+      id: { not: post.id }
+    },
+    take: 6,
+    orderBy: [
+      { views: 'desc' },
+      { publishedAt: 'desc' }
+    ],
+    select: relatedSelectFields
+  })
 
   // Combine and shuffle for variety, then take 3
   const allPosts = [...sameCategoryPosts, ...otherCategoryPosts]

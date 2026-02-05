@@ -12,20 +12,9 @@ interface BlogArticleTrackerProps {
 
 export default function BlogArticleTracker({ slug, title, category }: BlogArticleTrackerProps) {
   const hasTrackedRef = useRef(false)
-  const hasTrackedViewRef = useRef(false)
   const startTimeRef = useRef(Date.now())
 
   useEffect(() => {
-    // Increment view count via API (non-blocking, fire and forget)
-    if (!hasTrackedViewRef.current) {
-      hasTrackedViewRef.current = true
-      fetch('/api/blog/view', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug })
-      }).catch(() => {}) // Ignore errors
-    }
-
     // Track view content on Facebook Pixel
     fbEvents.viewContent({
       content_name: title,
