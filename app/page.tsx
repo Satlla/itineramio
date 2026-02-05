@@ -429,6 +429,7 @@ export default function LandingPage() {
                   muted
                   loop
                   playsInline
+                  preload="none"
                 >
                   <source src="/videos/no-calls.mp4" type="video/mp4" />
                 </video>
