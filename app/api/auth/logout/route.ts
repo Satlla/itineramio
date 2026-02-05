@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(request: NextRequest) {
-  // Allow logout via GET for testing
-  return POST(request)
-}
+// GET removed - CSRF vulnerability (logout should only be POST)
 
 export async function POST(request: NextRequest) {
   try {

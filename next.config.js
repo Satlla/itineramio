@@ -111,6 +111,10 @@ const nextConfig = {
     // Security headers for all routes
     const securityHeaders = [
       {
+        key: 'Strict-Transport-Security',
+        value: 'max-age=31536000; includeSubDomains'
+      },
+      {
         key: 'X-DNS-Prefetch-Control',
         value: 'on'
       },
