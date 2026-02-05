@@ -63,6 +63,7 @@ model User {
   couponUses              CouponUse[]            @relation("UserCouponUses")
   journeyStages           CustomerJourneyStage[]
   emailChangeTokens       EmailChangeToken[]
+  passwordChangeTokens    PasswordChangeToken[]
   emailEvents             EmailEvent[]
   assignedErrorReports    ErrorReport[]          @relation("ErrorReportAssignee")
   hostProfileTests        HostProfileTest[]
@@ -962,6 +963,22 @@ model EmailChangeToken {
   @@index([token])
   @@index([expiresAt])
   @@map("email_change_tokens")
+}
+
+model PasswordChangeToken {
+  id              String    @id @default(cuid())
+  userId          String    @map("user_id")
+  newPasswordHash String    @map("new_password_hash")
+  token           String    @unique
+  expiresAt       DateTime  @map("expires_at")
+  confirmedAt     DateTime? @map("confirmed_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("password_change_tokens")
 }
 
 model PricingTier {

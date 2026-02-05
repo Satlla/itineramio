@@ -314,25 +314,26 @@ export default function AccountPage() {
 
     setLoading(true)
     try {
-      const response = await fetch('/api/account/update', {
+      const response = await fetch('/api/account/request-password-change', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: user?.email || formData.email,
-          password: confirmationPassword,
+          currentPassword: confirmationPassword,
           newPassword: formData.newPassword
         })
       })
 
+      const data = await response.json()
+
       if (response.ok) {
-        const data = await response.json()
-        setShowSuccessToast(true)
-        setTimeout(() => setShowSuccessToast(false), 3000)
         setShowPasswordModal(false)
         setConfirmationPassword('')
         setFormData(prev => ({ ...prev, newPassword: '', confirmPassword: '' }))
+        // Show info message about email verification
+        setErrors({
+          general: t('errors.passwordChangeSent', 'Se ha enviado un email de confirmación. Revisa tu bandeja de entrada para confirmar el cambio de contraseña.')
+        })
       } else {
-        const data = await response.json()
         setErrors({ general: data.error || t('errors.changePasswordError') })
       }
     } catch (error) {
