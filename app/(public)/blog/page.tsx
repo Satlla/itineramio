@@ -2,6 +2,7 @@ import React from 'react'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
+import { unstable_cache } from 'next/cache'
 import {
   Calendar,
   Clock,
@@ -108,6 +109,70 @@ const categoryConfig: Record<string, { name: string; icon: any; color: string; g
   }
 }
 
+// Fields needed for blog list display (excludes heavy 'content' field)
+const listSelectFields = {
+  id: true,
+  slug: true,
+  title: true,
+  subtitle: true,
+  excerpt: true,
+  coverImage: true,
+  coverImageAlt: true,
+  category: true,
+  tags: true,
+  featured: true,
+  publishedAt: true,
+  authorName: true,
+  authorImage: true,
+  views: true,
+  readTime: true,
+  likes: true
+}
+
+// Cached query for hero article (revalidates every 5 minutes)
+const getHeroArticle = unstable_cache(
+  async () => {
+    return prisma.blogPost.findFirst({
+      where: { status: 'PUBLISHED' },
+      orderBy: { publishedAt: 'desc' },
+      select: listSelectFields
+    })
+  },
+  ['blog-hero'],
+  { revalidate: 300 }
+)
+
+// Cached query for popular articles (revalidates every 5 minutes)
+const getPopularArticles = unstable_cache(
+  async () => {
+    return prisma.blogPost.findMany({
+      where: { status: 'PUBLISHED' },
+      orderBy: { views: 'desc' },
+      take: 8,
+      select: listSelectFields
+    })
+  },
+  ['blog-popular'],
+  { revalidate: 300 }
+)
+
+// Cached query for trending articles (revalidates every 5 minutes)
+const getTrendingArticles = unstable_cache(
+  async () => {
+    return prisma.blogPost.findMany({
+      where: {
+        status: 'PUBLISHED',
+        publishedAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+      },
+      orderBy: { views: 'desc' },
+      take: 6,
+      select: listSelectFields
+    })
+  },
+  ['blog-trending'],
+  { revalidate: 300 }
+)
+
 export default async function BlogPage({
   searchParams
 }: {
@@ -128,38 +193,13 @@ export default async function BlogPage({
       }
     : {}
 
-  // Fields needed for blog list display (excludes heavy 'content' field)
-  const listSelectFields = {
-    id: true,
-    slug: true,
-    title: true,
-    subtitle: true,
-    excerpt: true,
-    coverImage: true,
-    coverImageAlt: true,
-    category: true,
-    tags: true,
-    featured: true,
-    publishedAt: true,
-    authorName: true,
-    authorImage: true,
-    views: true,
-    readTime: true,
-    likes: true
-  }
-
-  // Fetch hero article first (needed to exclude from articles list)
-  const heroArticle = searchQuery
-    ? null
-    : await prisma.blogPost.findFirst({
-        where: { status: 'PUBLISHED' },
-        orderBy: { publishedAt: 'desc' },
-        select: listSelectFields
-      })
+  // Fetch hero article (cached)
+  const heroArticle = searchQuery ? null : await getHeroArticle()
 
   // Run remaining queries in parallel for better performance
+  // Popular and trending use cached functions (5 min revalidation)
   const [articles, popularArticles, trendingArticles] = await Promise.all([
-    // Fetch other articles
+    // Fetch other articles (can't be cached - depends on dynamic searchFilter)
     prisma.blogPost.findMany({
       where: {
         status: 'PUBLISHED',
@@ -170,23 +210,10 @@ export default async function BlogPage({
       take: searchQuery ? 50 : 20,
       select: listSelectFields
     }),
-    // Fetch popular articles (by views)
-    prisma.blogPost.findMany({
-      where: { status: 'PUBLISHED' },
-      orderBy: { views: 'desc' },
-      take: 8,
-      select: listSelectFields
-    }),
-    // Fetch trending (recent popular)
-    prisma.blogPost.findMany({
-      where: {
-        status: 'PUBLISHED',
-        publishedAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
-      },
-      orderBy: { views: 'desc' },
-      take: 6,
-      select: listSelectFields
-    })
+    // Fetch popular articles (cached)
+    getPopularArticles(),
+    // Fetch trending (cached)
+    getTrendingArticles()
   ])
 
   // Get unique categories from articles
