@@ -318,6 +318,7 @@ export default function AccountPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          email: user?.email || formData.email,
           password: confirmationPassword,
           newPassword: formData.newPassword
         })
