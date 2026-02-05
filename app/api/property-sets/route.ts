@@ -36,104 +36,88 @@ export async function GET(request: NextRequest) {
         id: 'desc'
       }
     })
-    
-    // Transform data with real counts using raw SQL to avoid schema issues
-    const transformedPropertySets = await Promise.all(propertySets.map(async (propertySet) => {
-      try {
-        // Get properties count for this property set using raw SQL
-        const propertiesCount = await prisma.$queryRaw`
-          SELECT COUNT(*)::integer as count
-          FROM properties
-          WHERE "propertySetId" = ${propertySet.id}
-        ` as any[]
-        
-        console.log(`PropertySet ${propertySet.id} - ${propertySet.name}: ${propertiesCount[0]?.count} properties`)
-        
-        // Get total zones count for all properties in this set using raw SQL
-        const totalZones = await prisma.$queryRaw`
-          SELECT COUNT(*)::integer as count
-          FROM zones z
-          INNER JOIN properties p ON z."propertyId" = p.id
-          WHERE p."propertySetId" = ${propertySet.id}
-        ` as any[]
-        
-        // Get views from property_views table (more reliable)
-        const propertyViews = await prisma.$queryRaw`
-          SELECT COUNT(DISTINCT pv.id)::integer as view_count
-          FROM properties p
-          LEFT JOIN property_views pv ON p.id = pv."propertyId"
-          WHERE p."propertySetId" = ${propertySet.id}
-        ` as any[]
-        
-        // Get zone views (if table exists)
-        let zoneViewsCount = 0
-        try {
-          const zoneViews = await prisma.$queryRaw`
-            SELECT COUNT(DISTINCT zv.id)::integer as zone_view_count
-            FROM properties p
-            INNER JOIN zones z ON p.id = z."propertyId"
-            LEFT JOIN zone_views zv ON z.id = zv."zoneId"
-            WHERE p."propertySetId" = ${propertySet.id}
-          ` as any[]
-          zoneViewsCount = zoneViews[0]?.zone_view_count || 0
-        } catch (zoneError) {
-          console.log('Zone views table might not exist:', zoneError)
-          zoneViewsCount = 0
-        }
-        
-        // Get basic property analytics
-        let analyticsData = { total_views: 0, avg_rating: 0 }
-        try {
-          const analytics = await prisma.$queryRaw`
-            SELECT 
-              COALESCE(SUM(pa."totalViews"), 0)::integer as total_views,
-              COALESCE(AVG(pa."overallRating"), 0) as avg_rating
-            FROM properties p
-            LEFT JOIN property_analytics pa ON p.id = pa."propertyId"
-            WHERE p."propertySetId" = ${propertySet.id}
-          ` as any[]
-          analyticsData = analytics[0] || analyticsData
-        } catch (analyticsError) {
-          console.log('Property analytics table might not exist:', analyticsError)
-        }
-        
-        // Convert values properly - they should now be integers from the cast
-        const propCount = propertiesCount[0]?.count || 0
-        const zoneCount = totalZones[0]?.count || 0
-        const viewCount = propertyViews[0]?.view_count || 0
-        
-        // Calculate total views (property views + zone views + analytics views)
-        const totalViews = viewCount + zoneViewsCount + (analyticsData.total_views || 0)
-        
-        console.log(`PropertySet ${propertySet.id} metrics:`, {
-          propertiesCount: propCount,
-          totalZones: zoneCount,
-          propertyViews: viewCount,
-          zoneViews: zoneViewsCount,
-          analyticsViews: analyticsData.total_views,
-          totalViews: totalViews
-        })
-        
-        return {
-          ...propertySet,
-          propertiesCount: Number(propCount),
-          totalViews: totalViews,
-          avgRating: parseFloat(String(analyticsData.avg_rating || 0)),
-          totalZones: Number(zoneCount),
-          timeSavedMinutes: 0 // Simplified for now
-        }
-      } catch (error) {
-        console.error('Error transforming property set:', propertySet.id, error)
-        // Return with zero counts if there's an error
-        return {
-          ...propertySet,
-          propertiesCount: 0,
-          totalViews: 0,
-          avgRating: 0,
-          totalZones: 0
-        }
+
+    // Early return if no property sets
+    if (propertySets.length === 0) {
+      return NextResponse.json({
+        success: true,
+        data: []
+      })
+    }
+
+    // Get all property set IDs for batch queries
+    const propertySetIds = propertySets.map(ps => ps.id)
+
+    // BATCH QUERIES: All data in PARALLEL (avoids N+1 problem)
+    const [propertyCounts, zoneCounts, viewsData, analyticsData] = await Promise.all([
+      // 1. Properties count per set
+      prisma.$queryRaw`
+        SELECT "propertySetId", COUNT(*)::integer as count
+        FROM properties
+        WHERE "propertySetId" = ANY(${propertySetIds})
+        GROUP BY "propertySetId"
+      ` as Promise<Array<{ propertySetId: string; count: number }>>,
+
+      // 2. Zones count per set
+      prisma.$queryRaw`
+        SELECT p."propertySetId", COUNT(DISTINCT z.id)::integer as count
+        FROM properties p
+        INNER JOIN zones z ON z."propertyId" = p.id
+        WHERE p."propertySetId" = ANY(${propertySetIds})
+        GROUP BY p."propertySetId"
+      ` as Promise<Array<{ propertySetId: string; count: number }>>,
+
+      // 3. Views per set (property_views + zone_views combined)
+      prisma.$queryRaw`
+        SELECT
+          p."propertySetId",
+          COUNT(DISTINCT pv.id)::integer as property_views,
+          COUNT(DISTINCT zv.id)::integer as zone_views
+        FROM properties p
+        LEFT JOIN property_views pv ON pv."propertyId" = p.id
+        LEFT JOIN zones z ON z."propertyId" = p.id
+        LEFT JOIN zone_views zv ON zv."zoneId" = z.id
+        WHERE p."propertySetId" = ANY(${propertySetIds})
+        GROUP BY p."propertySetId"
+      ` as Promise<Array<{ propertySetId: string; property_views: number; zone_views: number }>>,
+
+      // 4. Analytics per set
+      prisma.$queryRaw`
+        SELECT
+          p."propertySetId",
+          COALESCE(SUM(pa."totalViews"), 0)::integer as total_views,
+          COALESCE(AVG(pa."overallRating"), 0) as avg_rating
+        FROM properties p
+        LEFT JOIN property_analytics pa ON pa."propertyId" = p.id
+        WHERE p."propertySetId" = ANY(${propertySetIds})
+        GROUP BY p."propertySetId"
+      ` as Promise<Array<{ propertySetId: string; total_views: number; avg_rating: number }>>
+    ])
+
+    // Create lookup maps for O(1) access
+    const propertyCountMap = new Map(propertyCounts.map(p => [p.propertySetId, p.count]))
+    const zoneCountMap = new Map(zoneCounts.map(z => [z.propertySetId, z.count]))
+    const viewsMap = new Map(viewsData.map(v => [v.propertySetId, { propertyViews: v.property_views, zoneViews: v.zone_views }]))
+    const analyticsMap = new Map(analyticsData.map(a => [a.propertySetId, { totalViews: a.total_views, avgRating: a.avg_rating }]))
+
+    // Transform data using lookup maps (no async needed)
+    const transformedPropertySets = propertySets.map(propertySet => {
+      const propCount = propertyCountMap.get(propertySet.id) || 0
+      const zoneCount = zoneCountMap.get(propertySet.id) || 0
+      const views = viewsMap.get(propertySet.id) || { propertyViews: 0, zoneViews: 0 }
+      const analytics = analyticsMap.get(propertySet.id) || { totalViews: 0, avgRating: 0 }
+
+      const totalViews = views.propertyViews + views.zoneViews + analytics.totalViews
+
+      return {
+        ...propertySet,
+        propertiesCount: propCount,
+        totalViews: totalViews,
+        avgRating: parseFloat(String(analytics.avgRating || 0)),
+        totalZones: zoneCount,
+        timeSavedMinutes: 0
       }
-    }))
+    })
     
     return NextResponse.json({
       success: true,

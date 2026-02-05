@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
 
     const decoded = verifyToken(token)
 
-    // Obtener todos los datos necesarios en paralelo
-    const [user, properties, propertySets, recentActivity, totalCount, allPropertiesForStats] = await Promise.all([
+    // Obtener todos los datos necesarios en paralelo (7 queries at once)
+    const [user, properties, propertySets, recentActivity, totalCount, allPropertiesForStats, activeSubscriptionCount] = await Promise.all([
       // Obtener usuario con datos de trial, suscripción y onboarding
       prisma.user.findUnique({
         where: { id: decoded.userId },
@@ -110,6 +110,14 @@ export async function GET(request: NextRequest) {
             }
           }
         }
+      }),
+
+      // Verificar suscripción activa (moved inside Promise.all)
+      prisma.userSubscription.count({
+        where: {
+          userId: decoded.userId,
+          status: 'ACTIVE'
+        }
       })
     ])
     
@@ -170,13 +178,8 @@ export async function GET(request: NextRequest) {
       hasExpired: hasExpired || false
     }
 
-    // Verificar suscripción activa
-    const hasActiveSubscription = await prisma.userSubscription.count({
-      where: {
-        userId: decoded.userId,
-        status: 'ACTIVE'
-      }
-    }) > 0
+    // Verificar suscripción activa (ya calculado en Promise.all)
+    const hasActiveSubscription = activeSubscriptionCount > 0
 
     return NextResponse.json({
       success: true,

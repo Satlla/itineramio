@@ -12,28 +12,38 @@ export async function GET(request: NextRequest) {
 
     const decoded = verifyToken(token)
 
-    // Get user data including trial information
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: {
-        id: true,
-        trialStartedAt: true,
-        trialEndsAt: true,
-        subscription: true
-      }
-    })
+    // Get all data in PARALLEL (3 queries at once instead of sequential)
+    const [user, activeSubscription, propertiesCount] = await Promise.all([
+      // Get user data including trial information
+      prisma.user.findUnique({
+        where: { id: decoded.userId },
+        select: {
+          id: true,
+          trialStartedAt: true,
+          trialEndsAt: true,
+          subscription: true
+        }
+      }),
+      // Check if user has active subscription
+      prisma.userSubscription.count({
+        where: {
+          userId: decoded.userId,
+          status: 'ACTIVE'
+        }
+      }),
+      // Count active properties
+      prisma.property.count({
+        where: {
+          hostId: decoded.userId,
+          status: 'ACTIVE'
+        }
+      })
+    ])
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Check if user has active subscription
-    const activeSubscription = await prisma.userSubscription.count({
-      where: {
-        userId: user.id,
-        status: 'ACTIVE'
-      }
-    })
     const hasActiveSubscription = activeSubscription > 0
 
     // Calculate trial status
@@ -54,14 +64,6 @@ export async function GET(request: NextRequest) {
         hasExpired
       }
     }
-
-    // Count active properties
-    const propertiesCount = await prisma.property.count({
-      where: {
-        hostId: decoded.userId,
-        status: 'ACTIVE'
-      }
-    })
 
     // Calculate plan info
     let currentPlan = ''
