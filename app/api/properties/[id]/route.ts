@@ -46,165 +46,78 @@ export async function GET(
 ) {
   let id: string = ''
   let userId: string = ''
-  
+
   try {
     const paramResult = await params
     id = paramResult.id
-    console.log('🔍 Property endpoint - received ID:', id)
-    
+
     // Get authenticated user
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
-      console.log('❌ Property GET - Auth failed for ID:', id)
       return authResult
     }
     userId = authResult.userId
-    console.log('🔍 Property GET - Auth OK, userId:', userId, 'looking for property:', id)
 
-    // Set JWT claims for PostgreSQL RLS policies
-    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
-    // RLS is handled at application level instead
-    
-    // Handle potential ID truncation
-    const properties = await prisma.property.findMany({
-      where: {
-        id: {
-          startsWith: id
-        },
-        hostId: userId
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        type: true,
-        street: true,
-        city: true,
-        state: true,
-        country: true,
-        postalCode: true,
-        bedrooms: true,
-        bathrooms: true,
-        maxGuests: true,
-        squareMeters: true,
-        profileImage: true,
-        hostContactName: true,
-        hostContactPhone: true,
-        hostContactEmail: true,
-        hostContactLanguage: true,
-        hostContactPhoto: true,
-        status: true,
-        isPublished: true,
-        propertySetId: true,
-        hostId: true,
-        createdAt: true,
-        updatedAt: true,
-        publishedAt: true
-      }
-    })
-    
-    const property = properties[0]
-    const actualPropertyId = property?.id || id
-    console.log('🔍 Property found:', !!property, 'actualId:', actualPropertyId)
-    // console.log('🔍 Property slug:', property?.slug) // Temporarily disabled
-    
-    // Fetch zones separately using the actual property ID
-    let zones: any[] = []
-    try {
-      zones = await prisma.zone.findMany({
-        where: {
-          propertyId: actualPropertyId
-        },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          icon: true,
-          description: true,
-          color: true,
-          status: true,
-          isPublished: true,
-          propertyId: true,
-          createdAt: true,
-          updatedAt: true,
-          publishedAt: true,
-          _count: {
-            select: {
-              steps: true
-            }
-          }
-        },
-        orderBy: {
-          id: 'asc'
-        }
-      })
-    } catch (zoneError) {
-      console.error('Error fetching zones:', zoneError)
-      console.error('Zone error details:', {
-        propertyId: actualPropertyId,
-        error: zoneError instanceof Error ? zoneError.message : 'Unknown error'
-      })
-      zones = []
-    }
-    
+    // OPTIMIZED: Single query to get property with zones and step counts
+    const result = await prisma.$queryRaw`
+      SELECT
+        p.id, p.name, p.slug, p.description, p.type,
+        p.street, p.city, p.state, p.country, p."postalCode",
+        p.bedrooms, p.bathrooms, p."maxGuests", p."squareMeters",
+        p."profileImage", p."hostContactName", p."hostContactPhone",
+        p."hostContactEmail", p."hostContactLanguage", p."hostContactPhoto",
+        p.status, p."isPublished", p."propertySetId", p."hostId",
+        p."createdAt", p."updatedAt", p."publishedAt",
+        p."propertyCode",
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', z.id,
+              'name', z.name,
+              'slug', z.slug,
+              'icon', z.icon,
+              'description', z.description,
+              'color', z.color,
+              'status', z.status,
+              'isPublished', z."isPublished",
+              'propertyId', z."propertyId",
+              'createdAt', z."createdAt",
+              'updatedAt', z."updatedAt",
+              'publishedAt', z."publishedAt",
+              'stepsCount', COALESCE(sc.steps_count, 0)
+            ) ORDER BY z.id ASC
+          ) FILTER (WHERE z.id IS NOT NULL),
+          '[]'::json
+        ) as zones
+      FROM properties p
+      LEFT JOIN zones z ON z."propertyId" = p.id
+      LEFT JOIN (
+        SELECT "zoneId", COUNT(*)::integer as steps_count
+        FROM steps
+        GROUP BY "zoneId"
+      ) sc ON sc."zoneId" = z.id
+      WHERE p.id LIKE ${id + '%'} AND p."hostId" = ${userId}
+      GROUP BY p.id
+      LIMIT 1
+    ` as any[]
+
+    const property = result[0]
+
     if (!property) {
       return NextResponse.json({
         success: false,
         error: 'Propiedad no encontrada'
       }, { status: 404 })
     }
-    
-    // Transform data to include counts and analytics    
+
+    // Transform data
     const transformedProperty = {
-      id: property.id,
-      name: property.name,
-      slug: property.slug,
-      description: property.description,
-      type: property.type,
-      street: property.street,
-      city: property.city,
-      state: property.state,
-      country: property.country,
-      postalCode: property.postalCode,
-      bedrooms: property.bedrooms,
-      bathrooms: property.bathrooms,
-      maxGuests: property.maxGuests,
-      squareMeters: property.squareMeters,
-      profileImage: property.profileImage,
-      hostContactName: property.hostContactName,
-      hostContactPhone: property.hostContactPhone,
-      hostContactEmail: property.hostContactEmail,
-      hostContactLanguage: property.hostContactLanguage,
-      hostContactPhoto: property.hostContactPhoto,
-      status: property.status,
-      isPublished: property.isPublished,
-      propertySetId: property.propertySetId,
-      hostId: property.hostId,
-      createdAt: property.createdAt,
-      updatedAt: property.updatedAt,
-      publishedAt: property.publishedAt,
-      // Computed fields
-      zonesCount: zones.length,
-      totalViews: 0, // Temporarily set to 0
-      avgRating: 0, // Temporarily set to 0
-      zones: zones.map(zone => ({
-        id: zone.id,
-        name: zone.name,
-        slug: zone.slug,
-        icon: zone.icon,
-        description: zone.description,
-        color: zone.color,
-        status: zone.status,
-        isPublished: zone.isPublished,
-        propertyId: zone.propertyId,
-        createdAt: zone.createdAt,
-        updatedAt: zone.updatedAt,
-        publishedAt: zone.publishedAt,
-        stepsCount: zone._count?.steps || 0
-      }))
+      ...property,
+      zonesCount: property.zones?.length || 0,
+      totalViews: 0,
+      avgRating: 0
     }
-    
+
     return NextResponse.json({
       success: true,
       data: transformedProperty

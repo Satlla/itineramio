@@ -17,27 +17,9 @@ export async function GET(
     }
     const userId = authResult.userId
 
-    // Set JWT claims for RLS policies
-    // REMOVED: set_config doesn't work with PgBouncer in transaction mode
-    // RLS is handled at application level instead
-
-    // Verify user owns the property
-    const property = await prisma.property.findFirst({
-      where: {
-        id: propertyId,
-        hostId: userId
-      }
-    })
-
-    if (!property) {
-      return NextResponse.json(
-        { error: 'Propiedad no encontrada o no autorizada' },
-        { status: 404 }
-      )
-    }
-
-    // Use raw SQL to avoid schema issues
-    const zones = await prisma.$queryRaw`
+    // OPTIMIZED: Single query that verifies ownership AND gets zones with steps
+    // Uses LEFT JOIN to get zones only if property belongs to user
+    const zonesWithStepsRaw = await prisma.$queryRaw`
       SELECT
         z.id,
         z.name,
@@ -51,46 +33,54 @@ export async function GET(
         z."order",
         z."createdAt",
         z."updatedAt",
-        z."publishedAt"
-      FROM zones z
-      WHERE z."propertyId" = ${propertyId}
+        z."publishedAt",
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', s.id,
+              'zoneId', s."zoneId",
+              'type', s.type,
+              'title', s.title,
+              'content', s.content,
+              'order', COALESCE(s."order", 0),
+              'isPublished', s."isPublished",
+              'createdAt', s."createdAt",
+              'updatedAt', s."updatedAt"
+            ) ORDER BY COALESCE(s."order", 0) ASC, s.id ASC
+          ) FILTER (WHERE s.id IS NOT NULL),
+          '[]'::json
+        ) as steps
+      FROM properties p
+      INNER JOIN zones z ON z."propertyId" = p.id
+      LEFT JOIN steps s ON s."zoneId" = z.id
+      WHERE p.id = ${propertyId} AND p."hostId" = ${userId}
+      GROUP BY z.id, z.name, z.slug, z.icon, z.description, z.color, z.status,
+               z."isPublished", z."propertyId", z."order", z."createdAt", z."updatedAt", z."publishedAt"
       ORDER BY COALESCE(z."order", 0) ASC, z.id ASC
     ` as any[]
 
-    // Get ALL steps for ALL zones in a SINGLE query (avoids N+1)
-    const zoneIds = zones.map((z: any) => z.id)
+    // If no zones returned, check if property exists for this user
+    if (zonesWithStepsRaw.length === 0) {
+      const propertyExists = await prisma.property.findFirst({
+        where: { id: propertyId, hostId: userId },
+        select: { id: true }
+      })
 
-    let allSteps: any[] = []
-    if (zoneIds.length > 0) {
-      allSteps = await prisma.$queryRaw`
-        SELECT
-          id, "zoneId", type, title, content, COALESCE("order", 0) as "order",
-          "isPublished", "createdAt", "updatedAt"
-        FROM steps
-        WHERE "zoneId" = ANY(${zoneIds})
-        ORDER BY COALESCE("order", 0) ASC, id ASC
-      ` as any[]
+      if (!propertyExists) {
+        return NextResponse.json(
+          { error: 'Propiedad no encontrada o no autorizada' },
+          { status: 404 }
+        )
+      }
+      // Property exists but has no zones - return empty array
     }
 
-    // Group steps by zoneId in memory (fast)
-    const stepsByZoneId = new Map<string, any[]>()
-    for (const step of allSteps) {
-      const zoneSteps = stepsByZoneId.get(step.zoneId) || []
-      zoneSteps.push(step)
-      stepsByZoneId.set(step.zoneId, zoneSteps)
-    }
+    const totalSteps = zonesWithStepsRaw.reduce((sum, z) => sum + (z.steps?.length || 0), 0)
+    console.log('🔍 Zones fetched:', zonesWithStepsRaw.length, '| Steps fetched:', totalSteps)
 
-    // Combine zones with their steps
-    const zonesWithSteps = zones.map((zone: any) => ({
-      ...zone,
-      steps: stepsByZoneId.get(zone.id) || []
-    }))
-
-    console.log('🔍 Zones fetched:', zonesWithSteps.length, '| Steps fetched:', allSteps.length)
-    
     return NextResponse.json({
       success: true,
-      data: zonesWithSteps
+      data: zonesWithStepsRaw
     })
   } catch (error) {
     console.error('Error fetching zones:', error)
