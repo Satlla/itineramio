@@ -24,8 +24,23 @@ import {
   DollarSign
 } from 'lucide-react'
 
+interface Article {
+  id: string
+  title: string
+  status: string
+  category: string
+  views: number
+  helpfulVotes: number
+  hasTemplate: boolean
+  aiGenerated: boolean
+  publishedAt?: Date
+  lastEdited?: Date
+  scheduledFor?: Date
+  author: string
+}
+
 export default function KnowledgeAdminDashboard() {
-  const [articles, setArticles] = useState([])
+  const [articles, setArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('ALL')
   const [searchQuery, setSearchQuery] = useState('')
@@ -99,7 +114,7 @@ export default function KnowledgeAdminDashboard() {
       ARCHIVED: { color: 'bg-red-100 text-red-700', icon: Archive, text: 'Archivado' }
     }
 
-    const badge = badges[status] || badges.DRAFT
+    const badge = badges[status as keyof typeof badges] || badges.DRAFT
     const Icon = badge.icon
 
     return (
@@ -123,7 +138,7 @@ export default function KnowledgeAdminDashboard() {
       MARKETING: 'Marketing',
       OPERATIONS: 'Operaciones'
     }
-    return categories[category] || category
+    return categories[category as keyof typeof categories] || category
   }
 
   const filteredArticles = articles.filter(article => {
