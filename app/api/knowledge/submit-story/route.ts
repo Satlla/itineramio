@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     // Guardar como "UserQuestion" con tipo especial para casos de éxito
     // En el futuro podemos crear un modelo específico "SuccessStory"
-    const story = await prisma.userQuestion.create({
+    const story = await prisma.question.create({
       data: {
         question: storyTitle,
         aiResponse: JSON.stringify({

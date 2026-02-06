@@ -27,7 +27,7 @@ interface SubmitRequest {
 function calculateDimensionScores(answers: AnswerData[]): Record<Dimension, number> {
   const dimensionScores: Record<Dimension, number> = {
     HOSPITALIDAD: 0,
-    COMUNICACIÓN: 0,
+    COMUNICACION: 0,
     OPERATIVA: 0,
     CRISIS: 0,
     DATA: 0,
@@ -38,7 +38,7 @@ function calculateDimensionScores(answers: AnswerData[]): Record<Dimension, numb
 
   const dimensionCounts: Record<Dimension, number> = {
     HOSPITALIDAD: 0,
-    COMUNICACIÓN: 0,
+    COMUNICACION: 0,
     OPERATIVA: 0,
     CRISIS: 0,
     DATA: 0,
@@ -72,7 +72,7 @@ function determineArchetype(scores: Record<Dimension, number>): {
 } {
   const {
     HOSPITALIDAD,
-    COMUNICACIÓN,
+    COMUNICACION,
     OPERATIVA,
     CRISIS,
     DATA,
@@ -102,7 +102,7 @@ function determineArchetype(scores: Record<Dimension, number>): {
     archetype = 'RESOLUTOR'
   }
   // EL EXPERIENCIAL: Alto en HOSPITALIDAD, enfocado en la experiencia del huésped
-  else if (HOSPITALIDAD >= 4.0 && COMUNICACIÓN >= 3.5 && topStrength === 'HOSPITALIDAD') {
+  else if (HOSPITALIDAD >= 4.0 && COMUNICACION >= 3.5 && topStrength === 'HOSPITALIDAD') {
     archetype = 'EXPERIENCIAL'
   }
   // EL IMPROVISADOR: Bajo en estructura pero adaptable
@@ -124,8 +124,8 @@ function determineArchetype(scores: Record<Dimension, number>): {
   else if (DATA >= 4.0 && MKT >= 3.8 && (topStrength === 'DATA' || secondStrength === 'DATA')) {
     archetype = 'ESTRATEGA'
   }
-  // EL DIFERENCIADOR: Alto en MKT + COMUNICACIÓN (marketing y storytelling)
-  else if (MKT >= 4.0 && COMUNICACIÓN >= 3.5 && (topStrength === 'MKT' || topStrength === 'COMUNICACIÓN')) {
+  // EL DIFERENCIADOR: Alto en MKT + COMUNICACION (marketing y storytelling)
+  else if (MKT >= 4.0 && COMUNICACION >= 3.5 && (topStrength === 'MKT' || topStrength === 'COMUNICACION')) {
     archetype = 'DIFERENCIADOR'
   }
 
@@ -138,7 +138,7 @@ function determineArchetype(scores: Record<Dimension, number>): {
   // Solo si la fortaleza es significativa (>= 4.0)
   else if (maxScore >= 4.0) {
     if (topStrength === 'HOSPITALIDAD') archetype = 'EXPERIENCIAL'
-    else if (topStrength === 'COMUNICACIÓN') archetype = 'DIFERENCIADOR'
+    else if (topStrength === 'COMUNICACION') archetype = 'DIFERENCIADOR'
     else if (topStrength === 'OPERATIVA') archetype = 'SISTEMATICO'
     else if (topStrength === 'CRISIS') archetype = 'RESOLUTOR'
     else if (topStrength === 'DATA') archetype = 'ESTRATEGA'
@@ -161,7 +161,7 @@ function determineArchetype(scores: Record<Dimension, number>): {
 function getDimensionLabel(dimension: Dimension): string {
   const labels: Record<Dimension, string> = {
     HOSPITALIDAD: 'Hospitalidad y Atención al Huésped',
-    COMUNICACIÓN: 'Comunicación Efectiva',
+    COMUNICACION: 'Comunicación Efectiva',
     OPERATIVA: 'Gestión Operativa y Procesos',
     CRISIS: 'Resolución de Crisis',
     DATA: 'Análisis de Datos y Rentabilidad',
@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
         gender: body.gender || null,
         answers: body.answers,
         scoreHospitalidad: dimensionScores.HOSPITALIDAD,
-        scoreComunicacion: dimensionScores.COMUNICACIÓN,
+        scoreComunicacion: dimensionScores.COMUNICACION,
         scoreOperativa: dimensionScores.OPERATIVA,
         scoreCrisis: dimensionScores.CRISIS,
         scoreData: dimensionScores.DATA,

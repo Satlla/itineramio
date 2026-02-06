@@ -7,10 +7,11 @@ interface QrData {
 
 interface Props {
   name: string
+  email?: string
   qrData?: QrData
 }
 
-export default function ToolQrDay0Delivery({ name, qrData }: Props) {
+export default function ToolQrDay0Delivery({ name, email, qrData }: Props) {
   const firstName = name?.split(' ')[0] || 'Anfitrión'
   const qrUrl = qrData?.url || 'https://www.itineramio.com'
 

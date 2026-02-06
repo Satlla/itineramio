@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
       for (const [hostId, data] of hostMap) {
         try {
           // Check if user already has an active subscription (don't send reactivation)
-          const activeSubscription = await prisma.subscription.findFirst({
+          const activeSubscription = await prisma.userSubscription.findFirst({
             where: {
               userId: hostId,
               status: { in: ['active', 'trialing'] }

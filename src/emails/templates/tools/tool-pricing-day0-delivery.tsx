@@ -14,10 +14,11 @@ interface PricingData {
 
 interface Props {
   name: string
+  email?: string
   pricingData?: PricingData
 }
 
-export default function ToolPricingDay0Delivery({ name, pricingData }: Props) {
+export default function ToolPricingDay0Delivery({ name, email, pricingData }: Props) {
   const firstName = name?.split(' ')[0] || 'Anfitrión'
   const hasData = pricingData && pricingData.recommendedPrice
 

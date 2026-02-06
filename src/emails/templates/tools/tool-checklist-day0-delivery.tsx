@@ -2,11 +2,12 @@ import * as React from 'react'
 
 interface ToolChecklistDay0Props {
   name: string
+  email?: string
   propertyName?: string
   propertyAddress?: string
 }
 
-export default function ToolChecklistDay0Delivery({ name, propertyName, propertyAddress }: ToolChecklistDay0Props) {
+export default function ToolChecklistDay0Delivery({ name, email, propertyName, propertyAddress }: ToolChecklistDay0Props) {
   const firstName = name?.split(' ')[0] || 'Anfitrión'
 
   return (

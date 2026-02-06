@@ -36,7 +36,7 @@ export default function FunnelResourcePage() {
   const [formData, setFormData] = useState({
     email: initialEmail,
     propiedades: '',
-    automatización: '',
+    automatizacion: '',
     intereses: [] as string[],
     comentario: ''
   })
@@ -250,13 +250,13 @@ export default function FunnelResourcePage() {
                       ¿Tienes algo automatizado actualmente?
                     </label>
                     <div className="space-y-2">
-                      {FORM_OPTIONS.automatización.map((option) => (
+                      {FORM_OPTIONS.automatizacion.map((option) => (
                         <button
                           key={option.value}
                           type="button"
-                          onClick={() => setFormData({ ...formData, automatización: option.value })}
+                          onClick={() => setFormData({ ...formData, automatizacion: option.value })}
                           className={`w-full px-4 py-3 rounded-lg border text-sm text-left transition-all ${
-                            formData.automatización === option.value
+                            formData.automatizacion === option.value
                               ? 'border-rose-500 bg-rose-50 text-rose-700'
                               : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                           }`}
@@ -316,7 +316,7 @@ export default function FunnelResourcePage() {
                   {/* Submit */}
                   <button
                     type="submit"
-                    disabled={loading || !formData.email || !formData.propiedades || !formData.automatización}
+                    disabled={loading || !formData.email || !formData.propiedades || !formData.automatizacion}
                     className={`w-full py-4 bg-gradient-to-r ${resource.theme.gradient} text-white font-semibold rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
                   >
                     {loading ? (
