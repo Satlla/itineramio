@@ -342,7 +342,8 @@ export default function ReservasPage() {
 
   const startEditReservation = (reservation: Reservation) => {
     setFormData({
-      billingConfigId: reservation.billingConfig.id,
+      billingConfigId: reservation.billingConfig?.id || '',
+      billingUnitId: reservation.billingUnitId || '',
       platform: reservation.platform,
       guestName: reservation.guestName,
       guestEmail: reservation.guestEmail || '',
@@ -403,6 +404,7 @@ export default function ReservasPage() {
   const resetForm = () => {
     setFormData({
       billingConfigId: '',
+      billingUnitId: '',
       platform: 'AIRBNB',
       guestName: '',
       guestEmail: '',

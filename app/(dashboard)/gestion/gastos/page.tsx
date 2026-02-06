@@ -257,6 +257,7 @@ export default function GastosPage() {
     setEditingExpense(expense)
     setFormData({
       propertyId: expense.property.id,
+      billingUnitId: expense.billingUnitId || '',
       date: expense.date.split('T')[0],
       concept: expense.concept,
       category: expense.category,
@@ -274,6 +275,7 @@ export default function GastosPage() {
     setFormError(null)
     setFormData({
       propertyId: '',
+      billingUnitId: '',
       date: new Date().toISOString().split('T')[0],
       concept: '',
       category: 'OTHER',

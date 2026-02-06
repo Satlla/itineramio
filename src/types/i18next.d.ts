@@ -27,7 +27,7 @@ declare module 'react-i18next' {
     ns?: Namespaces | Namespaces[],
     options?: { keyPrefix?: string }
   ): {
-    t: (key: string, options?: Record<string, unknown>) => string
+    t: (key: string, optionsOrDefaultValue?: string | Record<string, unknown>) => string
     i18n: typeof import('i18next').default
     ready: boolean
   }
