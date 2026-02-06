@@ -4,9 +4,10 @@ import { prisma } from '@/lib/prisma'
 // POST /api/knowledge/articles/[id]/vote - Votar si un artículo es útil o no
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
     const { isHelpful } = body
 
@@ -19,7 +20,7 @@ export async function POST(
 
     // Verificar que el artículo existe
     const article = await prisma.knowledgeArticle.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       select: {
         id: true,
         helpfulVotes: true,
@@ -40,7 +41,7 @@ export async function POST(
       : { notHelpfulVotes: { increment: 1 } }
 
     const updatedArticle = await prisma.knowledgeArticle.update({
-      where: { id: params.id },
+      where: { id: id },
       data: updateData,
       select: {
         id: true,

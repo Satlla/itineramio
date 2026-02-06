@@ -45,8 +45,8 @@ export function FullPageSpinner() {
 }
 
 // Spinner inline (para botones)
-export function InlineSpinner({ size = 'sm', className = '' }: Pick<SpinnerProps, 'size' | 'className'>) {
-  return <Spinner size={size} className={`inline-block ${className}`} />;
+export function InlineSpinner({ size = 'sm', color = 'primary', className = '' }: Pick<SpinnerProps, 'size' | 'color' | 'className'>) {
+  return <Spinner size={size} color={color} className={`inline-block ${className}`} />;
 }
 
 // Spinner para overlay (sobre contenido)
