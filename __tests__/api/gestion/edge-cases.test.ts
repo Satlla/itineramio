@@ -106,7 +106,7 @@ describe('Decimal Precision Issues', () => {
 describe('Null/Undefined Safety', () => {
   describe('Optional Chaining Scenarios', () => {
     it('should handle null billingConfig', () => {
-      const reservation = {
+      const reservation: { hostEarnings: number; billingConfig: { property?: { name?: string } } | null } = {
         hostEarnings: 1000,
         billingConfig: null
       }

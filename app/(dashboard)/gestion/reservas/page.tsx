@@ -343,7 +343,7 @@ export default function ReservasPage() {
   const startEditReservation = (reservation: Reservation) => {
     setFormData({
       billingConfigId: reservation.billingConfig?.id || '',
-      billingUnitId: reservation.billingUnitId || '',
+      billingUnitId: reservation.billingUnit?.id || '',
       platform: reservation.platform,
       guestName: reservation.guestName,
       guestEmail: reservation.guestEmail || '',

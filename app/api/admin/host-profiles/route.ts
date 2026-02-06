@@ -163,11 +163,11 @@ export async function GET(request: NextRequest) {
         totalSent: enrichedProfiles.reduce((sum, p) => sum + (p.subscriber?.emailsSent || 0), 0),
         totalOpened: enrichedProfiles.reduce((sum, p) => sum + (p.subscriber?.emailsOpened || 0), 0),
         totalClicked: enrichedProfiles.reduce((sum, p) => sum + (p.subscriber?.emailsClicked || 0), 0),
-        avgOpenRate: enrichedProfiles.filter(p => p.subscriber?.emailsSent > 0).length > 0
+        avgOpenRate: enrichedProfiles.filter(p => (p.subscriber?.emailsSent ?? 0) > 0).length > 0
           ? enrichedProfiles
-              .filter(p => p.subscriber && p.subscriber.emailsSent > 0)
-              .reduce((sum, p) => sum + (p.subscriber.openRate || 0), 0) /
-            enrichedProfiles.filter(p => p.subscriber?.emailsSent > 0).length
+              .filter(p => p.subscriber && (p.subscriber.emailsSent ?? 0) > 0)
+              .reduce((sum, p) => sum + (p.subscriber?.openRate || 0), 0) /
+            enrichedProfiles.filter(p => (p.subscriber?.emailsSent ?? 0) > 0).length
           : 0
       }
     }
