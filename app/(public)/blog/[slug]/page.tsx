@@ -7,6 +7,7 @@ import { ShareButtons } from '../../../../src/components/blog/ShareButtons'
 import { BlogComments } from '../../../../src/components/blog/BlogComments'
 import { LikeButton } from '../../../../src/components/blog/LikeButton'
 import { NewsletterCTA } from '../../../../src/components/blog/NewsletterCTA'
+import { BlogProductCTA } from '../../../../src/components/blog/BlogProductCTA'
 import { ItineramioLogo } from '../../../../src/components/ui/ItineramioLogo'
 import { prisma } from '../../../../src/lib/prisma'
 import { markdownToHtml } from '../../../../src/lib/markdown'
@@ -268,6 +269,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         title={post.title}
         category={post.category}
       />
+
+      {/* Sticky Sidebar CTA - Desktop only */}
+      <BlogProductCTA variant="sticky" articleSlug={post.slug} />
 
       {/* Header */}
       <header className="border-b border-gray-200 bg-white sticky z-40 backdrop-blur-sm bg-white/90 pwa-sticky-header">
@@ -749,22 +753,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         </div>
 
-        {/* CTA Section */}
+        {/* CTA Section - Product Trial */}
         <div className="max-w-3xl mx-auto px-6 mt-16 mb-8">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-            <h2 className="text-2xl font-serif font-bold text-gray-900 mb-3">
-              ¿Listo para automatizar tu gestión?
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Crea tu primer manual digital en menos de 10 minutos.
-            </p>
-            <Link
-              href="/register"
-              className="inline-flex items-center justify-center px-6 py-3 bg-gray-900 text-white text-base font-semibold rounded hover:bg-gray-800 transition-colors"
-            >
-              Empezar gratis
-            </Link>
-          </div>
+          <BlogProductCTA variant="final" articleSlug={post.slug} />
         </div>
 
         {/* Academia CTA */}

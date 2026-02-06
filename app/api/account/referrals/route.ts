@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const user = await prisma.user.findUnique({
-      where: { id: authResult.id },
+      where: { id: authResult.userId },
       select: {
         referralCode: true,
         affiliateCommission: true,
@@ -43,9 +43,9 @@ export async function GET(request: NextRequest) {
     // Generate referral code if not exists
     let referralCode = user.referralCode
     if (!referralCode) {
-      referralCode = `REF${authResult.id.slice(-6).toUpperCase()}`
+      referralCode = `REF${authResult.userId.slice(-6).toUpperCase()}`
       await prisma.user.update({
-        where: { id: authResult.id },
+        where: { id: authResult.userId },
         data: { referralCode }
       })
     }
