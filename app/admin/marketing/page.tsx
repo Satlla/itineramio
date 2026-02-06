@@ -444,7 +444,7 @@ export default function MarketingFunnelsHub() {
                         </div>
                         <div className="text-2xl font-bold text-orange-900">{stats?.quiz.pending}</div>
                         <div className="text-xs text-orange-700 mt-1">
-                          {stats?.quiz.total > 0 ? ((stats.quiz.pending / stats.quiz.total) * 100).toFixed(0) : 0}%
+                          {stats?.quiz?.total ? ((stats.quiz.pending / stats.quiz.total) * 100).toFixed(0) : 0}%
                         </div>
                       </div>
 
@@ -455,7 +455,7 @@ export default function MarketingFunnelsHub() {
                         </div>
                         <div className="text-2xl font-bold text-green-900">{stats?.quiz.converted}</div>
                         <div className="text-xs text-green-700 mt-1">
-                          {stats?.quiz.total > 0 ? ((stats.quiz.converted / stats.quiz.total) * 100).toFixed(0) : 0}%
+                          {stats?.quiz?.total ? ((stats.quiz.converted / stats.quiz.total) * 100).toFixed(0) : 0}%
                         </div>
                       </div>
 
@@ -518,7 +518,7 @@ export default function MarketingFunnelsHub() {
                         </div>
                         <div className="text-2xl font-bold text-blue-900">{stats?.hostProfile.withEmail}</div>
                         <div className="text-xs text-blue-700 mt-1">
-                          {stats?.hostProfile.total > 0 ? ((stats.hostProfile.withEmail / stats.hostProfile.total) * 100).toFixed(0) : 0}%
+                          {stats?.hostProfile?.total ? ((stats.hostProfile.withEmail / stats.hostProfile.total) * 100).toFixed(0) : 0}%
                         </div>
                       </div>
 
@@ -529,7 +529,7 @@ export default function MarketingFunnelsHub() {
                         </div>
                         <div className="text-2xl font-bold text-green-900">{stats?.hostProfile.downloadedGuide}</div>
                         <div className="text-xs text-green-700 mt-1">
-                          {stats?.hostProfile.withEmail > 0 ? ((stats.hostProfile.downloadedGuide / stats.hostProfile.withEmail) * 100).toFixed(0) : 0}%
+                          {stats?.hostProfile?.withEmail ? ((stats.hostProfile.downloadedGuide / stats.hostProfile.withEmail) * 100).toFixed(0) : 0}%
                         </div>
                       </div>
 
