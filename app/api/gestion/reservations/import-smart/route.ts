@@ -48,6 +48,8 @@ export async function POST(request: NextRequest) {
         name: true,
         commissionType: true,
         commissionValue: true,
+        cleaningType: true,
+        cleaningValue: true,
         cleaningFeeRecipient: true,
         cleaningFeeSplitPct: true,
         airbnbNames: true,
@@ -167,10 +169,23 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        // Calculate cleaning fee from BillingUnit config if not provided by platform
+        // (Booking doesn't separate cleaning fees in their CSV)
+        let cleaningFee = parsed.cleaningFee
+        if (cleaningFee === 0 && targetBillingUnit.cleaningValue) {
+          const cleaningValue = Number(targetBillingUnit.cleaningValue) || 0
+          if (targetBillingUnit.cleaningType === 'PER_NIGHT') {
+            cleaningFee = cleaningValue * parsed.nights
+          } else {
+            // FIXED_PER_RESERVATION (default)
+            cleaningFee = cleaningValue
+          }
+        }
+
         // Calculate financial split
         const financials = calculateFinancialSplit(
           parsed.hostEarnings,
-          parsed.cleaningFee,
+          cleaningFee,
           targetBillingUnit
         )
 
@@ -187,7 +202,7 @@ export async function POST(request: NextRequest) {
             checkOut: parsed.checkOut,
             nights: parsed.nights,
             roomTotal: parsed.roomTotal,
-            cleaningFee: parsed.cleaningFee,
+            cleaningFee: cleaningFee,
             hostServiceFee: parsed.hostServiceFee,
             hostEarnings: parsed.hostEarnings,
             currency: 'EUR',
