@@ -66,6 +66,10 @@ interface BillingUnitGroup {
   invoicesCount: number
   commissionType: string
   commissionValue: number
+  cleaningType: string
+  cleaningValue: number
+  cleaningVatIncluded: boolean
+  cleaningFeeRecipient: string
   isActive: boolean
 }
 
@@ -1115,6 +1119,9 @@ function NewGroupModal({
     ownerId: '',
     commissionValue: '15',
     cleaningValue: '0',
+    cleaningType: 'FIXED_PER_RESERVATION',
+    cleaningFeeRecipient: 'MANAGER',
+    cleaningVatIncluded: true,
     selectedUnits: [] as string[]
   })
   const [saving, setSaving] = useState(false)
@@ -1135,12 +1142,15 @@ function NewGroupModal({
           ownerId: form.ownerId,
           commissionValue: parseFloat(form.commissionValue) || 0,
           cleaningValue: parseFloat(form.cleaningValue) || 0,
+          cleaningType: form.cleaningType,
+          cleaningFeeRecipient: form.cleaningFeeRecipient,
+          cleaningVatIncluded: form.cleaningVatIncluded,
           billingUnitIds: form.selectedUnits
         })
       })
 
       if (res.ok) {
-        setForm({ name: '', imageUrl: '', ownerId: '', commissionValue: '15', cleaningValue: '0', selectedUnits: [] })
+        setForm({ name: '', imageUrl: '', ownerId: '', commissionValue: '15', cleaningValue: '0', cleaningType: 'FIXED_PER_RESERVATION', cleaningFeeRecipient: 'MANAGER', cleaningVatIncluded: true, selectedUnits: [] })
         onSuccess()
       } else {
         const data = await res.json()
@@ -1242,6 +1252,46 @@ function NewGroupModal({
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             />
           </div>
+        </div>
+
+        {/* Configuración de limpieza */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de limpieza</label>
+            <select
+              value={form.cleaningType}
+              onChange={e => setForm(f => ({ ...f, cleaningType: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            >
+              <option value="FIXED_PER_RESERVATION">Fija por reserva</option>
+              <option value="PER_NIGHT">Por noche</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">¿Quién cobra la limpieza?</label>
+            <select
+              value={form.cleaningFeeRecipient}
+              onChange={e => setForm(f => ({ ...f, cleaningFeeRecipient: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            >
+              <option value="MANAGER">Gestor</option>
+              <option value="OWNER">Propietario</option>
+              <option value="SPLIT">Dividido</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="cleaningVatIncluded"
+            checked={form.cleaningVatIncluded}
+            onChange={e => setForm(f => ({ ...f, cleaningVatIncluded: e.target.checked }))}
+            className="rounded text-violet-600 focus:ring-violet-500"
+          />
+          <label htmlFor="cleaningVatIncluded" className="text-sm text-gray-700">
+            La limpieza incluye IVA
+          </label>
         </div>
 
         {standaloneUnits.length > 0 && (
@@ -1635,7 +1685,10 @@ function EditGroupModal({
     imageUrl: '',
     ownerId: '',
     commissionValue: '15',
-    cleaningValue: '0'
+    cleaningValue: '0',
+    cleaningType: 'FIXED_PER_RESERVATION',
+    cleaningFeeRecipient: 'MANAGER',
+    cleaningVatIncluded: true
   })
   const [saving, setSaving] = useState(false)
 
@@ -1646,7 +1699,10 @@ function EditGroupModal({
         imageUrl: group.imageUrl || '',
         ownerId: group.ownerId || '',
         commissionValue: String(group.commissionValue || 15),
-        cleaningValue: '0'
+        cleaningValue: String(group.cleaningValue || 0),
+        cleaningType: group.cleaningType || 'FIXED_PER_RESERVATION',
+        cleaningFeeRecipient: group.cleaningFeeRecipient || 'MANAGER',
+        cleaningVatIncluded: group.cleaningVatIncluded ?? true
       })
     }
   }, [group])
@@ -1667,7 +1723,11 @@ function EditGroupModal({
           name: form.name.trim(),
           imageUrl: form.imageUrl || null,
           ownerId: form.ownerId,
-          commissionValue: parseFloat(form.commissionValue) || 0
+          commissionValue: parseFloat(form.commissionValue) || 0,
+          cleaningValue: parseFloat(form.cleaningValue) || 0,
+          cleaningType: form.cleaningType,
+          cleaningFeeRecipient: form.cleaningFeeRecipient,
+          cleaningVatIncluded: form.cleaningVatIncluded
         })
       })
 
@@ -1721,15 +1781,67 @@ function EditGroupModal({
           </select>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Comisión %</label>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Comisión %</label>
+            <input
+              type="number"
+              step="0.1"
+              value={form.commissionValue}
+              onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Limpieza €</label>
+            <input
+              type="number"
+              step="0.01"
+              value={form.cleaningValue}
+              onChange={e => setForm(f => ({ ...f, cleaningValue: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            />
+          </div>
+        </div>
+
+        {/* Configuración de limpieza */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de limpieza</label>
+            <select
+              value={form.cleaningType}
+              onChange={e => setForm(f => ({ ...f, cleaningType: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            >
+              <option value="FIXED_PER_RESERVATION">Fija por reserva</option>
+              <option value="PER_NIGHT">Por noche</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">¿Quién cobra la limpieza?</label>
+            <select
+              value={form.cleaningFeeRecipient}
+              onChange={e => setForm(f => ({ ...f, cleaningFeeRecipient: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            >
+              <option value="MANAGER">Gestor</option>
+              <option value="OWNER">Propietario</option>
+              <option value="SPLIT">Dividido</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
           <input
-            type="number"
-            step="0.1"
-            value={form.commissionValue}
-            onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            type="checkbox"
+            id="editCleaningVatIncluded"
+            checked={form.cleaningVatIncluded}
+            onChange={e => setForm(f => ({ ...f, cleaningVatIncluded: e.target.checked }))}
+            className="rounded text-violet-600 focus:ring-violet-500"
           />
+          <label htmlFor="editCleaningVatIncluded" className="text-sm text-gray-700">
+            La limpieza incluye IVA
+          </label>
         </div>
 
         {/* Apartamentos actuales */}

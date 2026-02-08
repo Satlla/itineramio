@@ -62,6 +62,10 @@ export async function GET(request: NextRequest) {
         invoicesCount: group._count.invoices,
         commissionType: group.commissionType,
         commissionValue: group.commissionValue,
+        cleaningType: group.cleaningType,
+        cleaningValue: Number(group.cleaningValue),
+        cleaningVatIncluded: group.cleaningVatIncluded,
+        cleaningFeeRecipient: group.cleaningFeeRecipient,
         isActive: group.isActive,
         createdAt: group.createdAt
       }))
