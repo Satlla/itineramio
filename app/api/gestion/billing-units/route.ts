@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
         address: unit.address,
         postalCode: unit.postalCode,
         imageUrl: unit.imageUrl,
+        groupId: unit.groupId,
         ownerId: unit.ownerId,
         owner: unit.owner ? {
           id: unit.owner.id,
@@ -101,6 +102,7 @@ export async function POST(request: NextRequest) {
       postalCode,
       imageUrl,
       ownerId,
+      groupId,
       airbnbNames,
       bookingNames,
       vrboNames,
@@ -144,6 +146,19 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Si se especifica un grupo, verificar que pertenece al usuario
+    if (groupId) {
+      const group = await prisma.billingUnitGroup.findFirst({
+        where: { id: groupId, userId }
+      })
+      if (!group) {
+        return NextResponse.json(
+          { error: 'Conjunto no encontrado' },
+          { status: 404 }
+        )
+      }
+    }
+
     const billingUnit = await prisma.billingUnit.create({
       data: {
         userId,
@@ -152,7 +167,8 @@ export async function POST(request: NextRequest) {
         address: address?.trim() || null,
         postalCode: postalCode?.trim() || null,
         imageUrl: imageUrl || null,
-        ownerId: ownerId || null,
+        ownerId: groupId ? null : (ownerId || null), // Si tiene grupo, el owner se hereda del grupo
+        groupId: groupId || null,
         airbnbNames: airbnbNames || [],
         bookingNames: bookingNames || [],
         vrboNames: vrboNames || [],
@@ -196,6 +212,7 @@ export async function POST(request: NextRequest) {
         address: billingUnit.address,
         postalCode: billingUnit.postalCode,
         imageUrl: billingUnit.imageUrl,
+        groupId: billingUnit.groupId,
         ownerId: billingUnit.ownerId,
         owner: billingUnit.owner ? {
           id: billingUnit.owner.id,

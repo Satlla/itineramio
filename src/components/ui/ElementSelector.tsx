@@ -80,7 +80,10 @@ export function ElementSelector({
 
   const categories = [
     { key: 'all', name: 'Todos' },
-    ...Object.entries(categoryLabels).map(([key, name]) => ({ key, name }))
+    ...Object.entries(categoryLabels).map(([key, labels]) => ({
+      key,
+      name: typeof labels === 'string' ? labels : labels.es || key
+    }))
   ]
 
   return (

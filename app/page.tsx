@@ -66,6 +66,49 @@ const AnimatedSection = ({ children, className = "" }: { children: React.ReactNo
   )
 }
 
+// Lazy Video Component - only loads when visible
+const LazyVideo = ({ src, className = "", poster }: { src: string; className?: string; poster?: string }) => {
+  const videoRef = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '200px' }
+    )
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div ref={videoRef} className={className}>
+      {isVisible ? (
+        <video
+          className="w-full h-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={poster}
+        >
+          <source src={src} type="video/mp4" />
+        </video>
+      ) : (
+        <div className="w-full h-full bg-gradient-to-br from-violet-100 to-purple-100 animate-pulse" />
+      )}
+    </div>
+  )
+}
+
 // Testimonials data
 const testimonials = [
   {
@@ -423,16 +466,7 @@ export default function LandingPage() {
               className="relative"
             >
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-200">
-                <video
-                  className="w-full h-full object-cover"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="none"
-                >
-                  <source src="/videos/no-calls.mp4" type="video/mp4" />
-                </video>
+                <LazyVideo src="/videos/no-calls.mp4" className="w-full h-full" />
 
                 {/* Floating badges */}
                 <motion.div
@@ -639,16 +673,7 @@ export default function LandingPage() {
               className="relative order-2 lg:order-1"
             >
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-                <video
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="none"
-                  className="w-full h-full object-cover"
-                >
-                  <source src="/videos/host-preocupado.mp4" type="video/mp4" />
-                </video>
+                <LazyVideo src="/videos/host-preocupado.mp4" className="w-full h-full" />
               </div>
               <motion.div
                 animate={{
@@ -724,16 +749,7 @@ export default function LandingPage() {
                   className="order-2 lg:order-1"
                 >
                   <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-blue-50 to-cyan-50 relative group">
-                    <video
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      preload="none"
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    >
-                      <source src="/videos/famili-check-in.mp4" type="video/mp4" />
-                    </video>
+                    <LazyVideo src="/videos/famili-check-in.mp4" className="absolute inset-0 w-full h-full" />
                   </div>
                 </motion.div>
 
@@ -770,16 +786,7 @@ export default function LandingPage() {
                   whileHover={{ scale: 1.02 }}
                   className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-purple-50 to-pink-50 relative group"
                 >
-                  <video
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="none"
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  >
-                    <source src="/videos/wifi.mp4" type="video/mp4" />
-                  </video>
+                  <LazyVideo src="/videos/wifi.mp4" className="absolute inset-0 w-full h-full" />
                 </motion.div>
               </div>
             </AnimatedSection>
@@ -791,16 +798,7 @@ export default function LandingPage() {
                   whileHover={{ scale: 1.02 }}
                   className="order-2 lg:order-1 aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-green-50 to-emerald-50 relative group"
                 >
-                  <video
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="none"
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  >
-                    <source src="/videos/washing-machine.mp4" type="video/mp4" />
-                  </video>
+                  <LazyVideo src="/videos/washing-machine.mp4" className="absolute inset-0 w-full h-full" />
                 </motion.div>
 
                 <div className="order-1 lg:order-2 space-y-6">
@@ -836,16 +834,7 @@ export default function LandingPage() {
                   whileHover={{ scale: 1.02 }}
                   className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-orange-50 to-red-50 relative group"
                 >
-                  <video
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="none"
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  >
-                    <source src="/videos/vitro.mp4" type="video/mp4" />
-                  </video>
+                  <LazyVideo src="/videos/vitro.mp4" className="absolute inset-0 w-full h-full" />
                 </motion.div>
               </div>
             </AnimatedSection>

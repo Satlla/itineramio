@@ -96,6 +96,19 @@ export async function PATCH(
       }
     }
 
+    // Si se especifica un grupo, verificar que pertenece al usuario
+    if (body.groupId !== undefined && body.groupId !== null) {
+      const group = await prisma.billingUnitGroup.findFirst({
+        where: { id: body.groupId, userId }
+      })
+      if (!group) {
+        return NextResponse.json(
+          { error: 'Conjunto no encontrado' },
+          { status: 404 }
+        )
+      }
+    }
+
     // Construir datos de actualización
     const updateData: Record<string, unknown> = {}
 
@@ -172,6 +185,7 @@ export async function PATCH(
         address: updated.address,
         postalCode: updated.postalCode,
         imageUrl: updated.imageUrl,
+        groupId: updated.groupId,
         ownerId: updated.ownerId,
         owner: updated.owner ? {
           id: updated.owner.id,

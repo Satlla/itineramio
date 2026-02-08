@@ -71,7 +71,10 @@ export async function PUT(
     const existing = await prisma.reservation.findFirst({
       where: { id, userId },
       include: {
-        billingConfig: true
+        billingConfig: true,
+        liquidation: {
+          select: { status: true }
+        }
       }
     })
 
@@ -82,10 +85,10 @@ export async function PUT(
       )
     }
 
-    // Check if already invoiced
-    if (existing.invoiced) {
+    // Only block if in a PAID liquidation
+    if (existing.liquidation?.status === 'PAID') {
       return NextResponse.json(
-        { error: 'No se puede editar una reserva ya facturada' },
+        { error: 'No se puede editar una reserva en una liquidación pagada' },
         { status: 400 }
       )
     }
@@ -185,7 +188,12 @@ export async function DELETE(
 
     // Verify reservation exists and belongs to user
     const existing = await prisma.reservation.findFirst({
-      where: { id, userId }
+      where: { id, userId },
+      include: {
+        liquidation: {
+          select: { status: true }
+        }
+      }
     })
 
     if (!existing) {
@@ -195,17 +203,10 @@ export async function DELETE(
       )
     }
 
-    // Check if already invoiced or in a liquidation
-    if (existing.invoiced) {
+    // Only block if in a PAID liquidation
+    if (existing.liquidation?.status === 'PAID') {
       return NextResponse.json(
-        { error: 'No se puede eliminar una reserva ya facturada' },
-        { status: 400 }
-      )
-    }
-
-    if (existing.liquidationId) {
-      return NextResponse.json(
-        { error: 'No se puede eliminar una reserva incluida en una liquidación' },
+        { error: 'No se puede eliminar una reserva en una liquidación pagada' },
         { status: 400 }
       )
     }

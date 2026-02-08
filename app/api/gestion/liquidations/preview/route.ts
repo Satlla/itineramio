@@ -96,13 +96,13 @@ export async function GET(request: NextRequest) {
     const startDate = new Date(year, month - 1, 1)
     const endDate = new Date(year, month, 0, 23, 59, 59)
 
-    // Get reservations from billing units
+    // Get reservations from billing units (by check-in month)
     const billingUnitReservations = billingUnitIds.length > 0 ? await prisma.reservation.findMany({
       where: {
         billingUnitId: { in: billingUnitIds },
         status: { in: ['COMPLETED', 'CONFIRMED'] },
         liquidationId: null,
-        checkOut: {
+        checkIn: {
           gte: startDate,
           lte: endDate,
         },
@@ -115,14 +115,14 @@ export async function GET(request: NextRequest) {
       orderBy: { checkIn: 'asc' }
     }) : []
 
-    // Get reservations from legacy billing configs
+    // Get reservations from legacy billing configs (by check-in month)
     const configReservations = billingConfigIds.length > 0 ? await prisma.reservation.findMany({
       where: {
         billingConfigId: { in: billingConfigIds },
         billingUnitId: null, // Only if not already linked to a billing unit
         status: { in: ['COMPLETED', 'CONFIRMED'] },
         liquidationId: null,
-        checkOut: {
+        checkIn: {
           gte: startDate,
           lte: endDate,
         },
