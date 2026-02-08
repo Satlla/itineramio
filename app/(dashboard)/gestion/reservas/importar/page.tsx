@@ -127,6 +127,8 @@ export default function ImportarReservasPage() {
   const [listingMappings, setListingMappings] = useState<Record<string, ListingMapping>>({})
   const [canConfirmSmartImport, setCanConfirmSmartImport] = useState(false)
   const [useSmartImport, setUseSmartImport] = useState(false)
+  const [skipUnmappedListings, setSkipUnmappedListings] = useState(false)
+  const [mappedReservationsCount, setMappedReservationsCount] = useState(0)
 
   // Fetch properties and billing units
   useEffect(() => {
@@ -334,10 +336,19 @@ export default function ImportarReservasPage() {
   const handleImport = async () => {
     // Smart import mode: doesn't require single property selection
     if (useSmartImport && smartImportInfo) {
-      if (!canConfirmSmartImport) {
+      // Allow partial import if skipUnmappedListings is enabled
+      const hasSomeMappings = Object.keys(listingMappings).some(k => listingMappings[k]?.billingUnitId)
+      if (!canConfirmSmartImport && !skipUnmappedListings) {
         setMessage({
           type: 'error',
-          text: 'Asigna todos los alojamientos antes de importar'
+          text: 'Asigna todos los alojamientos o activa "Importar solo asignados"'
+        })
+        return
+      }
+      if (skipUnmappedListings && !hasSomeMappings) {
+        setMessage({
+          type: 'error',
+          text: 'Asigna al menos un alojamiento para importar'
         })
         return
       }
@@ -385,6 +396,7 @@ export default function ImportarReservasPage() {
             platform: detectedPlatform,
             skipDuplicates,
             listingMappings,
+            skipUnmappedListings,
             defaultBillingUnitId: selectedPropertyId || undefined
           })
         })
@@ -482,6 +494,8 @@ export default function ImportarReservasPage() {
     setListingMappings({})
     setCanConfirmSmartImport(false)
     setUseSmartImport(false)
+    setSkipUnmappedListings(false)
+    setMappedReservationsCount(0)
   }
 
   const handleBulkDelete = async () => {
@@ -949,7 +963,31 @@ export default function ImportarReservasPage() {
                       availableBillingUnits={smartImportInfo.availableBillingUnits}
                       onMappingsChange={setListingMappings}
                       onCanConfirm={setCanConfirmSmartImport}
+                      onMappedCountChange={setMappedReservationsCount}
                     />
+
+                    {/* Option to skip unmapped listings */}
+                    {!canConfirmSmartImport && mappedReservationsCount > 0 && (
+                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <label className="flex items-start gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={skipUnmappedListings}
+                            onChange={(e) => setSkipUnmappedListings(e.target.checked)}
+                            className="mt-1 w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                          />
+                          <div>
+                            <span className="font-medium text-blue-900">
+                              Importar solo alojamientos asignados
+                            </span>
+                            <p className="text-sm text-blue-700 mt-1">
+                              Se importarán <strong>{mappedReservationsCount}</strong> reservas de los alojamientos asignados.
+                              Las reservas sin asignar se omitirán.
+                            </p>
+                          </div>
+                        </label>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1064,7 +1102,9 @@ export default function ImportarReservasPage() {
                     disabled={
                       isImporting ||
                       previewAnalysis.newReservations === 0 ||
-                      (useSmartImport ? !canConfirmSmartImport : !selectedPropertyId)
+                      (useSmartImport
+                        ? (!canConfirmSmartImport && (!skipUnmappedListings || mappedReservationsCount === 0))
+                        : !selectedPropertyId)
                     }
                     className="bg-violet-600 hover:bg-violet-700 text-white"
                   >
@@ -1078,10 +1118,15 @@ export default function ImportarReservasPage() {
                         <XCircle className="h-4 w-4 mr-2" />
                         Nada que importar
                       </>
-                    ) : useSmartImport && !canConfirmSmartImport ? (
+                    ) : useSmartImport && !canConfirmSmartImport && !skipUnmappedListings ? (
                       <>
                         <AlertTriangle className="h-4 w-4 mr-2" />
                         Asigna todos los alojamientos
+                      </>
+                    ) : useSmartImport && skipUnmappedListings && mappedReservationsCount > 0 ? (
+                      <>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Importar {mappedReservationsCount} reservas
                       </>
                     ) : (
                       <>

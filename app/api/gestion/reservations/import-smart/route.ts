@@ -14,6 +14,7 @@ interface ImportSmartRequest {
   platform: 'AIRBNB' | 'BOOKING'
   skipDuplicates: boolean
   listingMappings: Record<string, ListingMapping>
+  skipUnmappedListings?: boolean
   defaultBillingUnitId?: string
 }
 
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
     const userId = authResult.userId
 
     const body: ImportSmartRequest = await request.json()
-    const { rows, headers, platform, skipDuplicates, listingMappings, defaultBillingUnitId } = body
+    const { rows, headers, platform, skipDuplicates, listingMappings, skipUnmappedListings, defaultBillingUnitId } = body
 
     if (!rows || rows.length === 0) {
       return NextResponse.json(
@@ -136,6 +137,11 @@ export async function POST(request: NextRequest) {
         }
 
         if (!targetBillingUnit) {
+          if (skipUnmappedListings) {
+            // Skip this row silently when skipUnmappedListings is enabled
+            results.skippedCount++
+            continue
+          }
           results.errors.push({
             row: rowNum,
             error: `No se encontró BillingUnit para "${listingName || 'sin listing'}". Configura el mapeo.`,

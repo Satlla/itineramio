@@ -39,13 +39,15 @@ interface ListingMapperProps {
   availableBillingUnits: BillingUnitOption[]
   onMappingsChange: (mappings: Record<string, ListingMapping>) => void
   onCanConfirm: (canConfirm: boolean) => void
+  onMappedCountChange?: (count: number) => void
 }
 
 export function ListingMapper({
   listings,
   availableBillingUnits,
   onMappingsChange,
-  onCanConfirm
+  onCanConfirm,
+  onMappedCountChange
 }: ListingMapperProps) {
   const [mappings, setMappings] = useState<Record<string, ListingMapping>>({})
 
@@ -73,7 +75,13 @@ export function ListingMapper({
     // Check if all listings have a mapping
     const allMapped = listings.every(l => mappings[l.name]?.billingUnitId)
     onCanConfirm(allMapped)
-  }, [mappings, listings, onMappingsChange, onCanConfirm])
+
+    // Calculate how many reservations are mapped
+    const mappedReservations = listings
+      .filter(l => mappings[l.name]?.billingUnitId)
+      .reduce((sum, l) => sum + l.count, 0)
+    onMappedCountChange?.(mappedReservations)
+  }, [mappings, listings, onMappingsChange, onCanConfirm, onMappedCountChange])
 
   const handleBillingUnitChange = (listingName: string, billingUnitId: string) => {
     setMappings(prev => ({
