@@ -118,8 +118,8 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        // Find the BillingUnit for this listing
-        const listingName = parsed.listingName || ''
+        // Find the BillingUnit for this listing (usar "(Sin nombre)" si está vacío para coincidir con preview)
+        const listingName = parsed.listingName || '(Sin nombre)'
         const mapping = listingMappings[listingName]
 
         let targetBillingUnit: typeof billingUnits[0] | null = null

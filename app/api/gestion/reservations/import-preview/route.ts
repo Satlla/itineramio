@@ -188,10 +188,9 @@ export async function POST(request: NextRequest) {
         analysis.dateRange.max = checkOut
       }
 
-      // Contar listing
-      if (listingName) {
-        analysis.listingsFound.set(listingName, (analysis.listingsFound.get(listingName) || 0) + 1)
-      }
+      // Contar listing (usar "(Sin nombre)" si está vacío)
+      const effectiveListingName = listingName || '(Sin nombre)'
+      analysis.listingsFound.set(effectiveListingName, (analysis.listingsFound.get(effectiveListingName) || 0) + 1)
 
       analysis.validRows++
 
@@ -215,7 +214,7 @@ export async function POST(request: NextRequest) {
             guestName: guestName || 'Sin nombre',
             checkIn: checkInStr,
             amount,
-            listing: listingName || '-'
+            listing: effectiveListingName
           })
         }
       }
