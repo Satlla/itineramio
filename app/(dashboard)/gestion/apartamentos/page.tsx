@@ -284,6 +284,10 @@ export default function ApartamentosPage() {
                       expanded={expandedId === `group-${group.id}`}
                       onToggle={() => setExpandedId(expandedId === `group-${group.id}` ? null : `group-${group.id}`)}
                       onEdit={() => setEditingGroup(group)}
+                      onEditUnit={(unitId) => {
+                        const unit = billingUnits.find(u => u.id === unitId)
+                        if (unit) setEditingUnit(unit)
+                      }}
                       onRefresh={fetchData}
                     />
                   ))}
@@ -394,12 +398,14 @@ function GroupCard({
   expanded,
   onToggle,
   onEdit,
+  onEditUnit,
   onRefresh
 }: {
   group: BillingUnitGroup
   expanded: boolean
   onToggle: () => void
   onEdit: () => void
+  onEditUnit: (unitId: string) => void
   onRefresh: () => void
 }) {
   const [deleting, setDeleting] = useState(false)
@@ -497,18 +503,25 @@ function GroupCard({
                 ) : (
                   <div className="grid sm:grid-cols-2 gap-2">
                     {group.billingUnits.map(unit => (
-                      <div key={unit.id} className="flex items-center gap-2 bg-white p-2 rounded-lg border">
-                        {unit.imageUrl ? (
-                          <img src={unit.imageUrl} alt={unit.name} className="w-8 h-8 object-cover rounded" />
-                        ) : (
-                          <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
-                            <Home className="w-4 h-4 text-gray-400" />
+                      <div
+                        key={unit.id}
+                        className="flex items-center justify-between gap-2 bg-white p-2 rounded-lg border hover:border-violet-300 cursor-pointer transition-colors"
+                        onClick={() => onEditUnit(unit.id)}
+                      >
+                        <div className="flex items-center gap-2">
+                          {unit.imageUrl ? (
+                            <img src={unit.imageUrl} alt={unit.name} className="w-8 h-8 object-cover rounded" />
+                          ) : (
+                            <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+                              <Home className="w-4 h-4 text-gray-400" />
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-sm font-medium">{unit.name}</p>
+                            {unit.city && <p className="text-xs text-gray-500">{unit.city}</p>}
                           </div>
-                        )}
-                        <div>
-                          <p className="text-sm font-medium">{unit.name}</p>
-                          {unit.city && <p className="text-xs text-gray-500">{unit.city}</p>}
                         </div>
+                        <Edit2 className="w-4 h-4 text-gray-400" />
                       </div>
                     ))}
                   </div>
