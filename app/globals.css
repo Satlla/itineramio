@@ -56,8 +56,18 @@ body {
   top: env(safe-area-inset-top, 0px);
 }
 
-.pwa-standalone .pwa-nav-top {
-  top: max(env(safe-area-inset-top, 0px), 47px);
+/* Solo aplicar el padding extra de 47px en móviles (iOS con notch) */
+@media (max-width: 767px) {
+  .pwa-standalone .pwa-nav-top {
+    top: max(env(safe-area-inset-top, 0px), 47px);
+  }
+}
+
+/* En desktop PWA, usar solo el safe-area sin mínimo */
+@media (min-width: 768px) {
+  .pwa-standalone .pwa-nav-top {
+    top: env(safe-area-inset-top, 0px);
+  }
 }
 
 /* For the main navbar position when trial bar IS visible (48px bar height) */
@@ -65,8 +75,17 @@ body {
   top: calc(48px + env(safe-area-inset-top, 0px));
 }
 
-.pwa-standalone .pwa-nav-with-trial {
-  top: calc(48px + max(env(safe-area-inset-top, 0px), 47px));
+/* Solo en móviles aplicar 47px extra */
+@media (max-width: 767px) {
+  .pwa-standalone .pwa-nav-with-trial {
+    top: calc(48px + max(env(safe-area-inset-top, 0px), 47px));
+  }
+}
+
+@media (min-width: 768px) {
+  .pwa-standalone .pwa-nav-with-trial {
+    top: calc(48px + env(safe-area-inset-top, 0px));
+  }
 }
 
 /* Main content padding when trial bar is NOT visible */
@@ -87,19 +106,23 @@ body {
   }
 }
 
-.pwa-standalone .pwa-main-content {
-  padding-top: calc(48px + max(env(safe-area-inset-top, 0px), 47px));
+/* PWA standalone en móviles - añadir 47px para notch iOS */
+@media (max-width: 767px) {
+  .pwa-standalone .pwa-main-content {
+    padding-top: calc(48px + max(env(safe-area-inset-top, 0px), 47px));
+  }
 }
 
-@media (min-width: 640px) {
+@media (max-width: 767px) and (min-width: 640px) {
   .pwa-standalone .pwa-main-content {
     padding-top: calc(56px + max(env(safe-area-inset-top, 0px), 47px));
   }
 }
 
+/* PWA standalone en desktop - sin 47px extra */
 @media (min-width: 768px) {
   .pwa-standalone .pwa-main-content {
-    padding-top: calc(64px + max(env(safe-area-inset-top, 0px), 47px));
+    padding-top: calc(64px + env(safe-area-inset-top, 0px));
   }
 }
 
@@ -120,19 +143,23 @@ body {
   }
 }
 
-.pwa-standalone .pwa-main-content-with-trial {
-  padding-top: calc(96px + max(env(safe-area-inset-top, 0px), 47px));
+/* PWA standalone con trial bar - móviles con 47px extra */
+@media (max-width: 767px) {
+  .pwa-standalone .pwa-main-content-with-trial {
+    padding-top: calc(96px + max(env(safe-area-inset-top, 0px), 47px));
+  }
 }
 
-@media (min-width: 640px) {
+@media (max-width: 767px) and (min-width: 640px) {
   .pwa-standalone .pwa-main-content-with-trial {
     padding-top: calc(104px + max(env(safe-area-inset-top, 0px), 47px));
   }
 }
 
+/* PWA standalone con trial bar - desktop sin 47px extra */
 @media (min-width: 768px) {
   .pwa-standalone .pwa-main-content-with-trial {
-    padding-top: calc(112px + max(env(safe-area-inset-top, 0px), 47px));
+    padding-top: calc(112px + env(safe-area-inset-top, 0px));
   }
 }
 

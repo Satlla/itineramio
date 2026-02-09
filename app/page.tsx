@@ -496,6 +496,96 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
+      {/* Product Demo Section - Inkdrop Style */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <AnimatedSection className="text-center mb-12">
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", duration: 0.6 }}
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-violet-50 rounded-full border border-violet-200 mb-6"
+            >
+              <Video className="w-4 h-4 text-violet-600" />
+              <span className="text-sm font-medium text-violet-700">Ver en acción</span>
+            </motion.div>
+
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+              Crea tu propiedad en <span className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">segundos</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Mira lo fácil que es configurar tu manual digital. Sin complicaciones, sin curvas de aprendizaje.
+            </p>
+          </AnimatedSection>
+
+          {/* Browser Frame with Video */}
+          <AnimatedSection>
+            <motion.div
+              whileHover={{ scale: 1.01, y: -5 }}
+              transition={{ duration: 0.3 }}
+              className="relative"
+            >
+              {/* Browser Chrome */}
+              <div className="bg-gray-800 rounded-t-2xl px-4 py-3 flex items-center space-x-2">
+                <div className="flex space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                </div>
+                <div className="flex-1 mx-4">
+                  <div className="bg-gray-700 rounded-lg px-4 py-1.5 text-sm text-gray-300 flex items-center justify-center">
+                    <svg className="w-4 h-4 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    app.itineramio.com
+                  </div>
+                </div>
+              </div>
+
+              {/* Video Container */}
+              <div className="bg-gray-900 rounded-b-2xl overflow-hidden shadow-2xl">
+                <video
+                  className="w-full"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                >
+                  <source src="/videos/demo-create-property.mp4" type="video/mp4" />
+                </video>
+              </div>
+
+              {/* Decorative glow */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-2xl -z-10"></div>
+            </motion.div>
+          </AnimatedSection>
+
+          {/* Quick stats below video */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="mt-10 flex flex-wrap justify-center gap-8 text-center"
+          >
+            <div className="px-6">
+              <div className="text-3xl font-bold text-violet-600">2 min</div>
+              <div className="text-sm text-gray-500 mt-1">crear una propiedad</div>
+            </div>
+            <div className="px-6">
+              <div className="text-3xl font-bold text-violet-600">0</div>
+              <div className="text-sm text-gray-500 mt-1">conocimientos técnicos</div>
+            </div>
+            <div className="px-6">
+              <div className="text-3xl font-bold text-violet-600">QR</div>
+              <div className="text-sm text-gray-500 mt-1">listo para imprimir</div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* NEW: Enterprise Features Section - Property Sets & Announcements */}
       <section id="features" className="py-24 px-6 bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50">
         <div className="max-w-7xl mx-auto">

@@ -8,6 +8,7 @@ import { BlogComments } from '../../../../src/components/blog/BlogComments'
 import { LikeButton } from '../../../../src/components/blog/LikeButton'
 import { NewsletterCTA } from '../../../../src/components/blog/NewsletterCTA'
 import { BlogProductCTA } from '../../../../src/components/blog/BlogProductCTA'
+import { BlogExitPopup } from '../../../../src/components/marketing/BlogExitPopup'
 import { ItineramioLogo } from '../../../../src/components/ui/ItineramioLogo'
 import { prisma } from '../../../../src/lib/prisma'
 import { markdownToHtml } from '../../../../src/lib/markdown'
@@ -158,9 +159,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   // Combine and shuffle for variety, then take 3
   const allPosts = [...sameCategoryPosts, ...otherCategoryPosts]
 
-  // Simple shuffle using current timestamp as seed for some variety
+  // Deterministic shuffle using post IDs as seed (avoids hydration mismatch)
   const shuffled = allPosts
-    .map((p, i) => ({ post: p, sort: (Date.now() % 1000) + i * 137 }))
+    .map((p, i) => ({ post: p, sort: (p.id.charCodeAt(0) * 137 + i) % 1000 }))
     .sort((a, b) => (a.sort % 7) - (b.sort % 7))
     .map(({ post }) => post)
 
@@ -170,9 +171,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   // Add 1 from same category first (if available)
   if (sameCategoryPosts.length > 0) {
-    const randomIndex = Date.now() % sameCategoryPosts.length
-    relatedPosts.push(sameCategoryPosts[randomIndex])
-    usedIds.add(sameCategoryPosts[randomIndex].id)
+    // Use deterministic index based on current post slug
+    const seedIndex = slug.charCodeAt(0) % sameCategoryPosts.length
+    relatedPosts.push(sameCategoryPosts[seedIndex])
+    usedIds.add(sameCategoryPosts[seedIndex].id)
   }
 
   // Fill the rest with shuffled posts (mix of categories)
@@ -272,6 +274,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
       {/* Sticky Sidebar CTA - Desktop only */}
       <BlogProductCTA variant="sticky" articleSlug={post.slug} />
+
+      {/* Exit Intent Popup - Lead Magnet */}
+      <BlogExitPopup />
 
       {/* Header */}
       <header className="border-b border-gray-200 bg-white sticky z-40 backdrop-blur-sm bg-white/90 pwa-sticky-header">
