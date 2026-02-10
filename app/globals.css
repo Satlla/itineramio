@@ -25,6 +25,34 @@ body {
   --safe-area-top: max(env(safe-area-inset-top, 0px), 47px);
 }
 
+/* Cortina fija para tapar el contenido que pasa por debajo del status bar en iOS PWA */
+@media all and (display-mode: standalone) {
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top, 0px);
+    background-color: #f9fafb; /* bg-gray-50 - mismo color que el fondo del dashboard */
+    z-index: 9999;
+    pointer-events: none;
+  }
+}
+
+/* Para cuando JS añade la clase .pwa-standalone al html */
+html.pwa-standalone::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: max(env(safe-area-inset-top, 0px), 47px);
+  background-color: #f9fafb;
+  z-index: 9999;
+  pointer-events: none;
+}
+
 /* Also support CSS media query for display-mode */
 @media all and (display-mode: standalone) {
   :root {
