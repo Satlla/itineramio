@@ -553,7 +553,7 @@ export default function LandingPage() {
                   playsInline
                   preload="metadata"
                 >
-                  <source src="/videos/demo-create-property.mp4" type="video/mp4" />
+                  <source src="/videos/create-zones.mp4" type="video/mp4" />
                 </video>
               </div>
 
