@@ -96,6 +96,16 @@ export default function DashboardLayout({
   return (
     <OnboardingProvider>
       <div className="min-h-screen bg-gray-50">
+        {/* Cortina fija para iOS PWA - tapa contenido que pasa por debajo del status bar */}
+        <div
+          className="fixed top-0 left-0 right-0 bg-gray-50 pointer-events-none"
+          style={{
+            height: 'env(safe-area-inset-top, 0px)',
+            zIndex: 10000
+          }}
+          aria-hidden="true"
+        />
+
         {/* Banner de impersonation (siempre al tope) */}
         <ImpersonationBanner />
 
