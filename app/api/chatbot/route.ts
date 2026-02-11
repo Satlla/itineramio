@@ -230,37 +230,50 @@ export async function POST(request: NextRequest) {
 // MEDIA DETECTION
 // ========================================
 
+// Extract significant words (3+ chars) from text for fuzzy matching
+function getKeywords(text: string): string[] {
+  return text.toLowerCase()
+    .replace(/[-_/\\.,;:!?()]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length >= 3);
+}
+
+// Check if any keywords from source appear in target
+function hasKeywordOverlap(sourceWords: string[], targetText: string): boolean {
+  const targetWords = new Set(getKeywords(targetText));
+  return sourceWords.some(word => targetWords.has(word));
+}
+
 function detectRelevantMedia(userMessage: string, aiResponse: string, zones: any[], language: string): MediaItem[] {
   const media: MediaItem[] = [];
   const combinedText = (userMessage + ' ' + aiResponse).toLowerCase();
+  const combinedKeywords = getKeywords(combinedText);
 
   for (const zone of zones) {
-    const zoneName = getLocalizedText(zone.name, language).toLowerCase();
+    const zoneName = getLocalizedText(zone.name, language);
+    const zoneKeywords = getKeywords(zoneName);
+    // Check if zone is relevant by keyword overlap
+    const zoneIsRelevant = zoneKeywords.length > 0 && zoneKeywords.some(w => combinedKeywords.includes(w));
 
     for (const step of (zone.steps || [])) {
       const content = step.content as any;
-      if (!content) continue;
+      if (!content || !content.mediaUrl) continue;
 
-      const stepTitle = getLocalizedText(step.title, language).toLowerCase();
-      // Content stores text at language keys (content.es, content.en) not content.text
-      const stepText = getLocalizedText(content, language).toLowerCase();
+      const stepTitle = getLocalizedText(step.title, language);
+      const stepText = getLocalizedText(content, language);
+      const stepKeywords = getKeywords(stepTitle + ' ' + stepText);
 
-      // Check if step is relevant to the conversation (keyword match)
-      const isRelevant = (stepTitle && stepTitle.length > 2 && combinedText.includes(stepTitle))
-        || (zoneName && zoneName.length > 2 && combinedText.includes(zoneName))
-        || (stepText && stepText.length > 10 && combinedText.includes(stepText.substring(0, 30)));
+      // Match if zone is relevant OR step keywords overlap with conversation
+      const isRelevant = zoneIsRelevant
+        || (stepKeywords.length > 0 && stepKeywords.some(w => combinedKeywords.includes(w)));
 
       if (!isRelevant) continue;
 
-      // Extract media — steps use content.mediaUrl for both IMAGE and VIDEO
-      const mediaUrl = content.mediaUrl;
-      if (mediaUrl) {
-        media.push({
-          type: step.type === 'VIDEO' ? 'VIDEO' : 'IMAGE',
-          url: mediaUrl,
-          caption: getLocalizedText(step.title, language) || getLocalizedText(zone.name, language)
-        });
-      }
+      media.push({
+        type: step.type === 'VIDEO' ? 'VIDEO' : 'IMAGE',
+        url: content.mediaUrl,
+        caption: stepTitle || zoneName
+      });
 
       // Max 2 media items
       if (media.length >= 2) return media;
