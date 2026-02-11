@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages: messages,
-          max_tokens: 300,
+          max_tokens: 500,
           temperature: 0.7,
           presence_penalty: 0.1,
           frequency_penalty: 0.1
@@ -412,12 +412,12 @@ function buildStepDescription(step: any, index: number, language: string): strin
 
   let desc = `Paso ${index + 1}: ${text || title}`;
 
-  // Include media info so AI knows about available media
+  // Include actual media URL so the AI can embed it in markdown responses
   if (content && content.mediaUrl) {
     if (step.type === 'VIDEO') {
-      desc += ` [tiene vídeo disponible]`;
+      desc += `\n  📹 Vídeo disponible: ${content.mediaUrl}`;
     } else if (step.type === 'IMAGE') {
-      desc += ` [tiene imagen disponible]`;
+      desc += `\n  📷 Imagen disponible: ![${title || 'imagen'}](${content.mediaUrl})`;
     }
   }
 
@@ -458,7 +458,7 @@ ESTILO DE RESPUESTA:
 - Si mencionas un enlace, formatea como [texto](url)
 - Sé breve y directo (máximo 2-3 párrafos cortos)
 - Usa emojis ocasionalmente para ser más cercano (📍🏠✅ etc.)
-- Si un paso tiene imagen o vídeo disponible, menciónalo
+- IMPORTANTE: Si un paso tiene una imagen (📷), inclúyela en tu respuesta con formato markdown ![descripción](url). Si tiene un vídeo (📹), incluye el enlace como [🎬 Ver vídeo](url)
 - Si no tienes la información, sugiere contactar al anfitrión amablemente
 - No inventes información que no tengas
 - Recuerda el contexto de la conversación anterior para dar respuestas coherentes`,
@@ -484,7 +484,7 @@ RESPONSE STYLE:
 - Format links as [text](url) when relevant
 - Be brief and direct (max 2-3 short paragraphs)
 - Use occasional emojis to be friendly (📍🏠✅ etc.)
-- If a step has an image or video available, mention it
+- IMPORTANT: If a step has an image (📷), include it in your response with markdown ![description](url). If it has a video (📹), include the link as [🎬 Watch video](url)
 - If you don't have the info, kindly suggest contacting the host
 - Don't make up information
 - Remember previous conversation context for coherent answers`,
@@ -510,7 +510,7 @@ STYLE DE RÉPONSE:
 - Formatez les liens comme [texte](url) si pertinent
 - Soyez bref et direct (max 2-3 paragraphes courts)
 - Utilisez des emojis occasionnellement pour être plus chaleureux (📍🏠✅ etc.)
-- Si une étape a une image ou vidéo, mentionnez-le
+- IMPORTANT: Si une étape a une image (📷), incluez-la avec le format markdown ![description](url). Si elle a une vidéo (📹), incluez le lien comme [🎬 Voir la vidéo](url)
 - Si vous n'avez pas l'info, suggérez gentiment de contacter l'hôte
 - N'inventez pas d'informations
 - Gardez le contexte de la conversation pour des réponses cohérentes`
@@ -571,7 +571,7 @@ ESTILO DE RESPUESTA:
 - Sé breve y directo (máximo 2-3 párrafos cortos)
 - Usa emojis ocasionalmente para ser más cercano (📍🏠✅ etc.)
 - Busca en todas las zonas relevantes para dar la mejor respuesta
-- Si un paso tiene imagen o vídeo disponible, menciónalo
+- IMPORTANTE: Si un paso tiene una imagen (📷), inclúyela en tu respuesta con formato markdown ![descripción](url). Si tiene un vídeo (📹), incluye el enlace como [🎬 Ver vídeo](url)
 - Si no tienes la información, sugiere contactar al anfitrión amablemente
 - No inventes información que no tengas
 - Recuerda el contexto de la conversación anterior para dar respuestas coherentes`,
@@ -595,7 +595,7 @@ RESPONSE STYLE:
 - Be brief and direct (max 2-3 short paragraphs)
 - Use occasional emojis to be friendly (📍🏠✅ etc.)
 - Search all relevant zones to give the best answer
-- If a step has an image or video available, mention it
+- IMPORTANT: If a step has an image (📷), include it in your response with markdown ![description](url). If it has a video (📹), include the link as [🎬 Watch video](url)
 - If you don't have the info, kindly suggest contacting the host
 - Don't make up information
 - Remember previous conversation context for coherent answers`,
@@ -619,7 +619,7 @@ STYLE DE RÉPONSE:
 - Soyez bref et direct (max 2-3 paragraphes courts)
 - Utilisez des emojis occasionnellement pour être plus chaleureux (📍🏠✅ etc.)
 - Cherchez dans toutes les zones pertinentes pour la meilleure réponse
-- Si une étape a une image ou vidéo, mentionnez-le
+- IMPORTANT: Si une étape a une image (📷), incluez-la avec le format markdown ![description](url). Si elle a une vidéo (📹), incluez le lien comme [🎬 Voir la vidéo](url)
 - Si vous n'avez pas l'info, suggérez gentiment de contacter l'hôte
 - N'inventez pas d'informations
 - Gardez le contexte de la conversation pour des réponses cohérentes`
