@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  MessageCircle, 
-  X, 
-  Send, 
-  Bot, 
-  User, 
-  Phone, 
+import {
+  MessageCircle,
+  X,
+  Send,
+  Bot,
+  User,
+  Phone,
   ChevronDown,
   AlertCircle,
   Loader2,
@@ -26,8 +26,8 @@ interface Message {
 
 interface ChatBotProps {
   propertyId: string
-  zoneId: string
-  zoneName: string
+  zoneId?: string
+  zoneName?: string
   propertyName: string
   language?: 'es' | 'en' | 'fr'
   hostContact?: {
@@ -35,6 +35,7 @@ interface ChatBotProps {
     phone: string
     email: string
   }
+  className?: string
 }
 
 interface FAQ {
@@ -43,36 +44,94 @@ interface FAQ {
   category: string
 }
 
-const defaultFAQs: FAQ[] = [
-  {
-    question: "¿Cómo puedo contactar al anfitrión?",
-    answer: "Puedes contactar al anfitrión a través del teléfono o email proporcionado en la información de contacto.",
-    category: "contacto"
+const i18n: Record<string, Record<string, string>> = {
+  es: {
+    header: 'Asistente IA',
+    welcomeZone: '¡Hola! Soy tu asistente virtual para {propertyName}. Estoy aquí para ayudarte con cualquier pregunta sobre {zoneName} y tu estancia. ¿En qué puedo ayudarte?',
+    welcomeProperty: '¡Hola! Soy tu asistente virtual para {propertyName}. Puedo ayudarte con cualquier pregunta sobre el alojamiento, check-in, servicios y más. ¿En qué puedo ayudarte?',
+    placeholder: 'Escribe tu pregunta...',
+    typing: 'Escribiendo...',
+    errorMessage: 'Lo siento, hubo un error técnico. Por favor, intenta de nuevo o contacta directamente al anfitrión.',
+    errorBanner: 'Lo siento, hubo un error al procesar tu consulta. Por favor, intenta de nuevo.',
+    rateLimited: 'Has enviado demasiados mensajes. Por favor, espera un momento antes de enviar otro.',
+    faqTitle: 'Preguntas frecuentes:',
+    contactWhatsApp: 'Contactar por WhatsApp',
+    faq1q: '¿Cómo puedo contactar al anfitrión?',
+    faq1a: 'Puedes contactar al anfitrión a través del teléfono o email proporcionado en la información de contacto.',
+    faq2q: '¿Dónde está la Wi-Fi?',
+    faq2a: 'La información de Wi-Fi se encuentra generalmente en la zona de bienvenida o recepción. Busca las instrucciones específicas en los pasos de la zona correspondiente.',
+    faq3q: '¿Cómo funciona el check-in?',
+    faq3a: 'Las instrucciones de check-in están detalladas en la zona de acceso. Sigue los pasos numerados para completar tu llegada.',
+    faq4q: '¿Hay parking disponible?',
+    faq4a: 'La información sobre parking está disponible en las instrucciones específicas de la propiedad. Revisa las zonas de acceso o servicios.',
   },
-  {
-    question: "¿Dónde está la Wi-Fi?",
-    answer: "La información de Wi-Fi se encuentra generalmente en la zona de bienvenida o recepción. Busca las instrucciones específicas en los pasos de la zona correspondiente.",
-    category: "servicios"
+  en: {
+    header: 'AI Assistant',
+    welcomeZone: 'Hello! I\'m your virtual assistant for {propertyName}. I\'m here to help you with any questions about {zoneName} and your stay. How can I help you?',
+    welcomeProperty: 'Hello! I\'m your virtual assistant for {propertyName}. I can help you with any questions about the accommodation, check-in, services and more. How can I help you?',
+    placeholder: 'Type your question...',
+    typing: 'Typing...',
+    errorMessage: 'Sorry, there was a technical error. Please try again or contact the host directly.',
+    errorBanner: 'Sorry, there was an error processing your query. Please try again.',
+    rateLimited: 'You\'ve sent too many messages. Please wait a moment before sending another.',
+    faqTitle: 'Frequently asked questions:',
+    contactWhatsApp: 'Contact via WhatsApp',
+    faq1q: 'How can I contact the host?',
+    faq1a: 'You can contact the host through the phone or email provided in the contact information.',
+    faq2q: 'Where is the Wi-Fi?',
+    faq2a: 'Wi-Fi information is usually found in the welcome or reception zone. Look for specific instructions in the steps of the corresponding zone.',
+    faq3q: 'How does check-in work?',
+    faq3a: 'Check-in instructions are detailed in the access zone. Follow the numbered steps to complete your arrival.',
+    faq4q: 'Is parking available?',
+    faq4a: 'Parking information is available in the specific property instructions. Check the access or services zones.',
   },
-  {
-    question: "¿Cómo funciona el check-in?",
-    answer: "Las instrucciones de check-in están detalladas en la zona de acceso. Sigue los pasos numerados para completar tu llegada.",
-    category: "proceso"
-  },
-  {
-    question: "¿Hay parking disponible?",
-    answer: "La información sobre parking está disponible en las instrucciones específicas de la propiedad. Revisa las zonas de acceso o servicios.",
-    category: "servicios"
+  fr: {
+    header: 'Assistant IA',
+    welcomeZone: 'Bonjour ! Je suis votre assistant virtuel pour {propertyName}. Je suis là pour vous aider avec toute question sur {zoneName} et votre séjour. Comment puis-je vous aider ?',
+    welcomeProperty: 'Bonjour ! Je suis votre assistant virtuel pour {propertyName}. Je peux vous aider avec toute question sur l\'hébergement, l\'enregistrement, les services et plus encore. Comment puis-je vous aider ?',
+    placeholder: 'Écrivez votre question...',
+    typing: 'En train d\'écrire...',
+    errorMessage: 'Désolé, une erreur technique s\'est produite. Veuillez réessayer ou contacter directement l\'hôte.',
+    errorBanner: 'Désolé, une erreur s\'est produite lors du traitement de votre demande. Veuillez réessayer.',
+    rateLimited: 'Vous avez envoyé trop de messages. Veuillez attendre un moment avant d\'en envoyer un autre.',
+    faqTitle: 'Questions fréquentes :',
+    contactWhatsApp: 'Contacter via WhatsApp',
+    faq1q: 'Comment contacter l\'hôte ?',
+    faq1a: 'Vous pouvez contacter l\'hôte par téléphone ou email fournis dans les coordonnées.',
+    faq2q: 'Où est le Wi-Fi ?',
+    faq2a: 'Les informations Wi-Fi se trouvent généralement dans la zone d\'accueil ou de réception. Recherchez les instructions spécifiques dans les étapes de la zone correspondante.',
+    faq3q: 'Comment fonctionne l\'enregistrement ?',
+    faq3a: 'Les instructions d\'enregistrement sont détaillées dans la zone d\'accès. Suivez les étapes numérotées pour compléter votre arrivée.',
+    faq4q: 'Y a-t-il un parking disponible ?',
+    faq4a: 'Les informations de parking sont disponibles dans les instructions spécifiques de la propriété. Consultez les zones d\'accès ou de services.',
   }
-]
+}
 
-export default function ChatBot({ 
-  propertyId, 
-  zoneId, 
-  zoneName, 
-  propertyName, 
+function t(key: string, lang: string, replacements: Record<string, string> = {}): string {
+  let text = i18n[lang]?.[key] || i18n.es[key] || key
+  for (const [placeholder, value] of Object.entries(replacements)) {
+    text = text.replace(`{${placeholder}}`, value)
+  }
+  return text
+}
+
+function getFAQs(lang: string): FAQ[] {
+  return [
+    { question: t('faq1q', lang), answer: t('faq1a', lang), category: 'contacto' },
+    { question: t('faq2q', lang), answer: t('faq2a', lang), category: 'servicios' },
+    { question: t('faq3q', lang), answer: t('faq3a', lang), category: 'proceso' },
+    { question: t('faq4q', lang), answer: t('faq4a', lang), category: 'servicios' },
+  ]
+}
+
+export default function ChatBot({
+  propertyId,
+  zoneId,
+  zoneName,
+  propertyName,
   language = 'es',
-  hostContact 
+  hostContact,
+  className = ''
 }: ChatBotProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
@@ -81,9 +140,11 @@ export default function ChatBot({
   const [isLoading, setIsLoading] = useState(false)
   const [showFAQs, setShowFAQs] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const lang = language || 'es'
 
   const trackEvent = async (event: string, data: any) => {
     try {
@@ -112,10 +173,16 @@ export default function ChatBot({
   }, [isOpen, isMinimized])
 
   const initializeChat = () => {
+    const welcomeKey = zoneId && zoneName ? 'welcomeZone' : 'welcomeProperty'
+    const welcomeContent = t(welcomeKey, lang, {
+      propertyName,
+      zoneName: zoneName || ''
+    })
+
     const welcomeMessage: Message = {
       id: Date.now().toString(),
       role: 'assistant',
-      content: `¡Hola! Soy tu asistente virtual para ${propertyName}. Estoy aquí para ayudarte con cualquier pregunta sobre ${zoneName} y tu estancia. ¿En qué puedo ayudarte?`,
+      content: welcomeContent,
       timestamp: new Date()
     }
     setMessages([welcomeMessage])
@@ -158,35 +225,43 @@ export default function ChatBot({
     const typingMessage: Message = {
       id: `typing-${Date.now()}`,
       role: 'assistant',
-      content: 'Escribiendo...',
+      content: t('typing', lang),
       timestamp: new Date(),
       typing: true
     }
     setMessages(prev => [...prev, typingMessage])
 
     try {
+      const body: Record<string, any> = {
+        message: userMessage.content,
+        propertyId,
+        propertyName,
+        language: lang,
+        conversationHistory: messages.filter(m => !m.typing).slice(-10)
+      }
+
+      // Only send zoneId/zoneName when available
+      if (zoneId) body.zoneId = zoneId
+      if (zoneName) body.zoneName = zoneName
+
       const response = await fetch('/api/chatbot', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          message: userMessage.content,
-          propertyId,
-          zoneId,
-          zoneName,
-          propertyName,
-          language,
-          conversationHistory: messages.filter(m => !m.typing).slice(-10) // Last 10 messages for context
-        }),
+        body: JSON.stringify(body),
       })
 
+      if (response.status === 429) {
+        throw new Error('rate_limited')
+      }
+
       if (!response.ok) {
-        throw new Error('Error al procesar tu consulta')
+        throw new Error('api_error')
       }
 
       const data = await response.json()
-      
+
       // Track chatbot interaction
       trackEvent('chatbot_interaction', {
         zoneId,
@@ -196,9 +271,9 @@ export default function ChatBot({
         type: 'message',
         query: userMessage.content,
         response: data.response,
-        language
+        language: lang
       })
-      
+
       // Remove typing indicator and add real response
       setMessages(prev => {
         const filtered = prev.filter(m => !m.typing)
@@ -211,20 +286,22 @@ export default function ChatBot({
         return [...filtered, assistantMessage]
       })
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Chatbot error:', error)
-      setError('Lo siento, hubo un error al procesar tu consulta. Por favor, intenta de nuevo.')
-      
+
+      const isRateLimited = error?.message === 'rate_limited'
+      setError(isRateLimited ? t('rateLimited', lang) : t('errorBanner', lang))
+
       // Remove typing indicator and add error message
       setMessages(prev => {
         const filtered = prev.filter(m => !m.typing)
-        const errorMessage: Message = {
+        const errorMsg: Message = {
           id: Date.now().toString(),
           role: 'assistant',
-          content: 'Lo siento, hubo un error técnico. Por favor, intenta de nuevo o contacta directamente al anfitrión.',
+          content: isRateLimited ? t('rateLimited', lang) : t('errorMessage', lang),
           timestamp: new Date()
         }
-        return [...filtered, errorMessage]
+        return [...filtered, errorMsg]
       })
     } finally {
       setIsLoading(false)
@@ -252,7 +329,12 @@ export default function ChatBot({
 
   const handleWhatsApp = () => {
     if (hostContact?.phone) {
-      const message = encodeURIComponent(`Hola, tengo una consulta sobre ${propertyName} - ${zoneName}`)
+      const subject = zoneName
+        ? `${propertyName} - ${zoneName}`
+        : propertyName
+      const greeting = lang === 'en' ? 'Hello' : lang === 'fr' ? 'Bonjour' : 'Hola'
+      const question = lang === 'en' ? 'I have a question about' : lang === 'fr' ? 'J\'ai une question sur' : 'tengo una consulta sobre'
+      const message = encodeURIComponent(`${greeting}, ${question} ${subject}`)
       window.open(`https://wa.me/${hostContact.phone.replace(/[^\d]/g, '')}?text=${message}`, '_blank')
     }
   }
@@ -263,6 +345,8 @@ export default function ChatBot({
       sendMessage()
     }
   }
+
+  const faqs = getFAQs(lang)
 
   return (
     <>
@@ -276,7 +360,7 @@ export default function ChatBot({
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleOpen}
-            className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 z-50 flex items-center justify-center"
+            className={`fixed w-14 h-14 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 z-50 flex items-center justify-center ${className || 'bottom-6 right-6'}`}
           >
             <MessageCircle className="w-6 h-6" />
           </motion.button>
@@ -290,9 +374,9 @@ export default function ChatBot({
             initial={{ opacity: 0, y: 100, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.8 }}
-            className={`fixed bottom-6 right-6 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 overflow-hidden ${
+            className={`fixed bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 overflow-hidden ${
               isMinimized ? 'w-80 h-16' : 'w-80 h-96'
-            }`}
+            } ${className || 'bottom-6 right-6'}`}
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-violet-600 to-purple-600 text-white p-4 flex items-center justify-between">
@@ -301,7 +385,7 @@ export default function ChatBot({
                   <Bot className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm">Asistente IA</h3>
+                  <h3 className="font-semibold text-sm">{t('header', lang)}</h3>
                   <p className="text-xs opacity-90">{propertyName}</p>
                 </div>
               </div>
@@ -336,8 +420,8 @@ export default function ChatBot({
                         }`}
                       >
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          message.role === 'user' 
-                            ? 'bg-violet-600 text-white' 
+                          message.role === 'user'
+                            ? 'bg-violet-600 text-white'
                             : 'bg-gray-200 text-gray-600'
                         }`}>
                           {message.role === 'user' ? <User className="w-3 h-3" /> : <Bot className="w-3 h-3" />}
@@ -365,8 +449,8 @@ export default function ChatBot({
                   {/* FAQ Suggestions */}
                   {showFAQs && messages.length <= 1 && (
                     <div className="space-y-2">
-                      <p className="text-xs text-gray-500 font-medium">Preguntas frecuentes:</p>
-                      {defaultFAQs.slice(0, 3).map((faq, index) => (
+                      <p className="text-xs text-gray-500 font-medium">{t('faqTitle', lang)}</p>
+                      {faqs.slice(0, 3).map((faq, index) => (
                         <button
                           key={index}
                           onClick={() => handleFAQClick(faq)}
@@ -398,7 +482,7 @@ export default function ChatBot({
                         value={currentMessage}
                         onChange={(e) => setCurrentMessage(e.target.value)}
                         onKeyPress={handleKeyPress}
-                        placeholder="Escribe tu pregunta..."
+                        placeholder={t('placeholder', lang)}
                         disabled={isLoading}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm disabled:opacity-50"
                       />
@@ -411,7 +495,7 @@ export default function ChatBot({
                       {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                     </button>
                   </div>
-                  
+
                   {hostContact?.phone && (
                     <div className="mt-2 flex justify-center">
                       <button
@@ -419,7 +503,7 @@ export default function ChatBot({
                         className="flex items-center space-x-1 text-xs text-gray-600 hover:text-green-600 transition-colors"
                       >
                         <Phone className="w-3 h-3" />
-                        <span>Contactar por WhatsApp</span>
+                        <span>{t('contactWhatsApp', lang)}</span>
                       </button>
                     </div>
                   )}

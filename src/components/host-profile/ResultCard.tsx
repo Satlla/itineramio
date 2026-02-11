@@ -2,7 +2,6 @@
 
 import { useRef } from 'react'
 import { archetypeDescriptions, type Archetype } from '@/data/hostProfileQuestions'
-import html2canvas from 'html2canvas'
 import { ItineramioLogo } from '@/components/ui/ItineramioLogo'
 
 interface ResultCardProps {
@@ -166,6 +165,7 @@ export default function ResultCard({
     if (!cardRef.current) return
 
     try {
+      const { default: html2canvas } = await import('html2canvas')
       const canvas = await html2canvas(cardRef.current, {
         scale: 2,
         backgroundColor: '#ffffff',

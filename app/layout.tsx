@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, Satisfy } from 'next/font/google'
 import './globals.css'
 
-// Force dynamic rendering for the entire app
-// Individual pages can opt-out with revalidate for ISR caching
+// Force dynamic rendering — required because many client pages use useSearchParams()
+// which fails during static prerendering in Next.js 15
 export const dynamic = 'force-dynamic'
 
 import { Providers } from './providers'
@@ -91,6 +91,8 @@ export const metadata: Metadata = {
     languages: {
       'es-ES': 'https://www.itineramio.com',
       'es': 'https://www.itineramio.com',
+      'en': 'https://www.itineramio.com',
+      'fr': 'https://www.itineramio.com',
     },
   },
   openGraph: {
@@ -185,7 +187,7 @@ export default function RootLayout({
         '@type': 'ContactPoint',
         email: 'hola@itineramio.com',
         contactType: 'Customer Support',
-        availableLanguage: ['Spanish'],
+        availableLanguage: ['Spanish', 'English', 'French'],
       },
       sameAs: [
         'https://twitter.com/itineramio',

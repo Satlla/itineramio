@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 
 interface User {
@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -132,9 +132,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Login error:', error)
       return { success: false, error: 'Error de conexión' }
     }
-  }
+  }, [])
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = useCallback(async (name: string, email: string, password: string) => {
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
@@ -157,9 +157,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Register error:', error)
       return { success: false, error: 'Error de conexión' }
     }
-  }
+  }, [])
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await fetch('/api/auth/logout', {
         method: 'POST',
@@ -190,20 +190,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       router.push('/login')
     }
-  }
+  }, [router])
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     await checkAuthStatus()
-  }
+  }, [])
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     loading,
     login,
     register,
     logout,
     refreshUser
-  }
+  }), [user, loading, login, register, logout, refreshUser])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

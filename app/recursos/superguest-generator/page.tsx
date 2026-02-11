@@ -3,8 +3,6 @@
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Download, Share2, Copy, Check, Sparkles, Award, FileText, Mail, Loader2, CheckCircle } from 'lucide-react'
-import html2canvas from 'html2canvas'
-import jsPDF from 'jspdf'
 
 export default function SuperGuestGeneratorPage() {
   const [guestName, setGuestName] = useState('')
@@ -47,6 +45,7 @@ export default function SuperGuestGeneratorPage() {
 
     try {
       // Generate image with transparent background for PNG
+      const { default: html2canvas } = await import('html2canvas')
       const canvas = await html2canvas(cardRef.current, {
         scale: 3,
         backgroundColor: format === 'png' ? null : '#ffffff', // Transparent for PNG
@@ -59,6 +58,7 @@ export default function SuperGuestGeneratorPage() {
 
       if (format === 'pdf') {
         // Generate PDF
+        const { default: jsPDF } = await import('jspdf')
         const imgWidth = 100 // mm
         const imgHeight = (canvas.height * imgWidth) / canvas.width
 

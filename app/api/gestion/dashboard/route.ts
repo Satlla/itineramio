@@ -1,23 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { unstable_cache } from 'next/cache'
 
-/**
- * GET /api/gestion/dashboard
- * Obtener estadísticas del dashboard de gestión
- */
-export async function GET(request: NextRequest) {
-  try {
-    const authResult = await requireAuth(request)
-    if (authResult instanceof Response) {
-      return authResult
-    }
-    const userId = authResult.userId
-
+// Cache dashboard stats for 60 seconds per user
+const getCachedDashboardStats = unstable_cache(
+  async (userId: string) => {
     const currentYear = new Date().getFullYear()
     const currentMonth = new Date().getMonth() + 1
 
-    // Get counts
+    // Get counts - all in parallel for better performance
     const [
       totalProperties,
       totalOwners,
@@ -47,50 +39,43 @@ export async function GET(request: NextRequest) {
           status: { in: ['DRAFT', 'ISSUED', 'SENT'] }
         }
       }),
-      // Onboarding: Check if user has configured their company
       prisma.userInvoiceConfig.findUnique({
         where: { userId },
         select: { businessName: true, nif: true }
       }),
-      // Onboarding: Check if user has any BillingUnits (apartments)
       prisma.billingUnit.count({
         where: { userId }
       }),
-      // Onboarding: Check if user has any liquidations
       prisma.liquidation.count({
         where: { userId }
       }),
-      // Pending actions: Reservations without liquidation (completed/confirmed only)
       prisma.reservation.count({
         where: {
           userId,
           billingUnitId: { not: null },
           liquidationId: null,
           status: { in: ['CONFIRMED', 'COMPLETED'] },
-          checkOut: { lt: new Date() } // Only past reservations
+          checkOut: { lt: new Date() }
         }
       }),
-      // Pending actions: Draft invoices
       prisma.clientInvoice.count({
         where: {
           userId,
           status: 'DRAFT'
         }
       }),
-      // Pending actions: Unpaid invoices (sent but not paid)
       prisma.clientInvoice.count({
         where: {
           userId,
           status: 'SENT'
         }
       }),
-      // Total expenses
       prisma.propertyExpense.count({
         where: { userId }
       })
     ])
 
-    // Get yearly income from reservations with financial breakdown
+    // Get yearly income from reservations
     const yearlyReservations = await prisma.reservation.aggregate({
       where: {
         userId,
@@ -110,7 +95,7 @@ export async function GET(request: NextRequest) {
       _count: true
     })
 
-    // Get monthly income with financial breakdown
+    // Get monthly income
     const monthlyReservations = await prisma.reservation.aggregate({
       where: {
         userId,
@@ -143,7 +128,6 @@ export async function GET(request: NextRequest) {
     const yearlyIncome = Number(yearlyReservations._sum.hostEarnings || yearlyReservations._sum.roomTotal || 0)
     const monthlyIncome = Number(monthlyReservations._sum.hostEarnings || monthlyReservations._sum.roomTotal || 0)
 
-    // Use calculated manager amounts if available, otherwise estimate from commission
     const yearlyManagerAmount = Number(yearlyReservations._sum.managerAmount) || 0
     const monthlyManagerAmount = Number(monthlyReservations._sum.managerAmount) || 0
     const yearlyOwnerAmount = Number(yearlyReservations._sum.ownerAmount) || 0
@@ -151,7 +135,7 @@ export async function GET(request: NextRequest) {
     const yearlyCleaningAmount = Number(yearlyReservations._sum.cleaningAmount) || 0
     const monthlyCleaningAmount = Number(monthlyReservations._sum.cleaningAmount) || 0
 
-    // Get average commission rate from billing units
+    // Get average commission rate
     const billingUnits = await prisma.billingUnit.findMany({
       where: { userId },
       select: { commissionValue: true }
@@ -159,13 +143,12 @@ export async function GET(request: NextRequest) {
 
     const avgCommission = billingUnits.length > 0
       ? billingUnits.reduce((sum, c) => sum + Number(c.commissionValue), 0) / billingUnits.length
-      : 15 // Default 15%
+      : 15
 
-    // Calculate commission using manager amounts if available, otherwise estimate
     const yearlyCommission = yearlyManagerAmount > 0 ? yearlyManagerAmount : (yearlyIncome * avgCommission) / 100
     const monthlyCommission = monthlyManagerAmount > 0 ? monthlyManagerAmount : (monthlyIncome * avgCommission) / 100
 
-    // Count pending liquidations using BillingUnits
+    // Count pending liquidations
     const billingUnitsWithReservations = await prisma.billingUnit.findMany({
       where: { userId },
       include: {
@@ -182,7 +165,6 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Get existing liquidations for this year (indexed by ownerId-month)
     const existingLiquidations = await prisma.liquidation.findMany({
       where: { userId, year: currentYear },
       select: { month: true, ownerId: true }
@@ -191,10 +173,9 @@ export async function GET(request: NextRequest) {
       existingLiquidations.map(l => `${l.ownerId}-${l.month}`)
     )
 
-    // Count unique owner-month pairs that need liquidation
     const pendingOwnerMonths = new Set<string>()
     billingUnitsWithReservations.forEach(unit => {
-      if (!unit.ownerId) return // Skip units without owner
+      if (!unit.ownerId) return
       const monthsWithReservations = new Set<number>(
         unit.reservations.map(r => new Date(r.checkIn).getMonth() + 1)
       )
@@ -212,7 +193,7 @@ export async function GET(request: NextRequest) {
       where: {
         userId,
         createdAt: {
-          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
+          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         }
       }
     })
@@ -224,8 +205,7 @@ export async function GET(request: NextRequest) {
     const hasLiquidations = liquidationsCount > 0
     const allComplete = companyConfigured && hasClients && hasConfiguredProperties && hasLiquidations
 
-    return NextResponse.json({
-      success: true,
+    return {
       stats: {
         totalProperties,
         totalOwners,
@@ -259,6 +239,31 @@ export async function GET(request: NextRequest) {
         draftInvoices: draftInvoicesCount,
         unpaidInvoices: unpaidInvoicesCount
       }
+    }
+  },
+  ['gestion-dashboard'],
+  { revalidate: 60, tags: ['gestion-dashboard'] } // Cache for 60 seconds
+)
+
+/**
+ * GET /api/gestion/dashboard
+ * Obtener estadísticas del dashboard de gestión
+ * Results are cached for 60 seconds per user to reduce DB load
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const authResult = await requireAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
+    const userId = authResult.userId
+
+    // Use cached data (revalidates every 60 seconds)
+    const data = await getCachedDashboardStats(userId)
+
+    return NextResponse.json({
+      success: true,
+      ...data
     })
   } catch (error) {
     console.error('Error fetching dashboard stats:', error)

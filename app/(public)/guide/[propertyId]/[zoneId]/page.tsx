@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Play, Pause, ChevronLeft, ChevronRight, Phone, MessageCircle, Check, X, Star, Send, Wifi, Zap, Car, Utensils, Bed, Bath, Shield, Tv, Coffee, MapPin, Globe, Clock, Mail, Share2 } from 'lucide-react'
 import Link from 'next/link'
@@ -12,6 +12,7 @@ import { Badge } from '../../../../../src/components/ui/Badge'
 import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
 import { ShareLanguageModal } from '../../../../../src/components/ui/ShareLanguageModal'
 import { TextToSpeech } from '../../../../../src/components/ui/TextToSpeech'
+import ChatBot from '../../../../../src/components/ui/ChatBot'
 
 interface ZoneStep {
   id: string
@@ -109,6 +110,81 @@ const formatTextWithSmartBreaks = (text: string): string[] => {
   }
 
   return lines
+}
+
+// Lazy Video Component - only loads when visible
+const LazyVideo = ({ src, poster, fallbackText }: { src: string; poster?: string; fallbackText: string }) => {
+  const videoRef = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '100px' } // Start loading 100px before visible
+    )
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div ref={videoRef} className="relative rounded-2xl overflow-hidden shadow-lg bg-black">
+      {!isVisible ? (
+        // Placeholder while not visible
+        <div
+          className="w-full flex items-center justify-center bg-gray-900"
+          style={{ minHeight: '200px', maxHeight: '60vh' }}
+        >
+          {poster ? (
+            <img src={poster} alt="" className="w-full h-full object-cover opacity-50" />
+          ) : (
+            <div className="text-white/50 text-center p-4">
+              <Play className="w-12 h-12 mx-auto mb-2" />
+              <span className="text-sm">Video</span>
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
+          {!isLoaded && (
+            <div
+              className="absolute inset-0 flex items-center justify-center bg-gray-900"
+              style={{ minHeight: '200px' }}
+            >
+              <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            </div>
+          )}
+          <video
+            className="w-full h-auto block"
+            controls
+            playsInline
+            preload="metadata"
+            poster={poster}
+            onLoadedData={() => setIsLoaded(true)}
+            style={{
+              maxHeight: '60vh',
+              minHeight: '200px',
+              objectFit: 'contain',
+              opacity: isLoaded ? 1 : 0
+            }}
+          >
+            <source src={src} type="video/mp4" />
+            <source src={src} type="video/webm" />
+            {fallbackText}
+          </video>
+        </>
+      )}
+    </div>
+  )
 }
 
 // Render text with rich formatting
@@ -1054,25 +1130,11 @@ export default function ZoneGuidePage({
                           exit={{ opacity: 0, scale: 0.9 }}
                           className="mb-6"
                         >
-                          <div className="relative rounded-2xl overflow-hidden shadow-lg bg-black">
-                            {/* Video optimized for vertical format */}
-                            <video
-                              className="w-full h-auto block"
-                              controls
-                              playsInline
-                              preload="metadata"
-                              poster={step.thumbnail || undefined}
-                              style={{
-                                maxHeight: '60vh',
-                                minHeight: '200px',
-                                objectFit: 'contain'
-                              }}
-                            >
-                              <source src={step.mediaUrl} type="video/mp4" />
-                              <source src={step.mediaUrl} type="video/webm" />
-                              {t('videoNotSupported', language) || 'Tu navegador no soporta este video'}
-                            </video>
-                          </div>
+                          <LazyVideo
+                            src={step.mediaUrl}
+                            poster={step.thumbnail}
+                            fallbackText={t('videoNotSupported', language) || 'Tu navegador no soporta este video'}
+                          />
                         </motion.div>
                       )}
 
@@ -1490,6 +1552,20 @@ export default function ZoneGuidePage({
         description={language === 'es' ? 'Selecciona el idioma en el que quieres compartir' : language === 'en' ? 'Select the language you want to share in' : 'Sélectionnez la langue dans laquelle vous souhaitez partager'}
         type="zone"
         currentUrl={`${window.location.origin}/guide/${propertyId}/${zoneId}`}
+      />
+
+      {/* AI ChatBot */}
+      <ChatBot
+        propertyId={propertyId}
+        zoneId={zoneId}
+        zoneName={getText(zone.name, language, 'Zona')}
+        propertyName={getText(property.name, language, 'Propiedad')}
+        language={language as 'es' | 'en' | 'fr'}
+        hostContact={property.hostContactPhone ? {
+          name: property.hostContactName,
+          phone: property.hostContactPhone,
+          email: property.hostContactEmail
+        } : undefined}
       />
     </div>
   )

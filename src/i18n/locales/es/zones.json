@@ -69,7 +69,7 @@
     "saving": "Guardando..."
   },
 
-  "válidation": {
+  "validation": {
     "nameMinLength": "El nombre debe tener al menos 2 caracteres",
     "nameMaxLength": "Máximo 50 caracteres",
     "descriptionMinLength": "La descripción debe tener al menos 10 caracteres",

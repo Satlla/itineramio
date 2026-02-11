@@ -1,28 +1,32 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { FullPageSpinner } from '../ui/Spinner';
 
-export function LoadingProvider({ children }: { children: React.ReactNode }) {
+function NavigationLoadingTracker({ onLoadingChange }: { onLoadingChange: (loading: boolean) => void }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Mostrar loading cuando cambia la ruta
-    setIsLoading(true);
-
-    // Ocultar loading después de un breve delay para asegurar que se vea
+    onLoadingChange(true);
     const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 300); // Mínimo 300ms para que siempre se vea
-
+      onLoadingChange(false);
+    }, 300);
     return () => clearTimeout(timer);
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, onLoadingChange]);
+
+  return null;
+}
+
+export function LoadingProvider({ children }: { children: React.ReactNode }) {
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <>
+      <Suspense fallback={null}>
+        <NavigationLoadingTracker onLoadingChange={setIsLoading} />
+      </Suspense>
       {isLoading && <FullPageSpinner />}
       {children}
     </>

@@ -463,7 +463,7 @@ export default function ArticlePage() {
                   5 min
                   <span className="mx-2">•</span>
                   <Eye className="w-4 h-4 mr-1" />
-                  {Math.floor(Math.random() * 1000)} vistas
+                  {(i * 247 + 123) % 900 + 100} vistas
                 </div>
               </Link>
             ))}

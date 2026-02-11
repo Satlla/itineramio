@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -17,21 +17,21 @@ import {
   CalendarDays,
   Home
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { OnboardingProgress } from '@/components/gestion/OnboardingProgress'
 import { ModuleGate } from '@/components/modules'
-
-// GESTION es el módulo de gestión económica de alquileres vacacionales
+import { GestionDashboardProvider, useGestionDashboard } from '@/contexts/GestionDashboardContext'
 
 interface NavItem {
   href: string
-  label: string
+  labelKey: string
+  descriptionKey: string
   icon: React.ReactNode
-  description?: string
   badgeKey?: 'unliquidatedReservations' | 'draftInvoices' | 'unpaidInvoices'
 }
 
 interface NavCategory {
-  title: string
+  titleKey: string
   items: NavItem[]
 }
 
@@ -51,85 +51,85 @@ interface OnboardingStatus {
 
 const navCategories: NavCategory[] = [
   {
-    title: 'OPERACIONES',
+    titleKey: 'nav.operations',
     items: [
       {
         href: '/gestion',
-        label: 'Dashboard',
+        labelKey: 'nav.items.dashboard.title',
         icon: <LayoutDashboard className="w-5 h-5" />,
-        description: 'Resumen general'
+        descriptionKey: 'nav.items.dashboard.description'
       },
       {
         href: '/gestion/reservas',
-        label: 'Reservas',
+        labelKey: 'nav.items.reservations.title',
         icon: <CalendarDays className="w-5 h-5" />,
-        description: 'Importar y gestionar',
+        descriptionKey: 'nav.items.reservations.description',
         badgeKey: 'unliquidatedReservations'
       },
       {
         href: '/gestion/liquidaciones',
-        label: 'Liquidaciones',
+        labelKey: 'nav.items.settlements.title',
         icon: <Receipt className="w-5 h-5" />,
-        description: 'Pagos a propietarios'
+        descriptionKey: 'nav.items.settlements.description'
       },
       {
         href: '/gestion/facturacion',
-        label: 'Facturación',
+        labelKey: 'nav.items.billing.title',
         icon: <Building2 className="w-5 h-5" />,
-        description: 'Cierre mensual'
+        descriptionKey: 'nav.items.billing.description'
       }
     ]
   },
   {
-    title: 'DOCUMENTOS',
+    titleKey: 'nav.documents',
     items: [
       {
         href: '/gestion/facturas',
-        label: 'Facturas',
+        labelKey: 'nav.items.invoices.title',
         icon: <FileText className="w-5 h-5" />,
-        description: 'Historial y facturas libres',
+        descriptionKey: 'nav.items.invoices.description',
         badgeKey: 'draftInvoices'
       },
       {
         href: '/gestion/gastos',
-        label: 'Gastos',
+        labelKey: 'nav.items.expenses.title',
         icon: <Receipt className="w-5 h-5" />,
-        description: 'Control de gastos'
+        descriptionKey: 'nav.items.expenses.description'
       }
     ]
   },
   {
-    title: 'ADMINISTRACIÓN',
+    titleKey: 'nav.administration',
     items: [
       {
         href: '/gestion/clientes',
-        label: 'Propietarios',
+        labelKey: 'nav.items.owners.title',
         icon: <Users className="w-5 h-5" />,
-        description: 'Gestiona tus clientes'
+        descriptionKey: 'nav.items.owners.description'
       },
       {
         href: '/gestion/apartamentos',
-        label: 'Apartamentos',
+        labelKey: 'nav.items.apartments.title',
         icon: <Home className="w-5 h-5" />,
-        description: 'Gestiona tus propiedades'
+        descriptionKey: 'nav.items.apartments.description'
       },
       {
         href: '/gestion/perfil-gestor',
-        label: 'Mi Empresa',
+        labelKey: 'nav.items.company.title',
         icon: <ListChecks className="w-5 h-5" />,
-        description: 'Datos fiscales y logo'
+        descriptionKey: 'nav.items.company.description'
       },
       {
         href: '/gestion/integraciones',
-        label: 'Integraciones',
+        labelKey: 'nav.items.integrations.title',
         icon: <Link2 className="w-5 h-5" />,
-        description: 'Gmail y más'
+        descriptionKey: 'nav.items.integrations.description'
       },
       {
         href: '/gestion/rentabilidad',
-        label: 'Rentabilidad',
+        labelKey: 'nav.items.profitability.title',
         icon: <BarChart3 className="w-5 h-5" />,
-        description: 'Informes y métricas'
+        descriptionKey: 'nav.items.profitability.description'
       }
     ]
   }
@@ -156,10 +156,22 @@ export default function GestionLayout({
 }: {
   children: React.ReactNode
 }) {
+  return (
+    <GestionDashboardProvider>
+      <GestionLayoutInner>{children}</GestionLayoutInner>
+    </GestionDashboardProvider>
+  )
+}
+
+function GestionLayoutInner({
+  children
+}: {
+  children: React.ReactNode
+}) {
   const pathname = usePathname()
-  const [pendingActions, setPendingActions] = useState<PendingActions | null>(null)
-  const [onboarding, setOnboarding] = useState<OnboardingStatus | null>(null)
-  const [recentReservations, setRecentReservations] = useState(0)
+  const { t } = useTranslation('gestion')
+  const { pendingActions, onboarding, stats } = useGestionDashboard()
+  const recentReservations = stats?.recentReservations || 0
 
   // Auto-activate GESTION trial on first visit
   useEffect(() => {
@@ -190,29 +202,6 @@ export default function GestionLayout({
 
     autoActivateTrial()
   }, []) // Run only once on mount
-
-  useEffect(() => {
-    // Fetch pending actions and onboarding status for badges and widget
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/gestion/dashboard', {
-          credentials: 'include',
-          cache: 'no-store'
-        })
-        if (response.ok) {
-          const data = await response.json()
-          setPendingActions(data.pendingActions)
-          setOnboarding(data.onboarding)
-          setRecentReservations(data.stats?.recentReservations || 0)
-        }
-      } catch (error) {
-        // Silently ignore fetch errors (network issues, etc.)
-      }
-    }
-    // Small delay to avoid race conditions with page loads
-    const timer = setTimeout(fetchData, 100)
-    return () => clearTimeout(timer)
-  }, [pathname]) // Refetch when pathname changes
 
   const isActive = (href: string) => {
     if (href === '/gestion') {
@@ -252,9 +241,9 @@ export default function GestionLayout({
             className="flex items-center text-sm text-gray-600 hover:text-gray-900"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
-            Propiedades
+            {t('nav.properties')}
           </Link>
-          <h1 className="font-semibold text-gray-900">Gestión</h1>
+          <h1 className="font-semibold text-gray-900">{t('nav.title')}</h1>
           <div className="w-20" />
         </div>
         <div className="overflow-x-auto scrollbar-hide">
@@ -272,7 +261,7 @@ export default function GestionLayout({
                   }`}
                 >
                   {item.icon}
-                  {item.label}
+                  {t(item.labelKey)}
                   {badgeCount > 0 && (
                     <span className="bg-amber-100 text-amber-700 text-xs font-medium px-1.5 py-0.5 rounded-full">
                       {badgeCount > 99 ? '99+' : badgeCount}
@@ -295,21 +284,21 @@ export default function GestionLayout({
                 className="flex items-center text-sm text-gray-500 hover:text-gray-700"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
-                Volver a Propiedades
+                {t('nav.backToProperties')}
               </Link>
               <h2 className="mt-4 text-lg font-bold text-gray-900">
-                Gestión
+                {t('nav.title')}
               </h2>
               <p className="text-sm text-gray-500">
-                Facturación y contabilidad
+                {t('nav.subtitle')}
               </p>
             </div>
 
             <nav className="flex-1 px-2 space-y-4">
               {navCategories.map((category, catIndex) => (
-                <div key={category.title}>
+                <div key={category.titleKey}>
                   <h3 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                    {category.title}
+                    {t(category.titleKey)}
                   </h3>
                   <div className="space-y-1">
                     {category.items.map(item => {
@@ -328,10 +317,10 @@ export default function GestionLayout({
                             {item.icon}
                           </span>
                           <div className="flex-1 min-w-0">
-                            <span className="block truncate">{item.label}</span>
-                            {item.description && (
+                            <span className="block truncate">{t(item.labelKey)}</span>
+                            {item.descriptionKey && (
                               <span className="block text-xs text-gray-400 font-normal truncate">
-                                {item.description}
+                                {t(item.descriptionKey)}
                               </span>
                             )}
                           </div>

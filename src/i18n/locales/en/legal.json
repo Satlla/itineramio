@@ -87,6 +87,14 @@
         "taxId": "Tax ID (for Spanish billing)",
         "transactions": "Transaction history",
         "note": "Note: Payment data is processed directly by Stripe and we do not store it on our servers."
+      },
+      "chatbotData": {
+        "title": "2.5 Virtual Assistant (Chatbot) Data",
+        "description": "When guests use the virtual assistant in digital manuals:",
+        "queries": "Queries and questions asked to the chatbot",
+        "context": "Conversation context to provide relevant answers",
+        "language": "User's preferred language",
+        "note": "Note: Chatbot queries are processed in real time through Anthropic (Claude AI) and are not permanently stored. We only keep aggregated and anonymous metrics to improve the service."
       }
     },
     "section3": {

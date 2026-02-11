@@ -26,7 +26,7 @@ interface PropertyStats {
   name: string
   city: string
   imageUrl?: string
-  type?: 'property' | 'billingUnit'
+  type?: 'property' | 'billingUnit' | 'group'
   owner?: {
     id: string
     name: string
@@ -43,6 +43,8 @@ interface PropertyStats {
     commissionValue: number
     incomeReceiver: 'OWNER' | 'MANAGER'
   }
+  unitCount?: number
+  units?: { id: string; name: string; reservations: number }[]
 }
 
 export default function FacturacionPage() {
@@ -222,13 +224,20 @@ export default function FacturacionPage() {
               <div className="space-y-4">
                 {filteredProperties.map((property, index) => {
                   const hasOwner = !!property.owner
-                  // Get the actual ID without the unit: prefix for the link
-                  const linkId = property.type === 'billingUnit'
-                    ? property.id.replace('unit:', '')
-                    : property.id
+                  const isGroup = property.type === 'group'
+
+                  // Build the correct link based on type
+                  let linkHref = ''
+                  if (property.type === 'group') {
+                    linkHref = `/gestion/facturacion/${property.id.replace('group:', '')}?type=group`
+                  } else if (property.type === 'billingUnit') {
+                    linkHref = `/gestion/facturacion/${property.id.replace('unit:', '')}?type=unit`
+                  } else {
+                    linkHref = `/gestion/facturacion/${property.id}`
+                  }
 
                   const cardContent = (
-                    <Card className={`transition-all ${hasOwner ? 'hover:shadow-lg cursor-pointer border-l-4 border-l-violet-500' : 'border-l-4 border-l-yellow-400 opacity-80'}`}>
+                    <Card className={`transition-all ${hasOwner ? 'hover:shadow-lg cursor-pointer' : 'opacity-80'} ${isGroup ? 'border-l-4 border-l-emerald-500 bg-emerald-50/30' : hasOwner ? 'border-l-4 border-l-violet-500' : 'border-l-4 border-l-yellow-400'}`}>
                       <CardContent className="p-4 sm:p-5">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                           {/* Property Info */}
@@ -240,14 +249,25 @@ export default function FacturacionPage() {
                                 className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg"
                               />
                             ) : (
-                              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg flex items-center justify-center">
-                                <Home className="w-8 h-8 text-gray-400" />
+                              <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-lg flex items-center justify-center ${isGroup ? 'bg-emerald-100' : 'bg-gray-100'}`}>
+                                {isGroup ? (
+                                  <Building2 className="w-8 h-8 text-emerald-600" />
+                                ) : (
+                                  <Home className="w-8 h-8 text-gray-400" />
+                                )}
                               </div>
                             )}
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-gray-900 truncate">
-                                {property.name}
-                              </h3>
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-gray-900 truncate">
+                                  {property.name}
+                                </h3>
+                                {isGroup && (
+                                  <Badge className="bg-emerald-100 text-emerald-700 text-xs">
+                                    {property.unitCount} apartamentos
+                                  </Badge>
+                                )}
+                              </div>
                               <p className="text-sm text-gray-500">{property.city}</p>
                               {property.owner && (
                                 <div className="flex items-center gap-1 mt-1">
@@ -255,6 +275,11 @@ export default function FacturacionPage() {
                                   <span className="text-xs text-gray-500">
                                     {property.owner.name}
                                   </span>
+                                </div>
+                              )}
+                              {isGroup && property.units && (
+                                <div className="mt-1 text-xs text-gray-400">
+                                  {property.units.map(u => u.name).join(' · ')}
                                 </div>
                               )}
                               {!property.owner && (
@@ -329,7 +354,7 @@ export default function FacturacionPage() {
                       transition={{ duration: 0.3, delay: index * 0.05 }}
                     >
                       {hasOwner ? (
-                        <Link href={`/gestion/facturacion/${linkId}${property.type === 'billingUnit' ? '?type=unit' : ''}`}>
+                        <Link href={linkHref}>
                           {cardContent}
                         </Link>
                       ) : (

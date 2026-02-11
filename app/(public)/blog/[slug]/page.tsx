@@ -106,11 +106,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound()
   }
 
-  // Increment view count (in a real app, you'd want to track unique views properly)
-  await prisma.blogPost.update({
-    where: { id: post.id },
-    data: { views: { increment: 1 } }
-  })
+  // View count is now incremented client-side via BlogArticleTracker
 
   // Fields needed for related posts display (excludes heavy 'content' field)
   const relatedSelectFields = {

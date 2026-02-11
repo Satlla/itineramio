@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
 import jwt from 'jsonwebtoken'
+import { translateFields } from '../../../../../../src/lib/translate'
+import { translationRateLimiter, getRateLimitKey } from '../../../../../../src/lib/rate-limit'
 
 const JWT_SECRET = process.env.JWT_SECRET
 
@@ -215,6 +217,21 @@ export async function PUT(
     if (updateData.iconId) {
       updateData.icon = updateData.iconId
       delete updateData.iconId
+    }
+
+    // Auto-translate zone name from Spanish to EN/FR
+    if (updateData.name && typeof updateData.name === 'object' && updateData.name.es) {
+      const rateLimitKey = getRateLimitKey(request, userId, 'translation')
+      const rateLimitResult = translationRateLimiter(rateLimitKey)
+      if (rateLimitResult.allowed) {
+        try {
+          const [translatedName] = await translateFields([updateData.name])
+          updateData.name = translatedName
+          console.log('💾 Zone name auto-translated')
+        } catch (e) {
+          console.log('💾 Zone name translation skipped:', String(e))
+        }
+      }
     }
 
     console.log('💾 Final update data:', updateData)

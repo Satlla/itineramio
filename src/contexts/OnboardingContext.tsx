@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface OnboardingContextType {
@@ -47,33 +47,33 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     }))
   }
 
-  const startOnboarding = () => {
+  const startOnboarding = useCallback(() => {
     setIsOnboarding(true)
     setCurrentStep('create-property')
     saveState(true, 'create-property')
     router.push('/properties/new?onboarding=true')
-  }
+  }, [router])
 
-  const nextStep = (step: string) => {
+  const nextStep = useCallback((step: string) => {
     setCurrentStep(step)
     saveState(true, step)
-  }
+  }, [])
 
-  const skipOnboarding = () => {
+  const skipOnboarding = useCallback(() => {
     setIsOnboarding(false)
     setCurrentStep(null)
     setShowSpotlight(false)
     setSpotlightTarget(null)
     localStorage.removeItem('onboardingState')
     localStorage.setItem('hasSeenFirstPropertyOnboarding', 'true')
-  }
+  }, [])
 
-  const setSpotlight = (show: boolean, target?: string | null) => {
+  const setSpotlightFn = useCallback((show: boolean, target?: string | null) => {
     setShowSpotlight(show)
     setSpotlightTarget(target || null)
-  }
+  }, [])
 
-  const completeOnboarding = async () => {
+  const completeOnboarding = useCallback(async () => {
     setIsOnboarding(false)
     setCurrentStep(null)
     localStorage.removeItem('onboardingState')
@@ -88,22 +88,22 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     } catch (error) {
       console.error('Error completing onboarding:', error)
     }
-  }
+  }, [])
+
+  const value = useMemo(() => ({
+    isOnboarding,
+    currentStep,
+    showSpotlight,
+    spotlightTarget,
+    startOnboarding,
+    nextStep,
+    skipOnboarding,
+    completeOnboarding,
+    setSpotlight: setSpotlightFn
+  }), [isOnboarding, currentStep, showSpotlight, spotlightTarget, startOnboarding, nextStep, skipOnboarding, completeOnboarding, setSpotlightFn])
 
   return (
-    <OnboardingContext.Provider
-      value={{
-        isOnboarding,
-        currentStep,
-        showSpotlight,
-        spotlightTarget,
-        startOnboarding,
-        nextStep,
-        skipOnboarding,
-        completeOnboarding,
-        setSpotlight
-      }}
-    >
+    <OnboardingContext.Provider value={value}>
       {children}
     </OnboardingContext.Provider>
   )

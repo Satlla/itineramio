@@ -131,6 +131,46 @@ export const apiRateLimiter = createRateLimiter({
   windowMs: 60 * 1000 // 1 minute
 })
 
+// ============================================
+// Gestion module rate limiters
+// ============================================
+
+/** Rate limiter for gestion read operations: 60 requests per minute per user */
+export const gestionReadRateLimiter = createRateLimiter({
+  maxRequests: 60,
+  windowMs: 60 * 1000 // 1 minute
+})
+
+/** Rate limiter for gestion write operations: 30 requests per minute per user */
+export const gestionWriteRateLimiter = createRateLimiter({
+  maxRequests: 30,
+  windowMs: 60 * 1000 // 1 minute
+})
+
+/** Rate limiter for CSV import: 5 imports per hour per user */
+export const gestionImportRateLimiter = createRateLimiter({
+  maxRequests: 5,
+  windowMs: 60 * 60 * 1000 // 1 hour
+})
+
+/** Rate limiter for liquidation generation: 10 per hour per user */
+export const gestionLiquidationRateLimiter = createRateLimiter({
+  maxRequests: 10,
+  windowMs: 60 * 60 * 1000 // 1 hour
+})
+
+/** Rate limiter for PDF generation: 20 per hour per user */
+export const gestionPdfRateLimiter = createRateLimiter({
+  maxRequests: 20,
+  windowMs: 60 * 60 * 1000 // 1 hour
+})
+
+/** Rate limiter for AI translation: 30 translations per hour per user */
+export const translationRateLimiter = createRateLimiter({
+  maxRequests: 30,
+  windowMs: 60 * 60 * 1000 // 1 hour
+})
+
 /**
  * Get client identifier from request for rate limiting
  * Uses user ID if authenticated, falls back to IP address

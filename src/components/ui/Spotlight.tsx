@@ -41,13 +41,23 @@ export function Spotlight({
     // Initial position
     updatePosition()
 
-    // Update on scroll and resize
-    window.addEventListener('scroll', updatePosition, true)
-    window.addEventListener('resize', updatePosition)
+    // Update on scroll and resize (throttled with rAF)
+    let ticking = false
+    const throttledUpdate = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          updatePosition()
+          ticking = false
+        })
+        ticking = true
+      }
+    }
+    window.addEventListener('scroll', throttledUpdate, true)
+    window.addEventListener('resize', throttledUpdate)
 
     return () => {
-      window.removeEventListener('scroll', updatePosition, true)
-      window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('scroll', throttledUpdate, true)
+      window.removeEventListener('resize', throttledUpdate)
     }
   }, [isActive, targetId, mounted])
 

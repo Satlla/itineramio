@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { gestionImportRateLimiter, getRateLimitKey } from '@/lib/rate-limit'
+
+// Batch size for chunked processing
+const BATCH_SIZE = 100
 
 /**
  * Multi-platform CSV Import
@@ -212,6 +216,19 @@ export async function POST(request: NextRequest) {
     }
     const userId = authResult.userId
 
+    // Rate limiting: max 5 imports per hour
+    const rateLimitKey = getRateLimitKey(request, userId, 'gestion-import')
+    const rateLimitResult = gestionImportRateLimiter(rateLimitKey)
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Demasiadas importaciones. Espera antes de intentar de nuevo.',
+          resetIn: Math.ceil(rateLimitResult.resetIn / 1000 / 60) // minutes
+        },
+        { status: 429 }
+      )
+    }
+
     const formData = await request.formData()
     const file = formData.get('file') as File
     const propertyIdOverride = formData.get('propertyId') as string | null
@@ -224,11 +241,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate file size (max 10MB)
-    const MAX_FILE_SIZE = 10 * 1024 * 1024
+    // Validate file size (max 5MB to prevent memory issues)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: 'El archivo es demasiado grande. Máximo permitido: 10MB' },
+        { error: 'El archivo es demasiado grande. Máximo permitido: 5MB' },
         { status: 400 }
       )
     }
@@ -250,6 +267,15 @@ export async function POST(request: NextRequest) {
     if (rows.length < 2) {
       return NextResponse.json(
         { error: 'El archivo CSV está vacío o no tiene datos' },
+        { status: 400 }
+      )
+    }
+
+    // Limit maximum rows to prevent server overload
+    const MAX_ROWS = 5000
+    if (rows.length > MAX_ROWS + 1) { // +1 for header
+      return NextResponse.json(
+        { error: `El archivo tiene demasiadas filas (${rows.length - 1}). Máximo permitido: ${MAX_ROWS} filas. Divide el archivo en partes más pequeñas.` },
         { status: 400 }
       )
     }

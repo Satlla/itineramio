@@ -12,6 +12,7 @@ import esTools from './locales/es/tools.json'
 import esZones from './locales/es/zones.json'
 import esAccount from './locales/es/account.json'
 import esLegal from './locales/es/legal.json'
+import esGestion from './locales/es/gestion.json'
 
 // Import English translations
 import enCommon from './locales/en/common.json'
@@ -23,6 +24,7 @@ import enTools from './locales/en/tools.json'
 import enZones from './locales/en/zones.json'
 import enAccount from './locales/en/account.json'
 import enLegal from './locales/en/legal.json'
+import enGestion from './locales/en/gestion.json'
 
 // Import French translations
 import frCommon from './locales/fr/common.json'
@@ -34,6 +36,7 @@ import frTools from './locales/fr/tools.json'
 import frZones from './locales/fr/zones.json'
 import frAccount from './locales/fr/account.json'
 import frLegal from './locales/fr/legal.json'
+import frGestion from './locales/fr/gestion.json'
 
 const resources = {
   es: {
@@ -45,7 +48,8 @@ const resources = {
     tools: esTools,
     zones: esZones,
     account: esAccount,
-    legal: esLegal
+    legal: esLegal,
+    gestion: esGestion
   },
   en: {
     common: enCommon,
@@ -56,7 +60,8 @@ const resources = {
     tools: enTools,
     zones: enZones,
     account: enAccount,
-    legal: enLegal
+    legal: enLegal,
+    gestion: enGestion
   },
   fr: {
     common: frCommon,
@@ -67,7 +72,8 @@ const resources = {
     tools: frTools,
     zones: frZones,
     account: frAccount,
-    legal: frLegal
+    legal: frLegal,
+    gestion: frGestion
   }
 }
 
@@ -78,7 +84,7 @@ i18n
     resources,
     fallbackLng: 'es',
     defaultNS: 'common',
-    ns: ['common', 'landing', 'auth', 'dashboard', 'property', 'tools', 'zones', 'account', 'legal'],
+    ns: ['common', 'landing', 'auth', 'dashboard', 'property', 'tools', 'zones', 'account', 'legal', 'gestion'],
     debug: false,
     interpolation: {
       escapeValue: false

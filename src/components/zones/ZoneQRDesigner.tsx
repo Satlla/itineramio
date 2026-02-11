@@ -14,8 +14,6 @@ import {
   Copy,
   Sparkles
 } from 'lucide-react'
-import QRCode from 'qrcode'
-import html2canvas from 'html2canvas'
 
 interface ZoneQRDesignerProps {
   isOpen: boolean
@@ -88,6 +86,7 @@ export default function ZoneQRDesigner({
   useEffect(() => {
     const generateQR = async () => {
       try {
+        const QRCode = (await import('qrcode')).default
         const dataUrl = await QRCode.toDataURL(zoneUrl, {
           width: 400,
           margin: 1,
@@ -127,6 +126,7 @@ export default function ZoneQRDesigner({
     setIsGenerating(true)
 
     try {
+      const { default: html2canvas } = await import('html2canvas')
       const canvas = await html2canvas(designRef.current, {
         scale: 3, // High resolution for print
         backgroundColor: '#ffffff',

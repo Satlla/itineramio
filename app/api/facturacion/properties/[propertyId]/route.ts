@@ -24,15 +24,96 @@ export async function GET(
 
     const { propertyId } = await params
     const { searchParams } = new URL(request.url)
-    const isUnit = searchParams.get('type') === 'unit'
+    const type = searchParams.get('type') // 'unit', 'group', or null (legacy property)
 
     let propertyData: any = null
     let reservations: any[] = []
     let expenses: any[] = []
     let ownerId: string | null = null
     let commissionValue = 0
+    let unitCount = 0
 
-    if (isUnit) {
+    if (type === 'group') {
+      // Handle BillingUnitGroup (conjunto)
+      const group = await prisma.billingUnitGroup.findFirst({
+        where: { id: propertyId, userId },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              type: true,
+              firstName: true,
+              lastName: true,
+              companyName: true,
+              email: true
+            }
+          },
+          billingUnits: {
+            where: { isActive: true },
+            include: {
+              reservations: {
+                where: {
+                  status: { in: ['CONFIRMED', 'COMPLETED'] }
+                },
+                select: {
+                  id: true,
+                  checkIn: true,
+                  nights: true,
+                  hostEarnings: true,
+                  roomTotal: true,
+                  cleaningFee: true
+                }
+              },
+              expenses: {
+                select: {
+                  id: true,
+                  amount: true,
+                  date: true
+                }
+              }
+            }
+          }
+        }
+      })
+
+      if (!group) {
+        return NextResponse.json(
+          { error: 'Conjunto no encontrado' },
+          { status: 404 }
+        )
+      }
+
+      const owner = group.owner
+      propertyData = {
+        id: group.id,
+        name: group.name,
+        city: group.billingUnits[0]?.city || '',
+        imageUrl: group.billingUnits.find(u => u.imageUrl)?.imageUrl || null,
+        type: 'group',
+        unitCount: group.billingUnits.length,
+        units: group.billingUnits.map(u => ({ id: u.id, name: u.name })),
+        owner: owner ? {
+          id: owner.id,
+          name: owner.type === 'EMPRESA'
+            ? owner.companyName
+            : `${owner.firstName || ''} ${owner.lastName || ''}`.trim(),
+          email: owner.email
+        } : null,
+        billingConfig: {
+          commissionType: group.commissionType || 'PERCENTAGE',
+          commissionValue: Number(group.commissionValue),
+          incomeReceiver: group.incomeReceiver || 'OWNER',
+          cleaningValue: Number(group.cleaningValue)
+        }
+      }
+
+      // Aggregate reservations and expenses from all units
+      reservations = group.billingUnits.flatMap(u => u.reservations || [])
+      expenses = group.billingUnits.flatMap(u => u.expenses || [])
+      ownerId = group.ownerId
+      commissionValue = Number(group.commissionValue)
+      unitCount = group.billingUnits.length
+    } else if (type === 'unit') {
       // Handle BillingUnit
       const billingUnit = await prisma.billingUnit.findFirst({
         where: { id: propertyId, userId },
@@ -284,11 +365,12 @@ export async function GET(
           expenses: acc.expenses + m.expenses
         }), { reservations: 0, income: 0, nights: 0, commission: 0, expenses: 0 })
 
-        // Calculate occupancy (assuming 365 days per year)
+        // Calculate occupancy (assuming 365 days per year, multiplied by unit count for groups)
         const daysInYear = year === new Date().getFullYear()
           ? Math.ceil((new Date().getTime() - new Date(year, 0, 1).getTime()) / (1000 * 60 * 60 * 24))
           : 365
-        const occupancyRate = daysInYear > 0 ? (totals.nights / daysInYear) * 100 : 0
+        const totalAvailableDays = daysInYear * (unitCount || 1)
+        const occupancyRate = totalAvailableDays > 0 ? (totals.nights / totalAvailableDays) * 100 : 0
 
         return {
           year,

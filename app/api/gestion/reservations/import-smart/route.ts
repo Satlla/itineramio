@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import * as XLSX from 'xlsx'
+import { gestionImportRateLimiter, getRateLimitKey } from '@/lib/rate-limit'
 
 interface ListingMapping {
   billingUnitId: string
@@ -29,6 +30,19 @@ export async function POST(request: NextRequest) {
       return authResult
     }
     const userId = authResult.userId
+
+    // Rate limiting: max 5 imports per hour
+    const rateLimitKey = getRateLimitKey(request, userId, 'gestion-import-smart')
+    const rateLimitResult = gestionImportRateLimiter(rateLimitKey)
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Demasiadas importaciones. Espera antes de intentar de nuevo.',
+          resetIn: Math.ceil(rateLimitResult.resetIn / 1000 / 60)
+        },
+        { status: 429 }
+      )
+    }
 
     const body: ImportSmartRequest = await request.json()
     const { rows, headers, platform, skipDuplicates, listingMappings, skipUnmappedListings, defaultBillingUnitId } = body

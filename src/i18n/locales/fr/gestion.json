@@ -1,0 +1,1481 @@
+{
+  "nav": {
+    "operations": "OPÉRATIONS",
+    "documents": "DOCUMENTS",
+    "administration": "ADMINISTRATION",
+    "backToProperties": "Retour aux Propriétés",
+    "properties": "Propriétés",
+    "title": "Gestion",
+    "subtitle": "Facturation et comptabilité",
+    "items": {
+      "dashboard": {
+        "title": "Tableau de bord",
+        "description": "Aperçu général"
+      },
+      "reservations": {
+        "title": "Réservations",
+        "description": "Importer et gérer"
+      },
+      "settlements": {
+        "title": "Règlements",
+        "description": "Paiements aux propriétaires"
+      },
+      "billing": {
+        "title": "Facturation",
+        "description": "Clôture mensuelle"
+      },
+      "invoices": {
+        "title": "Factures",
+        "description": "Historique et factures libres"
+      },
+      "expenses": {
+        "title": "Dépenses",
+        "description": "Contrôle des dépenses"
+      },
+      "owners": {
+        "title": "Propriétaires",
+        "description": "Gérer vos clients"
+      },
+      "apartments": {
+        "title": "Appartements",
+        "description": "Gérer vos biens"
+      },
+      "company": {
+        "title": "Mon Entreprise",
+        "description": "Données fiscales et logo"
+      },
+      "integrations": {
+        "title": "Intégrations",
+        "description": "Gmail et plus"
+      },
+      "profitability": {
+        "title": "Rentabilité",
+        "description": "Rapports et métriques"
+      }
+    }
+  },
+  "companyProfile": {
+    "pageTitle": "Mon Entreprise",
+    "pageSubtitle": "Données fiscales et logo pour les factures",
+    "loadingProfile": "Chargement du profil...",
+    "messages": {
+      "nameAndPrefixRequired": "Le nom et le préfixe sont obligatoires",
+      "seriesCreated": "Série créée avec succès",
+      "errorCreatingSeries": "Erreur lors de la création de la série",
+      "connectionError": "Erreur de connexion",
+      "invalidNumber": "Le numéro doit être valide et supérieur ou égal à 0",
+      "numberUpdated": "Numéro mis à jour avec succès",
+      "errorUpdating": "Erreur lors de la mise à jour",
+      "defaultRemoved": "La série n'est plus par défaut",
+      "defaultSet": "Série définie par défaut",
+      "seriesDeleted": "Série supprimée avec succès",
+      "errorDeleting": "Erreur lors de la suppression",
+      "profileSaved": "Profil enregistré avec succès",
+      "errorSavingProfile": "Erreur lors de l'enregistrement du profil",
+      "onlyImages": "Seules les images sont autorisées",
+      "fileTooLarge": "Le fichier est trop volumineux (max. 2 Mo)",
+      "logoUploaded": "Logo téléchargé avec succès",
+      "errorUploadingLogo": "Erreur lors du téléchargement du logo",
+      "logoDeleted": "Logo supprimé",
+      "errorDeletingLogo": "Erreur lors de la suppression du logo"
+    },
+    "confirmDeleteSeries": "Supprimer cette série ? Cette action est irréversible.",
+    "confirmDeleteLogo": "Supprimer le logo ?",
+    "logo": {
+      "title": "Logo de l'entreprise",
+      "uploading": "Téléchargement...",
+      "upload": "Télécharger le logo",
+      "hint": "PNG, JPG ou SVG. Max 2 Mo."
+    },
+    "taxData": {
+      "title": "Données fiscales",
+      "businessName": "Raison sociale *",
+      "businessNamePlaceholder": "Mon Entreprise SARL",
+      "nif": "SIRET/SIREN *",
+      "nifPlaceholder": "B12345678",
+      "country": "Pays",
+      "address": "Adresse *",
+      "addressPlaceholder": "123 Rue Principale",
+      "city": "Ville *",
+      "cityPlaceholder": "Paris",
+      "postalCode": "Code postal *",
+      "postalCodePlaceholder": "75001"
+    },
+    "contact": {
+      "title": "Contact",
+      "email": "Email",
+      "emailPlaceholder": "info@monentreprise.com",
+      "phone": "Téléphone",
+      "phonePlaceholder": "+33 6 00 00 00 00"
+    },
+    "footerNotes": {
+      "title": "Notes de facturation",
+      "label": "Texte supplémentaire pour le pied de page des factures",
+      "placeholder": "Ex : Mode de paiement : virement bancaire sur FR76 1234 5678 9012 3456"
+    },
+    "paymentMethods": {
+      "title": "Modes de paiement",
+      "subtitle": "Configurez les modes de paiement qui apparaîtront sur vos factures",
+      "transfer": "Virement bancaire",
+      "transferDesc": "Recevez des paiements par virement",
+      "bank": "Banque",
+      "bankPlaceholder": "Nom de la banque",
+      "iban": "IBAN *",
+      "ibanPlaceholder": "FR76 1234 5678 9012 3456",
+      "ibanValid": "IBAN valide",
+      "bicSwift": "BIC/SWIFT",
+      "bicPlaceholder": "BNPAFRPP",
+      "bizum": "Bizum",
+      "bizumDesc": "Paiement mobile instantané",
+      "bizumPhone": "Téléphone Bizum *",
+      "bizumPhonePlaceholder": "+33 6 00 00 00 00",
+      "paypal": "PayPal",
+      "paypalDesc": "Paiement en ligne international",
+      "paypalEmail": "Email PayPal *",
+      "paypalEmailPlaceholder": "paiements@monentreprise.com",
+      "cash": "Espèces",
+      "cashDesc": "Paiement en espèces",
+      "card": "Carte",
+      "cardDesc": "Débit ou crédit",
+      "defaultMethod": "Méthode par défaut",
+      "selectDefault": "Sélectionner..."
+    },
+    "saving": "Enregistrement...",
+    "saveChanges": "Enregistrer les modifications",
+    "invoiceSeries": {
+      "title": "Séries de Facturation",
+      "newSeries": "Nouvelle Série",
+      "description": "Configurez les séries pour numéroter vos factures. Format : Préfixe + Année (2 chiffres) + Numéro séquentiel.",
+      "name": "Nom *",
+      "namePlaceholder": "Factures",
+      "prefix": "Préfixe *",
+      "prefixPlaceholder": "F27",
+      "type": "Type",
+      "standard": "Standard",
+      "rectifying": "Rectificative",
+      "create": "Créer",
+      "cancel": "Annuler",
+      "resetYearly": "Réinitialiser la numérotation chaque année",
+      "defaultSeries": "Série par défaut",
+      "preview": "Aperçu :",
+      "loadingSeries": "Chargement des séries...",
+      "noSeries": "Aucune série configurée",
+      "noSeriesHint": "Créez une série pour commencer à numéroter vos factures",
+      "tableHeaders": {
+        "name": "Nom",
+        "prefix": "Préfixe",
+        "nextInvoice": "Prochaine Facture",
+        "lastNumber": "Dernier N°",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "editCurrentNumber": "Modifier le numéro actuel",
+      "default": "Par défaut",
+      "deactivate": "Désactiver la série",
+      "activate": "Activer la série",
+      "setAsDefault": "Définir par défaut",
+      "deleteSeries": "Supprimer la série",
+      "note": "Le numéro actuel est le dernier numéro attribué. La prochaine facture utilisera le numéro suivant. Vous pouvez modifier le numéro actuel pour ajuster la numérotation (ex : mettre 0 pour commencer à 1, ou 269 pour que la prochaine soit 270)."
+    }
+  },
+  "dashboard": {
+    "title": "Panneau de Gestion",
+    "subtitle": "Résumé de facturation et comptabilité",
+    "stats": {
+      "income": "Revenus {{year}}",
+      "commission": "Commission",
+      "properties": "Propriétés",
+      "owners": "propriétaires",
+      "invoices": "Factures",
+      "pending": "en attente"
+    },
+    "pendingActions": {
+      "title": "Actions en attente",
+      "unbilledReservations": "Réservations non facturées",
+      "pendingMonthlyClose": "En attente de clôture mensuelle",
+      "draftInvoices": "Factures en brouillon",
+      "pendingIssue": "En attente d'émission",
+      "unpaidInvoices": "Factures à encaisser",
+      "pendingPayment": "Envoyées, en attente de paiement"
+    },
+    "quickAccess": {
+      "title": "Accès rapide",
+      "billing": {
+        "title": "Facturation",
+        "description": "Clôture mensuelle par propriété"
+      },
+      "allInvoices": {
+        "title": "Toutes les Factures",
+        "description": "Créer et gérer des factures"
+      },
+      "owners": {
+        "title": "Propriétaires",
+        "description": "Gérer les propriétaires d'appartements"
+      },
+      "apartments": {
+        "title": "Appartements",
+        "description": "Gérer vos biens"
+      }
+    },
+    "onboarding": {
+      "title": "Pour commencer",
+      "progress": "{{completed}} sur {{total}} complétés",
+      "next": "Suivant",
+      "steps": {
+        "company": {
+          "title": "Configurez votre entreprise",
+          "description": "Ajoutez vos données fiscales pour facturer"
+        },
+        "owners": {
+          "title": "Créer des propriétaires",
+          "description": "Ajoutez les propriétaires des appartements"
+        },
+        "apartments": {
+          "title": "Ajouter des appartements",
+          "description": "Créez vos appartements avec propriétaire, commission et nettoyage"
+        },
+        "firstInvoice": {
+          "title": "Première facture",
+          "description": "Clôturez le mois et émettez votre première facture"
+        }
+      }
+    }
+  },
+  "apartments": {
+    "title": "Appartements",
+    "subtitle": "Gérer les appartements et les groupes",
+    "loading": "Chargement des appartements...",
+    "group": "Groupe",
+    "standaloneUnits": "Appartements individuels",
+    "unitsInGroup": "Appartements dans ce groupe",
+    "noUnitsAssigned": "Aucun appartement assigné",
+    "noCity": "Sans ville",
+    "reservations": "réservations",
+    "invoicesCount": "Factures",
+    "noUnits": "Aucun appartement",
+    "stats": {
+      "groups": "Groupes",
+      "standalone": "Individuels",
+      "inGroups": "Dans des groupes"
+    },
+    "tabs": {
+      "all": "Tout",
+      "groups": "Groupes",
+      "standalone": "Individuels"
+    },
+    "status": {
+      "configured": "Configuré",
+      "noOwner": "Sans propriétaire"
+    },
+    "noOwnersWarning": {
+      "title": "Créez d'abord vos propriétaires",
+      "description": "Pour créer des groupes, vous devez avoir des propriétaires.",
+      "createOwner": "Créer un propriétaire"
+    },
+    "emptyState": {
+      "title": "Vous n'avez pas d'appartements",
+      "description": "Créez votre premier appartement ou groupe pour commencer.",
+      "createGroup": "Créer un groupe",
+      "createUnit": "Créer un appartement"
+    },
+    "groupInfo": {
+      "title": "Qu'est-ce qu'un groupe ?",
+      "description": "Un groupe regroupe plusieurs appartements d'un même propriétaire pour une facturation combinée en un seul règlement mensuel.",
+      "benefit1": "Un seul règlement pour tous les appartements",
+      "benefit2": "Détail par appartement dans le PDF",
+      "benefit3": "Gain de temps dans la gestion mensuelle"
+    },
+    "modals": {
+      "newUnit": "Nouvel appartement",
+      "editUnit": "Modifier l'appartement",
+      "newGroup": "Nouveau groupe",
+      "editGroup": "Modifier le groupe",
+      "creating": "Création...",
+      "createUnit": "Créer l'appartement",
+      "createGroup": "Créer le groupe",
+      "deleteUnitConfirm": "Supprimer cet appartement ?",
+      "deleteGroupConfirm": "Supprimer ce groupe ? Les appartements deviendront individuels."
+    },
+    "form": {
+      "photo": "Photo",
+      "unitPhoto": "Photo de l'appartement",
+      "groupPhoto": "Photo du groupe",
+      "name": "Nom",
+      "namePlaceholder": "Appartement Centre",
+      "city": "Ville",
+      "cityPlaceholder": "Paris",
+      "address": "Adresse",
+      "addressPlaceholder": "123 Rue Principale, Apt 4B",
+      "postalCode": "Code postal",
+      "addToGroup": "Ajouter au groupe",
+      "individualNoGroup": "Individuel (sans groupe)",
+      "inheritsFromGroup": "Hérite du propriétaire et de la configuration du groupe",
+      "noGroupsYet": "Aucun groupe créé pour l'instant.",
+      "groupsExplanation": "Les groupes permettent de regrouper les appartements d'un même propriétaire pour une facturation combinée.",
+      "groupsAllowGrouping": "Les groupes permettent de regrouper les appartements d'un même propriétaire.",
+      "owner": "Propriétaire",
+      "noOwnerOwnProperty": "Sans propriétaire (propriété personnelle)",
+      "noOwner": "Sans propriétaire",
+      "selectOwner": "Sélectionner le propriétaire",
+      "managementCommission": "Commission de gestion",
+      "commission": "Commission",
+      "cleaning": "Nettoyage",
+      "cleaningFee": "Frais de nettoyage",
+      "vat": "TVA",
+      "vatIncluded": "(TVA incl.)",
+      "plusVat": "(+ TVA)",
+      "groupName": "Nom du groupe",
+      "groupNamePlaceholder": "Appartements Jean Dupont",
+      "allUnitsInvoiceToOwner": "Tous les appartements du groupe sont facturés à ce propriétaire",
+      "commissionPercent": "Commission %",
+      "cleaningEuros": "Nettoyage €",
+      "addExistingUnits": "Ajouter des appartements existants",
+      "platformNames": "Noms sur les plateformes (pour l'importation)",
+      "platformNamesHint": "Si le nom sur la plateforme est différent du nom interne, ajoutez-le ici pour que les réservations importées soient automatiquement assignées.",
+      "platformNamesImport": "Noms sur les plateformes (pour l'importation des réservations)",
+      "platformNamesHintShort": "Ces noms sont utilisés pour assigner automatiquement les réservations lors de l'importation CSV",
+      "airbnbPlaceholder": "Nom Airbnb (séparer par des virgules si plusieurs)",
+      "bookingPlaceholder": "Nom Booking (séparer par des virgules si plusieurs)",
+      "vrboPlaceholder": "Nom Vrbo (séparer par des virgules si plusieurs)",
+      "airbnbNames": "Noms Airbnb",
+      "bookingNames": "Noms Booking",
+      "vrboNames": "Noms Vrbo",
+      "commaSeparated": "séparés par une virgule",
+      "change": "Modifier",
+      "upload": "Télécharger"
+    },
+    "actions": {
+      "newGroup": "Nouveau groupe",
+      "newUnit": "Nouvel appartement"
+    },
+    "errors": {
+      "deleteError": "Erreur lors de la suppression",
+      "createError": "Erreur lors de la création",
+      "saveError": "Erreur lors de l'enregistrement",
+      "uploadError": "Erreur lors du téléchargement de l'image",
+      "noImageUrl": "Erreur : Aucune URL d'image reçue"
+    },
+    "modal": {
+      "newApartment": "Nouvel appartement",
+      "editApartment": "Modifier l'appartement",
+      "newGroup": "Nouveau groupe",
+      "editGroup": "Modifier le groupe",
+      "photo": "Photo de l'appartement",
+      "groupPhoto": "Photo du groupe",
+      "name": "Nom",
+      "city": "Ville",
+      "address": "Adresse",
+      "postalCode": "Code postal",
+      "addToGroup": "Ajouter au groupe",
+      "individual": "Individuel (sans groupe)",
+      "noGroupsYet": "Aucun groupe créé pour l'instant.",
+      "groupsHelp": "Les groupes permettent de regrouper les appartements d'un même propriétaire pour une facturation combinée.",
+      "owner": "Propriétaire",
+      "noOwner": "Sans propriétaire (propriété personnelle)",
+      "selectOwner": "Sélectionner le propriétaire",
+      "managementCommission": "Commission de gestion",
+      "cleaningFee": "Frais de nettoyage",
+      "vatIncluded": "TVA incluse",
+      "platformNames": "Noms sur les plateformes (pour l'importation)",
+      "platformNamesHelp": "Si le nom sur la plateforme est différent du nom interne, ajoutez-le ici pour que les réservations importées soient automatiquement assignées.",
+      "airbnbNames": "Noms Airbnb",
+      "bookingNames": "Noms Booking",
+      "vrboNames": "Noms Vrbo",
+      "separatedByCommas": "(séparés par une virgule)",
+      "csvImportHelp": "Ces noms sont utilisés pour assigner automatiquement les réservations lors de l'importation CSV",
+      "groupName": "Nom du groupe",
+      "allUnitsInvoicedToOwner": "Tous les appartements du groupe sont facturés à ce propriétaire",
+      "whatIsGroup": "Qu'est-ce qu'un groupe ?",
+      "groupExplanation": "Un groupe regroupe plusieurs appartements d'un même propriétaire pour une facturation combinée en un seul règlement mensuel.",
+      "groupBenefits": {
+        "singleSettlement": "Un seul règlement pour tous les appartements",
+        "pdfBreakdown": "Détail par appartement dans le PDF",
+        "saveTime": "Gain de temps dans la gestion mensuelle"
+      },
+      "addExistingApartments": "Ajouter des appartements existants",
+      "apartmentsInGroup": "Appartements dans le groupe"
+    },
+    "actions": {
+      "newGroup": "Nouveau groupe",
+      "newApartment": "Nouvel appartement",
+      "creating": "Création...",
+      "createApartment": "Créer l'appartement",
+      "createGroup": "Créer le groupe",
+      "saving": "Enregistrement...",
+      "saveChanges": "Enregistrer les modifications",
+      "change": "Modifier",
+      "upload": "Télécharger"
+    },
+    "errors": {
+      "deleteError": "Erreur lors de la suppression",
+      "saveError": "Erreur lors de la création",
+      "updateError": "Erreur lors de l'enregistrement",
+      "uploadError": "Erreur lors du téléchargement de l'image",
+      "noUrlReceived": "Erreur : Aucune URL d'image reçue"
+    }
+  },
+  "owners": {
+    "title": "Propriétaires",
+    "subtitle": "Gérer les propriétaires de vos appartements",
+    "loading": "Chargement des propriétaires...",
+    "search": "Rechercher par nom ou email...",
+    "filters": {
+      "allTypes": "Tous les types",
+      "individual": "Personne physique",
+      "company": "Entreprise / Indépendant"
+    },
+    "emptyState": {
+      "noResults": "Aucun propriétaire trouvé",
+      "title": "Créez votre premier propriétaire",
+      "description": "Les propriétaires sont les personnes qui possèdent les appartements que vous gérez. Vous devez en créer au moins un pour l'assigner à vos propriétés et générer des factures.",
+      "flow": {
+        "title": "Flux de facturation :",
+        "step1": "Créer un propriétaire",
+        "step1Current": "(vous êtes ici)",
+        "step2": "Assigner le propriétaire aux propriétés",
+        "step3": "Importer les réservations",
+        "step4": "Générer les factures"
+      }
+    },
+    "card": {
+      "company": "Entreprise",
+      "individual": "Personne",
+      "properties": "propriétés"
+    },
+    "form": {
+      "companyType": "Entreprise",
+      "individualType": "Personne physique"
+    },
+    "modal": {
+      "new": "Nouveau Propriétaire",
+      "edit": "Modifier le Propriétaire",
+      "type": "Type",
+      "individual": "Personne physique",
+      "company": "Entreprise / Indépendant",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "companyName": "Raison sociale",
+      "email": "Email",
+      "nif": "NIF/NIE",
+      "cif": "CIF",
+      "phone": "Téléphone",
+      "iban": "IBAN",
+      "ibanHelp": "(pour les virements)",
+      "address": "Adresse",
+      "city": "Ville",
+      "postalCode": "Code postal"
+    },
+    "validation": {
+      "nameRequired": "Le prénom et le nom sont requis",
+      "companyNameRequired": "La raison sociale est requise",
+      "emailRequired": "L'email est requis",
+      "emailInvalid": "Email invalide",
+      "addressRequired": "L'adresse est requise",
+      "cityRequired": "La ville est requise",
+      "postalCodeRequired": "Le code postal est requis",
+      "nifInvalid": "NIF/NIE invalide",
+      "cifInvalid": "CIF invalide",
+      "ibanInvalid": "IBAN invalide (format : ES00 0000 0000 0000 0000 0000)"
+    },
+    "actions": {
+      "new": "Nouveau propriétaire",
+      "create": "Créer le propriétaire",
+      "saving": "Enregistrement...",
+      "saveChanges": "Enregistrer les modifications"
+    },
+    "errors": {
+      "createError": "Erreur lors de la création du propriétaire",
+      "updateError": "Erreur lors de la mise à jour du propriétaire",
+      "deleteError": "Erreur lors de la suppression",
+      "cannotDelete": "Impossible de supprimer un propriétaire avec des propriétés assignées",
+      "connectionError": "Erreur de connexion"
+    },
+    "confirmDelete": "Supprimer ce propriétaire ?"
+  },
+  "invoices": {
+    "title": "Factures",
+    "subtitle": "Gérer toutes vos factures émises",
+    "loading": "Chargement des factures...",
+    "search": "Rechercher par numéro ou client...",
+    "stats": {
+      "totalInvoiced": "Total facturé",
+      "pendingCollection": "En attente d'encaissement",
+      "invoiceCount": "Nombre de factures",
+      "collected": "Encaissées"
+    },
+    "filters": {
+      "allStatuses": "Tous les statuts",
+      "allTypes": "Tous les types",
+      "normalInvoices": "Factures normales",
+      "rectifying": "Rectificatives"
+    },
+    "status": {
+      "draft": "Brouillon",
+      "proforma": "Proforma",
+      "issued": "Émise",
+      "sent": "Envoyée",
+      "paid": "Payée",
+      "overdue": "Échue"
+    },
+    "emptyState": {
+      "title": "Aucune facture",
+      "description": "Créez votre première facture libre ou générez depuis Facturation",
+      "action": "Créer une facture"
+    },
+    "card": {
+      "base": "Base",
+      "dueDate": "Échéance :",
+      "rectifies": "Rectifie :",
+      "rectified": "Rectifiée",
+      "rectSubstitution": "Rect. Subst.",
+      "rectDifference": "Rect. Diff."
+    },
+    "modal": {
+      "issueInvoice": "Émettre la Facture",
+      "willAssignNumber": "Le numéro sera attribué",
+      "willAssignFinalNumber": "Le numéro définitif sera attribué",
+      "issueWarning": "Une fois émise, la facture ne peut être ni modifiée ni supprimée. Vous ne pouvez créer qu'une facture rectificative.",
+      "issueWarningShort": "Une fois émise, la facture ne peut être ni modifiée ni supprimée."
+    },
+    "actions": {
+      "newInvoice": "Nouvelle facture",
+      "issue": "Émettre la facture",
+      "issueShort": "Émettre",
+      "editDraft": "Modifier le brouillon",
+      "deleteDraft": "Supprimer le brouillon",
+      "markAsSent": "Marquer comme envoyée",
+      "markAsPaid": "Marquer comme payée",
+      "collected": "Encaissée",
+      "markPaid": "Encaissée",
+      "createRectifying": "Créer une rectificative",
+      "issuing": "Émission...",
+      "preview": "Aperçu",
+      "downloadPdf": "Télécharger PDF",
+      "send": "Envoyer",
+      "saveDraft": "Enregistrer le brouillon",
+      "saveDraftShort": "Enregistrer"
+    },
+    "confirmDelete": "Supprimer ce brouillon ? Cette action est irréversible.",
+    "errors": {
+      "statusChangeError": "Erreur lors du changement de statut",
+      "previewError": "Erreur lors de la prévisualisation",
+      "issueError": "Erreur lors de l'émission de la facture",
+      "deleteError": "Erreur lors de la suppression",
+      "loadError": "Erreur lors du chargement de la facture",
+      "saveError": "Erreur lors de l'enregistrement",
+      "createError": "Erreur lors de la création de la facture",
+      "sendError": "Erreur lors de l'envoi",
+      "rectifyError": "Erreur lors de la création de la rectificative",
+      "pdfError": "Erreur lors de la génération du PDF",
+      "connectionError": "Erreur de connexion"
+    },
+    "new": {
+      "title": "Nouvelle Facture",
+      "saving": "Enregistrement...",
+      "invoice": "Facture",
+      "draft": "BROUILLON",
+      "contact": "Contact",
+      "searchContact": "Rechercher un contact...",
+      "createNewContact": "Créer un nouveau contact",
+      "createContact": "Créer",
+      "noContactFound": "Non trouvé",
+      "documentNumber": "Numéro de document",
+      "useAutoNumber": "Utiliser la numérotation automatique",
+      "numberExists": "Ce numéro existe déjà",
+      "date": "Date",
+      "dueDate": "Échéance",
+      "configureYourTaxData": "Configurez vos données fiscales"
+    },
+    "detail": {
+      "backToInvoices": "Retour aux factures",
+      "invoiceNotFound": "Facture non trouvée",
+      "invoiceId": "Facture #{{id}}",
+      "draft": "brouillon",
+      "issuer": "Émetteur",
+      "invoiceNumber": "Facture N°",
+      "client": "Client",
+      "autoNumber": "Vide = automatique",
+      "pendingAssignment": "Attribution en attente",
+      "numberPlaceholder": "Ex: F260001",
+      "paymentMethods": "Modes de paiement",
+      "bankTransfer": "Virement bancaire",
+      "bizum": "Bizum",
+      "cash": "Espèces",
+      "notes": "Notes",
+      "dangerZone": "Zone dangereuse",
+      "deletePermanently": "Supprimer définitivement ce brouillon",
+      "rectifyingInvoice": "Facture rectificative",
+      "createRectifyingDescription": "Créer une facture qui rectifie celle-ci",
+      "myCompany": "Mon Entreprise",
+      "company": "Entreprise",
+      "clientFallback": "Client"
+    },
+    "deleteModal": {
+      "title": "Supprimer le brouillon",
+      "confirm": "Êtes-vous sûr de vouloir supprimer ce brouillon ?",
+      "warning": "Cette action est irréversible.",
+      "deleting": "Suppression..."
+    },
+    "issueModal": {
+      "invoiceNumber": "Numéro de facture",
+      "fullNumber": "Numéro complet :"
+    },
+    "sendModal": {
+      "title": "Envoyer la Facture",
+      "subtitle": "Envoyer par email",
+      "recipientEmail": "Email du destinataire",
+      "subject": "Objet",
+      "message": "Message",
+      "sending": "Envoi...",
+      "emailRequired": "L'email est requis",
+      "defaultSubject": "Facture {{number}}",
+      "defaultMessage": "Bonjour {{name}},\n\nVeuillez trouver ci-joint la facture {{number}}.\n\nCordialement,\n{{company}}"
+    },
+    "rectifyModal": {
+      "title": "Créer une Facture Rectificative",
+      "subtitle": "Pour la facture {{number}}",
+      "type": "Type de rectificative",
+      "substitution": "Par substitution",
+      "substitutionDesc": "Remplace complètement la facture originale",
+      "difference": "Par différence",
+      "differenceDesc": "Ne reflète que la différence de montants",
+      "reason": "Motif de rectification",
+      "reasonRequired": "Le motif de rectification est obligatoire",
+      "reasonPlaceholder": "Ex : Erreur dans le montant de la commission",
+      "newLines": "Nouvelles lignes",
+      "differenceLines": "Lignes de différence",
+      "addLine": "Ajouter une ligne",
+      "creating": "Création...",
+      "conceptPlaceholder": "Concept",
+      "retentionPlaceholder": "Ret."
+    },
+    "previewModal": {
+      "title": "Aperçu de la facture",
+      "from": "De",
+      "to": "À"
+    },
+    "table": {
+      "concept": "Concept",
+      "description": "Description",
+      "quantity": "Qté",
+      "quantityFull": "Unités",
+      "base": "Base",
+      "price": "Prix",
+      "vat": "TVA",
+      "retention": "Rét.",
+      "amount": "Montant",
+      "total": "Total",
+      "subtotal": "Base imposable",
+      "totalVat": "TVA",
+      "totalRetention": "Retenue",
+      "totalToPay": "Total à payer",
+      "grossAmount": "Montant brut (sans retenue) :",
+      "addLine": "Ajouter une ligne"
+    },
+    "contactModal": {
+      "title": "Nouveau contact",
+      "name": "Nom",
+      "firstName": "Prénom",
+      "lastName": "Nom de famille",
+      "companyName": "Raison sociale",
+      "nif": "NIF du contact",
+      "contactType": "Ce contact est...",
+      "company": "Entreprise",
+      "individual": "Particulier",
+      "tabs": {
+        "basic": "Basique",
+        "accounts": "Comptes"
+      },
+      "address": "Adresse",
+      "addressPlaceholder": "Rue, numéro, étage...",
+      "city": "Ville",
+      "postalCode": "Code postal",
+      "country": "Pays",
+      "email": "Email",
+      "phone": "Téléphone",
+      "iban": "IBAN",
+      "ibanHelp": "Compte bancaire pour les paiements",
+      "creating": "Création..."
+    },
+    "generate": {
+      "title": "Générer une facture",
+      "selectedReservations": "{{count}} réservations sélectionnées",
+      "invalidParams": "Paramètres invalides",
+      "noReservationsFound": "Réservations sélectionnées non trouvées",
+      "loadError": "Erreur lors du chargement des données",
+      "noOwnerAssigned": "Aucun propriétaire assigné à cette propriété",
+      "createError": "Erreur lors de la création de la facture",
+      "property": "Propriété",
+      "billTo": "Facturer à",
+      "noOwner": "Sans propriétaire",
+      "reservationsToInvoice": "Réservations à facturer",
+      "reservation": "Réservation",
+      "guest": "Invité",
+      "dates": "Dates",
+      "nights": "Nuits",
+      "commission": "Commission",
+      "totals": "Totaux :",
+      "invoiceOptions": "Options de facture",
+      "lineFormat": "Format des lignes",
+      "detailed": "Détaillé",
+      "detailedDesc": "Une ligne par réservation avec dates et invité",
+      "summary": "Résumé",
+      "summaryDesc": "Une ligne avec le total de la période",
+      "invoiceDate": "Date de facture",
+      "notesOptional": "Notes (optionnel)",
+      "notesPlaceholder": "Notes supplémentaires pour la facture...",
+      "totalsPreview": "Aperçu des totaux",
+      "vatRate": "TVA ({{rate}}%)",
+      "retentionRate": "Retenue ({{rate}}%)",
+      "createDraft": "Créer le brouillon",
+      "creating": "Création..."
+    }
+  },
+  "expenses": {
+    "title": "Dépenses",
+    "subtitle": "Gérer les dépenses de vos propriétés",
+    "loading": "Chargement des dépenses...",
+    "search": "Rechercher par concept ou fournisseur...",
+    "stats": {
+      "totalExpenses": "Total des dépenses",
+      "vatBorne": "TVA supportée",
+      "expenseCount": "Nombre de dépenses"
+    },
+    "filters": {
+      "allProperties": "Toutes les propriétés",
+      "noConfig": "(sans config.)",
+      "allCategories": "Toutes les catégories",
+      "allYear": "Toute l'année"
+    },
+    "categories": {
+      "MAINTENANCE": "Entretien",
+      "SUPPLIES": "Fournitures",
+      "REPAIR": "Réparations",
+      "CLEANING": "Nettoyage",
+      "FURNITURE": "Mobilier",
+      "TAXES": "Impôts",
+      "INSURANCE": "Assurances",
+      "OTHER": "Autres"
+    },
+    "emptyState": {
+      "title": "Aucune dépense enregistrée",
+      "description": "Ajoutez des dépenses pour les inclure dans la facturation mensuelle"
+    },
+    "card": {
+      "vat": "TVA",
+      "invoiced": "Facturé"
+    },
+    "modal": {
+      "new": "Nouvelle dépense",
+      "edit": "Modifier la dépense",
+      "apartment": "Appartement",
+      "selectApartment": "Sélectionnez un appartement",
+      "gestionApartments": "Appartements de Gestion",
+      "manualProperties": "Propriétés Manuelles",
+      "noConfiguredApartments": "Vous n'avez pas d'appartements configurés",
+      "date": "Date",
+      "category": "Catégorie",
+      "concept": "Concept",
+      "conceptPlaceholder": "Ex : Réparation chauffe-eau",
+      "amount": "Montant (€)",
+      "vat": "TVA (€)",
+      "supplier": "Fournisseur",
+      "supplierPlaceholder": "Nom du fournisseur",
+      "invoiceNumber": "N° Facture",
+      "invoiceNumberPlaceholder": "Numéro de facture",
+      "chargeToOwner": "Déduire du propriétaire sur la facture"
+    },
+    "validation": {
+      "apartmentRequired": "Vous devez sélectionner un appartement",
+      "dateRequired": "La date est obligatoire",
+      "conceptRequired": "Le concept est obligatoire",
+      "amountRequired": "Le montant doit être supérieur à 0",
+      "noBillingConfig": "Cette propriété n'a pas de configuration de facturation. Configurez-la d'abord."
+    },
+    "actions": {
+      "newExpense": "Nouvelle dépense",
+      "saving": "Enregistrement...",
+      "update": "Mettre à jour",
+      "createExpense": "Créer la dépense"
+    },
+    "deleteModal": {
+      "title": "Supprimer la dépense",
+      "confirm": "Êtes-vous sûr de vouloir supprimer",
+      "warning": "Si cette dépense est incluse dans un brouillon de facture, elle sera également supprimée de la facture.",
+      "deleting": "Suppression..."
+    },
+    "successModal": {
+      "title": "Dépense enregistrée",
+      "description": "<strong>{{concept}}</strong> a été enregistré dans <strong>{{propertyName}}</strong>",
+      "nextStep": "Pour examiner toutes les dépenses et facturer le propriétaire, allez dans <strong>Facturation → {{propertyName}}</strong> et examinez le mois de {{month}}.",
+      "addAnother": "Ajouter une autre",
+      "goToBilling": "Aller à la Facturation"
+    },
+    "errors": {
+      "saveError": "Erreur lors de l'enregistrement de la dépense",
+      "connectionError": "Erreur de connexion"
+    }
+  },
+  "settlements": {
+    "title": "Règlements",
+    "subtitle": "Gérer les règlements aux propriétaires",
+    "loading": "Chargement des règlements...",
+    "search": "Rechercher par propriétaire...",
+    "filters": {
+      "allMonths": "Tous les mois",
+      "allOwners": "Tous les propriétaires",
+      "allStatuses": "Tous les statuts"
+    },
+    "status": {
+      "draft": "Brouillon",
+      "generated": "Généré",
+      "sent": "Envoyé",
+      "paid": "Payé",
+      "cancelled": "Annulé"
+    },
+    "stats": {
+      "totalIncome": "Revenus totaux",
+      "commissions": "Commissions",
+      "retentions": "Retenues",
+      "netOwners": "Net aux propriétaires"
+    },
+    "emptyState": {
+      "title": "Aucun règlement",
+      "descriptionFiltered": "Aucun règlement trouvé avec les filtres appliqués",
+      "descriptionEmpty": "Créez votre premier règlement pour cette période"
+    },
+    "card": {
+      "reservations": "réservations",
+      "expenses": "dépenses",
+      "income": "Revenus",
+      "commission": "Commission",
+      "net": "Net"
+    },
+    "actions": {
+      "newSettlement": "Nouveau règlement",
+      "downloadPdf": "Télécharger le PDF",
+      "markAsPaid": "Marquer comme payé"
+    }
+  },
+  "billing": {
+    "title": "Facturation",
+    "subtitle": "Clôture mensuelle par propriété",
+    "loading": "Chargement des propriétés...",
+    "search": "Rechercher une propriété...",
+    "stats": {
+      "income": "Revenus {{year}}",
+      "reservations": "Réservations",
+      "nights": "Nuits"
+    },
+    "emptyState": {
+      "title": "Vous n'avez pas de propriétés configurées",
+      "description": "Vous devez d'abord configurer vos propriétés avec leurs propriétaires et commissions.",
+      "action": "Aller aux Appartements"
+    },
+    "noResults": {
+      "title": "Aucun résultat trouvé",
+      "description": "Aucune propriété ne correspond à \"{{searchTerm}}\""
+    },
+    "card": {
+      "income": "Revenus",
+      "occupancy": "Occupation",
+      "pricePerNight": "€/nuit",
+      "reservations": "Réservations",
+      "pending": "en attente",
+      "noOwner": "Sans propriétaire",
+      "assignOwner": "Assigner un propriétaire"
+    }
+  },
+  "reservations": {
+    "title": "Réservations",
+    "subtitle": "Importer et gérer les réservations",
+    "loading": "Chargement des réservations...",
+    "search": "Rechercher un voyageur...",
+    "filters": {
+      "allYear": "Toute l'année",
+      "allStatuses": "Tous les statuts",
+      "allPlatforms": "Toutes les plateformes",
+      "allProperties": "Toutes les propriétés"
+    },
+    "platforms": {
+      "AIRBNB": "Airbnb",
+      "BOOKING": "Booking",
+      "VRBO": "VRBO",
+      "DIRECT": "Direct",
+      "OTHER": "Autre"
+    },
+    "status": {
+      "confirmed": "Confirmée",
+      "pending": "En attente",
+      "cancelled": "Annulée",
+      "completed": "Terminée"
+    },
+    "months": {
+      "january": "Janvier",
+      "february": "Février",
+      "march": "Mars",
+      "april": "Avril",
+      "may": "Mai",
+      "june": "Juin",
+      "july": "Juillet",
+      "august": "Août",
+      "september": "Septembre",
+      "october": "Octobre",
+      "november": "Novembre",
+      "december": "Décembre"
+    },
+    "unassigned": "Non assigné",
+    "stats": {
+      "totalReservations": "Total réservations",
+      "income": "Revenus",
+      "nights": "Nuits",
+      "confirmed": "Confirmées"
+    },
+    "actions": {
+      "newReservation": "Nouvelle réservation",
+      "importCsv": "Importer CSV"
+    }
+  },
+  "company": {
+    "title": "Mon Entreprise",
+    "subtitle": "Données fiscales et logo pour les factures",
+    "loading": "Chargement du profil...",
+    "sections": {
+      "logo": {
+        "title": "Logo de l'entreprise",
+        "uploadButton": "Télécharger le logo",
+        "uploading": "Téléchargement...",
+        "help": "PNG, JPG ou SVG. Maximum 2 Mo."
+      },
+      "taxData": {
+        "title": "Données fiscales",
+        "businessName": "Nom commercial",
+        "nif": "NIF/CIF",
+        "country": "Pays",
+        "address": "Adresse",
+        "city": "Ville",
+        "postalCode": "Code postal"
+      },
+      "contact": {
+        "title": "Contact",
+        "email": "Email",
+        "phone": "Téléphone"
+      },
+      "invoiceNotes": {
+        "title": "Notes sur les factures",
+        "label": "Texte supplémentaire pour le pied de page des factures",
+        "placeholder": "Ex : Mode de paiement : virement bancaire vers ES12 1234 5678 9012 3456"
+      },
+      "paymentMethods": {
+        "title": "Modes de paiement",
+        "description": "Configurez les modes de paiement qui apparaîtront sur vos factures",
+        "transfer": {
+          "title": "Virement bancaire",
+          "description": "Recevez les paiements par virement",
+          "bank": "Banque",
+          "iban": "IBAN",
+          "bic": "BIC/SWIFT"
+        },
+        "bizum": {
+          "title": "Bizum",
+          "description": "Paiement mobile instantané",
+          "phone": "Téléphone Bizum"
+        },
+        "paypal": {
+          "title": "PayPal",
+          "description": "Paiement en ligne international",
+          "email": "Email PayPal"
+        },
+        "cash": {
+          "title": "Espèces",
+          "description": "Paiement en espèces"
+        },
+        "card": {
+          "title": "Carte",
+          "description": "Débit ou crédit"
+        },
+        "defaultMethod": "Méthode par défaut",
+        "selectDefault": "Sélectionner..."
+      }
+    },
+    "validation": {
+      "ibanValid": "IBAN valide",
+      "ibanInvalid": "IBAN invalide"
+    },
+    "actions": {
+      "saveChanges": "Enregistrer les modifications",
+      "saving": "Enregistrement..."
+    },
+    "messages": {
+      "savedSuccess": "Profil enregistré avec succès",
+      "saveError": "Erreur lors de l'enregistrement du profil",
+      "logoUploaded": "Logo téléchargé avec succès",
+      "logoUploadError": "Erreur lors du téléchargement du logo",
+      "logoDeleted": "Logo supprimé",
+      "logoDeleteError": "Erreur lors de la suppression du logo",
+      "onlyImages": "Seules les images sont autorisées",
+      "fileTooLarge": "Le fichier est trop volumineux (max. 2 Mo)",
+      "connectionError": "Erreur de connexion"
+    },
+    "confirmDeleteLogo": "Supprimer le logo ?"
+  },
+  "profitability": {
+    "title": "Tableau de bord de Rentabilité",
+    "subtitle": "Analyse financière de vos propriétés",
+    "loading": "Chargement des données...",
+    "export": "Exporter en CSV",
+    "exporting": "Exportation...",
+    "stats": {
+      "income": "Revenus {{year}}",
+      "yourCommission": "Votre commission {{year}}",
+      "owners": "Propriétaires {{year}}",
+      "reservations": "Réservations {{year}}",
+      "pendingToInvoice": "À facturer",
+      "properties": "Propriétés"
+    },
+    "thisMonth": {
+      "netIncome": "Revenus nets",
+      "yourCommission": "Votre commission",
+      "owners": "Propriétaires",
+      "reservations": "Réservations",
+      "avgCommission": "Commission moyenne"
+    },
+    "table": {
+      "title": "Rentabilité par Propriété",
+      "totalReservations": "réservations totales",
+      "property": "Propriété",
+      "reservations": "Réservations",
+      "nights": "Nuits",
+      "income": "Revenus",
+      "yourCommission": "Votre commission",
+      "owner": "Propriétaire",
+      "invoiced": "Facturé",
+      "total": "TOTAL"
+    },
+    "emptyState": {
+      "title": "Aucune donnée de rentabilité",
+      "description": "Importez des réservations depuis Airbnb ou Booking pour voir l'analyse de rentabilité",
+      "action": "Configurer les intégrations"
+    }
+  },
+  "series": {
+    "title": "Séries de Facturation",
+    "subtitle": "Configurez les séries de numérotation pour vos factures",
+    "loading": "Chargement des séries...",
+    "backToApartments": "Retour aux Appartements",
+    "newSeries": "Nouvelle série",
+    "standardInvoices": "Factures Normales",
+    "rectifyingInvoices": "Factures Rectificatives",
+    "noStandardSeries": "Pas de séries de factures normales",
+    "noRectifyingSeries": "Pas de séries de rectificatives",
+    "autoCreated": "Sera créée automatiquement lors de l'émission d'une rectificative",
+    "createSeries": "Créer une série",
+    "form": {
+      "newSeries": "Nouvelle Série",
+      "name": "Nom",
+      "namePlaceholder": "Ex : Factures 2025",
+      "prefix": "Préfixe",
+      "prefixPlaceholder": "Ex : F",
+      "prefixHelp": "(1-3 lettres)",
+      "seriesType": "Type de série",
+      "standardInvoices": "Factures normales",
+      "rectifyingInvoices": "Factures rectificatives",
+      "resetYearly": "Réinitialiser la numérotation chaque année",
+      "useAsDefault": "Utiliser comme série par défaut",
+      "lastNumber": "Dernier numéro émis",
+      "nextWillBe": "La prochaine facture sera",
+      "defaultSeries": "Série par défaut"
+    },
+    "actions": {
+      "creating": "Création...",
+      "create": "Créer la série",
+      "saving": "Enregistrement...",
+      "save": "Enregistrer",
+      "setAsDefault": "Définir par défaut"
+    },
+    "messages": {
+      "created": "Série créée avec succès",
+      "updated": "Série mise à jour avec succès",
+      "deleted": "Série supprimée avec succès",
+      "deleteConfirm": "Supprimer cette série ? Cette action est irréversible."
+    },
+    "errors": {
+      "nameAndPrefixRequired": "Le nom et le préfixe sont obligatoires",
+      "createError": "Erreur lors de la création de la série",
+      "updateError": "Erreur lors de la mise à jour de la série",
+      "deleteError": "Erreur lors de la suppression de la série",
+      "connectionError": "Erreur de connexion"
+    },
+    "info": {
+      "title": "À propos des séries de facturation",
+      "line1": "Le préfixe est utilisé pour générer le numéro complet (ex : F2025001)",
+      "line2": "Les séries avec des factures émises ne peuvent pas être supprimées",
+      "line3": "Les rectificatives doivent utiliser une série séparée selon la loi",
+      "line4": "Si vous activez la réinitialisation annuelle, la numérotation commencera à 1 chaque année"
+    },
+    "card": {
+      "year": "Année",
+      "current": "Actuel",
+      "next": "Suivant",
+      "default": "Par défaut"
+    }
+  },
+  "newSettlement": {
+    "title": "Nouveau Règlement",
+    "loading": "Chargement des données...",
+    "backToSettlements": "Retour aux règlements",
+    "steps": {
+      "selectOwner": "Sélectionnez le propriétaire",
+      "configurePeriod": "Configurez la période et les appartements",
+      "reviewAndConfirm": "Vérifiez et confirmez",
+      "generating": "Génération du règlement..."
+    },
+    "stepLabels": {
+      "owner": "Propriétaire",
+      "period": "Période",
+      "preview": "Aperçu"
+    },
+    "noOwners": {
+      "title": "Aucun propriétaire",
+      "description": "Vous devez d'abord créer des propriétaires pour générer des règlements.",
+      "action": "Aller aux Propriétaires"
+    },
+    "ownerCard": {
+      "groups": "groupe",
+      "groupsPlural": "groupes",
+      "apartments": "appartement",
+      "apartmentsPlural": "appartements"
+    },
+    "periodSection": {
+      "title": "Période",
+      "month": "Mois",
+      "year": "Année",
+      "change": "Modifier"
+    },
+    "apartmentsSection": {
+      "title": "Appartements à régler",
+      "groups": "Groupes",
+      "individualApartments": "Appartements individuels",
+      "selectAll": "Tout sélectionner",
+      "apartment": "appartement",
+      "apartmentsPlural": "appartements"
+    },
+    "preview": {
+      "settlementFor": "Règlement pour",
+      "period": "Période",
+      "group": "Groupe",
+      "individualApartments": "appartements individuels",
+      "breakdownByApartment": "Détail par appartement",
+      "reservations": "Réservations",
+      "reservationsCount": "réservations",
+      "tableHeaders": {
+        "property": "Propriété",
+        "code": "Code",
+        "guest": "Voyageur",
+        "dates": "Dates",
+        "amount": "Montant"
+      },
+      "andMore": "... et {{count}} réservations de plus",
+      "summary": "Résumé",
+      "totalIncome": "Revenus totaux",
+      "managementCommission": "Commission de gestion",
+      "vatCommission": "TVA sur commission",
+      "cleaning": "Nettoyage",
+      "expenses": "Frais refacturés",
+      "netToTransfer": "Net à transférer",
+      "noReservations": {
+        "title": "Aucune réservation dans cette période",
+        "description": "Il n'y a pas de réservations non réglées pour les appartements et la période sélectionnés."
+      }
+    },
+    "actions": {
+      "back": "Retour",
+      "loading": "Chargement...",
+      "viewPreview": "Voir l'aperçu",
+      "generating": "Génération...",
+      "generateSettlement": "Générer le règlement"
+    },
+    "generatingState": {
+      "title": "Génération du règlement...",
+      "description": "Cela peut prendre quelques secondes"
+    },
+    "errors": {
+      "loadPreviewError": "Erreur lors du chargement de l'aperçu"
+    }
+  },
+  "settlementDetail": {
+    "loading": "Chargement du règlement...",
+    "notFound": "Règlement non trouvé",
+    "backToSettlements": "Retour aux règlements",
+    "settlementTitle": "Règlement {{month}} {{year}}",
+    "actions": {
+      "downloadPdf": "Télécharger PDF",
+      "sendByEmail": "Envoyer par email",
+      "whatsapp": "WhatsApp",
+      "markAsPaid": "Marquer comme payé",
+      "issueInvoice": "Émettre la facture",
+      "delete": "Supprimer"
+    },
+    "reservations": {
+      "title": "Réservations",
+      "count": "{{count}} réservations",
+      "tableHeaders": {
+        "code": "Code",
+        "guest": "Voyageur",
+        "checkIn": "Arrivée",
+        "checkOut": "Départ",
+        "nights": "Nuits",
+        "amount": "Montant"
+      }
+    },
+    "expenses": {
+      "title": "Frais refacturés",
+      "count": "{{count}} frais",
+      "tableHeaders": {
+        "date": "Date",
+        "concept": "Concept",
+        "category": "Catégorie",
+        "base": "Base",
+        "vat": "TVA",
+        "total": "Total"
+      }
+    },
+    "owner": {
+      "title": "Propriétaire"
+    },
+    "summary": {
+      "title": "Résumé",
+      "totalIncome": "Revenus totaux",
+      "commission": "Commission",
+      "vatCommission": "TVA sur commission",
+      "cleaning": "Nettoyage",
+      "expenses": "Frais",
+      "netToTransfer": "Net à transférer"
+    },
+    "paymentRegistered": {
+      "title": "Paiement enregistré",
+      "date": "Date",
+      "method": "Méthode",
+      "reference": "Référence"
+    },
+    "dates": {
+      "created": "Créé",
+      "updated": "Mis à jour"
+    },
+    "deleteModal": {
+      "title": "Supprimer le règlement",
+      "description": "Êtes-vous sûr de vouloir supprimer ce règlement ? Les réservations et frais associés seront disponibles pour de futurs règlements.",
+      "deleting": "Suppression..."
+    },
+    "paymentModal": {
+      "title": "Enregistrer le paiement",
+      "paymentMethod": "Mode de paiement",
+      "selectMethod": "Sélectionner...",
+      "methods": {
+        "transfer": "Virement bancaire",
+        "bizum": "Bizum",
+        "cash": "Espèces",
+        "other": "Autre"
+      },
+      "reference": "Référence (optionnel)",
+      "referencePlaceholder": "Ex : Virement du 15/01",
+      "saving": "Enregistrement...",
+      "confirmPayment": "Confirmer le paiement"
+    },
+    "linkSent": {
+      "email": "Lien envoyé par email à {{email}}",
+      "whatsapp": "Lien généré. WhatsApp a été ouvert pour l'envoyer."
+    },
+    "errors": {
+      "loadError": "Erreur lors du chargement du règlement",
+      "updateError": "Erreur lors de la mise à jour",
+      "deleteError": "Erreur lors de la suppression du règlement",
+      "createInvoiceError": "Erreur lors de la création de la facture",
+      "sendError": "Erreur lors de l'envoi du lien"
+    }
+  },
+  "importReservations": {
+    "title": "Importer des Réservations",
+    "subtitle": "Importez des réservations depuis Airbnb (CSV) ou Booking (XLS)",
+    "propertySection": {
+      "title": "Sélectionner la Propriété",
+      "titleSmartImport": "Propriété par défaut",
+      "optional": "(optionnel)",
+      "description": "Les réservations seront associées à cette propriété",
+      "descriptionSmartImport": "Sera utilisée pour les réservations sans affectation spécifique",
+      "selectProperty": "Sélectionnez une propriété",
+      "noBillingConfig": "(Pas de config. facturation)",
+      "noProperties": "Aucune propriété disponible"
+    },
+    "bulkDelete": {
+      "toggle": "Supprimer les réservations d'un mois",
+      "description": "Supprimer toutes les réservations de cette propriété en :",
+      "warning": "Les réservations facturées ou réglées ne seront pas supprimées",
+      "confirm": "Êtes-vous sûr de vouloir supprimer toutes les réservations de {{month}} {{year}} ?"
+    },
+    "fileSection": {
+      "title": "Fichier de Réservations",
+      "description": "Glissez un fichier XLS (Booking) ou CSV (Airbnb) ou cliquez pour sélectionner",
+      "dropHere": "Déposez le fichier ici...",
+      "dragHere": "Glissez votre fichier ici",
+      "fileTypes": "XLS/XLSX (Booking) ou CSV (Airbnb)",
+      "detected": "Détecté",
+      "mapManually": "Mapper manuellement",
+      "unknownFormat": "Format non reconnu",
+      "configureMapping": "Configurer le mapping",
+      "columnsConfigured": "Colonnes configurées",
+      "modify": "Modifier",
+      "downloadTemplate": "Télécharger le modèle",
+      "skipDuplicates": "Ignorer les doublons"
+    },
+    "analysis": {
+      "title": "Analyse du fichier",
+      "new": "Nouvelles",
+      "willBeImported": "Seront importées",
+      "duplicates": "Doublons",
+      "alreadyExist": "Existent déjà",
+      "totalValid": "Total valide",
+      "ofRows": "sur {{count}} lignes",
+      "period": "Période",
+      "to": "au",
+      "smartImport": {
+        "title": "Import intelligent",
+        "multipleListingsDetected": "{{count}} annonces différentes détectées.",
+        "assignEach": "Assignez chacune à son appartement.",
+        "allToSelected": "Toutes iront à la propriété sélectionnée."
+      },
+      "listingsInCsv": "Annonces dans le CSV",
+      "allToSelectedProperty": "Toutes seront importées dans la propriété sélectionnée",
+      "duplicatesWarning": {
+        "title": "{{count}} réservations existent déjà",
+        "description": "Ces réservations ont été importées précédemment et seront ignorées :",
+        "in": "dans",
+        "andMore": "... et {{count}} de plus"
+      },
+      "newReservations": "Nouvelles réservations à importer",
+      "showing": "Affichage {{shown}} sur {{total}} nouvelles",
+      "noNewReservations": {
+        "title": "Aucune nouvelle réservation à importer",
+        "description": "Toutes les réservations du fichier existent déjà dans la base de données"
+      },
+      "invalidRows": "{{count}} lignes invalides (ignorées)",
+      "assignAllListings": "Assigner toutes les annonces",
+      "import": "Importer {{count}} réservations",
+      "nothingToImport": "Rien à importer"
+    },
+    "selectPropertyFirst": {
+      "title": "Sélectionnez une propriété",
+      "description": "Pour analyser le fichier, sélectionnez d'abord la propriété de destination"
+    },
+    "result": {
+      "title": "Import Terminé",
+      "imported": "Importées",
+      "skipped": "Ignorées",
+      "errors": "Erreurs",
+      "importId": "ID d'import",
+      "saveIdNote": "Conservez cet ID si vous devez annuler l'import plus tard",
+      "byApartment": "Réservations par appartement",
+      "aliasesSaved": {
+        "title": "Alias enregistrés pour les prochains imports"
+      },
+      "listingsImported": "Annonces importées",
+      "errorsTitle": "Erreurs lors de l'import",
+      "row": "Ligne",
+      "andMoreErrors": "... et {{count}} erreurs de plus",
+      "importAnother": "Importer un autre fichier"
+    },
+    "history": {
+      "title": "Historique des Imports",
+      "noImports": "Aucun import précédent",
+      "imported": "importées",
+      "skipped": "ignorées",
+      "errors": "erreurs"
+    },
+    "help": {
+      "title": "Comment exporter",
+      "booking": {
+        "title": "Booking.com (XLS)",
+        "step1": "Allez sur l'Extranet Booking",
+        "step2": "Réservations → Exporter",
+        "step3": "Sélectionnez la période",
+        "step4": "Téléchargez le XLS"
+      },
+      "airbnb": {
+        "title": "Airbnb (CSV)",
+        "step1": "Allez sur votre tableau de bord Airbnb",
+        "step2": "Historique des transactions",
+        "step3": "Filtrez et exportez en CSV"
+      }
+    },
+    "analyzing": "Analyse du fichier...",
+    "completing": "{{percent}}% terminé"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "saving": "Enregistrement...",
+    "save": "Enregistrer",
+    "saveChanges": "Enregistrer les modifications",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "back": "Retour",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "download": "Télécharger",
+    "upload": "Télécharger",
+    "view": "Voir",
+    "more": "Plus",
+    "unassigned": "Non assigné",
+    "required": "requis",
+    "optional": "optionnel",
+    "yes": "Oui",
+    "no": "Non",
+    "or": "ou",
+    "and": "et",
+    "months": {
+      "january": "Janvier",
+      "february": "Février",
+      "march": "Mars",
+      "april": "Avril",
+      "may": "Mai",
+      "june": "Juin",
+      "july": "Juillet",
+      "august": "Août",
+      "september": "Septembre",
+      "october": "Octobre",
+      "november": "Novembre",
+      "december": "Décembre"
+    },
+    "status": {
+      "draft": "Brouillon",
+      "issued": "Émise",
+      "sent": "Envoyée",
+      "paid": "Payée",
+      "overdue": "Échue",
+      "cancelled": "Annulée",
+      "confirmed": "Confirmée",
+      "pending": "En attente",
+      "completed": "Terminée",
+      "generated": "Générée"
+    },
+    "validation": {
+      "required": "Ce champ est requis",
+      "invalidEmail": "Email invalide",
+      "invalidNif": "NIF/NIE invalide",
+      "invalidCif": "CIF invalide",
+      "invalidIban": "IBAN invalide"
+    },
+    "errors": {
+      "generic": "Une erreur s'est produite",
+      "connection": "Erreur de connexion",
+      "notFound": "Non trouvé",
+      "unauthorized": "Non autorisé",
+      "saveError": "Erreur lors de l'enregistrement",
+      "deleteError": "Erreur lors de la suppression",
+      "loadError": "Erreur lors du chargement"
+    }
+  }
+}

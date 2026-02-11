@@ -162,6 +162,17 @@
     "siteName": "Itineramio",
     "siteDescription": "Créez des manuels numériques interactifs pour vos locations de vacances"
   },
+  "notFound": {
+    "title": "Oups ! Page introuvable",
+    "description": "La page que vous recherchez n'existe pas ou a été déplacée. Ne vous inquiétez pas, nous vous aiderons à trouver ce dont vous avez besoin.",
+    "home": "Accueil",
+    "blog": "Blog",
+    "help": "Aide",
+    "ctaTitle": "Vous souhaitez créer des manuels numériques ?",
+    "ctaDescription": "Essayez Itineramio gratuitement pendant 15 jours. Sans carte de crédit.",
+    "ctaButton": "Commencer gratuitement",
+    "contact": "Besoin d'aide ? Écrivez-nous à"
+  },
   "modals": {
     "delete": {
       "permanentlyDeleteWarning": "Cette action supprimera definitivement:",

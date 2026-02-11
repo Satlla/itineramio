@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import { generateClientInvoiceHTML, ClientInvoiceData } from '@/lib/invoice-generator-client'
+import { gestionPdfRateLimiter, getRateLimitKey } from '@/lib/rate-limit'
 
 /**
  * GET /api/gestion/invoices/[id]/pdf
@@ -17,6 +18,16 @@ export async function GET(
       return authResult
     }
     const userId = authResult.userId
+
+    // Rate limiting: max 20 PDFs per hour
+    const rateLimitKey = getRateLimitKey(request, userId, 'gestion-pdf-invoice')
+    const rateLimitResult = gestionPdfRateLimiter(rateLimitKey)
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { error: 'Demasiadas solicitudes de PDF. Espera antes de intentar de nuevo.' },
+        { status: 429 }
+      )
+    }
 
     const { id } = await params
 

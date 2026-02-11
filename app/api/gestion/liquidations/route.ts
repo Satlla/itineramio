@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import { Decimal } from '@prisma/client/runtime/library'
+import { gestionLiquidationRateLimiter, getRateLimitKey } from '@/lib/rate-limit'
 
 /**
  * GET /api/gestion/liquidations
@@ -139,6 +140,19 @@ export async function POST(request: NextRequest) {
       return authResult
     }
     const userId = authResult.userId
+
+    // Rate limiting: max 10 liquidations per hour
+    const rateLimitKey = getRateLimitKey(request, userId, 'gestion-liquidation')
+    const rateLimitResult = gestionLiquidationRateLimiter(rateLimitKey)
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Demasiadas liquidaciones generadas. Espera antes de intentar de nuevo.',
+          resetIn: Math.ceil(rateLimitResult.resetIn / 1000 / 60) // minutes
+        },
+        { status: 429 }
+      )
+    }
 
     const body = await request.json()
     const {

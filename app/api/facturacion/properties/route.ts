@@ -18,8 +18,14 @@ export async function GET(request: NextRequest) {
     const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString())
 
     // Get all properties with their billing configs (legacy)
+    // Only include properties that have billingConfig with an owner
     const properties = await prisma.property.findMany({
-      where: { hostId: userId },
+      where: {
+        hostId: userId,
+        billingConfig: {
+          ownerId: { not: null }
+        }
+      },
       include: {
         billingConfig: {
           include: {
@@ -64,6 +70,24 @@ export async function GET(request: NextRequest) {
             firstName: true,
             lastName: true,
             companyName: true
+          }
+        },
+        group: {
+          select: {
+            id: true,
+            name: true,
+            ownerId: true,
+            commissionValue: true,
+            incomeReceiver: true,
+            owner: {
+              select: {
+                id: true,
+                type: true,
+                firstName: true,
+                lastName: true,
+                companyName: true
+              }
+            }
           }
         },
         reservations: {
@@ -162,8 +186,99 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Process BillingUnits (new model)
-    const unitsWithStats = billingUnits.map((unit) => {
+    // Group BillingUnits by their group
+    const unitsByGroup = new Map<string, typeof billingUnits>()
+    const standaloneUnits: typeof billingUnits = []
+
+    billingUnits.forEach(unit => {
+      if (unit.groupId) {
+        const existing = unitsByGroup.get(unit.groupId) || []
+        existing.push(unit)
+        unitsByGroup.set(unit.groupId, existing)
+      } else {
+        standaloneUnits.push(unit)
+      }
+    })
+
+    // Process groups (conjuntos) - aggregate stats from all units
+    const groupsWithStats = Array.from(unitsByGroup.entries()).map(([groupId, units]) => {
+      const firstUnit = units[0]
+      const group = firstUnit.group!
+
+      // Aggregate reservations from all units in the group
+      const allReservations = units.flatMap(u => u.reservations || [])
+
+      const totalReservations = allReservations.length
+      const totalNights = allReservations.reduce((sum, r) => sum + (r.nights || 0), 0)
+      const totalIncome = allReservations.reduce((sum, r) => {
+        const earnings = r.hostEarnings || r.roomTotal || 0
+        return sum + Number(earnings)
+      }, 0)
+
+      // For groups, calculate occupancy based on all units
+      const totalDaysAvailable = daysInYear * units.length
+      const occupancyRate = totalDaysAvailable > 0 ? (totalNights / totalDaysAvailable) * 100 : 0
+      const averageNightPrice = totalNights > 0 ? totalIncome / totalNights : 0
+
+      // Get owner from group
+      const owner = group.owner
+      let ownerName = null
+      if (owner) {
+        ownerName = owner.type === 'EMPRESA'
+          ? owner.companyName
+          : `${owner.firstName || ''} ${owner.lastName || ''}`.trim()
+      }
+
+      // Find pending liquidations
+      const uniqueMonths = new Set(
+        allReservations.map(r => new Date(r.checkIn).getMonth() + 1)
+      )
+      const ownerId = group.ownerId
+      const ownerLiquidatedMonths = new Set(
+        liquidations
+          .filter(l => l.ownerId === ownerId)
+          .map(l => l.month)
+      )
+      const pendingLiquidations = Array.from(uniqueMonths)
+        .filter(m => !ownerLiquidatedMonths.has(m) && m <= currentMonth)
+        .length
+
+      // Get first unit with image for the group
+      const imageUrl = units.find(u => u.imageUrl)?.imageUrl || null
+
+      return {
+        id: `group:${groupId}`,
+        name: group.name,
+        city: units[0]?.city || '',
+        imageUrl,
+        type: 'group' as const,
+        owner: owner ? {
+          id: owner.id,
+          name: ownerName
+        } : null,
+        billingConfig: {
+          commissionValue: Number(group.commissionValue ?? 0),
+          incomeReceiver: group.incomeReceiver || 'OWNER'
+        },
+        unitCount: units.length,
+        units: units.map(u => ({
+          id: u.id,
+          name: u.name,
+          reservations: u.reservations?.length || 0
+        })),
+        stats: {
+          totalReservations,
+          totalIncome: Math.round(totalIncome * 100) / 100,
+          totalNights,
+          occupancyRate: Math.min(occupancyRate, 100),
+          averageNightPrice: Math.round(averageNightPrice * 100) / 100,
+          pendingLiquidations
+        }
+      }
+    })
+
+    // Process standalone BillingUnits (not in a group)
+    const standaloneWithStats = standaloneUnits.map((unit) => {
       const reservations = unit.reservations || []
 
       const totalReservations = reservations.length
@@ -175,6 +290,15 @@ export async function GET(request: NextRequest) {
 
       const occupancyRate = daysInYear > 0 ? (totalNights / daysInYear) * 100 : 0
       const averageNightPrice = totalNights > 0 ? totalIncome / totalNights : 0
+
+      // Get owner
+      const owner = unit.owner
+      let ownerName = null
+      if (owner) {
+        ownerName = owner.type === 'EMPRESA'
+          ? owner.companyName
+          : `${owner.firstName || ''} ${owner.lastName || ''}`.trim()
+      }
 
       // Find pending liquidations
       const uniqueMonths = new Set(
@@ -190,17 +314,8 @@ export async function GET(request: NextRequest) {
         .filter(m => !ownerLiquidatedMonths.has(m) && m <= currentMonth)
         .length
 
-      // Get owner name
-      const owner = unit.owner
-      let ownerName = null
-      if (owner) {
-        ownerName = owner.type === 'EMPRESA'
-          ? owner.companyName
-          : `${owner.firstName || ''} ${owner.lastName || ''}`.trim()
-      }
-
       return {
-        id: `unit:${unit.id}`, // Prefix to distinguish from properties
+        id: `unit:${unit.id}`,
         name: unit.name,
         city: unit.city || '',
         imageUrl: unit.imageUrl || null,
@@ -210,7 +325,7 @@ export async function GET(request: NextRequest) {
           name: ownerName
         } : null,
         billingConfig: {
-          commissionValue: Number(unit.commissionValue),
+          commissionValue: Number(unit.commissionValue ?? 0),
           incomeReceiver: unit.incomeReceiver || 'OWNER'
         },
         stats: {
@@ -224,8 +339,8 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Combine and sort by name
-    const allProperties = [...propertiesWithStats, ...unitsWithStats]
+    // Combine: legacy properties + groups + standalone units
+    const allProperties = [...propertiesWithStats, ...groupsWithStats, ...standaloneWithStats]
       .sort((a, b) => a.name.localeCompare(b.name))
 
     return NextResponse.json({

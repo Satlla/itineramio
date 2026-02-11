@@ -90,12 +90,22 @@ export default function FirstPropertyOnboarding({
       }
     }
 
-    window.addEventListener('scroll', handleUpdate, true)
-    window.addEventListener('resize', handleUpdate)
+    let ticking = false
+    const throttledUpdate = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          handleUpdate()
+          ticking = false
+        })
+        ticking = true
+      }
+    }
+    window.addEventListener('scroll', throttledUpdate, true)
+    window.addEventListener('resize', throttledUpdate)
 
     return () => {
-      window.removeEventListener('scroll', handleUpdate, true)
-      window.removeEventListener('resize', handleUpdate)
+      window.removeEventListener('scroll', throttledUpdate, true)
+      window.removeEventListener('resize', throttledUpdate)
     }
   }, [isOpen, currentStep, targetElement])
 

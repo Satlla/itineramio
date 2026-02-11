@@ -18,18 +18,17 @@ interface NextNumberResult {
 }
 
 /**
- * Formats an invoice number with prefix, short year and padded number
- * Example: F250001, R260001 (estilo Holded)
+ * Formats an invoice number with prefix and padded number
+ * Example: F270001, R270001 (el usuario define el prefijo completo)
  */
 export function formatInvoiceNumber(
   prefix: string,
-  year: number,
+  _year: number,
   number: number,
   padLength: number = 4
 ): string {
-  const shortYear = String(year).slice(-2) // 2025 -> 25
   const paddedNumber = String(number).padStart(padLength, '0')
-  return `${prefix}${shortYear}${paddedNumber}`
+  return `${prefix}${paddedNumber}`
 }
 
 /**

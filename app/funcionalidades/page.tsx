@@ -370,17 +370,17 @@ export default function FuncionalidadesPage() {
               key={i}
               className="absolute w-2 h-2 bg-white/20 rounded-full"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
+                left: `${(i * 37 + 13) % 100}%`,
+                top: `${(i * 53 + 7) % 100}%`,
               }}
               animate={{
                 y: [0, -100, 0],
                 opacity: [0, 1, 0],
               }}
               transition={{
-                duration: 3 + Math.random() * 2,
+                duration: 3 + (i % 3),
                 repeat: Infinity,
-                delay: Math.random() * 2,
+                delay: (i * 0.3) % 2,
               }}
             />
           ))}

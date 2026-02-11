@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../../../src/lib/prisma'
 import { requireAuth } from '../../../../../../../../src/lib/auth'
+import { translateSteps } from '../../../../../../../../src/lib/translate'
+import { translationRateLimiter, getRateLimitKey } from '../../../../../../../../src/lib/rate-limit'
 
 // Safe endpoint for getting steps - uses raw SQL to avoid schema issues
 export async function GET(
@@ -152,6 +154,21 @@ export async function PUT(
       }, { status: 400 })
     }
 
+    // Auto-translate steps from Spanish to EN/FR
+    let translatedStepsList = steps
+    const rateLimitKey = getRateLimitKey(request, userId, 'translation')
+    const rateLimitResult = translationRateLimiter(rateLimitKey)
+    if (rateLimitResult.allowed) {
+      try {
+        translatedStepsList = await translateSteps(steps)
+        console.log('✅ SAFE - Steps auto-translated')
+      } catch (e) {
+        console.log('✅ SAFE - Translation skipped:', String(e))
+      }
+    } else {
+      console.log('✅ SAFE - Translation rate limited, skipping')
+    }
+
     // Set RLS config (ignore if fails)
     try {
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
@@ -201,8 +218,8 @@ export async function PUT(
     // Create steps one by one with raw SQL
     const createdSteps = []
     
-    for (let i = 0; i < steps.length; i++) {
-      const step = steps[i]
+    for (let i = 0; i < translatedStepsList.length; i++) {
+      const step = translatedStepsList[i]
       
       // Prepare data
       const stepType = (step.type || 'TEXT').toUpperCase()

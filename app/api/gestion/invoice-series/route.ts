@@ -93,10 +93,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate prefix format (letters only, max 3 chars)
-    if (!/^[A-Za-z]{1,3}$/.test(prefix)) {
+    // Validate prefix format (letters and numbers, max 6 chars)
+    if (!/^[A-Za-z0-9]{1,6}$/.test(prefix)) {
       return NextResponse.json(
-        { error: 'El prefijo debe ser de 1 a 3 letras' },
+        { error: 'El prefijo debe ser de 1 a 6 caracteres alfanuméricos' },
         { status: 400 }
       )
     }

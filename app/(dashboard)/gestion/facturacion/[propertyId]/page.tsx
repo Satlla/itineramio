@@ -33,6 +33,9 @@ interface PropertyDetail {
   name: string
   city: string
   imageUrl?: string
+  type?: 'property' | 'billingUnit' | 'group'
+  unitCount?: number
+  units?: { id: string; name: string }[]
   owner?: {
     id: string
     name: string
@@ -99,7 +102,9 @@ export default function PropertyFacturacionPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const propertyId = params.propertyId as string
-  const isUnit = searchParams.get('type') === 'unit'
+  const type = searchParams.get('type') // 'unit', 'group', or null
+  const isUnit = type === 'unit'
+  const isGroup = type === 'group'
 
   const [loading, setLoading] = useState(true)
   const [property, setProperty] = useState<PropertyDetail | null>(null)
@@ -109,12 +114,12 @@ export default function PropertyFacturacionPage() {
 
   useEffect(() => {
     fetchPropertyData()
-  }, [propertyId, isUnit])
+  }, [propertyId, type])
 
   const fetchPropertyData = async () => {
     try {
       setLoading(true)
-      const typeParam = isUnit ? '?type=unit' : ''
+      const typeParam = type ? `?type=${type}` : ''
       const response = await fetch(`/api/facturacion/properties/${propertyId}${typeParam}`, {
         credentials: 'include'
       })
@@ -179,15 +184,31 @@ export default function PropertyFacturacionPage() {
                     className="w-20 h-20 object-cover rounded-lg"
                   />
                 ) : (
-                  <div className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <Home className="w-10 h-10 text-gray-400" />
+                  <div className={`w-20 h-20 rounded-lg flex items-center justify-center ${isGroup ? 'bg-emerald-100' : 'bg-gray-100'}`}>
+                    {isGroup ? (
+                      <Building2 className="w-10 h-10 text-emerald-600" />
+                    ) : (
+                      <Home className="w-10 h-10 text-gray-400" />
+                    )}
                   </div>
                 )}
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    {property.name}
-                  </h1>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-gray-900">
+                      {property.name}
+                    </h1>
+                    {isGroup && property.unitCount && (
+                      <Badge className="bg-emerald-100 text-emerald-700">
+                        {property.unitCount} apartamentos
+                      </Badge>
+                    )}
+                  </div>
                   <p className="text-sm text-gray-500">{property.city}</p>
+                  {isGroup && property.units && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {property.units.map(u => u.name).join(' · ')}
+                    </p>
+                  )}
                   {property.owner ? (
                     <div className="flex items-center gap-1 mt-2">
                       <User className="w-4 h-4 text-violet-500" />
@@ -329,7 +350,7 @@ export default function PropertyFacturacionPage() {
                         {year.months.map(month => (
                           <Link
                             key={month.month}
-                            href={`/gestion/facturacion/${propertyId}/${year.year}/${month.month}${isUnit ? '?type=unit' : ''}`}
+                            href={`/gestion/facturacion/${propertyId}/${year.year}/${month.month}${type ? `?type=${type}` : ''}`}
                             className="block p-4 border-b border-gray-100 last:border-b-0 hover:bg-violet-50 transition-colors cursor-pointer"
                           >
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

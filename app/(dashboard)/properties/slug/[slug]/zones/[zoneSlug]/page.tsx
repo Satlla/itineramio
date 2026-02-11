@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { notFound, redirect } from 'next/navigation';
 import { resolveProperty, resolveZone } from '../../../../../../../src/lib/slug-resolver';
 

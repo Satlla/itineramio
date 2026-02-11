@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import PropertyPlanSelectorV3 from '../../../../src/components/billing/PropertyPlanSelector-v3'
 import PaymentMethodModal from '../../../../src/components/billing/PaymentMethodModal'
@@ -18,7 +18,7 @@ const BILLING_PERIODS = {
 
 type BillingPeriod = keyof typeof BILLING_PERIODS
 
-export default function PlansPage() {
+function PlansPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
@@ -524,5 +524,13 @@ export default function PlansPage() {
         onSaveSuccess={handleBillingSaved}
       />
     </div>
+  )
+}
+
+export default function PlansPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-b from-gray-50 to-white" />}>
+      <PlansPageContent />
+    </Suspense>
   )
 }

@@ -14,6 +14,11 @@ export default function BlogArticleTracker({ slug, title, category }: BlogArticl
   const hasTrackedRef = useRef(false)
   const startTimeRef = useRef(Date.now())
 
+  // Increment view count once on mount
+  useEffect(() => {
+    fetch(`/api/blog/${slug}/view`, { method: 'POST' }).catch(() => {})
+  }, [slug])
+
   useEffect(() => {
     // Track view content on Facebook Pixel
     fbEvents.viewContent({

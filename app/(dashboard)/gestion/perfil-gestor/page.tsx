@@ -21,8 +21,14 @@ import {
   Banknote,
   Smartphone,
   Check,
-  X
+  X,
+  Plus,
+  Pencil,
+  Star,
+  ToggleLeft,
+  ToggleRight
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
 import { validateIBAN, formatIBAN } from '../../../../src/lib/iban-validator'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
@@ -32,6 +38,20 @@ interface PaymentMethod {
   type: string
   enabled: boolean
   details?: string
+}
+
+interface InvoiceSeries {
+  id: string
+  name: string
+  prefix: string
+  year: number
+  type: 'STANDARD' | 'RECTIFYING'
+  currentNumber: number
+  resetYearly: boolean
+  isDefault: boolean
+  isActive: boolean
+  nextNumber: string
+  editable: boolean
 }
 
 interface InvoiceConfig {
@@ -57,6 +77,7 @@ interface InvoiceConfig {
 }
 
 export default function PerfilGestorPage() {
+  const { t } = useTranslation('gestion')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
@@ -64,6 +85,14 @@ export default function PerfilGestorPage() {
   const [ibanError, setIbanError] = useState<string | null>(null)
   const [ibanValid, setIbanValid] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Invoice series state
+  const [series, setSeries] = useState<InvoiceSeries[]>([])
+  const [loadingSeries, setLoadingSeries] = useState(false)
+  const [showNewSeriesForm, setShowNewSeriesForm] = useState(false)
+  const [editingSeriesId, setEditingSeriesId] = useState<string | null>(null)
+  const [editingNumber, setEditingNumber] = useState<string>('')
+  const [newSeries, setNewSeries] = useState({ name: '', prefix: '', type: 'STANDARD', resetYearly: true, isDefault: false })
 
   const [config, setConfig] = useState<InvoiceConfig>({
     businessName: '',
@@ -93,6 +122,7 @@ export default function PerfilGestorPage() {
 
   useEffect(() => {
     fetchConfig()
+    fetchSeries()
   }, [])
 
   const fetchConfig = async () => {
@@ -116,6 +146,140 @@ export default function PerfilGestorPage() {
     }
   }
 
+  const fetchSeries = async () => {
+    try {
+      setLoadingSeries(true)
+      const response = await fetch('/api/gestion/invoice-series', { credentials: 'include' })
+      if (response.ok) {
+        const data = await response.json()
+        setSeries(data.series || [])
+      }
+    } catch (error) {
+      console.error('Error fetching series:', error)
+    } finally {
+      setLoadingSeries(false)
+    }
+  }
+
+  const handleCreateSeries = async () => {
+    if (!newSeries.name || !newSeries.prefix) {
+      setMessage({ type: 'error', text: t('companyProfile.messages.nameAndPrefixRequired') })
+      return
+    }
+
+    try {
+      const response = await fetch('/api/gestion/invoice-series', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(newSeries)
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setSeries(prev => [...prev, data.series])
+        setShowNewSeriesForm(false)
+        setNewSeries({ name: '', prefix: '', type: 'STANDARD', resetYearly: true, isDefault: false })
+        setMessage({ type: 'success', text: t('companyProfile.messages.seriesCreated') })
+      } else {
+        const error = await response.json()
+        setMessage({ type: 'error', text: error.error || t('companyProfile.messages.errorCreatingSeries') })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: t('companyProfile.messages.connectionError') })
+    }
+  }
+
+  const handleUpdateSeriesNumber = async (seriesId: string) => {
+    const newNumber = parseInt(editingNumber)
+    if (isNaN(newNumber) || newNumber < 0) {
+      setMessage({ type: 'error', text: t('companyProfile.messages.invalidNumber') })
+      return
+    }
+
+    try {
+      const response = await fetch('/api/gestion/invoice-series', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id: seriesId, currentNumber: newNumber })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setSeries(prev => prev.map(s => s.id === seriesId ? data.series : s))
+        setEditingSeriesId(null)
+        setEditingNumber('')
+        setMessage({ type: 'success', text: t('companyProfile.messages.numberUpdated') })
+      } else {
+        const error = await response.json()
+        setMessage({ type: 'error', text: error.error || t('companyProfile.messages.errorUpdating') })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: t('companyProfile.messages.connectionError') })
+    }
+  }
+
+  const handleToggleDefault = async (seriesId: string, currentDefault: boolean) => {
+    try {
+      const response = await fetch('/api/gestion/invoice-series', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id: seriesId, isDefault: !currentDefault })
+      })
+
+      if (response.ok) {
+        await fetchSeries()
+        setMessage({ type: 'success', text: currentDefault ? t('companyProfile.messages.defaultRemoved') : t('companyProfile.messages.defaultSet') })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: t('companyProfile.messages.connectionError') })
+    }
+  }
+
+  const handleToggleActive = async (seriesId: string, currentActive: boolean) => {
+    try {
+      const response = await fetch('/api/gestion/invoice-series', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id: seriesId, isActive: !currentActive })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setSeries(prev => prev.map(s => s.id === seriesId ? data.series : s))
+      } else {
+        const error = await response.json()
+        setMessage({ type: 'error', text: error.error || t('companyProfile.messages.errorUpdating') })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: t('companyProfile.messages.connectionError') })
+    }
+  }
+
+  const handleDeleteSeries = async (seriesId: string) => {
+    if (!confirm(t('companyProfile.confirmDeleteSeries'))) return
+
+    try {
+      const response = await fetch(`/api/gestion/invoice-series?id=${seriesId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        setSeries(prev => prev.filter(s => s.id !== seriesId))
+        setMessage({ type: 'success', text: t('companyProfile.messages.seriesDeleted') })
+      } else {
+        const error = await response.json()
+        setMessage({ type: 'error', text: error.error || t('companyProfile.messages.errorDeleting') })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: t('companyProfile.messages.connectionError') })
+    }
+  }
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
@@ -130,12 +294,12 @@ export default function PerfilGestorPage() {
       })
 
       if (response.ok) {
-        setMessage({ type: 'success', text: 'Perfil guardado correctamente' })
+        setMessage({ type: 'success', text: t('companyProfile.messages.profileSaved') })
       } else {
-        setMessage({ type: 'error', text: 'Error al guardar el perfil' })
+        setMessage({ type: 'error', text: t('companyProfile.messages.errorSavingProfile') })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error de conexión' })
+      setMessage({ type: 'error', text: t('companyProfile.messages.connectionError') })
     } finally {
       setSaving(false)
     }
@@ -145,14 +309,13 @@ export default function PerfilGestorPage() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Validate file
     if (!file.type.startsWith('image/')) {
-      setMessage({ type: 'error', text: 'Solo se permiten imágenes' })
+      setMessage({ type: 'error', text: t('companyProfile.messages.onlyImages') })
       return
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      setMessage({ type: 'error', text: 'El archivo es demasiado grande (máx. 2MB)' })
+      setMessage({ type: 'error', text: t('companyProfile.messages.fileTooLarge') })
       return
     }
 
@@ -172,19 +335,19 @@ export default function PerfilGestorPage() {
       if (response.ok) {
         const data = await response.json()
         setConfig(prev => ({ ...prev, logoUrl: data.logoUrl }))
-        setMessage({ type: 'success', text: 'Logo subido correctamente' })
+        setMessage({ type: 'success', text: t('companyProfile.messages.logoUploaded') })
       } else {
-        setMessage({ type: 'error', text: 'Error al subir el logo' })
+        setMessage({ type: 'error', text: t('companyProfile.messages.errorUploadingLogo') })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error de conexión' })
+      setMessage({ type: 'error', text: t('companyProfile.messages.connectionError') })
     } finally {
       setUploadingLogo(false)
     }
   }
 
   const handleDeleteLogo = async () => {
-    if (!confirm('¿Eliminar el logo?')) return
+    if (!confirm(t('companyProfile.confirmDeleteLogo'))) return
 
     setUploadingLogo(true)
     try {
@@ -195,17 +358,25 @@ export default function PerfilGestorPage() {
 
       if (response.ok) {
         setConfig(prev => ({ ...prev, logoUrl: '' }))
-        setMessage({ type: 'success', text: 'Logo eliminado' })
+        setMessage({ type: 'success', text: t('companyProfile.messages.logoDeleted') })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error al eliminar el logo' })
+      setMessage({ type: 'error', text: t('companyProfile.messages.errorDeletingLogo') })
     } finally {
       setUploadingLogo(false)
     }
   }
 
+  const paymentMethodLabels: Record<string, string> = {
+    TRANSFER: t('companyProfile.paymentMethods.transfer'),
+    BIZUM: t('companyProfile.paymentMethods.bizum'),
+    PAYPAL: t('companyProfile.paymentMethods.paypal'),
+    CASH: t('companyProfile.paymentMethods.cash'),
+    CARD: t('companyProfile.paymentMethods.card'),
+  }
+
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando perfil..." type="general" />
+    return <AnimatedLoadingSpinner text={t('companyProfile.loadingProfile')} type="general" />
   }
 
   return (
@@ -222,9 +393,9 @@ export default function PerfilGestorPage() {
             <div className="flex items-center space-x-3">
               <Building2 className="h-7 w-7 text-violet-600" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Mi Empresa</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{t('companyProfile.pageTitle')}</h1>
                 <p className="text-sm text-gray-600">
-                  Datos fiscales y logo para las facturas
+                  {t('companyProfile.pageSubtitle')}
                 </p>
               </div>
             </div>
@@ -264,7 +435,7 @@ export default function PerfilGestorPage() {
                 <CardContent className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <Image className="w-5 h-5 text-violet-600" />
-                    Logo de la empresa
+                    {t('companyProfile.logo.title')}
                   </h2>
 
                   <div className="flex items-center gap-6">
@@ -305,10 +476,10 @@ export default function PerfilGestorPage() {
                         disabled={uploadingLogo}
                       >
                         <Upload className="w-4 h-4 mr-2" />
-                        {uploadingLogo ? 'Subiendo...' : 'Subir logo'}
+                        {uploadingLogo ? t('companyProfile.logo.uploading') : t('companyProfile.logo.upload')}
                       </Button>
                       <p className="text-xs text-gray-500 mt-2">
-                        PNG, JPG o SVG. Máximo 2MB.
+                        {t('companyProfile.logo.hint')}
                       </p>
                     </div>
                   </div>
@@ -327,27 +498,27 @@ export default function PerfilGestorPage() {
                 <CardContent className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <FileText className="w-5 h-5 text-violet-600" />
-                    Datos fiscales
+                    {t('companyProfile.taxData.title')}
                   </h2>
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="sm:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Nombre o razón social *
+                        {t('companyProfile.taxData.businessName')}
                       </label>
                       <input
                         type="text"
                         required
                         value={config.businessName}
                         onChange={(e) => setConfig(prev => ({ ...prev, businessName: e.target.value }))}
-                        placeholder="Mi Empresa S.L."
+                        placeholder={t('companyProfile.taxData.businessNamePlaceholder')}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        NIF/CIF *
+                        {t('companyProfile.taxData.nif')}
                       </label>
                       <div className="relative">
                         <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -356,7 +527,7 @@ export default function PerfilGestorPage() {
                           required
                           value={config.nif}
                           onChange={(e) => setConfig(prev => ({ ...prev, nif: e.target.value.toUpperCase() }))}
-                          placeholder="B12345678"
+                          placeholder={t('companyProfile.taxData.nifPlaceholder')}
                           className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                         />
                       </div>
@@ -364,7 +535,7 @@ export default function PerfilGestorPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        País
+                        {t('companyProfile.taxData.country')}
                       </label>
                       <div className="relative">
                         <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -379,7 +550,7 @@ export default function PerfilGestorPage() {
 
                     <div className="sm:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Dirección *
+                        {t('companyProfile.taxData.address')}
                       </label>
                       <div className="relative">
                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -388,7 +559,7 @@ export default function PerfilGestorPage() {
                           required
                           value={config.address}
                           onChange={(e) => setConfig(prev => ({ ...prev, address: e.target.value }))}
-                          placeholder="Calle Principal 123"
+                          placeholder={t('companyProfile.taxData.addressPlaceholder')}
                           className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                         />
                       </div>
@@ -396,28 +567,28 @@ export default function PerfilGestorPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Ciudad *
+                        {t('companyProfile.taxData.city')}
                       </label>
                       <input
                         type="text"
                         required
                         value={config.city}
                         onChange={(e) => setConfig(prev => ({ ...prev, city: e.target.value }))}
-                        placeholder="Madrid"
+                        placeholder={t('companyProfile.taxData.cityPlaceholder')}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Código postal *
+                        {t('companyProfile.taxData.postalCode')}
                       </label>
                       <input
                         type="text"
                         required
                         value={config.postalCode}
                         onChange={(e) => setConfig(prev => ({ ...prev, postalCode: e.target.value }))}
-                        placeholder="28001"
+                        placeholder={t('companyProfile.taxData.postalCodePlaceholder')}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                       />
                     </div>
@@ -437,13 +608,13 @@ export default function PerfilGestorPage() {
                 <CardContent className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <Mail className="w-5 h-5 text-violet-600" />
-                    Contacto
+                    {t('companyProfile.contact.title')}
                   </h2>
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Email
+                        {t('companyProfile.contact.email')}
                       </label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -451,7 +622,7 @@ export default function PerfilGestorPage() {
                           type="email"
                           value={config.email}
                           onChange={(e) => setConfig(prev => ({ ...prev, email: e.target.value }))}
-                          placeholder="info@miempresa.com"
+                          placeholder={t('companyProfile.contact.emailPlaceholder')}
                           className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                         />
                       </div>
@@ -459,7 +630,7 @@ export default function PerfilGestorPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Teléfono
+                        {t('companyProfile.contact.phone')}
                       </label>
                       <div className="relative">
                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -467,7 +638,7 @@ export default function PerfilGestorPage() {
                           type="tel"
                           value={config.phone}
                           onChange={(e) => setConfig(prev => ({ ...prev, phone: e.target.value }))}
-                          placeholder="+34 600 000 000"
+                          placeholder={t('companyProfile.contact.phonePlaceholder')}
                           className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                         />
                       </div>
@@ -488,17 +659,17 @@ export default function PerfilGestorPage() {
                 <CardContent className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <FileText className="w-5 h-5 text-violet-600" />
-                    Notas en facturas
+                    {t('companyProfile.footerNotes.title')}
                   </h2>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Texto adicional para el pie de facturas
+                      {t('companyProfile.footerNotes.label')}
                     </label>
                     <textarea
                       value={config.footerNotes || ''}
                       onChange={(e) => setConfig(prev => ({ ...prev, footerNotes: e.target.value }))}
-                      placeholder="Ej: Forma de pago: transferencia bancaria a ES12 1234 5678 9012 3456"
+                      placeholder={t('companyProfile.footerNotes.placeholder')}
                       rows={3}
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                     />
@@ -518,10 +689,10 @@ export default function PerfilGestorPage() {
                 <CardContent className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <CreditCard className="w-5 h-5 text-violet-600" />
-                    Métodos de cobro
+                    {t('companyProfile.paymentMethods.title')}
                   </h2>
                   <p className="text-sm text-gray-600 mb-4">
-                    Configura los métodos de pago que aparecerán en tus facturas
+                    {t('companyProfile.paymentMethods.subtitle')}
                   </p>
 
                   <div className="space-y-6">
@@ -533,8 +704,8 @@ export default function PerfilGestorPage() {
                             <Landmark className="w-5 h-5 text-blue-600" />
                           </div>
                           <div>
-                            <span className="font-medium text-gray-900">Transferencia bancaria</span>
-                            <p className="text-xs text-gray-500">Recibe pagos mediante transferencia</p>
+                            <span className="font-medium text-gray-900">{t('companyProfile.paymentMethods.transfer')}</span>
+                            <p className="text-xs text-gray-500">{t('companyProfile.paymentMethods.transferDesc')}</p>
                           </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -556,19 +727,19 @@ export default function PerfilGestorPage() {
                         <div className="grid sm:grid-cols-3 gap-3 mt-3 pt-3 border-t border-gray-100">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Banco
+                              {t('companyProfile.paymentMethods.bank')}
                             </label>
                             <input
                               type="text"
                               value={config.bankName || ''}
                               onChange={(e) => setConfig(prev => ({ ...prev, bankName: e.target.value }))}
-                              placeholder="Banco Santander"
+                              placeholder={t('companyProfile.paymentMethods.bankPlaceholder')}
                               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
                             />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              IBAN *
+                              {t('companyProfile.paymentMethods.iban')}
                             </label>
                             <div className="relative">
                               <input
@@ -578,7 +749,6 @@ export default function PerfilGestorPage() {
                                   const value = e.target.value.toUpperCase().replace(/\s/g, '')
                                   setConfig(prev => ({ ...prev, iban: value }))
 
-                                  // Validate IBAN
                                   if (value.length > 4) {
                                     const result = validateIBAN(value)
                                     setIbanValid(result.valid)
@@ -588,7 +758,7 @@ export default function PerfilGestorPage() {
                                     setIbanError(null)
                                   }
                                 }}
-                                placeholder="ES12 1234 5678 9012 3456"
+                                placeholder={t('companyProfile.paymentMethods.ibanPlaceholder')}
                                 className={`w-full border rounded-md px-3 py-2 text-sm font-mono pr-10 focus:outline-none focus:ring-2 ${
                                   ibanError
                                     ? 'border-red-300 focus:ring-red-500'
@@ -611,18 +781,18 @@ export default function PerfilGestorPage() {
                               <p className="mt-1 text-xs text-red-600">{ibanError}</p>
                             )}
                             {ibanValid && (
-                              <p className="mt-1 text-xs text-green-600">IBAN válido</p>
+                              <p className="mt-1 text-xs text-green-600">{t('companyProfile.paymentMethods.ibanValid')}</p>
                             )}
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              BIC/SWIFT
+                              {t('companyProfile.paymentMethods.bicSwift')}
                             </label>
                             <input
                               type="text"
                               value={config.bic || ''}
                               onChange={(e) => setConfig(prev => ({ ...prev, bic: e.target.value.toUpperCase() }))}
-                              placeholder="BSCHESMM"
+                              placeholder={t('companyProfile.paymentMethods.bicPlaceholder')}
                               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-violet-500"
                             />
                           </div>
@@ -638,8 +808,8 @@ export default function PerfilGestorPage() {
                             <Smartphone className="w-5 h-5 text-emerald-600" />
                           </div>
                           <div>
-                            <span className="font-medium text-gray-900">Bizum</span>
-                            <p className="text-xs text-gray-500">Pago instantáneo móvil</p>
+                            <span className="font-medium text-gray-900">{t('companyProfile.paymentMethods.bizum')}</span>
+                            <p className="text-xs text-gray-500">{t('companyProfile.paymentMethods.bizumDesc')}</p>
                           </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -660,7 +830,7 @@ export default function PerfilGestorPage() {
                       {config.paymentMethods?.find(m => m.type === 'BIZUM')?.enabled && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Teléfono Bizum *
+                            {t('companyProfile.paymentMethods.bizumPhone')}
                           </label>
                           <div className="relative max-w-xs">
                             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -668,7 +838,7 @@ export default function PerfilGestorPage() {
                               type="tel"
                               value={config.bizumPhone || ''}
                               onChange={(e) => setConfig(prev => ({ ...prev, bizumPhone: e.target.value }))}
-                              placeholder="+34 600 000 000"
+                              placeholder={t('companyProfile.paymentMethods.bizumPhonePlaceholder')}
                               className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
                             />
                           </div>
@@ -686,8 +856,8 @@ export default function PerfilGestorPage() {
                             </svg>
                           </div>
                           <div>
-                            <span className="font-medium text-gray-900">PayPal</span>
-                            <p className="text-xs text-gray-500">Pago online internacional</p>
+                            <span className="font-medium text-gray-900">{t('companyProfile.paymentMethods.paypal')}</span>
+                            <p className="text-xs text-gray-500">{t('companyProfile.paymentMethods.paypalDesc')}</p>
                           </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -708,7 +878,7 @@ export default function PerfilGestorPage() {
                       {config.paymentMethods?.find(m => m.type === 'PAYPAL')?.enabled && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Email PayPal *
+                            {t('companyProfile.paymentMethods.paypalEmail')}
                           </label>
                           <div className="relative max-w-md">
                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -716,7 +886,7 @@ export default function PerfilGestorPage() {
                               type="email"
                               value={config.paypalEmail || ''}
                               onChange={(e) => setConfig(prev => ({ ...prev, paypalEmail: e.target.value }))}
-                              placeholder="pagos@miempresa.com"
+                              placeholder={t('companyProfile.paymentMethods.paypalEmailPlaceholder')}
                               className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
                             />
                           </div>
@@ -732,8 +902,8 @@ export default function PerfilGestorPage() {
                             <Banknote className="w-5 h-5 text-amber-600" />
                           </div>
                           <div>
-                            <span className="font-medium text-gray-900">Efectivo</span>
-                            <p className="text-xs text-gray-500">Pago en metálico</p>
+                            <span className="font-medium text-gray-900">{t('companyProfile.paymentMethods.cash')}</span>
+                            <p className="text-xs text-gray-500">{t('companyProfile.paymentMethods.cashDesc')}</p>
                           </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -761,8 +931,8 @@ export default function PerfilGestorPage() {
                             <CreditCard className="w-5 h-5 text-purple-600" />
                           </div>
                           <div>
-                            <span className="font-medium text-gray-900">Tarjeta</span>
-                            <p className="text-xs text-gray-500">Débito o crédito</p>
+                            <span className="font-medium text-gray-900">{t('companyProfile.paymentMethods.card')}</span>
+                            <p className="text-xs text-gray-500">{t('companyProfile.paymentMethods.cardDesc')}</p>
                           </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -786,21 +956,17 @@ export default function PerfilGestorPage() {
                     {config.paymentMethods?.some(m => m.enabled) && (
                       <div className="pt-4 border-t border-gray-200">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Método predeterminado
+                          {t('companyProfile.paymentMethods.defaultMethod')}
                         </label>
                         <select
                           value={config.defaultPaymentMethod || ''}
                           onChange={(e) => setConfig(prev => ({ ...prev, defaultPaymentMethod: e.target.value }))}
                           className="w-full max-w-xs border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                         >
-                          <option value="">Seleccionar...</option>
+                          <option value="">{t('companyProfile.paymentMethods.selectDefault')}</option>
                           {config.paymentMethods?.filter(m => m.enabled).map(m => (
                             <option key={m.type} value={m.type}>
-                              {m.type === 'TRANSFER' && 'Transferencia bancaria'}
-                              {m.type === 'BIZUM' && 'Bizum'}
-                              {m.type === 'PAYPAL' && 'PayPal'}
-                              {m.type === 'CASH' && 'Efectivo'}
-                              {m.type === 'CARD' && 'Tarjeta'}
+                              {paymentMethodLabels[m.type] || m.type}
                             </option>
                           ))}
                         </select>
@@ -824,10 +990,252 @@ export default function PerfilGestorPage() {
                 className="bg-violet-600 hover:bg-violet-700"
               >
                 <Save className="w-4 h-4 mr-2" />
-                {saving ? 'Guardando...' : 'Guardar cambios'}
+                {saving ? t('companyProfile.saving') : t('companyProfile.saveChanges')}
               </Button>
             </motion.div>
           </form>
+
+          {/* Invoice Series Section - Outside form */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.55 }}
+            className="mt-6"
+          >
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Hash className="w-5 h-5 text-violet-600" />
+                    <h2 className="text-lg font-semibold text-gray-900">{t('companyProfile.invoiceSeries.title')}</h2>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowNewSeriesForm(true)}
+                    disabled={showNewSeriesForm}
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    {t('companyProfile.invoiceSeries.newSeries')}
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-600 mb-4">
+                  {t('companyProfile.invoiceSeries.description')}
+                </p>
+
+                {/* New Series Form */}
+                {showNewSeriesForm && (
+                  <div className="mb-6 p-4 border border-violet-200 rounded-lg bg-violet-50">
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">{t('companyProfile.invoiceSeries.newSeries')}</h3>
+                    <div className="grid sm:grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">{t('companyProfile.invoiceSeries.name')}</label>
+                        <input
+                          type="text"
+                          value={newSeries.name}
+                          onChange={(e) => setNewSeries(prev => ({ ...prev, name: e.target.value }))}
+                          placeholder={t('companyProfile.invoiceSeries.namePlaceholder')}
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">{t('companyProfile.invoiceSeries.prefix')}</label>
+                        <input
+                          type="text"
+                          value={newSeries.prefix}
+                          onChange={(e) => setNewSeries(prev => ({ ...prev, prefix: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) }))}
+                          placeholder={t('companyProfile.invoiceSeries.prefixPlaceholder')}
+                          maxLength={6}
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">{t('companyProfile.invoiceSeries.type')}</label>
+                        <select
+                          value={newSeries.type}
+                          onChange={(e) => setNewSeries(prev => ({ ...prev, type: e.target.value }))}
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        >
+                          <option value="STANDARD">{t('companyProfile.invoiceSeries.standard')}</option>
+                          <option value="RECTIFYING">{t('companyProfile.invoiceSeries.rectifying')}</option>
+                        </select>
+                      </div>
+                      <div className="flex items-end gap-2">
+                        <Button type="button" onClick={handleCreateSeries} size="sm" className="bg-violet-600 hover:bg-violet-700">
+                          {t('companyProfile.invoiceSeries.create')}
+                        </Button>
+                        <Button type="button" variant="outline" size="sm" onClick={() => setShowNewSeriesForm(false)}>
+                          {t('companyProfile.invoiceSeries.cancel')}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 mt-3">
+                      <label className="flex items-center gap-2 text-sm text-gray-600">
+                        <input
+                          type="checkbox"
+                          checked={newSeries.resetYearly}
+                          onChange={(e) => setNewSeries(prev => ({ ...prev, resetYearly: e.target.checked }))}
+                          className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                        />
+                        {t('companyProfile.invoiceSeries.resetYearly')}
+                      </label>
+                      <label className="flex items-center gap-2 text-sm text-gray-600">
+                        <input
+                          type="checkbox"
+                          checked={newSeries.isDefault}
+                          onChange={(e) => setNewSeries(prev => ({ ...prev, isDefault: e.target.checked }))}
+                          className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                        />
+                        {t('companyProfile.invoiceSeries.defaultSeries')}
+                      </label>
+                    </div>
+                    {newSeries.prefix && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        {t('companyProfile.invoiceSeries.preview')} <span className="font-mono font-medium text-violet-600">{newSeries.prefix}0001</span>
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Series List */}
+                {loadingSeries ? (
+                  <div className="py-4 text-center text-gray-500">{t('companyProfile.invoiceSeries.loadingSeries')}</div>
+                ) : series.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <Hash className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+                    <p className="text-gray-500">{t('companyProfile.invoiceSeries.noSeries')}</p>
+                    <p className="text-sm text-gray-400">{t('companyProfile.invoiceSeries.noSeriesHint')}</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200">
+                          <th className="text-left py-2 px-2 font-medium text-gray-600">{t('companyProfile.invoiceSeries.tableHeaders.name')}</th>
+                          <th className="text-left py-2 px-2 font-medium text-gray-600">{t('companyProfile.invoiceSeries.tableHeaders.prefix')}</th>
+                          <th className="text-left py-2 px-2 font-medium text-gray-600">{t('companyProfile.invoiceSeries.tableHeaders.nextInvoice')}</th>
+                          <th className="text-center py-2 px-2 font-medium text-gray-600">{t('companyProfile.invoiceSeries.tableHeaders.lastNumber')}</th>
+                          <th className="text-center py-2 px-2 font-medium text-gray-600">{t('companyProfile.invoiceSeries.tableHeaders.status')}</th>
+                          <th className="text-right py-2 px-2 font-medium text-gray-600">{t('companyProfile.invoiceSeries.tableHeaders.actions')}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {series.map((s) => (
+                          <tr key={s.id} className={`border-b border-gray-100 ${!s.isActive ? 'opacity-50' : ''}`}>
+                            <td className="py-3 px-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-gray-900">{s.name}</span>
+                                {s.type === 'RECTIFYING' && (
+                                  <Badge variant="secondary" className="text-xs">{t('companyProfile.invoiceSeries.rectifying')}</Badge>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-3 px-2">
+                              <span className="font-mono text-gray-600">{s.prefix}</span>
+                            </td>
+                            <td className="py-3 px-2">
+                              <span className="font-mono font-medium text-violet-600">{s.nextNumber}</span>
+                            </td>
+                            <td className="py-3 px-2 text-center">
+                              {editingSeriesId === s.id ? (
+                                <div className="flex items-center justify-center gap-1">
+                                  <input
+                                    type="number"
+                                    value={editingNumber}
+                                    onChange={(e) => setEditingNumber(e.target.value)}
+                                    min="0"
+                                    className="w-20 border border-gray-300 rounded px-2 py-1 text-sm text-center font-mono focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') handleUpdateSeriesNumber(s.id)
+                                      if (e.key === 'Escape') { setEditingSeriesId(null); setEditingNumber('') }
+                                    }}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateSeriesNumber(s.id)}
+                                    className="p-1 text-green-600 hover:text-green-700"
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => { setEditingSeriesId(null); setEditingNumber('') }}
+                                    className="p-1 text-gray-400 hover:text-gray-600"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => { setEditingSeriesId(s.id); setEditingNumber(String(s.currentNumber)) }}
+                                  className="inline-flex items-center gap-1 font-mono text-gray-600 hover:text-violet-600"
+                                  title={t('companyProfile.invoiceSeries.editCurrentNumber')}
+                                >
+                                  {s.currentNumber}
+                                  <Pencil className="w-3 h-3" />
+                                </button>
+                              )}
+                            </td>
+                            <td className="py-3 px-2">
+                              <div className="flex items-center justify-center gap-2">
+                                {s.isDefault && (
+                                  <Badge className="bg-violet-100 text-violet-700 border-0 text-xs">
+                                    <Star className="w-3 h-3 mr-1" />
+                                    {t('companyProfile.invoiceSeries.default')}
+                                  </Badge>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleActive(s.id, s.isActive)}
+                                  className={`p-1 rounded transition-colors ${s.isActive ? 'text-green-600 hover:text-green-700' : 'text-gray-400 hover:text-gray-600'}`}
+                                  title={s.isActive ? t('companyProfile.invoiceSeries.deactivate') : t('companyProfile.invoiceSeries.activate')}
+                                >
+                                  {s.isActive ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
+                                </button>
+                              </div>
+                            </td>
+                            <td className="py-3 px-2">
+                              <div className="flex items-center justify-end gap-1">
+                                {!s.isDefault && s.isActive && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleDefault(s.id, s.isDefault)}
+                                    className="p-1.5 text-gray-400 hover:text-violet-600 rounded transition-colors"
+                                    title={t('companyProfile.invoiceSeries.setAsDefault')}
+                                  >
+                                    <Star className="w-4 h-4" />
+                                  </button>
+                                )}
+                                {s.editable && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteSeries(s.id)}
+                                    className="p-1.5 text-gray-400 hover:text-red-600 rounded transition-colors"
+                                    title={t('companyProfile.invoiceSeries.deleteSeries')}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <p className="text-xs text-gray-500">
+                    <strong>Nota:</strong> {t('companyProfile.invoiceSeries.note')}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
       </main>
 

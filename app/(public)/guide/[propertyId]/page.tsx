@@ -48,6 +48,7 @@ import { ZoneIconDisplay } from '../../../../src/components/ui/IconSelector'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
 import { getZoneIconByName } from '../../../../src/data/zoneIconsExtended'
 import { ShareLanguageModal } from '../../../../src/components/ui/ShareLanguageModal'
+import ChatBot from '../../../../src/components/ui/ChatBot'
 
 interface Property {
   id: string
@@ -2064,6 +2065,21 @@ export default function PropertyGuidePage() {
         type="manual"
         currentUrl={`${window.location.origin}/guide/${propertyId}`}
       />
+
+      {/* AI ChatBot - positioned above WhatsApp button */}
+      {property && (
+        <ChatBot
+          propertyId={property.id || propertyId}
+          propertyName={getPropertyText(property.name as string, (property as any).nameTranslations, language, 'Propiedad')}
+          language={language as 'es' | 'en' | 'fr'}
+          hostContact={property.hostContactPhone ? {
+            name: property.hostContactName,
+            phone: property.hostContactPhone,
+            email: property.hostContactEmail
+          } : undefined}
+          className="bottom-24 right-6"
+        />
+      )}
     </div>
   )
 }

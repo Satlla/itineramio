@@ -2614,6 +2614,7 @@ model Reservation {
   @@unique([billingConfigId, platform, confirmationCode])
   @@index([userId])
   @@index([billingConfigId])
+  @@index([billingUnitId])
   @@index([guestId])
   @@index([checkIn])
   @@index([checkOut])
@@ -2621,6 +2622,12 @@ model Reservation {
   @@index([liquidationId])
   @@index([invoiced])
   @@index([importBatchId])
+  // Composite indexes for common query patterns
+  @@index([userId, checkIn])
+  @@index([userId, status])
+  @@index([userId, billingUnitId, checkIn])
+  @@index([userId, billingConfigId])
+  @@index([userId, status, checkOut])
   @@map("reservations")
 }
 
@@ -2763,6 +2770,8 @@ model PropertyExpense {
   @@index([billingUnitId])
   @@index([date])
   @@index([liquidationId])
+  @@index([userId, billingConfigId])
+  @@index([userId, billingUnitId])
   @@map("property_expenses")
 }
 

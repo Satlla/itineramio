@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import { getOrCreateDefaultSeries } from '@/lib/invoice-numbering'
+import { gestionWriteRateLimiter, getRateLimitKey } from '@/lib/rate-limit'
 
 /**
  * GET /api/gestion/invoices
@@ -139,6 +140,16 @@ export async function POST(request: NextRequest) {
       return authResult
     }
     const userId = authResult.userId
+
+    // Rate limiting: max 30 writes per minute
+    const rateLimitKey = getRateLimitKey(request, userId, 'gestion-invoices')
+    const rateLimitResult = gestionWriteRateLimiter(rateLimitKey)
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { error: 'Demasiadas solicitudes. Espera antes de intentar de nuevo.' },
+        { status: 429 }
+      )
+    }
 
     const body = await request.json()
     const {

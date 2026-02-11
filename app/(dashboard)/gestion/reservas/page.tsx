@@ -185,7 +185,7 @@ export default function ReservasPage() {
 
   // Success modal
   const [showSuccessModal, setShowSuccessModal] = useState(false)
-  const [successInfo, setSuccessInfo] = useState<{ guestName: string; propertyName: string; checkIn: string } | null>(null)
+  const [successInfo, setSuccessInfo] = useState<{ guestName: string; propertyName: string; checkIn: string; checkOut: string } | null>(null)
   const [importResults, setImportResults] = useState<{
     imported: number
     skipped: number
@@ -322,7 +322,8 @@ export default function ReservasPage() {
         setSuccessInfo({
           guestName: formData.guestName,
           propertyName,
-          checkIn: formData.checkIn
+          checkIn: formData.checkIn,
+          checkOut: formData.checkOut
         })
         setShowNewModal(false)
         resetForm()
@@ -1481,6 +1482,8 @@ export default function ReservasPage() {
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
               <div className="flex items-center justify-between p-5 border-b border-gray-100">
@@ -1636,7 +1639,13 @@ export default function ReservasPage() {
 
               {/* Modal Body - Edit Mode */}
               {editMode && (
-                <form onSubmit={handleUpdateReservation} className="overflow-y-auto max-h-[calc(90vh-200px)]">
+                <form
+                  onSubmit={handleUpdateReservation}
+                  className="overflow-y-auto max-h-[calc(90vh-200px)]"
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
+                >
                   <div className="p-5 space-y-4">
                     {/* Guest Name */}
                     <div>
@@ -1791,7 +1800,7 @@ export default function ReservasPage() {
                       variant="outline"
                       onClick={() => setShowDeleteConfirm(true)}
                       className="text-red-600 border-red-200 hover:bg-red-50"
-                      disabled={!!selectedReservation.liquidation}
+                      disabled={selectedReservation.liquidation?.status === 'PAID'}
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Eliminar
@@ -1800,15 +1809,15 @@ export default function ReservasPage() {
                       variant="outline"
                       onClick={() => startEditReservation(selectedReservation)}
                       className="flex-1"
-                      disabled={!!selectedReservation.liquidation}
+                      disabled={selectedReservation.liquidation?.status === 'PAID'}
                     >
                       <Edit2 className="w-4 h-4 mr-2" />
                       Editar
                     </Button>
                   </div>
-                  {selectedReservation.liquidation && (
+                  {selectedReservation.liquidation?.status === 'PAID' && (
                     <p className="text-xs text-amber-600 mt-2 text-center">
-                      Esta reserva ya está facturada y no puede modificarse
+                      Esta reserva está en una liquidación pagada y no puede modificarse
                     </p>
                   )}
                 </div>
@@ -2319,7 +2328,7 @@ export default function ReservasPage() {
               className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="text-center mb-6">
+              <div className="text-center mb-5">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
@@ -2331,10 +2340,36 @@ export default function ReservasPage() {
                 </p>
               </div>
 
-              <div className="bg-violet-50 rounded-xl p-4 mb-6">
-                <p className="text-sm text-violet-800">
-                  <span className="font-medium">Siguiente paso:</span> Para revisar todas las reservas de este apartamento y generar facturas, ve a <strong>Facturación → {successInfo.propertyName}</strong> y revisa el mes de {new Date(successInfo.checkIn).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}.
-                </p>
+              <div className="space-y-3 mb-6">
+                <div className="bg-blue-50 rounded-xl p-3 flex items-start gap-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div className="text-sm">
+                    <p className="font-medium text-blue-900">Añadida a Liquidaciones</p>
+                    <p className="text-blue-700">Puedes exportar el Excel con el desglose de reservas</p>
+                  </div>
+                </div>
+                <div className="bg-violet-50 rounded-xl p-3 flex items-start gap-3">
+                  <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-4 h-4 text-violet-600" />
+                  </div>
+                  <div className="text-sm">
+                    <p className="font-medium text-violet-900">Disponible en Facturación</p>
+                    <p className="text-violet-700">
+                      La reserva aparece en <strong>{new Date(successInfo.checkIn).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}</strong>
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-amber-50 rounded-xl p-3 flex items-start gap-3">
+                  <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <AlertCircle className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <div className="text-sm">
+                    <p className="font-medium text-amber-900">Importante</p>
+                    <p className="text-amber-700">Una vez emitas la factura, la reserva no se podrá eliminar</p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-3">

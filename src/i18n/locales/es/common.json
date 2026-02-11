@@ -162,6 +162,17 @@
     "siteName": "Itineramio",
     "siteDescription": "Crea manuales digitales interactivos para tus alojamientos turísticos"
   },
+  "notFound": {
+    "title": "¡Ups! Página no encontrada",
+    "description": "La página que buscas no existe o ha sido movida. No te preocupes, te ayudamos a encontrar lo que necesitas.",
+    "home": "Inicio",
+    "blog": "Blog",
+    "help": "Ayuda",
+    "ctaTitle": "¿Buscas crear manuales digitales?",
+    "ctaDescription": "Prueba Itineramio gratis durante 15 días. Sin tarjeta de crédito.",
+    "ctaButton": "Empezar gratis",
+    "contact": "¿Necesitas ayuda? Escríbenos a"
+  },
   "modals": {
     "delete": {
       "permanentlyDeleteWarning": "Esta accion eliminara permanentemente:",

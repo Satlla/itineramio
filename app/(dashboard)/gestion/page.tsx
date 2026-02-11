@@ -23,59 +23,26 @@ import { Card, CardContent, Button } from '../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../src/components/layout/DashboardFooter'
 import { OnboardingGuide } from '../../../src/components/gestion/OnboardingGuide'
-
-interface DashboardStats {
-  totalProperties: number
-  totalOwners: number
-  totalInvoices: number
-  pendingInvoices: number
-  yearlyIncome: number
-  yearlyCommission: number
-  monthlyIncome: number
-  monthlyCommission: number
-  pendingLiquidations: number
-  recentReservations: number
-  yearlyReservations: number
-  totalExpenses: number
-}
-
-interface OnboardingStatus {
-  companyConfigured: boolean
-  hasClients: boolean
-  hasConfiguredProperties: boolean
-  hasLiquidations: boolean
-  allComplete: boolean
-}
-
-interface PendingActions {
-  unliquidatedReservations: number
-  draftInvoices: number
-  unpaidInvoices: number
-}
+import { useGestionDashboard } from '@/contexts/GestionDashboardContext'
 
 export default function GestionDashboardPage() {
-  const [loading, setLoading] = useState(true)
-  const [stats, setStats] = useState<DashboardStats | null>(null)
-  const [onboarding, setOnboarding] = useState<OnboardingStatus | null>(null)
-  const [pendingActions, setPendingActions] = useState<PendingActions | null>(null)
+  const { stats, onboarding, pendingActions, loading, refresh } = useGestionDashboard()
   const [showWizard, setShowWizard] = useState(false)
   const currentYear = new Date().getFullYear()
   const currentMonth = new Date().toLocaleDateString('es-ES', { month: 'long' })
 
   useEffect(() => {
-    fetchStats()
-
     // Polling para detectar cuando el usuario vuelve de hacer algo
     const interval = setInterval(() => {
       const needsRefresh = sessionStorage.getItem('gestion-needs-refresh')
       if (needsRefresh) {
         sessionStorage.removeItem('gestion-needs-refresh')
-        fetchStats()
+        refresh()
       }
     }, 500)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [refresh])
 
   // Check if should show wizard after data loads
   useEffect(() => {
@@ -89,7 +56,7 @@ export default function GestionDashboardPage() {
 
   const handleWizardComplete = () => {
     setShowWizard(false)
-    fetchStats() // Reload stats after completing wizard
+    refresh() // Reload stats after completing wizard
   }
 
   const handleWizardDismiss = () => {
@@ -99,24 +66,6 @@ export default function GestionDashboardPage() {
 
   const handleShowWizard = () => {
     setShowWizard(true)
-  }
-
-  const fetchStats = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch('/api/gestion/dashboard', { credentials: 'include' })
-
-      if (response.ok) {
-        const data = await response.json()
-        setStats(data.stats)
-        setOnboarding(data.onboarding)
-        setPendingActions(data.pendingActions)
-      }
-    } catch (error) {
-      console.error('Error fetching stats:', error)
-    } finally {
-      setLoading(false)
-    }
   }
 
   if (loading) {

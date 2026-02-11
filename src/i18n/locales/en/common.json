@@ -162,6 +162,17 @@
     "siteName": "Itineramio",
     "siteDescription": "Create interactive digital manuals for your vacation rentals"
   },
+  "notFound": {
+    "title": "Oops! Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved. Don't worry, we'll help you find what you need.",
+    "home": "Home",
+    "blog": "Blog",
+    "help": "Help",
+    "ctaTitle": "Looking to create digital manuals?",
+    "ctaDescription": "Try Itineramio free for 15 days. No credit card required.",
+    "ctaButton": "Get started free",
+    "contact": "Need help? Write to us at"
+  },
   "modals": {
     "delete": {
       "permanentlyDeleteWarning": "This action will permanently delete:",

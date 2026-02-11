@@ -1,0 +1,1481 @@
+{
+  "nav": {
+    "operations": "OPERATIONS",
+    "documents": "DOCUMENTS",
+    "administration": "ADMINISTRATION",
+    "backToProperties": "Back to Properties",
+    "properties": "Properties",
+    "title": "Management",
+    "subtitle": "Billing and accounting",
+    "items": {
+      "dashboard": {
+        "title": "Dashboard",
+        "description": "General overview"
+      },
+      "reservations": {
+        "title": "Reservations",
+        "description": "Import and manage"
+      },
+      "settlements": {
+        "title": "Settlements",
+        "description": "Owner payments"
+      },
+      "billing": {
+        "title": "Billing",
+        "description": "Monthly closing"
+      },
+      "invoices": {
+        "title": "Invoices",
+        "description": "History and free invoices"
+      },
+      "expenses": {
+        "title": "Expenses",
+        "description": "Expense control"
+      },
+      "owners": {
+        "title": "Owners",
+        "description": "Manage your clients"
+      },
+      "apartments": {
+        "title": "Apartments",
+        "description": "Manage your properties"
+      },
+      "company": {
+        "title": "My Company",
+        "description": "Tax data and logo"
+      },
+      "integrations": {
+        "title": "Integrations",
+        "description": "Gmail and more"
+      },
+      "profitability": {
+        "title": "Profitability",
+        "description": "Reports and metrics"
+      }
+    }
+  },
+  "companyProfile": {
+    "pageTitle": "My Company",
+    "pageSubtitle": "Tax data and logo for invoices",
+    "loadingProfile": "Loading profile...",
+    "messages": {
+      "nameAndPrefixRequired": "Name and prefix are required",
+      "seriesCreated": "Series created successfully",
+      "errorCreatingSeries": "Error creating series",
+      "connectionError": "Connection error",
+      "invalidNumber": "Number must be valid and greater than or equal to 0",
+      "numberUpdated": "Number updated successfully",
+      "errorUpdating": "Error updating",
+      "defaultRemoved": "Series is no longer default",
+      "defaultSet": "Series set as default",
+      "seriesDeleted": "Series deleted successfully",
+      "errorDeleting": "Error deleting",
+      "profileSaved": "Profile saved successfully",
+      "errorSavingProfile": "Error saving profile",
+      "onlyImages": "Only images are allowed",
+      "fileTooLarge": "File is too large (max. 2MB)",
+      "logoUploaded": "Logo uploaded successfully",
+      "errorUploadingLogo": "Error uploading logo",
+      "logoDeleted": "Logo deleted",
+      "errorDeletingLogo": "Error deleting logo"
+    },
+    "confirmDeleteSeries": "Delete this series? This action cannot be undone.",
+    "confirmDeleteLogo": "Delete the logo?",
+    "logo": {
+      "title": "Company logo",
+      "uploading": "Uploading...",
+      "upload": "Upload logo",
+      "hint": "PNG, JPG or SVG. Max 2MB."
+    },
+    "taxData": {
+      "title": "Tax data",
+      "businessName": "Business name *",
+      "businessNamePlaceholder": "My Company Ltd.",
+      "nif": "Tax ID *",
+      "nifPlaceholder": "B12345678",
+      "country": "Country",
+      "address": "Address *",
+      "addressPlaceholder": "123 Main Street",
+      "city": "City *",
+      "cityPlaceholder": "Madrid",
+      "postalCode": "Postal code *",
+      "postalCodePlaceholder": "28001"
+    },
+    "contact": {
+      "title": "Contact",
+      "email": "Email",
+      "emailPlaceholder": "info@mycompany.com",
+      "phone": "Phone",
+      "phonePlaceholder": "+34 600 000 000"
+    },
+    "footerNotes": {
+      "title": "Invoice notes",
+      "label": "Additional text for invoice footer",
+      "placeholder": "E.g.: Payment method: bank transfer to ES12 1234 5678 9012 3456"
+    },
+    "paymentMethods": {
+      "title": "Payment methods",
+      "subtitle": "Configure the payment methods that will appear on your invoices",
+      "transfer": "Bank transfer",
+      "transferDesc": "Receive payments via bank transfer",
+      "bank": "Bank",
+      "bankPlaceholder": "Bank name",
+      "iban": "IBAN *",
+      "ibanPlaceholder": "ES12 1234 5678 9012 3456",
+      "ibanValid": "Valid IBAN",
+      "bicSwift": "BIC/SWIFT",
+      "bicPlaceholder": "BSCHESMM",
+      "bizum": "Bizum",
+      "bizumDesc": "Instant mobile payment",
+      "bizumPhone": "Bizum phone *",
+      "bizumPhonePlaceholder": "+34 600 000 000",
+      "paypal": "PayPal",
+      "paypalDesc": "International online payment",
+      "paypalEmail": "PayPal email *",
+      "paypalEmailPlaceholder": "payments@mycompany.com",
+      "cash": "Cash",
+      "cashDesc": "Cash payment",
+      "card": "Card",
+      "cardDesc": "Debit or credit",
+      "defaultMethod": "Default method",
+      "selectDefault": "Select..."
+    },
+    "saving": "Saving...",
+    "saveChanges": "Save changes",
+    "invoiceSeries": {
+      "title": "Invoice Series",
+      "newSeries": "New Series",
+      "description": "Configure series for numbering your invoices. Format: Prefix + Year (2 digits) + Sequential number.",
+      "name": "Name *",
+      "namePlaceholder": "Invoices",
+      "prefix": "Prefix *",
+      "prefixPlaceholder": "F27",
+      "type": "Type",
+      "standard": "Standard",
+      "rectifying": "Rectifying",
+      "create": "Create",
+      "cancel": "Cancel",
+      "resetYearly": "Reset numbering each year",
+      "defaultSeries": "Default series",
+      "preview": "Preview:",
+      "loadingSeries": "Loading series...",
+      "noSeries": "No series configured",
+      "noSeriesHint": "Create a series to start numbering your invoices",
+      "tableHeaders": {
+        "name": "Name",
+        "prefix": "Prefix",
+        "nextInvoice": "Next Invoice",
+        "lastNumber": "Last No.",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "editCurrentNumber": "Edit current number",
+      "default": "Default",
+      "deactivate": "Deactivate series",
+      "activate": "Activate series",
+      "setAsDefault": "Set as default",
+      "deleteSeries": "Delete series",
+      "note": "The current number is the last assigned number. The next invoice will use the following number. You can edit the current number to adjust numbering (e.g.: set 0 to start from 1, or 269 so the next one is 270)."
+    }
+  },
+  "dashboard": {
+    "title": "Management Panel",
+    "subtitle": "Billing and accounting summary",
+    "stats": {
+      "income": "Income {{year}}",
+      "commission": "Commission",
+      "properties": "Properties",
+      "owners": "owners",
+      "invoices": "Invoices",
+      "pending": "pending"
+    },
+    "pendingActions": {
+      "title": "Pending actions",
+      "unbilledReservations": "Unbilled reservations",
+      "pendingMonthlyClose": "Pending monthly close",
+      "draftInvoices": "Draft invoices",
+      "pendingIssue": "Pending to issue",
+      "unpaidInvoices": "Unpaid invoices",
+      "pendingPayment": "Sent, pending payment"
+    },
+    "quickAccess": {
+      "title": "Quick access",
+      "billing": {
+        "title": "Billing",
+        "description": "Monthly closing by property"
+      },
+      "allInvoices": {
+        "title": "All Invoices",
+        "description": "Create and manage invoices"
+      },
+      "owners": {
+        "title": "Owners",
+        "description": "Manage apartment owners"
+      },
+      "apartments": {
+        "title": "Apartments",
+        "description": "Manage your properties"
+      }
+    },
+    "onboarding": {
+      "title": "Getting started",
+      "progress": "{{completed}} of {{total}} completed",
+      "next": "Next",
+      "steps": {
+        "company": {
+          "title": "Set up your company",
+          "description": "Add your tax details to start invoicing"
+        },
+        "owners": {
+          "title": "Create owners",
+          "description": "Add the apartment owners"
+        },
+        "apartments": {
+          "title": "Add apartments",
+          "description": "Create your apartments with owner, commission and cleaning"
+        },
+        "firstInvoice": {
+          "title": "First invoice",
+          "description": "Close the month and issue your first invoice"
+        }
+      }
+    }
+  },
+  "apartments": {
+    "title": "Apartments",
+    "subtitle": "Manage apartments and groups",
+    "loading": "Loading apartments...",
+    "group": "Group",
+    "standaloneUnits": "Standalone apartments",
+    "unitsInGroup": "Apartments in this group",
+    "noUnitsAssigned": "No apartments assigned",
+    "noCity": "No city",
+    "reservations": "reservations",
+    "invoicesCount": "Invoices",
+    "noUnits": "No apartments",
+    "stats": {
+      "groups": "Groups",
+      "standalone": "Standalone",
+      "inGroups": "In groups"
+    },
+    "tabs": {
+      "all": "All",
+      "groups": "Groups",
+      "standalone": "Standalone"
+    },
+    "status": {
+      "configured": "Configured",
+      "noOwner": "No owner"
+    },
+    "noOwnersWarning": {
+      "title": "First create your owners",
+      "description": "To create groups you need to have owners.",
+      "createOwner": "Create owner"
+    },
+    "emptyState": {
+      "title": "You have no apartments",
+      "description": "Create your first apartment or group to get started.",
+      "createGroup": "Create group",
+      "createUnit": "Create apartment"
+    },
+    "groupInfo": {
+      "title": "What is a group?",
+      "description": "A group bundles several apartments from the same owner for combined invoicing in a single monthly settlement.",
+      "benefit1": "One settlement for all apartments",
+      "benefit2": "Breakdown by apartment in the PDF",
+      "benefit3": "Save time in monthly management"
+    },
+    "modals": {
+      "newUnit": "New apartment",
+      "editUnit": "Edit apartment",
+      "newGroup": "New group",
+      "editGroup": "Edit group",
+      "creating": "Creating...",
+      "createUnit": "Create apartment",
+      "createGroup": "Create group",
+      "deleteUnitConfirm": "Delete this apartment?",
+      "deleteGroupConfirm": "Delete this group? The apartments will become standalone."
+    },
+    "form": {
+      "photo": "Photo",
+      "unitPhoto": "Apartment photo",
+      "groupPhoto": "Group photo",
+      "name": "Name",
+      "namePlaceholder": "Downtown Apartment",
+      "city": "City",
+      "cityPlaceholder": "New York",
+      "address": "Address",
+      "addressPlaceholder": "123 Main St, Apt 4B",
+      "postalCode": "Postal code",
+      "addToGroup": "Add to group",
+      "individualNoGroup": "Standalone (no group)",
+      "inheritsFromGroup": "Inherits owner and configuration from the group",
+      "noGroupsYet": "No groups created yet.",
+      "groupsExplanation": "Groups allow you to bundle apartments from the same owner for combined invoicing.",
+      "groupsAllowGrouping": "Groups allow you to bundle apartments from the same owner.",
+      "owner": "Owner",
+      "noOwnerOwnProperty": "No owner (own property)",
+      "noOwner": "No owner",
+      "selectOwner": "Select owner",
+      "managementCommission": "Management commission",
+      "commission": "Commission",
+      "cleaning": "Cleaning",
+      "cleaningFee": "Cleaning fee",
+      "vat": "VAT",
+      "vatIncluded": "(VAT incl.)",
+      "plusVat": "(+ VAT)",
+      "groupName": "Group name",
+      "groupNamePlaceholder": "John Smith Apartments",
+      "allUnitsInvoiceToOwner": "All apartments in the group are invoiced to this owner",
+      "commissionPercent": "Commission %",
+      "cleaningEuros": "Cleaning €",
+      "addExistingUnits": "Add existing apartments",
+      "platformNames": "Platform names (for import)",
+      "platformNamesHint": "If the platform name is different from the internal name, add it here so imported reservations are automatically assigned.",
+      "platformNamesImport": "Platform names (for importing reservations)",
+      "platformNamesHintShort": "These names are used to automatically assign reservations when importing CSV",
+      "airbnbPlaceholder": "Airbnb name (separate with commas if multiple)",
+      "bookingPlaceholder": "Booking name (separate with commas if multiple)",
+      "vrboPlaceholder": "Vrbo name (separate with commas if multiple)",
+      "airbnbNames": "Airbnb names",
+      "bookingNames": "Booking names",
+      "vrboNames": "Vrbo names",
+      "commaSeparated": "separated by comma",
+      "change": "Change",
+      "upload": "Upload"
+    },
+    "actions": {
+      "newGroup": "New group",
+      "newUnit": "New apartment"
+    },
+    "errors": {
+      "deleteError": "Error deleting",
+      "createError": "Error creating",
+      "saveError": "Error saving",
+      "uploadError": "Error uploading image",
+      "noImageUrl": "Error: No image URL received"
+    },
+    "modal": {
+      "newApartment": "New apartment",
+      "editApartment": "Edit apartment",
+      "newGroup": "New group",
+      "editGroup": "Edit group",
+      "photo": "Apartment photo",
+      "groupPhoto": "Group photo",
+      "name": "Name",
+      "city": "City",
+      "address": "Address",
+      "postalCode": "Postal code",
+      "addToGroup": "Add to group",
+      "individual": "Standalone (no group)",
+      "noGroupsYet": "No groups created yet.",
+      "groupsHelp": "Groups allow you to bundle apartments from the same owner for combined invoicing.",
+      "owner": "Owner",
+      "noOwner": "No owner (own property)",
+      "selectOwner": "Select owner",
+      "managementCommission": "Management commission",
+      "cleaningFee": "Cleaning fee",
+      "vatIncluded": "VAT included",
+      "platformNames": "Platform names (for import)",
+      "platformNamesHelp": "If the platform name is different from the internal name, add it here so imported reservations are automatically assigned.",
+      "airbnbNames": "Airbnb names",
+      "bookingNames": "Booking names",
+      "vrboNames": "Vrbo names",
+      "separatedByCommas": "(separated by comma)",
+      "csvImportHelp": "These names are used to automatically assign reservations when importing CSV",
+      "groupName": "Group name",
+      "allUnitsInvoicedToOwner": "All apartments in the group are invoiced to this owner",
+      "whatIsGroup": "What is a group?",
+      "groupExplanation": "A group bundles several apartments from the same owner for combined invoicing in a single monthly settlement.",
+      "groupBenefits": {
+        "singleSettlement": "One settlement for all apartments",
+        "pdfBreakdown": "Breakdown by apartment in the PDF",
+        "saveTime": "Save time in monthly management"
+      },
+      "addExistingApartments": "Add existing apartments",
+      "apartmentsInGroup": "Apartments in the group"
+    },
+    "actions": {
+      "newGroup": "New group",
+      "newApartment": "New apartment",
+      "creating": "Creating...",
+      "createApartment": "Create apartment",
+      "createGroup": "Create group",
+      "saving": "Saving...",
+      "saveChanges": "Save changes",
+      "change": "Change",
+      "upload": "Upload"
+    },
+    "errors": {
+      "deleteError": "Error deleting",
+      "saveError": "Error creating",
+      "updateError": "Error saving",
+      "uploadError": "Error uploading image",
+      "noUrlReceived": "Error: No image URL received"
+    }
+  },
+  "owners": {
+    "title": "Owners",
+    "subtitle": "Manage the owners of your apartments",
+    "loading": "Loading owners...",
+    "search": "Search by name or email...",
+    "filters": {
+      "allTypes": "All types",
+      "individual": "Individual",
+      "company": "Company / Self-employed"
+    },
+    "emptyState": {
+      "noResults": "No owners found",
+      "title": "Create your first owner",
+      "description": "Owners are the people who own the apartments you manage. You need to create at least one to assign them to your properties and generate invoices.",
+      "flow": {
+        "title": "Invoicing flow:",
+        "step1": "Create owner",
+        "step1Current": "(you are here)",
+        "step2": "Assign owner to properties",
+        "step3": "Import reservations",
+        "step4": "Generate invoices"
+      }
+    },
+    "card": {
+      "company": "Company",
+      "individual": "Individual",
+      "properties": "properties"
+    },
+    "form": {
+      "companyType": "Company",
+      "individualType": "Individual"
+    },
+    "modal": {
+      "new": "New Owner",
+      "edit": "Edit Owner",
+      "type": "Type",
+      "individual": "Individual",
+      "company": "Company / Self-employed",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "companyName": "Company name",
+      "email": "Email",
+      "nif": "NIF/NIE",
+      "cif": "CIF",
+      "phone": "Phone",
+      "iban": "IBAN",
+      "ibanHelp": "(for transfers)",
+      "address": "Address",
+      "city": "City",
+      "postalCode": "Postal code"
+    },
+    "validation": {
+      "nameRequired": "First and last name are required",
+      "companyNameRequired": "Company name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email",
+      "addressRequired": "Address is required",
+      "cityRequired": "City is required",
+      "postalCodeRequired": "Postal code is required",
+      "nifInvalid": "Invalid NIF/NIE",
+      "cifInvalid": "Invalid CIF",
+      "ibanInvalid": "Invalid IBAN (format: ES00 0000 0000 0000 0000 0000)"
+    },
+    "actions": {
+      "new": "New owner",
+      "create": "Create owner",
+      "saving": "Saving...",
+      "saveChanges": "Save changes"
+    },
+    "errors": {
+      "createError": "Error creating owner",
+      "updateError": "Error updating owner",
+      "deleteError": "Error deleting",
+      "cannotDelete": "Cannot delete an owner with assigned properties",
+      "connectionError": "Connection error"
+    },
+    "confirmDelete": "Delete this owner?"
+  },
+  "invoices": {
+    "title": "Invoices",
+    "subtitle": "Manage all your issued invoices",
+    "loading": "Loading invoices...",
+    "search": "Search by number or client...",
+    "stats": {
+      "totalInvoiced": "Total invoiced",
+      "pendingCollection": "Pending collection",
+      "invoiceCount": "Invoice count",
+      "collected": "Collected"
+    },
+    "filters": {
+      "allStatuses": "All statuses",
+      "allTypes": "All types",
+      "normalInvoices": "Normal invoices",
+      "rectifying": "Rectifying"
+    },
+    "status": {
+      "draft": "Draft",
+      "proforma": "Proforma",
+      "issued": "Issued",
+      "sent": "Sent",
+      "paid": "Paid",
+      "overdue": "Overdue"
+    },
+    "emptyState": {
+      "title": "No invoices",
+      "description": "Create your first free invoice or generate from Billing",
+      "action": "Create invoice"
+    },
+    "card": {
+      "base": "Base",
+      "dueDate": "Due:",
+      "rectifies": "Rectifies:",
+      "rectified": "Rectified",
+      "rectSubstitution": "Rect. Subst.",
+      "rectDifference": "Rect. Diff."
+    },
+    "modal": {
+      "issueInvoice": "Issue Invoice",
+      "willAssignNumber": "The number will be assigned",
+      "willAssignFinalNumber": "The final number will be assigned",
+      "issueWarning": "Once issued, the invoice cannot be edited or deleted. You can only create a rectifying invoice.",
+      "issueWarningShort": "Once issued, the invoice cannot be edited or deleted."
+    },
+    "actions": {
+      "newInvoice": "New invoice",
+      "issue": "Issue invoice",
+      "issueShort": "Issue",
+      "editDraft": "Edit draft",
+      "deleteDraft": "Delete draft",
+      "markAsSent": "Mark as sent",
+      "markAsPaid": "Mark as paid",
+      "collected": "Collected",
+      "markPaid": "Collected",
+      "createRectifying": "Create rectifying",
+      "issuing": "Issuing...",
+      "preview": "Preview",
+      "downloadPdf": "Download PDF",
+      "send": "Send",
+      "saveDraft": "Save draft",
+      "saveDraftShort": "Save"
+    },
+    "confirmDelete": "Delete this draft? This action cannot be undone.",
+    "errors": {
+      "statusChangeError": "Error changing status",
+      "previewError": "Error previewing",
+      "issueError": "Error issuing invoice",
+      "deleteError": "Error deleting",
+      "loadError": "Error loading invoice",
+      "saveError": "Error saving",
+      "createError": "Error creating invoice",
+      "sendError": "Error sending",
+      "rectifyError": "Error creating rectifying invoice",
+      "pdfError": "Error generating PDF",
+      "connectionError": "Connection error"
+    },
+    "new": {
+      "title": "New Invoice",
+      "saving": "Saving...",
+      "invoice": "Invoice",
+      "draft": "DRAFT",
+      "contact": "Contact",
+      "searchContact": "Search contact...",
+      "createNewContact": "Create new contact",
+      "createContact": "Create",
+      "noContactFound": "Not found",
+      "documentNumber": "Document number",
+      "useAutoNumber": "Use automatic numbering",
+      "numberExists": "This number already exists",
+      "date": "Date",
+      "dueDate": "Due date",
+      "configureYourTaxData": "Configure your tax data"
+    },
+    "detail": {
+      "backToInvoices": "Back to invoices",
+      "invoiceNotFound": "Invoice not found",
+      "invoiceId": "Invoice #{{id}}",
+      "draft": "draft",
+      "issuer": "Issuer",
+      "invoiceNumber": "Invoice No.",
+      "client": "Client",
+      "autoNumber": "Empty = automatic",
+      "pendingAssignment": "Pending assignment",
+      "numberPlaceholder": "E.g.: F260001",
+      "paymentMethods": "Payment methods",
+      "bankTransfer": "Bank transfer",
+      "bizum": "Bizum",
+      "cash": "Cash",
+      "notes": "Notes",
+      "dangerZone": "Danger zone",
+      "deletePermanently": "Delete this draft permanently",
+      "rectifyingInvoice": "Rectifying invoice",
+      "createRectifyingDescription": "Create an invoice that rectifies this one",
+      "myCompany": "My Company",
+      "company": "Company",
+      "clientFallback": "Client"
+    },
+    "deleteModal": {
+      "title": "Delete draft",
+      "confirm": "Are you sure you want to delete this draft?",
+      "warning": "This action cannot be undone.",
+      "deleting": "Deleting..."
+    },
+    "issueModal": {
+      "invoiceNumber": "Invoice number",
+      "fullNumber": "Full number:"
+    },
+    "sendModal": {
+      "title": "Send Invoice",
+      "subtitle": "Send by email",
+      "recipientEmail": "Recipient email",
+      "subject": "Subject",
+      "message": "Message",
+      "sending": "Sending...",
+      "emailRequired": "Email is required",
+      "defaultSubject": "Invoice {{number}}",
+      "defaultMessage": "Hello {{name}},\n\nPlease find attached invoice {{number}}.\n\nBest regards,\n{{company}}"
+    },
+    "rectifyModal": {
+      "title": "Create Rectifying Invoice",
+      "subtitle": "For invoice {{number}}",
+      "type": "Rectifying type",
+      "substitution": "By substitution",
+      "substitutionDesc": "Completely replaces the original invoice",
+      "difference": "By difference",
+      "differenceDesc": "Only reflects the difference in amounts",
+      "reason": "Rectification reason",
+      "reasonRequired": "Rectification reason is required",
+      "reasonPlaceholder": "E.g.: Error in commission amount",
+      "newLines": "New lines",
+      "differenceLines": "Difference lines",
+      "addLine": "Add line",
+      "creating": "Creating...",
+      "conceptPlaceholder": "Concept",
+      "retentionPlaceholder": "Ret."
+    },
+    "previewModal": {
+      "title": "Invoice preview",
+      "from": "From",
+      "to": "To"
+    },
+    "table": {
+      "concept": "Concept",
+      "description": "Description",
+      "quantity": "Qty.",
+      "quantityFull": "Units",
+      "base": "Base",
+      "price": "Price",
+      "vat": "VAT",
+      "retention": "Ret.",
+      "amount": "Amount",
+      "total": "Total",
+      "subtotal": "Subtotal",
+      "totalVat": "VAT",
+      "totalRetention": "Retention",
+      "totalToPay": "Total to pay",
+      "grossAmount": "Gross amount (without retention):",
+      "addLine": "Add line"
+    },
+    "contactModal": {
+      "title": "New contact",
+      "name": "Name",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "companyName": "Company name",
+      "nif": "Contact NIF",
+      "contactType": "This contact is...",
+      "company": "Company",
+      "individual": "Individual",
+      "tabs": {
+        "basic": "Basic",
+        "accounts": "Accounts"
+      },
+      "address": "Address",
+      "addressPlaceholder": "Street, number, floor...",
+      "city": "City",
+      "postalCode": "Postal code",
+      "country": "Country",
+      "email": "Email",
+      "phone": "Phone",
+      "iban": "IBAN",
+      "ibanHelp": "Bank account for payments",
+      "creating": "Creating..."
+    },
+    "generate": {
+      "title": "Generate invoice",
+      "selectedReservations": "{{count}} reservations selected",
+      "invalidParams": "Invalid parameters",
+      "noReservationsFound": "Selected reservations not found",
+      "loadError": "Error loading data",
+      "noOwnerAssigned": "No owner assigned to this property",
+      "createError": "Error creating invoice",
+      "property": "Property",
+      "billTo": "Bill to",
+      "noOwner": "No owner",
+      "reservationsToInvoice": "Reservations to invoice",
+      "reservation": "Reservation",
+      "guest": "Guest",
+      "dates": "Dates",
+      "nights": "Nights",
+      "commission": "Commission",
+      "totals": "Totals:",
+      "invoiceOptions": "Invoice options",
+      "lineFormat": "Line format",
+      "detailed": "Detailed",
+      "detailedDesc": "One line per reservation with dates and guest",
+      "summary": "Summary",
+      "summaryDesc": "One line with the period total",
+      "invoiceDate": "Invoice date",
+      "notesOptional": "Notes (optional)",
+      "notesPlaceholder": "Additional notes for the invoice...",
+      "totalsPreview": "Totals preview",
+      "vatRate": "VAT ({{rate}}%)",
+      "retentionRate": "Retention ({{rate}}%)",
+      "createDraft": "Create draft",
+      "creating": "Creating..."
+    }
+  },
+  "expenses": {
+    "title": "Expenses",
+    "subtitle": "Manage your property expenses",
+    "loading": "Loading expenses...",
+    "search": "Search by concept or supplier...",
+    "stats": {
+      "totalExpenses": "Total expenses",
+      "vatBorne": "VAT borne",
+      "expenseCount": "Expense count"
+    },
+    "filters": {
+      "allProperties": "All properties",
+      "noConfig": "(no config.)",
+      "allCategories": "All categories",
+      "allYear": "All year"
+    },
+    "categories": {
+      "MAINTENANCE": "Maintenance",
+      "SUPPLIES": "Supplies",
+      "REPAIR": "Repairs",
+      "CLEANING": "Cleaning",
+      "FURNITURE": "Furniture",
+      "TAXES": "Taxes",
+      "INSURANCE": "Insurance",
+      "OTHER": "Other"
+    },
+    "emptyState": {
+      "title": "No expenses recorded",
+      "description": "Add expenses to include them in monthly billing"
+    },
+    "card": {
+      "vat": "VAT",
+      "invoiced": "Invoiced"
+    },
+    "modal": {
+      "new": "New expense",
+      "edit": "Edit expense",
+      "apartment": "Apartment",
+      "selectApartment": "Select an apartment",
+      "gestionApartments": "Management Apartments",
+      "manualProperties": "Manual Properties",
+      "noConfiguredApartments": "You have no configured apartments",
+      "date": "Date",
+      "category": "Category",
+      "concept": "Concept",
+      "conceptPlaceholder": "E.g.: Water heater repair",
+      "amount": "Amount (€)",
+      "vat": "VAT (€)",
+      "supplier": "Supplier",
+      "supplierPlaceholder": "Supplier name",
+      "invoiceNumber": "Invoice No.",
+      "invoiceNumberPlaceholder": "Invoice number",
+      "chargeToOwner": "Deduct from owner on invoice"
+    },
+    "validation": {
+      "apartmentRequired": "You must select an apartment",
+      "dateRequired": "Date is required",
+      "conceptRequired": "Concept is required",
+      "amountRequired": "Amount must be greater than 0",
+      "noBillingConfig": "This property has no billing configuration. Configure it first."
+    },
+    "actions": {
+      "newExpense": "New expense",
+      "saving": "Saving...",
+      "update": "Update",
+      "createExpense": "Create expense"
+    },
+    "deleteModal": {
+      "title": "Delete expense",
+      "confirm": "Are you sure you want to delete",
+      "warning": "If this expense is included in a draft invoice, it will also be removed from the invoice.",
+      "deleting": "Deleting..."
+    },
+    "successModal": {
+      "title": "Expense recorded",
+      "description": "<strong>{{concept}}</strong> has been recorded in <strong>{{propertyName}}</strong>",
+      "nextStep": "To review all expenses and invoice the owner, go to <strong>Billing → {{propertyName}}</strong> and review the month of {{month}}.",
+      "addAnother": "Add another",
+      "goToBilling": "Go to Billing"
+    },
+    "errors": {
+      "saveError": "Error saving expense",
+      "connectionError": "Connection error"
+    }
+  },
+  "settlements": {
+    "title": "Settlements",
+    "subtitle": "Manage owner settlements",
+    "loading": "Loading settlements...",
+    "search": "Search by owner...",
+    "filters": {
+      "allMonths": "All months",
+      "allOwners": "All owners",
+      "allStatuses": "All statuses"
+    },
+    "status": {
+      "draft": "Draft",
+      "generated": "Generated",
+      "sent": "Sent",
+      "paid": "Paid",
+      "cancelled": "Cancelled"
+    },
+    "stats": {
+      "totalIncome": "Total income",
+      "commissions": "Commissions",
+      "retentions": "Retentions",
+      "netOwners": "Net to owners"
+    },
+    "emptyState": {
+      "title": "No settlements",
+      "descriptionFiltered": "No settlements found with the applied filters",
+      "descriptionEmpty": "Create your first settlement for this period"
+    },
+    "card": {
+      "reservations": "reservations",
+      "expenses": "expenses",
+      "income": "Income",
+      "commission": "Commission",
+      "net": "Net"
+    },
+    "actions": {
+      "newSettlement": "New settlement",
+      "downloadPdf": "Download PDF",
+      "markAsPaid": "Mark as paid"
+    }
+  },
+  "billing": {
+    "title": "Billing",
+    "subtitle": "Monthly closing by property",
+    "loading": "Loading properties...",
+    "search": "Search property...",
+    "stats": {
+      "income": "Income {{year}}",
+      "reservations": "Reservations",
+      "nights": "Nights"
+    },
+    "emptyState": {
+      "title": "You have no configured properties",
+      "description": "First you must configure your properties with their owners and commissions.",
+      "action": "Go to Apartments"
+    },
+    "noResults": {
+      "title": "No results found",
+      "description": "No properties match \"{{searchTerm}}\""
+    },
+    "card": {
+      "income": "Income",
+      "occupancy": "Occupancy",
+      "pricePerNight": "€/night",
+      "reservations": "Reservations",
+      "pending": "pending",
+      "noOwner": "No owner",
+      "assignOwner": "Assign owner"
+    }
+  },
+  "reservations": {
+    "title": "Reservations",
+    "subtitle": "Import and manage reservations",
+    "loading": "Loading reservations...",
+    "search": "Search guest...",
+    "filters": {
+      "allYear": "All year",
+      "allStatuses": "All statuses",
+      "allPlatforms": "All platforms",
+      "allProperties": "All properties"
+    },
+    "platforms": {
+      "AIRBNB": "Airbnb",
+      "BOOKING": "Booking",
+      "VRBO": "VRBO",
+      "DIRECT": "Direct",
+      "OTHER": "Other"
+    },
+    "status": {
+      "confirmed": "Confirmed",
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    },
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
+    "unassigned": "Unassigned",
+    "stats": {
+      "totalReservations": "Total reservations",
+      "income": "Income",
+      "nights": "Nights",
+      "confirmed": "Confirmed"
+    },
+    "actions": {
+      "newReservation": "New reservation",
+      "importCsv": "Import CSV"
+    }
+  },
+  "company": {
+    "title": "My Company",
+    "subtitle": "Tax data and logo for invoices",
+    "loading": "Loading profile...",
+    "sections": {
+      "logo": {
+        "title": "Company logo",
+        "uploadButton": "Upload logo",
+        "uploading": "Uploading...",
+        "help": "PNG, JPG or SVG. Maximum 2MB."
+      },
+      "taxData": {
+        "title": "Tax data",
+        "businessName": "Business name",
+        "nif": "NIF/CIF",
+        "country": "Country",
+        "address": "Address",
+        "city": "City",
+        "postalCode": "Postal code"
+      },
+      "contact": {
+        "title": "Contact",
+        "email": "Email",
+        "phone": "Phone"
+      },
+      "invoiceNotes": {
+        "title": "Invoice notes",
+        "label": "Additional text for invoice footer",
+        "placeholder": "E.g.: Payment method: bank transfer to ES12 1234 5678 9012 3456"
+      },
+      "paymentMethods": {
+        "title": "Payment methods",
+        "description": "Configure the payment methods that will appear on your invoices",
+        "transfer": {
+          "title": "Bank transfer",
+          "description": "Receive payments via bank transfer",
+          "bank": "Bank",
+          "iban": "IBAN",
+          "bic": "BIC/SWIFT"
+        },
+        "bizum": {
+          "title": "Bizum",
+          "description": "Instant mobile payment",
+          "phone": "Bizum phone"
+        },
+        "paypal": {
+          "title": "PayPal",
+          "description": "International online payment",
+          "email": "PayPal email"
+        },
+        "cash": {
+          "title": "Cash",
+          "description": "Cash payment"
+        },
+        "card": {
+          "title": "Card",
+          "description": "Debit or credit"
+        },
+        "defaultMethod": "Default method",
+        "selectDefault": "Select..."
+      }
+    },
+    "validation": {
+      "ibanValid": "Valid IBAN",
+      "ibanInvalid": "Invalid IBAN"
+    },
+    "actions": {
+      "saveChanges": "Save changes",
+      "saving": "Saving..."
+    },
+    "messages": {
+      "savedSuccess": "Profile saved successfully",
+      "saveError": "Error saving profile",
+      "logoUploaded": "Logo uploaded successfully",
+      "logoUploadError": "Error uploading logo",
+      "logoDeleted": "Logo deleted",
+      "logoDeleteError": "Error deleting logo",
+      "onlyImages": "Only images are allowed",
+      "fileTooLarge": "File is too large (max. 2MB)",
+      "connectionError": "Connection error"
+    },
+    "confirmDeleteLogo": "Delete the logo?"
+  },
+  "profitability": {
+    "title": "Profitability Dashboard",
+    "subtitle": "Financial analysis of your properties",
+    "loading": "Loading data...",
+    "export": "Export CSV",
+    "exporting": "Exporting...",
+    "stats": {
+      "income": "Income {{year}}",
+      "yourCommission": "Your commission {{year}}",
+      "owners": "Owners {{year}}",
+      "reservations": "Reservations {{year}}",
+      "pendingToInvoice": "Pending to invoice",
+      "properties": "Properties"
+    },
+    "thisMonth": {
+      "netIncome": "Net income",
+      "yourCommission": "Your commission",
+      "owners": "Owners",
+      "reservations": "Reservations",
+      "avgCommission": "Avg commission"
+    },
+    "table": {
+      "title": "Profitability by Property",
+      "totalReservations": "total reservations",
+      "property": "Property",
+      "reservations": "Reservations",
+      "nights": "Nights",
+      "income": "Income",
+      "yourCommission": "Your commission",
+      "owner": "Owner",
+      "invoiced": "Invoiced",
+      "total": "TOTAL"
+    },
+    "emptyState": {
+      "title": "No profitability data",
+      "description": "Import reservations from Airbnb or Booking to see the profitability analysis",
+      "action": "Configure integrations"
+    }
+  },
+  "series": {
+    "title": "Invoice Series",
+    "subtitle": "Configure numbering series for your invoices",
+    "loading": "Loading series...",
+    "backToApartments": "Back to Apartments",
+    "newSeries": "New series",
+    "standardInvoices": "Standard Invoices",
+    "rectifyingInvoices": "Rectifying Invoices",
+    "noStandardSeries": "No standard invoice series",
+    "noRectifyingSeries": "No rectifying series",
+    "autoCreated": "Will be created automatically when issuing a rectifying invoice",
+    "createSeries": "Create series",
+    "form": {
+      "newSeries": "New Series",
+      "name": "Name",
+      "namePlaceholder": "E.g: Invoices 2025",
+      "prefix": "Prefix",
+      "prefixPlaceholder": "E.g: F",
+      "prefixHelp": "(1-3 letters)",
+      "seriesType": "Series type",
+      "standardInvoices": "Standard invoices",
+      "rectifyingInvoices": "Rectifying invoices",
+      "resetYearly": "Reset numbering each year",
+      "useAsDefault": "Use as default series",
+      "lastNumber": "Last issued number",
+      "nextWillBe": "The next invoice will be",
+      "defaultSeries": "Default series"
+    },
+    "actions": {
+      "creating": "Creating...",
+      "create": "Create series",
+      "saving": "Saving...",
+      "save": "Save",
+      "setAsDefault": "Set as default"
+    },
+    "messages": {
+      "created": "Series created successfully",
+      "updated": "Series updated successfully",
+      "deleted": "Series deleted successfully",
+      "deleteConfirm": "Delete this series? This action cannot be undone."
+    },
+    "errors": {
+      "nameAndPrefixRequired": "Name and prefix are required",
+      "createError": "Error creating series",
+      "updateError": "Error updating series",
+      "deleteError": "Error deleting series",
+      "connectionError": "Connection error"
+    },
+    "info": {
+      "title": "About invoice series",
+      "line1": "The prefix is used to generate the full number (e.g: F2025001)",
+      "line2": "Series with issued invoices cannot be deleted",
+      "line3": "Rectifying invoices must use a separate series by law",
+      "line4": "If you enable yearly reset, numbering will start at 1 each year"
+    },
+    "card": {
+      "year": "Year",
+      "current": "Current",
+      "next": "Next",
+      "default": "Default"
+    }
+  },
+  "newSettlement": {
+    "title": "New Settlement",
+    "loading": "Loading data...",
+    "backToSettlements": "Back to settlements",
+    "steps": {
+      "selectOwner": "Select the owner",
+      "configurePeriod": "Configure the period and apartments",
+      "reviewAndConfirm": "Review and confirm",
+      "generating": "Generating settlement..."
+    },
+    "stepLabels": {
+      "owner": "Owner",
+      "period": "Period",
+      "preview": "Preview"
+    },
+    "noOwners": {
+      "title": "No owners",
+      "description": "First you must create owners to generate settlements.",
+      "action": "Go to Owners"
+    },
+    "ownerCard": {
+      "groups": "group",
+      "groupsPlural": "groups",
+      "apartments": "apartment",
+      "apartmentsPlural": "apartments"
+    },
+    "periodSection": {
+      "title": "Period",
+      "month": "Month",
+      "year": "Year",
+      "change": "Change"
+    },
+    "apartmentsSection": {
+      "title": "Apartments to settle",
+      "groups": "Groups",
+      "individualApartments": "Individual apartments",
+      "selectAll": "Select all",
+      "apartment": "apartment",
+      "apartmentsPlural": "apartments"
+    },
+    "preview": {
+      "settlementFor": "Settlement for",
+      "period": "Period",
+      "group": "Group",
+      "individualApartments": "individual apartments",
+      "breakdownByApartment": "Breakdown by apartment",
+      "reservations": "Reservations",
+      "reservationsCount": "reservations",
+      "tableHeaders": {
+        "property": "Property",
+        "code": "Code",
+        "guest": "Guest",
+        "dates": "Dates",
+        "amount": "Amount"
+      },
+      "andMore": "... and {{count}} more reservations",
+      "summary": "Summary",
+      "totalIncome": "Total income",
+      "managementCommission": "Management commission",
+      "vatCommission": "VAT on commission",
+      "cleaning": "Cleaning",
+      "expenses": "Passed-through expenses",
+      "netToTransfer": "Net to transfer",
+      "noReservations": {
+        "title": "No reservations in this period",
+        "description": "There are no unsettled reservations for the selected apartments and period."
+      }
+    },
+    "actions": {
+      "back": "Back",
+      "loading": "Loading...",
+      "viewPreview": "View preview",
+      "generating": "Generating...",
+      "generateSettlement": "Generate settlement"
+    },
+    "generatingState": {
+      "title": "Generating settlement...",
+      "description": "This may take a few seconds"
+    },
+    "errors": {
+      "loadPreviewError": "Error loading preview"
+    }
+  },
+  "settlementDetail": {
+    "loading": "Loading settlement...",
+    "notFound": "Settlement not found",
+    "backToSettlements": "Back to settlements",
+    "settlementTitle": "Settlement {{month}} {{year}}",
+    "actions": {
+      "downloadPdf": "Download PDF",
+      "sendByEmail": "Send by email",
+      "whatsapp": "WhatsApp",
+      "markAsPaid": "Mark as paid",
+      "issueInvoice": "Issue invoice",
+      "delete": "Delete"
+    },
+    "reservations": {
+      "title": "Reservations",
+      "count": "{{count}} reservations",
+      "tableHeaders": {
+        "code": "Code",
+        "guest": "Guest",
+        "checkIn": "Check-in",
+        "checkOut": "Check-out",
+        "nights": "Nights",
+        "amount": "Amount"
+      }
+    },
+    "expenses": {
+      "title": "Passed-through expenses",
+      "count": "{{count}} expenses",
+      "tableHeaders": {
+        "date": "Date",
+        "concept": "Concept",
+        "category": "Category",
+        "base": "Base",
+        "vat": "VAT",
+        "total": "Total"
+      }
+    },
+    "owner": {
+      "title": "Owner"
+    },
+    "summary": {
+      "title": "Summary",
+      "totalIncome": "Total income",
+      "commission": "Commission",
+      "vatCommission": "VAT on commission",
+      "cleaning": "Cleaning",
+      "expenses": "Expenses",
+      "netToTransfer": "Net to transfer"
+    },
+    "paymentRegistered": {
+      "title": "Payment registered",
+      "date": "Date",
+      "method": "Method",
+      "reference": "Reference"
+    },
+    "dates": {
+      "created": "Created",
+      "updated": "Updated"
+    },
+    "deleteModal": {
+      "title": "Delete settlement",
+      "description": "Are you sure you want to delete this settlement? The reservations and expenses associated will be available for future settlements.",
+      "deleting": "Deleting..."
+    },
+    "paymentModal": {
+      "title": "Register payment",
+      "paymentMethod": "Payment method",
+      "selectMethod": "Select...",
+      "methods": {
+        "transfer": "Bank transfer",
+        "bizum": "Bizum",
+        "cash": "Cash",
+        "other": "Other"
+      },
+      "reference": "Reference (optional)",
+      "referencePlaceholder": "E.g: Transfer on 15/01",
+      "saving": "Saving...",
+      "confirmPayment": "Confirm payment"
+    },
+    "linkSent": {
+      "email": "Link sent by email to {{email}}",
+      "whatsapp": "Link generated. WhatsApp has been opened to send it."
+    },
+    "errors": {
+      "loadError": "Error loading the settlement",
+      "updateError": "Error updating",
+      "deleteError": "Error deleting the settlement",
+      "createInvoiceError": "Error creating the invoice",
+      "sendError": "Error sending the link"
+    }
+  },
+  "importReservations": {
+    "title": "Import Reservations",
+    "subtitle": "Import reservations from Airbnb (CSV) or Booking (XLS)",
+    "propertySection": {
+      "title": "Select Property",
+      "titleSmartImport": "Default Property",
+      "optional": "(optional)",
+      "description": "Reservations will be associated with this property",
+      "descriptionSmartImport": "Will be used for reservations without specific assignment",
+      "selectProperty": "Select a property",
+      "noBillingConfig": "(No billing config)",
+      "noProperties": "No properties available"
+    },
+    "bulkDelete": {
+      "toggle": "Delete reservations from a month",
+      "description": "Delete all reservations from this property in:",
+      "warning": "Invoiced or settled reservations will not be deleted",
+      "confirm": "Are you sure you want to delete all reservations from {{month}} {{year}}?"
+    },
+    "fileSection": {
+      "title": "Reservations File",
+      "description": "Drag an XLS (Booking) or CSV (Airbnb) file or click to select",
+      "dropHere": "Drop the file here...",
+      "dragHere": "Drag your file here",
+      "fileTypes": "XLS/XLSX (Booking) or CSV (Airbnb)",
+      "detected": "Detected",
+      "mapManually": "Map manually",
+      "unknownFormat": "Unrecognized format",
+      "configureMapping": "Configure mapping",
+      "columnsConfigured": "Columns configured",
+      "modify": "Modify",
+      "downloadTemplate": "Download template",
+      "skipDuplicates": "Skip duplicates"
+    },
+    "analysis": {
+      "title": "File analysis",
+      "new": "New",
+      "willBeImported": "Will be imported",
+      "duplicates": "Duplicates",
+      "alreadyExist": "Already exist",
+      "totalValid": "Total valid",
+      "ofRows": "of {{count}} rows",
+      "period": "Period",
+      "to": "to",
+      "smartImport": {
+        "title": "Smart import",
+        "multipleListingsDetected": "{{count}} different listings detected.",
+        "assignEach": "Assign each one to its apartment.",
+        "allToSelected": "All will go to the selected property."
+      },
+      "listingsInCsv": "Listings in the CSV",
+      "allToSelectedProperty": "All will be imported to the selected property",
+      "duplicatesWarning": {
+        "title": "{{count}} reservations already exist",
+        "description": "These reservations were previously imported and will be skipped:",
+        "in": "in",
+        "andMore": "... and {{count}} more"
+      },
+      "newReservations": "New reservations to import",
+      "showing": "Showing {{shown}} of {{total}} new",
+      "noNewReservations": {
+        "title": "No new reservations to import",
+        "description": "All reservations in the file already exist in the database"
+      },
+      "invalidRows": "{{count}} invalid rows (ignored)",
+      "assignAllListings": "Assign all listings",
+      "import": "Import {{count}} reservations",
+      "nothingToImport": "Nothing to import"
+    },
+    "selectPropertyFirst": {
+      "title": "Select a property",
+      "description": "To analyze the file, first select the destination property"
+    },
+    "result": {
+      "title": "Import Completed",
+      "imported": "Imported",
+      "skipped": "Skipped",
+      "errors": "Errors",
+      "importId": "Import ID",
+      "saveIdNote": "Save this ID if you need to undo the import later",
+      "byApartment": "Reservations by apartment",
+      "aliasesSaved": {
+        "title": "Aliases saved for future imports"
+      },
+      "listingsImported": "Listings imported",
+      "errorsTitle": "Errors during import",
+      "row": "Row",
+      "andMoreErrors": "... and {{count}} more errors",
+      "importAnother": "Import another file"
+    },
+    "history": {
+      "title": "Import History",
+      "noImports": "No previous imports",
+      "imported": "imported",
+      "skipped": "skipped",
+      "errors": "errors"
+    },
+    "help": {
+      "title": "How to export",
+      "booking": {
+        "title": "Booking.com (XLS)",
+        "step1": "Go to Booking Extranet",
+        "step2": "Reservations → Export",
+        "step3": "Select the period",
+        "step4": "Download the XLS"
+      },
+      "airbnb": {
+        "title": "Airbnb (CSV)",
+        "step1": "Go to your Airbnb panel",
+        "step2": "Transaction history",
+        "step3": "Filter and export CSV"
+      }
+    },
+    "analyzing": "Analyzing file...",
+    "completing": "{{percent}}% completed"
+  },
+  "common": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "back": "Back",
+    "close": "Close",
+    "confirm": "Confirm",
+    "search": "Search",
+    "filter": "Filter",
+    "download": "Download",
+    "upload": "Upload",
+    "view": "View",
+    "more": "More",
+    "unassigned": "Unassigned",
+    "required": "required",
+    "optional": "optional",
+    "yes": "Yes",
+    "no": "No",
+    "or": "or",
+    "and": "and",
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
+    "status": {
+      "draft": "Draft",
+      "issued": "Issued",
+      "sent": "Sent",
+      "paid": "Paid",
+      "overdue": "Overdue",
+      "cancelled": "Cancelled",
+      "confirmed": "Confirmed",
+      "pending": "Pending",
+      "completed": "Completed",
+      "generated": "Generated"
+    },
+    "validation": {
+      "required": "This field is required",
+      "invalidEmail": "Invalid email",
+      "invalidNif": "Invalid NIF/NIE",
+      "invalidCif": "Invalid CIF",
+      "invalidIban": "Invalid IBAN"
+    },
+    "errors": {
+      "generic": "An error occurred",
+      "connection": "Connection error",
+      "notFound": "Not found",
+      "unauthorized": "Unauthorized",
+      "saveError": "Error saving",
+      "deleteError": "Error deleting",
+      "loadError": "Error loading"
+    }
+  }
+}
