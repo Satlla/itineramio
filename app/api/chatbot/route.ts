@@ -257,7 +257,24 @@ export async function POST(request: NextRequest) {
 // MEDIA DETECTION
 // ========================================
 
-// Extract significant words (3+ chars) from text for fuzzy matching
+// Synonyms/related words for common zone topics (multilingual)
+const ZONE_SYNONYMS: Record<string, string[]> = {
+  'check in': ['entrar', 'entrada', 'llegar', 'llegada', 'acceso', 'acceder', 'enter', 'arrival', 'arrive', 'access', 'key', 'llave', 'código', 'code', 'puerta', 'door', 'portal', 'arrivée', 'entrer', 'accès', 'clé', 'porte'],
+  'check out': ['salir', 'salida', 'dejar', 'leave', 'leaving', 'departure', 'checkout', 'sortie', 'partir', 'quitter'],
+  'wifi': ['internet', 'wifi', 'contraseña', 'password', 'red', 'network', 'conexión', 'connection', 'réseau', 'mot de passe'],
+  'parking': ['aparcar', 'coche', 'garaje', 'garage', 'car', 'park', 'voiture', 'garer', 'estacionamiento'],
+  'climatización': ['aire', 'calefacción', 'heating', 'cooling', 'temperature', 'temperatura', 'frío', 'calor', 'cold', 'hot', 'chauffage', 'climatisation'],
+  'cocina': ['cocinar', 'cook', 'kitchen', 'horno', 'oven', 'microondas', 'microwave', 'vitrocerámica', 'cuisiner', 'cuisine', 'four'],
+  'vitrocerámica': ['vitro', 'cocina', 'placa', 'hob', 'stove', 'cooktop', 'cocinar', 'cook', 'plaque'],
+  'microondas': ['microwave', 'calentar', 'heat', 'warm', 'micro', 'réchauffer'],
+  'lavadora': ['lavar', 'ropa', 'wash', 'laundry', 'washing', 'clothes', 'linge', 'laver', 'machine'],
+  'basura': ['reciclar', 'reciclaje', 'trash', 'garbage', 'recycling', 'waste', 'bin', 'poubelle', 'déchet', 'recycler'],
+  'recomendaciones': ['restaurante', 'comer', 'restaurant', 'eat', 'food', 'visitar', 'visit', 'actividad', 'activity', 'manger', 'activité'],
+  'emergencia': ['emergencia', 'emergency', 'urgencia', 'urgence', 'policía', 'police', 'hospital', 'teléfono', 'phone', 'ambulancia', 'ambulance'],
+  'normas': ['regla', 'rule', 'norma', 'ruido', 'noise', 'prohibido', 'forbidden', 'règle', 'bruit', 'interdit'],
+  'transporte': ['metro', 'bus', 'taxi', 'tren', 'train', 'transport', 'llegar', 'aéroport', 'airport', 'aeropuerto'],
+};
+
 function getKeywords(text: string): string[] {
   return text.toLowerCase()
     .replace(/[-_/\\.,;:!?()]/g, ' ')
@@ -265,31 +282,36 @@ function getKeywords(text: string): string[] {
     .filter(w => w.length >= 3);
 }
 
-// Check if any keywords from source appear in target
-function hasKeywordOverlap(sourceWords: string[], targetText: string): boolean {
-  const targetWords = new Set(getKeywords(targetText));
-  return sourceWords.some(word => targetWords.has(word));
-}
-
 function detectRelevantMedia(userMessage: string, aiResponse: string, zones: any[], language: string): MediaItem[] {
   const media: MediaItem[] = [];
   const combinedText = (userMessage + ' ' + aiResponse).toLowerCase();
-  const combinedKeywords = getKeywords(combinedText);
+  const combinedKeywords = new Set(getKeywords(combinedText));
 
   for (const zone of zones) {
     const zoneName = getLocalizedText(zone.name, language);
+    const zoneNameLower = zoneName.toLowerCase();
     const zoneKeywords = getKeywords(zoneName);
-    // Check if zone is relevant by keyword overlap
-    const zoneIsRelevant = zoneKeywords.length > 0 && zoneKeywords.some(w => combinedKeywords.includes(w));
+
+    // Check zone relevance: direct keywords + synonyms
+    let zoneIsRelevant = zoneKeywords.some(w => combinedKeywords.has(w));
+
+    // Check synonyms for this zone
+    if (!zoneIsRelevant) {
+      for (const [key, synonyms] of Object.entries(ZONE_SYNONYMS)) {
+        if (zoneNameLower.includes(key) || key.includes(zoneNameLower)) {
+          zoneIsRelevant = synonyms.some(s => combinedKeywords.has(s));
+          if (zoneIsRelevant) break;
+        }
+      }
+    }
 
     for (const step of (zone.steps || [])) {
       const content = step.content as any;
       if (!content || !content.mediaUrl) continue;
 
       const stepTitle = getLocalizedText(step.title, language);
-      // Only match against zone name + step title (NOT full content text — too many false positives)
       const stepTitleKeywords = getKeywords(stepTitle);
-      const stepIsRelevant = stepTitleKeywords.length > 0 && stepTitleKeywords.some(w => combinedKeywords.includes(w));
+      const stepIsRelevant = stepTitleKeywords.length > 0 && stepTitleKeywords.some(w => combinedKeywords.has(w));
 
       if (!zoneIsRelevant && !stepIsRelevant) continue;
 
@@ -299,7 +321,6 @@ function detectRelevantMedia(userMessage: string, aiResponse: string, zones: any
         caption: stepTitle || zoneName
       });
 
-      // Max 2 media items
       if (media.length >= 2) return media;
     }
   }
