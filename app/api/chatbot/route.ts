@@ -136,9 +136,16 @@ export async function POST(request: NextRequest) {
       ? buildZoneSystemPrompt(property, zones[0], language)
       : buildPropertySystemPrompt(property, zones, language);
 
+    // Fetch learned Q&A from previous conversations (non-blocking knowledge)
+    const learnedContext = await getLearnedContext(propertyId);
+
     // Prepare messages for OpenAI
+    const fullSystemPrompt = learnedContext
+      ? systemPrompt + learnedContext
+      : systemPrompt;
+
     const messages: Message[] = [
-      { role: 'assistant', content: systemPrompt },
+      { role: 'assistant', content: fullSystemPrompt },
       ...conversationHistory.slice(-8), // Keep last 8 messages for context
       { role: 'user', content: message }
     ];
@@ -235,38 +242,24 @@ function detectRelevantMedia(userMessage: string, aiResponse: string, zones: any
       if (!content) continue;
 
       const stepTitle = getLocalizedText(step.title, language).toLowerCase();
-      const stepText = (typeof content === 'object' && content.text)
-        ? getLocalizedText(content.text, language).toLowerCase()
-        : (typeof content === 'string' ? content.toLowerCase() : '');
+      // Content stores text at language keys (content.es, content.en) not content.text
+      const stepText = getLocalizedText(content, language).toLowerCase();
 
       // Check if step is relevant to the conversation (keyword match)
-      const isRelevant = stepTitle && combinedText.includes(stepTitle)
-        || zoneName && combinedText.includes(zoneName)
-        || stepText && stepText.length > 5 && combinedText.includes(stepText.substring(0, 30));
+      const isRelevant = (stepTitle && stepTitle.length > 2 && combinedText.includes(stepTitle))
+        || (zoneName && zoneName.length > 2 && combinedText.includes(zoneName))
+        || (stepText && stepText.length > 10 && combinedText.includes(stepText.substring(0, 30)));
 
       if (!isRelevant) continue;
 
-      // Extract media from step
-      if (step.type === 'IMAGE' || content.imageUrl) {
-        const url = content.imageUrl || content.mediaUrl;
-        if (url) {
-          media.push({
-            type: 'IMAGE',
-            url,
-            caption: getLocalizedText(step.title, language) || getLocalizedText(zone.name, language)
-          });
-        }
-      }
-
-      if (step.type === 'VIDEO' || content.videoUrl) {
-        const url = content.videoUrl || content.mediaUrl;
-        if (url) {
-          media.push({
-            type: 'VIDEO',
-            url,
-            caption: getLocalizedText(step.title, language) || getLocalizedText(zone.name, language)
-          });
-        }
+      // Extract media — steps use content.mediaUrl for both IMAGE and VIDEO
+      const mediaUrl = content.mediaUrl;
+      if (mediaUrl) {
+        media.push({
+          type: step.type === 'VIDEO' ? 'VIDEO' : 'IMAGE',
+          url: mediaUrl,
+          caption: getLocalizedText(step.title, language) || getLocalizedText(zone.name, language)
+        });
       }
 
       // Max 2 media items
@@ -359,6 +352,47 @@ async function saveConversation(params: {
 }
 
 // ========================================
+// LEARNING — Previous conversations context
+// ========================================
+
+async function getLearnedContext(propertyId: string): Promise<string> {
+  try {
+    // Get recent conversations with good Q&A pairs (last 30 days, max 10)
+    const recentConversations = await prisma.chatbotConversation.findMany({
+      where: {
+        propertyId,
+        createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+      },
+      select: { messages: true },
+      orderBy: { createdAt: 'desc' },
+      take: 10
+    });
+
+    if (recentConversations.length === 0) return '';
+
+    // Extract common Q&A patterns from previous conversations
+    const qaPairs: string[] = [];
+    for (const conv of recentConversations) {
+      const msgs = Array.isArray(conv.messages) ? conv.messages as any[] : [];
+      for (let i = 0; i < msgs.length - 1; i++) {
+        if (msgs[i].role === 'user' && msgs[i + 1]?.role === 'assistant') {
+          const q = msgs[i].content?.substring(0, 80);
+          const a = msgs[i + 1].content?.substring(0, 120);
+          if (q && a) qaPairs.push(`- P: ${q} → R: ${a}`);
+        }
+      }
+      if (qaPairs.length >= 8) break;
+    }
+
+    if (qaPairs.length === 0) return '';
+
+    return `\n\nPREGUNTAS FRECUENTES DE HUÉSPEDES ANTERIORES (usa como referencia):\n${qaPairs.join('\n')}`;
+  } catch {
+    return '';
+  }
+}
+
+// ========================================
 // HELPER FUNCTIONS
 // ========================================
 
@@ -373,18 +407,18 @@ function getLocalizedText(value: any, language: string): string {
 function buildStepDescription(step: any, index: number, language: string): string {
   const content = step.content as any;
   const title = getLocalizedText(step.title, language);
-  const text = content && typeof content === 'object' && content.text
-    ? getLocalizedText(content.text, language)
-    : (typeof content === 'string' ? content : '');
+  // Content stores text at language keys (content.es, content.en), not content.text
+  const text = getLocalizedText(content, language);
 
   let desc = `Paso ${index + 1}: ${text || title}`;
 
   // Include media info so AI knows about available media
-  if (step.type === 'IMAGE' || (content && content.imageUrl)) {
-    desc += ` [tiene imagen disponible]`;
-  }
-  if (step.type === 'VIDEO' || (content && content.videoUrl)) {
-    desc += ` [tiene vídeo disponible]`;
+  if (content && content.mediaUrl) {
+    if (step.type === 'VIDEO') {
+      desc += ` [tiene vídeo disponible]`;
+    } else if (step.type === 'IMAGE') {
+      desc += ` [tiene imagen disponible]`;
+    }
   }
 
   return desc;
@@ -417,15 +451,17 @@ ${zoneSteps || 'No hay pasos disponibles'}
 
 ${hostInfo}
 
-INSTRUCCIONES:
-- Responde siempre en español de forma amigable y útil
-- Usa la información específica de la zona y pasos cuando sea relevante
-- Si un paso tiene imagen o vídeo disponible y es relevante, menciónalo en tu respuesta
-- Si no tienes información específica, sugiere contactar al anfitrión
-- Sé conciso pero completo (máximo 2-3 párrafos)
-- Si te preguntan sobre servicios, check-in, Wi-Fi, etc., refiere a los pasos específicos
-- Mantén un tono profesional pero cálido
-- No inventes información que no tengas`,
+ESTILO DE RESPUESTA:
+- Responde en español como un anfitrión cercano y amable, como si hablaras por WhatsApp con tu huésped
+- Usa **negritas** para destacar lo importante (nombres, datos clave, pasos)
+- Usa listas con - cuando enumeres cosas
+- Si mencionas un enlace, formatea como [texto](url)
+- Sé breve y directo (máximo 2-3 párrafos cortos)
+- Usa emojis ocasionalmente para ser más cercano (📍🏠✅ etc.)
+- Si un paso tiene imagen o vídeo disponible, menciónalo
+- Si no tienes la información, sugiere contactar al anfitrión amablemente
+- No inventes información que no tengas
+- Recuerda el contexto de la conversación anterior para dar respuestas coherentes`,
 
     en: `You are a virtual assistant expert for the property "${getLocalizedText(property.name, language)}" located in ${property.city}, ${property.country}.
 You are specifically helping with the "${getLocalizedText(zone.name, language)}" zone.
@@ -441,15 +477,17 @@ ${zoneSteps || 'No steps available'}
 
 ${hostInfo}
 
-INSTRUCTIONS:
-- Always respond in English in a friendly and helpful manner
-- Use specific zone and step information when relevant
-- If a step has an image or video available and is relevant, mention it in your response
-- If you don't have specific information, suggest contacting the host
-- Be concise but complete (maximum 2-3 paragraphs)
-- For questions about services, check-in, Wi-Fi, etc., refer to specific steps
-- Maintain a professional but warm tone
-- Don't make up information you don't have`,
+RESPONSE STYLE:
+- Respond in English like a friendly, approachable host — as if chatting on WhatsApp with your guest
+- Use **bold** to highlight important info (names, key data, steps)
+- Use bullet lists with - when listing things
+- Format links as [text](url) when relevant
+- Be brief and direct (max 2-3 short paragraphs)
+- Use occasional emojis to be friendly (📍🏠✅ etc.)
+- If a step has an image or video available, mention it
+- If you don't have the info, kindly suggest contacting the host
+- Don't make up information
+- Remember previous conversation context for coherent answers`,
 
     fr: `Vous êtes un assistant virtuel expert pour la propriété "${getLocalizedText(property.name, language)}" située à ${property.city}, ${property.country}.
 Vous aidez spécifiquement avec la zone "${getLocalizedText(zone.name, language)}".
@@ -465,15 +503,17 @@ ${zoneSteps || 'Aucune étape disponible'}
 
 ${hostInfo}
 
-INSTRUCTIONS:
-- Répondez toujours en français de manière amicale et utile
-- Utilisez les informations spécifiques de la zone et des étapes quand c'est pertinent
-- Si une étape a une image ou vidéo disponible et pertinente, mentionnez-le dans votre réponse
-- Si vous n'avez pas d'informations spécifiques, suggérez de contacter l'hôte
-- Soyez concis mais complet (maximum 2-3 paragraphes)
-- Pour les questions sur les services, l'enregistrement, le Wi-Fi, etc., référez aux étapes spécifiques
-- Maintenez un ton professionnel mais chaleureux
-- N'inventez pas d'informations que vous n'avez pas`
+STYLE DE RÉPONSE:
+- Répondez en français comme un hôte sympathique et accessible, comme sur WhatsApp avec votre invité
+- Utilisez le **gras** pour mettre en valeur les infos importantes (noms, données clés, étapes)
+- Utilisez des listes avec - pour énumérer
+- Formatez les liens comme [texte](url) si pertinent
+- Soyez bref et direct (max 2-3 paragraphes courts)
+- Utilisez des emojis occasionnellement pour être plus chaleureux (📍🏠✅ etc.)
+- Si une étape a une image ou vidéo, mentionnez-le
+- Si vous n'avez pas l'info, suggérez gentiment de contacter l'hôte
+- N'inventez pas d'informations
+- Gardez le contexte de la conversation pour des réponses cohérentes`
   };
 
   return prompts[language] || prompts.es;
@@ -523,15 +563,18 @@ ${hostInfo}
 ZONAS DEL MANUAL:
 ${zonesContent || 'No hay zonas disponibles'}
 
-INSTRUCCIONES:
-- Responde siempre en español de forma amigable y útil
-- Usa la información de cualquier zona relevante para responder
-- Si un paso tiene imagen o vídeo disponible y es relevante, menciónalo en tu respuesta
-- Si no tienes información específica, sugiere contactar al anfitrión
-- Sé conciso pero completo (máximo 2-3 párrafos)
-- Si te preguntan sobre servicios, check-in, Wi-Fi, parking, etc., busca en las zonas relevantes
-- Mantén un tono profesional pero cálido
-- No inventes información que no tengas`,
+ESTILO DE RESPUESTA:
+- Responde en español como un anfitrión cercano y amable, como si hablaras por WhatsApp con tu huésped
+- Usa **negritas** para destacar lo importante (nombres, datos clave, pasos)
+- Usa listas con - cuando enumeres cosas
+- Si mencionas un enlace, formatea como [texto](url)
+- Sé breve y directo (máximo 2-3 párrafos cortos)
+- Usa emojis ocasionalmente para ser más cercano (📍🏠✅ etc.)
+- Busca en todas las zonas relevantes para dar la mejor respuesta
+- Si un paso tiene imagen o vídeo disponible, menciónalo
+- Si no tienes la información, sugiere contactar al anfitrión amablemente
+- No inventes información que no tengas
+- Recuerda el contexto de la conversación anterior para dar respuestas coherentes`,
 
     en: `You are a virtual assistant expert for the property "${propertyName}" located in ${property.city}, ${property.country}.
 You have access to ALL zones and sections of the property manual.
@@ -544,15 +587,18 @@ ${hostInfo}
 MANUAL ZONES:
 ${zonesContent || 'No zones available'}
 
-INSTRUCTIONS:
-- Always respond in English in a friendly and helpful manner
-- Use information from any relevant zone to answer
-- If a step has an image or video available and is relevant, mention it in your response
-- If you don't have specific information, suggest contacting the host
-- Be concise but complete (maximum 2-3 paragraphs)
-- For questions about services, check-in, Wi-Fi, parking, etc., search relevant zones
-- Maintain a professional but warm tone
-- Don't make up information you don't have`,
+RESPONSE STYLE:
+- Respond in English like a friendly, approachable host — as if chatting on WhatsApp with your guest
+- Use **bold** to highlight important info (names, key data, steps)
+- Use bullet lists with - when listing things
+- Format links as [text](url) when relevant
+- Be brief and direct (max 2-3 short paragraphs)
+- Use occasional emojis to be friendly (📍🏠✅ etc.)
+- Search all relevant zones to give the best answer
+- If a step has an image or video available, mention it
+- If you don't have the info, kindly suggest contacting the host
+- Don't make up information
+- Remember previous conversation context for coherent answers`,
 
     fr: `Vous êtes un assistant virtuel expert pour la propriété "${propertyName}" située à ${property.city}, ${property.country}.
 Vous avez accès à TOUTES les zones et sections du manuel de la propriété.
@@ -565,15 +611,18 @@ ${hostInfo}
 ZONES DU MANUEL:
 ${zonesContent || 'Aucune zone disponible'}
 
-INSTRUCTIONS:
-- Répondez toujours en français de manière amicale et utile
-- Utilisez les informations de n'importe quelle zone pertinente pour répondre
-- Si une étape a une image ou vidéo disponible et pertinente, mentionnez-le dans votre réponse
-- Si vous n'avez pas d'informations spécifiques, suggérez de contacter l'hôte
-- Soyez concis mais complet (maximum 2-3 paragraphes)
-- Pour les questions sur les services, l'enregistrement, le Wi-Fi, le parking, etc., cherchez dans les zones pertinentes
-- Maintenez un ton professionnel mais chaleureux
-- N'inventez pas d'informations que vous n'avez pas`
+STYLE DE RÉPONSE:
+- Répondez en français comme un hôte sympathique et accessible, comme sur WhatsApp avec votre invité
+- Utilisez le **gras** pour mettre en valeur les infos importantes (noms, données clés, étapes)
+- Utilisez des listes avec - pour énumérer
+- Formatez les liens comme [texte](url) si pertinent
+- Soyez bref et direct (max 2-3 paragraphes courts)
+- Utilisez des emojis occasionnellement pour être plus chaleureux (📍🏠✅ etc.)
+- Cherchez dans toutes les zones pertinentes pour la meilleure réponse
+- Si une étape a une image ou vidéo, mentionnez-le
+- Si vous n'avez pas l'info, suggérez gentiment de contacter l'hôte
+- N'inventez pas d'informations
+- Gardez le contexte de la conversation pour des réponses cohérentes`
   };
 
   return prompts[language] || prompts.es;

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MessageCircle,
@@ -540,7 +541,27 @@ export default function ChatBot({
                                 <span>{message.content}</span>
                               </div>
                             ) : (
-                              <div className="whitespace-pre-wrap">{message.content}</div>
+                              <div className="chatbot-markdown prose prose-sm max-w-none">
+                                <ReactMarkdown
+                                  components={{
+                                    p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+                                    strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+                                    a: ({ href, children }) => (
+                                      <a href={href} target="_blank" rel="noopener noreferrer" className="text-violet-600 underline hover:text-violet-800">
+                                        {children}
+                                      </a>
+                                    ),
+                                    ul: ({ children }) => <ul className="list-disc pl-4 mb-1">{children}</ul>,
+                                    ol: ({ children }) => <ol className="list-decimal pl-4 mb-1">{children}</ol>,
+                                    li: ({ children }) => <li className="mb-0.5">{children}</li>,
+                                    img: ({ src, alt }) => (
+                                      <img src={src} alt={alt || ''} loading="lazy" className="rounded-lg max-h-40 w-full object-cover my-1" />
+                                    ),
+                                  }}
+                                >
+                                  {message.content}
+                                </ReactMarkdown>
+                              </div>
                             )}
                           </div>
 
