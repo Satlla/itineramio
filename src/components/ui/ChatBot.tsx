@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MessageCircle,
@@ -13,8 +13,15 @@ import {
   AlertCircle,
   Loader2,
   Minimize2,
-  Maximize2
+  Maximize2,
+  Mail
 } from 'lucide-react'
+
+interface MediaItem {
+  type: 'IMAGE' | 'VIDEO'
+  url: string
+  caption?: string
+}
 
 interface Message {
   id: string
@@ -22,6 +29,7 @@ interface Message {
   content: string
   timestamp: Date
   typing?: boolean
+  media?: MediaItem[]
 }
 
 interface ChatBotProps {
@@ -64,6 +72,13 @@ const i18n: Record<string, Record<string, string>> = {
     faq3a: 'Las instrucciones de check-in están detalladas en la zona de acceso. Sigue los pasos numerados para completar tu llegada.',
     faq4q: '¿Hay parking disponible?',
     faq4a: 'La información sobre parking está disponible en las instrucciones específicas de la propiedad. Revisa las zonas de acceso o servicios.',
+    emailPrompt: '¿Te gustaría recibir recomendaciones durante tu estancia?',
+    emailPlaceholder: 'tu@email.com',
+    namePlaceholder: 'Tu nombre (opcional)',
+    emailSubmit: 'Enviar',
+    emailSkip: 'Ahora no',
+    emailSuccess: '¡Gracias! Te enviaremos recomendaciones útiles.',
+    emailError: 'Error al enviar. Inténtalo de nuevo.',
   },
   en: {
     header: 'AI Assistant',
@@ -84,6 +99,13 @@ const i18n: Record<string, Record<string, string>> = {
     faq3a: 'Check-in instructions are detailed in the access zone. Follow the numbered steps to complete your arrival.',
     faq4q: 'Is parking available?',
     faq4a: 'Parking information is available in the specific property instructions. Check the access or services zones.',
+    emailPrompt: 'Would you like to receive recommendations during your stay?',
+    emailPlaceholder: 'you@email.com',
+    namePlaceholder: 'Your name (optional)',
+    emailSubmit: 'Send',
+    emailSkip: 'Not now',
+    emailSuccess: 'Thank you! We\'ll send you useful recommendations.',
+    emailError: 'Error sending. Please try again.',
   },
   fr: {
     header: 'Assistant IA',
@@ -104,6 +126,13 @@ const i18n: Record<string, Record<string, string>> = {
     faq3a: 'Les instructions d\'enregistrement sont détaillées dans la zone d\'accès. Suivez les étapes numérotées pour compléter votre arrivée.',
     faq4q: 'Y a-t-il un parking disponible ?',
     faq4a: 'Les informations de parking sont disponibles dans les instructions spécifiques de la propriété. Consultez les zones d\'accès ou de services.',
+    emailPrompt: 'Souhaitez-vous recevoir des recommandations pendant votre séjour ?',
+    emailPlaceholder: 'vous@email.com',
+    namePlaceholder: 'Votre nom (optionnel)',
+    emailSubmit: 'Envoyer',
+    emailSkip: 'Pas maintenant',
+    emailSuccess: 'Merci ! Nous vous enverrons des recommandations utiles.',
+    emailError: 'Erreur d\'envoi. Veuillez réessayer.',
   }
 }
 
@@ -124,6 +153,14 @@ function getFAQs(lang: string): FAQ[] {
   ]
 }
 
+function generateSessionId(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0
+    const v = c === 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
+}
+
 export default function ChatBot({
   propertyId,
   zoneId,
@@ -140,6 +177,20 @@ export default function ChatBot({
   const [isLoading, setIsLoading] = useState(false)
   const [showFAQs, setShowFAQs] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Email collection state
+  const [showEmailOverlay, setShowEmailOverlay] = useState(false)
+  const [emailCollected, setEmailCollected] = useState(false)
+  const [emailDismissed, setEmailDismissed] = useState(false)
+  const [emailInput, setEmailInput] = useState('')
+  const [nameInput, setNameInput] = useState('')
+  const [emailSubmitting, setEmailSubmitting] = useState(false)
+  const [emailError, setEmailError] = useState(false)
+  const [emailSuccess, setEmailSuccess] = useState(false)
+
+  // Session tracking
+  const sessionIdRef = useRef<string>(generateSessionId())
+  const userMessageCountRef = useRef(0)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -171,6 +222,13 @@ export default function ChatBot({
       inputRef.current?.focus()
     }
   }, [isOpen, isMinimized])
+
+  // Show email overlay after 3 user messages
+  useEffect(() => {
+    if (userMessageCountRef.current >= 3 && !emailCollected && !emailDismissed && !showEmailOverlay) {
+      setShowEmailOverlay(true)
+    }
+  }, [messages, emailCollected, emailDismissed, showEmailOverlay])
 
   const initializeChat = () => {
     const welcomeKey = zoneId && zoneName ? 'welcomeZone' : 'welcomeProperty'
@@ -205,6 +263,45 @@ export default function ChatBot({
     setIsMinimized(!isMinimized)
   }
 
+  const handleEmailSubmit = async () => {
+    if (!emailInput.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput)) return
+
+    setEmailSubmitting(true)
+    setEmailError(false)
+
+    try {
+      const res = await fetch('/api/chatbot/collect-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: emailInput.trim(),
+          name: nameInput.trim() || undefined,
+          propertyId,
+          sessionId: sessionIdRef.current,
+          language: lang
+        })
+      })
+
+      if (!res.ok) throw new Error('Failed')
+
+      setEmailCollected(true)
+      setEmailSuccess(true)
+      setTimeout(() => {
+        setShowEmailOverlay(false)
+        setEmailSuccess(false)
+      }, 2000)
+    } catch {
+      setEmailError(true)
+    } finally {
+      setEmailSubmitting(false)
+    }
+  }
+
+  const handleEmailDismiss = () => {
+    setEmailDismissed(true)
+    setShowEmailOverlay(false)
+  }
+
   const sendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return
 
@@ -220,6 +317,7 @@ export default function ChatBot({
     setIsLoading(true)
     setError(null)
     setShowFAQs(false)
+    userMessageCountRef.current += 1
 
     // Add typing indicator
     const typingMessage: Message = {
@@ -237,7 +335,8 @@ export default function ChatBot({
         propertyId,
         propertyName,
         language: lang,
-        conversationHistory: messages.filter(m => !m.typing).slice(-10)
+        conversationHistory: messages.filter(m => !m.typing).slice(-10),
+        sessionId: sessionIdRef.current
       }
 
       // Only send zoneId/zoneName when available
@@ -274,14 +373,15 @@ export default function ChatBot({
         language: lang
       })
 
-      // Remove typing indicator and add real response
+      // Remove typing indicator and add real response with media
       setMessages(prev => {
         const filtered = prev.filter(m => !m.typing)
         const assistantMessage: Message = {
           id: Date.now().toString(),
           role: 'assistant',
           content: data.response,
-          timestamp: new Date()
+          timestamp: new Date(),
+          media: data.media || undefined
         }
         return [...filtered, assistantMessage]
       })
@@ -408,7 +508,7 @@ export default function ChatBot({
             {!isMinimized && (
               <>
                 {/* Messages */}
-                <div className="h-72 overflow-y-auto p-4 space-y-4">
+                <div className="h-72 overflow-y-auto p-4 space-y-4 relative">
                   {messages.map((message) => (
                     <div
                       key={message.id}
@@ -426,20 +526,52 @@ export default function ChatBot({
                         }`}>
                           {message.role === 'user' ? <User className="w-3 h-3" /> : <Bot className="w-3 h-3" />}
                         </div>
-                        <div
-                          className={`px-3 py-2 rounded-2xl text-sm ${
-                            message.role === 'user'
-                              ? 'bg-violet-600 text-white'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
-                          {message.typing ? (
-                            <div className="flex items-center space-x-1">
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                              <span>{message.content}</span>
+                        <div>
+                          <div
+                            className={`px-3 py-2 rounded-2xl text-sm ${
+                              message.role === 'user'
+                                ? 'bg-violet-600 text-white'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}
+                          >
+                            {message.typing ? (
+                              <div className="flex items-center space-x-1">
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                                <span>{message.content}</span>
+                              </div>
+                            ) : (
+                              <div className="whitespace-pre-wrap">{message.content}</div>
+                            )}
+                          </div>
+
+                          {/* Rich Media */}
+                          {message.media && message.media.length > 0 && (
+                            <div className="mt-2 space-y-2">
+                              {message.media.map((item, idx) => (
+                                <div key={idx} className="rounded-lg overflow-hidden border border-gray-200">
+                                  {item.type === 'IMAGE' ? (
+                                    <img
+                                      src={item.url}
+                                      alt={item.caption || ''}
+                                      loading="lazy"
+                                      className="w-full h-auto max-h-40 object-cover"
+                                    />
+                                  ) : (
+                                    <video
+                                      controls
+                                      preload="none"
+                                      className="w-full max-h-40"
+                                      poster=""
+                                    >
+                                      <source src={item.url} />
+                                    </video>
+                                  )}
+                                  {item.caption && (
+                                    <p className="text-xs text-gray-500 px-2 py-1 bg-gray-50">{item.caption}</p>
+                                  )}
+                                </div>
+                              ))}
                             </div>
-                          ) : (
-                            <div className="whitespace-pre-wrap">{message.content}</div>
                           )}
                         </div>
                       </div>
@@ -470,6 +602,74 @@ export default function ChatBot({
                   )}
 
                   <div ref={messagesEndRef} />
+
+                  {/* Email Collection Overlay */}
+                  <AnimatePresence>
+                    {showEmailOverlay && !emailCollected && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        className="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center p-4 z-10"
+                      >
+                        <div className="w-full max-w-xs space-y-3">
+                          <div className="flex items-center justify-center">
+                            <div className="w-10 h-10 bg-violet-100 rounded-full flex items-center justify-center">
+                              <Mail className="w-5 h-5 text-violet-600" />
+                            </div>
+                          </div>
+                          <p className="text-sm text-center text-gray-700 font-medium">
+                            {t('emailPrompt', lang)}
+                          </p>
+
+                          {emailSuccess ? (
+                            <p className="text-sm text-center text-green-600 font-medium">
+                              {t('emailSuccess', lang)}
+                            </p>
+                          ) : (
+                            <div className="space-y-2">
+                              <input
+                                type="email"
+                                value={emailInput}
+                                onChange={(e) => setEmailInput(e.target.value)}
+                                placeholder={t('emailPlaceholder', lang)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                              />
+                              <input
+                                type="text"
+                                value={nameInput}
+                                onChange={(e) => setNameInput(e.target.value)}
+                                placeholder={t('namePlaceholder', lang)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                              />
+                              {emailError && (
+                                <p className="text-xs text-red-500">{t('emailError', lang)}</p>
+                              )}
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={handleEmailSubmit}
+                                  disabled={emailSubmitting || !emailInput.trim()}
+                                  className="flex-1 px-3 py-2 bg-violet-600 text-white text-sm rounded-lg hover:bg-violet-700 disabled:opacity-50 transition-colors"
+                                >
+                                  {emailSubmitting ? (
+                                    <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                                  ) : (
+                                    t('emailSubmit', lang)
+                                  )}
+                                </button>
+                                <button
+                                  onClick={handleEmailDismiss}
+                                  className="px-3 py-2 text-gray-500 text-sm hover:text-gray-700 transition-colors"
+                                >
+                                  {t('emailSkip', lang)}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Input */}

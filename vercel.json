@@ -14,7 +14,12 @@
       "maxDuration": 60
     }
   },
-  "crons": [],
+  "crons": [
+    {
+      "path": "/api/cron/guest-followup",
+      "schedule": "0 10 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/manifest.json",

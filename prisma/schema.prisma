@@ -248,6 +248,7 @@ model Property {
   zones                   Zone[]
   billingConfig           PropertyBillingConfig?
   clientInvoices          ClientInvoice[]
+  chatbotConversations    ChatbotConversation[]
 
   @@index([slug])
   @@map("properties")
@@ -2519,14 +2520,40 @@ model Guest {
   updatedAt DateTime @updatedAt
 
   // Relaciones
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reservations Reservation[]
+  user                  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reservations          Reservation[]
+  chatbotConversations  ChatbotConversation[]
 
   @@unique([userId, email]) // Email único por gestor (permite null)
   @@index([userId])
   @@index([email])
   @@index([name])
   @@map("guests")
+}
+
+model ChatbotConversation {
+  id                  String    @id @default(cuid())
+  propertyId          String
+  guestId             String?
+  zoneId              String?
+  language            String    @default("es")
+  sessionId           String    @unique // UUID generado en frontend
+  messages            Json      @default("[]") // Array de mensajes completo
+  unansweredQuestions Json      @default("[]") // Preguntas sin respuesta
+  guestEmail          String?
+  guestName           String?
+  followUpSentAt      DateTime? // Para no duplicar emails de follow-up
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  property Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  guest    Guest?    @relation(fields: [guestId], references: [id], onDelete: SetNull)
+
+  @@index([propertyId])
+  @@index([guestEmail])
+  @@index([createdAt])
+  @@index([followUpSentAt])
+  @@map("chatbot_conversations")
 }
 
 model Reservation {

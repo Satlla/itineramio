@@ -7,6 +7,12 @@ interface Message {
   content: string
 }
 
+interface MediaItem {
+  type: 'IMAGE' | 'VIDEO'
+  url: string
+  caption?: string
+}
+
 const CHATBOT_RATE_LIMIT = {
   maxRequests: 20,
   windowMs: 60 * 1000 // 1 minute
@@ -38,7 +44,8 @@ export async function POST(request: NextRequest) {
       zoneName,
       propertyName,
       language = 'es',
-      conversationHistory = []
+      conversationHistory = [],
+      sessionId
     } = await request.json();
 
     if (!message || !propertyId) {
@@ -120,10 +127,11 @@ export async function POST(request: NextRequest) {
       // Fallback to rule-based responses if no OpenAI
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
-      return NextResponse.json({ response });
+      const media = detectRelevantMedia(message, response, zones, language);
+      return NextResponse.json({ response, media: media.length > 0 ? media : undefined });
     }
 
-    // Build context for OpenAI
+    // Build context for OpenAI (now includes media info)
     const systemPrompt = zoneId && zones.length === 1
       ? buildZoneSystemPrompt(property, zones[0], language)
       : buildPropertySystemPrompt(property, zones, language);
@@ -164,17 +172,43 @@ export async function POST(request: NextRequest) {
         throw new Error('No response from OpenAI');
       }
 
+      // Detect relevant media from steps
+      const media = detectRelevantMedia(message, aiResponse, zones, language);
+
+      // Detect if question was unanswered
+      const isUnanswered = detectUnansweredQuestion(aiResponse, language);
+
       // Log the interaction silently (non-blocking, no DB FK issues)
       logChatInteraction(propertyId, zoneId || null, message, aiResponse);
 
-      return NextResponse.json({ response: aiResponse });
+      // Save conversation to DB (non-blocking)
+      if (sessionId) {
+        saveConversation({
+          propertyId,
+          zoneId: zoneId || null,
+          sessionId,
+          language,
+          userMessage: message,
+          aiResponse,
+          isUnanswered
+        });
+      }
+
+      return NextResponse.json({
+        response: aiResponse,
+        media: media.length > 0 ? media : undefined
+      });
 
     } catch (openaiError) {
       console.error('OpenAI API error:', openaiError);
       // Fallback to rule-based response if OpenAI fails
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
-      return NextResponse.json({ response });
+      const media = detectRelevantMedia(message, response, zones, language);
+      return NextResponse.json({
+        response,
+        media: media.length > 0 ? media : undefined
+      });
     }
 
   } catch (error) {
@@ -185,6 +219,149 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// ========================================
+// MEDIA DETECTION
+// ========================================
+
+function detectRelevantMedia(userMessage: string, aiResponse: string, zones: any[], language: string): MediaItem[] {
+  const media: MediaItem[] = [];
+  const combinedText = (userMessage + ' ' + aiResponse).toLowerCase();
+
+  for (const zone of zones) {
+    const zoneName = getLocalizedText(zone.name, language).toLowerCase();
+
+    for (const step of (zone.steps || [])) {
+      const content = step.content as any;
+      if (!content) continue;
+
+      const stepTitle = getLocalizedText(step.title, language).toLowerCase();
+      const stepText = (typeof content === 'object' && content.text)
+        ? getLocalizedText(content.text, language).toLowerCase()
+        : (typeof content === 'string' ? content.toLowerCase() : '');
+
+      // Check if step is relevant to the conversation (keyword match)
+      const isRelevant = stepTitle && combinedText.includes(stepTitle)
+        || zoneName && combinedText.includes(zoneName)
+        || stepText && stepText.length > 5 && combinedText.includes(stepText.substring(0, 30));
+
+      if (!isRelevant) continue;
+
+      // Extract media from step
+      if (step.type === 'IMAGE' || content.imageUrl) {
+        const url = content.imageUrl || content.mediaUrl;
+        if (url) {
+          media.push({
+            type: 'IMAGE',
+            url,
+            caption: getLocalizedText(step.title, language) || getLocalizedText(zone.name, language)
+          });
+        }
+      }
+
+      if (step.type === 'VIDEO' || content.videoUrl) {
+        const url = content.videoUrl || content.mediaUrl;
+        if (url) {
+          media.push({
+            type: 'VIDEO',
+            url,
+            caption: getLocalizedText(step.title, language) || getLocalizedText(zone.name, language)
+          });
+        }
+      }
+
+      // Max 2 media items
+      if (media.length >= 2) return media;
+    }
+  }
+
+  return media;
+}
+
+// ========================================
+// UNANSWERED QUESTION DETECTION
+// ========================================
+
+function detectUnansweredQuestion(aiResponse: string, language: string): boolean {
+  const lower = aiResponse.toLowerCase();
+
+  const fallbackPhrases: Record<string, string[]> = {
+    es: ['contacta al anfitrión', 'contactar al anfitrión', 'contacta directamente', 'no tengo información', 'no dispongo de esa información'],
+    en: ['contact the host', 'contact your host', 'reach out to the host', 'don\'t have that information', 'do not have specific information'],
+    fr: ['contactez l\'hôte', 'contacter l\'hôte', 'je n\'ai pas cette information', 'je ne dispose pas de cette information']
+  };
+
+  const phrases = fallbackPhrases[language] || fallbackPhrases.es;
+
+  // If the response primarily suggests contacting the host without providing specific info
+  const hasFallbackPhrase = phrases.some(phrase => lower.includes(phrase));
+  // Check if response is very short (likely generic)
+  const isShort = aiResponse.length < 80;
+
+  return hasFallbackPhrase || isShort;
+}
+
+// ========================================
+// CONVERSATION PERSISTENCE (non-blocking)
+// ========================================
+
+async function saveConversation(params: {
+  propertyId: string;
+  zoneId: string | null;
+  sessionId: string;
+  language: string;
+  userMessage: string;
+  aiResponse: string;
+  isUnanswered: boolean;
+}) {
+  try {
+    const { propertyId, zoneId, sessionId, language, userMessage, aiResponse, isUnanswered } = params;
+
+    const existing = await prisma.chatbotConversation.findUnique({
+      where: { sessionId }
+    });
+
+    const newMessagePair = [
+      { role: 'user', content: userMessage, timestamp: new Date().toISOString() },
+      { role: 'assistant', content: aiResponse, timestamp: new Date().toISOString() }
+    ];
+
+    if (existing) {
+      const currentMessages = Array.isArray(existing.messages) ? existing.messages as any[] : [];
+      const currentUnanswered = Array.isArray(existing.unansweredQuestions) ? existing.unansweredQuestions as any[] : [];
+
+      await prisma.chatbotConversation.update({
+        where: { sessionId },
+        data: {
+          messages: [...currentMessages, ...newMessagePair],
+          unansweredQuestions: isUnanswered
+            ? [...currentUnanswered, { question: userMessage, timestamp: new Date().toISOString() }]
+            : currentUnanswered
+        }
+      });
+    } else {
+      await prisma.chatbotConversation.create({
+        data: {
+          propertyId,
+          zoneId: zoneId || undefined,
+          sessionId,
+          language,
+          messages: newMessagePair,
+          unansweredQuestions: isUnanswered
+            ? [{ question: userMessage, timestamp: new Date().toISOString() }]
+            : []
+        }
+      });
+    }
+  } catch (error) {
+    // Non-blocking — don't fail the chatbot response
+    console.error('[ChatBot] Error saving conversation:', error);
+  }
+}
+
+// ========================================
+// HELPER FUNCTIONS
+// ========================================
+
 function getLocalizedText(value: any, language: string): string {
   if (typeof value === 'string') return value;
   if (value && typeof value === 'object') {
@@ -193,11 +370,29 @@ function getLocalizedText(value: any, language: string): string {
   return '';
 }
 
+function buildStepDescription(step: any, index: number, language: string): string {
+  const content = step.content as any;
+  const title = getLocalizedText(step.title, language);
+  const text = content && typeof content === 'object' && content.text
+    ? getLocalizedText(content.text, language)
+    : (typeof content === 'string' ? content : '');
+
+  let desc = `Paso ${index + 1}: ${text || title}`;
+
+  // Include media info so AI knows about available media
+  if (step.type === 'IMAGE' || (content && content.imageUrl)) {
+    desc += ` [tiene imagen disponible]`;
+  }
+  if (step.type === 'VIDEO' || (content && content.videoUrl)) {
+    desc += ` [tiene vídeo disponible]`;
+  }
+
+  return desc;
+}
+
 function buildZoneSystemPrompt(property: any, zone: any, language: string): string {
   const zoneSteps = zone.steps.map((step: any, index: number) => {
-    const stepContent = getLocalizedText(step.content, language)
-      || getLocalizedText(step.title, language);
-    return `Paso ${index + 1}: ${stepContent}`;
+    return buildStepDescription(step, index, language);
   }).join('\n');
 
   const hostInfo = property.host ? `
@@ -225,6 +420,7 @@ ${hostInfo}
 INSTRUCCIONES:
 - Responde siempre en español de forma amigable y útil
 - Usa la información específica de la zona y pasos cuando sea relevante
+- Si un paso tiene imagen o vídeo disponible y es relevante, menciónalo en tu respuesta
 - Si no tienes información específica, sugiere contactar al anfitrión
 - Sé conciso pero completo (máximo 2-3 párrafos)
 - Si te preguntan sobre servicios, check-in, Wi-Fi, etc., refiere a los pasos específicos
@@ -248,6 +444,7 @@ ${hostInfo}
 INSTRUCTIONS:
 - Always respond in English in a friendly and helpful manner
 - Use specific zone and step information when relevant
+- If a step has an image or video available and is relevant, mention it in your response
 - If you don't have specific information, suggest contacting the host
 - Be concise but complete (maximum 2-3 paragraphs)
 - For questions about services, check-in, Wi-Fi, etc., refer to specific steps
@@ -271,6 +468,7 @@ ${hostInfo}
 INSTRUCTIONS:
 - Répondez toujours en français de manière amicale et utile
 - Utilisez les informations spécifiques de la zone et des étapes quand c'est pertinent
+- Si une étape a une image ou vidéo disponible et pertinente, mentionnez-le dans votre réponse
 - Si vous n'avez pas d'informations spécifiques, suggérez de contacter l'hôte
 - Soyez concis mais complet (maximum 2-3 paragraphes)
 - Pour les questions sur les services, l'enregistrement, le Wi-Fi, etc., référez aux étapes spécifiques
@@ -299,11 +497,7 @@ Información del anfitrión:
 
     if (zone.steps && zone.steps.length > 0) {
       for (const [index, step] of zone.steps.entries()) {
-        const stepText = getLocalizedText(step.content, language)
-          || getLocalizedText(step.title, language);
-        if (stepText) {
-          zoneSection += `  Paso ${index + 1}: ${stepText}\n`;
-        }
+        zoneSection += `  ${buildStepDescription(step, index, language)}\n`;
       }
     }
 
@@ -332,6 +526,7 @@ ${zonesContent || 'No hay zonas disponibles'}
 INSTRUCCIONES:
 - Responde siempre en español de forma amigable y útil
 - Usa la información de cualquier zona relevante para responder
+- Si un paso tiene imagen o vídeo disponible y es relevante, menciónalo en tu respuesta
 - Si no tienes información específica, sugiere contactar al anfitrión
 - Sé conciso pero completo (máximo 2-3 párrafos)
 - Si te preguntan sobre servicios, check-in, Wi-Fi, parking, etc., busca en las zonas relevantes
@@ -352,6 +547,7 @@ ${zonesContent || 'No zones available'}
 INSTRUCTIONS:
 - Always respond in English in a friendly and helpful manner
 - Use information from any relevant zone to answer
+- If a step has an image or video available and is relevant, mention it in your response
 - If you don't have specific information, suggest contacting the host
 - Be concise but complete (maximum 2-3 paragraphs)
 - For questions about services, check-in, Wi-Fi, parking, etc., search relevant zones
@@ -372,6 +568,7 @@ ${zonesContent || 'Aucune zone disponible'}
 INSTRUCTIONS:
 - Répondez toujours en français de manière amicale et utile
 - Utilisez les informations de n'importe quelle zone pertinente pour répondre
+- Si une étape a une image ou vidéo disponible et pertinente, mentionnez-le dans votre réponse
 - Si vous n'avez pas d'informations spécifiques, suggérez de contacter l'hôte
 - Soyez concis mais complet (maximum 2-3 paragraphes)
 - Pour les questions sur les services, l'enregistrement, le Wi-Fi, le parking, etc., cherchez dans les zones pertinentes
@@ -442,6 +639,5 @@ function generateFallbackResponse(message: string, property: any, zone: any | nu
 }
 
 function logChatInteraction(propertyId: string, zoneId: string | null, userMessage: string, aiResponse: string) {
-  // Log to console only - AdminActivityLog requires a real admin FK which we don't have in guest context
   console.log(`[ChatBot] Property: ${propertyId}${zoneId ? `, Zone: ${zoneId}` : ''}, Query: ${userMessage.substring(0, 80)}, ResponseLen: ${aiResponse.length}`);
 }
