@@ -131,27 +131,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ response, media: media.length > 0 ? media : undefined });
     }
 
-    // Build context for OpenAI (now includes media info)
+    // Build context for OpenAI + fetch learned context in parallel
     const systemPrompt = zoneId && zones.length === 1
       ? buildZoneSystemPrompt(property, zones[0], language)
       : buildPropertySystemPrompt(property, zones, language);
 
-    // Fetch learned Q&A from previous conversations (non-blocking knowledge)
     const learnedContext = await getLearnedContext(propertyId);
-
-    // Prepare messages for OpenAI
     const fullSystemPrompt = learnedContext
       ? systemPrompt + learnedContext
       : systemPrompt;
 
     const messages: Message[] = [
       { role: 'assistant', content: fullSystemPrompt },
-      ...conversationHistory.slice(-8), // Keep last 8 messages for context
+      ...conversationHistory.slice(-8),
       { role: 'user', content: message }
     ];
 
     try {
-      // Call OpenAI API
+      // Call OpenAI API with streaming
       const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -160,11 +157,12 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
-          messages: messages,
+          messages,
           max_tokens: 500,
           temperature: 0.7,
           presence_penalty: 0.1,
-          frequency_penalty: 0.1
+          frequency_penalty: 0.1,
+          stream: true
         })
       });
 
@@ -172,43 +170,72 @@ export async function POST(request: NextRequest) {
         throw new Error(`OpenAI API error: ${openaiResponse.status}`);
       }
 
-      const data = await openaiResponse.json();
-      const aiResponse = data.choices[0]?.message?.content;
+      // Stream the response to the client
+      const encoder = new TextEncoder();
+      const decoder = new TextDecoder();
+      let fullResponse = '';
 
-      if (!aiResponse) {
-        throw new Error('No response from OpenAI');
-      }
+      const stream = new ReadableStream({
+        async start(controller) {
+          const reader = openaiResponse.body?.getReader();
+          if (!reader) {
+            controller.close();
+            return;
+          }
 
-      // Detect relevant media from steps
-      const media = detectRelevantMedia(message, aiResponse, zones, language);
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
 
-      // Detect if question was unanswered
-      const isUnanswered = detectUnansweredQuestion(aiResponse, language);
+              const chunk = decoder.decode(value, { stream: true });
+              const lines = chunk.split('\n').filter(line => line.trim().startsWith('data: '));
 
-      // Log the interaction silently (non-blocking, no DB FK issues)
-      logChatInteraction(propertyId, zoneId || null, message, aiResponse);
+              for (const line of lines) {
+                const data = line.replace('data: ', '').trim();
+                if (data === '[DONE]') continue;
 
-      // Save conversation to DB (non-blocking)
-      if (sessionId) {
-        saveConversation({
-          propertyId,
-          zoneId: zoneId || null,
-          sessionId,
-          language,
-          userMessage: message,
-          aiResponse,
-          isUnanswered
-        });
-      }
+                try {
+                  const parsed = JSON.parse(data);
+                  const content = parsed.choices?.[0]?.delta?.content;
+                  if (content) {
+                    fullResponse += content;
+                    // Send each token as SSE
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ token: content })}\n\n`));
+                  }
+                } catch {
+                  // Skip malformed chunks
+                }
+              }
+            }
 
-      return NextResponse.json({
-        response: aiResponse,
-        media: media.length > 0 ? media : undefined
+            // After stream completes, send media and finish
+            const media = detectRelevantMedia(message, fullResponse, zones, language);
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, media: media.length > 0 ? media : undefined })}\n\n`));
+            controller.close();
+
+            // Non-blocking: save conversation + log
+            const isUnanswered = detectUnansweredQuestion(fullResponse, language);
+            logChatInteraction(propertyId, zoneId || null, message, fullResponse);
+            if (sessionId) {
+              saveConversation({ propertyId, zoneId: zoneId || null, sessionId, language, userMessage: message, aiResponse: fullResponse, isUnanswered });
+            }
+          } catch (err) {
+            controller.error(err);
+          }
+        }
+      });
+
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        }
       });
 
     } catch (openaiError) {
       console.error('OpenAI API error:', openaiError);
-      // Fallback to rule-based response if OpenAI fails
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
       const media = detectRelevantMedia(message, response, zones, language);

@@ -360,32 +360,88 @@ export default function ChatBot({
         throw new Error('api_error')
       }
 
-      const data = await response.json()
+      const contentType = response.headers.get('content-type') || ''
 
-      // Track chatbot interaction
-      trackEvent('chatbot_interaction', {
-        zoneId,
-        propertyId,
-        zoneName,
-        propertyName,
-        type: 'message',
-        query: userMessage.content,
-        response: data.response,
-        language: lang
-      })
+      if (contentType.includes('text/event-stream')) {
+        // Streaming response — read tokens progressively
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder()
+        const streamMsgId = Date.now().toString()
+        let streamedContent = ''
+        let streamMedia: MediaItem[] | undefined
 
-      // Remove typing indicator and add real response with media
-      setMessages(prev => {
-        const filtered = prev.filter(m => !m.typing)
-        const assistantMessage: Message = {
-          id: Date.now().toString(),
-          role: 'assistant',
-          content: data.response,
-          timestamp: new Date(),
-          media: data.media || undefined
+        // Replace typing indicator with empty assistant message
+        setMessages(prev => {
+          const filtered = prev.filter(m => !m.typing)
+          return [...filtered, { id: streamMsgId, role: 'assistant' as const, content: '', timestamp: new Date() }]
+        })
+
+        if (reader) {
+          let buffer = ''
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+
+            buffer += decoder.decode(value, { stream: true })
+            const lines = buffer.split('\n\n')
+            buffer = lines.pop() || ''
+
+            for (const line of lines) {
+              const dataStr = line.replace('data: ', '').trim()
+              if (!dataStr) continue
+              try {
+                const parsed = JSON.parse(dataStr)
+                if (parsed.token) {
+                  streamedContent += parsed.token
+                  const currentContent = streamedContent
+                  setMessages(prev => prev.map(m =>
+                    m.id === streamMsgId ? { ...m, content: currentContent } : m
+                  ))
+                }
+                if (parsed.done) {
+                  streamMedia = parsed.media
+                }
+              } catch {
+                // Skip malformed chunks
+              }
+            }
+          }
         }
-        return [...filtered, assistantMessage]
-      })
+
+        // Set final content with media
+        const finalContent = streamedContent
+        const finalMedia = streamMedia
+        setMessages(prev => prev.map(m =>
+          m.id === streamMsgId ? { ...m, content: finalContent, media: finalMedia } : m
+        ))
+
+        trackEvent('chatbot_interaction', {
+          zoneId, propertyId, zoneName, propertyName,
+          type: 'message', query: userMessage.content,
+          response: finalContent, language: lang
+        })
+      } else {
+        // Non-streaming fallback response
+        const data = await response.json()
+
+        trackEvent('chatbot_interaction', {
+          zoneId, propertyId, zoneName, propertyName,
+          type: 'message', query: userMessage.content,
+          response: data.response, language: lang
+        })
+
+        setMessages(prev => {
+          const filtered = prev.filter(m => !m.typing)
+          const assistantMessage: Message = {
+            id: Date.now().toString(),
+            role: 'assistant',
+            content: data.response,
+            timestamp: new Date(),
+            media: data.media || undefined
+          }
+          return [...filtered, assistantMessage]
+        })
+      }
 
     } catch (error: any) {
       console.error('Chatbot error:', error)
