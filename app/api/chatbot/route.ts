@@ -260,14 +260,11 @@ function detectRelevantMedia(userMessage: string, aiResponse: string, zones: any
       if (!content || !content.mediaUrl) continue;
 
       const stepTitle = getLocalizedText(step.title, language);
-      const stepText = getLocalizedText(content, language);
-      const stepKeywords = getKeywords(stepTitle + ' ' + stepText);
+      // Only match against zone name + step title (NOT full content text — too many false positives)
+      const stepTitleKeywords = getKeywords(stepTitle);
+      const stepIsRelevant = stepTitleKeywords.length > 0 && stepTitleKeywords.some(w => combinedKeywords.includes(w));
 
-      // Match if zone is relevant OR step keywords overlap with conversation
-      const isRelevant = zoneIsRelevant
-        || (stepKeywords.length > 0 && stepKeywords.some(w => combinedKeywords.includes(w)));
-
-      if (!isRelevant) continue;
+      if (!zoneIsRelevant && !stepIsRelevant) continue;
 
       media.push({
         type: step.type === 'VIDEO' ? 'VIDEO' : 'IMAGE',
