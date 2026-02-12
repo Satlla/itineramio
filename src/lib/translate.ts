@@ -1,5 +1,5 @@
 /**
- * Auto-translation utility using Anthropic Claude Haiku API.
+ * Auto-translation utility using OpenAI gpt-4o-mini.
  * Translates Spanish text to English and French for zone names and step content.
  * Graceful degradation: if the API key is missing or the API fails, saves without translations.
  */
@@ -18,29 +18,25 @@ interface TranslationResult {
 
 /**
  * Translate an array of fields from Spanish to English and French.
- * Only translates fields where `en` or `fr` are empty/missing AND `es` has content.
+ * Always re-translates EN and FR from ES content so edits in Spanish
+ * are reflected in the other languages.
  * Returns a new array with translations merged in (does not mutate input).
  */
 export async function translateFields(fields: TranslatableField[]): Promise<TranslatableField[]> {
-  const apiKey = process.env.ANTHROPIC_API_KEY
+  const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {
     return fields
   }
 
-  // Collect indices and Spanish texts that need translation
-  const toTranslate: { index: number; text: string; needsEn: boolean; needsFr: boolean }[] = []
+  // Collect indices and Spanish texts that have content
+  const toTranslate: { index: number; text: string }[] = []
 
   for (let i = 0; i < fields.length; i++) {
     const field = fields[i]
     const esText = (field.es || '').trim()
     if (!esText) continue
 
-    const needsEn = !field.en || !field.en.trim()
-    const needsFr = !field.fr || !field.fr.trim()
-
-    if (needsEn || needsFr) {
-      toTranslate.push({ index: i, text: esText, needsEn, needsFr })
-    }
+    toTranslate.push({ index: i, text: esText })
   }
 
   if (toTranslate.length === 0) {
@@ -57,14 +53,14 @@ export async function translateFields(fields: TranslatableField[]): Promise<Tran
     const result = fields.map(f => ({ ...f }))
 
     for (let i = 0; i < toTranslate.length; i++) {
-      const { index, needsEn, needsFr } = toTranslate[i]
+      const { index } = toTranslate[i]
       const translation = translations[i]
       if (!translation) continue
 
-      if (needsEn && translation.en) {
+      if (translation.en) {
         result[index].en = translation.en
       }
-      if (needsFr && translation.fr) {
+      if (translation.fr) {
         result[index].fr = translation.fr
       }
     }
@@ -77,12 +73,12 @@ export async function translateFields(fields: TranslatableField[]): Promise<Tran
 }
 
 /**
- * Translate steps array in-place. Handles title and content fields,
+ * Translate steps array. Handles title and content fields,
  * preserving mediaUrl, linkUrl, and all other non-translatable properties.
  * Returns a new array with translations merged in.
  */
 export async function translateSteps(steps: any[]): Promise<any[]> {
-  const apiKey = process.env.ANTHROPIC_API_KEY
+  const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {
     return steps
   }
@@ -135,21 +131,24 @@ export async function translateSteps(steps: any[]): Promise<any[]> {
 }
 
 /**
- * Call the Anthropic API to translate an array of Spanish texts to EN and FR.
+ * Call the OpenAI API to translate an array of Spanish texts to EN and FR.
  */
 async function callTranslationAPI(apiKey: string, texts: string[]): Promise<TranslationResult[]> {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 4096,
+      model: 'gpt-4o-mini',
       temperature: 0.3,
+      max_tokens: 4096,
       messages: [
+        {
+          role: 'system',
+          content: 'You are a professional translator. You translate Spanish texts to English and French. You respond ONLY with valid JSON, no markdown fences, no explanation.',
+        },
         {
           role: 'user',
           content: buildTranslationPrompt(texts),
@@ -160,14 +159,14 @@ async function callTranslationAPI(apiKey: string, texts: string[]): Promise<Tran
 
   if (!response.ok) {
     const errorBody = await response.text().catch(() => 'unknown')
-    throw new Error(`Anthropic API error ${response.status}: ${errorBody}`)
+    throw new Error(`OpenAI API error ${response.status}: ${errorBody}`)
   }
 
   const data = await response.json()
-  const content = data.content?.[0]?.text
+  const content = data.choices?.[0]?.message?.content
 
   if (!content) {
-    throw new Error('Empty response from Anthropic API')
+    throw new Error('Empty response from OpenAI API')
   }
 
   // Parse JSON from the response — handle possible markdown code fences

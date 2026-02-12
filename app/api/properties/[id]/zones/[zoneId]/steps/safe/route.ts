@@ -156,12 +156,17 @@ export async function PUT(
 
     // Auto-translate steps from Spanish to EN/FR
     let translatedStepsList = steps
+    console.log('✅ SAFE - OPENAI_API_KEY set:', !!process.env.OPENAI_API_KEY)
+    console.log('✅ SAFE - First step title:', JSON.stringify(steps[0]?.title))
+    console.log('✅ SAFE - First step content:', JSON.stringify(steps[0]?.content)?.substring(0, 200))
     const rateLimitKey = getRateLimitKey(request, userId, 'translation')
     const rateLimitResult = translationRateLimiter(rateLimitKey)
+    console.log('✅ SAFE - Rate limit allowed:', rateLimitResult.allowed)
     if (rateLimitResult.allowed) {
       try {
         translatedStepsList = await translateSteps(steps)
         console.log('✅ SAFE - Steps auto-translated')
+        console.log('✅ SAFE - Translated first step title:', JSON.stringify(translatedStepsList[0]?.title))
       } catch (e) {
         console.log('✅ SAFE - Translation skipped:', String(e))
       }
