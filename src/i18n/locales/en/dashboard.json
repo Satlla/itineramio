@@ -272,6 +272,7 @@
     "evaluations": "Evaluations",
     "announcements": "Announcements",
     "analytics": "Analytics",
+    "chatbot": "Chatbot",
     "publicView": "Public view",
     "propertyQr": "Full Apartment QR",
     "editProperty": "Edit Property",
@@ -498,6 +499,49 @@
       "hide": "Hide",
       "publish": "Publish"
     }
+  },
+  "chatbot": {
+    "title": "Chatbot — {{name}}",
+    "subtitle": "Conversations, unanswered questions and captured guests",
+    "back": "Back",
+    "anonymous": "Anonymous",
+    "messages": "messages",
+    "conversation": "conversation",
+    "conversationsPlural": "conversations",
+    "viewConversation": "View conversation",
+    "firstSeen": "First seen",
+    "lastSeen": "Last seen",
+    "tabs": {
+      "conversations": "Conversations",
+      "unanswered": "Unanswered",
+      "guests": "Guests",
+      "summary": "Summary"
+    },
+    "stats": {
+      "totalConversations": "Total conversations",
+      "capturedGuests": "Captured guests",
+      "unanswered": "Unanswered questions",
+      "last7Days": "Last 7 days",
+      "last30Days": "Last 30 days",
+      "languageDistribution": "Language distribution",
+      "activity": "Activity"
+    },
+    "empty": {
+      "conversations": "No conversations",
+      "conversationsDesc": "Chatbot conversations will appear here when guests interact with it.",
+      "unanswered": "No unanswered questions",
+      "unansweredDesc": "The chatbot has been able to answer all guest questions.",
+      "guests": "No captured guests",
+      "guestsDesc": "When guests share their email with the chatbot, they will appear here."
+    },
+    "modal": {
+      "unansweredTitle": "Unanswered questions"
+    },
+    "deleteConversation": "Delete conversation",
+    "deleteAll": "Delete all",
+    "deleteAllConfirm": "Delete all conversations?",
+    "confirmDelete": "Confirm",
+    "deleting": "Deleting..."
   },
   "errors": {
     "loadingProperties": "Error loading properties",

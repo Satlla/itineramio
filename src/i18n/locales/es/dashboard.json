@@ -272,6 +272,7 @@
     "evaluations": "Evaluaciones",
     "announcements": "Avisos",
     "analytics": "Analíticas",
+    "chatbot": "Chatbot",
     "publicView": "Vista pública",
     "propertyQr": "QR del Apartamento Completo",
     "editProperty": "Editar Propiedad",
@@ -498,6 +499,49 @@
       "hide": "Ocultar",
       "publish": "Publicar"
     }
+  },
+  "chatbot": {
+    "title": "Chatbot — {{name}}",
+    "subtitle": "Conversaciones, preguntas sin respuesta y huéspedes capturados",
+    "back": "Volver",
+    "anonymous": "Anónimo",
+    "messages": "mensajes",
+    "conversation": "conversación",
+    "conversationsPlural": "conversaciones",
+    "viewConversation": "Ver conversación",
+    "firstSeen": "Primera vez",
+    "lastSeen": "Última vez",
+    "tabs": {
+      "conversations": "Conversaciones",
+      "unanswered": "Sin respuesta",
+      "guests": "Huéspedes",
+      "summary": "Resumen"
+    },
+    "stats": {
+      "totalConversations": "Total conversaciones",
+      "capturedGuests": "Huéspedes capturados",
+      "unanswered": "Preguntas sin respuesta",
+      "last7Days": "Últimos 7 días",
+      "last30Days": "Últimos 30 días",
+      "languageDistribution": "Distribución por idioma",
+      "activity": "Actividad"
+    },
+    "empty": {
+      "conversations": "No hay conversaciones",
+      "conversationsDesc": "Las conversaciones del chatbot aparecerán aquí cuando los huéspedes interactúen con él.",
+      "unanswered": "Sin preguntas sin respuesta",
+      "unansweredDesc": "El chatbot ha podido responder todas las preguntas de los huéspedes.",
+      "guests": "Sin huéspedes capturados",
+      "guestsDesc": "Cuando los huéspedes compartan su email con el chatbot, aparecerán aquí."
+    },
+    "modal": {
+      "unansweredTitle": "Preguntas sin respuesta"
+    },
+    "deleteConversation": "Borrar conversación",
+    "deleteAll": "Borrar todas",
+    "deleteAllConfirm": "¿Borrar todas las conversaciones?",
+    "confirmDelete": "Confirmar",
+    "deleting": "Borrando..."
   },
   "errors": {
     "loadingProperties": "Error al cargar propiedades",

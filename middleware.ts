@@ -140,7 +140,7 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
     // Skip if property identifier is reserved
     if (!reservedPropertyRoutes.includes(propertyIdentifier)) {
       // Skip if this looks like other dashboard routes - DO NOT REWRITE THESE
-      const reservedRoutes = ['zones', 'settings', 'analytics', 'steps', 'qr', 'new', 'announcements', 'evaluations']
+      const reservedRoutes = ['zones', 'settings', 'analytics', 'steps', 'qr', 'new', 'announcements', 'evaluations', 'chatbot']
       if (!reservedRoutes.includes(zoneIdentifier)) {
         const url = request.nextUrl.clone()
         url.pathname = `/properties/slug/${propertyIdentifier}/zone/${zoneIdentifier}`

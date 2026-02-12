@@ -284,36 +284,34 @@ function getKeywords(text: string): string[] {
 
 function detectRelevantMedia(userMessage: string, aiResponse: string, zones: any[], language: string): MediaItem[] {
   const media: MediaItem[] = [];
-  const combinedText = (userMessage + ' ' + aiResponse).toLowerCase();
-  const combinedKeywords = new Set(getKeywords(combinedText));
+  // Only use user keywords to determine relevance (avoids false positives from AI response)
+  const userKeywords = new Set(getKeywords(userMessage));
 
   for (const zone of zones) {
     const zoneName = getLocalizedText(zone.name, language);
     const zoneNameLower = zoneName.toLowerCase();
     const zoneKeywords = getKeywords(zoneName);
 
-    // Check zone relevance: direct keywords + synonyms
-    let zoneIsRelevant = zoneKeywords.some(w => combinedKeywords.has(w));
+    // Check if this zone matches the user's question
+    let zoneMatchesQuery = zoneKeywords.some(w => userKeywords.has(w));
 
-    // Check synonyms for this zone
-    if (!zoneIsRelevant) {
+    if (!zoneMatchesQuery) {
       for (const [key, synonyms] of Object.entries(ZONE_SYNONYMS)) {
         if (zoneNameLower.includes(key) || key.includes(zoneNameLower)) {
-          zoneIsRelevant = synonyms.some(s => combinedKeywords.has(s));
-          if (zoneIsRelevant) break;
+          zoneMatchesQuery = synonyms.some(s => userKeywords.has(s));
+          if (zoneMatchesQuery) break;
         }
       }
     }
 
+    if (!zoneMatchesQuery) continue;
+
+    // Zone is relevant — include all media from this zone
     for (const step of (zone.steps || [])) {
       const content = step.content as any;
       if (!content || !content.mediaUrl) continue;
 
       const stepTitle = getLocalizedText(step.title, language);
-      const stepTitleKeywords = getKeywords(stepTitle);
-      const stepIsRelevant = stepTitleKeywords.length > 0 && stepTitleKeywords.some(w => combinedKeywords.has(w));
-
-      if (!zoneIsRelevant && !stepIsRelevant) continue;
 
       media.push({
         type: step.type === 'VIDEO' ? 'VIDEO' : 'IMAGE',

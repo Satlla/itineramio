@@ -272,6 +272,7 @@
     "evaluations": "Évaluations",
     "announcements": "Annonces",
     "analytics": "Analytiques",
+    "chatbot": "Chatbot",
     "publicView": "Vue publique",
     "propertyQr": "QR de l'Appartement Complet",
     "editProperty": "Modifier la Propriété",
@@ -498,6 +499,49 @@
       "hide": "Masquer",
       "publish": "Publier"
     }
+  },
+  "chatbot": {
+    "title": "Chatbot — {{name}}",
+    "subtitle": "Conversations, questions sans réponse et invités capturés",
+    "back": "Retour",
+    "anonymous": "Anonyme",
+    "messages": "messages",
+    "conversation": "conversation",
+    "conversationsPlural": "conversations",
+    "viewConversation": "Voir la conversation",
+    "firstSeen": "Première fois",
+    "lastSeen": "Dernière fois",
+    "tabs": {
+      "conversations": "Conversations",
+      "unanswered": "Sans réponse",
+      "guests": "Invités",
+      "summary": "Résumé"
+    },
+    "stats": {
+      "totalConversations": "Total conversations",
+      "capturedGuests": "Invités capturés",
+      "unanswered": "Questions sans réponse",
+      "last7Days": "7 derniers jours",
+      "last30Days": "30 derniers jours",
+      "languageDistribution": "Distribution par langue",
+      "activity": "Activité"
+    },
+    "empty": {
+      "conversations": "Aucune conversation",
+      "conversationsDesc": "Les conversations du chatbot apparaîtront ici lorsque les invités interagiront avec lui.",
+      "unanswered": "Aucune question sans réponse",
+      "unansweredDesc": "Le chatbot a pu répondre à toutes les questions des invités.",
+      "guests": "Aucun invité capturé",
+      "guestsDesc": "Lorsque les invités partageront leur email avec le chatbot, ils apparaîtront ici."
+    },
+    "modal": {
+      "unansweredTitle": "Questions sans réponse"
+    },
+    "deleteConversation": "Supprimer la conversation",
+    "deleteAll": "Tout supprimer",
+    "deleteAllConfirm": "Supprimer toutes les conversations ?",
+    "confirmDelete": "Confirmer",
+    "deleting": "Suppression..."
   },
   "errors": {
     "loadingProperties": "Erreur lors du chargement des propriétés",

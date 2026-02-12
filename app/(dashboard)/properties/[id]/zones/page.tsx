@@ -3057,6 +3057,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </button>
 
           <button
+            onClick={() => router.push(`/properties/${id}/chatbot`)}
+            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
+          >
+            {t('propertyZones.chatbot', 'Chatbot')}
+          </button>
+
+          <button
             onClick={() => {
               const publicUrl = `${window.location.origin}/guide/${id}`
               window.open(publicUrl, '_blank')
@@ -3132,6 +3139,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors"
             >
               {t('propertyZones.analytics', 'Analíticas')}
+            </button>
+
+            {/* Chatbot */}
+            <button
+              onClick={() => router.push(`/properties/${id}/chatbot`)}
+              className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors"
+            >
+              {t('propertyZones.chatbot', 'Chatbot')}
             </button>
           </div>
 
