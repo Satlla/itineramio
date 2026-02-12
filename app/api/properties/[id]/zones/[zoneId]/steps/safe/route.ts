@@ -156,7 +156,7 @@ export async function PUT(
 
     // Auto-translate steps from Spanish to EN/FR
     let translatedStepsList = steps
-    console.log('✅ SAFE - OPENAI_API_KEY set:', !!process.env.OPENAI_API_KEY)
+    console.log('✅ SAFE - ANTHROPIC_API_KEY set:', !!process.env.ANTHROPIC_API_KEY)
     console.log('✅ SAFE - First step title:', JSON.stringify(steps[0]?.title))
     console.log('✅ SAFE - First step content:', JSON.stringify(steps[0]?.content)?.substring(0, 200))
     const rateLimitKey = getRateLimitKey(request, userId, 'translation')
