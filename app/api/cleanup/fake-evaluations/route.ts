@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
-import { requireAuth } from '../../../../src/lib/auth'
+import { requireAdminAuth } from '../../../../src/lib/admin-auth'
 
 // POST /api/cleanup/fake-evaluations - Remove fake/test evaluations from public view
+// ADMIN ONLY - This is a destructive operation
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication (admin only)
-    const authResult = await requireAuth(request)
+    // Check ADMIN authentication (not regular user)
+    const authResult = await requireAdminAuth(request)
     if (authResult instanceof Response) {
       return authResult
     }
