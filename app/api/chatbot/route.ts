@@ -3,7 +3,7 @@ import { prisma } from '../../../src/lib/prisma';
 import { checkRateLimit, getRateLimitKey } from '../../../src/lib/rate-limit';
 
 interface Message {
-  role: 'user' | 'assistant'
+  role: 'system' | 'user' | 'assistant'
   content: string
 }
 
@@ -141,14 +141,26 @@ export async function POST(request: NextRequest) {
       ? systemPrompt + learnedContext
       : systemPrompt;
 
+    // Sanitize conversation history: only keep role + content, max 500 chars each
+    const sanitizedHistory: Message[] = (conversationHistory as any[])
+      .slice(-8)
+      .filter((m: any) => m.role === 'user' || m.role === 'assistant')
+      .map((m: any) => ({
+        role: m.role as 'user' | 'assistant',
+        content: typeof m.content === 'string' ? m.content.slice(0, 500) : ''
+      }));
+
     const messages: Message[] = [
-      { role: 'assistant', content: fullSystemPrompt },
-      ...conversationHistory.slice(-8),
-      { role: 'user', content: message }
+      { role: 'system', content: fullSystemPrompt },
+      ...sanitizedHistory,
+      { role: 'user', content: message.slice(0, 500) }
     ];
 
     try {
-      // Call OpenAI API with streaming
+      // Call OpenAI API with streaming + timeout
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+
       const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -158,13 +170,16 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages,
-          max_tokens: 500,
+          max_tokens: 750,
           temperature: 0.7,
           presence_penalty: 0.1,
           frequency_penalty: 0.1,
           stream: true
-        })
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeout);
 
       if (!openaiResponse.ok) {
         throw new Error(`OpenAI API error: ${openaiResponse.status}`);
@@ -184,15 +199,20 @@ export async function POST(request: NextRequest) {
           }
 
           try {
+            let sseBuffer = '';
             while (true) {
               const { done, value } = await reader.read();
               if (done) break;
 
-              const chunk = decoder.decode(value, { stream: true });
-              const lines = chunk.split('\n').filter(line => line.trim().startsWith('data: '));
+              sseBuffer += decoder.decode(value, { stream: true });
+              const lines = sseBuffer.split('\n');
+              // Keep the last (potentially incomplete) line in the buffer
+              sseBuffer = lines.pop() || '';
 
               for (const line of lines) {
-                const data = line.replace('data: ', '').trim();
+                const trimmed = line.trim();
+                if (!trimmed.startsWith('data: ')) continue;
+                const data = trimmed.slice(6).trim();
                 if (data === '[DONE]') continue;
 
                 try {
@@ -200,7 +220,6 @@ export async function POST(request: NextRequest) {
                   const content = parsed.choices?.[0]?.delta?.content;
                   if (content) {
                     fullResponse += content;
-                    // Send each token as SSE
                     controller.enqueue(encoder.encode(`data: ${JSON.stringify({ token: content })}\n\n`));
                   }
                 } catch {
@@ -284,15 +303,16 @@ function getKeywords(text: string): string[] {
 
 function detectRelevantMedia(userMessage: string, aiResponse: string, zones: any[], language: string): MediaItem[] {
   const media: MediaItem[] = [];
-  // Only use user keywords to determine relevance (avoids false positives from AI response)
   const userKeywords = new Set(getKeywords(userMessage));
+  // Also check AI response keywords for zones the AI explicitly referenced
+  const aiKeywords = new Set(getKeywords(aiResponse));
 
   for (const zone of zones) {
     const zoneName = getLocalizedText(zone.name, language);
     const zoneNameLower = zoneName.toLowerCase();
     const zoneKeywords = getKeywords(zoneName);
 
-    // Check if this zone matches the user's question
+    // Check if this zone matches the user's question (by zone name or synonyms)
     let zoneMatchesQuery = zoneKeywords.some(w => userKeywords.has(w));
 
     if (!zoneMatchesQuery) {
@@ -304,22 +324,30 @@ function detectRelevantMedia(userMessage: string, aiResponse: string, zones: any
       }
     }
 
-    if (!zoneMatchesQuery) continue;
-
-    // Zone is relevant — include all media from this zone
+    // Also check step titles against user keywords (step-level matching)
     for (const step of (zone.steps || [])) {
       const content = step.content as any;
       if (!content || !content.mediaUrl) continue;
+      // Only include IMAGE or VIDEO steps, skip TEXT/LINK
+      const stepType = (step.type || '').toUpperCase();
+      if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
 
       const stepTitle = getLocalizedText(step.title, language);
+      const stepKeywords = getKeywords(stepTitle);
 
-      media.push({
-        type: step.type === 'VIDEO' ? 'VIDEO' : 'IMAGE',
-        url: content.mediaUrl,
-        caption: stepTitle || zoneName
-      });
+      // Match if zone matches OR if step title keywords match user/AI keywords
+      const stepMatchesUser = stepKeywords.some(w => userKeywords.has(w));
+      const stepMatchesAI = stepKeywords.some(w => aiKeywords.has(w));
 
-      if (media.length >= 2) return media;
+      if (zoneMatchesQuery || stepMatchesUser || stepMatchesAI) {
+        media.push({
+          type: stepType === 'VIDEO' ? 'VIDEO' : 'IMAGE',
+          url: content.mediaUrl,
+          caption: stepTitle || zoneName
+        });
+
+        if (media.length >= 3) return media;
+      }
     }
   }
 
@@ -334,19 +362,14 @@ function detectUnansweredQuestion(aiResponse: string, language: string): boolean
   const lower = aiResponse.toLowerCase();
 
   const fallbackPhrases: Record<string, string[]> = {
-    es: ['contacta al anfitrión', 'contactar al anfitrión', 'contacta directamente', 'no tengo información', 'no dispongo de esa información'],
-    en: ['contact the host', 'contact your host', 'reach out to the host', 'don\'t have that information', 'do not have specific information'],
-    fr: ['contactez l\'hôte', 'contacter l\'hôte', 'je n\'ai pas cette information', 'je ne dispose pas de cette information']
+    es: ['contacta al anfitrión', 'contactar al anfitrión', 'contacta directamente', 'no tengo información', 'no dispongo de esa información', 'no cuento con esa información'],
+    en: ['contact the host', 'contact your host', 'reach out to the host', 'don\'t have that information', 'do not have specific information', 'i don\'t have information'],
+    fr: ['contactez l\'hôte', 'contacter l\'hôte', 'je n\'ai pas cette information', 'je ne dispose pas de cette information', 'je n\'ai pas d\'information']
   };
 
-  const phrases = fallbackPhrases[language] || fallbackPhrases.es;
-
-  // If the response primarily suggests contacting the host without providing specific info
-  const hasFallbackPhrase = phrases.some(phrase => lower.includes(phrase));
-  // Check if response is very short (likely generic)
-  const isShort = aiResponse.length < 80;
-
-  return hasFallbackPhrase || isShort;
+  // Check all languages (AI may respond in a different language than requested)
+  const allPhrases = Object.values(fallbackPhrases).flat();
+  return allPhrases.some(phrase => lower.includes(phrase));
 }
 
 // ========================================
@@ -365,14 +388,20 @@ async function saveConversation(params: {
   try {
     const { propertyId, zoneId, sessionId, language, userMessage, aiResponse, isUnanswered } = params;
 
-    const existing = await prisma.chatbotConversation.findUnique({
-      where: { sessionId }
-    });
-
     const newMessagePair = [
       { role: 'user', content: userMessage, timestamp: new Date().toISOString() },
       { role: 'assistant', content: aiResponse, timestamp: new Date().toISOString() }
     ];
+
+    const unansweredEntry = isUnanswered
+      ? [{ question: userMessage, timestamp: new Date().toISOString() }]
+      : [];
+
+    // Use upsert to avoid race condition with find+create
+    const existing = await prisma.chatbotConversation.findUnique({
+      where: { sessionId },
+      select: { messages: true, unansweredQuestions: true }
+    });
 
     if (existing) {
       const currentMessages = Array.isArray(existing.messages) ? existing.messages as any[] : [];
@@ -382,9 +411,7 @@ async function saveConversation(params: {
         where: { sessionId },
         data: {
           messages: [...currentMessages, ...newMessagePair],
-          unansweredQuestions: isUnanswered
-            ? [...currentUnanswered, { question: userMessage, timestamp: new Date().toISOString() }]
-            : currentUnanswered
+          unansweredQuestions: [...currentUnanswered, ...unansweredEntry]
         }
       });
     } else {
@@ -395,9 +422,7 @@ async function saveConversation(params: {
           sessionId,
           language,
           messages: newMessagePair,
-          unansweredQuestions: isUnanswered
-            ? [{ question: userMessage, timestamp: new Date().toISOString() }]
-            : []
+          unansweredQuestions: unansweredEntry
         }
       });
     }
@@ -408,12 +433,20 @@ async function saveConversation(params: {
 }
 
 // ========================================
-// LEARNING — Previous conversations context
+// LEARNING — Previous conversations context (with 5-min cache)
 // ========================================
 
+const learnedContextCache = new Map<string, { data: string; expires: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 async function getLearnedContext(propertyId: string): Promise<string> {
+  // Check cache first
+  const cached = learnedContextCache.get(propertyId);
+  if (cached && cached.expires > Date.now()) {
+    return cached.data;
+  }
+
   try {
-    // Get recent conversations with good Q&A pairs (last 30 days, max 10)
     const recentConversations = await prisma.chatbotConversation.findMany({
       where: {
         propertyId,
@@ -424,9 +457,11 @@ async function getLearnedContext(propertyId: string): Promise<string> {
       take: 10
     });
 
-    if (recentConversations.length === 0) return '';
+    if (recentConversations.length === 0) {
+      learnedContextCache.set(propertyId, { data: '', expires: Date.now() + CACHE_TTL });
+      return '';
+    }
 
-    // Extract common Q&A patterns from previous conversations
     const qaPairs: string[] = [];
     for (const conv of recentConversations) {
       const msgs = Array.isArray(conv.messages) ? conv.messages as any[] : [];
@@ -440,9 +475,12 @@ async function getLearnedContext(propertyId: string): Promise<string> {
       if (qaPairs.length >= 8) break;
     }
 
-    if (qaPairs.length === 0) return '';
+    const result = qaPairs.length === 0
+      ? ''
+      : `\n\nPREGUNTAS FRECUENTES DE HUÉSPEDES ANTERIORES (usa como referencia):\n${qaPairs.join('\n')}`;
 
-    return `\n\nPREGUNTAS FRECUENTES DE HUÉSPEDES ANTERIORES (usa como referencia):\n${qaPairs.join('\n')}`;
+    learnedContextCache.set(propertyId, { data: result, expires: Date.now() + CACHE_TTL });
+    return result;
   } catch {
     return '';
   }
@@ -480,17 +518,37 @@ function buildStepDescription(step: any, index: number, language: string): strin
   return desc;
 }
 
+function buildHostInfo(host: any, language: string): string {
+  if (!host) return '';
+  const labels: Record<string, { title: string; name: string; phone: string; email: string; na: string }> = {
+    es: { title: 'Información del anfitrión', name: 'Nombre', phone: 'Teléfono', email: 'Email', na: 'No disponible' },
+    en: { title: 'Host information', name: 'Name', phone: 'Phone', email: 'Email', na: 'Not available' },
+    fr: { title: 'Informations de l\'hôte', name: 'Nom', phone: 'Téléphone', email: 'Email', na: 'Non disponible' }
+  };
+  const l = labels[language] || labels.es;
+  return `\n${l.title}:\n- ${l.name}: ${host.name}\n- ${l.phone}: ${host.phone || l.na}\n- ${l.email}: ${host.email || l.na}\n`;
+}
+
+const EMERGENCY_KNOWLEDGE = `
+COMMON PROBLEMS & EMERGENCIES:
+If a guest reports a problem you don't have specific info about, provide these general guidelines:
+- Power outage: Check the circuit breaker panel (usually near the entrance or in a utility closet). Flip any tripped breakers. If the whole building is affected, it may be a general outage — wait or contact the host.
+- No hot water: Check if the water heater/boiler is on. Some have a switch or thermostat. Wait 15-20 min after turning on. If gas-powered, check the pilot light. Contact the host if it persists.
+- Water leak: Turn off the nearest water valve (under sink or main valve). Place towels/buckets. Contact the host immediately.
+- Heating/AC not working: Check the thermostat settings and batteries. Make sure the unit is set to the right mode (heat/cool). Check if filters are blocked. Contact the host if it doesn't respond.
+- Locked out: Contact the host for key/code assistance. If there's a lockbox, re-check the code.
+- Appliance not working: Check if it's plugged in and the outlet works (try another device). Check for a reset button. Refer to the manual zone if available.
+- Noise/neighbor issues: Be respectful of quiet hours. If excessive, contact the host or building management.
+- Emergency numbers: Call 112 (EU) or 911 (US) for real emergencies (fire, medical, crime).
+IMPORTANT: Always provide these practical tips first, then suggest contacting the host for property-specific help.
+`;
+
 function buildZoneSystemPrompt(property: any, zone: any, language: string): string {
   const zoneSteps = zone.steps.map((step: any, index: number) => {
     return buildStepDescription(step, index, language);
   }).join('\n');
 
-  const hostInfo = property.host ? `
-Información del anfitrión:
-- Nombre: ${property.host.name}
-- Teléfono: ${property.host.phone || 'No disponible'}
-- Email: ${property.host.email || 'No disponible'}
-` : '';
+  const hostInfo = buildHostInfo(property.host, language);
 
   const prompt = `You are a virtual assistant expert for the property "${getLocalizedText(property.name, language)}" located in ${property.city}, ${property.country}.
 You are specifically helping with the "${getLocalizedText(zone.name, language)}" zone.
@@ -505,6 +563,7 @@ ZONE STEPS AND INSTRUCTIONS:
 ${zoneSteps || 'No steps available'}
 
 ${hostInfo}
+${EMERGENCY_KNOWLEDGE}
 
 RESPONSE STYLE:
 - CRITICAL: Detect the language the user writes in and ALWAYS respond in that SAME language. If they write in English, respond in English. If in Spanish, respond in Spanish. If in French, respond in French. If in any other language, respond in that language.
@@ -523,12 +582,7 @@ RESPONSE STYLE:
 }
 
 function buildPropertySystemPrompt(property: any, zones: any[], language: string): string {
-  const hostInfo = property.host ? `
-Información del anfitrión:
-- Nombre: ${property.host.name}
-- Teléfono: ${property.host.phone || 'No disponible'}
-- Email: ${property.host.email || 'No disponible'}
-` : '';
+  const hostInfo = buildHostInfo(property.host, language);
 
   // Build all zones content, truncating if too long
   let zonesContent = '';
@@ -544,9 +598,8 @@ Información del anfitrión:
       }
     }
 
-    // Truncate if total would exceed ~12,000 chars
     if ((zonesContent + zoneSection).length > 12000) {
-      zonesContent += `\n... (más zonas disponibles, contenido truncado por brevedad)\n`;
+      zonesContent += `\n... (more zones available, content truncated)\n`;
       break;
     }
     zonesContent += zoneSection;
@@ -564,6 +617,7 @@ ${hostInfo}
 
 MANUAL ZONES:
 ${zonesContent || 'No zones available'}
+${EMERGENCY_KNOWLEDGE}
 
 RESPONSE STYLE:
 - CRITICAL: Detect the language the user writes in and ALWAYS respond in that SAME language. If they write in English, respond in English. If in Spanish, respond in Spanish. If in French, respond in French. If in any other language, respond in that language.

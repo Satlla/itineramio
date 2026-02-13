@@ -189,14 +189,34 @@ export default function ChatBot({
   const [emailError, setEmailError] = useState(false)
   const [emailSuccess, setEmailSuccess] = useState(false)
 
-  // Session tracking
-  const sessionIdRef = useRef<string>(generateSessionId())
+  // Session tracking — restore from localStorage if available
+  const storageKey = `chatbot-${propertyId}${zoneId ? `-${zoneId}` : ''}`
+  const sessionIdRef = useRef<string>('')
+  if (!sessionIdRef.current) {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem(`${storageKey}-session`) : null
+    sessionIdRef.current = saved || generateSessionId()
+  }
   const userMessageCountRef = useRef(0)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const lang = language || 'es'
+
+  // Persist messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0 && typeof window !== 'undefined') {
+      const toSave = messages.filter(m => !m.typing).map(m => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        timestamp: m.timestamp,
+        media: m.media
+      }))
+      localStorage.setItem(`${storageKey}-messages`, JSON.stringify(toSave))
+      localStorage.setItem(`${storageKey}-session`, sessionIdRef.current)
+    }
+  }, [messages, storageKey])
 
   const trackEvent = async (event: string, data: any) => {
     try {
@@ -232,6 +252,27 @@ export default function ChatBot({
   }, [messages, emailCollected, emailDismissed, showEmailOverlay])
 
   const initializeChat = () => {
+    // Try to restore from localStorage
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`${storageKey}-messages`)
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved) as any[]
+          if (parsed.length > 0) {
+            const restored = parsed.map((m: any) => ({
+              ...m,
+              timestamp: new Date(m.timestamp)
+            }))
+            setMessages(restored)
+            setShowFAQs(false)
+            // Restore message count for email overlay logic
+            userMessageCountRef.current = restored.filter((m: any) => m.role === 'user').length
+            return
+          }
+        } catch { /* ignore corrupt data */ }
+      }
+    }
+
     const welcomeKey = zoneId && zoneName ? 'welcomeZone' : 'welcomeProperty'
     const welcomeContent = t(welcomeKey, lang, {
       propertyName,
@@ -336,7 +377,7 @@ export default function ChatBot({
         propertyId,
         propertyName,
         language: lang,
-        conversationHistory: messages.filter(m => !m.typing).slice(-10),
+        conversationHistory: messages.filter(m => !m.typing).slice(-10).map(m => ({ role: m.role, content: m.content })),
         sessionId: sessionIdRef.current
       }
 
@@ -466,22 +507,124 @@ export default function ChatBot({
   }
 
   const handleFAQClick = (faq: FAQ) => {
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: faq.question,
-      timestamp: new Date()
-    }
-
-    const assistantMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      role: 'assistant',
-      content: faq.answer,
-      timestamp: new Date()
-    }
-
-    setMessages(prev => [...prev, userMessage, assistantMessage])
+    // Send FAQ through AI instead of returning canned answer
+    setCurrentMessage(faq.question)
     setShowFAQs(false)
+    // Use a small delay so the state updates before sending
+    setTimeout(() => {
+      const fakeEvent = { key: 'Enter', shiftKey: false, preventDefault: () => {} } as React.KeyboardEvent
+      // Directly trigger sendMessage with the FAQ question
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        role: 'user',
+        content: faq.question,
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, userMessage])
+      setCurrentMessage('')
+      setIsLoading(true)
+      setError(null)
+      userMessageCountRef.current += 1
+
+      const typingMessage: Message = {
+        id: `typing-${Date.now()}`,
+        role: 'assistant',
+        content: t('typing', lang),
+        timestamp: new Date(),
+        typing: true
+      }
+      setMessages(prev => [...prev, typingMessage])
+
+      const body: Record<string, any> = {
+        message: faq.question,
+        propertyId,
+        propertyName,
+        language: lang,
+        conversationHistory: messages.filter(m => !m.typing).slice(-10).map(m => ({ role: m.role, content: m.content })),
+        sessionId: sessionIdRef.current
+      }
+      if (zoneId) body.zoneId = zoneId
+      if (zoneName) body.zoneName = zoneName
+
+      fetch('/api/chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }).then(async (response) => {
+        if (response.status === 429) throw new Error('rate_limited')
+        if (!response.ok) throw new Error('api_error')
+
+        const contentType = response.headers.get('content-type') || ''
+        if (contentType.includes('text/event-stream')) {
+          const reader = response.body?.getReader()
+          const decoder = new TextDecoder()
+          const streamMsgId = Date.now().toString()
+          let streamedContent = ''
+          let streamMedia: MediaItem[] | undefined
+
+          setMessages(prev => {
+            const filtered = prev.filter(m => !m.typing)
+            return [...filtered, { id: streamMsgId, role: 'assistant' as const, content: '', timestamp: new Date() }]
+          })
+
+          if (reader) {
+            let buffer = ''
+            while (true) {
+              const { done, value } = await reader.read()
+              if (done) break
+              buffer += decoder.decode(value, { stream: true })
+              const lines = buffer.split('\n\n')
+              buffer = lines.pop() || ''
+              for (const line of lines) {
+                const dataStr = line.replace('data: ', '').trim()
+                if (!dataStr) continue
+                try {
+                  const parsed = JSON.parse(dataStr)
+                  if (parsed.token) {
+                    streamedContent += parsed.token
+                    const currentContent = streamedContent
+                    setMessages(prev => prev.map(m =>
+                      m.id === streamMsgId ? { ...m, content: currentContent } : m
+                    ))
+                  }
+                  if (parsed.done) streamMedia = parsed.media
+                } catch { /* skip */ }
+              }
+            }
+          }
+
+          setMessages(prev => prev.map(m =>
+            m.id === streamMsgId ? { ...m, content: streamedContent, media: streamMedia } : m
+          ))
+        } else {
+          const data = await response.json()
+          setMessages(prev => {
+            const filtered = prev.filter(m => !m.typing)
+            return [...filtered, {
+              id: Date.now().toString(),
+              role: 'assistant' as const,
+              content: data.response,
+              timestamp: new Date(),
+              media: data.media || undefined
+            }]
+          })
+        }
+      }).catch((error: any) => {
+        const isRateLimited = error?.message === 'rate_limited'
+        setError(isRateLimited ? t('rateLimited', lang) : t('errorBanner', lang))
+        setMessages(prev => {
+          const filtered = prev.filter(m => !m.typing)
+          return [...filtered, {
+            id: Date.now().toString(),
+            role: 'assistant' as const,
+            content: isRateLimited ? t('rateLimited', lang) : t('errorMessage', lang),
+            timestamp: new Date()
+          }]
+        })
+      }).finally(() => {
+        setIsLoading(false)
+      })
+    }, 0)
   }
 
   const handleWhatsApp = () => {
@@ -629,7 +772,7 @@ export default function ChatBot({
 
                           {/* Rich Media */}
                           {message.media && message.media.length > 0 && (
-                            <div className="mt-2 space-y-2 max-w-[240px]">
+                            <div className="mt-2 space-y-2 max-w-[280px]">
                               {message.media.map((item, idx) => (
                                 <div key={idx} className="rounded-xl overflow-hidden border border-gray-100">
                                   {item.type === 'IMAGE' ? (
@@ -637,16 +780,17 @@ export default function ChatBot({
                                       src={item.url}
                                       alt={item.caption || ''}
                                       loading="lazy"
-                                      className="w-full h-auto max-h-32 object-cover"
+                                      className="w-full h-auto max-h-40 object-cover"
                                     />
                                   ) : (
                                     <video
                                       controls
-                                      preload="none"
-                                      className="w-full max-h-32"
-                                      poster=""
+                                      preload="metadata"
+                                      playsInline
+                                      className="w-full max-h-48"
                                     >
-                                      <source src={item.url} />
+                                      <source src={item.url} type="video/mp4" />
+                                      <source src={item.url} type="video/webm" />
                                     </video>
                                   )}
                                   {item.caption && (
@@ -686,70 +830,67 @@ export default function ChatBot({
 
                   <div ref={messagesEndRef} />
 
-                  {/* Email Collection Overlay */}
+                  {/* Email Collection Banner (non-blocking) */}
                   <AnimatePresence>
                     {showEmailOverlay && !emailCollected && (
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 20 }}
-                        className="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center p-4 z-10"
+                        className="sticky bottom-0 bg-gray-50 border border-gray-200 rounded-xl p-3 mx-1 mb-1 shadow-sm z-10"
                       >
-                        <div className="w-full max-w-xs space-y-3">
-                          <div className="flex items-center justify-center">
-                            <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
-                              <Mail className="w-5 h-5 text-gray-700" />
-                            </div>
-                          </div>
-                          <p className="text-sm text-center text-gray-700 font-medium">
-                            {t('emailPrompt', lang)}
+                        {emailSuccess ? (
+                          <p className="text-sm text-center text-green-600 font-medium py-1">
+                            {t('emailSuccess', lang)}
                           </p>
-
-                          {emailSuccess ? (
-                            <p className="text-sm text-center text-green-600 font-medium">
-                              {t('emailSuccess', lang)}
-                            </p>
-                          ) : (
-                            <div className="space-y-2">
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <Mail className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                              <p className="text-xs text-gray-600 font-medium">
+                                {t('emailPrompt', lang)}
+                              </p>
+                            </div>
+                            <div className="flex space-x-2">
                               <input
                                 type="email"
                                 value={emailInput}
                                 onChange={(e) => setEmailInput(e.target.value)}
                                 placeholder={t('emailPlaceholder', lang)}
-                                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-black/5 focus:border-gray-300 transition-colors"
+                                className="flex-1 min-w-0 px-2.5 py-2 border border-gray-200 rounded-lg text-xs focus:ring-1 focus:ring-black/5 focus:border-gray-300 transition-colors"
                               />
                               <input
                                 type="text"
                                 value={nameInput}
                                 onChange={(e) => setNameInput(e.target.value)}
                                 placeholder={t('namePlaceholder', lang)}
-                                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-black/5 focus:border-gray-300 transition-colors"
+                                className="flex-1 min-w-0 px-2.5 py-2 border border-gray-200 rounded-lg text-xs focus:ring-1 focus:ring-black/5 focus:border-gray-300 transition-colors"
                               />
-                              {emailError && (
-                                <p className="text-xs text-red-500">{t('emailError', lang)}</p>
-                              )}
-                              <div className="flex space-x-2">
-                                <button
-                                  onClick={handleEmailSubmit}
-                                  disabled={emailSubmitting || !emailInput.trim()}
-                                  className="flex-1 px-3 py-2.5 bg-black text-white text-sm rounded-xl hover:bg-gray-800 disabled:opacity-30 transition-colors"
-                                >
-                                  {emailSubmitting ? (
-                                    <Loader2 className="w-4 h-4 animate-spin mx-auto" />
-                                  ) : (
-                                    t('emailSubmit', lang)
-                                  )}
-                                </button>
-                                <button
-                                  onClick={handleEmailDismiss}
-                                  className="px-3 py-2 text-gray-500 text-sm hover:text-gray-700 transition-colors"
-                                >
-                                  {t('emailSkip', lang)}
-                                </button>
-                              </div>
                             </div>
-                          )}
-                        </div>
+                            {emailError && (
+                              <p className="text-xs text-red-500">{t('emailError', lang)}</p>
+                            )}
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={handleEmailSubmit}
+                                disabled={emailSubmitting || !emailInput.trim()}
+                                className="flex-1 px-3 py-2 bg-black text-white text-xs rounded-lg hover:bg-gray-800 disabled:opacity-30 transition-colors"
+                              >
+                                {emailSubmitting ? (
+                                  <Loader2 className="w-3 h-3 animate-spin mx-auto" />
+                                ) : (
+                                  t('emailSubmit', lang)
+                                )}
+                              </button>
+                              <button
+                                onClick={handleEmailDismiss}
+                                className="px-3 py-2 text-gray-400 text-xs hover:text-gray-600 transition-colors"
+                              >
+                                {t('emailSkip', lang)}
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -763,8 +904,9 @@ export default function ChatBot({
                         ref={inputRef}
                         type="text"
                         value={currentMessage}
-                        onChange={(e) => setCurrentMessage(e.target.value)}
-                        onKeyPress={handleKeyPress}
+                        onChange={(e) => setCurrentMessage(e.target.value.slice(0, 500))}
+                        maxLength={500}
+                        onKeyDown={handleKeyPress}
                         placeholder={t('placeholder', lang)}
                         disabled={isLoading}
                         className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black/5 focus:border-gray-300 text-sm disabled:opacity-50 transition-colors placeholder:text-gray-400"
