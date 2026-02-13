@@ -18,14 +18,17 @@ interface TranslationResult {
 
 /**
  * Translate an array of fields from Spanish to English and French.
- * Only translates EN and FR when they are empty — preserves manually written translations.
+ * By default, only translates EN and FR when they are empty — preserves manually written translations.
+ * With force=true, always re-translates from Spanish (used when Spanish content has been edited).
  * Returns a new array with translations merged in (does not mutate input).
  */
-export async function translateFields(fields: TranslatableField[]): Promise<TranslatableField[]> {
+export async function translateFields(fields: TranslatableField[], options?: { force?: boolean }): Promise<TranslatableField[]> {
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) {
     return fields
   }
+
+  const force = options?.force ?? false
 
   // Collect indices and Spanish texts that need translation
   const toTranslate: { index: number; text: string }[] = []
@@ -35,10 +38,12 @@ export async function translateFields(fields: TranslatableField[]): Promise<Tran
     const esText = (field.es || '').trim()
     if (!esText) continue
 
-    // Only translate if en or fr are empty
-    const enEmpty = !(field.en || '').trim()
-    const frEmpty = !(field.fr || '').trim()
-    if (!enEmpty && !frEmpty) continue
+    if (!force) {
+      // Only translate if en or fr are empty
+      const enEmpty = !(field.en || '').trim()
+      const frEmpty = !(field.fr || '').trim()
+      if (!enEmpty && !frEmpty) continue
+    }
 
     toTranslate.push({ index: i, text: esText })
   }
@@ -58,15 +63,13 @@ export async function translateFields(fields: TranslatableField[]): Promise<Tran
 
     for (let i = 0; i < toTranslate.length; i++) {
       const { index } = toTranslate[i]
-      const field = fields[index]
       const translation = translations[i]
       if (!translation) continue
 
-      // Only fill in empty fields — don't overwrite manual translations
-      if (!(field.en || '').trim() && translation.en) {
+      if (translation.en) {
         result[index].en = translation.en
       }
-      if (!(field.fr || '').trim() && translation.fr) {
+      if (translation.fr) {
         result[index].fr = translation.fr
       }
     }
@@ -108,9 +111,9 @@ export async function translateSteps(steps: any[]): Promise<any[]> {
     })
   }
 
-  // Translate titles and contents in a single batch
+  // Translate titles and contents in a single batch (force=true to re-translate even if EN/FR exist)
   const allFields = [...titleFields, ...contentFields]
-  const translatedAll = await translateFields(allFields)
+  const translatedAll = await translateFields(allFields, { force: true })
 
   const translatedTitles = translatedAll.slice(0, titleFields.length)
   const translatedContents = translatedAll.slice(titleFields.length)
