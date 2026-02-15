@@ -54,6 +54,9 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // TEMP: Restrict chatbot to specific host emails during beta
+    const ALLOWED_HOST_EMAILS = ['alejandrosatlla@gmail.com'];
+
     // Get property and zone(s) context
     let property: any;
     let zones: any[] = [];
@@ -119,6 +122,13 @@ export async function POST(request: NextRequest) {
       }
 
       zones = property.zones;
+    }
+
+    // TEMP: Block chatbot for non-allowed hosts during beta
+    if (!ALLOWED_HOST_EMAILS.includes(property.host?.email?.toLowerCase())) {
+      return NextResponse.json({
+        error: 'Chatbot not available for this property'
+      }, { status: 403 });
     }
 
     // Check if OpenAI API key is configured

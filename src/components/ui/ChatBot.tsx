@@ -171,6 +171,7 @@ export default function ChatBot({
   hostContact,
   className = ''
 }: ChatBotProps) {
+  const [isEnabled, setIsEnabled] = useState<boolean | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
@@ -202,6 +203,17 @@ export default function ChatBot({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const lang = language || 'es'
+
+  // Check if chatbot is enabled for this property (beta restriction)
+  useEffect(() => {
+    fetch('/api/chatbot/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ propertyId }),
+    })
+      .then(res => setIsEnabled(res.ok))
+      .catch(() => setIsEnabled(false))
+  }, [propertyId])
 
   // Persist messages to localStorage whenever they change
   useEffect(() => {
@@ -647,6 +659,9 @@ export default function ChatBot({
   }
 
   const faqs = getFAQs(lang)
+
+  // Don't render chatbot if not enabled for this property
+  if (isEnabled === false) return null
 
   return (
     <>
