@@ -3,8 +3,13 @@ import s from './propuesta.module.css'
 
 export const metadata: Metadata = {
   title: 'Propuesta de Gestión Integral — 48 Apartamentos Santa Pola',
-  description: 'Propuesta comercial para la gestión integral de 48 apartamentos turísticos en Santa Pola, Alicante.',
+  description: 'Propuesta comercial para la gestión integral de 48 apartamentos turísticos en Santa Pola, Alicante. Alejandro Santalla — 652 656 440.',
   robots: 'noindex, nofollow',
+  openGraph: {
+    title: 'Gestión Integral — 48 Apartamentos Santa Pola',
+    description: 'Propuesta comercial confidencial. Alejandro Santalla.',
+    type: 'website',
+  },
 }
 
 export default function PropuestaSantaPola() {
