@@ -40,7 +40,7 @@ export default function PropuestaSantaPola() {
           </div>
         </div>
         <div className={s.coverFooter}>
-          <span>Datos de mercado: PriceLabs Market Dashboard · Febrero 2026</span>
+          <span>Datos de mercado: AirDNA Market Dashboard · Febrero 2026</span>
           <span>Documento confidencial</span>
         </div>
       </div>
@@ -67,7 +67,7 @@ export default function PropuestaSantaPola() {
           <div className={s.kpiCardHighlight}>
             <div className={s.kpiLabel}>Ingresos medios / apt / año</div>
             <div className={s.kpiValue}>14.917€</div>
-            <div className={s.kpiChange}>Dato real PriceLabs 2025</div>
+            <div className={s.kpiChange}>Dato real de mercado 2025</div>
           </div>
           <div className={s.kpiCard}>
             <div className={s.kpiLabel}>ADR (Tarifa Media Noche)</div>
@@ -119,7 +119,7 @@ export default function PropuestaSantaPola() {
         </div>
 
         <p className={s.textXs} style={{ marginTop: 20 }}>
-          Fuente: PriceLabs Market Dashboard — Santa Pola, Mercado Completo ABB. Fecha: 17 febrero 2026.
+          Fuente: AirDNA Market Dashboard — Santa Pola, Mercado Completo. Fecha: febrero 2026.
         </p>
       </div>
 
@@ -127,7 +127,7 @@ export default function PropuestaSantaPola() {
       <div className={`${s.section} ${s.pageBreak}`}>
         <div className={s.sectionNumber}>02</div>
         <div className={s.sectionTitle}>Análisis del Mercado</div>
-        <div className={s.sectionSubtitle}>Estacionalidad, precios y ocupación — Datos reales de PriceLabs 2024-2026</div>
+        <div className={s.sectionSubtitle}>Estacionalidad, precios y ocupación — Datos reales 2024-2026</div>
         <div className={s.divider} />
 
         <h3 style={{ fontSize: 18, marginBottom: 20 }}>Distribución estacional de ingresos por apartamento</h3>
@@ -158,7 +158,7 @@ export default function PropuestaSantaPola() {
           ))}
         </div>
         <p className={`${s.textXs} ${s.mb4}`}>
-          Distribución mensual estimada 2025. Ingreso anualizado PriceLabs: 14.917€. Fuente: PriceLabs.
+          Distribución mensual estimada 2025. Ingreso anualizado: 14.917€. Fuente: AirDNA.
         </p>
 
         <div style={{ height: 20 }} />
@@ -198,7 +198,6 @@ export default function PropuestaSantaPola() {
                 <td className={s.tdMoney}>{r.ing}</td>
               </tr>
             ))}
-            {/* Jul & Aug highlighted */}
             {[
               { mes: 'Julio', occ: 86, adr: 105, revpar: 90, ing: '2.500€' },
               { mes: 'Agosto', occ: 93, adr: 116, revpar: 107, ing: '3.100€' },
@@ -247,7 +246,7 @@ export default function PropuestaSantaPola() {
         </table>
 
         <p className={s.textXs}>
-          Cifra anualizada (14.917€) reportada por PriceLabs. La distribución mensual refleja
+          Cifra anualizada (14.917€) reportada por AirDNA. La distribución mensual refleja
           la estacionalidad estimada del mercado para 2025.
         </p>
       </div>
@@ -388,7 +387,7 @@ export default function PropuestaSantaPola() {
         </table>
 
         <p className={s.textSm}>
-          Ocupación aplicada: 66% (dato agregado de mercado PriceLabs). La ocupación real variará por
+          Ocupación aplicada: 66% (dato agregado de mercado). La ocupación real variará por
           apartamento según tipología, ubicación y calidad del anuncio. Las estimaciones por tipología
           son orientativas; la cifra de referencia para proyecciones es la media de mercado: 14.917€/año.
         </p>
@@ -405,19 +404,25 @@ export default function PropuestaSantaPola() {
           <div className={s.serviceCardPrimary}>
             <div className={`${s.serviceIcon} ${s.serviceIconPrimary}`}>📊</div>
             <div className={s.serviceName}>Gestión Integral</div>
-            <div className={s.servicePrice}>20% sobre facturación</div>
+            <div className={s.servicePrice}>20% + IVA sobre facturación neta</div>
             <ul className={s.serviceList}>
-              <li>Publicación y optimización en Airbnb, Booking.com, Vrbo y otros canales</li>
-              <li>Pricing dinámico y optimización de tarifas</li>
-              <li>Gestión de reservas y calendario</li>
+              <li>Publicación y optimización en Airbnb y Booking.com</li>
+              <li>Pricing dinámico con herramientas de IA</li>
+              <li>Gestión de reservas y calendario multicanal</li>
               <li>Atención al huésped 9–22h, emergencias 24h</li>
-              <li>Check-in y check-out</li>
+              <li>Check-in autónomo con cerraduras electrónicas</li>
               <li>Fotografía profesional de cada apartamento</li>
+              <li>Manual digital interactivo con código QR por apartamento</li>
               <li>Gestión de reseñas</li>
               <li>Informes mensuales de rendimiento</li>
               <li>Gestión de incidencias con huéspedes</li>
               <li>Coordinación con plataformas para fianzas por daños</li>
             </ul>
+            <div className={s.infoBox} style={{ borderLeftWidth: 3, padding: '12px 16px', marginTop: 16 }}>
+              <p style={{ fontSize: 12 }}>
+                Base de cálculo: facturación bruta menos comisiones de plataformas (OTA) y limpieza.
+              </p>
+            </div>
           </div>
 
           <div className={s.serviceCard}>
@@ -455,6 +460,17 @@ export default function PropuestaSantaPola() {
               <li>Reparaciones menores</li>
             </ul>
           </div>
+        </div>
+
+        {/* Cerraduras electrónicas */}
+        <div className={s.infoBox} style={{ marginBottom: 30 }}>
+          <div className={s.infoBoxTitle}>Cerraduras electrónicas — Inversión de la empresa</div>
+          <p>
+            Instalamos <strong>cerraduras electrónicas YAcan</strong> en cada apartamento por cuenta de la empresa,
+            eliminando la necesidad de check-in presencial. Coste aproximado: <strong>~200€/unidad</strong>.
+            En caso de necesitar integración con portero automático: <strong>~400€/unidad</strong>.
+            Esta inversión permite check-in 100% autónomo las 24 horas del día.
+          </p>
         </div>
 
         <h3 style={{ fontSize: 18, marginBottom: 16 }}>Exclusiones y responsabilidades</h3>
@@ -507,6 +523,7 @@ export default function PropuestaSantaPola() {
       </div>
 
       {/* ==================== SECTION 5: PROYECCIÓN FINANCIERA ==================== */}
+      {/* Comisión = 20% + IVA sobre (Facturación bruta - comisiones OTA - limpieza) */}
       <div className={`${s.section} ${s.pageBreak}`}>
         <div className={s.sectionNumber}>05</div>
         <div className={s.sectionTitle}>Proyección Financiera</div>
@@ -536,7 +553,7 @@ export default function PropuestaSantaPola() {
             </tr>
             <tr>
               <td>Referencia</td>
-              <td style={{ textAlign: 'right' }} className={s.textXs}>Media mercado PriceLabs</td>
+              <td style={{ textAlign: 'right' }} className={s.textXs}>Media mercado AirDNA</td>
               <td style={{ textAlign: 'right' }} className={s.textXs}>Gestión profesional (+20%)</td>
               <td style={{ textAlign: 'right' }} className={s.textXs}>Optimización máxima (+44%)</td>
             </tr>
@@ -553,14 +570,10 @@ export default function PropuestaSantaPola() {
               </td>
             </tr>
             <tr>
-              <td>Comisión de gestión (20%)</td>
-              <td style={{ textAlign: 'right' }} className={s.tdMoney}>143.203€</td>
-              <td style={{ textAlign: 'right' }} className={s.tdMoney}>171.840€</td>
-              <td style={{ textAlign: 'right' }} className={s.tdMoney}>206.400€</td>
-            </tr>
-            <tr>
-              <td>Mantenimiento (150€ + IVA × 48 apts × 12 meses)</td>
-              <td style={{ textAlign: 'right' }} className={s.tdMoney} colSpan={3}>104.544€ / año</td>
+              <td>Comisiones de plataformas (~15%)</td>
+              <td style={{ textAlign: 'right' }} className={s.tdMoney}>107.402€</td>
+              <td style={{ textAlign: 'right' }} className={s.tdMoney}>128.880€</td>
+              <td style={{ textAlign: 'right' }} className={s.tdMoney}>154.800€</td>
             </tr>
             <tr>
               <td>Limpieza (estimación ~40€ × rotaciones)</td>
@@ -569,16 +582,20 @@ export default function PropuestaSantaPola() {
               <td style={{ textAlign: 'right' }} className={s.tdMoney}>~182.400€</td>
             </tr>
             <tr>
-              <td>Comisiones de plataformas (~15%)</td>
-              <td style={{ textAlign: 'right' }} className={s.tdMoney}>107.402€</td>
-              <td style={{ textAlign: 'right' }} className={s.tdMoney}>128.880€</td>
-              <td style={{ textAlign: 'right' }} className={s.tdMoney}>154.800€</td>
+              <td>Comisión de gestión (20% + IVA sobre facturación neta*)</td>
+              <td style={{ textAlign: 'right' }} className={s.tdMoney}>110.113€</td>
+              <td style={{ textAlign: 'right' }} className={s.tdMoney}>135.849€</td>
+              <td style={{ textAlign: 'right' }} className={s.tdMoney}>168.142€</td>
+            </tr>
+            <tr>
+              <td>Mantenimiento (150€ + IVA × 48 apts × 12 meses)</td>
+              <td style={{ textAlign: 'right' }} className={s.tdMoney} colSpan={3}>104.544€ / año</td>
             </tr>
             <tr className={s.rowTotal}>
               <td><strong>TOTAL COSTES</strong></td>
-              <td style={{ textAlign: 'right' }} className={s.tdMoney}>508.749€</td>
-              <td style={{ textAlign: 'right' }} className={s.tdMoney}>574.224€</td>
-              <td style={{ textAlign: 'right' }} className={s.tdMoney}>648.144€</td>
+              <td style={{ textAlign: 'right' }} className={s.tdMoney}>475.659€</td>
+              <td style={{ textAlign: 'right' }} className={s.tdMoney}>538.233€</td>
+              <td style={{ textAlign: 'right' }} className={s.tdMoney}>609.886€</td>
             </tr>
 
             <tr>
@@ -588,18 +605,22 @@ export default function PropuestaSantaPola() {
             </tr>
             <tr className={s.rowTotal} style={{ fontSize: 16 }}>
               <td><strong>RESULTADO OPERATIVO ESTIMADO</strong></td>
-              <td style={{ textAlign: 'right' }} className={s.tdHighlight}>207.267€</td>
-              <td style={{ textAlign: 'right' }} className={s.tdHighlight}>284.976€</td>
-              <td style={{ textAlign: 'right' }} className={s.tdHighlight}>383.856€</td>
+              <td style={{ textAlign: 'right' }} className={s.tdHighlight}>240.357€</td>
+              <td style={{ textAlign: 'right' }} className={s.tdHighlight}>320.967€</td>
+              <td style={{ textAlign: 'right' }} className={s.tdHighlight}>422.114€</td>
             </tr>
             <tr>
               <td>Por apartamento / mes</td>
-              <td style={{ textAlign: 'right' }} className={s.tdMoney}>360€</td>
-              <td style={{ textAlign: 'right' }} className={s.tdMoney}>495€</td>
-              <td style={{ textAlign: 'right' }} className={s.tdMoney}>666€</td>
+              <td style={{ textAlign: 'right' }} className={s.tdMoney}>417€</td>
+              <td style={{ textAlign: 'right' }} className={s.tdMoney}>557€</td>
+              <td style={{ textAlign: 'right' }} className={s.tdMoney}>733€</td>
             </tr>
           </tbody>
         </table>
+
+        <p className={s.textXs} style={{ marginTop: 4, marginBottom: 24 }}>
+          *Facturación neta = facturación bruta − comisiones de plataformas − limpieza.
+        </p>
 
         <div className={s.summaryBox}>
           <h3>Resumen para el propietario — Escenario moderado</h3>
@@ -609,11 +630,11 @@ export default function PropuestaSantaPola() {
               <div className={s.summaryItemLabel}>Facturación bruta anual</div>
             </div>
             <div className={s.summaryItem}>
-              <div className={s.summaryItemValue}>284.976€</div>
+              <div className={s.summaryItemValue}>320.967€</div>
               <div className={s.summaryItemLabel}>Resultado operativo anual</div>
             </div>
             <div className={s.summaryItem}>
-              <div className={s.summaryItemValue}>495€</div>
+              <div className={s.summaryItemValue}>557€</div>
               <div className={s.summaryItemLabel}>Por apartamento / mes</div>
             </div>
           </div>
@@ -622,11 +643,12 @@ export default function PropuestaSantaPola() {
         <div className={s.infoBox}>
           <div className={s.infoBoxTitle}>Notas sobre la estimación</div>
           <p>
-            • Los ingresos están basados en datos reales de PriceLabs para Santa Pola (febrero 2026),
+            • Los ingresos están basados en datos reales de AirDNA para Santa Pola (febrero 2026),
             con 1.333 listings analizados. Cifra base: 14.917€/año por apartamento.<br />
             • La tarifa de limpieza se ha estimado a 40€ por rotación. La tarifa final se determinará
             tras la valoración individual de cada apartamento.<br />
             • Las comisiones de plataformas (Airbnb, Booking) promedian un 15% sobre la facturación bruta.<br />
+            • Comisión de gestión: 20% + IVA aplicado sobre la facturación neta (bruta − OTA − limpieza).<br />
             • <strong>No incluido en el resultado operativo:</strong> IBI, suministros (agua, luz, gas, internet),
             comunidad de propietarios, seguros ni impuestos. Estos costes corren a cargo de la propiedad.<br />
             • La estimación de ingresos depende de la tipología, ubicación y estado de los apartamentos.
@@ -638,24 +660,29 @@ export default function PropuestaSantaPola() {
       <div className={`${s.section} ${s.pageBreak}`}>
         <div className={s.sectionNumber}>06</div>
         <div className={s.sectionTitle}>Por Qué Nosotros</div>
-        <div className={s.sectionSubtitle}>Experiencia demostrada en gestión de apartamentos turísticos en Alicante</div>
+        <div className={s.sectionSubtitle}>Experiencia demostrada en gestión de apartamentos turísticos</div>
         <div className={s.divider} />
 
-        <div className={s.kpiGrid3}>
+        <div className={s.kpiGrid}>
           <div className={s.kpiCardHighlight}>
             <div className={s.kpiLabel}>Apartamentos en gestión</div>
-            <div className={s.kpiValue}>35</div>
-            <div className={s.kpiChange}>Alicante capital</div>
+            <div className={s.kpiValue}>+35</div>
+            <div className={s.kpiChange}>Alicante</div>
           </div>
           <div className={s.kpiCard}>
-            <div className={s.kpiLabel}>Plataformas activas</div>
-            <div className={s.kpiValue}>4+</div>
-            <div className={s.kpiChange}>Airbnb, Booking, Vrbo, directa</div>
+            <div className={s.kpiLabel}>Experiencia</div>
+            <div className={s.kpiValue}>+10 años</div>
+            <div className={s.kpiChange}>Alquiler vacacional</div>
           </div>
           <div className={s.kpiCard}>
-            <div className={s.kpiLabel}>Servicio de mantenimiento</div>
-            <div className={s.kpiValue}>Integral</div>
-            <div className={s.kpiChange}>Precio cerrado mensual</div>
+            <div className={s.kpiLabel}>Airbnb Superhost</div>
+            <div className={s.kpiValue}>4,8 ★</div>
+            <div className={s.kpiChange}>Valoración media</div>
+          </div>
+          <div className={s.kpiCard}>
+            <div className={s.kpiLabel}>Booking Partner</div>
+            <div className={s.kpiValue}>9,3</div>
+            <div className={s.kpiChange}>Puntuación media</div>
           </div>
         </div>
 
@@ -672,13 +699,23 @@ export default function PropuestaSantaPola() {
           <tbody>
             <tr>
               <td><strong>Pricing</strong></td>
-              <td>Dinámico, basado en datos de mercado en tiempo real</td>
+              <td>Dinámico con herramientas de IA en tiempo real</td>
               <td>Precio fijo o manual</td>
             </tr>
             <tr>
               <td><strong>Canales</strong></td>
-              <td>Airbnb + Booking + Vrbo + reserva directa</td>
+              <td>Airbnb + Booking.com + reserva directa</td>
               <td>Normalmente solo Airbnb</td>
+            </tr>
+            <tr>
+              <td><strong>Check-in</strong></td>
+              <td>100% autónomo 24h con cerraduras electrónicas YAcan</td>
+              <td>Presencial o lockbox</td>
+            </tr>
+            <tr>
+              <td><strong>Experiencia huésped</strong></td>
+              <td>Manual digital interactivo con QR por apartamento (Itineramio)</td>
+              <td>PDF genérico o nada</td>
             </tr>
             <tr>
               <td><strong>Respuesta</strong></td>
@@ -702,7 +739,7 @@ export default function PropuestaSantaPola() {
             </tr>
             <tr>
               <td><strong>Escalabilidad</strong></td>
-              <td>Infraestructura para 83+ apartamentos</td>
+              <td>Infraestructura probada para 83+ apartamentos</td>
               <td>Problemas de escala con volúmenes altos</td>
             </tr>
           </tbody>
@@ -729,7 +766,7 @@ export default function PropuestaSantaPola() {
             <tr><td>2</td><td>Tipologías de los 48 apartamentos (dormitorios, m², baños)</td><td>Ajusta la estimación de ingresos y tarifa de limpieza</td></tr>
             <tr><td>3</td><td>Estado actual de los inmuebles (obra nueva, reformados)</td><td>Determina coste de puesta a punto inicial</td></tr>
             <tr><td>4</td><td>Sistema de climatización (splits / conductos)</td><td>Ajusta coste de mantenimiento</td></tr>
-            <tr><td>5</td><td>Sistema de cerraduras actual</td><td>Necesidad de instalar cerraduras electrónicas</td></tr>
+            <tr><td>5</td><td>Sistema de cerraduras y portero automático actual</td><td>Determina tipo de cerradura electrónica a instalar</td></tr>
             <tr><td>6</td><td>Equipamiento (mobiliario, electrodomésticos, ropa de cama)</td><td>Determina inversión inicial necesaria</td></tr>
             <tr><td>7</td><td>Distancia a la playa / ubicación exacta</td><td>Impacta directamente en ADR y ocupación</td></tr>
             <tr><td>8</td><td>¿Edificio completo o unidades repartidas?</td><td>Logística de limpieza y mantenimiento</td></tr>
@@ -772,7 +809,18 @@ export default function PropuestaSantaPola() {
           </p>
         </div>
 
-        <div style={{ height: 60 }} />
+        {/* Condiciones contractuales */}
+        <div className={s.warningBox} style={{ marginTop: 30 }}>
+          <div className={s.warningBoxTitle}>Condiciones contractuales</div>
+          <p>
+            El contrato de gestión tiene una <strong>duración mínima de 5 años, renovable</strong> automáticamente
+            por periodos anuales. Esta duración permite amortizar la inversión inicial (cerraduras electrónicas,
+            puesta a punto, fotografía profesional) y garantizar la estabilidad operativa necesaria para un
+            proyecto de 48 unidades.
+          </p>
+        </div>
+
+        <div style={{ height: 40 }} />
 
         {/* ===== PRÓXIMOS PASOS ===== */}
         <div className={s.ctaBox}>
@@ -783,6 +831,7 @@ export default function PropuestaSantaPola() {
               <li>Facilitar tipología y estado de los apartamentos</li>
               <li>Visita presencial para valoración de puesta a punto</li>
               <li>Presupuesto definitivo con cifras ajustadas</li>
+              <li>Firma de contrato de gestión (5 años renovable)</li>
             </ol>
           </div>
           <div style={{ display: 'inline-flex', gap: 40 }}>
@@ -796,7 +845,7 @@ export default function PropuestaSantaPola() {
 
         <div className={s.pageFooter}>
           <p>Documento confidencial — Propuesta de gestión integral 48 apartamentos Santa Pola</p>
-          <p>Datos de mercado: PriceLabs Market Dashboard · Febrero 2026 · 1.333 listings analizados</p>
+          <p>Datos de mercado: AirDNA Market Dashboard · Febrero 2026 · 1.333 listings analizados</p>
         </div>
       </div>
 
