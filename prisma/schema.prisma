@@ -175,6 +175,7 @@ model PropertySet {
   status              String     @default("DRAFT")
   createdAt           DateTime   @default(now())
   updatedAt           DateTime   @updatedAt
+  deletedAt           DateTime?
   properties          Property[]
   host                User       @relation(fields: [hostId], references: [id], onDelete: Cascade)
 
@@ -217,6 +218,7 @@ model Property {
   lastPaymentDate         DateTime?
   createdAt               DateTime               @default(now())
   updatedAt               DateTime               @updatedAt
+  deletedAt               DateTime?
   publishedAt             DateTime?
   slug                    String?                @unique
   propertyCode            String?                @unique
@@ -267,18 +269,21 @@ model Zone {
   updatedAt           DateTime        @updatedAt
   publishedAt         DateTime?
   slug                String?
-  order               Int             @default(0)
-  errorReports        ErrorReport[]
-  reviews             Review[]
-  steps               Step[]
-  trackingEvents      TrackingEvent[]
-  analytics           ZoneAnalytics?
-  comments            ZoneComment[]
-  ratings             ZoneRating[]
-  zoneViews           ZoneView[]      @relation("ZoneViews")
-  buildings           buildings?      @relation(fields: [buildingId], references: [id], onDelete: Cascade)
-  organizations       organizations?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  property            Property?       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  order                  Int                      @default(0)
+  type                   String                   @default("STANDARD")
+  recommendationCategory String?
+  errorReports           ErrorReport[]
+  recommendations        Recommendation[]
+  reviews                Review[]
+  steps                  Step[]
+  trackingEvents         TrackingEvent[]
+  analytics              ZoneAnalytics?
+  comments               ZoneComment[]
+  ratings                ZoneRating[]
+  zoneViews              ZoneView[]               @relation("ZoneViews")
+  buildings              buildings?               @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  organizations          organizations?           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  property               Property?                @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@unique([propertyId, slug])
   @@index([propertyId, status])
@@ -2889,6 +2894,64 @@ enum ClientInvoiceStatus {
 enum RectifyingType {
   SUBSTITUTION
   DIFFERENCE
+}
+
+// ============================================
+// Local Recommendations System
+// ============================================
+
+model Place {
+  id              String           @id @default(cuid())
+  placeId         String?          @unique
+  osmId           String?          @unique
+  source          String           // "GOOGLE" | "OSM"
+  name            String
+  address         String
+  phone           String?
+  rating          Float?
+  priceLevel      Int?
+  types           Json?
+  openingHours    Json?
+  latitude        Float
+  longitude       Float
+  businessStatus  String?          // "OPERATIONAL" | "CLOSED_TEMPORARILY" | "CLOSED_PERMANENTLY"
+  lastFetchedAt   DateTime
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  recommendations Recommendation[]
+
+  @@map("places")
+}
+
+model NearbyCache {
+  id            String   @id @default(cuid())
+  tileKey       String
+  category      String
+  placeIds      Json
+  lastFetchedAt DateTime
+
+  @@unique([tileKey, category])
+  @@map("nearby_cache")
+}
+
+model Recommendation {
+  id                      String    @id @default(cuid())
+  zoneId                  String
+  zone                    Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  placeId                 String?
+  place                   Place?    @relation(fields: [placeId], references: [id])
+  description             String?
+  descriptionTranslations Json?
+  source                  String    @default("AUTO_NEARBY")
+  distanceMeters          Int?
+  walkMinutes             Int?
+  order                   Int       @default(0)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  @@unique([zoneId, placeId])
+  @@index([zoneId, order])
+  @@map("recommendations")
 }
 
 enum SeriesType {

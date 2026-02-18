@@ -96,7 +96,7 @@ export async function GET(
         FROM steps
         GROUP BY "zoneId"
       ) sc ON sc."zoneId" = z.id
-      WHERE p.id LIKE ${id + '%'} AND p."hostId" = ${userId}
+      WHERE p.id LIKE ${id + '%'} AND p."hostId" = ${userId} AND p."deletedAt" IS NULL
       GROUP BY p.id
       LIMIT 1
     ` as any[]
@@ -147,6 +147,7 @@ export async function GET(
         FROM properties
         WHERE id LIKE ${id + '%'}
           AND "hostId" = ${userId}
+          AND "deletedAt" IS NULL
         LIMIT 1
       ` as any[]
       
@@ -369,136 +370,35 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    console.log('💥 NUCLEAR DELETE MODE ACTIVATED - Property ID:', id)
-    
+
     // Get authenticated user
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
       return authResult
     }
     const userId = authResult.userId
-    
-    // Verify user owns this property first with simple query
-    const ownerCheck = await prisma.$queryRaw`
-      SELECT id FROM properties WHERE id = ${id} AND "hostId" = ${userId}
-    ` as any[]
-    
-    if (ownerCheck.length === 0) {
+
+    // Soft-delete: set deletedAt instead of deleting
+    const result = await prisma.$executeRaw`
+      UPDATE properties SET "deletedAt" = NOW()
+      WHERE id = ${id} AND "hostId" = ${userId} AND "deletedAt" IS NULL
+    `
+
+    if (result === 0) {
       return NextResponse.json({
         success: false,
         error: 'Propiedad no encontrada o no autorizada'
       }, { status: 404 })
     }
-    
-    console.log('💥 NUCLEAR DELETE: Confirmed ownership, proceeding with total destruction...')
-    
-    // 💥💥💥 ELIMINACIÓN NUCLEAR - SQL DIRECTO SIN MIRAMIENTOS 💥💥💥
-    try {
-      await prisma.$transaction(async (tx) => {
-      console.log('💥 Step 1: Eliminating steps...')
-      await tx.$executeRaw`
-        DELETE FROM steps WHERE "zoneId" IN (
-          SELECT id FROM zones WHERE "propertyId" = ${id}
-        )
-      `
-      
-      console.log('💥 Step 2: Eliminating zone comments...')
-      await tx.$executeRaw`
-        DELETE FROM zone_comments WHERE "zoneId" IN (
-          SELECT id FROM zones WHERE "propertyId" = ${id}
-        )
-      `
-      
-      console.log('💥 Step 3: Eliminating zone ratings...')
-      await tx.$executeRaw`
-        DELETE FROM zone_ratings WHERE "zoneId" IN (
-          SELECT id FROM zones WHERE "propertyId" = ${id}
-        )
-      `
-      
-      console.log('💥 Step 4: Eliminating error reports...')
-      await tx.$executeRaw`
-        DELETE FROM error_reports WHERE "zoneId" IN (
-          SELECT id FROM zones WHERE "propertyId" = ${id}
-        )
-      `
-      
-      console.log('💥 Step 5: Eliminating zone analytics...')
-      await tx.$executeRaw`
-        DELETE FROM zone_analytics WHERE "zoneId" IN (
-          SELECT id FROM zones WHERE "propertyId" = ${id}
-        )
-      `
-      
-      console.log('💥 Step 6: Eliminating zone views...')
-      await tx.$executeRaw`DELETE FROM zone_views WHERE "propertyId" = ${id}`
-      
-      console.log('💥 Step 7: Eliminating zones...')
-      await tx.$executeRaw`DELETE FROM zones WHERE "propertyId" = ${id}`
-      
-      console.log('💥 Step 8: Eliminating property analytics...')
-      await tx.$executeRaw`DELETE FROM property_analytics WHERE "propertyId" = ${id}`
-      
-      console.log('💥 Step 9: Eliminating property ratings...')
-      await tx.$executeRaw`DELETE FROM property_ratings WHERE "propertyId" = ${id}`
-      
-      console.log('💥 Step 10: Eliminating property views...')
-      await tx.$executeRaw`DELETE FROM property_views WHERE "propertyId" = ${id}`
-      
-      console.log('💥 Step 11: Eliminating reviews...')
-      await tx.$executeRaw`DELETE FROM reviews WHERE "propertyId" = ${id}`
-      
-      console.log('💥 Step 12: Eliminating tracking events...')
-      await tx.$executeRaw`DELETE FROM tracking_events WHERE "propertyId" = ${id}`
-      
-      console.log('💥 Step 13: Eliminating announcements...')
-      await tx.$executeRaw`DELETE FROM announcements WHERE "propertyId" = ${id}`
-      
-      console.log('💥 FINAL NUCLEAR STRIKE: Eliminating property...')
-      await tx.$executeRaw`DELETE FROM properties WHERE id = ${id}`
-    })
-    
-    console.log('💥💥💥 NUCLEAR DELETE SUCCESSFUL - Property completely obliterated! 💥💥💥')
-    } catch (txError) {
-      console.error('💥 TRANSACTION ERROR:', txError)
-      
-      // If transaction fails, try deleting just the property
-      console.log('💥 Attempting simple property deletion...')
-      try {
-        await prisma.$executeRaw`DELETE FROM properties WHERE id = ${id} AND "hostId" = ${userId}`
-        console.log('💥 Simple deletion successful!')
-      } catch (simpleError) {
-        console.error('💥 Simple deletion also failed:', simpleError)
-        
-        // Return more specific error info
-        if (txError instanceof Error && txError.message.includes('violates foreign key constraint')) {
-          const match = txError.message.match(/on table "(\w+)"/)
-          const table = match ? match[1] : 'unknown'
-          
-          return NextResponse.json({
-            success: false,
-            error: `Cannot delete: Data exists in related table '${table}'`,
-            details: txError.message,
-            suggestion: 'Delete all zones and related data first'
-          }, { status: 400 })
-        }
-        
-        throw txError
-      }
-    }
-    
+
     return NextResponse.json({
       success: true,
-      message: 'Propiedad eliminada exitosamente'
+      message: 'Propiedad movida a la papelera'
     })
-    
+
   } catch (error) {
-    console.error('❌ Error deleting property:', error)
-    console.error('❌ Error details:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
-    })
-    
+    console.error('Error soft-deleting property:', error)
+
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor',

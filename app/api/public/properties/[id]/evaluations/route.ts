@@ -13,7 +13,8 @@ export async function GET(
     const property = await prisma.property.findFirst({
       where: {
         id,
-        status: 'ACTIVE'
+        status: 'ACTIVE',
+        deletedAt: null
       },
       select: {
         id: true,

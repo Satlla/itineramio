@@ -38,8 +38,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get property to find the hostId
-    const property = await prisma.property.findUnique({
-      where: { id: propertyId },
+    const property = await prisma.property.findFirst({
+      where: { id: propertyId, deletedAt: null },
       select: { hostId: true }
     });
 

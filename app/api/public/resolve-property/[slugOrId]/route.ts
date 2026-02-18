@@ -14,7 +14,8 @@ export async function GET(
     let property = await prisma.property.findFirst({
       where: {
         id: slugOrId,
-        isPublished: true
+        isPublished: true,
+        deletedAt: null
       },
       select: {
         id: true,
@@ -37,7 +38,8 @@ export async function GET(
     // If not found by ID, try to find by slug
     const properties = await prisma.property.findMany({
       where: {
-        isPublished: true
+        isPublished: true,
+        deletedAt: null
       },
       select: {
         id: true,

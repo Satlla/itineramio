@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       }),
       // Obtener solo 10 propiedades para mostrar (más que suficiente para mostrar 3)
       prisma.property.findMany({
-        where: { hostId: decoded.userId },
+        where: { hostId: decoded.userId, deletedAt: null },
         take: 10,
         orderBy: { createdAt: 'desc' },
         select: {
@@ -95,12 +95,12 @@ export async function GET(request: NextRequest) {
       
       // Contar total de propiedades
       prisma.property.count({
-        where: { hostId: decoded.userId }
+        where: { hostId: decoded.userId, deletedAt: null }
       }),
-      
+
       // Obtener todas las propiedades para stats correctos
       prisma.property.findMany({
-        where: { hostId: decoded.userId },
+        where: { hostId: decoded.userId, deletedAt: null },
         select: {
           status: true,
           _count: {

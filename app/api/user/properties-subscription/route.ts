@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
     // Get user's properties
     const properties = await prisma.property.findMany({
       where: {
-        hostId: userId
+        hostId: userId,
+        deletedAt: null
       },
       select: {
         id: true,

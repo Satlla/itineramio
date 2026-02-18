@@ -68,8 +68,8 @@ export async function POST(request: NextRequest) {
 
     if (zoneId) {
       // Single zone mode
-      property = await prisma.property.findUnique({
-        where: { id: propertyId },
+      property = await prisma.property.findFirst({
+        where: { id: propertyId, deletedAt: null },
         include: {
           zones: {
             where: { id: zoneId },
@@ -98,8 +98,8 @@ export async function POST(request: NextRequest) {
       zones = property.zones;
     } else {
       // Full property mode - get all published zones
-      property = await prisma.property.findUnique({
-        where: { id: propertyId },
+      property = await prisma.property.findFirst({
+        where: { id: propertyId, deletedAt: null },
         include: {
           zones: {
             where: { status: 'ACTIVE' },

@@ -482,7 +482,7 @@ function PropertiesPageContent() {
   const [shareModalOpen, setShareModalOpen] = useState(false)
   const [shareProperty, setShareProperty] = useState<Property | null>(null)
   const [copied, setCopied] = useState(false)
-  const [activeTab, setActiveTab] = useState<'properties' | 'sets'>('properties')
+  const [activeTab, setActiveTab] = useState<'properties' | 'sets' | 'trash'>('properties')
   const [recommendationModalOpen, setRecommendationModalOpen] = useState(false)
   const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -514,6 +514,11 @@ function PropertiesPageContent() {
   const [deletePropertySetModalOpen, setDeletePropertySetModalOpen] = useState(false)
   const [propertySetToDelete, setPropertySetToDelete] = useState<PropertySet | null>(null)
   const [isDeletingPropertySet, setIsDeletingPropertySet] = useState(false)
+
+  // Trash (papelera) states
+  const [trashProperties, setTrashProperties] = useState<any[]>([])
+  const [loadingTrash, setLoadingTrash] = useState(false)
+  const [restoringId, setRestoringId] = useState<string | null>(null)
   
   // Success modal states
   const [successModalOpen, setSuccessModalOpen] = useState(false)
@@ -812,6 +817,41 @@ function PropertiesPageContent() {
     setDeleteModalOpen(false)
     setPropertyToDelete(null)
     setIsDeleting(false)
+  }
+
+  // Trash (papelera) functions
+  const fetchTrash = async () => {
+    setLoadingTrash(true)
+    try {
+      const response = await fetch('/api/properties/trash', { credentials: 'include' })
+      if (response.ok) {
+        const data = await response.json()
+        setTrashProperties(data.data || [])
+      }
+    } catch (error) {
+      console.error('Error fetching trash:', error)
+    } finally {
+      setLoadingTrash(false)
+    }
+  }
+
+  const restoreProperty = async (propertyId: string) => {
+    setRestoringId(propertyId)
+    try {
+      const response = await fetch(`/api/properties/${propertyId}/restore`, {
+        method: 'POST',
+        credentials: 'include'
+      })
+      if (response.ok) {
+        setTrashProperties(prev => prev.filter(p => p.id !== propertyId))
+        // Refresh the main properties list
+        fetchProperties()
+      }
+    } catch (error) {
+      console.error('Error restoring property:', error)
+    } finally {
+      setRestoringId(null)
+    }
   }
   
   // Property Set deletion functions
@@ -1343,6 +1383,25 @@ function PropertiesPageContent() {
                 {propertySets.length}
               </span>
             </button>
+            <button
+              onClick={() => {
+                setActiveTab('trash')
+                fetchTrash()
+              }}
+              className={`py-2 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors flex items-center ${
+                activeTab === 'trash'
+                  ? 'border-violet-500 text-violet-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Trash2 className="w-4 h-4 mr-1" />
+              Papelera
+              {trashProperties.length > 0 && (
+                <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-600 rounded-full text-xs">
+                  {trashProperties.length}
+                </span>
+              )}
+            </button>
           </nav>
         </div>
 
@@ -1375,14 +1434,14 @@ function PropertiesPageContent() {
         </div>
 
         {/* Loading, Error, and Content */}
-        {loading ? (
+        {loading && activeTab !== 'trash' ? (
           <Card className="p-12 text-center">
             <InlineLoadingSpinner
               text={activeTab === 'properties' ? 'Cargando propiedades...' : 'Cargando conjuntos...'}
               type={activeTab === 'properties' ? 'properties' : 'properties'}
             />
           </Card>
-        ) : error ? (
+        ) : error && activeTab !== 'trash' ? (
           <Card className="p-12 text-center">
             <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-red-600 text-xl">!</span>
@@ -1831,6 +1890,80 @@ function PropertiesPageContent() {
                   </Card>
                 </div>
               </div>
+            </div>
+          )
+        ) : activeTab === 'trash' ? (
+          // Trash (Papelera) View
+          loadingTrash ? (
+            <Card className="p-12 text-center">
+              <InlineLoadingSpinner text="Cargando papelera..." type="properties" />
+            </Card>
+          ) : trashProperties.length === 0 ? (
+            <Card className="p-12 text-center">
+              <Trash2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                La papelera está vacía
+              </h3>
+              <p className="text-gray-600">
+                Las propiedades eliminadas aparecerán aquí y podrás restaurarlas en cualquier momento.
+              </p>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {trashProperties.map((property) => (
+                <Card key={property.id} className="p-4 border-dashed border-gray-300 bg-gray-50/50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 min-w-0">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                        {property.profileImage ? (
+                          <img
+                            src={property.profileImage}
+                            alt={getText(property.name, 'Propiedad')}
+                            className="w-full h-full object-cover opacity-60"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <Home className="w-6 h-6 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-medium text-gray-700 truncate">
+                          {getText(property.name, 'Propiedad')}
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          {getText(property.city, '')}{property.state ? `, ${getText(property.state, '')}` : ''}
+                          {' · '}{property.zonesCount || 0} zonas
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          Eliminada el {new Date(property.deletedAt).toLocaleDateString('es-ES', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => restoreProperty(property.id)}
+                      variant="outline"
+                      className="flex-shrink-0 ml-4 border-green-300 text-green-700 hover:bg-green-50"
+                      disabled={restoringId === property.id}
+                    >
+                      {restoringId === property.id ? (
+                        <div className="animate-spin w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full" />
+                      ) : (
+                        <>
+                          <ArrowRight className="w-4 h-4 mr-1 rotate-180" />
+                          Restaurar
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </Card>
+              ))}
             </div>
           )
         ) : (
@@ -2652,15 +2785,15 @@ function PropertiesPageContent() {
               {/* Modal Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                    <AlertTriangle className="w-6 h-6 text-red-600" />
+                  <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                    <Trash2 className="w-6 h-6 text-amber-600" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {t('modals.delete.title')}
+                      Mover a la papelera
                     </h3>
                     <p className="text-sm text-gray-600">
-                      {t('modals.delete.cannotUndo')}
+                      Podrás restaurarla después
                     </p>
                   </div>
                 </div>
@@ -2705,39 +2838,20 @@ function PropertiesPageContent() {
                 </div>
 
                 {/* Warning Message */}
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
                   <div className="flex items-start space-x-3">
-                    <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                    <Trash2 className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <h5 className="font-medium text-red-800 mb-1">
-                        {t('modals.delete.confirmQuestion')}
+                      <h5 className="font-medium text-amber-800 mb-1">
+                        La propiedad se moverá a la papelera
                       </h5>
-                      <p className="text-sm text-red-700 leading-relaxed">
-                        {t('modals.delete.permanentlyDeleted')}
+                      <p className="text-sm text-amber-700 leading-relaxed">
+                        Podrás restaurarla en cualquier momento desde la pestaña "Papelera". Todas las zonas, pasos y datos se conservarán intactos.
                       </p>
-                      <ul className="text-sm text-red-700 mt-2 space-y-1">
-                        <li>{t('modals.delete.allZones')}</li>
-                        <li>{t('modals.delete.qrCodes')}</li>
-                        <li>{t('modals.delete.statistics')}</li>
-                        <li>{t('modals.delete.evaluationsComments')}</li>
-                        <li>{t('modals.delete.activityHistory')}</li>
-                      </ul>
                     </div>
                   </div>
                 </div>
 
-                {/* Confirmation Input */}
-                <div className="mb-6">
-                  <p className="text-sm text-gray-700 mb-3">
-                    {t('modals.delete.typeToConfirm')}
-                  </p>
-                  <input
-                    type="text"
-                    placeholder={t('modals.delete.typePlaceholder')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
-                    id="deleteConfirmation"
-                  />
-                </div>
               </div>
 
               {/* Modal Footer */}
@@ -2751,27 +2865,19 @@ function PropertiesPageContent() {
                     {t('common.cancel')}
                   </Button>
                   <Button
-                    onClick={() => {
-                      const input = document.getElementById('deleteConfirmation') as HTMLInputElement
-                      if (input?.value === 'ELIMINAR') {
-                        confirmDeleteProperty()
-                      } else {
-                        setSuccessMessage(t('modals.delete.mustTypeDelete'))
-                        setSuccessModalOpen(true)
-                      }
-                    }}
-                    className="bg-red-600 hover:bg-red-700 text-white"
+                    onClick={() => confirmDeleteProperty()}
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
                     disabled={isDeleting}
                   >
                     {isDeleting ? (
                       <>
                         <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                        {t('modals.delete.deleting')}
+                        Moviendo...
                       </>
                     ) : (
                       <>
                         <Trash2 className="w-4 h-4 mr-2" />
-                        {t('modals.delete.deleteProperty')}
+                        Mover a la papelera
                       </>
                     )}
                   </Button>

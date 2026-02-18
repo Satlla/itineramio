@@ -12,8 +12,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ enabled: false }, { status: 400 })
     }
 
-    const property = await prisma.property.findUnique({
-      where: { id: propertyId },
+    const property = await prisma.property.findFirst({
+      where: { id: propertyId, deletedAt: null },
       select: {
         host: {
           select: { email: true }

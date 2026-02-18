@@ -101,7 +101,8 @@ export async function GET(
           // Get properties for this set
           const tempProperties = await prisma.property.findMany({
             where: {
-              propertySetId: id
+              propertySetId: id,
+              deletedAt: null
             },
             select: {
               id: true,
@@ -159,7 +160,8 @@ export async function GET(
     let properties = await prisma.property.findMany({
       where: {
         propertySetId: id,
-        hostId: userId
+        hostId: userId,
+        deletedAt: null
       },
       select: {
         id: true,
@@ -190,7 +192,8 @@ export async function GET(
       console.log('🔍 No properties found with user filter, trying without filter...')
       const propertiesWithoutFilter = await prisma.property.findMany({
         where: {
-          propertySetId: id
+          propertySetId: id,
+          deletedAt: null
         },
         select: {
           id: true,
@@ -416,10 +419,11 @@ export async function DELETE(
         propertySetId: null
       }
     })
-    
-    // Delete the property set
-    await prisma.propertySet.delete({
-      where: { id }
+
+    // Soft-delete the property set
+    await prisma.propertySet.update({
+      where: { id },
+      data: { deletedAt: new Date() }
     })
     
     return NextResponse.json({

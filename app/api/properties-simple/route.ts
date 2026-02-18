@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const userId = authResult.userId
 
     const properties = await prisma.property.findMany({
-      where: { hostId: userId }
+      where: { hostId: userId, deletedAt: null }
     })
 
     return NextResponse.json({

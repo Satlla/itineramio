@@ -356,7 +356,8 @@ export async function POST(request: NextRequest) {
     const activePropertiesCount = await prisma.property.count({
       where: {
         hostId: userId,
-        status: { in: ['ACTIVE', 'TRIAL'] }
+        status: { in: ['ACTIVE', 'TRIAL'] },
+        deletedAt: null
       }
     })
     
@@ -483,7 +484,8 @@ export async function GET(request: NextRequest) {
     
     // Build where clause
     const where: any = {
-      hostId: userId
+      hostId: userId,
+      deletedAt: null
     }
     
     if (status) {

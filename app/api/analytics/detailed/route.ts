@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     // Get user's properties with analytics
     const properties = await prisma.property.findMany({
-      where: { hostId: userId },
+      where: { hostId: userId, deletedAt: null },
       include: {
         analytics: true,
         zones: {

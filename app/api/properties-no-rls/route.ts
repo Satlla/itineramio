@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
     // Simple query without RLS
     const properties = await prisma.property.findMany({
       where: {
-        hostId: userId
+        hostId: userId,
+        deletedAt: null
       },
       skip: (page - 1) * limit,
       take: limit,

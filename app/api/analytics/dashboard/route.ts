@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     try {
       // Single query with _count to avoid N+1 problem
       const propsWithAnalytics = await prisma.property.findMany({
-        where: { hostId: userId },
+        where: { hostId: userId, deletedAt: null },
         include: {
           analytics: true,
           _count: {
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       console.error('Error fetching properties with workaround:', error)
       // Fallback to basic query
       const basicProps = await prisma.property.findMany({
-        where: { hostId: userId }
+        where: { hostId: userId, deletedAt: null }
       })
       properties = basicProps.map(p => ({
         ...p,
