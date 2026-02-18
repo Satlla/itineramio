@@ -18,6 +18,7 @@ import { generatePropertyNumber, extractNumberFromReference } from '../property-
 import { translateFields } from '../translate'
 import { generateZoneQRCode } from '../qr'
 import { fetchAllLocationData } from './places'
+import { generateRecommendations } from '../recommendations'
 import { type MediaAnalysisResult, type DetectedAppliance } from './vision'
 import { getZoneContentTemplate, type ZoneContentTemplate } from '../../data/zone-content-templates'
 import {
@@ -1742,7 +1743,23 @@ export async function generateManual(
       }
     }
 
-    // ── 7. Complete ──
+    // ── 7. Auto-generate nearby recommendations ──
+    if (propertyInput.lat && propertyInput.lng) {
+      sendEvent({ type: 'status', message: 'Generando recomendaciones locales...' })
+      try {
+        const recResult = await generateRecommendations(
+          property.id,
+          propertyInput.lat,
+          propertyInput.lng,
+        )
+        totalZones += recResult.zonesCreated
+        console.log(`[generator] Recommendations: ${recResult.zonesCreated} zones, ${recResult.totalPlaces} places`)
+      } catch (err) {
+        console.error('[generator] Recommendation generation failed (non-blocking):', err)
+      }
+    }
+
+    // ── 8. Complete ──
     const elapsedTime = Math.round((Date.now() - startTime) / 1000)
 
     sendEvent({
