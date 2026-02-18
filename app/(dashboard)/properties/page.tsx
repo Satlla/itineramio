@@ -38,7 +38,8 @@ import {
   ChevronUp,
   Layers,
   FileText,
-  Video
+  Video,
+  Sparkles
 } from 'lucide-react'
 import { Button } from '../../../src/components/ui/Button'
 import { Card, CardContent } from '../../../src/components/ui/Card'
@@ -1220,11 +1221,18 @@ function PropertiesPageContent() {
                     </div>
                   </motion.div>
                 )}
+                <Link href="/ai-setup" className="w-full sm:w-auto">
+                  <Button className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 w-full sm:w-auto text-sm shadow-lg shadow-violet-500/25">
+                    <Sparkles className="w-4 h-4 mr-1.5 sm:mr-2" />
+                    <span className="sm:hidden">Con IA</span>
+                    <span className="hidden sm:inline">Crear con IA</span>
+                  </Button>
+                </Link>
                 <Link href="/properties/new" className="w-full sm:w-auto">
-                  <Button className="bg-violet-600 hover:bg-violet-700 w-full sm:w-auto text-sm">
+                  <Button variant="outline" className="border-gray-300 w-full sm:w-auto text-sm">
                     <Plus className="w-4 h-4 mr-1.5 sm:mr-2" />
-                    <span className="sm:hidden">Nueva</span>
-                    <span className="hidden sm:inline">Añadir propiedad</span>
+                    <span className="sm:hidden">Manual</span>
+                    <span className="hidden sm:inline">Crear manual</span>
                   </Button>
                 </Link>
               </div>

@@ -5,12 +5,21 @@
   "installCommand": "npm install",
   "functions": {
     "app/api/upload/route.ts": {
-      "maxDuration": 30
+      "maxDuration": 60
+    },
+    "app/api/ai-setup/generate-manual/route.ts": {
+      "maxDuration": 120
+    },
+    "app/api/ai-setup/analyze-media/route.ts": {
+      "maxDuration": 60
     },
     "app/api/properties/route.ts": {
       "maxDuration": 60
     },
     "app/api/properties/safe/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/chatbot/route.ts": {
       "maxDuration": 60
     }
   },

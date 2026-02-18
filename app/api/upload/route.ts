@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
 
     // Validate file type (check if starts with valid type to handle codec suffixes like video/webm;codecs=vp9)
     const validTypesPrefixes = [
-      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
       'video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v', 'video/mpeg',
       'video/3gpp', 'video/x-msvideo', 'video/ogg'
     ]
