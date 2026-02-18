@@ -29,6 +29,15 @@ import {
   Zap,
   Thermometer,
   Loader2,
+  Coffee,
+  Banknote,
+  Fuel,
+  Dumbbell,
+  Shirt,
+  ShoppingCart,
+  TreePine,
+  Waves,
+  Building2,
 } from 'lucide-react'
 import type { Step1Data } from './Step1Address'
 import type { Step2Data } from './Step2Details'
@@ -57,11 +66,19 @@ export interface LocationDataDirections {
 export interface LocationData {
   supermarkets: LocationDataPlace[]
   restaurants: LocationDataPlace[]
+  cafes: LocationDataPlace[]
   pharmacies: LocationDataPlace[]
   attractions: LocationDataPlace[]
+  parks: LocationDataPlace[]
+  beaches: LocationDataPlace[]
   transitStations: LocationDataPlace[]
   parking: LocationDataPlace[]
   hospitals: LocationDataPlace[]
+  atms: LocationDataPlace[]
+  gasStations: LocationDataPlace[]
+  gyms: LocationDataPlace[]
+  laundry: LocationDataPlace[]
+  shoppingMalls: LocationDataPlace[]
   directions: {
     fromAirport: LocationDataDirections | null
     fromTrainStation: LocationDataDirections | null
@@ -415,31 +432,74 @@ ${step2.recyclingContainerLocation ? `\n📍 **Contenedores más cercanos:** ${s
     const dirs = locationData.directions || {} as LocationData['directions']
     const parkingList = locationData.parking || []
 
-    // Directions — show both taxi/driving and transit for each hub
-    const dirLines: string[] = []
-    const hubs: { emoji: string; label: string; transit: LocationDataDirections | null; driving: LocationDataDirections | null }[] = [
-      { emoji: '✈️', label: 'Desde el aeropuerto', transit: dirs.fromAirport || null, driving: dirs.drivingFromAirport || null },
-      { emoji: '🚂', label: 'Desde la estación de tren', transit: dirs.fromTrainStation || null, driving: dirs.drivingFromTrainStation || null },
-      { emoji: '🚌', label: 'Desde la estación de autobuses', transit: dirs.fromBusStation || null, driving: dirs.drivingFromBusStation || null },
-    ]
-    for (const hub of hubs) {
-      if (!hub.transit && !hub.driving) continue
-      const parts: string[] = [`${hub.emoji} **${hub.label}:**`]
-      if (hub.driving) {
-        parts.push(`🚕 **En taxi / coche:** ${hub.driving.duration} (${hub.driving.distance})`)
+    // Directions — professional format matching zone-content-templates
+    const dirSections: string[] = []
+    const mapsLink = `https://www.google.com/maps/search/?api=1&query=${step1.lat},${step1.lng}`
+    const wazeLink = `https://waze.com/ul?ll=${step1.lat},${step1.lng}&navigate=yes`
+
+    // Airport section
+    const airportTransit = dirs.fromAirport || null
+    const airportDriving = dirs.drivingFromAirport || null
+    if (airportTransit || airportDriving) {
+      const parts: string[] = [`✈️ **Aeropuerto de ${step1.city}**`]
+      if (airportDriving) {
+        parts.push(`🚕 **Taxi:**\n• Duración: ~${airportDriving.duration}\n• Distancia: ${airportDriving.distance}\n• Dile al taxista: "${step1.street}, ${step1.city}"`)
       }
-      if (hub.transit) {
-        const steps = hub.transit.steps.slice(0, 4).map((s, i) => `${i + 1}. ${s}`).join('\n')
-        parts.push(`🚌 **En transporte público:** ${hub.transit.duration} (${hub.transit.distance})\n${steps}`)
+      if (airportTransit) {
+        const steps = airportTransit.steps.slice(0, 5).map((s, i) => `${i + 1}. ${s}`).join('\n')
+        parts.push(`🚌 **Transporte público:** (${airportTransit.duration}, ${airportTransit.distance})\n${steps}`)
       }
-      dirLines.push(parts.join('\n\n'))
+      parts.push(`📱 **Apps recomendadas:** Uber, Cabify, FreeNow`)
+      dirSections.push(parts.join('\n\n'))
     }
-    dirLines.push(`📍 **Dirección exacta:**\n${step1.street}, ${step1.postalCode} ${step1.city}`)
+
+    // Train station section
+    const trainTransit = dirs.fromTrainStation || null
+    const trainDriving = dirs.drivingFromTrainStation || null
+    if (trainTransit || trainDriving) {
+      const parts: string[] = [`🚂 **Estación de tren de ${step1.city}**`]
+      if (trainDriving) {
+        parts.push(`🚕 **Taxi:** ~${trainDriving.duration}, ${trainDriving.distance}`)
+      }
+      if (trainTransit) {
+        const steps = trainTransit.steps.slice(0, 5).map((s, i) => `${i + 1}. ${s}`).join('\n')
+        parts.push(`🚌 **Transporte público:** (${trainTransit.duration}, ${trainTransit.distance})\n${steps}`)
+      }
+      dirSections.push(parts.join('\n\n'))
+    }
+
+    // Bus station section
+    const busTransit = dirs.fromBusStation || null
+    const busDriving = dirs.drivingFromBusStation || null
+    if (busTransit || busDriving) {
+      const parts: string[] = [`🚌 **Estación de autobuses de ${step1.city}**`]
+      if (busDriving) {
+        parts.push(`🚕 **Taxi:** ~${busDriving.duration}, ${busDriving.distance}`)
+      }
+      if (busTransit) {
+        const steps = busTransit.steps.slice(0, 5).map((s, i) => `${i + 1}. ${s}`).join('\n')
+        parts.push(`🚌 **Transporte público:** (${busTransit.duration}, ${busTransit.distance})\n${steps}`)
+      }
+      dirSections.push(parts.join('\n\n'))
+    }
+
+    // By car section (always shown)
+    dirSections.push(`🚗 **En coche**
+
+**Dirección GPS:** ${step1.street}, ${step1.postalCode} ${step1.city}
+
+**Coordenadas:** ${step1.lat}, ${step1.lng}
+
+📍 **Google Maps:** ${mapsLink}
+📍 **Waze:** ${wazeLink}
+
+🅿️ **Parking:** ${step1.hasParking === 'yes' ? 'Dispone de parking privado (ver sección Parking)' : 'No incluido — consulta la sección Parking público cercano'}`)
+
     zones.push({
       id: 'directions',
       title: 'Cómo llegar',
       iconName: 'map-pin',
-      content: dirLines.join('\n\n---\n\n'),
+      content: dirSections.join('\n\n---\n\n'),
       source: 'user',
     })
 
@@ -502,8 +562,8 @@ ${step2.recyclingContainerLocation ? `\n📍 **Contenedores más cercanos:** ${s
       })
     }
 
-    // Attractions (skip if host provided own recommendations)
-    if (locationData.attractions.length > 0 && !hasRecommendations) {
+    // Attractions
+    if ((locationData.attractions || []).length > 0 && !hasRecommendations) {
       const lines = locationData.attractions.map(a => {
         const rating = a.rating ? `⭐ ${a.rating} ` : ''
         return `${rating}**${a.name}** — ${a.distance || '?'}`
@@ -512,7 +572,138 @@ ${step2.recyclingContainerLocation ? `\n📍 **Contenedores más cercanos:** ${s
         id: 'things-to-do',
         title: 'Qué ver y hacer',
         iconName: 'star',
-        content: `🏛️ **Lugares de interés:**\n\n${lines.join('\n')}`,
+        content: `🏛️ **Monumentos y lugares de interés:**\n\n${lines.join('\n')}`,
+        source: 'user',
+      })
+    }
+
+    // Parks
+    if ((locationData.parks || []).length > 0) {
+      const lines = locationData.parks.map(p => {
+        const rating = p.rating ? `⭐ ${p.rating} ` : ''
+        return `${rating}**${p.name}** — ${p.distance || '?'}`
+      })
+      zones.push({
+        id: 'parks',
+        title: 'Parques y jardines',
+        iconName: 'tree-pine',
+        content: `🌳 **Parques cercanos:**\n\n${lines.join('\n')}`,
+        source: 'user',
+      })
+    }
+
+    // Beaches
+    if ((locationData.beaches || []).length > 0) {
+      const lines = locationData.beaches.map(b => {
+        const rating = b.rating ? `⭐ ${b.rating} ` : ''
+        return `${rating}**${b.name}** — ${b.distance || '?'}`
+      })
+      zones.push({
+        id: 'beaches',
+        title: 'Playas',
+        iconName: 'waves',
+        content: `🏖️ **Playas cercanas:**\n\n${lines.join('\n')}`,
+        source: 'user',
+      })
+    }
+
+    // Cafes
+    if ((locationData.cafes || []).length > 0) {
+      const lines = locationData.cafes.map(c => {
+        const rating = c.rating ? `⭐ ${c.rating} ` : ''
+        return `${rating}**${c.name}** — ${c.distance || '?'}`
+      })
+      zones.push({
+        id: 'cafes',
+        title: 'Cafeterías',
+        iconName: 'coffee',
+        content: `☕ **Cafeterías cercanas:**\n\n${lines.join('\n')}`,
+        source: 'user',
+      })
+    }
+
+    // Hospitals / Health centers
+    if ((locationData.hospitals || []).length > 0) {
+      const lines = locationData.hospitals.map(h =>
+        `**${h.name}** — ${h.distance || '?'}\n📍 ${h.address}`
+      )
+      zones.push({
+        id: 'hospitals',
+        title: 'Centros de salud',
+        iconName: 'building-2',
+        content: `🏥 **Hospitales y centros de salud cercanos:**\n\n${lines.join('\n\n')}`,
+        source: 'user',
+      })
+    }
+
+    // ATMs
+    if ((locationData.atms || []).length > 0) {
+      const lines = locationData.atms.map(a =>
+        `**${a.name}** — ${a.distance || '?'}`
+      )
+      zones.push({
+        id: 'atms',
+        title: 'Cajeros automáticos',
+        iconName: 'banknote',
+        content: `🏧 **Cajeros cercanos:**\n\n${lines.join('\n')}`,
+        source: 'user',
+      })
+    }
+
+    // Gas stations
+    if ((locationData.gasStations || []).length > 0) {
+      const lines = locationData.gasStations.map(g =>
+        `**${g.name}** — ${g.distance || '?'}`
+      )
+      zones.push({
+        id: 'gas-stations',
+        title: 'Gasolineras',
+        iconName: 'fuel',
+        content: `⛽ **Gasolineras cercanas:**\n\n${lines.join('\n')}`,
+        source: 'user',
+      })
+    }
+
+    // Gyms
+    if ((locationData.gyms || []).length > 0) {
+      const lines = locationData.gyms.map(g => {
+        const rating = g.rating ? `⭐ ${g.rating} ` : ''
+        return `${rating}**${g.name}** — ${g.distance || '?'}`
+      })
+      zones.push({
+        id: 'gyms',
+        title: 'Gimnasios',
+        iconName: 'dumbbell',
+        content: `💪 **Gimnasios cercanos:**\n\n${lines.join('\n')}`,
+        source: 'user',
+      })
+    }
+
+    // Laundry
+    if ((locationData.laundry || []).length > 0) {
+      const lines = locationData.laundry.map(l =>
+        `**${l.name}** — ${l.distance || '?'}\n📍 ${l.address}`
+      )
+      zones.push({
+        id: 'laundry',
+        title: 'Lavanderías',
+        iconName: 'washing-machine',
+        content: `👕 **Lavanderías autoservicio:**\n\n${lines.join('\n\n')}`,
+        source: 'user',
+      })
+    }
+
+    // Shopping malls
+    if ((locationData.shoppingMalls || []).length > 0) {
+      const lines = locationData.shoppingMalls.map(s => {
+        const rating = s.rating ? `⭐ ${s.rating} ` : ''
+        return `${rating}**${s.name}** — ${s.distance || '?'}`
+      })
+      zones.push({
+        id: 'shopping-malls',
+        title: 'Centros comerciales',
+        iconName: 'shopping-cart',
+        content: `🛍️ **Centros comerciales cercanos:**\n\n${lines.join('\n')}`,
         source: 'user',
       })
     }
@@ -538,25 +729,37 @@ ${step2.recyclingContainerLocation ? `\n📍 **Contenedores más cercanos:** ${s
       ? '⏳ Cargando lugares cercanos...'
       : 'Se generará automáticamente al cargar datos de ubicación.'
     const source: 'auto' = 'auto'
+    const lp = locationDataLoading // shorthand
     zones.push(
-      { id: 'directions', title: 'Cómo llegar', iconName: 'map-pin', content: locationDataLoading ? '⏳ Cargando direcciones...' : loadingText, source },
-      { id: 'public-transport', title: 'Transporte público', iconName: 'bus', content: locationDataLoading ? '⏳ Cargando transporte cercano...' : loadingText, source },
+      { id: 'directions', title: 'Cómo llegar', iconName: 'map-pin', content: lp ? '⏳ Cargando direcciones...' : loadingText, source },
+      { id: 'public-transport', title: 'Transporte público', iconName: 'bus', content: lp ? '⏳ Cargando transporte cercano...' : loadingText, source },
     )
     if (!hasRecommendations) {
       zones.push(
-        { id: 'restaurants', title: 'Restaurantes', iconName: 'utensils', content: locationDataLoading ? '⏳ Cargando restaurantes cercanos...' : loadingText, source },
+        { id: 'restaurants', title: 'Restaurantes', iconName: 'utensils', content: lp ? '⏳ Cargando restaurantes cercanos...' : loadingText, source },
       )
     }
     zones.push(
-      { id: 'supermarkets', title: 'Supermercados y tiendas', iconName: 'shopping-bag', content: locationDataLoading ? '⏳ Cargando supermercados cercanos...' : loadingText, source },
-      { id: 'pharmacies', title: 'Farmacias', iconName: 'heart', content: locationDataLoading ? '⏳ Cargando farmacias cercanas...' : loadingText, source },
-      { id: 'public-parking', title: 'Parking público cercano', iconName: 'car', content: locationDataLoading ? '⏳ Cargando parkings cercanos...' : loadingText, source },
+      { id: 'supermarkets', title: 'Supermercados y tiendas', iconName: 'shopping-bag', content: lp ? '⏳ Cargando supermercados cercanos...' : loadingText, source },
+      { id: 'pharmacies', title: 'Farmacias', iconName: 'heart', content: lp ? '⏳ Cargando farmacias cercanas...' : loadingText, source },
     )
     if (!hasRecommendations) {
       zones.push(
-        { id: 'things-to-do', title: 'Qué ver y hacer', iconName: 'star', content: locationDataLoading ? '⏳ Cargando atracciones cercanas...' : loadingText, source },
+        { id: 'things-to-do', title: 'Qué ver y hacer', iconName: 'star', content: lp ? '⏳ Cargando atracciones cercanas...' : loadingText, source },
       )
     }
+    zones.push(
+      { id: 'parks', title: 'Parques y jardines', iconName: 'tree-pine', content: lp ? '⏳ Cargando parques...' : loadingText, source },
+      { id: 'beaches', title: 'Playas', iconName: 'waves', content: lp ? '⏳ Cargando playas...' : loadingText, source },
+      { id: 'cafes', title: 'Cafeterías', iconName: 'coffee', content: lp ? '⏳ Cargando cafeterías...' : loadingText, source },
+      { id: 'hospitals', title: 'Centros de salud', iconName: 'building-2', content: lp ? '⏳ Cargando centros de salud...' : loadingText, source },
+      { id: 'atms', title: 'Cajeros automáticos', iconName: 'banknote', content: lp ? '⏳ Cargando cajeros...' : loadingText, source },
+      { id: 'gas-stations', title: 'Gasolineras', iconName: 'fuel', content: lp ? '⏳ Cargando gasolineras...' : loadingText, source },
+      { id: 'gyms', title: 'Gimnasios', iconName: 'dumbbell', content: lp ? '⏳ Cargando gimnasios...' : loadingText, source },
+      { id: 'laundry', title: 'Lavanderías', iconName: 'washing-machine', content: lp ? '⏳ Cargando lavanderías...' : loadingText, source },
+      { id: 'shopping-malls', title: 'Centros comerciales', iconName: 'shopping-cart', content: lp ? '⏳ Cargando centros comerciales...' : loadingText, source },
+      { id: 'public-parking', title: 'Parking público cercano', iconName: 'car', content: lp ? '⏳ Cargando parkings cercanos...' : loadingText, source },
+    )
   }
 
   return zones
@@ -580,6 +783,15 @@ const iconComponents: Record<string, React.ReactNode> = {
   'star': <Star className="w-5 h-5" />,
   'zap': <Zap className="w-5 h-5" />,
   'thermometer': <Thermometer className="w-5 h-5" />,
+  'coffee': <Coffee className="w-5 h-5" />,
+  'banknote': <Banknote className="w-5 h-5" />,
+  'fuel': <Fuel className="w-5 h-5" />,
+  'dumbbell': <Dumbbell className="w-5 h-5" />,
+  'washing-machine': <Shirt className="w-5 h-5" />,
+  'shopping-cart': <ShoppingCart className="w-5 h-5" />,
+  'tree-pine': <TreePine className="w-5 h-5" />,
+  'waves': <Waves className="w-5 h-5" />,
+  'building-2': <Building2 className="w-5 h-5" />,
 }
 
 // Categories that map to built-in zones (not media-detected zones)

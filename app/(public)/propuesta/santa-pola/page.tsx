@@ -95,7 +95,7 @@ export default function PropuestaSantaPola() {
           <div className={s.kpiCard}>
             <div className={s.kpiLabel}>Listados activos</div>
             <div className={s.kpiValue}>1.333</div>
-            <div className={s.kpiChange}>↑ +89 vs año anterior</div>
+            <div className={s.kpiChange}>↑ +89 vs año anterior · Incluye todos los tipos de alojamiento</div>
           </div>
           <div className={s.kpiCard}>
             <div className={s.kpiLabel}>Reservas totales</div>
@@ -271,8 +271,8 @@ export default function PropuestaSantaPola() {
               <th>% mercado</th>
               <th>Precio listado</th>
               <th>Precio/noche real</th>
-              <th>Precio/semana</th>
-              <th>Precio/mes</th>
+              <th>ADR (reserva semanal)</th>
+              <th>ADR (reserva mensual)</th>
               <th>Estancia media</th>
             </tr>
           </thead>
@@ -323,7 +323,7 @@ export default function PropuestaSantaPola() {
               <td>3 noches</td>
             </tr>
             <tr className={s.rowTotal}>
-              <td>TOTAL MERCADO</td>
+              <td>TOTAL APARTAMENTOS</td>
               <td>996</td><td>100%</td>
               <td className={s.tdMoney}>97€</td>
               <td className={s.tdMoney}>77€</td>
@@ -334,11 +334,19 @@ export default function PropuestaSantaPola() {
           </tbody>
         </table>
 
+        <p className={s.textXs} style={{ marginTop: 8, marginBottom: 16 }}>
+          ADR = tarifa media por noche. &quot;ADR (reserva semanal)&quot; y &quot;ADR (reserva mensual)&quot; indican el
+          precio medio por noche cuando la reserva es de 7+ o 28+ noches respectivamente (descuento por mayor duración).
+        </p>
+
         <div className={s.infoBox}>
           <div className={s.infoBoxTitle}>Distribución del mercado</div>
           <p>
-            El 76% del mercado se concentra en apartamentos de 2 y 3 dormitorios (444 + 309 = 753 listings).
-            Los apartamentos de 2 dormitorios dominan con el 44,6% del mercado, seguidos por 3 dormitorios (31%).
+            El mercado total de Santa Pola cuenta con <strong>1.333 listados activos</strong> (apartamentos, casas,
+            villas, etc.). Esta tabla filtra solo los <strong>996 apartamentos</strong>, que es la tipología
+            comparable con los 48 inmuebles de esta propuesta.<br /><br />
+            El 76% se concentra en apartamentos de 2 y 3 dormitorios (444 + 309 = 753 listings).
+            Los apartamentos de 2 dormitorios dominan con el 44,6%, seguidos por 3 dormitorios (31%).
             Los precios por noche oscilan entre 63€ (1 dormitorio) y 119€ (4 dormitorios).
           </p>
         </div>
@@ -394,7 +402,10 @@ export default function PropuestaSantaPola() {
         <p className={s.textSm}>
           Ocupación aplicada: 66% (dato agregado de mercado). La ocupación real variará por
           apartamento según tipología, ubicación y calidad del anuncio. Las estimaciones por tipología
-          son orientativas; la cifra de referencia para proyecciones es la media de mercado: 14.917€/año.
+          son orientativas y asumen la ocupación media del mercado; la cifra de referencia para
+          proyecciones es la media general de mercado: <strong>14.917€/año</strong>, que pondera todas las
+          tipologías según su peso real en Santa Pola. Apartamentos individuales pueden rendir por
+          encima o por debajo de esta media.
         </p>
       </div>
 
@@ -461,7 +472,7 @@ export default function PropuestaSantaPola() {
               <li>Revisión de grifos y sifones</li>
               <li>Mantenimiento de cerraduras</li>
               <li>Revisión de aires acondicionados</li>
-              <li>Pintura anual</li>
+              <li>Pintura periódica según desgaste</li>
               <li>Reparaciones menores</li>
             </ul>
           </div>
@@ -581,7 +592,7 @@ export default function PropuestaSantaPola() {
               <td style={{ textAlign: 'right' }} className={s.tdMoney}>154.800€</td>
             </tr>
             <tr>
-              <td>Limpieza (estimación ~40€ × rotaciones)</td>
+              <td>Limpieza (estimación ~40€ × ~80 rotaciones/apt/año conservador)</td>
               <td style={{ textAlign: 'right' }} className={s.tdMoney}>~153.600€</td>
               <td style={{ textAlign: 'right' }} className={s.tdMoney}>~168.960€</td>
               <td style={{ textAlign: 'right' }} className={s.tdMoney}>~182.400€</td>
@@ -615,7 +626,7 @@ export default function PropuestaSantaPola() {
               <td style={{ textAlign: 'right' }} className={s.tdHighlight}>422.114€</td>
             </tr>
             <tr>
-              <td>Por apartamento / mes</td>
+              <td>Por apartamento / mes (antes de suministros e impuestos)</td>
               <td style={{ textAlign: 'right' }} className={s.tdMoney}>417€</td>
               <td style={{ textAlign: 'right' }} className={s.tdMoney}>557€</td>
               <td style={{ textAlign: 'right' }} className={s.tdMoney}>733€</td>
@@ -640,7 +651,7 @@ export default function PropuestaSantaPola() {
             </div>
             <div className={s.summaryItem}>
               <div className={s.summaryItemValue}>557€</div>
-              <div className={s.summaryItemLabel}>Por apartamento / mes</div>
+              <div className={s.summaryItemLabel}>Por apartamento / mes (antes de suministros e impuestos)</div>
             </div>
           </div>
         </div>
@@ -798,7 +809,7 @@ export default function PropuestaSantaPola() {
             <tr><td><strong>Validez del registro</strong></td><td>5 años (renovable). Antes era indefinido.</td></tr>
             <tr><td><strong>NRUA obligatorio</strong></td><td>Desde julio 2025, el número NRUA debe aparecer en todos los anuncios</td></tr>
             <tr><td><strong>Aprobación de comunidad</strong></td><td>3/5 de propietarios deben aprobar (desde abril 2025) — para nuevas licencias</td></tr>
-            <tr><td><strong>Estancia máxima</strong></td><td>10 días consecutivos por huésped</td></tr>
+            <tr><td><strong>Estancia máxima</strong></td><td>Según normativa municipal vigente (actualmente 10 días consecutivos por huésped, sujeto a revisión)</td></tr>
             <tr><td><strong>Cerraduras</strong></td><td>Prohibidas las cajas de llaves (lockbox) en vía pública o zonas comunes</td></tr>
             <tr><td><strong>No retroactividad</strong></td><td>Licencias existentes están protegidas bajo la normativa anterior</td></tr>
           </tbody>
@@ -821,7 +832,8 @@ export default function PropuestaSantaPola() {
             El contrato de gestión tiene una <strong>duración mínima de 5 años, renovable</strong> automáticamente
             por periodos anuales. Esta duración permite amortizar la inversión inicial (cerraduras electrónicas,
             puesta a punto, fotografía profesional) y garantizar la estabilidad operativa necesaria para un
-            proyecto de 48 unidades.
+            proyecto de 48 unidades. Se contemplará una <strong>cláusula de rescisión anticipada</strong> con
+            un preaviso mínimo de 6 meses y compensación proporcional a la inversión pendiente de amortizar.
           </p>
         </div>
 
@@ -846,6 +858,18 @@ export default function PropuestaSantaPola() {
               <div style={{ color: '#6b7280' }}>alejandrosatlla@gmail.com</div>
             </div>
           </div>
+        </div>
+
+        <div className={s.warningBox} style={{ marginTop: 30, fontSize: 12 }}>
+          <div className={s.warningBoxTitle}>Aviso legal</div>
+          <p>
+            Las cifras de esta propuesta son <strong>estimaciones orientativas</strong> basadas en datos de mercado
+            de AirDNA (febrero 2026) y no constituyen una garantía de ingresos. Los resultados reales dependerán
+            de la tipología, ubicación, estado y equipamiento de cada apartamento, así como de las condiciones
+            del mercado. El resultado operativo estimado no incluye suministros (agua, luz, gas, internet),
+            comunidad de propietarios, IBI, seguros ni impuestos, que corren a cargo de la propiedad.
+            Las tarifas de limpieza y mantenimiento se ajustarán tras la valoración presencial de los inmuebles.
+          </p>
         </div>
 
         <div className={s.pageFooter}>

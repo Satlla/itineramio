@@ -1161,33 +1161,63 @@ function buildLocationZones(
 ): TrilingualZoneConfig[] {
   const zones: TrilingualZoneConfig[] = []
 
-  // How to get there — show both taxi/driving and transit for each hub
+  // How to get there — professional format matching zone-content-templates
   const dirSteps: TrilingualZoneConfig['steps'] = []
-  const dirHubs: { label: string; transit: typeof locationData.directions.fromAirport; driving: typeof locationData.directions.drivingFromAirport }[] = [
-    { label: 'Desde el aeropuerto', transit: locationData.directions.fromAirport, driving: locationData.directions.drivingFromAirport },
-    { label: 'Desde la estación de tren', transit: locationData.directions.fromTrainStation, driving: locationData.directions.drivingFromTrainStation },
-    { label: 'Desde la estación de autobuses', transit: locationData.directions.fromBusStation, driving: locationData.directions.drivingFromBusStation },
-  ]
-  for (const hub of dirHubs) {
-    if (!hub.transit && !hub.driving) continue
-    const parts: string[] = []
-    if (hub.driving) {
-      parts.push(`🚕 **En taxi / coche:** ${hub.driving.duration} (${hub.driving.distance})`)
+  const mapsLink = `https://www.google.com/maps/search/?api=1&query=${propertyInput.lat},${propertyInput.lng}`
+  const address = `${propertyInput.street}, ${propertyInput.postalCode} ${propertyInput.city}`
+
+  // Airport
+  const airportT = locationData.directions.fromAirport
+  const airportD = locationData.directions.drivingFromAirport
+  if (airportT || airportD) {
+    const parts: string[] = [`✈️ **Aeropuerto de ${propertyInput.city}**`]
+    if (airportD) {
+      parts.push(`🚕 **Taxi:**\n• Duración: ~${airportD.duration}\n• Distancia: ${airportD.distance}\n• Dile al taxista: "${address}"`)
     }
-    if (hub.transit) {
-      parts.push(`🚌 **En transporte público:** ${hub.transit.duration} (${hub.transit.distance})\n\n${hub.transit.steps.slice(0, 5).join('\n\n')}`)
+    if (airportT) {
+      const steps = airportT.steps.slice(0, 5).map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')
+      parts.push(`🚌 **Transporte público:** (${airportT.duration}, ${airportT.distance})\n${steps}`)
     }
-    dirSteps.push({
-      type: 'text',
-      title: { es: hub.label, en: '', fr: '' },
-      content: { es: parts.join('\n\n'), en: '', fr: '' },
-    })
+    parts.push(`📱 **Apps recomendadas:** Uber, Cabify, FreeNow`)
+    dirSteps.push({ type: 'text', title: { es: 'Desde el aeropuerto', en: '', fr: '' }, content: { es: parts.join('\n\n'), en: '', fr: '' } })
   }
+
+  // Train station
+  const trainT = locationData.directions.fromTrainStation
+  const trainD = locationData.directions.drivingFromTrainStation
+  if (trainT || trainD) {
+    const parts: string[] = [`🚂 **Estación de tren de ${propertyInput.city}**`]
+    if (trainD) parts.push(`🚕 **Taxi:** ~${trainD.duration}, ${trainD.distance}`)
+    if (trainT) {
+      const steps = trainT.steps.slice(0, 5).map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')
+      parts.push(`🚌 **Transporte público:** (${trainT.duration}, ${trainT.distance})\n${steps}`)
+    }
+    dirSteps.push({ type: 'text', title: { es: 'Desde la estación de tren', en: '', fr: '' }, content: { es: parts.join('\n\n'), en: '', fr: '' } })
+  }
+
+  // Bus station
+  const busT = locationData.directions.fromBusStation
+  const busD = locationData.directions.drivingFromBusStation
+  if (busT || busD) {
+    const parts: string[] = [`🚌 **Estación de autobuses de ${propertyInput.city}**`]
+    if (busD) parts.push(`🚕 **Taxi:** ~${busD.duration}, ${busD.distance}`)
+    if (busT) {
+      const steps = busT.steps.slice(0, 5).map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')
+      parts.push(`🚌 **Transporte público:** (${busT.duration}, ${busT.distance})\n${steps}`)
+    }
+    dirSteps.push({ type: 'text', title: { es: 'Desde la estación de autobuses', en: '', fr: '' }, content: { es: parts.join('\n\n'), en: '', fr: '' } })
+  }
+
+  // By car (always)
+  const parkingNote = propertyInput.hasParking === 'yes'
+    ? 'Dispone de parking privado (ver sección Parking)'
+    : 'No incluido — consulta la sección Parking público cercano'
   dirSteps.push({
     type: 'text',
-    title: { es: 'Dirección exacta', en: '', fr: '' },
-    content: { es: `📍 ${propertyInput.street}, ${propertyInput.postalCode} ${propertyInput.city}, ${propertyInput.state}`, en: '', fr: '' },
+    title: { es: 'En coche', en: '', fr: '' },
+    content: { es: `🚗 **Dirección GPS:** ${address}\n\n**Coordenadas:** ${propertyInput.lat}, ${propertyInput.lng}\n\n📍 **Google Maps:** ${mapsLink}\n📍 **Waze:** https://waze.com/ul?ll=${propertyInput.lat},${propertyInput.lng}&navigate=yes\n\n🅿️ **Parking:** ${parkingNote}`, en: '', fr: '' },
   })
+
   zones.push({
     name: { es: 'Cómo Llegar', en: '', fr: '' },
     icon: 'map-pin',

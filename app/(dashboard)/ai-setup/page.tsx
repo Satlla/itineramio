@@ -40,6 +40,7 @@ export default function AISetupPage() {
   const router = useRouter()
   const { user } = useAuth()
 
+
   const [currentStep, setCurrentStepRaw] = useState(1)
   const setCurrentStep = (stepOrFn: number | ((prev: number) => number)) => {
     setCurrentStepRaw(stepOrFn)
