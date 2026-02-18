@@ -79,6 +79,7 @@ interface Zone {
   color?: string
   order: number
   stepsCount?: number
+  type?: string
   status: string
 }
 
@@ -1370,7 +1371,10 @@ export default function PropertyGuidePage() {
                               {getText(zone.name, language, t('zone', language))}
                             </h4>
                             <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>
-                              {zone.stepsCount} {zone.stepsCount === 1 ? 'instrucción' : 'instrucciones'}
+                              {zone.type === 'RECOMMENDATIONS'
+                                ? `${zone.stepsCount} ${zone.stepsCount === 1 ? 'recomendación' : 'recomendaciones'}`
+                                : `${zone.stepsCount} ${zone.stepsCount === 1 ? 'instrucción' : 'instrucciones'}`
+                              }
                             </p>
                           </div>
                           <div className="flex items-center gap-2">

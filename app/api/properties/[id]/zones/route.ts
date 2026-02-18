@@ -31,6 +31,8 @@ export async function GET(
         z."isPublished",
         z."propertyId",
         z."order",
+        z.type,
+        z."recommendationCategory",
         z."createdAt",
         z."updatedAt",
         z."publishedAt",
@@ -49,13 +51,15 @@ export async function GET(
             ) ORDER BY COALESCE(s."order", 0) ASC, s.id ASC
           ) FILTER (WHERE s.id IS NOT NULL),
           '[]'::json
-        ) as steps
+        ) as steps,
+        (SELECT COUNT(*) FROM recommendations r WHERE r."zoneId" = z.id)::int as "recommendationsCount"
       FROM properties p
       INNER JOIN zones z ON z."propertyId" = p.id
       LEFT JOIN steps s ON s."zoneId" = z.id
       WHERE p.id = ${propertyId} AND p."hostId" = ${userId}
       GROUP BY z.id, z.name, z.slug, z.icon, z.description, z.color, z.status,
-               z."isPublished", z."propertyId", z."order", z."createdAt", z."updatedAt", z."publishedAt"
+               z."isPublished", z."propertyId", z."order", z.type, z."recommendationCategory",
+               z."createdAt", z."updatedAt", z."publishedAt"
       ORDER BY COALESCE(z."order", 0) ASC, z.id ASC
     ` as any[]
 

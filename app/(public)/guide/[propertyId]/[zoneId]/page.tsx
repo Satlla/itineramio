@@ -13,6 +13,8 @@ import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/Animate
 import { ShareLanguageModal } from '../../../../../src/components/ui/ShareLanguageModal'
 import { TextToSpeech } from '../../../../../src/components/ui/TextToSpeech'
 import ChatBot from '../../../../../src/components/ui/ChatBot'
+import { RecommendationZone } from '../../../../../src/components/ui/RecommendationZone'
+import type { RecommendationData } from '../../../../../src/components/ui/RecommendationCard'
 
 interface ZoneStep {
   id: string
@@ -35,7 +37,9 @@ interface Zone {
   icon: string
   color?: string
   propertyId: string
+  type?: string
   steps: ZoneStep[]
+  recommendations?: RecommendationData[]
 }
 
 interface Property {
@@ -907,6 +911,88 @@ export default function ZoneGuidePage({
     )
   }
 
+  // RECOMMENDATIONS zone — render cards instead of steps (check BEFORE empty steps)
+  if (zone.type === 'RECOMMENDATIONS' && zone.recommendations) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
+        {/* Header */}
+        <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky z-40 pwa-sticky-header">
+          <div className="max-w-3xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+            <div className="flex items-center justify-between">
+              <Link href={`/guide/${zone.propertyId}`}>
+                <Button variant="ghost" size="sm">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">{t('backToProperty', language)}</span>
+                  <span className="sm:hidden">Volver</span>
+                </Button>
+              </Link>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowShareModal(true)}
+                >
+                  <Share2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Recommendations Content */}
+        <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12 overflow-x-hidden">
+          <RecommendationZone
+            zoneName={getText(zone.name, language, 'Recomendaciones')}
+            zoneIcon={zone.icon}
+            recommendations={zone.recommendations}
+            language={language}
+            darkMode={false}
+          />
+
+          {/* Footer */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-center text-gray-500 text-xs sm:text-sm mt-8 px-4"
+          >
+            <p>
+              Powered by <ItineramioLogo size="sm" gradient className="inline-block mx-1" /> Itineramio
+            </p>
+          </motion.div>
+        </main>
+
+        {/* Share Modal */}
+        {showShareModal && (
+          <ShareLanguageModal
+            isOpen={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            onShare={(lang) => {
+              const url = `${window.location.origin}/guide/${zone.propertyId}/${zone.id}?lang=${lang}`
+              navigator.clipboard?.writeText(url)
+              setShowShareModal(false)
+            }}
+            type="zone"
+          />
+        )}
+
+        {/* ChatBot */}
+        {property && (
+          <ChatBot
+            propertyId={zone.propertyId}
+            propertyName={getText(property.name, language, '')}
+            language={language as 'es' | 'en' | 'fr'}
+            hostContact={{
+              name: property.hostContactName,
+              phone: property.hostContactPhone,
+              email: property.hostContactEmail,
+            }}
+          />
+        )}
+      </div>
+    )
+  }
+
   // If no steps, show empty state
   if (!zone.steps || zone.steps.length === 0) {
     return (
@@ -921,7 +1007,7 @@ export default function ZoneGuidePage({
             </Link>
           </div>
         </header>
-        
+
         <div className="max-w-3xl mx-auto px-4 py-8">
           <Card className="p-12 text-center">
             <div className={`w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4 text-4xl ${

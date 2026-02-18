@@ -21,18 +21,25 @@ export async function GET(
         AND: [
           {
             OR: [
-              { 
+              {
                 AND: [
                   { isPublished: true },
                   { status: 'ACTIVE' }
                 ]
               },
-              { 
-                steps: { 
-                  some: { 
+              {
+                steps: {
+                  some: {
                     isPublished: true
-                  } 
-                } 
+                  }
+                }
+              },
+              {
+                AND: [
+                  { type: 'RECOMMENDATIONS' },
+                  { isPublished: true },
+                  { recommendations: { some: {} } }
+                ]
               }
             ]
           }
@@ -55,7 +62,7 @@ export async function GET(
         }
       }
     })
-    
+
     // If not found with exact match, try startsWith (for Next.js truncation)
     if (!zone) {
       const zones = await prisma.zone.findMany({
@@ -72,18 +79,25 @@ export async function GET(
           AND: [
             {
               OR: [
-                { 
+                {
                   AND: [
                     { isPublished: true },
                     { status: 'ACTIVE' }
                   ]
                 },
-                { 
-                  steps: { 
-                    some: { 
+                {
+                  steps: {
+                    some: {
                       isPublished: true
-                    } 
-                  } 
+                    }
+                  }
+                },
+                {
+                  AND: [
+                    { type: 'RECOMMENDATIONS' },
+                    { isPublished: true },
+                    { recommendations: { some: {} } }
+                  ]
                 }
               ]
             }
@@ -125,8 +139,8 @@ export async function GET(
     }
 
     // Check if host has MANUALES module access
-    const property = await prisma.property.findUnique({
-      where: { id: zone.propertyId },
+    const property = await prisma.property.findFirst({
+      where: { id: zone.propertyId, deletedAt: null },
       select: { hostId: true }
     })
 
@@ -143,11 +157,54 @@ export async function GET(
       }
     }
 
+    // For RECOMMENDATIONS zones, fetch recommendations with places instead of steps
+    if (zone.type === 'RECOMMENDATIONS') {
+      const recommendations = await prisma.recommendation.findMany({
+        where: { zoneId: zone.id },
+        include: {
+          place: true,
+        },
+        orderBy: { order: 'asc' },
+      })
+
+      const processedZone = {
+        ...zone,
+        steps: [], // No steps for recommendation zones
+        recommendations: recommendations.map(rec => ({
+          id: rec.id,
+          source: rec.source,
+          description: rec.description,
+          descriptionTranslations: rec.descriptionTranslations,
+          distanceMeters: rec.distanceMeters,
+          walkMinutes: rec.walkMinutes,
+          order: rec.order,
+          place: rec.place ? {
+            id: rec.place.id,
+            name: rec.place.name,
+            address: rec.place.address,
+            latitude: rec.place.latitude,
+            longitude: rec.place.longitude,
+            rating: rec.place.rating,
+            priceLevel: rec.place.priceLevel,
+            phone: rec.place.phone,
+            openingHours: rec.place.openingHours,
+            source: rec.place.source,
+            businessStatus: rec.place.businessStatus,
+          } : null,
+        })),
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: processedZone
+      })
+    }
+
     // Process steps to extract mediaUrl from content JSON
     const processedSteps = zone.steps.map(step => {
       let mediaUrl = null
       let linkUrl = null
-      
+
       try {
         if (step.content && typeof step.content === 'object') {
           const content = step.content as any

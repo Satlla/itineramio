@@ -52,6 +52,7 @@ import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsen
 import { CopyZoneToPropertyModal } from '../../../../../src/components/ui/CopyZoneToPropertyModal'
 import ZoneQRDesigner from '../../../../../src/components/zones/ZoneQRDesigner'
 import { EvaluationsModal } from '../../../../../src/components/ui/EvaluationsModal'
+import { GenerateRecommendationsModal } from '../../../../../src/components/ui/GenerateRecommendationsModal'
 import { PropertySetUpdateModal } from '../../../../../src/components/ui/PropertySetUpdateModal'
 import { LanguageCompletionModal } from '../../../../../src/components/ui/LanguageCompletionModal'
 // Removed unused imports
@@ -69,6 +70,9 @@ interface Zone {
   order: number
   steps?: any[] // Array of steps from API
   stepsCount: number
+  type?: string // 'STANDARD' | 'RECOMMENDATIONS'
+  recommendationCategory?: string
+  recommendationsCount?: number
   qrUrl: string
   lastUpdated: string
   slug?: string
@@ -87,18 +91,24 @@ const getZoneText = (text: any, fallback: string = ''): string => {
 // Helper function to transform zones from API response
 // API returns 'icon' but UI expects 'iconId'
 const transformZonesFromApi = (zonesData: any[], propertyId: string): Zone[] => {
-  return zonesData.map((zone: any) => ({
-    id: zone.id,
-    name: getZoneText(zone.name),
-    description: getZoneText(zone.description),
-    iconId: zone.icon || zone.iconId || '', // API uses 'icon', transform to 'iconId'
-    order: zone.order || 0,
-    steps: zone.steps || [],
-    stepsCount: zone.steps?.length || 0,
-    qrUrl: `https://www.itineramio.com/guide/${propertyId}/${zone.id}`,
-    lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-    slug: zone.slug
-  }))
+  return zonesData.map((zone: any) => {
+    const isRecommendation = zone.type === 'RECOMMENDATIONS'
+    return {
+      id: zone.id,
+      name: getZoneText(zone.name),
+      description: getZoneText(zone.description),
+      iconId: zone.icon || zone.iconId || '',
+      order: zone.order || 0,
+      steps: zone.steps || [],
+      stepsCount: isRecommendation ? (zone.recommendationsCount || 0) : (zone.steps?.length || 0),
+      type: zone.type || 'STANDARD',
+      recommendationCategory: zone.recommendationCategory,
+      recommendationsCount: zone.recommendationsCount || 0,
+      qrUrl: `https://www.itineramio.com/guide/${propertyId}/${zone.id}`,
+      lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      slug: zone.slug
+    }
+  })
 }
 
 export default function PropertyZonesPage({ params }: { params: Promise<{ id: string }> }) {
@@ -169,6 +179,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   // Language completion modal state
   const [showLanguageModal, setShowLanguageModal] = useState(false)
   const [completedZoneName, setCompletedZoneName] = useState('')
+
+  // Recommendations modal state
+  const [showRecommendationsModal, setShowRecommendationsModal] = useState(false)
 
   const [isCreatingZone, setIsCreatingZone] = useState(false)
   const [isUpdatingZone, setIsUpdatingZone] = useState(false)
@@ -431,6 +444,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             const zoneName = getZoneText(zone.name)
             const zoneDescription = getZoneText(zone.description)
 
+            const isRecommendation = zone.type === 'RECOMMENDATIONS'
             const transformedZone = {
               id: zone.id,
               name: zoneName,
@@ -438,10 +452,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               iconId: zone.icon, // API uses 'icon' field, UI expects 'iconId'
               order: zone.order || 0,
               steps: zone.steps || [], // Preserve original steps array
-              stepsCount: zone.steps?.length || 0,
+              stepsCount: isRecommendation ? (zone.recommendationsCount || 0) : (zone.steps?.length || 0),
               qrUrl: `https://www.itineramio.com/guide/${id}/${zone.id}`,
               lastUpdated: zone.updatedAt ? new Date(zone.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-              slug: zone.slug
+              slug: zone.slug,
+              type: zone.type,
+              recommendationCategory: zone.recommendationCategory,
+              recommendationsCount: zone.recommendationsCount,
             }
 
             console.log('🔄 Transformed zone on load:', {
@@ -2561,13 +2578,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             isDragging ? 'shadow-2xl ring-4 ring-violet-500 border-violet-500 bg-violet-50' : ''
           }`}
           onClick={() => {
-            // Debug logging
-            console.log('🔍 Zone click debug:', {
-              zoneName: typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zone',
-              zoneSlug: zone.slug,
-              propertySlug: propertySlug,
-              hasSlug: !!(zone.slug && propertySlug)
-            })
+            // For RECOMMENDATIONS zones, open the public preview instead of step editor
+            if (zone.type === 'RECOMMENDATIONS') {
+              const publicUrl = `${window.location.origin}/guide/${id}/${zone.id}`
+              window.open(publicUrl, '_blank')
+              return
+            }
 
             // Go directly to zone steps editor
             console.log('🚀 Opening steps editor for zone:', zone.id)
@@ -2601,10 +2617,20 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate pr-2">{getZoneText(zone.name)}</h3>
 
                   <div className="flex flex-wrap items-center gap-2 text-sm">
-                    <div className="inline-flex items-center bg-blue-50 rounded-full px-2 py-0.5">
-                      <Edit className="w-3 h-3 mr-1 text-blue-500" />
-                      <span className="font-medium text-blue-700">{zone.stepsCount}</span>
-                      <span className="ml-0.5 text-blue-600 hidden xs:inline">steps</span>
+                    <div className={`inline-flex items-center rounded-full px-2 py-0.5 ${
+                      zone.type === 'RECOMMENDATIONS' ? 'bg-violet-50' : 'bg-blue-50'
+                    }`}>
+                      {zone.type === 'RECOMMENDATIONS' ? (
+                        <Sparkles className="w-3 h-3 mr-1 text-violet-500" />
+                      ) : (
+                        <Edit className="w-3 h-3 mr-1 text-blue-500" />
+                      )}
+                      <span className={`font-medium ${zone.type === 'RECOMMENDATIONS' ? 'text-violet-700' : 'text-blue-700'}`}>
+                        {zone.stepsCount}
+                      </span>
+                      <span className={`ml-0.5 hidden xs:inline ${zone.type === 'RECOMMENDATIONS' ? 'text-violet-600' : 'text-blue-600'}`}>
+                        {zone.type === 'RECOMMENDATIONS' ? 'recs' : 'steps'}
+                      </span>
                     </div>
 
                     <span className="text-gray-400">•</span>
@@ -2808,10 +2834,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   </h3>
                 </div>
 
-                <div className="inline-flex items-center justify-center text-xs text-gray-600 bg-gray-50 rounded-full px-2 py-0.5 max-w-full">
-                  <Edit className="w-2.5 h-2.5 mr-0.5 text-gray-400 flex-shrink-0" />
+                <div className={`inline-flex items-center justify-center text-xs rounded-full px-2 py-0.5 max-w-full ${
+                  zone.type === 'RECOMMENDATIONS' ? 'text-violet-600 bg-violet-50' : 'text-gray-600 bg-gray-50'
+                }`}>
+                  {zone.type === 'RECOMMENDATIONS' ? (
+                    <Sparkles className="w-2.5 h-2.5 mr-0.5 text-violet-400 flex-shrink-0" />
+                  ) : (
+                    <Edit className="w-2.5 h-2.5 mr-0.5 text-gray-400 flex-shrink-0" />
+                  )}
                   <span className="font-medium">{zone.stepsCount}</span>
-                  <span className="ml-0.5 hidden xs:inline">steps</span>
+                  <span className="ml-0.5 hidden xs:inline">{zone.type === 'RECOMMENDATIONS' ? 'recs' : 'steps'}</span>
                 </div>
               </div>
             </div>
@@ -3061,6 +3093,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
           >
             {t('propertyZones.chatbot', 'Chatbot')}
+          </button>
+
+          <button
+            onClick={() => setShowRecommendationsModal(true)}
+            className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Recomendaciones
           </button>
 
           <button
@@ -4301,6 +4341,31 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         currentPropertyId={id}
         currentPropertyName={propertyName}
         propertySetProperties={propertySetProperties}
+      />
+
+      {/* Generate Recommendations Modal */}
+      <GenerateRecommendationsModal
+        isOpen={showRecommendationsModal}
+        onClose={() => setShowRecommendationsModal(false)}
+        propertyId={id}
+        propertyName={propertyName}
+        propertyLocation={propertyLocation}
+        onSuccess={async () => {
+          const zonesResponse = await fetch(`/api/properties/${id}/zones`, {
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+          })
+          const zonesResult = await zonesResponse.json()
+          if (zonesResult.success) {
+            setZones(transformZonesFromApi(zonesResult.data, id))
+          }
+          addNotification({
+            type: 'success',
+            title: '✅ Recomendaciones generadas',
+            message: 'Las zonas de recomendaciones se han creado correctamente',
+            read: false
+          })
+        }}
       />
 
     </div>
