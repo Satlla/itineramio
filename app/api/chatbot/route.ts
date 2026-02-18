@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { after } from 'next/server';
 import { prisma } from '../../../src/lib/prisma';
 import { checkRateLimit, getRateLimitKey } from '../../../src/lib/rate-limit';
+
+// Production: allow up to 60s for DB queries + OpenAI streaming
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
 
 interface Message {
   role: 'system' | 'user' | 'assistant'
@@ -200,11 +205,16 @@ export async function POST(request: NextRequest) {
       const decoder = new TextDecoder();
       let fullResponse = '';
 
+      // Promise that resolves when stream completes, so after() can wait for it
+      let resolveStreamDone: () => void;
+      const streamDone = new Promise<void>(resolve => { resolveStreamDone = resolve; });
+
       const stream = new ReadableStream({
         async start(controller) {
           const reader = openaiResponse.body?.getReader();
           if (!reader) {
             controller.close();
+            resolveStreamDone!();
             return;
           }
 
@@ -242,16 +252,23 @@ export async function POST(request: NextRequest) {
             const media = detectRelevantMedia(message, fullResponse, zones, language);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, media: media.length > 0 ? media : undefined })}\n\n`));
             controller.close();
-
-            // Non-blocking: save conversation + log
-            const isUnanswered = detectUnansweredQuestion(fullResponse, language);
-            logChatInteraction(propertyId, zoneId || null, message, fullResponse);
-            if (sessionId) {
-              saveConversation({ propertyId, zoneId: zoneId || null, sessionId, language, userMessage: message, aiResponse: fullResponse, isUnanswered });
-            }
           } catch (err) {
             controller.error(err);
+          } finally {
+            resolveStreamDone!();
           }
+        }
+      });
+
+      // after() runs AFTER the response is sent — Vercel keeps the function alive for this
+      // Called at route handler level so AsyncLocalStorage context is available
+      after(async () => {
+        await streamDone; // Wait for stream to finish so fullResponse is populated
+        if (!fullResponse) return;
+        const isUnanswered = detectUnansweredQuestion(fullResponse, language);
+        logChatInteraction(propertyId, zoneId || null, message, fullResponse);
+        if (sessionId) {
+          await saveConversation({ propertyId, zoneId: zoneId || null, sessionId, language, userMessage: message, aiResponse: fullResponse, isUnanswered });
         }
       });
 

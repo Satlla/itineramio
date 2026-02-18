@@ -7,7 +7,8 @@ const protectedRoutes: string[] = [
   '/analytics',
   '/account',
   '/media-library',
-  '/gestion'
+  '/gestion',
+  '/ai-setup',
   // Note: /admin removed - handled separately
 ]
 
@@ -83,7 +84,7 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
   // This allows us to keep existing route handlers while supporting clean URLs
   
   // Skip reserved routes
-  const reservedPropertyRoutes = ['new', 'slug', 'groups']
+  const reservedPropertyRoutes = ['new', 'slug', 'groups', 'ai-setup']
   
   // Pattern: /properties/[slug] -> /properties/[id]
   const propertyMatch = pathname.match(/^\/properties\/([^\/]+)$/)

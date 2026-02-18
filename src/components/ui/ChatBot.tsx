@@ -397,12 +397,17 @@ export default function ChatBot({
       if (zoneId) body.zoneId = zoneId
       if (zoneName) body.zoneName = zoneName
 
+      // Abort after 55s to prevent hanging forever in production
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 55000)
+
       const response = await fetch('/api/chatbot', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
+        signal: controller.signal,
       })
 
       if (response.status === 429) {
@@ -461,6 +466,8 @@ export default function ChatBot({
           }
         }
 
+        clearTimeout(timeout)
+
         // Set final content with media
         const finalContent = streamedContent
         const finalMedia = streamMedia
@@ -475,6 +482,7 @@ export default function ChatBot({
         })
       } else {
         // Non-streaming fallback response
+        clearTimeout(timeout)
         const data = await response.json()
 
         trackEvent('chatbot_interaction', {
@@ -497,22 +505,36 @@ export default function ChatBot({
       }
 
     } catch (error: any) {
+      clearTimeout(timeout)
       console.error('Chatbot error:', error)
 
+      // If user got partial content before abort/error, keep it instead of showing error
+      const isAbort = error?.name === 'AbortError'
       const isRateLimited = error?.message === 'rate_limited'
-      setError(isRateLimited ? t('rateLimited', lang) : t('errorBanner', lang))
 
-      // Remove typing indicator and add error message
-      setMessages(prev => {
-        const filtered = prev.filter(m => !m.typing)
-        const errorMsg: Message = {
-          id: Date.now().toString(),
-          role: 'assistant',
-          content: isRateLimited ? t('rateLimited', lang) : t('errorMessage', lang),
-          timestamp: new Date()
-        }
-        return [...filtered, errorMsg]
-      })
+      // Check if we already have a streamed partial response
+      const hasPartialResponse = !isRateLimited && messages.some(m =>
+        !m.typing && m.role === 'assistant' && m.content.length > 20
+      )
+
+      if (hasPartialResponse && isAbort) {
+        // Partial content exists — just remove typing indicator, don't add error
+        setMessages(prev => prev.filter(m => !m.typing))
+      } else {
+        setError(isRateLimited ? t('rateLimited', lang) : t('errorBanner', lang))
+
+        // Remove typing indicator and add error message
+        setMessages(prev => {
+          const filtered = prev.filter(m => !m.typing)
+          const errorMsg: Message = {
+            id: Date.now().toString(),
+            role: 'assistant',
+            content: isRateLimited ? t('rateLimited', lang) : t('errorMessage', lang),
+            timestamp: new Date()
+          }
+          return [...filtered, errorMsg]
+        })
+      }
     } finally {
       setIsLoading(false)
     }
