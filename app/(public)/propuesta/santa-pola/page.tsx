@@ -139,18 +139,18 @@ export default function PropuestaSantaPola() {
 
         <div className={s.chartContainer}>
           {[
-            { month: 'Ene', value: 768, pct: 25 },
-            { month: 'Feb', value: 678, pct: 22 },
-            { month: 'Mar', value: 823, pct: 27 },
-            { month: 'Abr', value: 1100, pct: 35 },
-            { month: 'May', value: 1200, pct: 39 },
-            { month: 'Jun', value: 1600, pct: 52 },
-            { month: 'Jul', value: 2500, pct: 81 },
-            { month: 'Ago', value: 3100, pct: 100 },
-            { month: 'Sep', value: 1600, pct: 52 },
-            { month: 'Oct', value: 1300, pct: 42 },
-            { month: 'Nov', value: 916, pct: 30 },
-            { month: 'Dic', value: 905, pct: 29 },
+            { month: 'Ene', value: 695, pct: 25 },
+            { month: 'Feb', value: 614, pct: 22 },
+            { month: 'Mar', value: 744, pct: 27 },
+            { month: 'Abr', value: 995, pct: 35 },
+            { month: 'May', value: 1086, pct: 39 },
+            { month: 'Jun', value: 1447, pct: 52 },
+            { month: 'Jul', value: 2262, pct: 81 },
+            { month: 'Ago', value: 2804, pct: 100 },
+            { month: 'Sep', value: 1447, pct: 52 },
+            { month: 'Oct', value: 1176, pct: 42 },
+            { month: 'Nov', value: 829, pct: 30 },
+            { month: 'Dic', value: 818, pct: 29 },
           ].map((d) => (
             <div key={d.month} className={s.chartBarGroup}>
               <div className={s.chartBar} style={{ height: `${d.pct}%` }}>
@@ -183,12 +183,12 @@ export default function PropuestaSantaPola() {
           </thead>
           <tbody>
             {[
-              { mes: 'Enero', occ: 47, adr: 61, revpar: 29, ing: '768€' },
-              { mes: 'Febrero', occ: 49, adr: 59, revpar: 29, ing: '678€' },
-              { mes: 'Marzo', occ: 53, adr: 57, revpar: 31, ing: '823€' },
-              { mes: 'Abril', occ: 65, adr: 68, revpar: 44, ing: '1.100€' },
-              { mes: 'Mayo', occ: 61, adr: 72, revpar: 44, ing: '1.200€' },
-              { mes: 'Junio', occ: 74, adr: 84, revpar: 63, ing: '1.600€' },
+              { mes: 'Enero', occ: 47, adr: 61, revpar: 29, ing: '695€' },
+              { mes: 'Febrero', occ: 49, adr: 59, revpar: 29, ing: '614€' },
+              { mes: 'Marzo', occ: 53, adr: 57, revpar: 31, ing: '744€' },
+              { mes: 'Abril', occ: 65, adr: 68, revpar: 44, ing: '995€' },
+              { mes: 'Mayo', occ: 61, adr: 72, revpar: 44, ing: '1.086€' },
+              { mes: 'Junio', occ: 74, adr: 84, revpar: 63, ing: '1.447€' },
             ].map((r) => (
               <tr key={r.mes}>
                 <td>{r.mes}</td>
@@ -204,8 +204,8 @@ export default function PropuestaSantaPola() {
               </tr>
             ))}
             {[
-              { mes: 'Julio', occ: 86, adr: 105, revpar: 90, ing: '2.500€' },
-              { mes: 'Agosto', occ: 93, adr: 116, revpar: 107, ing: '3.100€' },
+              { mes: 'Julio', occ: 86, adr: 105, revpar: 90, ing: '2.262€' },
+              { mes: 'Agosto', occ: 93, adr: 116, revpar: 107, ing: '2.804€' },
             ].map((r) => (
               <tr key={r.mes} className={s.rowHighlight}>
                 <td><strong>{r.mes}</strong></td>
@@ -221,10 +221,10 @@ export default function PropuestaSantaPola() {
               </tr>
             ))}
             {[
-              { mes: 'Septiembre', occ: 75, adr: 82, revpar: 62, ing: '1.600€' },
-              { mes: 'Octubre', occ: 68, adr: 71, revpar: 48, ing: '1.300€' },
-              { mes: 'Noviembre', occ: 52, adr: 59, revpar: 31, ing: '916€' },
-              { mes: 'Diciembre', occ: 51, adr: 68, revpar: 35, ing: '905€' },
+              { mes: 'Septiembre', occ: 75, adr: 82, revpar: 62, ing: '1.447€' },
+              { mes: 'Octubre', occ: 68, adr: 71, revpar: 48, ing: '1.176€' },
+              { mes: 'Noviembre', occ: 52, adr: 59, revpar: 31, ing: '829€' },
+              { mes: 'Diciembre', occ: 51, adr: 68, revpar: 35, ing: '818€' },
             ].map((r) => (
               <tr key={r.mes}>
                 <td>{r.mes}</td>
@@ -251,8 +251,9 @@ export default function PropuestaSantaPola() {
         </table>
 
         <p className={s.textXs}>
-          Cifra anualizada (14.917€) reportada por AirDNA. La distribución mensual refleja
-          la estacionalidad estimada del mercado para 2025.
+          Cifra anualizada (14.917€) reportada por AirDNA. La distribución mensual es una estimación
+          proporcional basada en la estacionalidad del mercado. La columna &quot;Ingreso/apt&quot; representa
+          la parte proporcional del total anual asignada a cada mes, no el cálculo directo RevPAR × días.
         </p>
       </div>
 
