@@ -2908,10 +2908,12 @@ model Place {
   name            String
   address         String
   phone           String?
+  website         String?
+  photoUrl        String?
   rating          Float?
   priceLevel      Int?
   types           Json?
-  openingHours    Json?
+  openingHours    Json?            // Google weekday_text array: ["lunes: 09:00–21:00", ...]
   latitude        Float
   longitude       Float
   businessStatus  String?          // "OPERATIONAL" | "CLOSED_TEMPORARILY" | "CLOSED_PERMANENTLY"

@@ -1,6 +1,7 @@
 /**
  * Main Places orchestrator service.
- * Coordinates OSM + Google searches with caching and Place-table deduplication.
+ * Coordinates OSM + Google searches with caching, Place-table deduplication,
+ * Google Place Details enrichment, and AI-generated descriptions.
  */
 
 import { prisma } from '../prisma'
@@ -9,15 +10,14 @@ import {
   CategoryConfig,
   CACHE_TTL_MS,
   geoTileKey,
-  getCategoriesBySource,
 } from './categories'
 import { searchOsm, OsmPlace } from './osm-service'
-import { searchGoogle, GooglePlace } from './google-service'
+import { searchGoogle, GooglePlace, fetchPlaceDetails } from './google-service'
 
 /** Unified result from any source */
 export interface PlaceResult {
-  /** Place table record ID (after upsert) */
   placeDbId: string
+  placeId?: string // Google place_id for details enrichment
   name: string
   address: string
   latitude: number
@@ -27,6 +27,8 @@ export interface PlaceResult {
   priceLevel?: number
   types?: string[]
   phone?: string
+  website?: string
+  photoUrl?: string
   openingHours?: any
   businessStatus?: string
   distanceMeters: number
@@ -41,10 +43,8 @@ export interface CategoryResults {
   places: PlaceResult[]
 }
 
-/**
- * Check the NearbyCache for a previously cached search.
- * Returns cached Place IDs if cache is fresh, null otherwise.
- */
+// ─── Cache helpers ───
+
 async function getCachedResults(
   tileKey: string,
   categoryId: string
@@ -53,22 +53,15 @@ async function getCachedResults(
     const cached = await prisma.nearbyCache.findUnique({
       where: { tileKey_category: { tileKey, category: categoryId } },
     })
-
     if (!cached) return null
-
-    // Check if cache is still fresh
     const age = Date.now() - cached.lastFetchedAt.getTime()
     if (age > CACHE_TTL_MS) return null
-
     return cached.placeIds as string[]
   } catch {
     return null
   }
 }
 
-/**
- * Store search results in the NearbyCache.
- */
 async function setCacheResults(
   tileKey: string,
   categoryId: string,
@@ -77,25 +70,16 @@ async function setCacheResults(
   try {
     await prisma.nearbyCache.upsert({
       where: { tileKey_category: { tileKey, category: categoryId } },
-      update: {
-        placeIds: placeDbIds,
-        lastFetchedAt: new Date(),
-      },
-      create: {
-        tileKey,
-        category: categoryId,
-        placeIds: placeDbIds,
-        lastFetchedAt: new Date(),
-      },
+      update: { placeIds: placeDbIds, lastFetchedAt: new Date() },
+      create: { tileKey, category: categoryId, placeIds: placeDbIds, lastFetchedAt: new Date() },
     })
   } catch (error) {
     console.error(`[cache] Error saving cache for ${categoryId}:`, error)
   }
 }
 
-/**
- * Upsert an OSM place into the Place table for deduplication.
- */
+// ─── Place upsert helpers ───
+
 async function upsertOsmPlace(place: OsmPlace): Promise<string> {
   const record = await prisma.place.upsert({
     where: { osmId: place.osmId },
@@ -120,9 +104,6 @@ async function upsertOsmPlace(place: OsmPlace): Promise<string> {
   return record.id
 }
 
-/**
- * Upsert a Google place into the Place table for deduplication.
- */
 async function upsertGooglePlace(place: GooglePlace): Promise<string> {
   const record = await prisma.place.upsert({
     where: { placeId: place.placeId },
@@ -135,6 +116,10 @@ async function upsertGooglePlace(place: GooglePlace): Promise<string> {
       priceLevel: place.priceLevel,
       types: place.types,
       businessStatus: place.businessStatus,
+      photoUrl: place.photoUrl,
+      phone: place.phone,
+      website: place.website,
+      openingHours: place.openingHours,
       lastFetchedAt: new Date(),
     },
     create: {
@@ -148,23 +133,157 @@ async function upsertGooglePlace(place: GooglePlace): Promise<string> {
       priceLevel: place.priceLevel,
       types: place.types,
       businessStatus: place.businessStatus,
+      photoUrl: place.photoUrl,
+      phone: place.phone,
+      website: place.website,
+      openingHours: place.openingHours,
       lastFetchedAt: new Date(),
     },
   })
   return record.id
 }
 
+// ─── Place Details enrichment ───
+
 /**
- * Load Place records from DB by their IDs, preserving order.
+ * Enrich places with Google Place Details (opening hours, phone, website, photo).
+ * For OSM places, searches Google by name+coords to find a matching Google place.
+ * Only called for categories with fetchDetails=true.
  */
+async function enrichWithDetails(
+  places: PlaceResult[],
+  category: CategoryConfig
+): Promise<void> {
+  if (!category.fetchDetails || places.length === 0) return
+
+  console.log(`[places] Enriching ${places.length} places for ${category.id} with Google Details`)
+
+  for (const place of places) {
+    try {
+      let googlePlaceId = place.placeId
+
+      // For OSM places, find the Google place_id by searching by name
+      if (!googlePlaceId && place.source === 'OSM') {
+        const searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(place.name)}&inputtype=textquery&locationbias=point:${place.latitude},${place.longitude}&fields=place_id&key=${process.env.GOOGLE_MAPS_SERVER_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&language=es`
+        const searchRes = await fetch(searchUrl)
+        if (searchRes.ok) {
+          const searchData = await searchRes.json()
+          googlePlaceId = searchData.candidates?.[0]?.place_id
+        }
+      }
+
+      if (!googlePlaceId) continue
+
+      const details = await fetchPlaceDetails(googlePlaceId)
+      if (!details) continue
+
+      // Update Place record in DB with enriched data
+      await prisma.place.update({
+        where: { id: place.placeDbId },
+        data: {
+          phone: details.phone || undefined,
+          website: details.website || undefined,
+          photoUrl: details.photoUrl || undefined,
+          openingHours: details.openingHours || undefined,
+          rating: details.rating || undefined,
+          priceLevel: details.priceLevel || undefined,
+        },
+      })
+
+      // Update local result
+      place.phone = details.phone
+      place.website = details.website
+      place.photoUrl = details.photoUrl
+      place.openingHours = details.openingHours
+    } catch (err) {
+      console.error(`[places] Details enrichment failed for ${place.name}:`, err)
+    }
+  }
+}
+
+// ─── AI description generation ───
+
+/**
+ * Generate brief descriptions for places using Claude Haiku.
+ * Returns trilingual descriptions (ES, EN, FR).
+ */
+async function generateDescriptions(
+  places: PlaceResult[],
+  categoryLabel: string
+): Promise<Map<string, { es: string; en: string; fr: string }>> {
+  const descriptions = new Map<string, { es: string; en: string; fr: string }>()
+  if (places.length === 0) return descriptions
+
+  const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
+  if (!ANTHROPIC_API_KEY) {
+    console.log('[places] No ANTHROPIC_API_KEY — skipping AI descriptions')
+    return descriptions
+  }
+
+  // Build a batch prompt for all places at once (cheaper than individual calls)
+  const placesInfo = places.map((p, i) => {
+    const hours = Array.isArray(p.openingHours) ? p.openingHours.join(', ') : ''
+    return `${i + 1}. "${p.name}" — ${p.address}${p.rating ? ` — ⭐${p.rating}` : ''}${hours ? ` — Horario: ${hours}` : ''}`
+  }).join('\n')
+
+  const prompt = `Genera una descripción breve y útil (máximo 15 palabras) para cada lugar.
+La descripción debe ayudar a un turista a decidir si le interesa.
+Si tienes los horarios, menciona si abre domingos o si es 24h.
+Responde SOLO en formato JSON array con objetos {i, es, en, fr} donde i es el número del lugar.
+
+Categoría: ${categoryLabel}
+Lugares:
+${placesInfo}`
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    })
+
+    if (!response.ok) {
+      console.error('[places] AI description generation failed:', response.status)
+      return descriptions
+    }
+
+    const data = await response.json()
+    const text = data.content?.[0]?.text || ''
+
+    // Extract JSON from response
+    const jsonMatch = text.match(/\[[\s\S]*\]/)
+    if (!jsonMatch) return descriptions
+
+    const parsed = JSON.parse(jsonMatch[0]) as Array<{ i: number; es: string; en: string; fr: string }>
+
+    for (const item of parsed) {
+      const place = places[item.i - 1]
+      if (place) {
+        descriptions.set(place.placeDbId, { es: item.es, en: item.en, fr: item.fr })
+      }
+    }
+  } catch (err) {
+    console.error('[places] AI description generation error:', err)
+  }
+
+  return descriptions
+}
+
+// ─── Load from DB (for cache hits) ───
+
 async function loadPlacesFromDb(placeDbIds: string[]): Promise<PlaceResult[]> {
   if (placeDbIds.length === 0) return []
-
   const places = await prisma.place.findMany({
     where: { id: { in: placeDbIds } },
   })
-
-  // Build a map for ordering
   const placeMap = new Map(places.map(p => [p.id, p]))
 
   return placeDbIds
@@ -172,6 +291,7 @@ async function loadPlacesFromDb(placeDbIds: string[]): Promise<PlaceResult[]> {
     .filter(Boolean)
     .map(p => ({
       placeDbId: p!.id,
+      placeId: p!.placeId ?? undefined,
       name: p!.name,
       address: p!.address,
       latitude: p!.latitude,
@@ -181,16 +301,17 @@ async function loadPlacesFromDb(placeDbIds: string[]): Promise<PlaceResult[]> {
       priceLevel: p!.priceLevel ?? undefined,
       types: (p!.types as string[]) ?? undefined,
       phone: p!.phone ?? undefined,
+      website: p!.website ?? undefined,
+      photoUrl: p!.photoUrl ?? undefined,
       openingHours: p!.openingHours,
       businessStatus: p!.businessStatus ?? undefined,
-      distanceMeters: 0, // Will be recalculated if needed
+      distanceMeters: 0,
       walkMinutes: 0,
     }))
 }
 
-/**
- * Search a single category with caching and deduplication.
- */
+// ─── Search a single category ───
+
 async function searchCategory(
   lat: number,
   lng: number,
@@ -211,7 +332,6 @@ async function searchCategory(
 
   if (category.source === 'OSM') {
     const osmPlaces = await searchOsm(lat, lng, category)
-    // Upsert each place and collect DB IDs
     const entries = await Promise.all(
       osmPlaces.map(async (p) => {
         const dbId = await upsertOsmPlace(p)
@@ -222,7 +342,6 @@ async function searchCategory(
           latitude: p.latitude,
           longitude: p.longitude,
           source: 'OSM' as const,
-          tags: p.tags,
           distanceMeters: p.distanceMeters,
           walkMinutes: p.walkMinutes,
         }
@@ -236,6 +355,7 @@ async function searchCategory(
         const dbId = await upsertGooglePlace(p)
         return {
           placeDbId: dbId,
+          placeId: p.placeId,
           name: p.name,
           address: p.address,
           latitude: p.latitude,
@@ -245,6 +365,7 @@ async function searchCategory(
           priceLevel: p.priceLevel,
           types: p.types,
           businessStatus: p.businessStatus,
+          photoUrl: p.photoUrl,
           distanceMeters: p.distanceMeters,
           walkMinutes: p.walkMinutes,
         }
@@ -253,21 +374,20 @@ async function searchCategory(
     results = entries
   }
 
-  // 3. Save to cache
+  // 3. Enrich with Google Place Details (opening hours, phone, photos)
+  await enrichWithDetails(results, category)
+
+  // 4. Save to cache
   const placeDbIds = results.map(r => r.placeDbId)
   await setCacheResults(tileKey, category.id, placeDbIds)
 
   return results
 }
 
+// ─── Public API ───
+
 /**
  * Fetch all nearby places for given coordinates, across all categories.
- * Uses geo-tile caching and Place table deduplication.
- *
- * @param lat - Property latitude
- * @param lng - Property longitude
- * @param categoryIds - Optional: only fetch specific categories. If empty, fetches all.
- * @returns Array of CategoryResults, one per category with results
  */
 export async function fetchNearbyPlaces(
   lat: number,
@@ -284,11 +404,9 @@ export async function fetchNearbyPlaces(
     ? CATEGORIES.filter(c => categoryIds.includes(c.id))
     : CATEGORIES
 
-  // Split into OSM and Google batches
   const osmCategories = categories.filter(c => c.source === 'OSM')
   const googleCategories = categories.filter(c => c.source === 'GOOGLE')
 
-  // Search OSM categories in parallel (free, no rate limit concern)
   const osmPromises = osmCategories.map(cat =>
     searchCategory(lat, lng, cat, tileKey).then(places => ({
       categoryId: cat.id,
@@ -298,7 +416,6 @@ export async function fetchNearbyPlaces(
     }))
   )
 
-  // Search Google categories in parallel (paid, but few categories)
   const googlePromises = googleCategories.map(cat =>
     searchCategory(lat, lng, cat, tileKey).then(places => ({
       categoryId: cat.id,
@@ -309,20 +426,13 @@ export async function fetchNearbyPlaces(
   )
 
   const allResults = await Promise.all([...osmPromises, ...googlePromises])
-
-  // Only return categories that have at least one result
   return allResults.filter(r => r.places.length > 0)
 }
 
 /**
  * Generate recommendation zones for a property.
- * Creates RECOMMENDATIONS-type Zones with linked Recommendation records.
- *
- * @param propertyId - Property ID
- * @param lat - Property latitude
- * @param lng - Property longitude
- * @param categoryIds - Optional: only generate specific categories
- * @returns Number of zones created
+ * Fetches places, enriches with details, generates AI descriptions,
+ * and creates RECOMMENDATIONS zones with Recommendation records.
  */
 export async function generateRecommendations(
   propertyId: string,
@@ -349,6 +459,12 @@ export async function generateRecommendations(
   for (const categoryResult of results) {
     if (categoryResult.places.length === 0) continue
 
+    // Generate AI descriptions for this category's places
+    const descriptions = await generateDescriptions(
+      categoryResult.places,
+      categoryResult.label
+    )
+
     // Check if a RECOMMENDATIONS zone for this category already exists
     const existing = await prisma.zone.findFirst({
       where: {
@@ -359,28 +475,31 @@ export async function generateRecommendations(
     })
 
     if (existing) {
-      // Delete old recommendations and recreate
       await prisma.recommendation.deleteMany({
         where: { zoneId: existing.id },
       })
 
-      // Create new recommendations for this existing zone
       await prisma.recommendation.createMany({
-        data: categoryResult.places.map((place, index) => ({
-          zoneId: existing.id,
-          placeId: place.placeDbId,
-          source: place.source === 'GOOGLE' ? 'AUTO_GOOGLE' : 'AUTO_OSM',
-          distanceMeters: place.distanceMeters,
-          walkMinutes: place.walkMinutes,
-          order: index,
-        })),
+        data: categoryResult.places.map((place, index) => {
+          const desc = descriptions.get(place.placeDbId)
+          return {
+            zoneId: existing.id,
+            placeId: place.placeDbId,
+            source: place.source === 'GOOGLE' ? 'AUTO_GOOGLE' : 'AUTO_OSM',
+            description: desc?.es || null,
+            descriptionTranslations: desc ? { es: desc.es, en: desc.en, fr: desc.fr } : undefined,
+            distanceMeters: place.distanceMeters,
+            walkMinutes: place.walkMinutes,
+            order: index,
+          }
+        }),
       })
 
       totalPlaces += categoryResult.places.length
       continue
     }
 
-    // Generate unique codes for the zone
+    // Generate unique codes
     const qrCode = `REC-${propertyId.slice(-6)}-${categoryResult.categoryId}-${Date.now().toString(36)}`
     const accessCode = `R${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`.toUpperCase()
 
@@ -388,8 +507,12 @@ export async function generateRecommendations(
     const zone = await prisma.zone.create({
       data: {
         propertyId,
-        name: { es: categoryResult.label },
-        description: { es: `${categoryResult.label} cerca de tu alojamiento` },
+        name: { es: categoryResult.label, en: categoryResult.label, fr: categoryResult.label },
+        description: {
+          es: `${categoryResult.label} cerca de tu alojamiento`,
+          en: `${categoryResult.label} near your accommodation`,
+          fr: `${categoryResult.label} près de votre hébergement`,
+        },
         icon: categoryResult.icon,
         type: 'RECOMMENDATIONS',
         recommendationCategory: categoryResult.categoryId,
@@ -401,16 +524,21 @@ export async function generateRecommendations(
       },
     })
 
-    // Create Recommendation records linking zone to places
+    // Create Recommendation records with AI descriptions
     await prisma.recommendation.createMany({
-      data: categoryResult.places.map((place, index) => ({
-        zoneId: zone.id,
-        placeId: place.placeDbId,
-        source: place.source === 'GOOGLE' ? 'AUTO_GOOGLE' : 'AUTO_OSM',
-        distanceMeters: place.distanceMeters,
-        walkMinutes: place.walkMinutes,
-        order: index,
-      })),
+      data: categoryResult.places.map((place, index) => {
+        const desc = descriptions.get(place.placeDbId)
+        return {
+          zoneId: zone.id,
+          placeId: place.placeDbId,
+          source: place.source === 'GOOGLE' ? 'AUTO_GOOGLE' : 'AUTO_OSM',
+          description: desc?.es || null,
+          descriptionTranslations: desc ? { es: desc.es, en: desc.en, fr: desc.fr } : undefined,
+          distanceMeters: place.distanceMeters,
+          walkMinutes: place.walkMinutes,
+          order: index,
+        }
+      }),
     })
 
     zonesCreated++

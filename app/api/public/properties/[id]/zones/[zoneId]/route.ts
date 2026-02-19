@@ -180,6 +180,7 @@ export async function GET(
           order: rec.order,
           place: rec.place ? {
             id: rec.place.id,
+            placeId: rec.place.placeId,
             name: rec.place.name,
             address: rec.place.address,
             latitude: rec.place.latitude,
@@ -187,6 +188,8 @@ export async function GET(
             rating: rec.place.rating,
             priceLevel: rec.place.priceLevel,
             phone: rec.place.phone,
+            website: rec.place.website,
+            photoUrl: rec.place.photoUrl,
             openingHours: rec.place.openingHours,
             source: rec.place.source,
             businessStatus: rec.place.businessStatus,

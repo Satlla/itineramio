@@ -1167,45 +1167,34 @@ function buildLocationZones(
   const mapsLink = `https://www.google.com/maps/search/?api=1&query=${propertyInput.lat},${propertyInput.lng}`
   const address = `${propertyInput.street}, ${propertyInput.postalCode} ${propertyInput.city}`
 
-  // Airport
-  const airportT = locationData.directions.fromAirport
+  // Airport (taxi only — transit directions are often unreliable)
   const airportD = locationData.directions.drivingFromAirport
-  if (airportT || airportD) {
-    const parts: string[] = [`✈️ **Aeropuerto de ${propertyInput.city}**`]
-    if (airportD) {
-      parts.push(`🚕 **Taxi:**\n• Duración: ~${airportD.duration}\n• Distancia: ${airportD.distance}\n• Dile al taxista: "${address}"`)
-    }
-    if (airportT) {
-      const steps = airportT.steps.slice(0, 5).map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')
-      parts.push(`🚌 **Transporte público:** (${airportT.duration}, ${airportT.distance})\n${steps}`)
-    }
-    parts.push(`📱 **Apps recomendadas:** Uber, Cabify, FreeNow`)
+  if (airportD) {
+    const parts: string[] = [
+      `✈️ **Aeropuerto de ${propertyInput.city}**`,
+      `🚕 **Taxi:**\n• Duración: ~${airportD.duration}\n• Distancia: ${airportD.distance}\n• Dile al taxista: "${address}"`,
+      `📱 **Apps recomendadas:** Uber, Cabify, FreeNow`,
+    ]
     dirSteps.push({ type: 'text', title: { es: 'Desde el aeropuerto', en: '', fr: '' }, content: { es: parts.join('\n\n'), en: '', fr: '' } })
   }
 
-  // Train station
-  const trainT = locationData.directions.fromTrainStation
+  // Train station (taxi only)
   const trainD = locationData.directions.drivingFromTrainStation
-  if (trainT || trainD) {
-    const parts: string[] = [`🚂 **Estación de tren de ${propertyInput.city}**`]
-    if (trainD) parts.push(`🚕 **Taxi:** ~${trainD.duration}, ${trainD.distance}`)
-    if (trainT) {
-      const steps = trainT.steps.slice(0, 5).map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')
-      parts.push(`🚌 **Transporte público:** (${trainT.duration}, ${trainT.distance})\n${steps}`)
-    }
+  if (trainD) {
+    const parts: string[] = [
+      `🚂 **Estación de tren de ${propertyInput.city}**`,
+      `🚕 **Taxi:** ~${trainD.duration}, ${trainD.distance}`,
+    ]
     dirSteps.push({ type: 'text', title: { es: 'Desde la estación de tren', en: '', fr: '' }, content: { es: parts.join('\n\n'), en: '', fr: '' } })
   }
 
-  // Bus station
-  const busT = locationData.directions.fromBusStation
+  // Bus station (taxi only)
   const busD = locationData.directions.drivingFromBusStation
-  if (busT || busD) {
-    const parts: string[] = [`🚌 **Estación de autobuses de ${propertyInput.city}**`]
-    if (busD) parts.push(`🚕 **Taxi:** ~${busD.duration}, ${busD.distance}`)
-    if (busT) {
-      const steps = busT.steps.slice(0, 5).map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')
-      parts.push(`🚌 **Transporte público:** (${busT.duration}, ${busT.distance})\n${steps}`)
-    }
+  if (busD) {
+    const parts: string[] = [
+      `🚌 **Estación de autobuses de ${propertyInput.city}**`,
+      `🚕 **Taxi:** ~${busD.duration}, ${busD.distance}`,
+    ]
     dirSteps.push({ type: 'text', title: { es: 'Desde la estación de autobuses', en: '', fr: '' }, content: { es: parts.join('\n\n'), en: '', fr: '' } })
   }
 
@@ -1259,83 +1248,9 @@ function buildLocationZones(
     })
   }
 
-  // Supermarkets
-  if (locationData.supermarkets.length > 0) {
-    zones.push({
-      name: { es: 'Supermercados', en: '', fr: '' },
-      icon: 'shopping-bag',
-      description: { es: 'Supermercados cercanos', en: '', fr: '' },
-      steps: locationData.supermarkets.map(s => ({
-        type: 'text' as const,
-        title: { es: s.name, en: '', fr: '' },
-        content: {
-          es: `${s.address}\n📍 A ${s.distance}${s.rating ? ` | ⭐ ${s.rating}` : ''}${s.openNow !== undefined ? ` | ${s.openNow ? '🟢 Abierto' : '🔴 Cerrado'}` : ''}`,
-          en: '', fr: '',
-        },
-      })),
-      needsTranslation: true,
-    })
-  }
-
-  // Restaurants (skip if host provided own recommendations)
-  if (locationData.restaurants.length > 0 && !hasRecommendations) {
-    zones.push({
-      name: { es: 'Restaurantes', en: '', fr: '' },
-      icon: 'utensils-crossed',
-      description: { es: 'Restaurantes recomendados', en: '', fr: '' },
-      steps: locationData.restaurants.map(r => ({
-        type: 'text' as const,
-        title: { es: `${r.name}${r.rating ? ` ⭐ ${r.rating}` : ''}`, en: '', fr: '' },
-        content: { es: `${r.address}\n📍 A ${r.distance}${r.priceLevel ? ` | ${'€'.repeat(r.priceLevel)}` : ''}`, en: '', fr: '' },
-      })),
-      needsTranslation: true,
-    })
-  }
-
-  // Pharmacies
-  if (locationData.pharmacies.length > 0) {
-    zones.push({
-      name: { es: 'Farmacias', en: '', fr: '' },
-      icon: 'heart',
-      description: { es: 'Farmacias cercanas', en: '', fr: '' },
-      steps: locationData.pharmacies.map(p => ({
-        type: 'text' as const,
-        title: { es: p.name, en: '', fr: '' },
-        content: { es: `${p.address}\n📍 A ${p.distance}`, en: '', fr: '' },
-      })),
-      needsTranslation: true,
-    })
-  }
-
-  // Tourist attractions (skip if host provided own recommendations)
-  if (locationData.attractions.length > 0 && !hasRecommendations) {
-    zones.push({
-      name: { es: 'Qué Hacer', en: '', fr: '' },
-      icon: 'star',
-      description: { es: 'Actividades y lugares de interés', en: '', fr: '' },
-      steps: locationData.attractions.map(a => ({
-        type: 'text' as const,
-        title: { es: `${a.name}${a.rating ? ` ⭐ ${a.rating}` : ''}`, en: '', fr: '' },
-        content: { es: `${a.address}\n📍 A ${a.distance}`, en: '', fr: '' },
-      })),
-      needsTranslation: true,
-    })
-  }
-
-  // Public transport
-  if (locationData.transitStations.length > 0) {
-    zones.push({
-      name: { es: 'Transporte Público', en: '', fr: '' },
-      icon: 'bus',
-      description: { es: 'Metro, autobús y opciones de movilidad', en: '', fr: '' },
-      steps: locationData.transitStations.map(t => ({
-        type: 'text' as const,
-        title: { es: t.name, en: '', fr: '' },
-        content: { es: `${t.address}\n📍 A ${t.distance}`, en: '', fr: '' },
-      })),
-      needsTranslation: true,
-    })
-  }
+  // NOTE: Supermarkets, restaurants, pharmacies, attractions, transit, etc.
+  // are now handled by the Recommendations system (interactive cards with
+  // photos, opening hours, AI descriptions). No more text-based zones for these.
 
   return zones
 }

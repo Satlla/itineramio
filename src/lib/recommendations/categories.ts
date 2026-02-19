@@ -18,29 +18,34 @@ export interface CategoryConfig {
   radius: number
   /** Max results to return */
   maxResults: number
-  /** Google Places type (only for source=GOOGLE) */
+  /** Google Places type (only for source=GOOGLE, searchMode=nearby) */
   googleType?: string
   /** Overpass query tags (only for source=OSM) */
   osmTags?: Record<string, string | string[]>
-  /** Walking speed estimate: avg meters per minute */
-  walkSpeedMpm?: number
+  /** Search mode: 'nearby' (proximity) or 'text' (curated query) */
+  searchMode?: 'nearby' | 'text'
+  /** Text query for searchMode=text. Use {city} placeholder for city name. */
+  textQuery?: string
+  /** Whether to fetch Google Place Details (opening hours, phone, photos). Costs ~$0.017/place. */
+  fetchDetails?: boolean
 }
 
 /**
  * All supported recommendation categories.
  * OSM = free via Overpass API
- * GOOGLE = paid via Google Places API (used only for curated/subjective categories)
+ * GOOGLE = paid via Google Places API (used for curated/subjective categories)
  */
 export const CATEGORIES: CategoryConfig[] = [
-  // --- FREE (OSM/Overpass) ---
+  // --- FREE (OSM/Overpass) — essential services, proximity matters most ---
   {
     id: 'pharmacy',
     label: 'Farmacias',
     icon: 'Pill',
     source: 'OSM',
     radius: 2000,
-    maxResults: 3,
+    maxResults: 5,
     osmTags: { amenity: 'pharmacy' },
+    fetchDetails: true, // Need opening hours (guest asks "farmacia abierta domingo")
   },
   {
     id: 'supermarket',
@@ -50,10 +55,11 @@ export const CATEGORIES: CategoryConfig[] = [
     radius: 1500,
     maxResults: 5,
     osmTags: { shop: 'supermarket' },
+    fetchDetails: true, // Need opening hours (guest asks "super abierto domingo")
   },
   {
     id: 'hospital',
-    label: 'Hospitales y centros de salud',
+    label: 'Hospitales y urgencias',
     icon: 'Hospital',
     source: 'OSM',
     radius: 5000,
@@ -115,15 +121,17 @@ export const CATEGORIES: CategoryConfig[] = [
     osmTags: { public_transport: 'station' },
   },
 
-  // --- PAID (Google Places) - curated/subjective categories ---
+  // --- PAID (Google Places) — curated/subjective categories ---
   {
     id: 'restaurant',
     label: 'Restaurantes',
     icon: 'UtensilsCrossed',
     source: 'GOOGLE',
     radius: 1000,
-    maxResults: 5,
-    googleType: 'restaurant',
+    maxResults: 8,
+    searchMode: 'text',
+    textQuery: 'mejores restaurantes',
+    fetchDetails: true,
   },
   {
     id: 'cafe',
@@ -133,33 +141,39 @@ export const CATEGORIES: CategoryConfig[] = [
     radius: 1000,
     maxResults: 5,
     googleType: 'cafe',
+    searchMode: 'nearby',
+    fetchDetails: true,
   },
   {
     id: 'tourist_attraction',
-    label: 'Atracciones turísticas',
+    label: 'Qué ver',
     icon: 'Landmark',
     source: 'GOOGLE',
     radius: 5000,
     maxResults: 8,
-    googleType: 'tourist_attraction',
+    searchMode: 'text',
+    textQuery: 'monumentos y lugares de interés turístico',
+    fetchDetails: true,
   },
   {
     id: 'park',
-    label: 'Parques',
+    label: 'Parques y jardines',
     icon: 'TreePine',
     source: 'GOOGLE',
     radius: 3000,
     maxResults: 5,
     googleType: 'park',
+    searchMode: 'nearby',
   },
   {
     id: 'beach',
     label: 'Playas',
     icon: 'Waves',
     source: 'GOOGLE',
-    radius: 10000,
+    radius: 15000,
     maxResults: 5,
-    googleType: 'natural_feature',
+    searchMode: 'text',
+    textQuery: 'mejores playas',
   },
   {
     id: 'shopping_mall',
@@ -169,6 +183,7 @@ export const CATEGORIES: CategoryConfig[] = [
     radius: 5000,
     maxResults: 3,
     googleType: 'shopping_mall',
+    searchMode: 'nearby',
   },
 ]
 
