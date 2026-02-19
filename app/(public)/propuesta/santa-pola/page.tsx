@@ -440,12 +440,20 @@ export default function PropuestaSantaPola() {
                 Base de cálculo: facturación bruta menos comisiones de plataformas (OTA) y limpieza.
               </p>
             </div>
+            <div style={{ marginTop: 16, padding: '12px 16px', background: '#f8f9fc', borderRadius: 8, fontSize: 12 }}>
+              <strong>Ejemplo: 1 apartamento (escenario moderado)</strong><br />
+              Facturación bruta: 17.900€<br />
+              − Comisión OTA (15%): −2.685€<br />
+              − Limpieza (~88 rotaciones × 40€): −3.520€<br />
+              = Base comisión: 11.695€<br />
+              <strong>Comisión gestión (20% + IVA): 2.830€/año</strong>
+            </div>
           </div>
 
           <div className={s.serviceCard}>
             <div className={`${s.serviceIcon} ${s.serviceIconDefault}`}>🧹</div>
             <div className={s.serviceName}>Limpieza</div>
-            <div className={s.servicePrice}>Tarifa por servicio (según tipología)</div>
+            <div className={s.servicePrice}>40–55€ por servicio (según tipología)</div>
             <ul className={s.serviceList}>
               <li>Limpieza profesional entre cada estancia</li>
               <li>Lavado y reposición de sábanas y toallas</li>
@@ -455,27 +463,34 @@ export default function PropuestaSantaPola() {
               <li>Disponibilidad 7 días/semana</li>
               <li>Protocolo estandarizado</li>
             </ul>
-            <div className={s.warningBox} style={{ borderLeftWidth: 3, padding: '12px 16px', marginTop: 16 }}>
+            <div className={s.infoBox} style={{ borderLeftWidth: 3, padding: '12px 16px', marginTop: 16 }}>
               <p style={{ fontSize: 12 }}>
-                Tarifa a definir tras valoración individual de cada apartamento (metros, baños, camas).
+                Rango 40–55€ por economía de escala (48 unidades). Tarifa exacta tras valoración
+                individual (m², baños, camas). Proyección usa 40€ como base conservadora.
               </p>
             </div>
           </div>
 
           <div className={s.serviceCard}>
             <div className={`${s.serviceIcon} ${s.serviceIconDefault}`}>🔧</div>
-            <div className={s.serviceName}>Mantenimiento</div>
+            <div className={s.serviceName}>Servicio Técnico Integral</div>
             <div className={s.servicePrice}>150€ + IVA / apartamento / mes</div>
             <ul className={s.serviceList}>
-              <li>Ropa de cama completa (sábanas, fundas, edredones nórdicos)</li>
-              <li>Toallas (baño, manos, alfombrilla)</li>
-              <li>Revisión y reparación de juntas</li>
-              <li>Revisión de grifos y sifones</li>
-              <li>Mantenimiento de cerraduras</li>
-              <li>Revisión de aires acondicionados</li>
-              <li>Pintura periódica según desgaste</li>
-              <li>Reparaciones menores</li>
+              <li><strong>Mano de obra ilimitada</strong> para reparaciones menores</li>
+              <li><strong>Reposición textil completa:</strong> sábanas, fundas, edredones, toallas</li>
+              <li><strong>Pintura interior:</strong> repasos continuos + mano anual</li>
+              <li>Grifería, sifones, cisternas, enchufes, interruptores</li>
+              <li>Ajustes de puertas, persianas, cerraduras</li>
+              <li>Climatización: limpieza filtros, revisión preventiva</li>
+              <li>Cerraduras electrónicas: mantenimiento y baterías</li>
+              <li>Gestión de incidencias urgentes 24/7</li>
             </ul>
+            <div className={s.infoBox} style={{ borderLeftWidth: 3, padding: '12px 16px', marginTop: 16 }}>
+              <p style={{ fontSize: 12 }}>
+                No es mantenimiento reactivo: es servicio técnico integral con mano de obra ilimitada,
+                reposición textil incluida y preventivo real.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -530,11 +545,18 @@ export default function PropuestaSantaPola() {
         </table>
 
         <div className={s.warningBox}>
-          <div className={s.warningBoxTitle}>Revisión inicial obligatoria</div>
+          <div className={s.warningBoxTitle}>Condición previa del servicio técnico</div>
           <p>
-            Antes del inicio de la actividad, se realizará una revisión completa del estado de los
-            48 apartamentos para dejar todo en condiciones óptimas. El coste de esta puesta a punto
-            inicial se presupuestará aparte según el estado actual de los inmuebles.
+            La cuota de 150€ + IVA se basa en la premisa de que los apartamentos se entregan en{' '}
+            <strong>perfecto estado operativo y estético</strong>, aptos para explotación turística inmediata.
+            Antes del inicio de la actividad, se realizará una <strong>revisión técnica completa</strong> de cada unidad
+            (fontanería, electricidad, climatización, cerraduras, mobiliario, pintura, textil).
+          </p>
+          <p style={{ marginTop: 12 }}>
+            En caso de detectarse deficiencias o desgaste excesivo, se elaborará un <strong>presupuesto de puesta
+            a punto inicial</strong> que deberá ejecutarse antes del inicio del servicio, o bien podrá dar lugar
+            a una revisión de la cuota de mantenimiento. La cuota no incluye la regularización de activos
+            que no se encuentren en condiciones óptimas a la entrega.
           </p>
         </div>
       </div>
@@ -571,8 +593,8 @@ export default function PropuestaSantaPola() {
             <tr>
               <td>Referencia</td>
               <td style={{ textAlign: 'right' }} className={s.textXs}>Media mercado AirDNA</td>
-              <td style={{ textAlign: 'right' }} className={s.textXs}>Gestión profesional (+20%)</td>
-              <td style={{ textAlign: 'right' }} className={s.textXs}>Optimización máxima (+44%)</td>
+              <td style={{ textAlign: 'right' }} className={s.textXs}>Captura de eficiencia (+20%)</td>
+              <td style={{ textAlign: 'right' }} className={s.textXs}>Activos premium (+44%)*</td>
             </tr>
             <tr className={s.rowTotal}>
               <td><strong>FACTURACIÓN BRUTA TOTAL (48 apts)</strong></td>
@@ -593,7 +615,7 @@ export default function PropuestaSantaPola() {
               <td style={{ textAlign: 'right' }} className={s.tdMoney}>154.800€</td>
             </tr>
             <tr>
-              <td>Limpieza (estimación ~40€ × ~80 rotaciones/apt/año conservador)</td>
+              <td>Limpieza (rango 40–55€, proyección base 40€ por escala)</td>
               <td style={{ textAlign: 'right' }} className={s.tdMoney}>~153.600€</td>
               <td style={{ textAlign: 'right' }} className={s.tdMoney}>~168.960€</td>
               <td style={{ textAlign: 'right' }} className={s.tdMoney}>~182.400€</td>
@@ -605,7 +627,7 @@ export default function PropuestaSantaPola() {
               <td style={{ textAlign: 'right' }} className={s.tdMoney}>168.142€</td>
             </tr>
             <tr>
-              <td>Mantenimiento (150€ + IVA × 48 apts × 12 meses)</td>
+              <td>Servicio técnico integral (150€ + IVA × 48 apts × 12 meses)</td>
               <td style={{ textAlign: 'right' }} className={s.tdMoney} colSpan={3}>104.544€ / año</td>
             </tr>
             <tr className={s.rowTotal}>
@@ -621,7 +643,7 @@ export default function PropuestaSantaPola() {
               </td>
             </tr>
             <tr className={s.rowTotal} style={{ fontSize: 16 }}>
-              <td><strong>RESULTADO OPERATIVO ESTIMADO</strong></td>
+              <td><strong>CASHFLOW OPERATIVO (antes de IBI, suministros e impuestos)</strong></td>
               <td style={{ textAlign: 'right' }} className={s.tdHighlight}>240.357€</td>
               <td style={{ textAlign: 'right' }} className={s.tdHighlight}>320.967€</td>
               <td style={{ textAlign: 'right' }} className={s.tdHighlight}>422.114€</td>
@@ -648,7 +670,7 @@ export default function PropuestaSantaPola() {
             </div>
             <div className={s.summaryItem}>
               <div className={s.summaryItemValue}>320.967€</div>
-              <div className={s.summaryItemLabel}>Resultado operativo anual</div>
+              <div className={s.summaryItemLabel}>Cashflow operativo anual</div>
             </div>
             <div className={s.summaryItem}>
               <div className={s.summaryItemValue}>557€</div>
@@ -658,15 +680,30 @@ export default function PropuestaSantaPola() {
         </div>
 
         <div className={s.infoBox}>
+          <div className={s.infoBoxTitle}>Por qué los escenarios moderado y optimista son alcanzables</div>
+          <p>
+            La media de mercado (14.917€) incluye <strong>todo tipo de gestión</strong>: anuncios mal optimizados,
+            fotos de baja calidad, precios fijos sin yield management, propietarios que solo usan una plataforma,
+            y apartamentos con reviews mediocres. Nuestros escenarios reflejan <strong>captura de eficiencia</strong>, no
+            sobreprecio artificial:<br /><br />
+            • <strong>Escenario moderado (+20%):</strong> pricing dinámico, multicanal (Airbnb + Booking), check-in
+            autónomo, fotos profesionales, reviews gestionadas activamente.<br />
+            • <strong>Escenario optimista (+44%)*:</strong> solo alcanzable con activos premium — buena ubicación,
+            edificio completo, calidad alta, reviews consolidadas. No es el escenario base.
+          </p>
+        </div>
+
+        <div className={s.infoBox} style={{ marginTop: 16 }}>
           <div className={s.infoBoxTitle}>Notas sobre la estimación</div>
           <p>
             • Los ingresos están basados en datos reales de AirDNA para Santa Pola (febrero 2026),
             con 1.333 listings analizados. Cifra base: 14.917€/año por apartamento.<br />
-            • La tarifa de limpieza se ha estimado a 40€ por rotación. La tarifa final se determinará
-            tras la valoración individual de cada apartamento.<br />
-            • Las comisiones de plataformas (Airbnb, Booking) promedian un 15% sobre la facturación bruta.<br />
+            • La estimación de limpieza se basa en ~80 rotaciones/año por apartamento (estancia media 3–4 noches).
+            Variaciones en la estancia media pueden modificar este coste.<br />
+            • Las comisiones de plataformas contemplan un mix de Airbnb y Booking.com, con comisión media
+            ponderada del 15% sobre facturación bruta.<br />
             • Comisión de gestión: 20% + IVA aplicado sobre la facturación neta (bruta − OTA − limpieza).<br />
-            • <strong>No incluido en el resultado operativo:</strong> IBI, suministros (agua, luz, gas, internet),
+            • <strong>No incluido en el cashflow operativo:</strong> IBI, suministros (agua, luz, gas, internet),
             comunidad de propietarios, seguros ni impuestos. Estos costes corren a cargo de la propiedad.<br />
             • La estimación de ingresos depende de la tipología, ubicación y estado de los apartamentos.
           </p>
@@ -745,8 +782,8 @@ export default function PropuestaSantaPola() {
               <td>Autónomos sin control de calidad</td>
             </tr>
             <tr>
-              <td><strong>Mantenimiento</strong></td>
-              <td>Servicio integral con precio cerrado mensual</td>
+              <td><strong>Servicio técnico</strong></td>
+              <td>Integral con mano de obra ilimitada, textil y preventivo incluido</td>
               <td>Reparaciones a demanda (más caro e impredecible)</td>
             </tr>
             <tr>
@@ -833,8 +870,23 @@ export default function PropuestaSantaPola() {
             El contrato de gestión tiene una <strong>duración mínima de 5 años, renovable</strong> automáticamente
             por periodos anuales. Esta duración permite amortizar la inversión inicial (cerraduras electrónicas,
             puesta a punto, fotografía profesional) y garantizar la estabilidad operativa necesaria para un
-            proyecto de 48 unidades. Se contemplará una <strong>cláusula de rescisión anticipada</strong> con
-            un preaviso mínimo de 6 meses y compensación proporcional a la inversión pendiente de amortizar.
+            proyecto de 48 unidades.
+          </p>
+          <p style={{ marginTop: 12 }}>
+            <strong>Exclusividad:</strong> El contrato de gestión implica exclusividad de comercialización durante
+            su vigencia. El uso propio del propietario deberá notificarse con antelación y estará sujeto a
+            disponibilidad y estacionalidad.
+          </p>
+          <p style={{ marginTop: 12 }}>
+            <strong>Cláusulas de salida:</strong> Se contempla rescisión anticipada con preaviso de 6 meses y
+            compensación proporcional a la inversión pendiente. Adicionalmente, cualquiera de las partes podrá
+            resolver el contrato si se incumplen <strong>KPIs mínimos acordados</strong> (ocupación, valoración media,
+            tiempo de respuesta) durante dos trimestres consecutivos, previa notificación y periodo de subsanación.
+          </p>
+          <p style={{ marginTop: 12 }}>
+            <strong>Nota fiscal:</strong> Todas las cifras económicas de esta propuesta se expresan sin IVA salvo
+            indicación expresa. Las proyecciones están sujetas a cambios regulatorios o restricciones administrativas
+            futuras ajenas a la gestora.
           </p>
         </div>
 
@@ -867,9 +919,11 @@ export default function PropuestaSantaPola() {
             Las cifras de esta propuesta son <strong>estimaciones orientativas</strong> basadas en datos de mercado
             de AirDNA (febrero 2026) y no constituyen una garantía de ingresos. Los resultados reales dependerán
             de la tipología, ubicación, estado y equipamiento de cada apartamento, así como de las condiciones
-            del mercado. El resultado operativo estimado no incluye suministros (agua, luz, gas, internet),
+            del mercado. El cashflow operativo estimado no incluye suministros (agua, luz, gas, internet),
             comunidad de propietarios, IBI, seguros ni impuestos, que corren a cargo de la propiedad.
-            Las tarifas de limpieza y mantenimiento se ajustarán tras la valoración presencial de los inmuebles.
+            Las tarifas de limpieza y servicio técnico se ajustarán tras la valoración presencial de los inmuebles.
+            Las proyecciones están sujetas a cambios regulatorios, restricciones administrativas o circunstancias
+            de fuerza mayor ajenas a la gestora.
           </p>
         </div>
 
