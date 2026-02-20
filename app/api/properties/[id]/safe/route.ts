@@ -219,25 +219,67 @@ export async function PUT(
     `
     console.log('✅ SAFE PUT - Updated descriptionTranslations')
 
-    // Handle other fields if present
-    const allowedFields = [
-      'name', 'description', 'type', 'street', 'city', 'state',
-      'country', 'postalCode', 'bedrooms', 'bathrooms', 'maxGuests',
-      'squareMeters', 'profileImage', 'hostContactName', 'hostContactPhone',
-      'hostContactEmail', 'hostContactLanguage', 'hostContactPhoto',
-      'status', 'isPublished'
-    ]
-
-    for (const field of allowedFields) {
-      if (body[field] !== undefined && field !== 'propertySetId') {
-        console.log(`✅ SAFE PUT - Updating ${field} to:`, body[field])
-
-        await prisma.$executeRawUnsafe(`
-          UPDATE properties
-          SET "${field}" = $1, "updatedAt" = NOW()
-          WHERE id = $2
-        `, body[field], actualPropertyId)
-      }
+    // Handle other fields if present - using safe individual queries
+    // Each field has its own parameterized query to prevent SQL injection
+    if (body.name !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "name" = ${body.name}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.description !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "description" = ${body.description}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.type !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "type" = ${body.type}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.street !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "street" = ${body.street}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.city !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "city" = ${body.city}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.state !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "state" = ${body.state}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.country !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "country" = ${body.country}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.postalCode !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "postalCode" = ${body.postalCode}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.bedrooms !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "bedrooms" = ${body.bedrooms}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.bathrooms !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "bathrooms" = ${body.bathrooms}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.maxGuests !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "maxGuests" = ${body.maxGuests}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.squareMeters !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "squareMeters" = ${body.squareMeters}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.profileImage !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "profileImage" = ${body.profileImage}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.hostContactName !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "hostContactName" = ${body.hostContactName}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.hostContactPhone !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "hostContactPhone" = ${body.hostContactPhone}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.hostContactEmail !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "hostContactEmail" = ${body.hostContactEmail}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.hostContactLanguage !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "hostContactLanguage" = ${body.hostContactLanguage}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.hostContactPhoto !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "hostContactPhoto" = ${body.hostContactPhoto}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.status !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "status" = ${body.status}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+    if (body.isPublished !== undefined) {
+      await prisma.$executeRaw`UPDATE properties SET "isPublished" = ${body.isPublished}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
     }
     
     // Get updated property
@@ -258,8 +300,7 @@ export async function PUT(
     console.error('✅ SAFE PUT - Error:', error)
     return NextResponse.json({
       success: false,
-      error: 'Error al actualizar la propiedad',
-      details: error instanceof Error ? error.message : String(error)
+      error: 'Error al actualizar la propiedad'
     }, { status: 500 })
   }
 }
