@@ -48,6 +48,126 @@ export async function POST(
       return NextResponse.json(errorResponse, { status: 400 })
     }
 
+    // === GESTION MODULE APPROVAL ===
+    if (subscriptionRequest.moduleType === 'GESTION') {
+      const startDate = new Date()
+      const endDate = new Date()
+
+      // Get billing period from metadata
+      let billingPeriod = 'MONTHLY'
+      if (subscriptionRequest.metadata && typeof subscriptionRequest.metadata === 'object') {
+        billingPeriod = (subscriptionRequest.metadata as any).billingPeriod || 'MONTHLY'
+      }
+
+      switch (billingPeriod.toUpperCase()) {
+        case 'YEARLY':
+          endDate.setFullYear(endDate.getFullYear() + 1)
+          break
+        case 'SEMESTRAL':
+          endDate.setMonth(endDate.getMonth() + 6)
+          break
+        default:
+          endDate.setMonth(endDate.getMonth() + 1)
+      }
+
+      // Upsert UserModule with ACTIVE status
+      await prisma.userModule.upsert({
+        where: {
+          userId_moduleType: {
+            userId: subscriptionRequest.userId,
+            moduleType: 'GESTION'
+          }
+        },
+        update: {
+          status: 'ACTIVE',
+          isActive: true,
+          activatedAt: startDate,
+          expiresAt: endDate,
+          canceledAt: null
+        },
+        create: {
+          userId: subscriptionRequest.userId,
+          moduleType: 'GESTION',
+          status: 'ACTIVE',
+          isActive: true,
+          activatedAt: startDate,
+          expiresAt: endDate
+        }
+      })
+
+      // Update the subscription request
+      await prisma.subscriptionRequest.update({
+        where: { id },
+        data: {
+          status: 'APPROVED',
+          approvedAt: new Date(),
+          reviewedBy: admin.adminId,
+          adminNotes: notes || `Módulo Gestión aprobado por ${admin.email}`
+        }
+      })
+
+      // Create notification
+      await prisma.notification.create({
+        data: {
+          userId: subscriptionRequest.userId,
+          type: 'subscription_approved',
+          title: 'Módulo Gestión activado',
+          message: `Tu módulo Gestión ha sido activado hasta el ${endDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}.`,
+          data: {
+            moduleType: 'GESTION',
+            expiresAt: endDate.toISOString()
+          }
+        }
+      })
+
+      // Log admin activity
+      try {
+        const { ipAddress, userAgent } = getRequestInfo(request)
+        await createActivityLog({
+          adminId: admin.adminId,
+          action: 'APPROVE_SUBSCRIPTION',
+          targetType: 'subscription_request',
+          targetId: id,
+          description: `Aprobó módulo Gestión para ${subscriptionRequest.user.name}`,
+          metadata: {
+            userId: subscriptionRequest.userId,
+            moduleType: 'GESTION',
+            totalAmount: Number(subscriptionRequest.totalAmount)
+          },
+          ipAddress,
+          userAgent,
+        })
+      } catch (logError) {
+        console.warn('⚠️ Could not create admin activity log:', logError)
+      }
+
+      // Send confirmation email
+      try {
+        const billingLabel = billingPeriod === 'YEARLY' ? 'Anual' : billingPeriod === 'SEMESTRAL' ? 'Semestral' : 'Mensual'
+        await sendEmail({
+          to: subscriptionRequest.user.email,
+          subject: `Módulo Gestión activado - Itineramio`,
+          html: emailTemplates.subscriptionApproved({
+            userName: subscriptionRequest.user.name || 'Usuario',
+            planName: `Módulo Gestión (${billingLabel})`,
+            startDate: startDate.toLocaleDateString('es-ES'),
+            endDate: endDate.toLocaleDateString('es-ES'),
+            totalAmount: Number(subscriptionRequest.totalAmount).toFixed(2),
+            dashboardUrl: `${process.env.NEXTAUTH_URL || 'https://www.itineramio.com'}/gestion`
+          })
+        })
+      } catch (emailError) {
+        console.error('Error sending GESTION approval email:', emailError)
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'Módulo Gestión activado correctamente'
+      })
+    }
+
+    // === MANUALES (default) APPROVAL ===
+
     // Calculate subscription end date based on billing period
     const startDate = new Date()
     const endDate = new Date()

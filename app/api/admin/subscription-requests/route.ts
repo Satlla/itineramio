@@ -15,11 +15,19 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') || 'ALL'
+    const type = searchParams.get('type') || 'ALL'
 
     // Build where clause based on status filter
     let whereClause: any = {}
     if (status !== 'ALL') {
       whereClause.status = status
+    }
+
+    // Filter by module type
+    if (type === 'GESTION') {
+      whereClause.moduleType = 'GESTION'
+    } else if (type === 'MANUALES') {
+      whereClause.moduleType = null // Legacy requests without moduleType are MANUALES
     }
 
     const requests = await prisma.subscriptionRequest.findMany({
@@ -49,6 +57,7 @@ export async function GET(request: NextRequest) {
     const formattedRequests = requests.map(request => ({
       ...request,
       totalAmount: Number(request.totalAmount),
+      moduleType: request.moduleType || null,
       plan: request.plan ? {
         ...request.plan,
         priceMonthly: Number(request.plan.priceMonthly)

@@ -149,9 +149,29 @@ function LoginContent() {
           }
         }
 
-        // Redirect to dashboard
-        console.log('Login successful, redirecting to dashboard')
-        router.push('/main')
+        // Smart routing based on active modules
+        const fromUrl = searchParams.get('from')
+        if (fromUrl) {
+          router.push(fromUrl)
+        } else {
+          try {
+            const moduleRes = await fetch('/api/auth/module-status', { credentials: 'include' })
+            if (moduleRes.ok) {
+              const { manualesActive, gestionActive } = await moduleRes.json()
+              if (gestionActive && !manualesActive) {
+                router.push('/gestion')
+              } else if (manualesActive || (!manualesActive && !gestionActive)) {
+                router.push(manualesActive ? '/main' : '/account/modules')
+              } else {
+                router.push('/main')
+              }
+            } else {
+              router.push('/main')
+            }
+          } catch {
+            router.push('/main')
+          }
+        }
       } else {
         setErrors(prev => ({
           ...prev,

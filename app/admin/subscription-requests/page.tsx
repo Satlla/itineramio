@@ -46,6 +46,7 @@ interface SubscriptionRequest {
   rejectedAt?: string
   reviewedBy?: string
   adminNotes?: string
+  moduleType?: 'GESTION' | 'MANUALES' | null
   metadata?: {
     billingPeriod?: string
   }
@@ -301,13 +302,25 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
                 <Building2 className="w-5 h-5 text-gray-600" />
                 <h3 className="font-bold text-gray-900 text-lg">Detalles de la Suscripción</h3>
               </div>
+              {/* Module Type Badge */}
+              {request.moduleType && (
+                <div className="mb-4">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                    request.moduleType === 'GESTION'
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                      : 'bg-violet-100 text-violet-800 border border-violet-300'
+                  }`}>
+                    {request.moduleType === 'GESTION' ? 'Módulo Gestión' : 'Manuales'}
+                  </span>
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-1">
                   <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Plan</div>
                   <div className="text-base font-bold text-gray-900">
-                    {request.plan?.name || 'Personalizado'}
+                    {request.moduleType === 'GESTION' ? 'Módulo Gestión' : (request.plan?.name || 'Personalizado')}
                   </div>
-                  {request.propertiesCount && (
+                  {request.propertiesCount && !request.moduleType && (
                     <div className="text-xs text-gray-500">{request.propertiesCount} propiedades</div>
                   )}
                 </div>
@@ -597,6 +610,7 @@ export default function SubscriptionRequestsPage() {
   const [requests, setRequests] = useState<SubscriptionRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('PENDING')
+  const [moduleFilter, setModuleFilter] = useState<'ALL' | 'MANUALES' | 'GESTION'>('ALL')
   const [selectedRequest, setSelectedRequest] = useState<SubscriptionRequest | null>(null)
   const [showApprovalModal, setShowApprovalModal] = useState(false)
   const [processingAction, setProcessingAction] = useState(false)
@@ -628,12 +642,12 @@ export default function SubscriptionRequestsPage() {
 
   useEffect(() => {
     fetchRequests()
-  }, [filter])
+  }, [filter, moduleFilter])
 
   const fetchRequests = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/admin/subscription-requests?status=${filter}`)
+      const response = await fetch(`/api/admin/subscription-requests?status=${filter}&type=${moduleFilter}`)
       if (response.ok) {
         const data = await response.json()
         setRequests(data)
@@ -881,7 +895,7 @@ export default function SubscriptionRequestsPage() {
       {/* Filter Tabs */}
       <Card>
         <CardContent className="p-3 sm:p-4 lg:p-6">
-          <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-4">
+          <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-4 mb-3">
             {(['ALL', 'PENDING', 'APPROVED', 'REJECTED'] as const).map((status) => (
               <button
                 key={status}
@@ -895,6 +909,25 @@ export default function SubscriptionRequestsPage() {
                 {status === 'ALL' ? 'Todas' :
                  status === 'PENDING' ? 'Pendientes' :
                  status === 'APPROVED' ? 'Aprobadas' : 'Rechazadas'}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {(['ALL', 'MANUALES', 'GESTION'] as const).map((type) => (
+              <button
+                key={type}
+                onClick={() => setModuleFilter(type)}
+                className={`px-3 py-1 rounded-full font-medium text-xs transition-all ${
+                  moduleFilter === type
+                    ? type === 'GESTION'
+                      ? 'bg-emerald-600 text-white'
+                      : type === 'MANUALES'
+                        ? 'bg-violet-600 text-white'
+                        : 'bg-gray-700 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {type === 'ALL' ? 'Todos los módulos' : type === 'MANUALES' ? 'Manuales' : 'Gestión'}
               </button>
             ))}
           </div>
@@ -926,10 +959,19 @@ export default function SubscriptionRequestsPage() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1 min-w-0">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
-                        {getStatusIcon(request.status)}
-                        <span className="ml-1">{getStatusText(request.status)}</span>
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
+                          {getStatusIcon(request.status)}
+                          <span className="ml-1">{getStatusText(request.status)}</span>
+                        </span>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          request.moduleType === 'GESTION'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-violet-100 text-violet-800'
+                        }`}>
+                          {request.moduleType === 'GESTION' ? 'Gestión' : 'Manuales'}
+                        </span>
+                      </div>
                       <p className="text-xs text-gray-500 mt-1">ID: {request.id.slice(-8)}</p>
                     </div>
                     {request.paymentProofUrl && (
@@ -967,8 +1009,8 @@ export default function SubscriptionRequestsPage() {
                       <div>
                         <span className="text-gray-500">Plan:</span>
                         <div className="font-medium text-gray-900">
-                          {request.plan?.name || 'Custom'}
-                          {request.propertiesCount && (
+                          {request.moduleType === 'GESTION' ? 'Módulo Gestión' : (request.plan?.name || 'Custom')}
+                          {request.propertiesCount && !request.moduleType && (
                             <span className="text-gray-500 ml-1">({request.propertiesCount})</span>
                           )}
                         </div>
@@ -1028,6 +1070,13 @@ export default function SubscriptionRequestsPage() {
                           {getStatusIcon(request.status)}
                           <span className="ml-1">{getStatusText(request.status)}</span>
                         </span>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          request.moduleType === 'GESTION'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-violet-100 text-violet-800'
+                        }`}>
+                          {request.moduleType === 'GESTION' ? 'Gestión' : 'Manuales'}
+                        </span>
                         <span className="text-sm text-gray-500">
                           ID: {request.id.slice(-8)}
                         </span>
@@ -1054,8 +1103,8 @@ export default function SubscriptionRequestsPage() {
                         <div>
                           <div className="text-sm text-gray-600">Plan</div>
                           <div className="font-medium">
-                            {request.plan?.name || 'Personalizado'}
-                            {request.propertiesCount && (
+                            {request.moduleType === 'GESTION' ? 'Módulo Gestión' : (request.plan?.name || 'Personalizado')}
+                            {request.propertiesCount && !request.moduleType && (
                               <span className="text-sm text-gray-500 ml-1">
                                 ({request.propertiesCount} props)
                               </span>

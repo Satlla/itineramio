@@ -92,6 +92,7 @@ model User {
   createdUsers            User[]                 @relation("UserCreatedBy")
   moderatedComments       ZoneComment[]          @relation("CommentModerator")
   zoneViews               ZoneView[]             @relation("HostZoneViews")
+  apiKeys                 ApiKey[]
 
   @@map("users")
 }
@@ -240,6 +241,8 @@ model Property {
   trackingEvents          TrackingEvent[]
   zoneViews               ZoneView[]             @relation("PropertyZoneViews")
   zones                   Zone[]
+  guidebookDeliveries     GuidebookDelivery[]
+  externalMappings        PropertyExternalMapping[]
 
   @@index([slug])
   @@map("properties")
@@ -1009,6 +1012,7 @@ model SubscriptionRequest {
   reviewedBy       String?           @map("reviewed_by")
   adminNotes       String?           @map("admin_notes")
   metadata         Json?
+  moduleType       ModuleType?       @map("module_type")
   customPlan       CustomPlan?       @relation("CustomPlanRequests", fields: [customPlanId], references: [id])
   plan             SubscriptionPlan? @relation("PlanRequests", fields: [planId], references: [id])
   user             User              @relation("UserSubscriptionRequests", fields: [userId], references: [id], onDelete: Cascade)
@@ -2968,4 +2972,79 @@ enum PaymentMethodType {
   CARD
   BIZUM
   PAYPAL
+}
+
+// ============================================
+// Public API v1 — PMS Integrations
+// ============================================
+
+model ApiKey {
+  id            String         @id @default(cuid())
+  userId        String
+  name          String
+  hashedKey     String         @unique
+  prefix        String
+  permissions   Json           @default("[\"properties:read\",\"webhooks:write\",\"guidebook:write\",\"guidebook:read\"]")
+  lastUsedAt    DateTime?
+  createdAt     DateTime       @default(now())
+  revokedAt     DateTime?
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  webhookEvents WebhookEvent[]
+
+  @@index([userId])
+  @@index([hashedKey])
+  @@map("api_keys")
+}
+
+model WebhookEvent {
+  id          String    @id @default(cuid())
+  apiKeyId    String
+  eventType   String
+  payload     Json
+  status      String    @default("PENDING")
+  error       String?
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  apiKey      ApiKey    @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  @@index([apiKeyId])
+  @@index([status])
+  @@map("webhook_events")
+}
+
+model GuidebookDelivery {
+  id            String    @id @default(cuid())
+  propertyId    String
+  reservationId String?
+  guestEmail    String
+  guestName     String?
+  language      String    @default("es")
+  guideUrl      String
+  sentAt        DateTime?
+  openedAt      DateTime?
+  clickedAt     DateTime?
+  resendEmailId String?
+  source        String    @default("API")
+  createdAt     DateTime  @default(now())
+  property      Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([guestEmail])
+  @@index([resendEmailId])
+  @@map("guidebook_deliveries")
+}
+
+model PropertyExternalMapping {
+  id           String   @id @default(cuid())
+  propertyId   String
+  platform     String
+  externalId   String
+  externalName String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, platform])
+  @@unique([platform, externalId])
+  @@map("property_external_mappings")
 }
