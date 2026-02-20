@@ -16,11 +16,14 @@ export const GMAIL_SCOPES = [
  * Generate a secure state token for CSRF protection
  */
 export function generateStateToken(userId: string): string {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required')
+  }
   const timestamp = Date.now()
   const randomBytes = crypto.randomBytes(16).toString('hex')
   const data = `${userId}:${timestamp}:${randomBytes}`
   const signature = crypto
-    .createHmac('sha256', process.env.JWT_SECRET || 'fallback-secret')
+    .createHmac('sha256', process.env.JWT_SECRET)
     .update(data)
     .digest('hex')
   return Buffer.from(`${data}:${signature}`).toString('base64url')
@@ -40,8 +43,11 @@ export function verifyStateToken(state: string): string | null {
     const data = `${userId}:${timestampStr}:${randomBytes}`
 
     // Verify signature
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET environment variable is required')
+    }
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.JWT_SECRET || 'fallback-secret')
+      .createHmac('sha256', process.env.JWT_SECRET)
       .update(data)
       .digest('hex')
 

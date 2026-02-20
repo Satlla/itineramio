@@ -10,7 +10,10 @@ const IV_LENGTH = 16
 const AUTH_TAG_LENGTH = 16
 
 function getEncryptionKey(): Buffer {
-  const secret = process.env.JWT_SECRET || 'fallback-secret-key-for-encryption'
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required for encryption')
+  }
   // Derive a 32-byte key from the secret
   return crypto.scryptSync(secret, 'gmail-tokens-salt', 32)
 }

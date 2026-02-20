@@ -50,11 +50,9 @@ export class ModuleLimitsService {
       const plan = userModule.subscriptionPlan
       const currentProperties = await this.countUserProperties(userId)
 
-      // Check if trial has expired
-      if (userModule.status === 'TRIAL' && userModule.trialEndsAt) {
-        const isTrialExpired = new Date(userModule.trialEndsAt) < new Date()
-        if (isTrialExpired) {
-          // Trial expired - user needs to subscribe
+      // Check if trial has expired (or has no end date — treat as expired)
+      if (userModule.status === 'TRIAL') {
+        if (!userModule.trialEndsAt || new Date(userModule.trialEndsAt) < new Date()) {
           return {
             ...createDeniedAccess('MANUALES'),
             planCode: null,
@@ -62,7 +60,6 @@ export class ModuleLimitsService {
             maxProperties: 0,
             currentProperties,
             canAddProperty: false,
-            // Provide trial info for UI
             isTrialActive: false,
             trialEndsAt: userModule.trialEndsAt
           } as ManualesAccess
@@ -97,23 +94,28 @@ export class ModuleLimitsService {
     })
 
     if (userSubscription && userSubscription.plan) {
-      const currentProperties = await this.countUserProperties(userId)
+      // Check if subscription has expired
+      if (userSubscription.endDate && new Date(userSubscription.endDate) < new Date()) {
+        // Expired — fall through to trial check or denied
+      } else {
+        const currentProperties = await this.countUserProperties(userId)
 
-      return {
-        moduleCode: 'MANUALES',
-        hasAccess: true,
-        status: 'ACTIVE',
-        isTrialActive: false,
-        trialEndsAt: null,
-        expiresAt: userSubscription.endDate,
-        activationRequired: false,
-        activationUrl: MODULES.MANUALES.activationUrl,
-        activationCTA: MODULES.MANUALES.ctaText,
-        planCode: userSubscription.plan.code,
-        planName: userSubscription.plan.name,
-        maxProperties: userSubscription.plan.maxProperties,
-        currentProperties,
-        canAddProperty: currentProperties < userSubscription.plan.maxProperties
+        return {
+          moduleCode: 'MANUALES',
+          hasAccess: true,
+          status: 'ACTIVE',
+          isTrialActive: false,
+          trialEndsAt: null,
+          expiresAt: userSubscription.endDate,
+          activationRequired: false,
+          activationUrl: MODULES.MANUALES.activationUrl,
+          activationCTA: MODULES.MANUALES.ctaText,
+          planCode: userSubscription.plan.code,
+          planName: userSubscription.plan.name,
+          maxProperties: userSubscription.plan.maxProperties,
+          currentProperties,
+          canAddProperty: currentProperties < userSubscription.plan.maxProperties
+        }
       }
     }
 
@@ -178,14 +180,12 @@ export class ModuleLimitsService {
 
     if (userModule && userModule.isActive && userModule.status !== 'CANCELED') {
       // Check if trial has expired
-      if (userModule.status === 'TRIAL' && userModule.trialEndsAt) {
-        const isTrialExpired = new Date(userModule.trialEndsAt) < new Date()
-        if (isTrialExpired) {
-          // Trial expired - user needs to subscribe
+      // Check if trial has expired (or has no end date — treat as expired)
+      if (userModule.status === 'TRIAL') {
+        if (!userModule.trialEndsAt || new Date(userModule.trialEndsAt) < new Date()) {
           return {
             ...createDeniedAccess('GESTION'),
             unlimitedProperties: true,
-            // Provide trial info for UI to show "trial expired" message
             isTrialActive: false,
             trialEndsAt: userModule.trialEndsAt
           } as GestionAccess

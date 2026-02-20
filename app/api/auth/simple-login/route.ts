@@ -2,9 +2,32 @@ import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { prisma } from '../../../../src/lib/prisma'
 import { signToken } from '../../../../src/lib/auth'
+import { checkRateLimit, getRateLimitKey } from '../../../../src/lib/rate-limit'
+
+// Strict rate limit for login: 5 attempts per minute per IP
+const LOGIN_RATE_LIMIT = {
+  maxRequests: 5,
+  windowMs: 60 * 1000 // 1 minute
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting to prevent brute force attacks
+    const rateLimitKey = getRateLimitKey(request, null, 'simple-login')
+    const rateLimitResult = checkRateLimit(rateLimitKey, LOGIN_RATE_LIMIT)
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json({
+        success: false,
+        error: 'Demasiados intentos de inicio de sesión. Por favor, espera un momento.'
+      }, {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil(rateLimitResult.resetIn / 1000))
+        }
+      })
+    }
+
     const body = await request.json()
     const { email, password, rememberMe = false } = body
 

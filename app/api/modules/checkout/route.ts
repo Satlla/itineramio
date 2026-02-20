@@ -3,6 +3,13 @@ import Stripe from 'stripe'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import { MODULES } from '@/config/modules'
+import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
+
+// Rate limit for checkout: 3 attempts per minute per user
+const CHECKOUT_RATE_LIMIT = {
+  maxRequests: 3,
+  windowMs: 60 * 1000 // 1 minute
+}
 
 type BillingPeriod = 'MONTHLY' | 'SEMESTRAL' | 'YEARLY'
 
@@ -32,6 +39,22 @@ export async function POST(request: NextRequest) {
       return authResult
     }
     const userId = authResult.userId
+
+    // Rate limiting to prevent duplicate checkout sessions
+    const rateLimitKey = getRateLimitKey(request, userId, 'module-checkout')
+    const rateLimitResult = checkRateLimit(rateLimitKey, CHECKOUT_RATE_LIMIT)
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json({
+        success: false,
+        error: 'Ya tienes un proceso de pago en curso. Espera un momento antes de intentarlo de nuevo.'
+      }, {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil(rateLimitResult.resetIn / 1000))
+        }
+      })
+    }
 
     // Get user
     const user = await prisma.user.findUnique({
