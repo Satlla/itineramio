@@ -74,15 +74,10 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Error fetching properties (no RLS):', error)
-    
+
     return NextResponse.json({
       success: false,
-      error: 'Error interno del servidor',
-      debug: error instanceof Error ? {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
-      } : 'Unknown error'
+      error: 'Error interno del servidor'
     }, { status: 500 })
   }
 }

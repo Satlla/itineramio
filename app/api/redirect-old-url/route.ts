@@ -62,12 +62,11 @@ export async function GET(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('💥 Redirect error:', error)
-    
+    console.error('Redirect error:', error)
+
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
+      error: 'Internal server error'
     }, { status: 500 })
   }
 }

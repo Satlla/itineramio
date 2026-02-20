@@ -1,11 +1,25 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { EmailVerificationService } from '../../../src/lib/auth-email'
 
-export async function POST() {
+const CRON_SECRET = process.env.CRON_SECRET
+
+export async function GET(request: NextRequest) {
+  // Require CRON_SECRET for security
+  if (!CRON_SECRET) {
+    console.error('CRON_SECRET not configured')
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
+  }
+
+  const authHeader = request.headers.get('authorization')
+  if (authHeader !== `Bearer ${CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const deletedCount = await EmailVerificationService.cleanupExpiredTokens()
-    
+
     return NextResponse.json({
+      success: true,
       message: `Cleaned up ${deletedCount} expired email verification tokens`
     })
   } catch (error) {
@@ -17,7 +31,7 @@ export async function POST() {
   }
 }
 
-// Allow GET for cron jobs
-export async function GET() {
-  return POST()
+// Also allow POST with same auth
+export async function POST(request: NextRequest) {
+  return GET(request)
 }
