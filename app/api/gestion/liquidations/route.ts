@@ -200,10 +200,25 @@ export async function POST(request: NextRequest) {
     })
 
     if (existing) {
-      return NextResponse.json(
-        { error: 'Ya existe una liquidación para este propietario y período' },
-        { status: 400 }
-      )
+      if (existing.status === 'DRAFT') {
+        // DRAFT liquidation can be replaced - unlink reservations/expenses and delete
+        await prisma.reservation.updateMany({
+          where: { liquidationId: existing.id },
+          data: { liquidationId: null }
+        })
+        await prisma.propertyExpense.updateMany({
+          where: { liquidationId: existing.id },
+          data: { liquidationId: null }
+        })
+        await prisma.liquidation.delete({
+          where: { id: existing.id }
+        })
+      } else {
+        return NextResponse.json(
+          { error: 'Ya existe una liquidación para este propietario y período' },
+          { status: 400 }
+        )
+      }
     }
 
     // Verificar que el propietario existe y pertenece al usuario
@@ -304,7 +319,7 @@ export async function POST(request: NextRequest) {
           billingUnitId: { in: targetBillingUnitIds },
           status: { in: ['COMPLETED', 'CONFIRMED'] },
           liquidationId: null,
-          checkOut: {
+          checkIn: {
             gte: startDate,
             lte: endDate,
           },
@@ -363,7 +378,7 @@ export async function POST(request: NextRequest) {
           : billingConfigs.map(bc => bc.id)
 
         reservationWhere.billingConfigId = { in: configIds }
-        reservationWhere.checkOut = {
+        reservationWhere.checkIn = {
           gte: startDate,
           lte: endDate,
         }

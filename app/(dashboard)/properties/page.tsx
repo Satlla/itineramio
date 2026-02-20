@@ -100,6 +100,7 @@ interface Property {
   }
   // Tiempo ahorrado calculado desde la API (basado en vistas por zona, excluye host)
   timeSavedMinutes?: number
+  chatbotConversations?: number // Conversaciones del chatbot este mes
   uniqueVisitors?: number
   whatsappClicks?: number
 }
@@ -456,6 +457,9 @@ const calculateAggregateStats = (properties: Property[]) => {
   // Sumar tiempo ahorrado de todas las propiedades (viene de la API)
   const totalTimeSaved = activeProperties.reduce((sum, p) => sum + (p.timeSavedMinutes || 0), 0)
 
+  // Sumar conversaciones del chatbot de este mes (viene de la API)
+  const totalQueries = properties.reduce((sum, p) => sum + (p.chatbotConversations || 0), 0)
+
   // Valor económico estimado (€20/hora)
   const hourlyRate = 20
   const totalYearlyValue = Math.round((totalTimeSaved * 12 * hourlyRate) / 60)
@@ -463,7 +467,7 @@ const calculateAggregateStats = (properties: Property[]) => {
   return {
     totalProperties: activeProperties.length,
     monthlyTimeSaved: totalTimeSaved,
-    totalQueries: 0, // Ya no calculamos esto
+    totalQueries,
     estimatedYearlyValue: totalYearlyValue,
     averageTimeSavedPerProperty: activeProperties.length > 0 ? Math.round(totalTimeSaved / activeProperties.length) : 0
   }
@@ -1342,11 +1346,11 @@ function PropertiesPageContent() {
                     <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-green-600" />
                   </div>
                   <div className="ml-2 sm:ml-3 md:ml-4 min-w-0">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Consultas</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Consultas Chatbot</p>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                       {stats.totalQueries}
                     </p>
-                    <p className="text-[10px] sm:text-xs text-gray-500">evitadas/mes</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">este mes</p>
                   </div>
                 </div>
               </Card>

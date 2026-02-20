@@ -134,10 +134,10 @@ export async function GET(
           concept: i.concept,
           description: i.description,
           quantity: Number(i.quantity),
-          unitPrice: Number(i.unitPrice),
+          unitPrice: Math.round(Number(i.unitPrice) * 100) / 100,
           vatRate: Number(i.vatRate),
           retentionRate: Number(i.retentionRate),
-          total: Number(i.total),
+          total: Math.round(Number(i.total) * 100) / 100,
           order: i.order,
           reservationId: i.reservationId
         }))
@@ -243,31 +243,42 @@ export async function PUT(
     let total = Number(existing.total)
     let processedItems: any[] | undefined
 
+    let totalRetention = Number(existing.retentionAmount) || 0
+
     if (items && items.length > 0) {
       subtotal = 0
       totalVat = 0
+      totalRetention = 0
 
       processedItems = items.map((item: any, index: number) => {
         const quantity = Number(item.quantity) || 1
-        const unitPrice = Number(item.unitPrice) || 0
+        const unitPrice = Math.round((Number(item.unitPrice) || 0) * 100) / 100
         const vatRate = Number(item.vatRate) || 21
-        const lineTotal = quantity * unitPrice
-        const lineVat = lineTotal * (vatRate / 100)
+        const retentionRate = Number(item.retentionRate) || 0
+        const lineTotal = Math.round(quantity * unitPrice * 100) / 100
+        const lineVat = Math.round(lineTotal * (vatRate / 100) * 100) / 100
+        const lineRetention = Math.round(lineTotal * (retentionRate / 100) * 100) / 100
 
         subtotal += lineTotal
         totalVat += lineVat
+        totalRetention += lineRetention
 
         return {
           concept: item.concept,
+          description: item.description || null,
           quantity,
           unitPrice,
           vatRate,
-          total: lineTotal + lineVat,
+          retentionRate,
+          total: Math.round((lineTotal + lineVat) * 100) / 100,
           order: index
         }
       })
 
-      total = subtotal + totalVat
+      subtotal = Math.round(subtotal * 100) / 100
+      totalVat = Math.round(totalVat * 100) / 100
+      totalRetention = Math.round(totalRetention * 100) / 100
+      total = Math.round((subtotal + totalVat - totalRetention) * 100) / 100
     }
 
     // Update invoice
@@ -290,6 +301,7 @@ export async function PUT(
           dueDate: dueDate ? new Date(dueDate) : (dueDate === null ? null : existing.dueDate),
           subtotal,
           totalVat,
+          retentionAmount: totalRetention,
           total,
           paymentMethodUsed: paymentMethodUsed !== undefined ? paymentMethodUsed : existing.paymentMethodUsed,
           notes: notes !== undefined ? notes : existing.notes,
@@ -341,9 +353,9 @@ export async function PUT(
           id: i.id,
           concept: i.concept,
           quantity: Number(i.quantity),
-          unitPrice: Number(i.unitPrice),
+          unitPrice: Math.round(Number(i.unitPrice) * 100) / 100,
           vatRate: Number(i.vatRate),
-          total: Number(i.total)
+          total: Math.round(Number(i.total) * 100) / 100
         }))
       }
     })

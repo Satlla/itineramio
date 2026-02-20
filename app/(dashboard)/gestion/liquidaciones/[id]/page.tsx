@@ -21,7 +21,8 @@ import {
   CreditCard,
   MoreVertical,
   Trash2,
-  AlertCircle
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react'
 import { Button, Card, CardContent, Badge } from '@/components/ui'
 import { AnimatedLoadingSpinner } from '@/components/ui/AnimatedLoadingSpinner'
@@ -131,6 +132,7 @@ export default function LiquidacionDetailPage() {
   const [creatingInvoice, setCreatingInvoice] = useState(false)
   const [sendingLink, setSendingLink] = useState(false)
   const [linkSent, setLinkSent] = useState<{ type: 'email' | 'whatsapp', url?: string } | null>(null)
+  const [recalculating, setRecalculating] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -217,6 +219,28 @@ export default function LiquidacionDetailPage() {
     } finally {
       setDeleting(false)
       setShowDeleteConfirm(false)
+    }
+  }
+
+  const handleRecalculate = async () => {
+    try {
+      setRecalculating(true)
+      const response = await fetch(`/api/gestion/liquidations/${params.id}/recalculate`, {
+        method: 'POST',
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        await fetchLiquidation()
+      } else {
+        const data = await response.json()
+        setError(data.error || 'Error al recalcular')
+      }
+    } catch (error) {
+      console.error('Error recalculating:', error)
+      setError('Error al recalcular la liquidación')
+    } finally {
+      setRecalculating(false)
     }
   }
 
@@ -471,6 +495,22 @@ export default function LiquidacionDetailPage() {
                 >
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Marcar como pagada
+                </Button>
+              )}
+
+              {liquidation.status === 'DRAFT' && (
+                <Button
+                  variant="outline"
+                  onClick={handleRecalculate}
+                  disabled={recalculating}
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                >
+                  {recalculating ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                  )}
+                  Recalcular
                 </Button>
               )}
 

@@ -357,19 +357,21 @@ export async function GET(request: NextRequest) {
           // Format dates: "15-18 ene" or "28 dic - 2 ene"
           const checkIn = new Date(r.checkIn)
           const checkOut = new Date(r.checkOut)
+          const shortMonths = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
           const sameMonth = checkIn.getMonth() === checkOut.getMonth()
           const dateRange = sameMonth
-            ? `${checkIn.getDate()}-${checkOut.getDate()} ${checkIn.toLocaleDateString('es-ES', { month: 'short' })}`
-            : `${checkIn.getDate()} ${checkIn.toLocaleDateString('es-ES', { month: 'short' })} - ${checkOut.getDate()} ${checkOut.toLocaleDateString('es-ES', { month: 'short' })}`
+            ? `${checkIn.getDate()}-${checkOut.getDate()} ${shortMonths[checkIn.getMonth()]}`
+            : `${checkIn.getDate()} ${shortMonths[checkIn.getMonth()]} - ${checkOut.getDate()} ${shortMonths[checkOut.getMonth()]}`
 
+          const roundedCommission = Math.round(commission * 100) / 100
           items.push({
             concept: `${r.guestName} · ${dateRange}`,
             description: null,
             quantity: 1,
-            unitPrice: commission,
+            unitPrice: roundedCommission,
             vatRate: commissionVat,
             retentionRate: retentionRate,
-            total: commission * (1 + commissionVat / 100),
+            total: Math.round(roundedCommission * (1 + commissionVat / 100) * 100) / 100,
             reservationId: r.id,
             order: index
           })
@@ -384,14 +386,14 @@ export async function GET(request: NextRequest) {
             const cleaningQuantity = reservations.length
             const cleaningTotalBase = Math.round(cleaningUnitBase * cleaningQuantity * 100) / 100
             const cleaningTotalWithVat = Math.round(cleaningTotalBase * 1.21 * 100) / 100
-            const cleaningRetention = cleaningTotalBase * (cleaningRetentionRate / 100)
+            const cleaningRetention = Math.round(cleaningTotalBase * (cleaningRetentionRate / 100) * 100) / 100
             items.push({
               concept: 'Limpieza',
               quantity: cleaningQuantity,
               unitPrice: cleaningUnitBase,
               vatRate: 21,
               retentionRate: cleaningRetentionRate,
-              total: cleaningTotalWithVat - cleaningRetention,
+              total: Math.round((cleaningTotalWithVat - cleaningRetention) * 100) / 100,
               order: items.length
             })
             totalCleaning = cleaningTotalBase
@@ -411,13 +413,14 @@ export async function GET(request: NextRequest) {
         const conceptText = billingConfig.singleConceptText || `Gestión apartamento turístico`
 
         if (totalCommission > 0) {
+          const roundedTotalCommission = Math.round(totalCommission * 100) / 100
           items.push({
             concept: `${conceptText} - ${getMonthName(month)} ${year}`,
             quantity: 1,
-            unitPrice: totalCommission,
+            unitPrice: roundedTotalCommission,
             vatRate: commissionVat,
             retentionRate: retentionRate,
-            total: totalCommission * (1 + commissionVat / 100),
+            total: Math.round(roundedTotalCommission * (1 + commissionVat / 100) * 100) / 100,
             order: 0
           })
         }
@@ -429,14 +432,14 @@ export async function GET(request: NextRequest) {
           const cleaningQuantity = reservations.length
           const cleaningTotalBase = Math.round(cleaningUnitBase * cleaningQuantity * 100) / 100
           const cleaningTotalWithVat = Math.round(cleaningTotalBase * 1.21 * 100) / 100
-          const cleaningRetention = cleaningTotalBase * (cleaningRetentionRate / 100)
+          const cleaningRetention = Math.round(cleaningTotalBase * (cleaningRetentionRate / 100) * 100) / 100
           items.push({
             concept: 'Limpieza',
             quantity: cleaningQuantity,
             unitPrice: cleaningUnitBase,
             vatRate: 21,
             retentionRate: cleaningRetentionRate,
-            total: cleaningTotalWithVat - cleaningRetention,
+            total: Math.round((cleaningTotalWithVat - cleaningRetention) * 100) / 100,
             order: 1
           })
           totalCleaning = cleaningTotalBase
@@ -483,32 +486,35 @@ export async function GET(request: NextRequest) {
         }
 
         // Recalculate VAT with standard rate for consistency
-        const standardVat = expenseAmount * (vatRate / 100)
+        const standardVat = Math.round(expenseAmount * (vatRate / 100) * 100) / 100
 
         items.push({
           concept: expense.concept + (expense.supplierName ? ` (${expense.supplierName})` : ''),
           description: expense.invoiceNumber ? `Factura: ${expense.invoiceNumber}` : null,
           quantity: 1,
-          unitPrice: expenseAmount,
+          unitPrice: Math.round(expenseAmount * 100) / 100,
           vatRate: vatRate,
           retentionRate: 0,
-          total: expenseAmount + standardVat,
+          total: Math.round((expenseAmount + standardVat) * 100) / 100,
           order: items.length
         })
       })
 
-      // Calculate totals
+      // Calculate totals (round each to avoid floating point accumulation)
       let subtotal = 0
       let totalVatAmount = 0
       let totalRetentionAmount = 0
 
       items.forEach(item => {
-        subtotal += item.unitPrice * item.quantity
-        totalVatAmount += item.unitPrice * item.quantity * (item.vatRate / 100)
-        totalRetentionAmount += item.unitPrice * item.quantity * (item.retentionRate / 100)
+        subtotal += Math.round(item.unitPrice * item.quantity * 100) / 100
+        totalVatAmount += Math.round(item.unitPrice * item.quantity * (item.vatRate / 100) * 100) / 100
+        totalRetentionAmount += Math.round(item.unitPrice * item.quantity * (item.retentionRate / 100) * 100) / 100
       })
 
-      const total = subtotal + totalVatAmount - totalRetentionAmount
+      subtotal = Math.round(subtotal * 100) / 100
+      totalVatAmount = Math.round(totalVatAmount * 100) / 100
+      totalRetentionAmount = Math.round(totalRetentionAmount * 100) / 100
+      const total = Math.round((subtotal + totalVatAmount - totalRetentionAmount) * 100) / 100
 
       // Create or update the draft invoice
       const invoiceInclude = {
@@ -668,10 +674,10 @@ export async function GET(request: NextRequest) {
           concept: i.concept,
           description: i.description,
           quantity: Number(i.quantity),
-          unitPrice: Number(i.unitPrice),
+          unitPrice: Math.round(Number(i.unitPrice) * 100) / 100,
           vatRate: Number(i.vatRate),
           retentionRate: Number(i.retentionRate),
-          total: Number(i.total),
+          total: Math.round(Number(i.total) * 100) / 100,
           reservationId: i.reservationId
         }))
       },

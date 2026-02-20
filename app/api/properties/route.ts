@@ -582,6 +582,18 @@ export async function GET(request: NextRequest) {
       timeSavedMap.set(row.propertyId, current + timeSaved)
     })
 
+    // Get chatbot conversation counts per property (current month)
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    const chatbotCounts = propertyIds.length > 0 ? await prisma.$queryRaw`
+      SELECT "propertyId", COUNT(*)::int as "count"
+      FROM chatbot_conversations
+      WHERE "propertyId" = ANY(${propertyIds})
+        AND "createdAt" >= ${monthStart}
+      GROUP BY "propertyId"
+    ` as Array<{ propertyId: string; count: number }> : []
+    const chatbotCountMap = new Map(chatbotCounts.map(c => [c.propertyId, c.count]))
+
     // Create lookup maps
     const zoneCountMap = new Map(zoneCounts.map(z => [z.propertyId, {
       zonesCount: Number(z.zonesCount),
@@ -621,6 +633,7 @@ export async function GET(request: NextRequest) {
           uniqueVisitors: stats.uniqueVisitors,
           whatsappClicks: stats.whatsappClicks,
           timeSavedMinutes, // Tiempo ahorrado basado en vistas de zonas (excluye host)
+          chatbotConversations: chatbotCountMap.get(property.id) || 0, // Conversaciones del chatbot este mes
           status: property.status,
           createdAt: property.createdAt,
           updatedAt: property.updatedAt,

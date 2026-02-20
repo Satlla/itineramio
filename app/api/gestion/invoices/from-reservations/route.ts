@@ -304,10 +304,10 @@ export async function POST(request: NextRequest) {
           concept: i.concept,
           description: i.description,
           quantity: Number(i.quantity),
-          unitPrice: Number(i.unitPrice),
+          unitPrice: Math.round(Number(i.unitPrice) * 100) / 100,
           vatRate: Number(i.vatRate),
           retentionRate: Number(i.retentionRate),
-          total: Number(i.total),
+          total: Math.round(Number(i.total) * 100) / 100,
           reservationId: i.reservationId
         })),
         reservationCount: reservations.length

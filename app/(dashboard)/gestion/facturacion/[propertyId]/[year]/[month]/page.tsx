@@ -118,6 +118,26 @@ const monthNames = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ]
 
+// Deterministic date formatter to avoid hydration mismatches
+// (toLocaleDateString produces different results on server vs client)
+function formatDateES(dateStr: string): string {
+  const d = new Date(dateStr)
+  const day = d.getUTCDate().toString().padStart(2, '0')
+  const month = (d.getUTCMonth() + 1).toString().padStart(2, '0')
+  const year = d.getUTCFullYear()
+  return `${day}/${month}/${year}`
+}
+
+function formatDateTimeES(dateStr: string): string {
+  const d = new Date(dateStr)
+  const day = d.getDate().toString().padStart(2, '0')
+  const month = (d.getMonth() + 1).toString().padStart(2, '0')
+  const year = d.getFullYear()
+  const hours = d.getHours().toString().padStart(2, '0')
+  const mins = d.getMinutes().toString().padStart(2, '0')
+  return `${day}/${month}/${year}, ${hours}:${mins}`
+}
+
 const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: any }> = {
   DRAFT: { label: 'Borrador', color: 'text-gray-600', bgColor: 'bg-gray-100', icon: Edit3 },
   PROFORMA: { label: 'Proforma', color: 'text-blue-600', bgColor: 'bg-blue-100', icon: FileText },
@@ -443,7 +463,7 @@ export default function MonthInvoicePage() {
 
     const itemTotal = quantity * unitPrice * (1 + vatRate / 100)
     const newItemComplete: InvoiceItem = {
-      id: `new-${Date.now()}`,
+      id: `new-${Math.random().toString(36).slice(2, 9)}`,
       concept: newItem.concept,
       quantity,
       unitPrice,
@@ -554,7 +574,12 @@ export default function MonthInvoicePage() {
   }
 
   const formatCurrency = (amount: number) => {
-    return amount.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '€'
+    // Manual formatting to avoid hydration mismatches from toLocaleString
+    const fixed = Math.abs(amount).toFixed(2)
+    const [intPart, decPart] = fixed.split('.')
+    // Add thousand separators with dot (ES format)
+    const withSeparators = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+    return (amount < 0 ? '-' : '') + withSeparators + ',' + decPart + '\u00A0€'
   }
 
   const formatIBAN = (iban: string) => {
@@ -658,9 +683,9 @@ export default function MonthInvoicePage() {
                     <div>
                       <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">FACTURA #{invoice.fullNumber || 'BORRADOR'}</p>
                       <div className="text-xs text-gray-500 space-y-0.5">
-                        <p>Fecha: {new Date(invoice.issueDate).toLocaleDateString('es-ES')}</p>
+                        <p>Fecha: {formatDateES(invoice.issueDate)}</p>
                         {invoice.dueDate && (
-                          <p>Vencimiento: {new Date(invoice.dueDate).toLocaleDateString('es-ES')}</p>
+                          <p>Vencimiento: {formatDateES(invoice.dueDate)}</p>
                         )}
                       </div>
                     </div>
@@ -813,12 +838,12 @@ export default function MonthInvoicePage() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500 text-sm">Fecha</span>
-                        <span className="text-sm">{new Date(invoice.issueDate).toLocaleDateString('es-ES')}</span>
+                        <span className="text-sm">{formatDateES(invoice.issueDate)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500 text-sm">Vencimiento</span>
                         <span className="text-sm text-gray-400">
-                          {invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('es-ES') : '-'}
+                          {invoice.dueDate ? formatDateES(invoice.dueDate) : '-'}
                         </span>
                       </div>
                     </div>
@@ -872,7 +897,7 @@ export default function MonthInvoicePage() {
                       <div className="text-sm">
                         <span className="text-gray-500">Fecha</span>
                         <p className="text-gray-900">
-                          {invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('es-ES') : 'No definido'}
+                          {invoice.dueDate ? formatDateES(invoice.dueDate) : 'No definido'}
                         </p>
                       </div>
                     </div>
@@ -946,8 +971,8 @@ export default function MonthInvoicePage() {
                         <p className="text-gray-900">Estado: {statusConfig.label}</p>
                         <p className="text-gray-500 text-xs">
                           {invoice.issuedAt
-                            ? new Date(invoice.issuedAt).toLocaleString('es-ES')
-                            : new Date(invoice.issueDate).toLocaleDateString('es-ES')}
+                            ? formatDateTimeES(invoice.issuedAt)
+                            : formatDateES(invoice.issueDate)}
                         </p>
                       </div>
                     </div>
@@ -957,7 +982,7 @@ export default function MonthInvoicePage() {
                         <div className="text-sm">
                           <p className="text-gray-900">Factura creada</p>
                           <p className="text-gray-500 text-xs">
-                            {new Date(invoice.issueDate).toLocaleDateString('es-ES')}
+                            {formatDateES(invoice.issueDate)}
                           </p>
                         </div>
                       </div>
@@ -1531,7 +1556,7 @@ export default function MonthInvoicePage() {
                           />
                         ) : (
                           <span className="font-medium text-gray-900">
-                            {new Date(invoice.issueDate).toLocaleDateString('es-ES')}
+                            {formatDateES(invoice.issueDate)}
                           </span>
                         )}
                       </div>
@@ -1547,7 +1572,7 @@ export default function MonthInvoicePage() {
                           />
                         ) : (
                           <span className="font-medium text-gray-900">
-                            {invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('es-ES') : '-'}
+                            {invoice.dueDate ? formatDateES(invoice.dueDate) : '-'}
                           </span>
                         )}
                       </div>

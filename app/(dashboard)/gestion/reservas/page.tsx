@@ -1378,7 +1378,7 @@ export default function ReservasPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Ingresos netos *
+                        Importe neto recibido *
                       </label>
                       <div className="relative">
                         <Euro className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -1392,7 +1392,7 @@ export default function ReservasPage() {
                           required
                         />
                       </div>
-                      <p className="mt-1 text-xs text-gray-500">Lo que recibes de la plataforma</p>
+                      <p className="mt-1 text-xs text-gray-500">Lo que te ingresa Airbnb/Booking (sin comisiones de plataforma)</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1724,7 +1724,8 @@ export default function ReservasPage() {
                     {/* Amounts */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Ingresos netos * (€)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Importe neto recibido * (€)</label>
+                        <p className="text-xs text-gray-500 mb-2">Lo que te ingresa la plataforma</p>
                         <input
                           type="number"
                           step="0.01"
