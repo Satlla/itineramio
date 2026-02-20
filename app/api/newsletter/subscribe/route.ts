@@ -2,12 +2,34 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import { sendEmail } from '../../../../src/lib/email-improved'
 import { randomBytes } from 'crypto'
+import { checkRateLimit, getRateLimitKey } from '../../../../src/lib/rate-limit'
+
+// Rate limit: 5 subscriptions per 10 minutes per IP
+const SUBSCRIBE_RATE_LIMIT = {
+  maxRequests: 5,
+  windowMs: 10 * 60 * 1000 // 10 minutes
+}
 
 // Lead magnets that should be sent immediately (no confirmation needed)
 const LEAD_MAGNET_SOURCES = ['blog-exit-popup', 'lead-magnet']
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting to prevent spam
+    const rateLimitKey = getRateLimitKey(request, null, 'newsletter-subscribe')
+    const rateLimitResult = checkRateLimit(rateLimitKey, SUBSCRIBE_RATE_LIMIT)
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json({
+        error: 'Demasiados intentos. Por favor, espera unos minutos.'
+      }, {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil(rateLimitResult.resetIn / 1000))
+        }
+      })
+    }
+
     const body = await request.json()
     const { name, email, source = 'unknown', tags = [] } = body
 

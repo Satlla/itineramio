@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import { EmailVerificationService } from '../../../../src/lib/auth-email'
 import { z } from 'zod'
+import { checkRateLimit, getRateLimitKey } from '../../../../src/lib/rate-limit'
+
+// Strict rate limit: 3 resend attempts per 10 minutes per IP
+const RESEND_RATE_LIMIT = {
+  maxRequests: 3,
+  windowMs: 10 * 60 * 1000 // 10 minutes
+}
 
 const resendSchema = z.object({
   email: z.string().email('Email inválido')
@@ -9,6 +16,21 @@ const resendSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting to prevent email spam
+    const rateLimitKey = getRateLimitKey(request, null, 'resend-verification')
+    const rateLimitResult = checkRateLimit(rateLimitKey, RESEND_RATE_LIMIT)
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json({
+        error: 'Demasiados intentos. Por favor, espera unos minutos antes de solicitar otro email.'
+      }, {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil(rateLimitResult.resetIn / 1000))
+        }
+      })
+    }
+
     console.log('📧 RESEND VERIFICATION - Starting')
     const body = await request.json()
     
