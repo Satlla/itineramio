@@ -3,7 +3,14 @@ import { prisma } from '../../../../src/lib/prisma'
 import { sendLeadMagnetEmail, sendPricingAnalysisEmail } from '../../../../src/lib/resend'
 import { LEAD_MAGNETS, type LeadMagnetArchetype } from '../../../../src/data/lead-magnets'
 import { enrollSubscriberInSequences } from '../../../../src/lib/email-sequences'
+import { checkRateLimit, getRateLimitKey } from '../../../../src/lib/rate-limit'
 // Dynamic import for PDF generator to avoid issues with jsPDF in serverless environment
+
+// Rate limit: 10 leads per 10 minutes per IP
+const LEAD_RATE_LIMIT = {
+  maxRequests: 10,
+  windowMs: 10 * 60 * 1000 // 10 minutes
+}
 
 // Map source to lead magnet info for email
 const SOURCE_TO_LEAD_MAGNET: Record<string, {
@@ -60,6 +67,21 @@ const SOURCE_DISPLAY_NAMES: Record<string, string> = {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting to prevent spam
+    const rateLimitKey = getRateLimitKey(request, null, 'lead-capture')
+    const rateLimitResult = checkRateLimit(rateLimitKey, LEAD_RATE_LIMIT)
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json({
+        error: 'Too many requests. Please try again later.'
+      }, {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil(rateLimitResult.resetIn / 1000))
+        }
+      })
+    }
+
     const body = await request.json()
     const { name, email, source, metadata } = body
 

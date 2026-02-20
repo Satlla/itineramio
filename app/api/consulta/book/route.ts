@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Resend } from 'resend'
 import { updateLeadWithVideoCall } from '@/lib/unified-lead'
+import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
+
+// Rate limit: 3 bookings per hour per IP
+const BOOKING_RATE_LIMIT = {
+  maxRequests: 3,
+  windowMs: 60 * 60 * 1000 // 1 hour
+}
 
 // Lazy initialization to avoid build errors when RESEND_API_KEY is not set
 let _resend: Resend | null = null
@@ -25,6 +32,21 @@ interface BookingRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting to prevent spam bookings
+    const rateLimitKey = getRateLimitKey(request, null, 'consultation-book')
+    const rateLimitResult = checkRateLimit(rateLimitKey, BOOKING_RATE_LIMIT)
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json({
+        error: 'Demasiados intentos. Por favor, espera antes de volver a intentar.'
+      }, {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil(rateLimitResult.resetIn / 1000))
+        }
+      })
+    }
+
     const body: BookingRequest = await request.json()
 
     // Validate required fields
