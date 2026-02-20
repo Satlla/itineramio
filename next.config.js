@@ -133,6 +133,20 @@ const nextConfig = {
       {
         key: 'Permissions-Policy',
         value: 'camera=(), microphone=(), geolocation=()'
+      },
+      // CSP in report-only mode - monitors but doesn't block
+      // Check browser console for violations to tune the policy
+      {
+        key: 'Content-Security-Policy-Report-Only',
+        value: [
+          "default-src 'self'",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://maps.googleapis.com",
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+          "font-src 'self' https://fonts.gstatic.com",
+          "img-src 'self' data: blob: https://*.blob.vercel-storage.com https://*.public.blob.vercel-storage.com https://images.unsplash.com https://www.google-analytics.com https://www.facebook.com https://www.googletagmanager.com",
+          "connect-src 'self' https://www.google-analytics.com https://maps.googleapis.com https://www.facebook.com https://region1.google-analytics.com",
+          "frame-src 'self' https://www.googletagmanager.com https://www.youtube.com https://player.vimeo.com"
+        ].join('; ')
       }
     ]
 
