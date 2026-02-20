@@ -99,22 +99,15 @@ export async function POST(request: NextRequest) {
       role: targetUser.role
     }
 
-    console.log('🎫 Generando token para usuario con payload:', tokenPayload)
-
     const userToken = signToken(tokenPayload)
-
-    console.log('✅ Token generado exitosamente, longitud:', userToken.length)
-    console.log('🔑 Primeros 50 chars del token:', userToken.substring(0, 50))
 
     // Establecer cookie con el token del usuario
     const cookieStore = await cookies()
 
     // IMPORTANTE: Primero eliminar la cookie existente de admin
-    console.log('🗑️ Eliminando cookie auth-token existente')
     cookieStore.delete('auth-token')
 
     // Ahora establecer la nueva cookie del usuario
-    console.log('🍪 Estableciendo nueva cookie auth-token para usuario:', targetUser.email)
     cookieStore.set('auth-token', userToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -122,8 +115,6 @@ export async function POST(request: NextRequest) {
       path: '/',
       maxAge: 60 * 60 * 24 // 24 horas
     })
-
-    console.log('✅ Cookie auth-token establecida exitosamente')
 
     // Guardar información de impersonation en cookie separada
     cookieStore.set('admin-impersonation', JSON.stringify({
@@ -142,8 +133,7 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 // 24 horas
     })
 
-    console.log(`✅ Admin ${admin.email} comenzó a suplantar a usuario ${targetUser.email}`)
-    console.log(`🔑 Token generado para ${targetUser.email}`)
+    console.log(`✅ Admin ${admin.email} impersonating ${targetUser.email}`)
 
     return NextResponse.json({
       success: true,

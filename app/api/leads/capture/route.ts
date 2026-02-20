@@ -319,11 +319,15 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Optional: GET endpoint to retrieve leads (admin only)
+// GET endpoint to retrieve leads (admin only)
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Add authentication check here
-    // For now, return basic stats
+    // Require admin authentication
+    const { requireAdminAuth } = await import('../../../../src/lib/admin-auth')
+    const authResult = await requireAdminAuth(request)
+    if (authResult instanceof Response) {
+      return authResult
+    }
 
     const searchParams = request.nextUrl.searchParams
     const source = searchParams.get('source')

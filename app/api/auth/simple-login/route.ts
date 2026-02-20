@@ -81,10 +81,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check password
-    console.log('🔒 Checking password...')
     const validPassword = await bcrypt.compare(password, user.password)
-    console.log('✅ Password valid:', validPassword)
-    
+
     if (!validPassword) {
       return NextResponse.json({ 
         success: false,
@@ -94,8 +92,6 @@ export async function POST(request: NextRequest) {
 
     // Create token using centralized auth (always 30d, cookie manages shorter sessions)
     const token = signToken({ userId: user.id, email: user.email, role: 'HOST' })
-
-    console.log('🔑 Token created with centralized auth')
 
     // Create response
     const response = NextResponse.json({
