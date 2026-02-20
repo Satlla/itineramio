@@ -28,19 +28,21 @@ import {
  * Ejecutar cada hora con Vercel Cron
  */
 
-const CRON_SECRET = process.env.CRON_SECRET || 'dev-secret-change-in-production'
+const CRON_SECRET = process.env.CRON_SECRET
 
 // Helper para calcular hace cuántos días
 const daysAgo = (days: number) => new Date(Date.now() - days * 24 * 60 * 60 * 1000)
 
 export async function GET(request: NextRequest) {
   // Verificar autorizacion
+  if (!CRON_SECRET) {
+    console.error('CRON_SECRET not configured')
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
+  }
+
   const authHeader = request.headers.get('authorization')
   if (authHeader !== `Bearer ${CRON_SECRET}`) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const results = {

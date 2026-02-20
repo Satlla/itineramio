@@ -20,16 +20,19 @@ import {
  * */
 
 // API endpoint debe estar protegido con un token para que solo Vercel/cron pueda ejecutarlo
-const CRON_SECRET = process.env.CRON_SECRET || 'dev-secret-change-in-production'
+const CRON_SECRET = process.env.CRON_SECRET
 
 export async function GET(request: NextRequest) {
+  // In production, CRON_SECRET must be set
+  if (!CRON_SECRET) {
+    console.error('CRON_SECRET not configured')
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
+  }
+
   // Verificar autorización
   const authHeader = request.headers.get('authorization')
   if (authHeader !== `Bearer ${CRON_SECRET}`) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const results = {

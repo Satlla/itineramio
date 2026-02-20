@@ -11,16 +11,16 @@ export async function GET(req: NextRequest) {
 
     // Verificar autorización (Vercel Cron incluye header especial)
     const authHeader = req.headers.get('authorization')
-    const cronSecret = process.env.CRON_SECRET || 'dev-secret'
-    const isDev = process.env.NODE_ENV !== 'production'
+    const cronSecret = process.env.CRON_SECRET
 
-    // Allow dev testing without auth
-    if (!isDev && authHeader !== `Bearer ${cronSecret}`) {
+    if (!cronSecret) {
+      console.error('[CRON] CRON_SECRET not configured')
+      return NextResponse.json({ success: false, error: 'Server misconfigured' }, { status: 500 })
+    }
+
+    if (authHeader !== `Bearer ${cronSecret}`) {
       console.error('[CRON] Unauthorized request')
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // Procesar emails programados

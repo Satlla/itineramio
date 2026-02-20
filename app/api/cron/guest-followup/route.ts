@@ -10,16 +10,18 @@ import { GuestFollowupEmail, getFollowupSubject } from '@/emails/templates/guest
  * Schedule: diario a las 10:00 UTC
  */
 
-const CRON_SECRET = process.env.CRON_SECRET || 'dev-secret-change-in-production'
+const CRON_SECRET = process.env.CRON_SECRET
 
 export async function GET(request: NextRequest) {
   // Verificar autorización
+  if (!CRON_SECRET) {
+    console.error('CRON_SECRET not configured')
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
+  }
+
   const authHeader = request.headers.get('authorization')
   if (authHeader !== `Bearer ${CRON_SECRET}`) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
