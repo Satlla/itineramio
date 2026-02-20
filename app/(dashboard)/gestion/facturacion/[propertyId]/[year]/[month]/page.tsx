@@ -176,6 +176,7 @@ export default function MonthInvoicePage() {
   const [singleConceptText, setSingleConceptText] = useState('Gestión apartamento turístico')
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const [resetting, setResetting] = useState(false)
+  const [editingCell, setEditingCell] = useState<string | null>(null) // 'itemId-field' format
   const [newItem, setNewItem] = useState({
     concept: '',
     quantity: '' as string | number,
@@ -1737,10 +1738,11 @@ export default function MonthInvoicePage() {
                           )}
                         </div>
                         <div className="col-span-2 text-right">
-                          {isEditable ? (
+                          {isEditable && editingCell === `${item.id}-price` ? (
                             <input
                               type="text"
                               inputMode="decimal"
+                              autoFocus
                               value={item.unitPrice}
                               onChange={(e) => {
                                 const val = e.target.value
@@ -1751,11 +1753,18 @@ export default function MonthInvoicePage() {
                               onBlur={(e) => {
                                 const val = parseFloat(e.target.value) || 0
                                 updateItem(item.id, { unitPrice: Math.round(val * 100) / 100 })
+                                setEditingCell(null)
                               }}
+                              onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
                               className="w-full text-sm border border-gray-200 rounded px-2 py-1 text-right focus:ring-1 focus:ring-violet-500"
                             />
                           ) : (
-                            <span className="text-sm">{formatCurrency(item.unitPrice)}</span>
+                            <span
+                              className={`text-sm ${isEditable ? 'cursor-pointer hover:text-violet-600' : ''}`}
+                              onClick={() => isEditable && setEditingCell(`${item.id}-price`)}
+                            >
+                              {formatCurrency(item.unitPrice)}
+                            </span>
                           )}
                         </div>
                         <div className="col-span-1 text-center">
