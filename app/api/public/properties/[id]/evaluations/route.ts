@@ -9,11 +9,12 @@ export async function GET(
   try {
     const { id } = await params
 
-    // Get property to check if it exists and is active
+    // Get property to check if it exists, is active, and is published
     const property = await prisma.property.findFirst({
       where: {
         id,
         status: 'ACTIVE',
+        isPublished: true,
         deletedAt: null
       },
       select: {
@@ -25,7 +26,7 @@ export async function GET(
     if (!property) {
       return NextResponse.json({
         success: false,
-        error: 'Propiedad no encontrada o no está activa'
+        error: 'Propiedad no encontrada o no publicada'
       }, { status: 404 })
     }
 

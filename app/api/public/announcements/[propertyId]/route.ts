@@ -17,6 +17,24 @@ export async function GET(
       )
     }
 
+    // Verify property is published before showing announcements
+    const property = await prisma.property.findFirst({
+      where: {
+        id: propertyId,
+        isPublished: true,
+        status: 'ACTIVE',
+        deletedAt: null
+      },
+      select: { id: true }
+    })
+
+    if (!property) {
+      return NextResponse.json({
+        success: true,
+        data: []
+      })
+    }
+
     // Get active announcements for the property (max 5)
     let announcements: any[] = []
     
