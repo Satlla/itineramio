@@ -49,6 +49,7 @@ import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLo
 import { getZoneIconByName } from '../../../../src/data/zoneIconsExtended'
 import { ShareLanguageModal } from '../../../../src/components/ui/ShareLanguageModal'
 import ChatBot from '../../../../src/components/ui/ChatBot'
+import DemoCountdownBanner from '../../../../src/components/ui/DemoCountdownBanner'
 
 interface Property {
   id: string
@@ -542,6 +543,25 @@ export default function PropertyGuidePage() {
   const [showShareModal, setShowShareModal] = useState(false)
   const [showScrollArrow, setShowScrollArrow] = useState(true)
 
+  // Demo mode state
+  const [isDemoMode, setIsDemoMode] = useState(false)
+  const [demoCouponCode, setDemoCouponCode] = useState('')
+  const [demoExpiresAt, setDemoExpiresAt] = useState('')
+  const [demoEmail, setDemoEmail] = useState('')
+  const [demoName, setDemoName] = useState('')
+
+  // Detect demo mode from query params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('demo') === '1') {
+      setIsDemoMode(true)
+      setDemoCouponCode(urlParams.get('coupon') || '')
+      setDemoExpiresAt(urlParams.get('expires') || '')
+      setDemoEmail(urlParams.get('email') || '')
+      setDemoName(urlParams.get('name') || '')
+    }
+  }, [])
+
   // Detectar scroll para ocultar la flecha cuando llegue a las zonas
   useEffect(() => {
     const handleScroll = () => {
@@ -865,8 +885,8 @@ export default function PropertyGuidePage() {
     )
   }
 
-  // Verificar si la propiedad está activa
-  if (property.status !== 'ACTIVE' || !property.isPublished) {
+  // Verificar si la propiedad está activa (skip for demo mode)
+  if (!isDemoMode && (property.status !== 'ACTIVE' || !property.isPublished)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
         <div className="text-center max-w-md mx-auto">
@@ -915,6 +935,16 @@ export default function PropertyGuidePage() {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+      {/* Demo countdown banner */}
+      {isDemoMode && demoExpiresAt && demoCouponCode && (
+        <DemoCountdownBanner
+          expiresAt={demoExpiresAt}
+          couponCode={demoCouponCode}
+          leadEmail={demoEmail}
+          leadName={demoName}
+        />
+      )}
+
       {/* Airbnb-style Minimal Header */}
       <header className={`sticky z-50 backdrop-blur-sm border-b transition-colors duration-300 pwa-sticky-header ${
         darkMode ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-100'

@@ -27,3 +27,11 @@ BACKUPS/
 *.sql
 !prisma/migrations/**/*.sql
 .env*
+
+# Scripts de utilidad / datos privados de clientes
+scripts/
+
+# Documentos internos / análisis
+FIVERR_REQUIREMENTS.md
+GESTION_ANALYSIS_REPORT.md
+ITINERAMIO_FEATURE_MAP.csv
